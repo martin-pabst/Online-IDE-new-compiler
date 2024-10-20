@@ -174,10 +174,6 @@ export class Scheduler {
                             return SchedulerExitState.nothingMoreToDo;
                         }
                         break;
-                    case ThreadState.stoppedAtBreakpoint:
-                        currentThread.state = ThreadState.runnable;
-                        this.interpreter.pause();
-                        break;
                     case ThreadState.immediatelyAfterReplStatement:
                         if (currentThread.programStack.length == 0) {
                             this.runningThreads.splice(this.runningThreads.indexOf(currentThread), 1);
@@ -213,6 +209,9 @@ export class Scheduler {
             case SchedulerState.running:
                 this.timeStampProgramStarted = performance.now();
                 this.stepCountSinceStartOfProgram = 0;
+                break;
+            case SchedulerState.paused:
+                // this.interpreter.pause()
                 break;
             case SchedulerState.stopped:
             case SchedulerState.error:
@@ -251,21 +250,8 @@ export class Scheduler {
         this.suspendedThreads.length = 0;
     }
 
-    private ifBreakpointPresentDisableOnce() {
-        let currentThread = this.runningThreads[this.currentThreadIndex];
-        let programState = currentThread.currentProgramState;
-        if (currentThread) {
-            let currentStep = programState.currentStepList[programState.stepIndex];
-            if (currentStep.isBreakpoint()) {
-                currentThread.haltAtNextBreakpoint = false;
-            }
-        }
-    }
-
     runSingleStepKeepingThread(stepInto: boolean, callback: () => void) {
         this.keepThread = true;
-
-        this.ifBreakpointPresentDisableOnce();
 
         let thread = this.getCurrentThread();
         if (thread == null) return;
