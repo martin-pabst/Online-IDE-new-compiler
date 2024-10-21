@@ -16,6 +16,7 @@ import { ExceptionPrinter } from "./ExceptionPrinter.ts";
 import { Program, Step } from "./Program";
 import { ProgramState } from "./ProgramState.ts";
 import { Scheduler } from "./Scheduler";
+import { SchedulerState } from "./SchedulerState.ts";
 import { CallbackFunction, KlassObjectRegistry } from "./StepFunction.ts";
 import { SystemException } from "./SystemException.ts";
 import { ThreadState } from "./ThreadState.ts";
@@ -43,8 +44,6 @@ export class Thread {
 
     stepEndsWhenProgramstackLengthLowerOrEqual: number = -1;
     stepEndsWhenStepIndexIsNotEqualTo: number = Number.MAX_SAFE_INTEGER;
-
-    haltAtNextBreakpoint: boolean = true;
 
     stepCallback!: () => void;
 
@@ -92,7 +91,7 @@ export class Thread {
 
         try {
             //@ts-ignore
-            while (this.numberOfSteps < maxNumberOfSteps && this.state == ThreadState.runnable) {
+            while (this.numberOfSteps < maxNumberOfSteps && this.state === ThreadState.runnable) {
                 // For performance reasons: store all necessary data in local variables
                 currentProgramState = this.currentProgramState;
                 stepIndex = currentProgramState.stepIndex;
@@ -101,8 +100,7 @@ export class Thread {
 
                 if (this.stepEndsWhenProgramstackLengthLowerOrEqual >= 0) {
                     // singlestep-mode (slower...)
-                    while (this.numberOfSteps < maxNumberOfSteps &&
-                        this.state == ThreadState.runnable && !this.isSingleStepCompleted()) {
+                    while (this.numberOfSteps < maxNumberOfSteps && this.state === ThreadState.runnable) {
                         step = currentStepList[stepIndex];
 
                         /**
@@ -121,6 +119,10 @@ export class Thread {
                         this.currentProgramState.stepIndex = stepIndex;
                         this.numberOfSteps++;
                         this.lastRange = step.range as IRange;
+
+                        if (this.scheduler.state === SchedulerState.paused) {
+                            break;
+                        }
                     }
                     if (this.isSingleStepCompleted()) {
                         if (currentProgramState) currentProgramState.lastExecutedStep = step!;
@@ -130,7 +132,7 @@ export class Thread {
 
                 } else {
                     // not in singlestep-mode (faster!)
-                    while (this.numberOfSteps < maxNumberOfSteps && this.state == ThreadState.runnable) {
+                    while (this.numberOfSteps < maxNumberOfSteps && this.state === ThreadState.runnable) {
                         step = currentStepList[stepIndex];
 
                         /**
@@ -155,6 +157,10 @@ export class Thread {
                         }
 
                         this.numberOfSteps++;
+
+                        if (this.scheduler.state === SchedulerState.paused) {
+                            break;
+                        }
                     }
                 }
 
@@ -163,6 +169,10 @@ export class Thread {
                 // this.currentProgram might by now not be the same as before this inner while-loop
                 // because callMethod or returnFromMethod may have been called since from within 
                 // step.run
+
+                if (this.scheduler.state === SchedulerState.paused) {
+                    break;
+                }
             }
 
             if (currentProgramState) currentProgramState.lastExecutedStep = step!;
@@ -175,7 +185,7 @@ export class Thread {
             } else {
                 this.handleSystemException(exception, step!, currentProgramState);
             }
-            
+
         }
 
         return { state: this._state, stepsExecuted: this.numberOfSteps }
