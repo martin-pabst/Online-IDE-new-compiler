@@ -68,6 +68,7 @@ import { ConsoleClass } from "./additional/ConsoleClass.ts";
 import { FilesClass } from "./additional/FilesClass.ts";
 import { GamepadClass } from "./additional/GamepadClass.ts";
 import { InputClass } from "./additional/InputClass.ts";
+import { JavaScriptClass } from "./additional/JavaScriptClass.ts";
 import { KeyClass } from "./additional/KeyClass.ts";
 import { KeyListenerInterface } from "./additional/KeyListenerInterface.ts";
 import { MathToolsClass } from "./additional/MathToolsClass.ts";
@@ -246,6 +247,8 @@ export class SystemModule extends JavaLibraryModule {
             // Robot
             RobotClass, RobotWorldClass,
 
+            // JavaScript
+            JavaScriptClass
         );
 
 
