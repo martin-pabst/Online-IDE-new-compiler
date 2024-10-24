@@ -3,7 +3,7 @@ import { SoundTools } from '../../../tools/SoundTools';
 
 export type ButtonToggler = (state: boolean) => void;
 
-export type Action = (name: string, buttonToggler?: ButtonToggler, pressed_key?: string) => void;
+export type Action = (name: string, buttonToggler?: ButtonToggler, pressed_key?: string, ...args: any[]) => void;
 
 export type ActionEntry = {
     text?: string,
@@ -40,10 +40,10 @@ export class ActionManager {
 
     }
 
-    trigger(actionIdentifier: string) {
+    trigger(actionIdentifier: string, ...args: any[]) {
         let ae = this.actions[actionIdentifier];
         if(ae != null){
-            ae.action(actionIdentifier, undefined, "");
+            ae.action(actionIdentifier, undefined, "", ...args);
         }
     }
 

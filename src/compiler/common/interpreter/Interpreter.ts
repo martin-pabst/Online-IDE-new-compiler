@@ -1,3 +1,4 @@
+import { ProgramState } from './ProgramState';
 import { ActorManager } from "../../java/runtime/graphics/ActorManager.ts";
 import { IWorld } from "../../java/runtime/graphics/IWorld.ts";
 import { IAssertionObserver } from "../../java/runtime/unittests/IAssertionObserver.ts";
@@ -7,7 +8,7 @@ import { Executable } from "../Executable.ts";
 import { IMain } from "../IMain.ts";
 import { Module } from "../module/Module.ts";
 import { ProgramPointerManager, ProgramPointerPositionInfo } from "../monacoproviders/ProgramPointerManager.ts";
-import { ActionManager } from "./ActionManager.ts";
+import { ActionManager, ButtonToggler } from "./ActionManager.ts";
 import { CodeReachedAssertions } from "./CodeReachedAssertions.ts";
 import { EventManager } from "./EventManager";
 import { ExceptionMarker } from "./ExceptionMarker.ts";
@@ -233,6 +234,16 @@ export class Interpreter {
         this._debugger?.showCurrentThreadState();
     }
 
+    goto(lineNo: number) {
+        const thread = this.scheduler.getCurrentThread()
+        const programState = thread.currentProgramState
+
+        const stepNo = programState.currentStepList.find(s => s.range.startLineNumber >= lineNo).index
+        programState.stepIndex = stepNo
+
+        this.showProgramPointer(this.scheduler.getNextStepPosition(thread));
+    }
+
     stop(restart: boolean) {
 
         this.hideProgrampointerPosition();
@@ -353,6 +364,11 @@ export class Interpreter {
                 this.stop(true);
             }, "Neu starten");
 
+        this.actionManager.registerAction("interpreter.goto", [],
+            (name: string, buttonToggler?: ButtonToggler, pressed_key?: string, ...args: any[]) => {
+                const lineNo = args[0]
+                this.goto(lineNo)
+            }, "Goto");
     }
 
     executableHasTests(): boolean {
