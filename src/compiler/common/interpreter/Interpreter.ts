@@ -23,6 +23,7 @@ import { SchedulerState } from "./SchedulerState.ts";
 import { Thread } from "./Thread.ts";
 import { ThreadState } from "./ThreadState.ts";
 import { InterpreterMessages } from './InterpreterMessages.ts';
+import { hotCodeCompileAndReplace } from './HotCodeReplacement.ts';
 
 
 type InterpreterEvents = "stop" | "done" | "resetRuntime" | "stateChanged" |
@@ -102,17 +103,24 @@ export class Interpreter {
         this.loadController = new LoadController(this.scheduler, this);
         this.initTimer();
         this.setStepsPerSecond(1e8, true);
-        this.setState(SchedulerState.not_initialized);
+        this.setState(SchedulerState.stopped);
     }
 
     setExecutable(executable: Executable | undefined) {
         if (!executable) return;
+
+        if (this.executable && this.scheduler.state === SchedulerState.paused) {
+            this.executable = executable
+            hotCodeCompileAndReplace(this, executable)
+            return
+        }
+
         this.executable = executable;
         // if (executable.mainModule || executable.hasTests()) {
         executable.compileToJavascript();
         if (executable.isCompiledToJavascript) {
             this.init(executable);
-            this.setState(SchedulerState.stopped);
+            // this.setState(SchedulerState.stopped);
             this.eventManager.fire("afterExcecutableInitialized", executable);
         } else {
             this.setState(SchedulerState.not_initialized);
@@ -488,7 +496,7 @@ export class Interpreter {
         // }
 
 
-        this.setState(SchedulerState.stopped);
+        // FJFTODO this.setState(SchedulerState.stopped);
         this.mainThread = this.scheduler.init(executable);
 
         if (this.mainThread) {

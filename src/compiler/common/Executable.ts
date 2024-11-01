@@ -37,7 +37,7 @@ export class Executable {
 
         this.findMainModule(false, lastOpenedFile, currentlyOpenedModule);
 
-        this.setupStaticInitializationSequence(globalErrors);
+        this.#setupStaticInitializationSequence(globalErrors);
 
     }
 
@@ -49,7 +49,7 @@ export class Executable {
         }
     }
 
-    setupStaticInitializationSequence(errors: Error[]) {
+    #setupStaticInitializationSequence(errors: Error[]) {
         let classesToInitialize: NonPrimitiveType[] = [];
 
         this.staticInitializationSequence = [];

@@ -13,6 +13,7 @@ import { ArrayToStringCaster, TextContainer } from "./ArrayToStringCaster.ts";
 import { CallbackParameter } from "./CallbackParameter.ts";
 import { CatchBlockInfo, Exception, ExceptionInfo } from "./ExceptionInfo.ts";
 import { ExceptionPrinter } from "./ExceptionPrinter.ts";
+import { hotCodeReplaceLookupProgram } from "./HotCodeReplacement.ts";
 import { Program, Step } from "./Program";
 import { ProgramState } from "./ProgramState.ts";
 import { Scheduler } from "./Scheduler";
@@ -458,12 +459,19 @@ export class Thread {
 
     }
 
+    pushMethod(methodIdentifierWithClass, callback: CallbackFunction, ...thisObjectsAndparameters) {
+        const program = hotCodeReplaceLookupProgram(this.scheduler.interpreter.executable, methodIdentifierWithClass)
+        this.s.push(...thisObjectsAndparameters);
+        this.pushProgram(program, callback)
+    }
 
     /**
      * call a java method which is executed by this thread
      * @param program
      */
     pushProgram(program: Program, callback?: CallbackFunction) {
+        // program = hotCodeReplaceLookupProgram(this.scheduler.interpreter.executable, program.methodIdentifierWithClass)
+
         // Object creation is faster than Object.assign, see
         // https://measurethat.net/Benchmarks/Show/18401/0/objectassign-vs-creating-new-objects3
         let state: ProgramState = {

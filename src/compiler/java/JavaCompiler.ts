@@ -82,7 +82,7 @@ export class JavaCompiler implements Compiler {
 
         // if we're not in test mode:
         if (this.main) {
-            if (this.main.getInterpreter().isRunningOrPaused()) return;
+//FJFTODO            if (this.main.getInterpreter().isRunningOrPaused()) return;
             let currentWorkspace = this.main?.getCurrentWorkspace();
             if (!currentWorkspace) return;
             this.moduleManager.workspace = currentWorkspace;
