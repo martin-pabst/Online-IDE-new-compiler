@@ -5,7 +5,7 @@ import { Klass, StepFunction, StepParams } from "./StepFunction.ts";
 import { CodePrinter } from "../../java/codegenerator/CodePrinter.ts";
 import { CatchBlockInfo } from "./ExceptionInfo.ts";
 import { Thread } from "./Thread.ts";
-import { ThreadState } from "./ThreadState.ts";
+import { SchedulerState } from "./SchedulerState.ts";
 import chalk from "chalk";
 import { getLine, threeDez } from "../../../tools/StringTools.ts";
 
@@ -39,15 +39,12 @@ export class Step {
     }
 
     setBreakpoint() {
-
-        let breakpointRunFunction = (thread: Thread, stack: any[], stackBase: number): number => {
-            if (thread.haltAtNextBreakpoint) {
-                thread.state = ThreadState.stoppedAtBreakpoint;
-                thread.haltAtNextBreakpoint = false;
-                return this.index;
+        const breakpointRunFunction = (thread: Thread, stack: any[], stackBase: number): number => {
+            if (thread.scheduler.state !== SchedulerState.paused) {
+                thread.scheduler.setState(SchedulerState.paused)
+                return this.index
             } else {
-                thread.haltAtNextBreakpoint = true;
-                return this.originalRun!(thread, stack, stackBase);
+                return this.originalRun!(thread, stack, stackBase)
             }
         }
 

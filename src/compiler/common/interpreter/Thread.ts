@@ -16,6 +16,7 @@ import { ExceptionPrinter } from "./ExceptionPrinter.ts";
 import { Program, Step } from "./Program";
 import { ProgramState } from "./ProgramState.ts";
 import { Scheduler } from "./Scheduler";
+import { SchedulerState } from "./SchedulerState.ts";
 import { CallbackFunction, KlassObjectRegistry } from "./StepFunction.ts";
 import { SystemException } from "./SystemException.ts";
 import { ThreadState } from "./ThreadState.ts";
@@ -43,8 +44,6 @@ export class Thread {
 
     stepEndsWhenProgramstackLengthLowerOrEqual: number = -1;
     stepEndsWhenStepIndexIsNotEqualTo: number = Number.MAX_SAFE_INTEGER;
-
-    haltAtNextBreakpoint: boolean = true;
 
     stepCallback!: () => void;
 
@@ -123,6 +122,10 @@ export class Thread {
                         this.currentProgramState.stepIndex = stepIndex;
                         this.numberOfSteps++;
                         this.lastRange = step.range as IRange;
+
+                        if (this.scheduler.state === SchedulerState.paused) {
+                            break;
+                        }
                     }
                     if (this.isSingleStepCompleted()) {
                         if (currentProgramState) currentProgramState.lastExecutedStep = step!;
@@ -157,6 +160,10 @@ export class Thread {
                         }
 
                         this.numberOfSteps++;
+
+                        if (this.scheduler.state === SchedulerState.paused) {
+                            break;
+                        }
                     }
                 }
 
@@ -165,6 +172,10 @@ export class Thread {
                 // this.currentProgram might by now not be the same as before this inner while-loop
                 // because callMethod or returnFromMethod may have been called since from within
                 // step.run
+
+                if (this.scheduler.state === SchedulerState.paused) {
+                    break;
+                }
             }
 
             if (currentProgramState) currentProgramState.lastExecutedStep = step!;
