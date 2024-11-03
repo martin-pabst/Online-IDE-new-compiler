@@ -1112,37 +1112,31 @@ body .monaco-editor-hover .monaco-tokenized-source {
     background-color: #580000;
 }
 
+.jo_margin_breakpoint, .line-numbers:hover::before, .line-numbers:active::before {
+    width: var(--breakpoint-size) !important;
+    height: var(--breakpoint-size) !important;
+    border-radius: var(--breakpoint-radius);
 
+    /* https://www.w3schools.com/css/css_align.asp */
+    top: 50%;
+    left: 0;
+    transform: translate(50%, -50%)
+}
 
 .jo_margin_breakpoint {
     background: var(--margin-breakpoint-active);
-    width: var(--breakpoint-size) !important;
-    height: var(--breakpoint-size) !important;
-    left: 1px !important;
-    top: 3px;
-    border-radius: var(--breakpoint-radius);
 }
 
 .line-numbers:hover::before {
     content: "";
     position: absolute;
     background: var(--margin-breakpoint);
-    width: var(--breakpoint-size) !important;
-    height: var(--breakpoint-size) !important;
-    left: 1px !important;
-    top: 3px;
-    border-radius: var(--breakpoint-radius);
 }
 
 .line-numbers:active::before {
     content: "";
     position: absolute;
     background: var(--margin-breakpoint-mousedown);
-    width: var(--breakpoint-size) !important;
-    height: var(--breakpoint-size) !important;
-    left: 1px !important;
-    top: 3px;
-    border-radius: var(--breakpoint-radius);
 }
 
 .jo_start-test-button {
