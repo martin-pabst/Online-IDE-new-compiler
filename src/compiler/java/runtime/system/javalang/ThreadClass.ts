@@ -18,7 +18,6 @@ export class ThreadStateClass extends EnumClass {
     static values: ThreadStateClass[] = [
     new ThreadStateClass("new", ThreadState.new),
     new ThreadStateClass("runnable", ThreadState.runnable),
-    new ThreadStateClass("stopped_at_breakpoint", ThreadState.stoppedAtBreakpoint),
     new ThreadStateClass("blocked", ThreadState.blocked),
     new ThreadStateClass("waiting", ThreadState.waiting),
     new ThreadStateClass("timed_waiting", ThreadState.timedWaiting),
