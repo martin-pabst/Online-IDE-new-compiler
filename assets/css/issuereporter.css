@@ -1,3 +1,5 @@
-.jo_issuereporterr_textfield {
-    height: 400px;
+.joeCssFence {
+    .jo_issuereporterr_textfield {
+        height: 400px;
+    }
 }

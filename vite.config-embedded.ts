@@ -1,6 +1,8 @@
 import type { UserConfig } from 'vite'
 import commonConfig from './vite.config-common'
 
+import prefixer from 'postcss-prefix-selector'
+
 
 export default {
     ...commonConfig,
@@ -20,5 +22,19 @@ export default {
             }
         },
         outDir: './dist-embedded'
-    }
+    },
+    css: {
+        postcss: {
+            plugins: [
+                /*
+                 * Only for node_modules.
+                 * For your own files, take care of yourself.
+                 */
+                prefixer({
+                    includeFiles: [/node_modules/],
+                    prefix: '.joeCssFence'
+                })
+            ]
+        }
+    },
 } satisfies UserConfig

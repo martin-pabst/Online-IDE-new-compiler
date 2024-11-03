@@ -1,47 +1,49 @@
-.joe_guiButton {
-    font-weight: normal;
-    color: #ddd;
-    border: 1px solid #808080;
-    height: fit-content;
-    padding: 1px 3px;
-    cursor: pointer;
-    user-select: none;
-}
+.joeCssFence {
+    .joe_guiButton {
+        font-weight: normal;
+        color: #ddd;
+        border: 1px solid #808080;
+        height: fit-content;
+        padding: 1px 3px;
+        cursor: pointer;
+        user-select: none;
+    }
 
-.joe_guiButton:hover{
-    border-color: #ccc;
-}
+    .joe_guiButton:hover{
+        border-color: #ccc;
+    }
 
-.joe_guiButton:active{
-    color: #fff;
-}
+    .joe_guiButton:active{
+        color: #fff;
+    }
 
-.joe_guiButton:not(.active){
-    filter:opacity(0.5) grayscale();
-}
+    .joe_guiButton:not(.active){
+        filter:opacity(0.5) grayscale();
+    }
 
-.joe_toggleButton {
-    font-weight: normal;
-    color: white;
-    border: 1px solid #808080;
-    height: fit-content;
-    padding: 1px 3px;
-}
+    .joe_toggleButton {
+        font-weight: normal;
+        color: white;
+        border: 1px solid #808080;
+        height: fit-content;
+        padding: 1px 3px;
+    }
 
-.joe_toggleButton.checked {
-    background-color:rgb(65, 161, 41);
-}
+    .joe_toggleButton.checked {
+        background-color:rgb(65, 161, 41);
+    }
 
-.joe_toggleButton:not(.checked){
-    background-color: #404040;
-    color: #b0b0b0;
-}
+    .joe_toggleButton:not(.checked){
+        background-color: #404040;
+        color: #b0b0b0;
+    }
 
-.joe_toggleButton:hover{
-    border-color: #ccc;
-    color: #fff;
-}
+    .joe_toggleButton:hover{
+        border-color: #ccc;
+        color: #fff;
+    }
 
-.joe_toggleButton:not(.active){
-    filter:opacity(0.5);
+    .joe_toggleButton:not(.active){
+        filter:opacity(0.5);
+    }
 }

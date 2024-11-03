@@ -14,7 +14,7 @@ fs.readdir(path, function (err, items) {
 
     console.log('Converting ' + items.length + ' files...');
 
-    let iconCss: string = "";
+    let iconCss: string = ".joeCssFence {\n";
     for (var i = 0; i < items.length; i++) {
         let filename: string = items[i];
         if (filename.endsWith('.svg')) {
@@ -26,6 +26,8 @@ fs.readdir(path, function (err, items) {
             iconCss += getCss(filename, url);
         }
     }
+
+    iconCss += "\n}"
 
     fs.writeFile('./assets/css/icons.css', iconCss, () => {
         console.log('Done!');

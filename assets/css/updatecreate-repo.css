@@ -1,275 +1,276 @@
-:root {
+.joeCssFence {
     --cancelButtonBackground: #b0b0b0;
     --cancelButtonColor: #000;
     --repositoryLines: #bcbcbc;
-}
 
-#createRepo-div, #updateRepo-div, #checkoutRepo-div {
-    visibility: hidden;
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
-    background-color: var(--backgroundDark);
-    top: 0;
-    left: 0;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-}
 
-.createUpdateRepo-mainHeading {
-    box-sizing: border-box;
-    font-size: 20pt;
-    width: 100%;
-    color: var(--fontColorNormal);
-    user-select: none;
-    background-color: var(--backgroundLight);
-    padding: 2px;
-    border-bottom: 2px solid var(--repositoryLines);
-}
+    #createRepo-div, #updateRepo-div, #checkoutRepo-div {
+        visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        z-index: 1000;
+        background-color: var(--backgroundDark);
+        top: 0;
+        left: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
 
-#updateRepo-mainHeading, #checkoutRepo-mainHeading {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding-right: 10px;
-    padding: 5px 10px;
-    box-sizing: border-box;
-    margin: 0;
-}
+    .createUpdateRepo-mainHeading {
+        box-sizing: border-box;
+        font-size: 20pt;
+        width: 100%;
+        color: var(--fontColorNormal);
+        user-select: none;
+        background-color: var(--backgroundLight);
+        padding: 2px;
+        border-bottom: 2px solid var(--repositoryLines);
+    }
 
-.createUpdateRepo-settingsDiv {
-    display: grid;
-    grid-template-columns: fit-content(400px) auto;
-    margin-bottom: 15px;
-    padding: 10px;
-    align-items: center;
-}
+    #updateRepo-mainHeading, #checkoutRepo-mainHeading {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding-right: 10px;
+        padding: 5px 10px;
+        box-sizing: border-box;
+        margin: 0;
+    }
 
-.createUpdateRepo-settingsLabel {
-    grid-column: 1;
-}
+    .createUpdateRepo-settingsDiv {
+        display: grid;
+        grid-template-columns: fit-content(400px) auto;
+        margin-bottom: 15px;
+        padding: 10px;
+        align-items: center;
+    }
 
-.createUpdateRepo-settingsSecret {
-    grid-column: 2;
-    display: flex;
-    flex-direction: row;
-}
+    .createUpdateRepo-settingsLabel {
+        grid-column: 1;
+    }
 
-.createUpdateRepo-settingsSecretSecret {
-    grid-column: 2;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-left: 20px;
-    font-family: 'Consolas', 'Roboto Mono', monospace;
-}
+    .createUpdateRepo-settingsSecret {
+        grid-column: 2;
+        display: flex;
+        flex-direction: row;
+    }
 
-.jo_set_secret_button {
-    font-size: 100%;
-    padding: 2px;
-    background-color: #8a9ab5;
-    border: none;
-    border-radius: 2px;
-    margin: 5px 20px;    
-}
+    .createUpdateRepo-settingsSecretSecret {
+        grid-column: 2;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-left: 20px;
+        font-family: 'Consolas', 'Roboto Mono', monospace;
+    }
 
-.jo_copy_secret_button {
-    font-size: 100%;
-    padding: 2px;
-    background-color: #59ca85;
-    border: none;
-    border-radius: 2px;
-    margin: 5px 20px;    
-}
+    .jo_set_secret_button {
+        font-size: 100%;
+        padding: 2px;
+        background-color: #8a9ab5;
+        border: none;
+        border-radius: 2px;
+        margin: 5px 20px;
+    }
 
-.createUpdateRepo-inputcolumn {
-    min-width: 300px;
-    grid-column: 2;
-    background-color: var(--backgroundLight);
-    color: var(--fontColorLight);
-    border: 1px solid gray;
-    margin: 3px;
-}
+    .jo_copy_secret_button {
+        font-size: 100%;
+        padding: 2px;
+        background-color: #59ca85;
+        border: none;
+        border-radius: 2px;
+        margin: 5px 20px;
+    }
 
-#createRepo-buttonDiv {
-    display: flex;
-    flex-direction: row;
-    padding: 10px;
-    justify-content: space-evenly;
-    font-size: 130%
-}
+    .createUpdateRepo-inputcolumn {
+        min-width: 300px;
+        grid-column: 2;
+        background-color: var(--backgroundLight);
+        color: var(--fontColorLight);
+        border: 1px solid gray;
+        margin: 3px;
+    }
 
-#updateRepo-divBelow {
-    position: relative;
-    flex: 1;
-    display: flex;
-    flex-direction: row;
-    height: calc(100% - 150px);
-}
+    #createRepo-buttonDiv {
+        display: flex;
+        flex-direction: row;
+        padding: 10px;
+        justify-content: space-evenly;
+        font-size: 130%
+    }
 
-#checkoutRepo-divBelow {
-    position: relative;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    max-height: calc(100% - 100px);
-}
+    #updateRepo-divBelow {
+        position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        height: calc(100% - 150px);
+    }
 
-#updateRepo-divLeft {
-    flex: 4;
-    box-sizing: border-box;
-    height: 100%;
-    padding: 10px;
-    border-right: 1px solid var(--repositoryLines);
-    display: flex;
-    flex-direction: column;
-}
+    #checkoutRepo-divBelow {
+        position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        max-height: calc(100% - 100px);
+    }
 
-.updateRepo-repoListItem {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    height: 20px;
-    border-bottom: 1px dotted gray;
-    cursor: pointer;
-}
+    #updateRepo-divLeft {
+        flex: 4;
+        box-sizing: border-box;
+        height: 100%;
+        padding: 10px;
+        border-right: 1px solid var(--repositoryLines);
+        display: flex;
+        flex-direction: column;
+    }
 
-.updateRepo-repoListItem>.img_delete {
-    padding-right: 5px;
-}
+    .updateRepo-repoListItem {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+        height: 20px;
+        border-bottom: 1px dotted gray;
+        cursor: pointer;
+    }
 
-.updateRepo-repoListItem:hover {
-    background-color: var(--file-hover);
-}
+    .updateRepo-repoListItem>.img_delete {
+        padding-right: 5px;
+    }
 
-.updateRepo-repoListItem:active {
-    filter: brightness(130%);
-}
+    .updateRepo-repoListItem:hover {
+        background-color: var(--file-hover);
+    }
 
-.updateRepo-repoListItem.active {
-    background-color: var(--file-active);
-}
+    .updateRepo-repoListItem:active {
+        filter: brightness(130%);
+    }
 
-.updateRepo-repoListItem.active:hover {
-    background-color: var(--file-active-hover);
-}
+    .updateRepo-repoListItem.active {
+        background-color: var(--file-active);
+    }
 
-#updateRepo-repoListDiv {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-}
+    .updateRepo-repoListItem.active:hover {
+        background-color: var(--file-active-hover);
+    }
 
-#updateRepo-divRight {
-    flex: 6;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
+    #updateRepo-repoListDiv {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: auto;
+    }
 
-#updateRepo-userlistDiv {
-    display: grid;
-    grid-template-columns: auto auto;
-    margin-top: 10px;
-    border-top: 1px solid var(--repositoryLines);
-    width: 100%;
-    padding: 0px 10px;
-    align-content: start;
-    box-sizing: border-box;
-    overflow: auto;
-}
+    #updateRepo-divRight {
+        flex: 6;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
 
-#updateRepo-buttonDiv {
-    height: 60px;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    border-top: 1px solid var(--repositoryLines);
-    margin-top: 10px;
-    align-items: center;
-}
+    #updateRepo-userlistDiv {
+        display: grid;
+        grid-template-columns: auto auto;
+        margin-top: 10px;
+        border-top: 1px solid var(--repositoryLines);
+        width: 100%;
+        padding: 0px 10px;
+        align-content: start;
+        box-sizing: border-box;
+        overflow: auto;
+    }
 
-.updateRepo-minorHeading {
-    color: var(--fontColorLight);
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--repositoryLines);
-    width: fit-content;
-}
+    #updateRepo-buttonDiv {
+        height: 60px;
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        border-top: 1px solid var(--repositoryLines);
+        margin-top: 10px;
+        align-items: center;
+    }
 
-.updateRepo-userlistheading {
-    color: var(--fontColorLight);
-    padding: 5px 0;
-    border-bottom: 1px solid gray;
-    position: sticky;
-    top: 0px;
-}
+    .updateRepo-minorHeading {
+        color: var(--fontColorLight);
+        padding-bottom: 5px;
+        border-bottom: 1px solid var(--repositoryLines);
+        width: fit-content;
+    }
 
-.checkoutRepo-chooseDiv {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    margin: 10px 5px 10px 0;
-    align-items: center;
-}
+    .updateRepo-userlistheading {
+        color: var(--fontColorLight);
+        padding: 5px 0;
+        border-bottom: 1px solid gray;
+        position: sticky;
+        top: 0px;
+    }
 
-.checkoutRepo-minorHeading {
-    color: var(--fontColorLight);
-    margin-right: 10px;
-}
+    .checkoutRepo-chooseDiv {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        margin: 10px 5px 10px 0;
+        align-items: center;
+    }
 
-#checkoutRepo-repoListDiv {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow: auto;
-}
+    .checkoutRepo-minorHeading {
+        color: var(--fontColorLight);
+        margin-right: 10px;
+    }
 
-.checkoutRepo-repoListItem {
-    cursor: pointer;
-    display: flex;
-    flex-direction: row;
-    border-bottom: 1px dotted gray;
-}
+    #checkoutRepo-repoListDiv {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        overflow: auto;
+    }
 
-.checkoutRepo-repoListItem:hover {
-    background-color: var(--file-hover);
-}
+    .checkoutRepo-repoListItem {
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        border-bottom: 1px dotted gray;
+    }
 
-.checkoutRepo-repoListItem:active {
-    filter: brightness(130%);
-}
+    .checkoutRepo-repoListItem:hover {
+        background-color: var(--file-hover);
+    }
 
-.checkoutRepo-repoListItem.active {
-    background-color: var(--file-active);
-}
+    .checkoutRepo-repoListItem:active {
+        filter: brightness(130%);
+    }
 
-.checkoutRepo-repoListItem.active:hover {
-    background-color: var(--file-active-hover);
-}
+    .checkoutRepo-repoListItem.active {
+        background-color: var(--file-active);
+    }
 
-.checkoutRepo-repoListItemLeft {
-    flex: 4;
-    display: flex;
-    flex-direction: column;
-}
+    .checkoutRepo-repoListItem.active:hover {
+        background-color: var(--file-active-hover);
+    }
 
-.checkoutRepo-repoListItemRight {
-    flex: 6;
-    max-height: 80px;
-    overflow: auto;
-}
+    .checkoutRepo-repoListItemLeft {
+        flex: 4;
+        display: flex;
+        flex-direction: column;
+    }
 
-.checkoutRepo-repoListName {
-    color: var(--fontColorLight);
-}
+    .checkoutRepo-repoListItemRight {
+        flex: 6;
+        max-height: 80px;
+        overflow: auto;
+    }
 
-.checkoutRepo-repoListOwner {
-    color: var(--fontColorNormal);
+    .checkoutRepo-repoListName {
+        color: var(--fontColorLight);
+    }
+
+    .checkoutRepo-repoListOwner {
+        color: var(--fontColorNormal);
+    }
 }

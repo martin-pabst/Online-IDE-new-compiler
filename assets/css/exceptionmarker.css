@@ -1,15 +1,17 @@
-.jo_revealExceptionPosition{
-    background-color: #d61bd056;
-}
+.joeCssFence {
+    .jo_revealExceptionPosition{
+        background-color: #d61bd056;
+    }
 
-.jo_revealExceptionPositionBefore::before{
-    content: " ";
-   background-image: url("data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%20standalone%3D%22no%22%3F%3E%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20version%3D%221.1%22%20id%3D%22svg4%22%20sodipodi%3Adocname%3D%22program-pointer-purple.svg%22%20inkscape%3Aversion%3D%221.3%20(0e150ed6c4,%202023-07-21)%22%20xmlns%3Ainkscape%3D%22http%3A%2F%2Fwww.inkscape.org%2Fnamespaces%2Finkscape%22%20xmlns%3Asodipodi%3D%22http%3A%2F%2Fsodipodi.sourceforge.net%2FDTD%2Fsodipodi-0.dtd%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Asvg%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Ardf%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%22%20xmlns%3Acc%3D%22http%3A%2F%2Fcreativecommons.org%2Fns%23%22%20xmlns%3Adc%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%22%3E%3Cmetadata%20id%3D%22metadata10%22%3E%3Crdf%3ARDF%3E%3Ccc%3AWork%20rdf%3Aabout%3D%22%22%3E%3Cdc%3Aformat%3Eimage%2Fsvg+xml%3C%2Fdc%3Aformat%3E%3Cdc%3Atype%20rdf%3Aresource%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Fdcmitype%2FStillImage%22%20%2F%3E%3C%2Fcc%3AWork%3E%3C%2Frdf%3ARDF%3E%3C%2Fmetadata%3E%3Cdefs%20id%3D%22defs8%22%20%2F%3E%3Csodipodi%3Anamedview%20pagecolor%3D%22%23ffffff%22%20bordercolor%3D%22%23666666%22%20borderopacity%3D%221%22%20objecttolerance%3D%2210%22%20gridtolerance%3D%2210%22%20guidetolerance%3D%2210%22%20inkscape%3Apageopacity%3D%220%22%20inkscape%3Apageshadow%3D%222%22%20inkscape%3Awindow-width%3D%221806%22%20inkscape%3Awindow-height%3D%221172%22%20id%3D%22namedview6%22%20showgrid%3D%22false%22%20inkscape%3Azoom%3D%2214.75%22%20inkscape%3Acx%3D%227.9322034%22%20inkscape%3Acy%3D%227.9661017%22%20inkscape%3Awindow-x%3D%22760%22%20inkscape%3Awindow-y%3D%22272%22%20inkscape%3Awindow-maximized%3D%220%22%20inkscape%3Acurrent-layer%3D%22svg4%22%20inkscape%3Ashowpageshadow%3D%222%22%20inkscape%3Apagecheckerboard%3D%220%22%20inkscape%3Adeskcolor%3D%22%23d1d1d1%22%20%2F%3E%3Cpath%20d%3D%22M%203.99976,14%20V%202.18091%20l%209.00004,5.88124%20z%22%20id%3D%22path2%22%20inkscape%3Aconnector-curvature%3D%220%22%20style%3D%22clip-rule%3Aevenodd;fill%3A%23d61bd0;fill-rule%3Aevenodd;fill-opacity%3A0.85882354%22%20sodipodi%3Anodetypes%3D%22cccc%22%20%2F%3E%3C%2Fsvg%3E%0A");
-    background-size: cover;
-    background-position-x: -3px;
-    background-position-y: 2px;
-    background-repeat: no-repeat;
-    width: 10px;
-    display: inline-block;
-    height: 14px;
+    .jo_revealExceptionPositionBefore::before{
+        content: " ";
+    background-image: url("data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%20standalone%3D%22no%22%3F%3E%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20version%3D%221.1%22%20id%3D%22svg4%22%20sodipodi%3Adocname%3D%22program-pointer-purple.svg%22%20inkscape%3Aversion%3D%221.3%20(0e150ed6c4,%202023-07-21)%22%20xmlns%3Ainkscape%3D%22http%3A%2F%2Fwww.inkscape.org%2Fnamespaces%2Finkscape%22%20xmlns%3Asodipodi%3D%22http%3A%2F%2Fsodipodi.sourceforge.net%2FDTD%2Fsodipodi-0.dtd%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Asvg%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Ardf%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%22%20xmlns%3Acc%3D%22http%3A%2F%2Fcreativecommons.org%2Fns%23%22%20xmlns%3Adc%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Felements%2F1.1%2F%22%3E%3Cmetadata%20id%3D%22metadata10%22%3E%3Crdf%3ARDF%3E%3Ccc%3AWork%20rdf%3Aabout%3D%22%22%3E%3Cdc%3Aformat%3Eimage%2Fsvg+xml%3C%2Fdc%3Aformat%3E%3Cdc%3Atype%20rdf%3Aresource%3D%22http%3A%2F%2Fpurl.org%2Fdc%2Fdcmitype%2FStillImage%22%20%2F%3E%3C%2Fcc%3AWork%3E%3C%2Frdf%3ARDF%3E%3C%2Fmetadata%3E%3Cdefs%20id%3D%22defs8%22%20%2F%3E%3Csodipodi%3Anamedview%20pagecolor%3D%22%23ffffff%22%20bordercolor%3D%22%23666666%22%20borderopacity%3D%221%22%20objecttolerance%3D%2210%22%20gridtolerance%3D%2210%22%20guidetolerance%3D%2210%22%20inkscape%3Apageopacity%3D%220%22%20inkscape%3Apageshadow%3D%222%22%20inkscape%3Awindow-width%3D%221806%22%20inkscape%3Awindow-height%3D%221172%22%20id%3D%22namedview6%22%20showgrid%3D%22false%22%20inkscape%3Azoom%3D%2214.75%22%20inkscape%3Acx%3D%227.9322034%22%20inkscape%3Acy%3D%227.9661017%22%20inkscape%3Awindow-x%3D%22760%22%20inkscape%3Awindow-y%3D%22272%22%20inkscape%3Awindow-maximized%3D%220%22%20inkscape%3Acurrent-layer%3D%22svg4%22%20inkscape%3Ashowpageshadow%3D%222%22%20inkscape%3Apagecheckerboard%3D%220%22%20inkscape%3Adeskcolor%3D%22%23d1d1d1%22%20%2F%3E%3Cpath%20d%3D%22M%203.99976,14%20V%202.18091%20l%209.00004,5.88124%20z%22%20id%3D%22path2%22%20inkscape%3Aconnector-curvature%3D%220%22%20style%3D%22clip-rule%3Aevenodd;fill%3A%23d61bd0;fill-rule%3Aevenodd;fill-opacity%3A0.85882354%22%20sodipodi%3Anodetypes%3D%22cccc%22%20%2F%3E%3C%2Fsvg%3E%0A");
+        background-size: cover;
+        background-position-x: -3px;
+        background-position-y: 2px;
+        background-repeat: no-repeat;
+        width: 10px;
+        display: inline-block;
+        height: 14px;
+    }
 }

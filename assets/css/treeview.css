@@ -1,218 +1,3 @@
-/* TreeviewAccordion */
-.jo_treeviewAccordion_mainDiv {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background-color: #252525;
-}
-
-.jo_treeview_splitter {
-    display: block;
-    position: absolute;
-    top: -1px;
-    height: 4px;
-    width: 100%;
-    cursor: ns-resize;
-    z-index:10;
-}
-
-.jo_treeview_splitter:hover {
-    display: block;
-    background-color: #1b74b0;
-}
-
-.jo_treeview_splitter_overlay{
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    z-index: 1000;
-}
-
-/* Treeview */
-.jo_treeview_outer {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    color: #b8b8b8;
-    font-size: 13px;
-    height: 100%;
-}
-
-/* Caption */
-.jo_treeview_caption {
-    display: flex;
-    flex-direction: row;
-    padding-left: 4px;
-    padding-top: 2px;
-    height: 22px;
-    line-height: 22px;
-    border-top-style: solid;
-    border-color: #474747;
-    border-width: 1px;
-    font-weight: bold;
-    user-select: none;
-}
-
-.jo_treeview_caption_text {
-    text-overflow: ellipsis;
-    margin-left: 2px;
-    overflow: hidden;
-    flex: 1;
-}
-
-.jo_treeview_caption_buttons {
-    display: flex;
-    flex-direction: row;
-    margin: 2px 4px 0 2px;
-
-}
-
-/* ExpandCollapseComponent */
-.jo_exandCollapseComponent {
-    cursor: pointer;
-}
-
-.jo_exandCollapseComponent:hover {
-    cursor: pointer;
-    filter: brightness(150%);
-}
-
-/* IconButton */
-.jo_iconButton {
-    cursor: pointer;
-}
-
-.jo_iconButton:hover {
-    filter: brightness(150%);
-}
-
-.jo_iconButton:active {
-    transform: scale(1.2);
-}
-
-
-/* Treeview main div */
-.jo_treeview_nodediv {
-    display: flex;
-    flex-direction: column;
-    flex: 1 0;
-    width: 100%;
-    overflow-y:auto;
-}
-
-/* treeview line (== file or folder) */
-.jo_treeviewNodeWithChildren {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-.jo_treeviewNode_expandCollapse {
-    position: relative;
-    left: -2px;
-}
-
-.jo_treeviewNode {
-    display: flex;
-    flex-direction: row;
-    /* height: 20px; */
-    line-height: 18px;
-    cursor: pointer;
-    z-index: 2;
-    border: 1px solid transparent;
-}
-
-.jo_treeviewNode.jo_treeview_selected {
-    background-color: #114c74c0;
-}
-
-.jo_treeviewNode.jo_treeview_focus {
-    background-color: #114c74c0;
-    border-color: #66b6ecab;
-    border-width: 1px;
-    border-style: solid;
-}
-
-.jo_treeviewNode:hover:not(.jo_treeview_focus) {
-    background-color: #5050508c;
-}
-
-.jo_treeviewChildren {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-.jo_treeviewChildrenLineDiv {
-    position: absolute;
-    top: -4px;
-    left: 0;
-    height: 100%;
-    border-left: 1px solid transparent;
-    margin-left: 7px;
-    z-index: 1;
-}
-
-.jo_treeview_nodediv {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.jo_treeview_nodediv:hover .jo_treeviewChildrenLineDiv {
-    border-left-color: #555;
-}
-
-.jo_treeviewNode_caption {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    flex: 1;
-    user-select: none;
-    white-space: nowrap;
-}
-
-.jo_treeviewNode_icon {
-    margin-top: 1px;
-    margin-right: 2px;
-}
-
-.jo_treeviewNode_errors {
-    color: rgb(222, 31, 31);
-    margin-right: 4px;
-}
-
-.jo_treeviewNode_buttons {
-    visibility: hidden;
-    flex-direction: row;
-    display: flex;
-    margin-top: 1px;
-    margin-right: 2px;
-}
-
-.jo_treeviewNode:hover .jo_treeviewNode_buttons {
-    visibility: visible;
-}
-
-.jo_treeviewNode_marginLeft {
-    width: 7px;
-}
-
-/* drag'n drop */
-.jo_treeviewNode_dragAndDropDestinationLine {
-    position: absolute;
-    height: 2px;
-    width: 100%;
-    background-color: rgb(53, 167, 0);
-}
-
-.jo_treeviewNode_dragAndDropDestinationLine.jo_treeview_invald_dragdestination {
-    animation-name: jo_treeview_invalid_dragdestination_animation;
-    animation-duration: 0.7s;
-    animation-iteration-count: infinite;
-}
-
 @keyframes jo_treeview_invalid_dragdestination_animation {
     0% {
         background-color: #b92929;
@@ -227,26 +12,243 @@
     }
 }
 
-.jo_treeviewNode_highlightDragDropDestination {
-    background-color: rgba(74, 74, 74, 0.678);
-}
+.joeCssFence {
+    /* TreeviewAccordion */
+    .jo_treeviewAccordion_mainDiv {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background-color: #252525;
+    }
 
-.jo_treeview_outer.jo_dragdrop .jo_treeviewNode_dropzone {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 100;
-}
+    .jo_treeview_splitter {
+        display: block;
+        position: absolute;
+        top: -1px;
+        height: 4px;
+        width: 100%;
+        cursor: ns-resize;
+        z-index:10;
+    }
 
-.jo_treeview_drag_ghost {
-    position: absolute;
-    background-color: #114c74c0;
-    border: 1px solid #66b6ecab;
-    font-size: 12px;
-    color: white;
-    width: fit-content;
-    padding: 4px;
+    .jo_treeview_splitter:hover {
+        display: block;
+        background-color: #1b74b0;
+    }
+
+    .jo_treeview_splitter_overlay{
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        z-index: 1000;
+    }
+
+    /* Treeview */
+    .jo_treeview_outer {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        color: #b8b8b8;
+        font-size: 13px;
+        height: 100%;
+    }
+
+    /* Caption */
+    .jo_treeview_caption {
+        display: flex;
+        flex-direction: row;
+        padding-left: 4px;
+        padding-top: 2px;
+        height: 22px;
+        line-height: 22px;
+        border-top-style: solid;
+        border-color: #474747;
+        border-width: 1px;
+        font-weight: bold;
+        user-select: none;
+    }
+
+    .jo_treeview_caption_text {
+        text-overflow: ellipsis;
+        margin-left: 2px;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    .jo_treeview_caption_buttons {
+        display: flex;
+        flex-direction: row;
+        margin: 2px 4px 0 2px;
+
+    }
+
+    /* ExpandCollapseComponent */
+    .jo_exandCollapseComponent {
+        cursor: pointer;
+    }
+
+    .jo_exandCollapseComponent:hover {
+        cursor: pointer;
+        filter: brightness(150%);
+    }
+
+    /* IconButton */
+    .jo_iconButton {
+        cursor: pointer;
+    }
+
+    .jo_iconButton:hover {
+        filter: brightness(150%);
+    }
+
+    .jo_iconButton:active {
+        transform: scale(1.2);
+    }
+
+
+    /* Treeview main div */
+    .jo_treeview_nodediv {
+        display: flex;
+        flex-direction: column;
+        flex: 1 0;
+        width: 100%;
+        overflow-y:auto;
+    }
+
+    /* treeview line (== file or folder) */
+    .jo_treeviewNodeWithChildren {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .jo_treeviewNode_expandCollapse {
+        position: relative;
+        left: -2px;
+    }
+
+    .jo_treeviewNode {
+        display: flex;
+        flex-direction: row;
+        /* height: 20px; */
+        line-height: 18px;
+        cursor: pointer;
+        z-index: 2;
+        border: 1px solid transparent;
+    }
+
+    .jo_treeviewNode.jo_treeview_selected {
+        background-color: #114c74c0;
+    }
+
+    .jo_treeviewNode.jo_treeview_focus {
+        background-color: #114c74c0;
+        border-color: #66b6ecab;
+        border-width: 1px;
+        border-style: solid;
+    }
+
+    .jo_treeviewNode:hover:not(.jo_treeview_focus) {
+        background-color: #5050508c;
+    }
+
+    .jo_treeviewChildren {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .jo_treeviewChildrenLineDiv {
+        position: absolute;
+        top: -4px;
+        left: 0;
+        height: 100%;
+        border-left: 1px solid transparent;
+        margin-left: 7px;
+        z-index: 1;
+    }
+
+    .jo_treeview_nodediv {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .jo_treeview_nodediv:hover .jo_treeviewChildrenLineDiv {
+        border-left-color: #555;
+    }
+
+    .jo_treeviewNode_caption {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        flex: 1;
+        user-select: none;
+        white-space: nowrap;
+    }
+
+    .jo_treeviewNode_icon {
+        margin-top: 1px;
+        margin-right: 2px;
+    }
+
+    .jo_treeviewNode_errors {
+        color: rgb(222, 31, 31);
+        margin-right: 4px;
+    }
+
+    .jo_treeviewNode_buttons {
+        visibility: hidden;
+        flex-direction: row;
+        display: flex;
+        margin-top: 1px;
+        margin-right: 2px;
+    }
+
+    .jo_treeviewNode:hover .jo_treeviewNode_buttons {
+        visibility: visible;
+    }
+
+    .jo_treeviewNode_marginLeft {
+        width: 7px;
+    }
+
+    /* drag'n drop */
+    .jo_treeviewNode_dragAndDropDestinationLine {
+        position: absolute;
+        height: 2px;
+        width: 100%;
+        background-color: rgb(53, 167, 0);
+    }
+
+    .jo_treeviewNode_dragAndDropDestinationLine.jo_treeview_invald_dragdestination {
+        animation-name: jo_treeview_invalid_dragdestination_animation;
+        animation-duration: 0.7s;
+        animation-iteration-count: infinite;
+    }
+
+    .jo_treeviewNode_highlightDragDropDestination {
+        background-color: rgba(74, 74, 74, 0.678);
+    }
+
+    .jo_treeview_outer.jo_dragdrop .jo_treeviewNode_dropzone {
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 100;
+    }
+
+    .jo_treeview_drag_ghost {
+        position: absolute;
+        background-color: #114c74c0;
+        border: 1px solid #66b6ecab;
+        font-size: 12px;
+        color: white;
+        width: fit-content;
+        padding: 4px;
+    }
 }

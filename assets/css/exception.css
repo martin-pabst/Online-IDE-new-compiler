@@ -1,19 +1,21 @@
-.jo_exceptionPrinter_outer {
-}
+.joeCssFence {
+    .jo_exceptionPrinter_outer {
+    }
 
-.jo_stacktraceLink {
-    color: #b0b0b0;
-    text-decoration: underline;
-}
+    .jo_stacktraceLink {
+        color: #b0b0b0;
+        text-decoration: underline;
+    }
 
-.jo_stacktraceLink:hover {
-    cursor: pointer;
-}
+    .jo_stacktraceLink:hover {
+        cursor: pointer;
+    }
 
-.jo_stacktraceLink:active {
-    filter: brightness(150%);
-}
+    .jo_stacktraceLink:active {
+        filter: brightness(150%);
+    }
 
-.jo_exceptionPrinter_stacktrace {
-    margin-left: 5px;
+    .jo_exceptionPrinter_stacktrace {
+        margin-left: 5px;
+    }
 }

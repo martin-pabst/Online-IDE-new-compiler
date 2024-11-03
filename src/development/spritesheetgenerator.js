@@ -81,7 +81,7 @@ Spritesmith.run({
         }
     };
 
-    var cssFile = "";
+    var cssFile = ".joeCssFence {\n";
 
     for (var filename in result.coordinates) {
         if (Object.prototype.hasOwnProperty.call(result.coordinates, filename)) {
@@ -167,6 +167,7 @@ Spritesmith.run({
         }
     }
 
+    cssFile += "\n}"
 
     fs.writeFileSync(output_dir + 'spritesheet.json.txt', JSON.stringify(pixi, null, 2), 'utf-8');
     fs.writeFileSync(cssFilename, cssFile, 'utf-8');

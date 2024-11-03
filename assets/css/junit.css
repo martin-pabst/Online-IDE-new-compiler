@@ -1,208 +1,209 @@
-:root {
+.joeCssFence {
     --junit-methodidentifier-color: #dcdcaa;
     --junit-classidentifier-color: #3dc9b0;
     --junit-workspaceidentifier-color: #b23dc9;
     --junit-expected-color: #2fed4f;
     --junit-actual-color: #e06d4d;
-}
-.jo_testrunnerTab {
-    width: 100%;
-    height: 100%;
-}
 
-/* JUnitTestrunner divs */
-.jo_junitTestrunnerMain {
-    display: flex;
-    flex-direction: row;  /* y-direction */
-    width: 100%;
-    height: 100%;
-}
+    .jo_testrunnerTab {
+        width: 100%;
+        height: 100%;
+    }
 
-.jo_junitTestrunnerLeft {
-    position: relative;
-    height: 100%;
-    flex: 2;
-    border-right: 1px solid var(--slider);
-    font-family: Consolas, Courier New, monospace;
-    font-weight: 400;
-    color: #fff;
-    letter-spacing: 0px;
-}
+    /* JUnitTestrunner divs */
+    .jo_junitTestrunnerMain {
+        display: flex;
+        flex-direction: row;  /* y-direction */
+        width: 100%;
+        height: 100%;
+    }
 
-.jo_junitTestrunnerRight {
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    flex: 4;
-    font-family: Consolas, Courier New, monospace;
-    font-weight: 400;
-    color: #fff;
-    letter-spacing: 0px;
-}
+    .jo_junitTestrunnerLeft {
+        position: relative;
+        height: 100%;
+        flex: 2;
+        border-right: 1px solid var(--slider);
+        font-family: Consolas, Courier New, monospace;
+        font-weight: 400;
+        color: #fff;
+        letter-spacing: 0px;
+    }
 
-.jo_junitTestrunnerOutput {
-    height: 100%;
-    flex: 1;
-    /* white-space: pre-wrap; */
-    overflow: auto;
-    padding: 0px 5px;
-}
+    .jo_junitTestrunnerRight {
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        flex: 4;
+        font-family: Consolas, Courier New, monospace;
+        font-weight: 400;
+        color: #fff;
+        letter-spacing: 0px;
+    }
 
-.jo_junitMethodIdentifier {
-    color: var(--junit-methodidentifier-color);
-    font-style: italic;
-}
+    .jo_junitTestrunnerOutput {
+        height: 100%;
+        flex: 1;
+        /* white-space: pre-wrap; */
+        overflow: auto;
+        padding: 0px 5px;
+    }
 
-.jo_junitClassIdentifier {
-    color: var(--junit-classidentifier-color);
-    font-weight: bold;
-}
+    .jo_junitMethodIdentifier {
+        color: var(--junit-methodidentifier-color);
+        font-style: italic;
+    }
 
-.jo_junitWorkspaceIdentifier {
-    color: var(--junit-workspaceidentifier-color);
-}
+    .jo_junitClassIdentifier {
+        color: var(--junit-classidentifier-color);
+        font-weight: bold;
+    }
 
-.jo_junitError {
-    color: var(--junit-actual-color);
-}
+    .jo_junitWorkspaceIdentifier {
+        color: var(--junit-workspaceidentifier-color);
+    }
 
-.jo_junitExpected {
-    color: var(--junit-expected-color);
-}
+    .jo_junitError {
+        color: var(--junit-actual-color);
+    }
 
-.jo_junitActual {
-    color: var(--junit-actual-color);
-}
+    .jo_junitExpected {
+        color: var(--junit-expected-color);
+    }
 
-.jo_junitCaption {
-    font-size: 120%;
-    margin-top: 5px;
-}
+    .jo_junitActual {
+        color: var(--junit-actual-color);
+    }
 
-/* monaco editor margin decorations */
-.jo_margin_start_test {
-    height: 16px !important;
-    width: 16px !important;
-    margin-left: 2.8em;
-    margin-top: 0.4em;
-    background-image: url("data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%20standalone%3D%22no%22%3F%3E%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20version%3D%221.1%22%20id%3D%22svg1%22%20sodipodi%3Adocname%3D%22test-start.svg%22%20inkscape%3Aversion%3D%221.3%20(0e150ed6c4,%202023-07-21)%22%20xmlns%3Ainkscape%3D%22http%3A%2F%2Fwww.inkscape.org%2Fnamespaces%2Finkscape%22%20xmlns%3Asodipodi%3D%22http%3A%2F%2Fsodipodi.sourceforge.net%2FDTD%2Fsodipodi-0.dtd%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Asvg%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%20id%3D%22defs1%22%20%2F%3E%3Csodipodi%3Anamedview%20id%3D%22namedview1%22%20pagecolor%3D%22%23ffffff%22%20bordercolor%3D%22%23000000%22%20borderopacity%3D%220.25%22%20inkscape%3Ashowpageshadow%3D%222%22%20inkscape%3Apageopacity%3D%220.0%22%20inkscape%3Apagecheckerboard%3D%220%22%20inkscape%3Adeskcolor%3D%22%23d1d1d1%22%20inkscape%3Azoom%3D%22104.3319%22%20inkscape%3Acx%3D%225.6023134%22%20inkscape%3Acy%3D%225.0847344%22%20inkscape%3Awindow-width%3D%221920%22%20inkscape%3Awindow-height%3D%221009%22%20inkscape%3Awindow-x%3D%22-8%22%20inkscape%3Awindow-y%3D%22-8%22%20inkscape%3Awindow-maximized%3D%221%22%20inkscape%3Acurrent-layer%3D%22svg1%22%20%2F%3E%3Cpath%20style%3D%22fill%3Anone;fill-opacity%3A0.654902;stroke%3A%23da0000;stroke-width%3A1.734;stroke-linecap%3Around;stroke-linejoin%3Around;stroke-dasharray%3Anone;stroke-opacity%3A1%22%20d%3D%22M%208.2183666,8.6601809%2010.059281,10.281939%2013.872603,5.0879309%22%20id%3D%22path3%22%20%2F%3E%3Cpath%20d%3D%22M%207.5898437,6.9609375%206.578125,6.0703125%202.3984375,8.7792969%20V%203.3476563%20L%205.7339229,5.3776514%20C%205.662262,5.1405603%205.794809,4.8878458%205.8444521,4.6810607%205.9167655,4.5134861%206.0852006,4.3531026%206.2421875,4.2597656%20c%200.00454,-0.00199%200.0091,-0.00395%200.013672,-0.00586%20L%201.0800781,0.87109375%20V%2011.255859%20Z%22%20style%3D%22clip-rule%3Aevenodd;fill%3A%2389d185;fill-rule%3Aevenodd%22%20id%3D%22path10%22%20sodipodi%3Anodetypes%3D%22ccccccccccc%22%20%2F%3E%3Cpath%20style%3D%22color%3A%23000000;fill%3A%2304be00;stroke-linecap%3Around;stroke-linejoin%3Around;-inkscape-stroke%3Anone%22%20d%3D%22m%2013.750863,0.66974347%20a%200.86699998,0.86699998%200%200%200%20-1.21289,0.1855469%20L%209.286019,5.2849777%208.1551594,4.2908367%20a%200.86699998,0.86699998%200%200%200%20-1.2226562,0.07617%200.86699998,0.86699998%200%200%200%200.078125,1.22461%20l%201.8398437,1.621093%20A%200.86708668,0.86708668%200%200%200%2010.121957,7.0759937%20L%2013.93641,1.8826341%20A%200.86699998,0.86699998%200%200%200%2013.750863,0.66974347%20Z%22%20id%3D%22path9%22%20%2F%3E%3C%2Fsvg%3E%0A");
-}
+    .jo_junitCaption {
+        font-size: 120%;
+        margin-top: 5px;
+    }
 
-.jo_margin_start_all_tests {
-    height: 16px !important;
-    width: 16px !important;
-    margin-left: 2px;
-    margin-top: 4px;
-    background-image: url("data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%20standalone%3D%22no%22%3F%3E%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20version%3D%221.1%22%20id%3D%22svg1%22%20sodipodi%3Adocname%3D%22test-start.svg%22%20inkscape%3Aversion%3D%221.3%20(0e150ed6c4,%202023-07-21)%22%20xmlns%3Ainkscape%3D%22http%3A%2F%2Fwww.inkscape.org%2Fnamespaces%2Finkscape%22%20xmlns%3Asodipodi%3D%22http%3A%2F%2Fsodipodi.sourceforge.net%2FDTD%2Fsodipodi-0.dtd%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Asvg%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%20id%3D%22defs1%22%20%2F%3E%3Csodipodi%3Anamedview%20id%3D%22namedview1%22%20pagecolor%3D%22%23ffffff%22%20bordercolor%3D%22%23000000%22%20borderopacity%3D%220.25%22%20inkscape%3Ashowpageshadow%3D%222%22%20inkscape%3Apageopacity%3D%220.0%22%20inkscape%3Apagecheckerboard%3D%220%22%20inkscape%3Adeskcolor%3D%22%23d1d1d1%22%20inkscape%3Azoom%3D%22104.3319%22%20inkscape%3Acx%3D%225.6023134%22%20inkscape%3Acy%3D%225.0847344%22%20inkscape%3Awindow-width%3D%221920%22%20inkscape%3Awindow-height%3D%221009%22%20inkscape%3Awindow-x%3D%22-8%22%20inkscape%3Awindow-y%3D%22-8%22%20inkscape%3Awindow-maximized%3D%221%22%20inkscape%3Acurrent-layer%3D%22svg1%22%20%2F%3E%3Cpath%20style%3D%22fill%3Anone;fill-opacity%3A0.654902;stroke%3A%23da0000;stroke-width%3A1.734;stroke-linecap%3Around;stroke-linejoin%3Around;stroke-dasharray%3Anone;stroke-opacity%3A1%22%20d%3D%22M%208.2183666,8.6601809%2010.059281,10.281939%2013.872603,5.0879309%22%20id%3D%22path3%22%20%2F%3E%3Cpath%20d%3D%22M%207.5898437,6.9609375%206.578125,6.0703125%202.3984375,8.7792969%20V%203.3476563%20L%205.7339229,5.3776514%20C%205.662262,5.1405603%205.794809,4.8878458%205.8444521,4.6810607%205.9167655,4.5134861%206.0852006,4.3531026%206.2421875,4.2597656%20c%200.00454,-0.00199%200.0091,-0.00395%200.013672,-0.00586%20L%201.0800781,0.87109375%20V%2011.255859%20Z%22%20style%3D%22clip-rule%3Aevenodd;fill%3A%2389d185;fill-rule%3Aevenodd%22%20id%3D%22path10%22%20sodipodi%3Anodetypes%3D%22ccccccccccc%22%20%2F%3E%3Cpath%20style%3D%22color%3A%23000000;fill%3A%2304be00;stroke-linecap%3Around;stroke-linejoin%3Around;-inkscape-stroke%3Anone%22%20d%3D%22m%2013.750863,0.66974347%20a%200.86699998,0.86699998%200%200%200%20-1.21289,0.1855469%20L%209.286019,5.2849777%208.1551594,4.2908367%20a%200.86699998,0.86699998%200%200%200%20-1.2226562,0.07617%200.86699998,0.86699998%200%200%200%200.078125,1.22461%20l%201.8398437,1.621093%20A%200.86708668,0.86708668%200%200%200%2010.121957,7.0759937%20L%2013.93641,1.8826341%20A%200.86699998,0.86699998%200%200%200%2013.750863,0.66974347%20Z%22%20id%3D%22path9%22%20%2F%3E%3C%2Fsvg%3E%0A");
-}
+    /* monaco editor margin decorations */
+    .jo_margin_start_test {
+        height: 16px !important;
+        width: 16px !important;
+        margin-left: 2.8em;
+        margin-top: 0.4em;
+        background-image: url("data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%20standalone%3D%22no%22%3F%3E%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20version%3D%221.1%22%20id%3D%22svg1%22%20sodipodi%3Adocname%3D%22test-start.svg%22%20inkscape%3Aversion%3D%221.3%20(0e150ed6c4,%202023-07-21)%22%20xmlns%3Ainkscape%3D%22http%3A%2F%2Fwww.inkscape.org%2Fnamespaces%2Finkscape%22%20xmlns%3Asodipodi%3D%22http%3A%2F%2Fsodipodi.sourceforge.net%2FDTD%2Fsodipodi-0.dtd%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Asvg%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%20id%3D%22defs1%22%20%2F%3E%3Csodipodi%3Anamedview%20id%3D%22namedview1%22%20pagecolor%3D%22%23ffffff%22%20bordercolor%3D%22%23000000%22%20borderopacity%3D%220.25%22%20inkscape%3Ashowpageshadow%3D%222%22%20inkscape%3Apageopacity%3D%220.0%22%20inkscape%3Apagecheckerboard%3D%220%22%20inkscape%3Adeskcolor%3D%22%23d1d1d1%22%20inkscape%3Azoom%3D%22104.3319%22%20inkscape%3Acx%3D%225.6023134%22%20inkscape%3Acy%3D%225.0847344%22%20inkscape%3Awindow-width%3D%221920%22%20inkscape%3Awindow-height%3D%221009%22%20inkscape%3Awindow-x%3D%22-8%22%20inkscape%3Awindow-y%3D%22-8%22%20inkscape%3Awindow-maximized%3D%221%22%20inkscape%3Acurrent-layer%3D%22svg1%22%20%2F%3E%3Cpath%20style%3D%22fill%3Anone;fill-opacity%3A0.654902;stroke%3A%23da0000;stroke-width%3A1.734;stroke-linecap%3Around;stroke-linejoin%3Around;stroke-dasharray%3Anone;stroke-opacity%3A1%22%20d%3D%22M%208.2183666,8.6601809%2010.059281,10.281939%2013.872603,5.0879309%22%20id%3D%22path3%22%20%2F%3E%3Cpath%20d%3D%22M%207.5898437,6.9609375%206.578125,6.0703125%202.3984375,8.7792969%20V%203.3476563%20L%205.7339229,5.3776514%20C%205.662262,5.1405603%205.794809,4.8878458%205.8444521,4.6810607%205.9167655,4.5134861%206.0852006,4.3531026%206.2421875,4.2597656%20c%200.00454,-0.00199%200.0091,-0.00395%200.013672,-0.00586%20L%201.0800781,0.87109375%20V%2011.255859%20Z%22%20style%3D%22clip-rule%3Aevenodd;fill%3A%2389d185;fill-rule%3Aevenodd%22%20id%3D%22path10%22%20sodipodi%3Anodetypes%3D%22ccccccccccc%22%20%2F%3E%3Cpath%20style%3D%22color%3A%23000000;fill%3A%2304be00;stroke-linecap%3Around;stroke-linejoin%3Around;-inkscape-stroke%3Anone%22%20d%3D%22m%2013.750863,0.66974347%20a%200.86699998,0.86699998%200%200%200%20-1.21289,0.1855469%20L%209.286019,5.2849777%208.1551594,4.2908367%20a%200.86699998,0.86699998%200%200%200%20-1.2226562,0.07617%200.86699998,0.86699998%200%200%200%200.078125,1.22461%20l%201.8398437,1.621093%20A%200.86708668,0.86708668%200%200%200%2010.121957,7.0759937%20L%2013.93641,1.8826341%20A%200.86699998,0.86699998%200%200%200%2013.750863,0.66974347%20Z%22%20id%3D%22path9%22%20%2F%3E%3C%2Fsvg%3E%0A");
+    }
 
-.jo_margin_start_test:hover {
-    filter: brightness(150%);
-    cursor: pointer;
-}
+    .jo_margin_start_all_tests {
+        height: 16px !important;
+        width: 16px !important;
+        margin-left: 2px;
+        margin-top: 4px;
+        background-image: url("data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%20standalone%3D%22no%22%3F%3E%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20version%3D%221.1%22%20id%3D%22svg1%22%20sodipodi%3Adocname%3D%22test-start.svg%22%20inkscape%3Aversion%3D%221.3%20(0e150ed6c4,%202023-07-21)%22%20xmlns%3Ainkscape%3D%22http%3A%2F%2Fwww.inkscape.org%2Fnamespaces%2Finkscape%22%20xmlns%3Asodipodi%3D%22http%3A%2F%2Fsodipodi.sourceforge.net%2FDTD%2Fsodipodi-0.dtd%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Asvg%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%20id%3D%22defs1%22%20%2F%3E%3Csodipodi%3Anamedview%20id%3D%22namedview1%22%20pagecolor%3D%22%23ffffff%22%20bordercolor%3D%22%23000000%22%20borderopacity%3D%220.25%22%20inkscape%3Ashowpageshadow%3D%222%22%20inkscape%3Apageopacity%3D%220.0%22%20inkscape%3Apagecheckerboard%3D%220%22%20inkscape%3Adeskcolor%3D%22%23d1d1d1%22%20inkscape%3Azoom%3D%22104.3319%22%20inkscape%3Acx%3D%225.6023134%22%20inkscape%3Acy%3D%225.0847344%22%20inkscape%3Awindow-width%3D%221920%22%20inkscape%3Awindow-height%3D%221009%22%20inkscape%3Awindow-x%3D%22-8%22%20inkscape%3Awindow-y%3D%22-8%22%20inkscape%3Awindow-maximized%3D%221%22%20inkscape%3Acurrent-layer%3D%22svg1%22%20%2F%3E%3Cpath%20style%3D%22fill%3Anone;fill-opacity%3A0.654902;stroke%3A%23da0000;stroke-width%3A1.734;stroke-linecap%3Around;stroke-linejoin%3Around;stroke-dasharray%3Anone;stroke-opacity%3A1%22%20d%3D%22M%208.2183666,8.6601809%2010.059281,10.281939%2013.872603,5.0879309%22%20id%3D%22path3%22%20%2F%3E%3Cpath%20d%3D%22M%207.5898437,6.9609375%206.578125,6.0703125%202.3984375,8.7792969%20V%203.3476563%20L%205.7339229,5.3776514%20C%205.662262,5.1405603%205.794809,4.8878458%205.8444521,4.6810607%205.9167655,4.5134861%206.0852006,4.3531026%206.2421875,4.2597656%20c%200.00454,-0.00199%200.0091,-0.00395%200.013672,-0.00586%20L%201.0800781,0.87109375%20V%2011.255859%20Z%22%20style%3D%22clip-rule%3Aevenodd;fill%3A%2389d185;fill-rule%3Aevenodd%22%20id%3D%22path10%22%20sodipodi%3Anodetypes%3D%22ccccccccccc%22%20%2F%3E%3Cpath%20style%3D%22color%3A%23000000;fill%3A%2304be00;stroke-linecap%3Around;stroke-linejoin%3Around;-inkscape-stroke%3Anone%22%20d%3D%22m%2013.750863,0.66974347%20a%200.86699998,0.86699998%200%200%200%20-1.21289,0.1855469%20L%209.286019,5.2849777%208.1551594,4.2908367%20a%200.86699998,0.86699998%200%200%200%20-1.2226562,0.07617%200.86699998,0.86699998%200%200%200%200.078125,1.22461%20l%201.8398437,1.621093%20A%200.86708668,0.86708668%200%200%200%2010.121957,7.0759937%20L%2013.93641,1.8826341%20A%200.86699998,0.86699998%200%200%200%2013.750863,0.66974347%20Z%22%20id%3D%22path9%22%20%2F%3E%3C%2Fsvg%3E%0A");
+    }
 
-.jo_margin_start_test:active {
-    filter: none;
-}
+    .jo_margin_start_test:hover {
+        filter: brightness(150%);
+        cursor: pointer;
+    }
 
-.jo_junitCaption {
-    position: relative;
-    top: 1px;
-}
+    .jo_margin_start_test:active {
+        filter: none;
+    }
 
-.jo_junit_captionRightside {
-    position: relative;
-    top: -1px;
-    font-family: Roboto, sans-serif;
-    color: var(--fontColorLight);
-    
-}
+    .jo_junitCaption {
+        position: relative;
+        top: 1px;
+    }
 
-.jo_junit_captionRightside>span {
-    position: relative;
-    top: 2px;
-    display: inline-block;
-}
+    .jo_junit_captionRightside {
+        position: relative;
+        top: -1px;
+        font-family: Roboto, sans-serif;
+        color: var(--fontColorLight);
 
-.jo_junit_imagesInline {
-    display: inline-block;
-    position: relative;
-    top: 4px;
-}
+    }
 
-/* JUnitProgressbar */
-.jo_junitProgressbarMain {
-    display: none;
-    position: relative;
-    width: 100%;
-    height: 30px;
-    border-bottom: 1px solid var(--slider);
-}
+    .jo_junit_captionRightside>span {
+        position: relative;
+        top: 2px;
+        display: inline-block;
+    }
 
-.jo_junitProgressbarBarOuter {
-    position: absolute;
-    left: 3px;
-    top: 3px;
-    right: 3px;
-    bottom: 3px;
-}
+    .jo_junit_imagesInline {
+        display: inline-block;
+        position: relative;
+        top: 4px;
+    }
 
-.jo_junitProgressbarBarInner {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    height: 100%;
-    width: 30%;
-    text-align: center;
-    line-height: 24px;
-}
+    /* JUnitProgressbar */
+    .jo_junitProgressbarMain {
+        display: none;
+        position: relative;
+        width: 100%;
+        height: 30px;
+        border-bottom: 1px solid var(--slider);
+    }
 
-.jo_junitProgressbarText {
-    position: absolute;
-    left: 0px;
-    top: 1px;
-    right: 0px;
-    bottom: 0px;
-    text-align: center;
-    line-height: 24px;
-}
+    .jo_junitProgressbarBarOuter {
+        position: absolute;
+        left: 3px;
+        top: 3px;
+        right: 3px;
+        bottom: 3px;
+    }
 
-.jo_junitProgressbarGraphic {
-    display: none;
-    position: absolute;
-    right: 5px;
-    top: 4px;
-}
+    .jo_junitProgressbarBarInner {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        height: 100%;
+        width: 30%;
+        text-align: center;
+        line-height: 24px;
+    }
 
-.jo_junitLink {
-    text-decoration: underline;
-}
+    .jo_junitProgressbarText {
+        position: absolute;
+        left: 0px;
+        top: 1px;
+        right: 0px;
+        bottom: 0px;
+        text-align: center;
+        line-height: 24px;
+    }
 
-.jo_junitLink:hover {
-    cursor: pointer;
-}
+    .jo_junitProgressbarGraphic {
+        display: none;
+        position: absolute;
+        right: 5px;
+        top: 4px;
+    }
 
-.jo_junitLink:active {
-    filter: brightness(150%);
-}
+    .jo_junitLink {
+        text-decoration: underline;
+    }
 
-.jo_testrunnerTab .jo_treeviewNode_icon {
-    margin-top: 4px;
-    margin-right: 2px;
-}
+    .jo_junitLink:hover {
+        cursor: pointer;
+    }
 
-.jo_junitFailBlock {
-    margin-left: 10px;
-}
+    .jo_junitLink:active {
+        filter: brightness(150%);
+    }
 
-.jo_junitReportFirstLine {
-    margin-top: 8px;
-}
+    .jo_testrunnerTab .jo_treeviewNode_icon {
+        margin-top: 4px;
+        margin-right: 2px;
+    }
 
-.jo_junitImageInline {
-    position: relative;
-    display: inline-block;
-    top: 4px;
-    left: 4px;
+    .jo_junitFailBlock {
+        margin-left: 10px;
+    }
+
+    .jo_junitReportFirstLine {
+        margin-top: 8px;
+    }
+
+    .jo_junitImageInline {
+        position: relative;
+        display: inline-block;
+        top: 4px;
+        left: 4px;
+    }
 }

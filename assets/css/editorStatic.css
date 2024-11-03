@@ -1,16 +1,4 @@
-/* beta-version */
-#login, #login-center {
-    background-color: var(--backgroundBeta)
-}
-
-#beta-version {
-    position: absolute;
-    font-size: 150%;
-    left: 10px;
-    top: 10px;
-}
-/* End beta */
-html, body {
+body.joeCssFence {
     position: relative;
     padding: 0;
     margin: 0;
@@ -24,47 +12,62 @@ html, body {
     font-size: 10pt;
 }
 
-a {
-    color:rgb(93, 136, 200);
-}
+.joeCssFence {
+    /* beta-version */
+    #login, #login-center {
+        background-color: var(--backgroundBeta)
+    }
 
-.jo_debugger {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
+    #beta-version {
+        position: absolute;
+        font-size: 150%;
+        left: 10px;
+        top: 10px;
+    }
+    /* End beta */
 
-#versionDiv {
-    margin-left: auto;
-    margin-right: auto;
-}
+    a {
+        color:rgb(93, 136, 200);
+    }
 
-/**
-    BugFix for Monaco editor. Without this code editor pane of References-Widget is 5px wide and 5px high
-**/
-.inline {
-    height:100% !important;
-    width:100% !important;
-}
+    .jo_debugger {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
 
-#pruefunglaeuft {
-    display: none;
-    background-color: #2f8024;
-    padding: 3px;
-    text-align: center;
-}
+    #versionDiv {
+        margin-left: auto;
+        margin-right: auto;
+    }
 
-#pruefunglaeuft>span {
-    display: inline-block;
-    position: relative;
-    top: 1px;
-    margin-right: 5px;
-}
+    /**
+        BugFix for Monaco editor. Without this code editor pane of References-Widget is 5px wide and 5px high
+    **/
+    .inline {
+        height:100% !important;
+        width:100% !important;
+    }
 
-@media screen and (max-width: 1000px) {
-    .isidigitalimg, #jo_login_new {
+    #pruefunglaeuft {
         display: none;
+        background-color: #2f8024;
+        padding: 3px;
+        text-align: center;
+    }
+
+    #pruefunglaeuft>span {
+        display: inline-block;
+        position: relative;
+        top: 1px;
+        margin-right: 5px;
+    }
+
+    @media screen and (max-width: 1000px) {
+        .isidigitalimg, #jo_login_new {
+            display: none;
+        }
     }
 }
