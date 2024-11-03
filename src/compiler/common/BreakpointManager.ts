@@ -43,7 +43,7 @@ export class BreakpointManager {
     attachToInterpreter(interpreter: Interpreter){
 
         interpreter.eventManager.on("resetRuntime", () => {
-            this.#writeAllBreakpointsIntoPrograms();
+            this.writeAllBreakpointsIntoPrograms();
         })
 
     }
@@ -166,7 +166,7 @@ export class BreakpointManager {
         return breakpointInfoForModule;
     }
 
-    #writeAllBreakpointsIntoPrograms() {
+    writeAllBreakpointsIntoPrograms() {
         let executable = this.main.getInterpreter().executable;
         if (!executable) return;
 

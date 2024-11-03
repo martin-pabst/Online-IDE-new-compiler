@@ -39,8 +39,9 @@ export class Step {
     }
 
     setBreakpoint() {
+        if (this.originalRun) return; // breakpoint already set
 
-        let breakpointRunFunction = (thread: Thread, stack: any[], stackBase: number): number => {
+        const breakpointRunFunction = (thread: Thread, stack: any[], stackBase: number): number => {
             if (thread.haltAtNextBreakpoint) {
                 thread.state = ThreadState.stoppedAtBreakpoint;
                 thread.haltAtNextBreakpoint = false;
@@ -51,7 +52,6 @@ export class Step {
             }
         }
 
-        if (this.originalRun) return; // breakpoint already set
         this.originalRun = this.run;
         this.run = breakpointRunFunction;
     }

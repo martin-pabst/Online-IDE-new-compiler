@@ -233,6 +233,7 @@ export class JavaCompiledModule extends JavaBaseModule {
         let THIS = mainRuntimeClass;
 
         methodStub.call(THIS, thread, thread.s);
+        // thread.pushMethod(`${mainMethod.classEnumInterface.identifier}.${mainMethod.identifier}`, undefined, mainRuntimeClass)
 
         return true;
 

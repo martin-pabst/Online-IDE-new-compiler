@@ -1218,14 +1218,21 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
         }
 
+
+
+
+
         if (callingConvention == "java") {
             objectTemplate += `${StepParams.thread}` +
                 (method.isStatic ? '' : `, undefined`) +     // non-static methods have callback-function as second parameter
                 (parameterValueSnippet.length > 0 ? ", " : "");
         }
 
+        objectTemplate = `__t.pushMethod("${method.classEnumInterface.identifier}.${method.identifier}", undefined, §1, `
+
         let i = 2;
         objectTemplate += parameterValueSnippet.map(_p => "§" + (i++)).join(", ") + ")";
+
 
         parameterValueSnippet.unshift(objectSnippet);
 

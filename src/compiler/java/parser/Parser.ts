@@ -59,8 +59,9 @@ export class Parser extends StatementParser {
             path: ""
         }
 
+        // TODO hier besserem deterministischen Klassenneman verwenden, counter stilllegen.
         this.javaCompiledModule.mainClass = this.nodeFactory.buildClassNode(this.nodeFactory.buildNodeWithModifiers(EmptyRange.instance),
-        { tt: TokenType.identifier, value: "$MainClass" + (Parser.mainClassCounter++), range: EmptyRange.instance }, this.javaCompiledModule.ast!, [], this.javaCompiledModule);
+        { tt: TokenType.identifier, value: `$MainClass${this.javaCompiledModule.file.name}`, range: EmptyRange.instance }, this.javaCompiledModule.ast!, [], this.javaCompiledModule);
         this.javaCompiledModule.mainClass.range = globalRange;
         this.javaCompiledModule.mainClass.isMainClass = true;
 

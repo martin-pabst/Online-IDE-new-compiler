@@ -7,6 +7,7 @@ import { Main } from "../Main.ts";
 import { MainBase } from "../MainBase.ts";
 import { FileTypeManager } from "../../../compiler/common/module/FileTypeManager.ts";
 import * as monaco from 'monaco-editor'
+import { hotCodeRecordEdits } from '../../../compiler/common/interpreter/HotCodeReplacement.ts';
 
 export type HistoryEntry = {
     file_id: number,
@@ -106,8 +107,10 @@ export class Editor {
         this.editor.onDidChangeModelContent((e: monaco.editor.IModelContentChangedEvent) => {
             let state = this.main.getInterpreter().scheduler.state;
             if ([SchedulerState.stopped, SchedulerState.error, SchedulerState.not_initialized].indexOf(state) < 0) {
-                this.main.getActionManager().trigger("interpreter.stop");
+//                this.main.getActionManager().trigger("interpreter.stop");
             }
+
+            hotCodeRecordEdits(this, e)
         })
 
         let that: Editor = this;
