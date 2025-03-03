@@ -11,7 +11,7 @@ import type * as monaco from 'monaco-editor'
  * A JavaModuleManager includes all Modules of a Java Workspace together with all library
  * Modules and thus represents a "Java Program".
  */
-export class JavaModuleManager {
+export class JavaCompiledModuleManager {
 
     modules: JavaCompiledModule[] = [];
     typestore: JavaTypeStore;
@@ -22,8 +22,8 @@ export class JavaModuleManager {
         this.typestore = new JavaTypeStore();
     }
 
-    copy(excludeTypesOfModule?: JavaCompiledModule): JavaModuleManager {
-        let mm = new JavaModuleManager(this.workspace);
+    copy(excludeTypesOfModule?: JavaCompiledModule): JavaCompiledModuleManager {
+        let mm = new JavaCompiledModuleManager(this.workspace);
         mm.modules = this.modules.slice();
         mm.typestore = this.typestore.copy(excludeTypesOfModule);
 
@@ -39,6 +39,16 @@ export class JavaModuleManager {
     }
 
     setupModulesBeforeCompiliation(files: CompilerFile[]){
+
+        // only for webworker-compiler: replace old file objects by new ones
+        let uniqueIDToNewFileMap: Map<number, CompilerFile> = new Map();
+        for(let file of files){ uniqueIDToNewFileMap.set(file.uniqueID, file)};
+
+        for(let module of this.modules){
+            let newFile = uniqueIDToNewFileMap.get(module.file.uniqueID);
+            if(newFile) module.file = newFile;
+        }
+
         this.removeUnusedModulesAndMarkDependentModulesDirty(files);
         this.createNewModules(files);
     }

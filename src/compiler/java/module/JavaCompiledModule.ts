@@ -23,9 +23,9 @@ import { JavaType } from "../types/JavaType";
 import { NonPrimitiveType } from "../types/NonPrimitiveType";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType.ts";
 import { JavaBaseModule } from "./JavaBaseModule";
-import { JavaModuleManager } from "./JavaModuleManager";
+import { JavaCompiledModuleManager } from "./JavaCompiledModuleManager.ts";
 import { TypePosition } from "./TypePosition.ts";
-import * as monaco from 'monaco-editor'
+import type * as monaco from 'monaco-editor'
 
 
 export type JavaMethodCallPosition = {
@@ -56,7 +56,7 @@ export class JavaCompiledModule extends JavaBaseModule {
 
     methodDeclarationRanges: IRange[] = [];
 
-    constructor(file: CompilerFile, public moduleManager?: JavaModuleManager) {
+    constructor(file: CompilerFile, public moduleManager?: JavaCompiledModuleManager) {
         super(file, false);
     }
 

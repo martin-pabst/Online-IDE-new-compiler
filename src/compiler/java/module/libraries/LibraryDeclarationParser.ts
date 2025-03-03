@@ -20,6 +20,7 @@ import { LibraryAttributeDeclaration, LibraryMethodDeclaration, LibraryMethodOrA
 import { LibraryKlassType, JavaTypeMap, JavaLibraryModule } from "./JavaLibraryModule";
 import { LdToken, LibraryDeclarationLexer } from "./LibraryDeclarationLexer";
 import { SystemModule } from "../../runtime/system/SystemModule.ts";
+import { WebworkerSystemModule } from "../../webworker/WebworkerSystemModule.ts";
 
 type ModifiersAndType = {
     visibility: Visibility,
@@ -50,7 +51,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
     startBracketList: TokenType[] = [TokenType.leftBracket, TokenType.leftCurlyBracket, TokenType.leftSquareBracket, TokenType.lower];
     endBracketList: TokenType[] = [TokenType.rightBracket, TokenType.rightCurlyBracket, TokenType.rightSquareBracket, TokenType.greater];
 
-    constructor(public systemModule: SystemModule) {
+    constructor(public systemModule: SystemModule | WebworkerSystemModule) {
         super();
     }
 

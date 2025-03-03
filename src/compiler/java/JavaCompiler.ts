@@ -16,11 +16,10 @@ import { ExceptionTree } from "./codegenerator/ExceptionTree.ts";
 import { LabelCodeSnippet } from "./codegenerator/LabelManager.ts";
 import { Lexer } from "./lexer/Lexer";
 import { JavaCompiledModule } from "./module/JavaCompiledModule.ts";
-import { JavaModuleManager } from "./module/JavaModuleManager";
+import { JavaCompiledModuleManager } from "./module/JavaCompiledModuleManager.ts";
 import { JavaLibraryModuleManager } from "./module/libraries/JavaLibraryModuleManager";
 import { Parser } from "./parser/Parser";
 import { CompilingProgressManager, CompilingProgressManagerException } from "./CompilingProgressManager.ts";
-import { JavaLibraryModule } from "./module/libraries/JavaLibraryModule.ts";
 
 
 
@@ -35,7 +34,7 @@ const compileTimeout = 800
  */
 export class JavaCompiler implements Compiler {
 
-    moduleManager: JavaModuleManager;
+    moduleManager: JavaCompiledModuleManager;
     libraryModuleManager: JavaLibraryModuleManager;
 
     #errors: Error[] = [];
@@ -52,12 +51,11 @@ export class JavaCompiler implements Compiler {
     lastTimeCompilationStarted: number = 0;
 
     constructor(public main?: IMain, private errorMarker?: ErrorMarker) {
-        this.libraryModuleManager = new JavaLibraryModuleManager();
-        this.moduleManager = new JavaModuleManager();
+        this.moduleManager = new JavaCompiledModuleManager();
     }
 
-    setAdditionalModules(...modules: JavaLibraryModule[]) {
-        this.libraryModuleManager = new JavaLibraryModuleManager(...modules);
+    setLibraryModuleManager(lmm: JavaLibraryModuleManager){
+        this.libraryModuleManager = lmm;
     }
 
     getType(identifier: string): BaseType | undefined {
@@ -70,6 +68,9 @@ export class JavaCompiler implements Compiler {
     }
 
     async compileIfDirty(onlyForCodeCompletion: boolean = false): Promise<Executable | undefined> {
+
+        if(typeof this.libraryModuleManager == 'undefined') return;
+
         // if we're not in test mode:
         if (this.main) {
             if (this.main.getInterpreter().isRunningOrPaused()) return;

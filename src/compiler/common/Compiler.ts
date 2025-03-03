@@ -1,9 +1,9 @@
-import { JavaLibraryModule } from "../java/module/libraries/JavaLibraryModule";
-import { BaseType } from "./BaseType";
-import { Error } from "./Error";
-import { EventManager } from "./interpreter/EventManager";
-import { CompilerFile } from "./module/CompilerFile";
-import { Module } from "./module/Module";
+import type { JavaLibraryModuleManager } from "../java/module/libraries/JavaLibraryModuleManager";
+import type { BaseType } from "./BaseType";
+import type { Error } from "./Error";
+import type { EventManager } from "./interpreter/EventManager";
+import type { CompilerFile } from "./module/CompilerFile";
+import type { Module } from "./module/Module";
 
 export type CompilerEvents = "typesReadyForCodeCompletion" | "compilationFinishedWithNewExecutable" | "compilationFinished";
 
@@ -18,7 +18,7 @@ export interface Compiler {
     triggerCompile(): void;
     interruptAndStartOverAgain(onlyForCodeCompletion: boolean): Promise<void>;
 
-    setAdditionalModules(...modules: JavaLibraryModule[]): void;
+    setLibraryModuleManager(lmm: JavaLibraryModuleManager);
 
     eventManager: EventManager<CompilerEvents>;
 

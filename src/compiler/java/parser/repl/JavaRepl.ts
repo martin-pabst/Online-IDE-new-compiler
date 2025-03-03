@@ -14,7 +14,7 @@ import { JavaCompiler } from "../../JavaCompiler.ts";
 import { ExceptionTree } from "../../codegenerator/ExceptionTree.ts";
 import { JavaSymbolTable } from "../../codegenerator/JavaSymbolTable.ts";
 import { JavaCompiledModule } from "../../module/JavaCompiledModule.ts";
-import { JavaModuleManager } from "../../module/JavaModuleManager.ts";
+import { JavaCompiledModuleManager } from "../../module/JavaCompiledModuleManager.ts";
 import { JavaLibraryModuleManager } from "../../module/libraries/JavaLibraryModuleManager.ts";
 import { JavaReplCompiledModule } from "./JavaReplCompiledModule.ts";
 import { JavaReplCompiler } from "./JavaReplCompiler.ts";
@@ -34,7 +34,7 @@ export class JavaRepl {
     standaloneSymbolTable: JavaSymbolTable;
     standaloneThread: Thread;
     standaloneExecutable: Executable;
-    standaloneModuleManager: JavaModuleManager;
+    standaloneModuleManager: JavaCompiledModuleManager;
 
     standaloneStack: any[] = [];
 
@@ -77,7 +77,7 @@ export class JavaRepl {
         this.standaloneThread = interpreter.scheduler.createThread("Java REPL standalone thread");
         this.standaloneThread.classes = executable.classObjectRegistry;
 
-        this.standaloneModuleManager = new JavaModuleManager();
+        this.standaloneModuleManager = new JavaCompiledModuleManager();
         this.standaloneModuleManager.addModule(this.standaloneModule);
 
         for (let module of executable.moduleManager.modules) {

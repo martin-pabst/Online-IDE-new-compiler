@@ -1,6 +1,6 @@
 import { ExceptionTree } from "../java/codegenerator/ExceptionTree.ts";
 import { JCM } from "../java/language/JavaCompilerMessages.ts";
-import { JavaModuleManager } from "../java/module/JavaModuleManager";
+import { JavaCompiledModuleManager } from "../java/module/JavaCompiledModuleManager.ts";
 import { JavaLibraryModuleManager } from "../java/module/libraries/JavaLibraryModuleManager.ts";
 import { JavaClass } from "../java/types/JavaClass.ts";
 import { JavaMethod } from "../java/types/JavaMethod.ts";
@@ -8,7 +8,6 @@ import { NonPrimitiveType } from "../java/types/NonPrimitiveType";
 import { Error } from "./Error";
 import { Program } from "./interpreter/Program";
 import { Klass, KlassObjectRegistry } from "./interpreter/StepFunction";
-import { CompilerFile } from "./module/CompilerFile";
 import { Module } from "./module/Module";
 import { EmptyRange } from "./range/Range";
 
@@ -26,7 +25,7 @@ export class Executable {
     isCompiledToJavascript: boolean = false;
 
     constructor(public classObjectRegistry: KlassObjectRegistry,
-        public moduleManager: JavaModuleManager,
+        public moduleManager: JavaCompiledModuleManager,
         public libraryModuleManager: JavaLibraryModuleManager,
         public globalErrors: Error[],
         public exceptionTree: ExceptionTree

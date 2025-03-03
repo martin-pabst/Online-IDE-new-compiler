@@ -3,6 +3,7 @@ import { GUIFile } from "../../client/workspace/File.ts";
 import { Workspace } from "../../client/workspace/Workspace.ts";
 import { Compiler } from "../common/Compiler.ts";
 import { JavaRepl } from "../java/parser/repl/JavaRepl.ts";
+import { JavaWebworkerCompilerController } from "../java/webworker/JavaWebworkerCompilerController.ts";
 import { Disassembler } from "./disassembler/Disassembler.ts";
 import { ActionManager } from "./interpreter/ActionManager.ts";
 import { Interpreter } from "./interpreter/Interpreter.ts";
@@ -22,6 +23,7 @@ export interface IMain {
     getLanguage(): Language;
 
     getCompiler(): Compiler;
+    getWebworkerCompiler(): JavaWebworkerCompilerController;
 
     getRepl(): JavaRepl;
 

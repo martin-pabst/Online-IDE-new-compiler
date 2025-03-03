@@ -20,6 +20,8 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 
 import "/assets/fonts/fonts.css";
 import "/assets/css/apidoc.css";
+import { SystemModule } from '../../compiler/java/runtime/system/SystemModule.js';
+import { PrimitiveStringClass } from '../../compiler/java/runtime/system/javalang/PrimitiveStringClass.js';
 
 
 export class ApiDoc {
@@ -65,7 +67,7 @@ export class ApiDoc {
 
     initClassDocumentation() {
 
-        let mm = new JavaLibraryModuleManager();
+        let mm = new JavaLibraryModuleManager([], new SystemModule(PrimitiveStringClass));
 
         let typeList = mm.javaTypes
         .sort(

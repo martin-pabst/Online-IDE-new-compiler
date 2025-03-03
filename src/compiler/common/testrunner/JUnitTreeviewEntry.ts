@@ -1,6 +1,6 @@
 import { fail } from "assert";
 import { TreeviewNode } from "../../../tools/components/treeview/TreeviewNode";
-import { JavaModuleManager } from "../../java/module/JavaModuleManager";
+import { JavaCompiledModuleManager } from "../../java/module/JavaCompiledModuleManager";
 import { JavaClass } from "../../java/types/JavaClass";
 import { JavaMethod } from "../../java/types/JavaMethod";
 import { SchedulerState } from "../interpreter/SchedulerState";
@@ -34,7 +34,7 @@ export class JUnitTreeviewEntry {
     assertionResults: AssertionResult[] = [];   // Results of last run
 
     constructor(private testrunner: JUnitTestrunner, private parent: JUnitTreeviewEntry | undefined,
-        public moduleManager: JavaModuleManager | undefined,
+        public moduleManager: JavaCompiledModuleManager | undefined,
         public klass: JavaClass | undefined,
         public method: JavaMethod | undefined) {
 

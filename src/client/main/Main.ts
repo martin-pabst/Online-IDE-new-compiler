@@ -51,6 +51,7 @@ import { ExceptionMarker } from '../../compiler/common/interpreter/ExceptionMark
 import { JUnitTestrunner } from '../../compiler/common/testrunner/JUnitTestrunner.js';
 import { IPosition } from '../../compiler/common/range/Position.js';
 import * as monaco from 'monaco-editor'
+import { JavaWebworkerCompilerController } from '../../compiler/java/webworker/JavaWebworkerCompilerController.js';
 
 
 export class Main implements MainBase {
@@ -104,6 +105,12 @@ export class Main implements MainBase {
 
     language: Language;
     interpreter: Interpreter;
+
+    webworkerCompiler: JavaWebworkerCompilerController;
+
+    getWebworkerCompiler(): JavaWebworkerCompilerController {
+        return this.webworkerCompiler;
+    }
 
     showFile(file?: CompilerFile): void {
         if (!file) return;
@@ -263,6 +270,8 @@ export class Main implements MainBase {
         this.programControlButtons = new ProgramControlButtons(jQuery('#controls'), this.interpreter, this.actionManager);
 
         new EditorOpenerProvider(this);
+
+        this.webworkerCompiler = new JavaWebworkerCompilerController(this);
 
 
     }

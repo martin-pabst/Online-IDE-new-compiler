@@ -161,9 +161,7 @@ import { Icosahedron3dClass } from "../graphics/3d/Icosahedron3dClass.ts";
 
 export class SystemModule extends JavaLibraryModule {
 
-    public primitiveStringClass: Klass & LibraryKlassType = PrimitiveStringClass;
-
-    constructor() {
+    constructor(public primitiveStringClass: Klass & LibraryKlassType) {
         super();
         this.types.push(
             new BooleanPrimitiveType(this),

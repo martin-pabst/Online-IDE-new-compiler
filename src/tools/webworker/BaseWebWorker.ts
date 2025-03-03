@@ -69,7 +69,7 @@ export class BaseWebworker<CallerType> implements ProxyHandler<any> {
         this.caller = new Proxy({}, this);
     }
 
-    private onMessage(data: WebworkerMessage) {
+    private async onMessage(data: WebworkerMessage) {
 
         switch (data.type) {
             case "return":
@@ -81,7 +81,7 @@ export class BaseWebworker<CallerType> implements ProxyHandler<any> {
                 }
                 break;
             case "call":
-                const returnValue = (<Function>this[data.methodIdentifier]).call(this, ...data.parameters);
+                const returnValue = await (<Function>this[data.methodIdentifier]).call(this, ...data.parameters);
                 const returnMessage: WebworkerMethodReturnMessage = {
                     type: "return",
                     methodIdentifier: data.methodIdentifier,

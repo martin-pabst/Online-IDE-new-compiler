@@ -40,6 +40,7 @@ import { IPosition } from "../../compiler/common/range/Position.js";
 import { JUnitTestrunner } from "../../compiler/common/testrunner/JUnitTestrunner.js";
 import * as monaco from 'monaco-editor'
 import { OnlineIDEAccessImpl } from "./EmbeddedInterface.js";
+import { JavaWebworkerCompilerController } from "../../compiler/java/webworker/JavaWebworkerCompilerController.js";
 
 
 type JavaOnlineConfig = {
@@ -101,7 +102,12 @@ export class MainEmbedded implements MainBase {
 
     compileRunsAfterCodeReset: number = 0;
 
+    webworkerCompiler: JavaWebworkerCompilerController;
 
+
+    getWebworkerCompiler(): JavaWebworkerCompilerController {
+        return this.webworkerCompiler;
+    }
 
     isEmbedded(): boolean { return true; }
 
@@ -179,6 +185,8 @@ export class MainEmbedded implements MainBase {
 
 
     constructor(private $outerDiv: JQuery<HTMLElement>, private scriptList: JOScript[]) {
+
+        this.webworkerCompiler = new JavaWebworkerCompilerController(this);
 
         this.readConfig($outerDiv);
 

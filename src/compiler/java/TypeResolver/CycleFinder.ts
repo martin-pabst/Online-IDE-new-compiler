@@ -1,6 +1,6 @@
 import { JCM } from "../language/JavaCompilerMessages";
 import { JavaBaseModule } from "../module/JavaBaseModule";
-import { JavaModuleManager } from "../module/JavaModuleManager";
+import { JavaCompiledModuleManager } from "../module/JavaCompiledModuleManager";
 import { JavaClass } from "../types/JavaClass";
 import { JavaInterface } from "../types/JavaInterface";
 
@@ -8,7 +8,7 @@ type ClassOrInterface = JavaClass | JavaInterface;
 
 export class CycleFinder {
 
-    static findCycle(moduleManager: JavaModuleManager): boolean {
+    static findCycle(moduleManager: JavaCompiledModuleManager): boolean {
         for(let npt of moduleManager.typestore.getNonPrimitiveTypes()){
 
             if(npt instanceof JavaClass){

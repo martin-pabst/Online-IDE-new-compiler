@@ -2,6 +2,7 @@ import { Klass } from "../../../common/interpreter/StepFunction.ts";
 import { CompilerFile } from "../../../common/module/CompilerFile";
 import type { SystemModule } from "../../runtime/system/SystemModule.ts";
 import { JavaType } from "../../types/JavaType";
+import { SerializedLibraryClass, WebworkerSystemModule } from "../../webworker/WebworkerSystemModule.ts";
 import { JavaBaseModule } from "../JavaBaseModule";
 import { LibraryDeclarations } from "./DeclareType.ts";
 
@@ -15,7 +16,7 @@ export type JavaTypeMap = { [identifier: string]: JavaType };
 
 export abstract class JavaLibraryModule extends JavaBaseModule {
     
-    prepareSystemModule(systemModule: SystemModule) {
+    prepareSystemModule(systemModule: SystemModule | WebworkerSystemModule) {
     }
 
     classesInterfacesEnums: (Klass & LibraryKlassType)[] = [];
@@ -35,5 +36,17 @@ export abstract class JavaLibraryModule extends JavaBaseModule {
         }
 
         return '';
+    }
+
+    getSerializedLibraryClasses(): SerializedLibraryClass[] {
+        return this.classesInterfacesEnums.map(cie => {
+            let ld = cie.__javaDeclarations.slice();
+            for(let ld1 of ld){
+                if(typeof ld1.comment == "function") ld1.comment = ld1.comment();
+            }
+            return {
+                __javaDeclarations: cie.__javaDeclarations
+            }
+        })
     }
 }

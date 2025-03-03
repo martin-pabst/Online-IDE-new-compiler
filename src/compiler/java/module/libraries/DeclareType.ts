@@ -1,13 +1,13 @@
 export type LMADeclarationType = "declaration" | "field" | "method";
 
 export type LibraryClassDeclaration = {
-    type: LMADeclarationType;
+    type: "declaration";
     signature: string;
     comment?: string | (() => string);
 }
 
 export type LibraryMethodDeclaration = {
-    type: LMADeclarationType;
+    type: "method";
     signature: string;
     native?: Function;
     java?: Function;
@@ -17,7 +17,7 @@ export type LibraryMethodDeclaration = {
 }
 
 export type LibraryAttributeDeclaration = {
-    type: LMADeclarationType;
+    type: "field";
     signature: string;
     nativeIdentifier: string;
     template?: string;
@@ -29,3 +29,4 @@ export type LibraryAttributeDeclaration = {
 export type LibraryMethodOrAttributeDeclaration = LibraryClassDeclaration | LibraryMethodDeclaration | LibraryAttributeDeclaration;
 
 export type LibraryDeclarations = LibraryMethodOrAttributeDeclaration[];
+

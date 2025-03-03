@@ -1,6 +1,6 @@
 import { generateSecret } from "../../../tools/StringTools";
 import { JavaBaseModule } from "../../java/module/JavaBaseModule";
-import { JavaModuleManager } from "../../java/module/JavaModuleManager";
+import { JavaCompiledModuleManager } from "../../java/module/JavaCompiledModuleManager";
 import { IRange } from "../range/Range";
 
 export class CodeReacedAssertion {
@@ -17,7 +17,7 @@ export class CodeReachedAssertions {
 
     assertions: Map<string, CodeReacedAssertion> = new Map();
 
-    init(moduleManager: JavaModuleManager) {
+    init(moduleManager: JavaCompiledModuleManager) {
         this.assertions.clear();
         moduleManager.modules.forEach( m => {
             this.addAll(m.codeReachedAssertions);

@@ -1,11 +1,11 @@
 import { ErrormessageWithId } from "../../../tools/language/LanguageManager.ts";
 import { ErrorLevel } from "../../common/Error";
-import { Helpers, Klass, StepParams } from "../../common/interpreter/StepFunction";
+import { Klass } from "../../common/interpreter/StepFunction";
 import { IRange } from "../../common/range/Range";
 import { TokenType } from "../TokenType";
 import { JavaBaseModule } from "../module/JavaBaseModule";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
-import { JavaModuleManager } from "../module/JavaModuleManager";
+import { JavaCompiledModuleManager } from "../module/JavaCompiledModuleManager.ts";
 import { JavaLibraryModuleManager } from "../module/libraries/JavaLibraryModuleManager";
 import { ASTArrayTypeNode, ASTBaseTypeNode, ASTClassDefinitionNode, ASTEnumDefinitionNode, ASTFieldDeclarationNode, ASTGenericTypeInstantiationNode, ASTInterfaceDefinitionNode, ASTMethodDeclarationNode, ASTTypeDefinitionWithGenerics, ASTTypeNode, ASTWildcardTypeNode, TypeScope } from "../parser/AST";
 import { InterfaceClass } from "../runtime/system/javalang/InterfaceClass";
@@ -35,7 +35,7 @@ export class TypeResolver {
 
     absoluteNameToResolvedTypeMap: Map<string, JavaType> = new Map();
 
-    constructor(private moduleManager: JavaModuleManager, private libraryModuleManager: JavaLibraryModuleManager) {
+    constructor(private moduleManager: JavaCompiledModuleManager, private libraryModuleManager: JavaLibraryModuleManager) {
         this.dirtyModules = this.moduleManager.getNewOrDirtyModules();
     }
 

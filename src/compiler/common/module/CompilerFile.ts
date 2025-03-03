@@ -1,3 +1,4 @@
+import { SerializedCompilerFile } from "../../java/webworker/JavaWebworkerCompiler";
 import { FileTypeManager } from "./FileTypeManager";
 import * as monaco from 'monaco-editor'
 
@@ -25,6 +26,10 @@ export class CompilerFile {
     private __textWhenMonacoModelAbsent: string = "";
     protected localVersion: number = 0;
 
+    private static maxUniqueID: number = 0;
+    private _uniqueID: number = CompilerFile.maxUniqueID++;
+    get uniqueID(): number { return this._uniqueID;};
+    set uniqueID(uniqueID: number){this._uniqueID = uniqueID;};
 
     constructor(name?: string) {
         this.name = name || "";
@@ -82,6 +87,24 @@ export class CompilerFile {
         this.editorState = null;
     }
 
+    serialize(): SerializedCompilerFile {
+        return {
+            lastSavedVersion: this.lastSavedVersion,
+            localVersion: this.getLocalVersion(),
+            name: this.name,
+            text: this.getText(),
+            uniqueID: this.uniqueID
+        }
+    }
 
+    static deserialize(scf: SerializedCompilerFile): CompilerFile {
+        let cf: CompilerFile = new CompilerFile(scf.name);
+        cf.localVersion = scf.localVersion,
+        cf.lastSavedVersion = scf.lastSavedVersion,
+        cf.__textWhenMonacoModelAbsent = scf.text,
+        cf.uniqueID = scf.uniqueID;
+
+        return cf;
+    }
 
 }

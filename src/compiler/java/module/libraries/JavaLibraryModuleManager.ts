@@ -1,7 +1,9 @@
 import { Klass } from "../../../common/interpreter/StepFunction";
-import { SystemModule } from "../../runtime/system/SystemModule";
+import type { SystemModule } from "../../runtime/system/SystemModule";
 import { GenericTypeParameter } from "../../types/GenericTypeParameter";
 import { JavaType } from "../../types/JavaType";
+import { SerializedLibraryModuleManager } from "../../webworker/WebworkerJavaLibraryModuleManager";
+import { WebworkerSystemModule } from "../../webworker/WebworkerSystemModule";
 import { JavaTypeStore } from "../JavaTypeStore";
 import { JavaLibraryModule } from "./JavaLibraryModule";
 import { LibraryDeclarationParser } from "./LibraryDeclarationParser";
@@ -10,14 +12,14 @@ import type * as monaco from 'monaco-editor'
 
 export class JavaLibraryModuleManager {
 
-    libraryModules: JavaLibraryModule[] = [];
+    private libraryModules: JavaLibraryModule[] = [];
     javaTypes: JavaType[] = [];
     typestore: JavaTypeStore;
-    systemModule: SystemModule;
 
-    constructor(...additionalModules: JavaLibraryModule[]){
-        this.systemModule = new SystemModule();
-        this.libraryModules.push(this.systemModule)
+    constructor(private additionalModules: JavaLibraryModule[], 
+        private systemModule: SystemModule | WebworkerSystemModule){
+
+            this.libraryModules.push(this.systemModule)
         if(additionalModules){
             this.libraryModules.push(...additionalModules);
         }
@@ -88,5 +90,22 @@ export class JavaLibraryModuleManager {
         return this.typestore.getTypeCompletionItems(undefined, rangeToReplace, false, true);
     }
 
+    getSerializedLibraryModuleManager(): SerializedLibraryModuleManager {
+        let jd = this.systemModule.primitiveStringClass.__javaDeclarations.slice();
+        for(let jd1 of jd){
+            if(typeof jd1.comment == 'function') jd1.comment = jd1.comment();
+        }
+
+        let slmm: SerializedLibraryModuleManager = {
+            additionalSerializedLibraryModules: this.additionalModules.map(am => am.getSerializedLibraryClasses()),
+            serializedSystemClasses: this.systemModule.getSerializedLibraryClasses(),
+
+            serializedPrimitiveStringClass: {
+                __javaDeclarations: jd
+            }
+        }
+
+        return slmm;
+    }
 
 }
