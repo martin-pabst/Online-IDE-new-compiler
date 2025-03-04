@@ -54,5 +54,16 @@
     "three": "^0.167.1",
     "upng-js": "^2.1.0",
     "w2ui": "^2.0.0"
+  },
+  "madge": {
+    "tsConfig": "tsconfig.json",
+    "fileExtensions": [
+      "ts"
+    ],
+    "detectiveOptions": {
+      "ts": {
+        "skipTypeImports": true
+      }
+    }
   }
 }
