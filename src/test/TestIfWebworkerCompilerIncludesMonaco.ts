@@ -1,4 +1,4 @@
-import { JavaWebworkerCompilerController } from "../compiler/java/webworker/JavaWebworkerCompilerController";
+import { JavaWebworkerCompiler } from "../compiler/java/webworker/JavaWebworkerCompiler";
 
+new JavaWebworkerCompiler(null, null);
 
-new JavaWebworkerCompilerController(null);

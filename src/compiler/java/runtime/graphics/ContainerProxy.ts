@@ -1,5 +1,5 @@
 import { Matrix } from "pixi.js";
-import { InterpreterMessages } from "../../../common/language/InterpreterMessages";
+import { InterpreterMessages } from "../../../common/international/InterpreterMessages";
 import { MethodOfDestroyedGOExceptionClass } from "../system/javalang/MethodOfDestroyedGOExceptionClass";
 
 /**

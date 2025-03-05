@@ -1,13 +1,13 @@
 import jQuery from "jquery";
 import { BreakpointManager } from "../../compiler/common/BreakpointManager.js";
-import { Compiler } from "../../compiler/common/Compiler.js";
+import { Compiler } from "../../compiler/common/language/Compiler.js";
 import { Debugger } from "../../compiler/common/debugger/Debugger.js";
 import { Executable } from "../../compiler/common/Executable.js";
 import { ActionManager } from "../../compiler/common/interpreter/ActionManager.js";
 import { GraphicsManager } from "../../compiler/common/interpreter/GraphicsManager.js";
 import { Interpreter } from "../../compiler/common/interpreter/Interpreter.js";
 import { KeyboardManager } from "../../compiler/common/interpreter/KeyboardManager.js";
-import { Language } from "../../compiler/common/Language.js";
+import { Language } from "../../compiler/common/language/Language.js";
 import { CompilerWorkspace } from "../../compiler/common/module/CompilerWorkspace.js";
 import { EditorOpenerProvider } from "../../compiler/common/monacoproviders/EditorOpenerProvider.js";
 import { ErrorMarker } from "../../compiler/common/monacoproviders/ErrorMarker.js";
@@ -40,7 +40,6 @@ import { IPosition } from "../../compiler/common/range/Position.js";
 import { JUnitTestrunner } from "../../compiler/common/testrunner/JUnitTestrunner.js";
 import * as monaco from 'monaco-editor'
 import { OnlineIDEAccessImpl } from "./EmbeddedInterface.js";
-import { JavaWebworkerCompilerController } from "../../compiler/java/webworker/JavaWebworkerCompilerController.js";
 
 
 type JavaOnlineConfig = {
@@ -101,13 +100,6 @@ export class MainEmbedded implements MainBase {
     breakpointManager: BreakpointManager;
 
     compileRunsAfterCodeReset: number = 0;
-
-    webworkerCompiler: JavaWebworkerCompilerController;
-
-
-    getWebworkerCompiler(): JavaWebworkerCompilerController {
-        return this.webworkerCompiler;
-    }
 
     isEmbedded(): boolean { return true; }
 
@@ -211,7 +203,7 @@ export class MainEmbedded implements MainBase {
                                 this.setFileActive(files[0]);
                             }
                         }
-                        this.getCompiler().triggerCompile(false);
+                        this.getLanguage().triggerCompile(this, false);
 
                     });
                 }
@@ -239,7 +231,7 @@ export class MainEmbedded implements MainBase {
             this.scriptList.filter((script) => script.title.endsWith(".md")).forEach((script) => this.fileExplorer.addHint(script));
         } else {
             this.setFileActive(this.currentWorkspace.getFirstFile());
-            this.getCompiler().triggerCompile(false);
+            this.getLanguage().triggerCompile(this, false);
         }
 
     }
@@ -460,7 +452,7 @@ export class MainEmbedded implements MainBase {
 
     removeFile(file: GUIFile) {
         this.currentWorkspace.removeFile(file);
-        this.getCompiler()?.triggerCompile(false);
+        this.getCompiler()?.triggerCompile();
     }
 
 
@@ -608,7 +600,6 @@ export class MainEmbedded implements MainBase {
         */
         let errorMarker = new ErrorMarker();
         this.language = JavaLanguage.registerMain(this, errorMarker);
-        this.webworkerCompiler = new JavaWebworkerCompilerController(this, errorMarker);
 
         if (this.$junitDiv) {
             new JUnitTestrunner(this, this.$junitDiv[0]);
@@ -616,7 +607,7 @@ export class MainEmbedded implements MainBase {
 
         this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
 
-        // this.getCompiler().triggerCompile(false);
+        this.getLanguage().triggerCompile(this, false);
 
         if (this.config.withPCode) {
             this.disassembler = new Disassembler(this.$disassemblerDiv[0], this);
@@ -896,7 +887,7 @@ export class MainEmbedded implements MainBase {
                 this.setFileActive(this.currentWorkspace.getFirstFile());
             }
 
-            this.getCompiler().triggerCompile(false);
+            this.getLanguage().triggerCompile(this, false);
 
             that.saveScripts();
 

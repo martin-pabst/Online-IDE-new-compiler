@@ -489,13 +489,18 @@ export class Interpreter {
 
         }
 
-        let startableFiles: GUIFile[] = [];
-        if(this.executable){
-            for(let module of this.executable.moduleManager.modules){
-                if(module.isStartable()) startableFiles.push(<GUIFile>module.file);
-            }
+        let currentWorkspace = this.main.getCurrentWorkspace();
+        if(currentWorkspace){
+            let startableFiles: GUIFile[] = currentWorkspace.getFiles().filter(f => f.isStartable);
+            this.main?.markFilesAsStartable(startableFiles, state >= 3);
         }
-        this.main?.markFilesAsStartable(startableFiles, state >= 3);
+
+        // if(this.executable){
+        //     for(let module of this.executable.moduleManager.modules){
+        //         if(module.isStartable()) startableFiles.push(<GUIFile>module.file);
+        //     }
+        // }
+
     }
 
     #resetRuntime() {

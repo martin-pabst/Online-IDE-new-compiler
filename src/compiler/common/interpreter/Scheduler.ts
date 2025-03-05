@@ -2,7 +2,7 @@ import { JavaTypeStore } from "../../java/module/JavaTypeStore.ts";
 import { JavaClass } from "../../java/types/JavaClass.ts";
 import { JavaMethod } from "../../java/types/JavaMethod.ts";
 import { Executable } from "../Executable.ts";
-import { InterpreterMessages } from "../language/InterpreterMessages.ts";
+import { InterpreterMessages } from "../international/InterpreterMessages.ts";
 import { ProgramPointerPositionInfo } from "../monacoproviders/ProgramPointerManager.ts";
 import { Interpreter } from "./Interpreter";
 import { Program } from "./Program";

@@ -7,7 +7,7 @@ import { GUIFile } from "./GUIFile.js";
 
 import * as PIXI from 'pixi.js';
 import { CompilerWorkspace } from '../../compiler/common/module/CompilerWorkspace.js';
-import { Compiler } from '../../compiler/common/Compiler.js';
+import { Compiler } from '../../compiler/common/language/Compiler.js';
 import { JavaLibraryManager } from '../../compiler/java/runtime/JavaLibraryManager.js';
 
 import type * as monaco from 'monaco-editor'

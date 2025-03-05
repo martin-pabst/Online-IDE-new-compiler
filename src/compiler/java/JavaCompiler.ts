@@ -1,6 +1,6 @@
 import { FileTypeManager } from "../common/module/FileTypeManager.ts";
 import type { BaseType } from "../common/BaseType.ts";
-import type { Compiler, CompilerEvents } from "../common/Compiler.ts";
+import type { Compiler, CompilerEvents } from "../common/language/Compiler.ts";
 import type { Error, ErrorLevel } from "../common/Error.ts";
 import { Executable } from "../common/Executable.ts";
 import type { IMain } from "../common/IMain.ts";
@@ -69,6 +69,8 @@ export class JavaCompiler implements Compiler {
     }
 
     async compileIfDirty(onlyForCodeCompletion: boolean = false): Promise<Executable | undefined> {
+
+        // console.log("Compiling " + (this.isWebworker ? " in webworker" : " in main thread"))
 
         if(typeof this.libraryModuleManager == 'undefined') return;
 
@@ -175,6 +177,7 @@ export class JavaCompiler implements Compiler {
 
         for (const module of this.#lastCompiledExecutable.moduleManager.modules) {
             this.errorMarker?.markErrorsOfModule(module);
+            module.file.isStartable = module.isStartable();
         }
 
         return executable;
@@ -230,13 +233,13 @@ export class JavaCompiler implements Compiler {
      * Schedules a compilation in the near future and returns.
      * Cancels a previously scheduled compilation.
      */
-    triggerCompile() {
+    triggerCompile(callback?: () => void) {
         if (this.#compileTimer) {
             clearTimeout(this.#compileTimer)
         }
 
         // ensure that there's at least compileTimeout ms between two compilation runs
-        let timeout: number = (this.isWebworker ? 10 : compileTimeout) - (performance.now() - this.lastTimeCompilationStarted);
+        let timeout: number = (this.isWebworker ? 1 : compileTimeout) - (performance.now() - this.lastTimeCompilationStarted);
         if (timeout < 0) timeout = 0;
 
 
@@ -256,6 +259,7 @@ export class JavaCompiler implements Compiler {
                     }
                 }
             } while (this.#progressManager.restartNecessary())
+                if(callback) callback();
         }, timeout)
     }
 
@@ -307,6 +311,9 @@ export class JavaCompiler implements Compiler {
     }
 
     async interruptAndStartOverAgain(onlyForCodeCompletion: boolean): Promise<void> {
+
+        return; // TODO!
+
         if (this.#progressManager.isInsideCompilationRun) {
             this.#progressManager.interruptCompilerIfRunning(false);
         }

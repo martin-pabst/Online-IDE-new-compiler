@@ -1,6 +1,6 @@
-import { Compiler } from "../common/Compiler";
+import { Compiler } from "../common/language/Compiler.ts";
 import { IMain } from "../common/IMain";
-import { Language } from "../common/Language";
+import { Language } from "../common/language/Language.ts";
 import { ColorProvider as JavaColorProvider } from "../common/monacoproviders/ColorProvider";
 import { ErrorMarker } from "../common/monacoproviders/ErrorMarker";
 import { JavaCompiler } from "./JavaCompiler";
@@ -16,14 +16,14 @@ import { JavaSymbolAndMethodMarker } from "./monacoproviders/JavaSymbolAndMethod
 import { JavaCodeActionProvider } from "./monacoproviders/quickfix/JavaCodeActionProvider.ts";
 import { JavaRepl as JavaRepl } from "./parser/repl/JavaRepl";
 import * as monaco from 'monaco-editor'
+import { JavaWebworkerCompiler } from "./webworker/JavaWebworkerCompiler.ts";
 
 export class JavaLanguage extends Language {
 
     private static instance: JavaLanguage;
 
-
     private constructor() {
-        super("Java", ".java", "myJava");
+        super("Java", ".java", "myJava", true);
         this.registerLanguageAtMonacoEditor();
         this.registerProviders();
     }
@@ -36,18 +36,18 @@ export class JavaLanguage extends Language {
         return JavaLanguage.instance;
     }
 
-
     public static registerMain(main: IMain, errorMarker: ErrorMarker): JavaLanguage {
         let compiler = new JavaCompiler(main, errorMarker, false);
+        let webworkerCompiler = new JavaWebworkerCompiler(main, errorMarker);
         let instance = JavaLanguage.getInstance();
         instance.registerCompiler(main, compiler);
+        instance.registerWebworkerCompiler(main, webworkerCompiler);
         let repl = new JavaRepl(main, compiler);
         instance.registerRepl(main, repl);
         JavaOnDidTypeProvider.configureEditor(main.getMainEditor());
         new JavaSymbolAndMethodMarker(main);
         return instance;
     }
-
 
 
 

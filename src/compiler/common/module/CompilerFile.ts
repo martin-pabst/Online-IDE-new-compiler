@@ -1,4 +1,4 @@
-import type { SerializedCompilerFile } from "../../java/webworker/JavaWebworkerCompiler";
+import type { SerializedCompilerFile } from "../../java/webworker/JavaWebworker";
 import type * as monaco from 'monaco-editor'
 
 export type FileContentChangedListener = (changedfile: CompilerFile) => void;
@@ -13,6 +13,8 @@ export class CompilerFile {
     private lastSavedVersion: number = -1;
 
     private fileContentChangedListeners: FileContentChangedListener[] = [];
+
+    public isStartable: boolean = false;
 
     /*
      * monaco editor counts LanguageChangedListeners and issues ugly warnings in console if more than

@@ -1,63 +1,76 @@
-import { BaseWebworker } from "../../../tools/webworker/BaseWebWorker";
-import { Error } from "../../common/Error";
-import { CompilerFile } from "../../common/module/CompilerFile";
-import { JavaCompiler } from "../JavaCompiler";
-import type { JavaWebworkerCompilerController } from "./JavaWebworkerCompilerController";
-import { SerializedLibraryModuleManager, WebworkerJavaLibraryModuleManager } from "./WebworkerJavaLibraryModuleManager";
+import { WebworkerWrapper } from '../../../tools/webworker/WebworkerWrapper';
+import { IMain } from '../../common/IMain';
+import { WebworkerCompiler } from '../../common/language/WebworkerCompiler';
+import { FileTypeManager } from '../../common/module/FileTypeManager';
+import { ErrorMarker } from '../../common/monacoproviders/ErrorMarker';
+import { JavaLibraryModuleManager } from '../module/libraries/JavaLibraryModuleManager';
+import { PrimitiveStringClass } from '../runtime/system/javalang/PrimitiveStringClass';
+import { SystemModule } from '../runtime/system/SystemModule';
+import { JavaWebWorker } from './JavaWebworker';
+import workerUrl from './JavaWebworkerCompiler?worker&url';
 
-const ctx: DedicatedWorkerGlobalScope = self as any;
-// Beware: additional code at end of this file!
 
-export type SerializedCompilerFile = {
-    name: string,
-    uniqueID: number,
-    text: string,
-    localVersion: number,
-    lastSavedVersion: number
-}
+export class JavaWebworkerCompiler implements WebworkerCompiler {
 
-export class JavaWebWorkerCompiler extends BaseWebworker<JavaWebworkerCompilerController> {
+    javaWebworkerCompiler: JavaWebWorker;
 
-    compiler: JavaCompiler;
-    timeCompilationStarted: number;
+    lastTimeCompilationTriggered: number = performance.now();
 
-    constructor(ctx: DedicatedWorkerGlobalScope){
-        super(ctx);
-        // debugger;
-        this.compiler = new JavaCompiler(undefined, undefined, true);
-        this.compiler.eventManager.on('compilationFinished', () => {
-            this.caller.onCompilationFinished();
-            // console.log("Compilation took " + (Math.round(performance.now() - this.timeCompilationStarted)) + " ms");
-        })
-        
-        this.run();
+    callbackAfterCompilationFinished: (() => void) | undefined; 
+    // timeoutSet: boolean = false;
+
+    constructor(private main: IMain, private errorMarker?: ErrorMarker) {
+        const worker = new Worker(workerUrl, { type: 'module' });
+        this.javaWebworkerCompiler = new WebworkerWrapper<JavaWebWorker>(worker, this).getWrapper();
+
+        // let serializedLibraryModuleManager = new JavaLibraryModuleManager([], new SystemModule(PrimitiveStringClass)).getSerializedLibraryModuleManager();
+        // this.javaWebworkerCompiler.setLibraryModuleManager(serializedLibraryModuleManager);
+    }
+
+    onCompilationFinished() {
+        this.printErrors();
+        if(this.callbackAfterCompilationFinished) this.callbackAfterCompilationFinished();
+        this.callbackAfterCompilationFinished = undefined;
     }
     
-    async run(){
-        
-    }
-    
-    setLibraryModuleManager(serializedLibraryModuleManager: SerializedLibraryModuleManager){
-        let lmm = new WebworkerJavaLibraryModuleManager(serializedLibraryModuleManager);
-        this.compiler.setLibraryModuleManager(lmm);
-    }
-    
-    setFiles(serializedCompilerFile: SerializedCompilerFile[]){
-        let compilerFiles: CompilerFile[] = serializedCompilerFile.map(scf => CompilerFile.deserialize(scf));
-        this.compiler.setFiles(compilerFiles);
-        this.timeCompilationStarted = performance.now();
-        this.compiler.triggerCompile();
-    }
-    
-    getErrors(){
-        let errors: Record<number, Error[]> = {};
-        for(let m of this.compiler.moduleManager.modules){
-            errors[m.file.uniqueID] = m.errors.map(e => {e.quickFix = undefined; return e;});
+    async printErrors() {
+        if (!this.errorMarker) return;
+        let fileStatusMap = await this.javaWebworkerCompiler.getFileStatus();
+        const currentWorkspace = this.main?.getCurrentWorkspace();
+        if (!currentWorkspace) return;
+        let files = currentWorkspace.getFiles().filter(file => FileTypeManager.filenameToFileType(file.name).language == 'myJava');
+        for (let file of files) {
+            let fileStatus = fileStatusMap[file.uniqueID];
+            if(fileStatus){
+                let errorsForFile = fileStatus.errors || [];
+                this.errorMarker.markErrorsOfFile(file, errorsForFile);
+                file.isStartable = fileStatus.isStartable;
+            } else {
+                file.isStartable = false;
+            }
         }
-        return errors;
+    }
+
+    triggerCompile(callback: () => void) {
+
+        this.callbackAfterCompilationFinished = callback;
+
+        // let delta = performance.now() - this.lastTimeCompilationTriggered;
+        // if (delta >= 500) {
+        //     this.lastTimeCompilationTriggered = performance.now();
+            // if we're not in test mode:
+            if (this.main.getInterpreter().isRunningOrPaused()) return;
+            const currentWorkspace = this.main?.getCurrentWorkspace();
+            if (!currentWorkspace) return;
+            let files = currentWorkspace.getFiles().filter(file => FileTypeManager.filenameToFileType(file.name).language == 'myJava');
+
+            this.javaWebworkerCompiler.setFiles(files.map(f => f.serialize()));
+    //     } else if (!this.timeoutSet) {
+    //         this.timeoutSet = true;
+    //         window.setTimeout(() => {
+    //             this.triggerCompile();
+    //         }, 510 - delta);
+    //     }
     }
 
 }
-
-new JavaWebWorkerCompiler(ctx);
-

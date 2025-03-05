@@ -1,13 +1,13 @@
 import jQuery from 'jquery';
 import { BreakpointManager } from '../../compiler/common/BreakpointManager.js';
-import { Compiler } from '../../compiler/common/Compiler.js';
+import { Compiler } from '../../compiler/common/language/Compiler.js';
 import { Debugger } from '../../compiler/common/debugger/Debugger.js';
 import { Executable } from '../../compiler/common/Executable.js';
 import { ActionManager } from '../../compiler/common/interpreter/ActionManager.js';
 import { GraphicsManager } from '../../compiler/common/interpreter/GraphicsManager.js';
 import { Interpreter } from '../../compiler/common/interpreter/Interpreter.js';
 import { KeyboardManager } from '../../compiler/common/interpreter/KeyboardManager.js';
-import { Language } from '../../compiler/common/Language.js';
+import { Language } from '../../compiler/common/language/Language.js';
 import { EditorOpenerProvider } from '../../compiler/common/monacoproviders/EditorOpenerProvider.js';
 import { ErrorMarker } from '../../compiler/common/monacoproviders/ErrorMarker.js';
 import { ProgramPointerManager } from '../../compiler/common/monacoproviders/ProgramPointerManager.js';
@@ -51,7 +51,7 @@ import { ExceptionMarker } from '../../compiler/common/interpreter/ExceptionMark
 import { JUnitTestrunner } from '../../compiler/common/testrunner/JUnitTestrunner.js';
 import { IPosition } from '../../compiler/common/range/Position.js';
 import * as monaco from 'monaco-editor'
-import { JavaWebworkerCompilerController } from '../../compiler/java/webworker/JavaWebworkerCompilerController.js';
+import { JavaWebworkerCompiler } from '../../compiler/java/webworker/JavaWebworkerCompiler.js';
 
 
 export class Main implements MainBase {
@@ -106,9 +106,9 @@ export class Main implements MainBase {
     language: Language;
     interpreter: Interpreter;
 
-    webworkerCompiler: JavaWebworkerCompilerController;
+    webworkerCompiler: JavaWebworkerCompiler;
 
-    getWebworkerCompiler(): JavaWebworkerCompilerController {
+    getWebworkerCompiler(): JavaWebworkerCompiler {
         return this.webworkerCompiler;
     }
 
@@ -263,7 +263,8 @@ export class Main implements MainBase {
         this.getCompiler().eventManager.on('compilationFinished', () => {
             this.getInterpreter()?.onFileSelected();
         }, this);
-        // this.getCompiler().triggerCompile();
+        
+        this.getLanguage().triggerCompile(this, false);
 
         this.disassembler = new Disassembler(this.bottomDiv.getDisassemblerDiv(), this);
 
@@ -271,7 +272,7 @@ export class Main implements MainBase {
 
         new EditorOpenerProvider(this);
 
-        this.webworkerCompiler = new JavaWebworkerCompilerController(this, errorMarker);
+        this.webworkerCompiler = new JavaWebworkerCompiler(this, errorMarker);
 
 
     }

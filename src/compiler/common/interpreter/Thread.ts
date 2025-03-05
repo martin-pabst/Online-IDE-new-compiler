@@ -7,7 +7,7 @@ import { ObjectClass, StringClass } from "../../java/runtime/system/javalang/Obj
 import { RuntimeExceptionClass } from "../../java/runtime/system/javalang/RuntimeException.ts";
 import { ThrowableClass } from "../../java/runtime/system/javalang/ThrowableClass.ts";
 import { NonPrimitiveType } from "../../java/types/NonPrimitiveType.ts";
-import { InterpreterMessages } from "../language/InterpreterMessages.ts";
+import { InterpreterMessages } from "../international/InterpreterMessages.ts";
 import { IRange } from "../range/Range.ts";
 import { ArrayToStringCaster, TextContainer } from "./ArrayToStringCaster.ts";
 import { CallbackParameter } from "./CallbackParameter.ts";

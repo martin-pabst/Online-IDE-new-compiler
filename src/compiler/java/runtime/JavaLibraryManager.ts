@@ -1,6 +1,6 @@
 import { DatabaseModule } from "../../../client/libraries/java/database/DatabaseModule";
 import { CheckboxState } from "../../../client/main/gui/Dialog";
-import { Compiler } from "../../common/Compiler";
+import { Compiler } from "../../common/language/Compiler";
 import { JavaLibraryModule } from "../module/libraries/JavaLibraryModule";
 import { JavaLibraryModuleManager } from "../module/libraries/JavaLibraryModuleManager";
 import { GNGModule } from "./graphics/gng/GNGModule";

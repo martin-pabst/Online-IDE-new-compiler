@@ -1,7 +1,7 @@
 
 import * as monaco from 'monaco-editor'
 import { BaseMonacoProvider } from '../../../common/monacoproviders/BaseMonacoProvider.ts';
-import { Language } from '../../../common/Language.ts';
+import { Language } from '../../../common/language/Language.ts';
 import { Quickfix } from './Quickfix.ts';
 import { JavaCompiler } from '../../JavaCompiler.ts';
 import { GUIFile } from '../../../../client/workspace/GUIFile.ts';
