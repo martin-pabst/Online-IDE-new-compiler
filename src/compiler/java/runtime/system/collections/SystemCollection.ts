@@ -1,5 +1,5 @@
 import { BaseListType } from "../../../../common/BaseType.ts";
-import { CallbackFunction } from "../../../../common/interpreter/StepFunction.ts";
+import { CallbackFunction } from "../../../../common/interpreter/RuntimeConstants.ts";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { ObjectClass, ObjectClassOrNull } from "../javalang/ObjectClassStringClass.ts";
 import { ComparatorInterface } from "./ComparatorInterface.ts";

@@ -1,8 +1,8 @@
 import { BaseListType } from "../../../../common/BaseType.ts";
-import { CallbackFunction } from "../../../../common/interpreter/StepFunction.ts";
+import { CallbackFunction } from "../../../../common/interpreter/RuntimeConstants.ts";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { ConsumerInterface } from "../functional/ConsumerInterface.ts";
 import { IndexOutOfBoundsExceptionClass } from "../javalang/IndexOutOfBoundsExceptionClass.ts";

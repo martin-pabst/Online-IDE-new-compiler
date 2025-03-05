@@ -1,8 +1,9 @@
-import { Module } from "../module/Module";
+import type { Module } from "../module/Module";
 import { IRange, EmptyRange } from "../range/Range";
-import { CatchBlockInfo } from "./ExceptionInfo";
-import { StepFunction, Klass, StepParams } from "./StepFunction";
-import { Thread } from "./Thread";
+import type { CatchBlockInfo } from "./ExceptionInfo";
+import type { StepFunction, Klass} from "./RuntimeConstants";
+import { StepParams } from "./RuntimeConstants";
+import type { Thread } from "./Thread";
 import { ThreadState } from "./ThreadState";
 
 

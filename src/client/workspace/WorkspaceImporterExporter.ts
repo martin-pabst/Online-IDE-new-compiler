@@ -1,7 +1,7 @@
 import { IMain } from "../../compiler/common/IMain";
 import { WorkspaceSettings } from "../communication/Data";
 import { MainBase } from "../main/MainBase";
-import { GUIFile } from "./File";
+import { GUIFile } from "./GUIFile";
 import { Workspace } from "./Workspace";
 
 export type ExportedWorkspace = {

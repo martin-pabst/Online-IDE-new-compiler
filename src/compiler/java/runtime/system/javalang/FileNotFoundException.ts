@@ -1,6 +1,6 @@
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
 import { Stacktrace } from "../../../../common/interpreter/ThrowableType.ts";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { ExceptionClass } from "./ExceptionClass.ts";
 import { ThrowableClass } from "./ThrowableClass.ts";

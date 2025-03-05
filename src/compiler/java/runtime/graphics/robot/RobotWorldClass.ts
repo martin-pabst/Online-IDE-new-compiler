@@ -3,7 +3,7 @@ import { CallbackParameter } from "../../../../common/interpreter/CallbackParame
 import { Thread } from "../../../../common/interpreter/Thread";
 import { ThreadState } from "../../../../common/interpreter/ThreadState";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { ObjectClass } from "../../system/javalang/ObjectClassStringClass";
 import { World3dClass } from "../3d/World3dClass";
 import { RobotCubeFactory } from "./RobotCubeFactory";

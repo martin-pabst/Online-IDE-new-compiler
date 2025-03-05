@@ -1,7 +1,7 @@
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
 import { Thread } from "../../../../common/interpreter/Thread";
 import { ThreadState } from "../../../../common/interpreter/ThreadState";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { ObjectClass, StringClass } from "../javalang/ObjectClassStringClass";
 import { RuntimeExceptionClass } from "../javalang/RuntimeException";
 import { KeyListenerInterface } from "./KeyListenerInterface";

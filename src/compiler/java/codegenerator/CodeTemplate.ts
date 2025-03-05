@@ -1,4 +1,4 @@
-import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
+import { Helpers, StepParams } from "../../common/interpreter/RuntimeConstants";
 import { IRange } from "../../common/range/Range";
 import { JCM } from "../language/JavaCompilerMessages";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";

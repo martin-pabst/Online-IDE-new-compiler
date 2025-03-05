@@ -1,4 +1,4 @@
-import { Helpers, Klass, StepParams } from "../../../common/interpreter/StepFunction";
+import { Helpers, Klass, StepParams } from "../../../common/interpreter/RuntimeConstants.ts";
 import { EmptyRange, IRange } from "../../../common/range/Range";
 import { TokenType } from "../../TokenType";
 import { EnumClass } from "../../runtime/system/javalang/EnumClass";
@@ -16,7 +16,7 @@ import { JavaParameter } from "../../types/JavaParameter";
 import { Visibility } from "../../types/Visibility";
 import { JavaBaseModule } from "../JavaBaseModule";
 import { JavaTypeStore } from "../JavaTypeStore";
-import { LibraryAttributeDeclaration, LibraryMethodDeclaration, LibraryMethodOrAttributeDeclaration } from "./DeclareType";
+import { LibraryAttributeDeclaration, LibraryMethodDeclaration, LibraryDeclaration } from "./LibraryTypeDeclaration.ts";
 import { LibraryKlassType, JavaTypeMap, JavaLibraryModule } from "./JavaLibraryModule";
 import { LdToken, LibraryDeclarationLexer } from "./LibraryDeclarationLexer";
 import { SystemModule } from "../../runtime/system/SystemModule.ts";
@@ -521,7 +521,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
     }
 
 
-    parseFieldOrMethod(klass: Klass & LibraryKlassType, module: JavaBaseModule, decl: LibraryMethodOrAttributeDeclaration) {
+    parseFieldOrMethod(klass: Klass & LibraryKlassType, module: JavaBaseModule, decl: LibraryDeclaration) {
 
         this.genericParameterMapStack.push({}); 
 
@@ -577,6 +577,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
 
             if (mdecl.native) {
                 let realName: string = mdecl.native.name;
+                if(realName.trim() == "") debugger;
                 if (m.isStatic) {
                     klass[m.getInternalName("native")] = mdecl.native;
                 } else {
@@ -615,7 +616,6 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
                         parameterNames.unshift('__callback');
                         parameterNames.unshift('__t');
                         parameterNames.push(body);
-
                         klass.prototype[m.getInternalName("java")] = new Function(...parameterNames);
                     }
 

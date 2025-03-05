@@ -4,7 +4,7 @@ import { ActionManager } from "../../compiler/common/interpreter/ActionManager.j
 import { CompilerFile } from "../../compiler/common/module/CompilerFile.js";
 import { CompilerWorkspace } from "../../compiler/common/module/CompilerWorkspace.js";
 import { IRange } from "../../compiler/common/range/Range.js";
-import { GUIFile } from "../workspace/File.js";
+import { GUIFile } from "../workspace/GUIFile.js";
 import { BottomDiv } from "./gui/BottomDiv.js";
 import { RightDiv } from "./gui/RightDiv.js";
 

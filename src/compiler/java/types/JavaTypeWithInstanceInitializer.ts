@@ -1,5 +1,5 @@
 import { Program } from "../../common/interpreter/Program.ts";
-import { Klass } from "../../common/interpreter/StepFunction.ts";
+import { Klass } from "../../common/interpreter/RuntimeConstants.ts";
 import { IRange } from "../../common/range/Range.ts";
 import { CodeSnippet } from "../codegenerator/CodeSnippet.ts";
 import { JavaBaseModule } from "../module/JavaBaseModule.ts";

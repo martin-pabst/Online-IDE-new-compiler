@@ -6,7 +6,7 @@ import { Token, TokenList } from "../lexer/Token";
 import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
 import { TokenType, TokenTypeReadable } from "../TokenType";
 import { ASTNode } from "./AST";
-import * as monaco from 'monaco-editor'
+import type * as monaco from 'monaco-editor'
 
 
 export class TokenIterator {
@@ -252,7 +252,7 @@ export class TokenIterator {
                                             startLineNumber: range.startLineNumber, startColumn: range.startColumn,
                                             endLineNumber: range.endLineNumber, endColumn: range.endColumn,
                                             message: "",
-                                            severity: monaco.MarkerSeverity.Error
+                                            severity: 8, //monaco.MarkerSeverity.Error
                                         },
                                         text: ";"
                                     },

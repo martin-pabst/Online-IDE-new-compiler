@@ -1,7 +1,7 @@
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
-import { CallbackFunction } from "../../../../common/interpreter/StepFunction.ts";
+import { CallbackFunction } from "../../../../common/interpreter/RuntimeConstants.ts";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { BiConsumerInterface } from "../functional/BiConsumerInterface.ts";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../javalang/ObjectClassStringClass.ts";

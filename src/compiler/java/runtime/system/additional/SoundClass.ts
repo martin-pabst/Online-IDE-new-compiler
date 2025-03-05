@@ -1,6 +1,6 @@
 import { SoundTools } from "../../../../../tools/SoundTools";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations, LibraryMethodOrAttributeDeclaration } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations, LibraryDeclaration } from "../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { ObjectClass } from "../javalang/ObjectClassStringClass";
 
@@ -15,8 +15,8 @@ export class SoundClass extends ObjectClass {
     static type: NonPrimitiveType;
 
 
-    static addConstants():LibraryMethodOrAttributeDeclaration[] {
-        let constants: LibraryMethodOrAttributeDeclaration[] = [];
+    static addConstants():LibraryDeclaration[] {
+        let constants: LibraryDeclaration[] = [];
         for(let sound of SoundTools.sounds){
             constants.push({
                 type: "field", signature: "static string " + sound.name, constantValue: sound.name, comment: sound.description

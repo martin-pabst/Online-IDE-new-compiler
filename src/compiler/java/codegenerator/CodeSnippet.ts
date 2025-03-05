@@ -1,5 +1,5 @@
 import { Step } from "../../common/interpreter/Step";
-import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
+import { Helpers, StepParams } from "../../common/interpreter/RuntimeConstants";
 import { Module } from "../../common/module/Module";
 import { IRange } from "../../common/range/Range";
 import { JavaType } from "../types/JavaType";

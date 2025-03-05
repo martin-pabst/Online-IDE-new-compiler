@@ -1,4 +1,4 @@
-import { GUIFile } from "../workspace/File";
+import { GUIFile } from "../workspace/GUIFile";
 import { MainEmbedded } from "./MainEmbedded";
 
 interface IDEFileAccess {

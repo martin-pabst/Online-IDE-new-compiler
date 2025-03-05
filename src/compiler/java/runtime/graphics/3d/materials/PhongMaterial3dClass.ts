@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { JRC } from "../../../../language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations } from "../../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../../module/libraries/LibraryTypeDeclaration";
 import { ColorClass } from "../../ColorClass";
 import { Material3dClass } from "./Material3dClass";
 import { ColorConverter } from '../../ColorConverter';

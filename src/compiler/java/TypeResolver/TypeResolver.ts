@@ -1,12 +1,12 @@
 import { ErrormessageWithId } from "../../../tools/language/LanguageManager.ts";
 import { ErrorLevel } from "../../common/Error";
-import { Klass } from "../../common/interpreter/StepFunction";
+import { Klass } from "../../common/interpreter/RuntimeConstants.ts";
 import { IRange } from "../../common/range/Range";
 import { TokenType } from "../TokenType";
 import { JavaBaseModule } from "../module/JavaBaseModule";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaCompiledModuleManager } from "../module/JavaCompiledModuleManager.ts";
-import { JavaLibraryModuleManager } from "../module/libraries/JavaLibraryModuleManager";
+import type { JavaLibraryModuleManager } from "../module/libraries/JavaLibraryModuleManager";
 import { ASTArrayTypeNode, ASTBaseTypeNode, ASTClassDefinitionNode, ASTEnumDefinitionNode, ASTFieldDeclarationNode, ASTGenericTypeInstantiationNode, ASTInterfaceDefinitionNode, ASTMethodDeclarationNode, ASTTypeDefinitionWithGenerics, ASTTypeNode, ASTWildcardTypeNode, TypeScope } from "../parser/AST";
 import { InterfaceClass } from "../runtime/system/javalang/InterfaceClass";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType.ts";

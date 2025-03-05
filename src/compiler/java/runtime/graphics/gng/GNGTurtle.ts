@@ -1,5 +1,5 @@
 import { Thread } from "../../../../common/interpreter/Thread.ts";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { ObjectClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { ShapeClass } from "../ShapeClass.ts";
 import { LineElement, TurtleClass } from "../TurtleClass.ts";

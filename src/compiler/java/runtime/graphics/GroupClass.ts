@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
-import { CallbackFunction } from '../../../common/interpreter/StepFunction';
+import { CallbackFunction } from '../../../common/interpreter/RuntimeConstants';
 import { Thread } from "../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { RuntimeExceptionClass } from '../system/javalang/RuntimeException';
 import { ShapeClass } from './ShapeClass';

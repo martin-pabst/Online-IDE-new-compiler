@@ -1,4 +1,4 @@
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { ObjectClass, StringClass } from "../../system/javalang/ObjectClassStringClass";
 import { NRWLang } from "./NRWLang";

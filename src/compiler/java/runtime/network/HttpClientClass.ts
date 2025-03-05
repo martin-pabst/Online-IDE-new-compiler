@@ -1,8 +1,8 @@
-import { CallbackFunction } from "../../../common/interpreter/StepFunction.ts";
+import { CallbackFunction } from "../../../common/interpreter/RuntimeConstants.ts";
 import { Thread } from "../../../common/interpreter/Thread.ts";
 import { ThreadState } from "../../../common/interpreter/ThreadState.ts";
 import { JRC } from "../../language/JavaRuntimeLibraryComments.ts";
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { ObjectClass } from "../system/javalang/ObjectClassStringClass";
 import { RuntimeExceptionClass } from "../system/javalang/RuntimeException.ts";

@@ -1,5 +1,5 @@
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { ArrayListClass } from "./ArrayListClass.ts";
 

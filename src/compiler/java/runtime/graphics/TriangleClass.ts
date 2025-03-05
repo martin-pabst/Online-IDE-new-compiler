@@ -1,8 +1,8 @@
 import { CallbackParameter } from '../../../common/interpreter/CallbackParameter.ts';
-import { CallbackFunction } from '../../../common/interpreter/StepFunction';
+import { CallbackFunction } from '../../../common/interpreter/RuntimeConstants.ts';
 import { Thread } from "../../../common/interpreter/Thread";
 import { JRC } from '../../language/JavaRuntimeLibraryComments.ts';
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { PolygonClass } from './PolygonClass.ts';
 

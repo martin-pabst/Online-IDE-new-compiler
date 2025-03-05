@@ -11,13 +11,13 @@ import { JavaType } from "./JavaType";
 import { JavaMethod } from "./JavaMethod";
 import { NonPrimitiveType } from "./NonPrimitiveType";
 import { Visibility } from "./Visibility.ts";
-import { Klass } from "../../common/interpreter/StepFunction.ts";
+import { Klass } from "../../common/interpreter/RuntimeConstants.ts";
 import { JavaArrayType } from "./JavaArrayType.ts";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType.ts";
 import { JavaParameter } from "./JavaParameter.ts";
 import { JCM } from "../language/JavaCompilerMessages.ts";
-import * as monaco from 'monaco-editor'
 import { ClassClass } from "../runtime/system/ClassClass.ts";
+import type * as monaco from 'monaco-editor'
 
 
 export class JavaEnum extends JavaTypeWithInstanceInitializer {
@@ -163,7 +163,7 @@ export class JavaEnum extends JavaTypeWithInstanceInitializer {
         for (let field of this.getFields().filter(f => f.visibility <= visibilityUpTo && (f._isStatic || !onlyStatic))) {
             itemList.push({
                 label: field.toString(),
-                kind: monaco.languages.CompletionItemKind.Field,
+                kind: 3, //monaco.languages.CompletionItemKind.Field,
                 insertText: field.identifier,
                 range: rangeToReplace,
                 documentation: field.documentation == null ? undefined : {
@@ -182,11 +182,11 @@ export class JavaEnum extends JavaTypeWithInstanceInitializer {
                     title: '123',
                     arguments: []
                 },
-                kind: monaco.languages.CompletionItemKind.Method,
+                kind: 0, //monaco.languages.CompletionItemKind.Method,
                 insertText: method.getCompletionSnippet(leftBracketAlreadyThere),
                 range: rangeToReplace,
                 detail: method.returnParameterType ? method.returnParameterType.getDeclaration() : "void",
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                insertTextRules: 4, //monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                 documentation: method.documentation == null ? undefined : {
                     value: typeof method.documentation == "string" ? method.documentation : method.documentation()
                 }

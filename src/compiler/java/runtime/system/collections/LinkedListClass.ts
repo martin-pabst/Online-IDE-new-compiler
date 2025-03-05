@@ -1,11 +1,11 @@
-import { CallbackFunction } from "../../../../common/interpreter/StepFunction.ts";
+import { CallbackFunction } from "../../../../common/interpreter/RuntimeConstants.ts";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { NullPointerExceptionClass } from "../javalang/NullPointerExceptionClass.ts";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../javalang/ObjectClassStringClass.ts";
 import { CollectionInterface } from "./CollectionInterface.ts";
 import { SystemCollection } from "./SystemCollection.ts";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { ConsumerInterface } from "../functional/ConsumerInterface.ts";
 import { BaseListType } from "../../../../common/BaseType.ts";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";

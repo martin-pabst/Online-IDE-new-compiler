@@ -1,4 +1,4 @@
-import { GUIFile } from "../../../client/workspace/File"
+import { GUIFile } from "../../../client/workspace/GUIFile"
 import { IMain } from "../IMain"
 import { Program } from "../interpreter/Program"
 import { CompilerFile } from "../module/CompilerFile"

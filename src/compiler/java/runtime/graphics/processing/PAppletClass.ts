@@ -3,10 +3,10 @@ import { DOM } from "../../../../../tools/DOM";
 import { GraphicSystem } from "../../../../common/interpreter/GraphicsManager";
 import { Interpreter } from "../../../../common/interpreter/Interpreter";
 import { SchedulerState } from "../../../../common/interpreter/SchedulerState";
-import { CallbackFunction } from "../../../../common/interpreter/StepFunction";
+import { CallbackFunction } from "../../../../common/interpreter/RuntimeConstants";
 import { Thread } from "../../../../common/interpreter/Thread";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { ObjectClass } from "../../system/javalang/ObjectClassStringClass";
 

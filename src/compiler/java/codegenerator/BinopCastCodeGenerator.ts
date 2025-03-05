@@ -1,6 +1,6 @@
 import { ErrormessageWithId } from "../../../tools/language/LanguageManager";
 import { ErrorLevel, QuickFix } from "../../common/Error";
-import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
+import { Helpers, StepParams } from "../../common/interpreter/RuntimeConstants";
 import { EmptyRange, IRange } from "../../common/range/Range";
 import { CompilingProgressManager } from "../CompilingProgressManager";
 import { TokenType, TokenTypeReadable } from "../TokenType";
@@ -8,8 +8,6 @@ import { JCM } from "../language/JavaCompilerMessages";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { ASTAnonymousClassNode, ASTLambdaFunctionDeclarationNode, ASTNode, AssignmentOperator, BinaryOperator, ConstantType, LogicOperator } from "../parser/AST";
-import { PrimitiveStringClass } from "../runtime/system/javalang/PrimitiveStringClass";
-import { StringPrimitiveType } from "../runtime/system/primitiveTypes/StringPrimitiveType";
 import { JavaArrayType } from "../types/JavaArrayType";
 import { JavaClass } from "../types/JavaClass";
 import { JavaInterface } from "../types/JavaInterface";
@@ -91,8 +89,7 @@ export abstract class BinopCastCodeGenerator {
     stringNonPrimitiveType: JavaClass;
     iterableType: JavaInterface;
     iteratorType: JavaInterface;
-
-    primitiveStringClass = PrimitiveStringClass;
+    primitiveStringClass: JavaType;
 
     primitiveTypes: JavaType[] = [];
 
@@ -112,6 +109,7 @@ export abstract class BinopCastCodeGenerator {
         this.throwableType = this.libraryTypestore.getType("Throwable")!;
         this.objectType = <JavaClass>this.libraryTypestore.getType("Object")!;
         this.stringNonPrimitiveType = <JavaClass>this.libraryTypestore.getType("String")!;
+        this.primitiveStringClass = <JavaClass>this.libraryTypestore.getType("string")!;
         this.assertionsType = <JavaClass>this.libraryTypestore.getType("Assertions")!;
         this.iterableType = <JavaInterface>this.libraryTypestore.getType("Iterable")!;
         this.iteratorType = <JavaInterface>this.libraryTypestore.getType("Iterator")!;
@@ -646,7 +644,7 @@ export abstract class BinopCastCodeGenerator {
 
         if ((!typeFrom.isPrimitive || typeFrom == this.stringType) && !typeTo.isPrimitive) {
             if (typeFrom == this.nullType) return true;
-            if (typeFrom == this.stringType) typeFrom = this.primitiveStringClass.type;
+            if (typeFrom == this.stringType) typeFrom = this.primitiveStringClass;
 
             if (typeFrom instanceof JavaArrayType || typeTo instanceof JavaArrayType) {
                 if (typeFrom instanceof JavaArrayType && typeTo instanceof JavaArrayType) {

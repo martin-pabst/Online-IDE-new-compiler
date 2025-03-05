@@ -1,9 +1,9 @@
 import * as PIXI from 'pixi.js';
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { GuiComponentClass } from "./GuiComponentClass.ts";
 import { Thread } from '../../../../common/interpreter/Thread.ts';
-import { CallbackFunction } from '../../../../common/interpreter/StepFunction.ts';
+import { CallbackFunction } from '../../../../common/interpreter/RuntimeConstants.ts';
 import { JRC } from '../../../language/JavaRuntimeLibraryComments.ts';
 
 export class GuiTextComponentClass extends GuiComponentClass {

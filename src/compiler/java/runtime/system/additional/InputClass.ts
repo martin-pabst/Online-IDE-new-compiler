@@ -3,7 +3,7 @@ import { InputManagerValidator } from "../../../../common/interpreter/IInputMana
 import { Interpreter } from "../../../../common/interpreter/Interpreter.ts";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { ThreadState } from "../../../../common/interpreter/ThreadState.ts";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { ObjectClass, StringClass } from "../javalang/ObjectClassStringClass.ts";
 

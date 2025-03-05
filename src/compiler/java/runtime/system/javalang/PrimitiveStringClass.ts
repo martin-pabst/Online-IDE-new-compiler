@@ -1,5 +1,5 @@
-import { Helpers } from "../../../../common/interpreter/StepFunction";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { Helpers } from "../../../../common/interpreter/RuntimeConstants";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { ObjectClass, StringClass } from "./ObjectClassStringClass";
 

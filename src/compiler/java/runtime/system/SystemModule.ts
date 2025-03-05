@@ -1,6 +1,6 @@
 import { CodeFragment } from "../../../common/disassembler/CodeFragment.ts";
 import { Program } from "../../../common/interpreter/Program";
-import { Klass } from "../../../common/interpreter/StepFunction.ts";
+import { Klass } from "../../../common/interpreter/RuntimeConstants.ts";
 import { JavaLibraryModule, LibraryKlassType } from "../../module/libraries/JavaLibraryModule";
 import { ArrayCamera3dClass } from "../graphics/3d/camera/ArrayCamera3dClass.ts";
 import { Box3dClass } from "../graphics/3d/Box3dClass.ts";
@@ -160,6 +160,8 @@ import { ClassClass } from "./ClassClass.ts";
 import { Icosahedron3dClass } from "../graphics/3d/Icosahedron3dClass.ts";
 
 export class SystemModule extends JavaLibraryModule {
+
+    _isSystemModule = true;  // needed in CodeGenerator
 
     constructor(public primitiveStringClass: Klass & LibraryKlassType) {
         super();

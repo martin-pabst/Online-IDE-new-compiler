@@ -1,6 +1,6 @@
 import { GamepadTool } from "../../../../../tools/GamepadTool";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { ObjectClass } from "../javalang/ObjectClassStringClass";
 

@@ -26,7 +26,7 @@ import { ProgramControlButtons } from "../main/gui/ProgramControlButtons.js";
 import { RightDiv } from "../main/gui/RightDiv.js";
 import { MainBase } from "../main/MainBase.js";
 import { SpritesheetData } from "../spritemanager/SpritesheetData.js";
-import { GUIFile } from "../workspace/File.js";
+import { GUIFile } from "../workspace/GUIFile.js";
 import { Workspace } from "../workspace/Workspace.js";
 import { ExportedWorkspace, WorkspaceImporterExporter } from "../workspace/WorkspaceImporterExporter.js";
 import { EmbeddedFileExplorer } from "./EmbeddedFileExplorer.js";

@@ -1,8 +1,8 @@
 import * as PIXI from 'pixi.js';
 import { copyTextToClipboard } from '../../../../../tools/HtmlTools';
-import { CallbackFunction } from '../../../../common/interpreter/StepFunction';
+import { CallbackFunction } from '../../../../common/interpreter/RuntimeConstants';
 import { Thread } from '../../../../common/interpreter/Thread';
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { MouseEventKind } from '../MouseManager';
 import { GuiTextComponentClass } from "./GuiTextComponentClass";

@@ -1,8 +1,8 @@
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
-import { CallbackFunction } from "../../../../common/interpreter/StepFunction";
+import { CallbackFunction } from "../../../../common/interpreter/RuntimeConstants";
 import { Thread } from "../../../../common/interpreter/Thread";
 import { ThreadState } from "../../../../common/interpreter/ThreadState";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { ObjectClass, StringClass } from "../javalang/ObjectClassStringClass";
 

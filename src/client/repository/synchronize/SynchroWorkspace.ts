@@ -1,7 +1,7 @@
 import { ajax } from "../../communication/AjaxHelper.js";
 import { CommitFilesRequest, CommitFilesResponse, Repository, RepositoryFileEntry, RepositoryHistoryEntry } from "../../communication/Data.js";
 import { Main } from "../../main/Main.js";
-import { GUIFile } from "../../workspace/File.js";
+import { GUIFile } from "../../workspace/GUIFile.js";
 import { Workspace } from "../../workspace/Workspace.js";
 import { HistoryElement } from "./HistoryElement.js";
 import { SynchronizationManager } from "./RepositorySynchronizationManager.js";

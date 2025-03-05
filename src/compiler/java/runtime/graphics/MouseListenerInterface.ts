@@ -1,7 +1,7 @@
 import { CallbackParameter } from '../../../common/interpreter/CallbackParameter';
 import { Thread } from "../../../common/interpreter/Thread";
 import { JRC } from '../../language/JavaRuntimeLibraryComments';
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { InterfaceClass } from '../system/javalang/InterfaceClass';
 

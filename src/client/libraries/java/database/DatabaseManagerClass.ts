@@ -2,7 +2,7 @@ import { Main } from "../../../../client/main/Main";
 import { Thread } from "../../../../compiler/common/interpreter/Thread";
 import { ThreadState } from "../../../../compiler/common/interpreter/ThreadState";
 import { JRC } from "../../../../compiler/java/language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations } from "../../../../compiler/java/module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../../compiler/java/module/libraries/LibraryTypeDeclaration";
 import { ObjectClass } from "../../../../compiler/java/runtime/system/javalang/ObjectClassStringClass";
 import { RuntimeExceptionClass } from "../../../../compiler/java/runtime/system/javalang/RuntimeException";
 import { NonPrimitiveType } from "../../../../compiler/java/types/NonPrimitiveType";

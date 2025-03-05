@@ -4,7 +4,7 @@ import { CallbackParameter } from "../../../common/interpreter/CallbackParameter
 import { Interpreter } from "../../../common/interpreter/Interpreter";
 import { Thread } from "../../../common/interpreter/Thread";
 import { JRC } from "../../language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { NullPointerExceptionClass } from "../system/javalang/NullPointerExceptionClass";
 import { ObjectClass, StringClass } from "../system/javalang/ObjectClassStringClass";

@@ -16,7 +16,7 @@ import * as monaco from 'monaco-editor';
 
 // see https://vite.dev/guide/assets
 import compileGifUrl from '/assets/graphics/compile.gif'
-import { GUIFile } from "../../../client/workspace/File";
+import { GUIFile } from "../../../client/workspace/GUIFile";
 
 
 

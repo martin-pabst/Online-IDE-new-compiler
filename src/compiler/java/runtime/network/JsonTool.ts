@@ -1,7 +1,5 @@
-import { Klass } from "../../../common/interpreter/StepFunction";
-import { JavaTypeStore } from "../../module/JavaTypeStore";
 import { JavaArrayType } from "../../types/JavaArrayType";
-import { GenericVariantOfJavaClass, IJavaClass, JavaClass } from "../../types/JavaClass";
+import { JavaClass } from "../../types/JavaClass";
 import { JavaEnum } from "../../types/JavaEnum";
 import { JavaType } from "../../types/JavaType";
 import { EnumClass } from "../system/javalang/EnumClass";

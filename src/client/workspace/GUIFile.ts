@@ -28,6 +28,9 @@ export class GUIFile extends CompilerFile {
     private monacoModel?: monaco.editor.ITextModel;
     private static uriMap: { [name: string]: number } = {};
 
+    private editorState: monaco.editor.ICodeEditorViewState | null = null;
+
+
 
     constructor(private main: IMain, filename?: string, text?: string) {
         super(filename);
@@ -164,6 +167,21 @@ export class GUIFile extends CompilerFile {
 
     hasMonacoModel(): boolean {
         return typeof this.monacoModel !== "undefined";
+    }
+
+    saveViewState(editor: monaco.editor.IStandaloneCodeEditor) {
+        this.editorState = editor.saveViewState();
+    }
+
+    restoreViewState(editor: monaco.editor.IStandaloneCodeEditor) {
+        if (this.editorState) {
+            try {
+                editor.restoreViewState(this.editorState)
+            } catch (e) {
+
+            }
+        };
+        this.editorState = null;
     }
 
 }

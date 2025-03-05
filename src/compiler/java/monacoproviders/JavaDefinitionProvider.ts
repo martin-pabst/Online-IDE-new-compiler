@@ -1,4 +1,4 @@
-import { GUIFile } from "../../../client/workspace/File.ts";
+import { GUIFile } from "../../../client/workspace/GUIFile.ts";
 import { IMain } from "../../common/IMain.ts";
 import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import { Position } from "../../common/range/Position.ts";

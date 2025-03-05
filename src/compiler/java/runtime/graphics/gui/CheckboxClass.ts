@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
-import { CallbackFunction } from '../../../../common/interpreter/StepFunction.ts';
+import { CallbackFunction } from '../../../../common/interpreter/RuntimeConstants.ts';
 import { Thread } from '../../../../common/interpreter/Thread.ts';
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { MouseEventKind } from '../MouseManager.ts';
 import { GuiTextComponentClass } from './GuiTextComponentClass.ts';

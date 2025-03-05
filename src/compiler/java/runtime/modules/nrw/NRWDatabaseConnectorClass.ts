@@ -2,10 +2,10 @@ import { ConnectionClass } from "../../../../../client/libraries/java/database/C
 import { Main } from "../../../../../client/main/Main";
 import { QueryResult } from "../../../../../tools/database/DatabaseTool";
 import { CallbackParameter } from "../../../../common/interpreter/CallbackParameter";
-import { CallbackFunction } from "../../../../common/interpreter/StepFunction";
+import { CallbackFunction } from "../../../../common/interpreter/RuntimeConstants";
 import { Thread } from "../../../../common/interpreter/Thread";
 import { ThreadState } from "../../../../common/interpreter/ThreadState";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { ObjectClass, StringClass } from "../../system/javalang/ObjectClassStringClass";
 import { NRWLang } from "./NRWLang";

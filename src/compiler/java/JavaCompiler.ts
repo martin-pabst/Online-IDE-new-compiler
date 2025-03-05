@@ -1,24 +1,24 @@
 import { FileTypeManager } from "../common/module/FileTypeManager.ts";
-import { BaseType } from "../common/BaseType.ts";
-import { Compiler, CompilerEvents } from "../common/Compiler.ts";
-import { Error, ErrorLevel } from "../common/Error.ts";
+import type { BaseType } from "../common/BaseType.ts";
+import type { Compiler, CompilerEvents } from "../common/Compiler.ts";
+import type { Error, ErrorLevel } from "../common/Error.ts";
 import { Executable } from "../common/Executable.ts";
-import { IMain } from "../common/IMain.ts";
+import type { IMain } from "../common/IMain.ts";
 import { EventManager } from "../common/interpreter/EventManager.ts";
-import { KlassObjectRegistry } from "../common/interpreter/StepFunction.ts";
-import { CompilerFile } from "../common/module/CompilerFile";
-import { Module } from "../common/module/Module.ts";
-import { ErrorMarker } from "../common/monacoproviders/ErrorMarker.ts";
+import type { KlassObjectRegistry } from "../common/interpreter/RuntimeConstants.ts";
+import type { CompilerFile } from "../common/module/CompilerFile";
+import type { Module } from "../common/module/Module.ts";
+import type { ErrorMarker } from "../common/monacoproviders/ErrorMarker.ts";
 import { Range } from "../common/range/Range.ts";
+import { Lexer } from "./lexer/Lexer";
+import { Parser } from "./parser/Parser";
 import { TypeResolver } from "./TypeResolver/TypeResolver";
 import { CodeGenerator } from "./codegenerator/CodeGenerator";
 import { ExceptionTree } from "./codegenerator/ExceptionTree.ts";
 import { LabelCodeSnippet } from "./codegenerator/LabelManager.ts";
-import { Lexer } from "./lexer/Lexer";
-import { JavaCompiledModule } from "./module/JavaCompiledModule.ts";
+import type { JavaCompiledModule } from "./module/JavaCompiledModule.ts";
 import { JavaCompiledModuleManager } from "./module/JavaCompiledModuleManager.ts";
-import { JavaLibraryModuleManager } from "./module/libraries/JavaLibraryModuleManager";
-import { Parser } from "./parser/Parser";
+import type { JavaLibraryModuleManager } from "./module/libraries/JavaLibraryModuleManager";
 import { CompilingProgressManager, CompilingProgressManagerException } from "./CompilingProgressManager.ts";
 
 

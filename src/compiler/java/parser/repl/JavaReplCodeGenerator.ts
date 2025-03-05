@@ -1,5 +1,5 @@
 import { Program } from "../../../common/interpreter/Program.ts";
-import { Helpers } from "../../../common/interpreter/StepFunction.ts";
+import { Helpers } from "../../../common/interpreter/RuntimeConstants.ts";
 import { CodeSnippet, StringCodeSnippet } from "../../codegenerator/CodeSnippet.ts";
 import { CodeSnippetContainer, NextStepMark } from "../../codegenerator/CodeSnippetKinds.ts";
 import { ExceptionTree } from "../../codegenerator/ExceptionTree.ts";

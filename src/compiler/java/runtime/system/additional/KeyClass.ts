@@ -1,4 +1,4 @@
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { ObjectClass } from "../javalang/ObjectClassStringClass";
 
 export class KeyClass extends ObjectClass {

@@ -1,6 +1,5 @@
-import { SerializedCompilerFile } from "../../java/webworker/JavaWebworkerCompiler";
-import { FileTypeManager } from "./FileTypeManager";
-import * as monaco from 'monaco-editor'
+import type { SerializedCompilerFile } from "../../java/webworker/JavaWebworkerCompiler";
+import type * as monaco from 'monaco-editor'
 
 export type FileContentChangedListener = (changedfile: CompilerFile) => void;
 
@@ -14,8 +13,6 @@ export class CompilerFile {
     private lastSavedVersion: number = -1;
 
     private fileContentChangedListeners: FileContentChangedListener[] = [];
-
-    private editorState: monaco.editor.ICodeEditorViewState | null = null;
 
     /*
      * monaco editor counts LanguageChangedListeners and issues ugly warnings in console if more than
@@ -70,21 +67,6 @@ export class CompilerFile {
         for (let listener of this.fileContentChangedListeners) {
             listener(this);
         }
-    }
-
-    saveViewState(editor: monaco.editor.IStandaloneCodeEditor) {
-        this.editorState = editor.saveViewState();
-    }
-
-    restoreViewState(editor: monaco.editor.IStandaloneCodeEditor) {
-        if (this.editorState) {
-            try {
-                editor.restoreViewState(this.editorState)
-            } catch (e) {
-
-            }
-        };
-        this.editorState = null;
     }
 
     serialize(): SerializedCompilerFile {

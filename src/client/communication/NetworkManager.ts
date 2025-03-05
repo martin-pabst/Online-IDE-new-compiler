@@ -7,7 +7,7 @@ import { Workspace } from "../workspace/Workspace.js";
 import { ajax, ajaxAsync, csrfToken, PerformanceCollector } from "./AjaxHelper.js";
 import { ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateUserSettingsRequest, UpdateUserSettingsResponse, WorkspaceData } from "./Data.js";
 import { PushClientManager } from "./pushclient/PushClientManager.js";
-import { GUIFile } from '../workspace/File.js';
+import { GUIFile } from '../workspace/GUIFile.js';
 import pako from 'pako'
 
 

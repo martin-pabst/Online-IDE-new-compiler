@@ -3,7 +3,7 @@ import { openContextMenu, makeEditable } from "../../tools/HtmlTools.js";
 import { JOScript } from "./EmbeddedStarter.js";
 import jQuery from "jquery";
 import { FileTypeManager } from "../../compiler/common/module/FileTypeManager.js";
-import { GUIFile } from "../workspace/File.js";
+import { GUIFile } from "../workspace/GUIFile.js";
 import { Workspace } from "../workspace/Workspace.js";
 import { EmbeddedMessages } from "./EmbeddedMessages.js";
 import markdownit from 'markdown-it';

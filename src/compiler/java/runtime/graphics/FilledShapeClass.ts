@@ -1,9 +1,9 @@
 import * as PIXI from 'pixi.js';
 import { Thread } from "../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { ShapeClass } from './ShapeClass';
-import { CallbackFunction } from '../../../common/interpreter/StepFunction';
+import { CallbackFunction } from '../../../common/interpreter/RuntimeConstants';
 import { FilledShapeDefaults } from './FilledShapeDefaults';
 import { ColorClass } from './ColorClass';
 import { ColorHelper } from '../../lexer/ColorHelper';

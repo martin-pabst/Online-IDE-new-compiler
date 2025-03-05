@@ -1,4 +1,4 @@
-import { KlassObjectRegistry } from "../../common/interpreter/StepFunction";
+import { KlassObjectRegistry } from "../../common/interpreter/RuntimeConstants";
 import { JCM } from "../language/JavaCompilerMessages";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
 import { JavaClass } from "../types/JavaClass";
@@ -8,7 +8,7 @@ import { JavaType } from "../types/JavaType";
 import { NonPrimitiveType } from "../types/NonPrimitiveType";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType";
 import { JavaCompiledModule } from "./JavaCompiledModule";
-import * as monaco from 'monaco-editor'
+import type * as monaco from 'monaco-editor'
 
 
 export class JavaTypeStore {
@@ -107,9 +107,9 @@ export class JavaTypeStore {
                     detail: type.getCompletionItemDetail(),
                     insertText: type.identifier,
                     documentation: type.getDocumentation(),
-                    kind: monaco.languages.CompletionItemKind.Struct,
+                    kind: 6, //monaco.languages.CompletionItemKind.Struct,
                     range: rangeToReplace,
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    insertTextRules: 4, //monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                     command: {
                         id: "editor.action.triggerParameterHints",
                         title: '123',
@@ -122,9 +122,9 @@ export class JavaTypeStore {
                 
                 if (classContext instanceof NonPrimitiveType && !npt.isVisibleFrom(classContext)) return;
 
-                let kind: monaco.languages.CompletionItemKind = monaco.languages.CompletionItemKind.Class;
-                if (type instanceof IJavaInterface) kind = monaco.languages.CompletionItemKind.Interface;
-                if (type instanceof JavaEnum) kind = monaco.languages.CompletionItemKind.Enum;
+                let kind: monaco.languages.CompletionItemKind = 5; //monaco.languages.CompletionItemKind.Class;
+                if (type instanceof IJavaInterface) kind = 7; //monaco.languages.CompletionItemKind.Interface;
+                if (type instanceof JavaEnum) kind = 15; //monaco.languages.CompletionItemKind.Enum;
 
                 let isGeneric: boolean = type.genericTypeParameters && type.genericTypeParameters.length > 0 ? true : false;
 
@@ -143,7 +143,7 @@ export class JavaTypeStore {
                     documentation: type.getDocumentation(),
                     kind: kind,
                     range: rangeToReplace,
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    insertTextRules: 4, // monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                     command: {
                         id: "editor.action.triggerParameterHints",
                         title: '123',

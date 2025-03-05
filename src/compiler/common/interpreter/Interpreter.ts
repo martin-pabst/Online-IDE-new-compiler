@@ -23,7 +23,7 @@ import { SchedulerState } from "./SchedulerState.ts";
 import { Thread } from "./Thread.ts";
 import { ThreadState } from "./ThreadState.ts";
 import { InterpreterMessages } from './InterpreterMessages.ts';
-import { GUIFile } from "../../../client/workspace/File.ts";
+import { GUIFile } from "../../../client/workspace/GUIFile.ts";
 
 
 type InterpreterEvents = "stop" | "done" | "resetRuntime" | "stateChanged" |

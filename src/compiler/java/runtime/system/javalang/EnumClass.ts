@@ -1,6 +1,6 @@
-import { CallbackFunction } from "../../../../common/interpreter/StepFunction";
-import { Thread } from "../../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { CallbackFunction } from "../../../../common/interpreter/RuntimeConstants";
+import type { Thread } from "../../../../common/interpreter/Thread";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { ObjectClass, StringClass } from "./ObjectClassStringClass";
 

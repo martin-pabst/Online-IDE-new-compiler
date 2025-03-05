@@ -1,6 +1,6 @@
 import { Punkt, abstandPunktZuGerade, abstandPunktZuStrecke, polygonEnthältPunkt, schnittpunkteKreisStrecke, streckeSchneidetStrecke } from "../../../../../tools/MatheTools";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { ObjectClass, StringClass } from "../javalang/ObjectClassStringClass";
 import { Vector2Class } from "./Vector2Class";

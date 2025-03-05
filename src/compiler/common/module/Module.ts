@@ -1,4 +1,3 @@
-import { GUIFile } from "../../../client/workspace/File.ts";
 import { Quickfix } from "../../java/monacoproviders/quickfix/Quickfix.ts";
 import { JavaType } from "../../java/types/JavaType.ts";
 import { Error } from "../Error";
@@ -6,7 +5,7 @@ import { UsagePosition, UsageTracker } from "../UsagePosition";
 import { CodeFragment } from "../disassembler/CodeFragment.ts";
 import { Program } from "../interpreter/Program";
 import { Step } from "../interpreter/Step.ts";
-import { Thread } from "../interpreter/Thread";
+import type { Thread } from "../interpreter/Thread";
 import { Position } from "../range/Position.ts";
 import { IRange } from "../range/Range.ts";
 import { CompilerFile } from "./CompilerFile";

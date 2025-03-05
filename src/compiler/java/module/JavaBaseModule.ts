@@ -1,6 +1,5 @@
 import { CodeReachedAssertions } from "../../common/interpreter/CodeReachedAssertions";
-import { Program } from "../../common/interpreter/Program";
-import { Thread } from "../../common/interpreter/Thread";
+import type { Thread } from "../../common/interpreter/Thread";
 import { Module } from "../../common/module/Module";
 import { JavaType } from "../types/JavaType";
 import { JavaTypeStore } from "./JavaTypeStore";

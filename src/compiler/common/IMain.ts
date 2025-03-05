@@ -1,16 +1,16 @@
-import { BottomDiv } from "../../client/main/gui/BottomDiv.ts";
-import { GUIFile } from "../../client/workspace/File.ts";
-import { Workspace } from "../../client/workspace/Workspace.ts";
-import { Compiler } from "../common/Compiler.ts";
-import { JavaRepl } from "../java/parser/repl/JavaRepl.ts";
-import { JavaWebworkerCompilerController } from "../java/webworker/JavaWebworkerCompilerController.ts";
-import { Disassembler } from "./disassembler/Disassembler.ts";
-import { ActionManager } from "./interpreter/ActionManager.ts";
-import { Interpreter } from "./interpreter/Interpreter.ts";
-import { Language } from "./Language.ts";
-import { CompilerFile } from "./module/CompilerFile.ts";
-import { IPosition } from "./range/Position.ts";
-import { IRange } from "./range/Range.ts";
+import type { BottomDiv } from "../../client/main/gui/BottomDiv.ts";
+import type { GUIFile } from "../../client/workspace/GUIFile.ts";
+import type { Workspace } from "../../client/workspace/Workspace.ts";
+import type { Compiler } from "../common/Compiler.ts";
+import type { JavaRepl } from "../java/parser/repl/JavaRepl.ts";
+import type { JavaWebworkerCompilerController } from "../java/webworker/JavaWebworkerCompilerController.ts";
+import type { Disassembler } from "./disassembler/Disassembler.ts";
+import type { ActionManager } from "./interpreter/ActionManager.ts";
+import type { Interpreter } from "./interpreter/Interpreter.ts";
+import type { Language } from "./Language.ts";
+import type { CompilerFile } from "./module/CompilerFile.ts";
+import type { IPosition } from "./range/Position.ts";
+import type { IRange } from "./range/Range.ts";
 import type * as monaco from 'monaco-editor'
 
 

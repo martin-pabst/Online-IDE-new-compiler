@@ -1,6 +1,6 @@
-import { ObjectClass } from "../../java/runtime/system/javalang/ObjectClassStringClass";
+import type { ObjectClass } from "../../java/runtime/system/javalang/ObjectClassStringClass";
 import { CompilerFile } from "../module/CompilerFile";
-import { Thread } from "./Thread";
+import type { Thread } from "./Thread";
 
 export type CatchBlockInfo = {
     exceptionTypes: Record<string, boolean>,

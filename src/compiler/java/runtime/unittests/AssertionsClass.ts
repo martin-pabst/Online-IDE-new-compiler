@@ -1,9 +1,9 @@
 import { CallbackParameter } from "../../../common/interpreter/CallbackParameter";
 import { Interpreter } from "../../../common/interpreter/Interpreter";
 import { Step } from "../../../common/interpreter/Step";
-import { CallbackFunction, Helpers, StepParams } from "../../../common/interpreter/StepFunction";
+import { CallbackFunction, Helpers, StepParams } from "../../../common/interpreter/RuntimeConstants";
 import { Thread } from "../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { ObjectClass } from "../system/javalang/ObjectClassStringClass";
 import { DummyAssertionObserver } from "./IAssertionObserver";

@@ -24,7 +24,7 @@ import { RepositoryCheckoutManager } from "../repository/update/RepositoryChecko
 import { RepositoryCreateManager } from "../repository/update/RepositoryCreateManager.js";
 import { RepositorySettingsManager } from "../repository/update/RepositorySettingsManager.js";
 import { SpriteManager } from "../spritemanager/SpriteManager.js";
-import { GUIFile } from '../workspace/File.js';
+import { GUIFile } from '../workspace/GUIFile.js';
 import { InconsistencyFixer } from "../workspace/InconsistencyFixer.js";
 import { Workspace } from "../workspace/Workspace.js";
 import { BottomDiv } from "./gui/BottomDiv.js";

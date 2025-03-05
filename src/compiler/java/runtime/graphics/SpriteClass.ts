@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { convexhull } from '../../../../tools/ConvexHull';
 import { Thread } from "../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { ObjectClass } from '../system/javalang/ObjectClassStringClass';
 import { RuntimeExceptionClass } from '../system/javalang/RuntimeException';

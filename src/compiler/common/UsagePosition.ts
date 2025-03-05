@@ -1,4 +1,3 @@
-import { JavaCompiledModule } from "../java/module/JavaCompiledModule";
 import { BaseSymbol } from "./BaseSymbolTable";
 import { CompilerFile } from "./module/CompilerFile";
 import { Module } from "./module/Module";

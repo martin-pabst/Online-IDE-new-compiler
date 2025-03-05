@@ -1,5 +1,5 @@
 import { Thread } from "../../../../common/interpreter/Thread.ts";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { InterfaceClass } from "../../system/javalang/InterfaceClass.ts";
 import { IGNGEventListener } from "./IGNGEventListener.ts";

@@ -1,4 +1,4 @@
-import { GUIFile } from "../../client/workspace/File";
+import { GUIFile } from "../../client/workspace/GUIFile";
 import { IMain } from "./IMain";
 import { Interpreter } from "./interpreter/Interpreter";
 import { Step } from "./interpreter/Step";

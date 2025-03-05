@@ -1,10 +1,10 @@
 import * as PIXI from 'pixi.js';
 import { Thread } from "../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { ShapeClass } from './ShapeClass';
 import { FilledShapeClass } from './FilledShapeClass';
-import { CallbackFunction } from '../../../common/interpreter/StepFunction';
+import { CallbackFunction } from '../../../common/interpreter/RuntimeConstants.ts';
 import { CallbackParameter } from '../../../common/interpreter/CallbackParameter';
 import { StringClass } from '../system/javalang/ObjectClassStringClass';
 import { convexhull } from '../../../../tools/ConvexHull.ts';

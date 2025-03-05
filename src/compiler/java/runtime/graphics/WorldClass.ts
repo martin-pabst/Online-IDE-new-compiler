@@ -5,7 +5,7 @@ import { Interpreter } from '../../../common/interpreter/Interpreter.ts';
 import { Thread } from "../../../common/interpreter/Thread.ts";
 import { ThreadState } from "../../../common/interpreter/ThreadState.ts";
 import { ColorHelper } from '../../lexer/ColorHelper.ts';
-import { LibraryDeclarations } from "../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType.ts";
 import { ObjectClass } from "../system/javalang/ObjectClassStringClass.ts";
 import { ActorManager } from './ActorManager.ts';

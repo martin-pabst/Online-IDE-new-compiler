@@ -3,7 +3,7 @@ import { WorkspaceData, WorkspaceSettings } from "../communication/Data.js";
 import { AccordionElement } from "../main/gui/Accordion.js";
 import { Main } from "../main/Main.js";
 import { MainBase } from "../main/MainBase.js";
-import { GUIFile } from "./File.js";
+import { GUIFile } from "./GUIFile.js";
 
 import * as PIXI from 'pixi.js';
 import { CompilerWorkspace } from '../../compiler/common/module/CompilerWorkspace.js';

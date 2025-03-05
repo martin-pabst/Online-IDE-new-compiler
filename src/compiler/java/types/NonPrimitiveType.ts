@@ -1,5 +1,5 @@
 import { Program } from "../../common/interpreter/Program.ts";
-import { Klass } from "../../common/interpreter/StepFunction.ts";
+import { Klass } from "../../common/interpreter/RuntimeConstants.ts";
 import { EmptyRange, IRange, Range } from "../../common/range/Range";
 import { TokenType } from "../TokenType.ts";
 import { JavaBaseModule } from "../module/JavaBaseModule";

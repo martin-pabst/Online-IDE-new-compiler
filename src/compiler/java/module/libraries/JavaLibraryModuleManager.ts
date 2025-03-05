@@ -1,10 +1,11 @@
-import { Klass } from "../../../common/interpreter/StepFunction";
+import { Klass } from "../../../common/interpreter/RuntimeConstants";
 import type { SystemModule } from "../../runtime/system/SystemModule";
 import { GenericTypeParameter } from "../../types/GenericTypeParameter";
 import { JavaType } from "../../types/JavaType";
 import { SerializedLibraryModuleManager } from "../../webworker/WebworkerJavaLibraryModuleManager";
-import { WebworkerSystemModule } from "../../webworker/WebworkerSystemModule";
+import type { WebworkerSystemModule } from "../../webworker/WebworkerSystemModule";
 import { JavaTypeStore } from "../JavaTypeStore";
+import { getSerializableCopyOfLibraryDeclarations } from "./LibraryTypeDeclaration";
 import { JavaLibraryModule } from "./JavaLibraryModule";
 import { LibraryDeclarationParser } from "./LibraryDeclarationParser";
 import type * as monaco from 'monaco-editor'
@@ -35,6 +36,8 @@ export class JavaLibraryModuleManager {
         ldp.parseClassOrEnumOrInterfaceDeclarationWithoutGenerics(this.systemModule.primitiveStringClass, this.systemModule);
         ldp.parseClassOrInterfaceDeclarationGenericsAndExtendsImplements(this.systemModule.primitiveStringClass, this.typestore, this.systemModule);
         ldp.parseFieldsAndMethods(this.systemModule.primitiveStringClass, this.typestore, this.systemModule);
+
+        this.typestore.addType(this.systemModule.primitiveStringClass.type);
 
         this.typestore.initFastExtendsImplementsLookup();
 
@@ -101,7 +104,7 @@ export class JavaLibraryModuleManager {
             serializedSystemClasses: this.systemModule.getSerializedLibraryClasses(),
 
             serializedPrimitiveStringClass: {
-                __javaDeclarations: jd
+                __javaDeclarations: getSerializableCopyOfLibraryDeclarations(this.systemModule.primitiveStringClass.__javaDeclarations)
             }
         }
 

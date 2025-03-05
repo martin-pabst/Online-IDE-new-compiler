@@ -1,7 +1,7 @@
 import jQuery from 'jquery';
 import { SchedulerState } from "../../../compiler/common/interpreter/SchedulerState.ts";
 import { JavaAddEditorShortcuts } from '../../../compiler/java/monacoproviders/JavaAddEditorShortcuts.ts';
-import { GUIFile } from '../../workspace/File.js';
+import { GUIFile } from '../../workspace/GUIFile.js';
 import { Workspace } from "../../workspace/Workspace.ts";
 import { Main } from "../Main.ts";
 import { MainBase } from "../MainBase.ts";
@@ -124,7 +124,7 @@ export class Editor {
                 this.main.getActionManager().trigger("interpreter.stop");
             }
             this.main.getCompiler().triggerCompile();
-            
+        
         })
 
         let that: Editor = this;

@@ -1,7 +1,7 @@
 
 import { CallbackParameter } from "../../../../../common/interpreter/CallbackParameter";
 import { Thread } from "../../../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../../module/libraries/LibraryTypeDeclaration";
 import { SpriteLibraryEnum } from '../../SpriteLibraryEnum';
 import { FastSprite } from './FastSpriteManager3d';
 import { ActorClass } from '../../ActorClass';

@@ -1,8 +1,8 @@
 import * as PIXI from 'pixi.js';
 import { CallbackParameter } from '../../../common/interpreter/CallbackParameter';
-import { CallbackFunction } from '../../../common/interpreter/StepFunction';
+import { CallbackFunction } from '../../../common/interpreter/RuntimeConstants';
 import { Thread } from "../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { StringClass } from '../system/javalang/ObjectClassStringClass';
 import { AlignmentEnum } from './AlignmentEnum';

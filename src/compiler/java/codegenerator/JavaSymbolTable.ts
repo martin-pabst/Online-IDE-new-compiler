@@ -11,7 +11,7 @@ import { JavaParameter } from "../types/JavaParameter.ts";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType.ts";
 import { Visibility } from "../types/Visibility.ts";
 import { JavaLocalVariable } from "./JavaLocalVariable";
-import * as monaco from 'monaco-editor'
+import type * as monaco from 'monaco-editor'
 
 
 export type LocalVariableInformation = {
@@ -142,7 +142,7 @@ export class JavaSymbolTable extends BaseSymbolTable {
         this.identifierToSymbolMap.forEach((symbol, identifier) => {
             items.push({
                 label: symbol.identifier,
-                kind: monaco.languages.CompletionItemKind.Variable,
+                kind: 4, //monaco.languages.CompletionItemKind.Variable,
                 detail: symbol.getDeclaration(),
                 insertText: symbol.identifier,
                 filterText: symbol.identifier,

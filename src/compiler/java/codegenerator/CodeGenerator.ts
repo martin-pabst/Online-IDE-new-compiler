@@ -1,5 +1,5 @@
 import { Program } from "../../common/interpreter/Program";
-import { Helpers } from "../../common/interpreter/StepFunction.ts";
+import { Helpers } from "../../common/interpreter/RuntimeConstants.ts";
 import { EmptyRange } from "../../common/range/Range.ts";
 import { CompilingProgressManager } from "../CompilingProgressManager.ts";
 import { TokenType } from "../TokenType";
@@ -8,7 +8,6 @@ import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { ASTClassDefinitionNode, ASTEnumDefinitionNode, ASTInterfaceDefinitionNode, ASTStaticInitializerNode, TypeScope } from "../parser/AST";
 import { JsonTool } from "../runtime/network/JsonTool.ts";
-import { SystemModule } from "../runtime/system/SystemModule.ts";
 import { IJavaClass, JavaClass } from "../types/JavaClass.ts";
 import { JavaEnum } from "../types/JavaEnum.ts";
 import { JavaInterface } from "../types/JavaInterface.ts";
@@ -89,7 +88,7 @@ export class CodeGenerator extends InnerClassCodeGenerator {
             let doesExtendSystemClass: boolean = false;
             let klass1: IJavaClass | undefined = klass.getExtends();
             while(klass1 != this.objectType){
-                if(klass1?.module instanceof SystemModule){
+                if(klass1?.module["_isSystemModule"]){
                     doesExtendSystemClass = true;
                     break;
                 }

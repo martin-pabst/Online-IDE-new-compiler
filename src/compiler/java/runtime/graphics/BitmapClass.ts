@@ -1,9 +1,9 @@
 import * as PIXI from 'pixi.js';
 import { CallbackParameter } from '../../../common/interpreter/CallbackParameter';
-import { CallbackFunction } from '../../../common/interpreter/StepFunction';
+import { CallbackFunction } from '../../../common/interpreter/RuntimeConstants.ts';
 import { Thread } from "../../../common/interpreter/Thread";
 import { ColorHelper } from '../../lexer/ColorHelper.ts';
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { StringClass } from '../system/javalang/ObjectClassStringClass';
 import { RuntimeExceptionClass } from '../system/javalang/RuntimeException.ts';

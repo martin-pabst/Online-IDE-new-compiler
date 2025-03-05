@@ -1,7 +1,7 @@
-import { CallbackFunction, Klass } from "../../../common/interpreter/StepFunction";
+import { CallbackFunction, Klass } from "../../../common/interpreter/RuntimeConstants";
 import { Thread } from "../../../common/interpreter/Thread";
 import { ColorHelper } from "../../lexer/ColorHelper";
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../system/javalang/ObjectClassStringClass";
 

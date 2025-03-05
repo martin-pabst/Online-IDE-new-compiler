@@ -17,7 +17,7 @@ import { Program } from "./Program";
 import { Step } from "./Step.ts";
 import { ProgramState } from "./ProgramState.ts";
 import { Scheduler } from "./Scheduler";
-import { CallbackFunction, KlassObjectRegistry } from "./StepFunction.ts";
+import { CallbackFunction, KlassObjectRegistry } from "./RuntimeConstants.ts";
 import { SystemException } from "./SystemException.ts";
 import { ThreadState } from "./ThreadState.ts";
 import { IThrowable, Stacktrace } from "./ThrowableType.ts";

@@ -3,7 +3,7 @@ import { makeDiv } from "../../../tools/HtmlTools.js";
 import { dateToStringWithoutTime, stringToDate } from "../../../tools/StringTools.js";
 import { Workspace } from "../../workspace/Workspace.js";
 import { Main } from "../Main.js";
-import { GUIFile } from '../../workspace/File.js';
+import { GUIFile } from '../../workspace/GUIFile.js';
 import * as monaco from 'monaco-editor'
 
 

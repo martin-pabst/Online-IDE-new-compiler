@@ -1,4 +1,4 @@
-import { GUIFile } from "../../../client/workspace/File.ts";
+import { GUIFile } from "../../../client/workspace/GUIFile.ts";
 import { Error, ErrorLevel } from "../Error.ts";
 import { Module } from "../module/Module.ts";
 import * as monaco from 'monaco-editor'

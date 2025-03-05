@@ -1,7 +1,7 @@
 import { isBoxedPrimitive } from "util/types";
 import { BaseSymbol, SymbolOnStackframe } from "../../common/BaseSymbolTable";
 import { CodeReacedAssertion } from "../../common/interpreter/CodeReachedAssertions.ts";
-import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
+import { Helpers, StepParams } from "../../common/interpreter/RuntimeConstants.ts";
 import { EmptyRange, IRange, Range } from "../../common/range/Range";
 import { TokenType, TokenTypeReadable } from "../TokenType";
 import { JCM } from "../language/JavaCompilerMessages.ts";
@@ -1350,7 +1350,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         isConstructor: boolean, hasToBeStatic: boolean, takingVisibilityIntoAccount: boolean,
         methodCallPosition: IRange): { best: JavaMethod | undefined, possible: JavaMethod[] } {
 
-        if (objectType == this.stringType) objectType = this.primitiveStringClass.type;
+        if (objectType == this.stringType) objectType = this.primitiveStringClass;
 
         let possibleMethods: JavaMethod[];
 

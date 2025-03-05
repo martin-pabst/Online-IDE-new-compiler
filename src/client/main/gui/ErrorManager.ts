@@ -2,7 +2,7 @@ import { Workspace } from "../../workspace/Workspace.js";
 import { Main } from "../Main.js";
 import { MainBase } from "../MainBase.js";
 import jQuery from 'jquery';
-import { GUIFile } from "../../workspace/File.js";
+import { GUIFile } from "../../workspace/GUIFile.js";
 import { Error } from "../../../compiler/common/Error.js";
 import { MainEmbedded } from "../../embedded/MainEmbedded.js";
 import type * as monaco from 'monaco-editor'

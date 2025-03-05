@@ -1,6 +1,9 @@
 import { WebworkerWrapper } from '../../../tools/webworker/WebworkerWrapper';
 import { IMain } from '../../common/IMain';
 import { FileTypeManager } from '../../common/module/FileTypeManager';
+import { JavaLibraryModuleManager } from '../module/libraries/JavaLibraryModuleManager';
+import { PrimitiveStringClass } from '../runtime/system/javalang/PrimitiveStringClass';
+import { SystemModule } from '../runtime/system/SystemModule';
 import { JavaWebWorkerCompiler } from './JavaWebworkerCompiler';
 import workerUrl from './JavaWebworkerCompiler?worker&url';
 
@@ -16,8 +19,8 @@ export class JavaWebworkerCompilerController {
         const worker = new Worker(workerUrl, { type: 'module' });
         this.javaWebworkerCompiler = new WebworkerWrapper<JavaWebWorkerCompiler>(worker, this).getWrapper();
 
-        // let serializedLibraryModuleManager = new JavaLibraryModuleManager([], new SystemModule(PrimitiveStringClass)).getSerializedLibraryModuleManager();
-        // this.javaWebworkerCompiler.setLibraryModuleManager(serializedLibraryModuleManager);
+        let serializedLibraryModuleManager = new JavaLibraryModuleManager([], new SystemModule(PrimitiveStringClass)).getSerializedLibraryModuleManager();
+        this.javaWebworkerCompiler.setLibraryModuleManager(serializedLibraryModuleManager);
     }
 
     onCompilationFinished() {

@@ -10,7 +10,7 @@ import { JavaMethod } from "./JavaMethod";
 import { JavaType } from "./JavaType";
 import { NonPrimitiveType } from "./NonPrimitiveType";
 import { Visibility } from "./Visibility";
-import * as monaco from 'monaco-editor'
+import type * as monaco from 'monaco-editor'
 
 export abstract class IJavaInterface extends NonPrimitiveType {
 
@@ -98,11 +98,11 @@ export abstract class IJavaInterface extends NonPrimitiveType {
                     title: '123',
                     arguments: []
                 },
-                kind: monaco.languages.CompletionItemKind.Method,
+                kind: 0, //monaco.languages.CompletionItemKind.Method,
                 insertText: method.getCompletionSnippet(leftBracketAlreadyThere),
                 detail: method.returnParameterType ? method.returnParameterType.getDeclaration() : "void",
                 range: rangeToReplace,
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                insertTextRules: 4, //monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                 documentation: method.documentation == null ? undefined : {
                     value: typeof method.documentation == "string" ? method.documentation : method.documentation()
                 }
@@ -278,7 +278,7 @@ export class JavaInterface extends IJavaInterface {
                 items.push({
                     label: gp.identifier,
                     detail: gp.getDeclaration(),
-                    kind: monaco.languages.CompletionItemKind.TypeParameter,
+                    kind: 24, //monaco.languages.CompletionItemKind.TypeParameter,
                     range: rangeToReplace,
                     insertText: gp.identifier 
                 })

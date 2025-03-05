@@ -1,6 +1,6 @@
 import { CallbackParameter } from "../../../../common/interpreter/CallbackParameter.ts";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { ObjectClass, ObjectClassOrNull } from "../../system/javalang/ObjectClassStringClass.ts";
 import { NRWComparableContentInterface } from "./NRWComparableContentInterface.ts";

@@ -2,7 +2,7 @@ import { DatabaseData } from "../../../../client/communication/Data";
 import { Main } from "../../../../client/main/Main";
 import { Interpreter } from "../../../../compiler/common/interpreter/Interpreter";
 import { JRC } from "../../../../compiler/java/language/JavaRuntimeLibraryComments";
-import { LibraryDeclarations } from "../../../../compiler/java/module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../../compiler/java/module/libraries/LibraryTypeDeclaration";
 import { ObjectClass } from "../../../../compiler/java/runtime/system/javalang/ObjectClassStringClass";
 import { NonPrimitiveType } from "../../../../compiler/java/types/NonPrimitiveType";
 import { DatabaseNewLongPollingListener } from "../../../../tools/database/DatabaseNewLongPollingListener";

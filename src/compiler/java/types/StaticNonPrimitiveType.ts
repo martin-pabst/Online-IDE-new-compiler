@@ -1,4 +1,4 @@
-import { Klass } from "../../common/interpreter/StepFunction.ts";
+import { Klass } from "../../common/interpreter/RuntimeConstants.ts";
 import { JavaField } from "./JavaField.ts";
 import { GenericTypeParameter } from "./GenericTypeParameter";
 import { JavaType } from "./JavaType";

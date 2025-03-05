@@ -4,7 +4,7 @@ import { BaseMonacoProvider } from '../../../common/monacoproviders/BaseMonacoPr
 import { Language } from '../../../common/Language.ts';
 import { Quickfix } from './Quickfix.ts';
 import { JavaCompiler } from '../../JavaCompiler.ts';
-import { GUIFile } from '../../../../client/workspace/File.ts';
+import { GUIFile } from '../../../../client/workspace/GUIFile.ts';
 import { JavaCompiledModule } from '../../module/JavaCompiledModule.ts';
 
 

@@ -1,7 +1,7 @@
 import { CallbackParameter } from "../../common/interpreter/CallbackParameter.ts";
 import { Program } from "../../common/interpreter/Program";
-import { CallbackFunction, Helpers, StepParams } from "../../common/interpreter/StepFunction.ts";
-import { Thread } from "../../common/interpreter/Thread.ts";
+import { CallbackFunction, Helpers, ObjectClassMethodNames, StepParams } from "../../common/interpreter/RuntimeConstants.ts";
+import type { Thread } from "../../common/interpreter/Thread.ts";
 import { EmptyRange, IRange, Range } from "../../common/range/Range.ts";
 import { JavaCompilerStringConstants } from "../JavaCompilerStringConstants.ts";
 import { TokenType } from "../TokenType";
@@ -9,7 +9,6 @@ import { JCM } from "../language/JavaCompilerMessages.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { ASTAnnotationNode, ASTAnonymousClassNode, ASTBlockNode, ASTClassDefinitionNode, ASTEnumDefinitionNode, ASTFieldDeclarationNode, ASTInstanceInitializerNode, ASTInterfaceDefinitionNode, ASTLambdaFunctionDeclarationNode, ASTMethodCallNode, ASTMethodDeclarationNode, ASTStatementNode, ASTStaticInitializerNode, TypeScope } from "../parser/AST";
-import { ObjectClass } from "../runtime/system/javalang/ObjectClassStringClass.ts";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType.ts";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
 import { JavaAnnotation } from "../types/JavaAnnotation.ts";
@@ -618,7 +617,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             if (method.isSynchronized) {
                 // snippets.unshift(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.enterSynchronizedBlock.name}(${StepParams.thread});\n`));
 
-                let beforeEnteringSynchronizedBlockStatement = new StringCodeSnippet(`return this.index + ${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.beforeEnteringSynchronizedBlock.name}(${StepParams.thread});\n`);
+                let beforeEnteringSynchronizedBlockStatement = new StringCodeSnippet(`return this.index + ${Helpers.elementRelativeToStackbase(0)}.${ObjectClassMethodNames[ObjectClassMethodNames.beforeEnteringSynchronizedBlock]}(${StepParams.thread});\n`);
                 let sn = new CodeSnippetContainer([beforeEnteringSynchronizedBlockStatement]);
                 sn.addNextStepMark();
                 snippets.unshift(sn);
@@ -628,7 +627,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             if (!this.missingStatementManager.hasReturnHappened() && !methodNode.isContructor) {
                 let endOfMethodRange: IRange = Range.fromPositions(Range.getEndPosition(methodNode.range));
                 if (method.isSynchronized) {
-                    snippets.push(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`, endOfMethodRange));
+                    snippets.push(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClassMethodNames[ObjectClassMethodNames.leaveSynchronizedBlock]}(${StepParams.thread});\n`, endOfMethodRange));
                 }
                 let sn1 = new CodeSnippetContainer([new StringCodeSnippet(`${Helpers.return}();`, endOfMethodRange)]);
                 sn1.enforceNewStepBeforeSnippet();

@@ -9,7 +9,7 @@ import { Program } from "./Program";
 import { Step } from "./Step.ts";
 import { SchedulerExitState } from "./SchedulerExitState.ts";
 import { SchedulerState } from "./SchedulerState.ts";
-import { Helpers, KlassObjectRegistry, StepParams } from "./StepFunction.ts";
+import { Helpers, KlassObjectRegistry, StepParams } from "./RuntimeConstants.ts";
 import { Thread, ThreadStateInfoAfterRun } from "./Thread";
 import { ThreadState } from "./ThreadState.ts";
 import { Module } from "../module/Module.ts";

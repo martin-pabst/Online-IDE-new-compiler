@@ -13,7 +13,7 @@ import { FileTypeManager } from '../../../compiler/common/module/FileTypeManager
 import { Helper } from "./Helper.js";
 import { TeacherExplorer } from './TeacherExplorer.js';
 import { WorkspaceSettingsDialog } from "./WorkspaceSettingsDialog.js";
-import { GUIFile } from '../../workspace/File.js';
+import { GUIFile } from '../../workspace/GUIFile.js';
 import { WorkspaceImporterExporter } from '../../workspace/WorkspaceImporterExporter.js';
 import { SchedulerState } from "../../../compiler/common/interpreter/SchedulerState.js";
 import { GuiMessages } from './GuiMessages.js';

@@ -1,8 +1,8 @@
-import { Klass } from '../../../common/interpreter/StepFunction.js';
+import { Klass } from '../../../common/interpreter/RuntimeConstants.js';
 import { EmptyRange } from '../../../common/range/Range';
 import { TokenType } from '../../TokenType';
 import { JRC } from '../../language/JavaRuntimeLibraryComments.js';
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration.js";
 import { JavaEnum } from '../../types/JavaEnum';
 import { JavaField } from '../../types/JavaField';
 import { EnumClass } from '../system/javalang/EnumClass';

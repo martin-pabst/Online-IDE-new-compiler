@@ -3,7 +3,7 @@ import { CallbackParameter } from '../../../../../common/interpreter/CallbackPar
 import { Thread } from '../../../../../common/interpreter/Thread';
 import { JRC } from '../../../../language/JavaRuntimeLibraryComments';
 import { ColorHelper } from '../../../../lexer/ColorHelper';
-import { LibraryDeclarations } from '../../../../module/libraries/DeclareType';
+import { LibraryDeclarations } from '../../../../module/libraries/LibraryTypeDeclaration';
 import { NonPrimitiveType } from '../../../../types/NonPrimitiveType';
 import { RuntimeExceptionClass } from '../../../system/javalang/RuntimeException';
 import { ColorClass } from '../../ColorClass';

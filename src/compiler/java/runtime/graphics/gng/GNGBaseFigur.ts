@@ -1,4 +1,4 @@
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { ObjectClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { FilledShapeClass } from "../FilledShapeClass.ts";

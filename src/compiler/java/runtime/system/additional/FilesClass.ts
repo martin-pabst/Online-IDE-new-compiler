@@ -1,6 +1,6 @@
 import { JRC } from "../../../language/JavaRuntimeLibraryComments";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { ObjectClass } from "../javalang/ObjectClassStringClass";
 import { RuntimeExceptionClass } from "../javalang/RuntimeException.ts";
 

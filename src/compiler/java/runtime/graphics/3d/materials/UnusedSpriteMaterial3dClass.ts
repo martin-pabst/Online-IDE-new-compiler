@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { World3dClass } from '../World3dClass';
 import { SpriteLibraryEnum } from '../../SpriteLibraryEnum';
 import { Material3dClass } from './Material3dClass';
-import { LibraryDeclarations } from '../../../../module/libraries/DeclareType';
+import { LibraryDeclarations } from '../../../../module/libraries/LibraryTypeDeclaration';
 import { JRC } from '../../../../language/JavaRuntimeLibraryComments';
 import { Thread } from '../../../../../common/interpreter/Thread';
 import { CallbackParameter } from '../../../../../common/interpreter/CallbackParameter';

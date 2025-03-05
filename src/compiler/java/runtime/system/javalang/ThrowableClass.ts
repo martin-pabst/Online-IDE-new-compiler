@@ -1,7 +1,7 @@
 import { Exception } from "../../../../common/interpreter/ExceptionInfo.ts";
 import { IThrowable, Stacktrace } from "../../../../common/interpreter/ThrowableType.ts";
 import { IRange } from "../../../../common/range/Range.ts";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { ObjectClass, StringClass } from "./ObjectClassStringClass.ts";
 

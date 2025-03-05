@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { CallbackParameter } from "../../../../../common/interpreter/CallbackParameter";
 import { Thread } from "../../../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../../types/NonPrimitiveType";
 import { Camera3dClass } from './Camera3dClass';
 

@@ -1,10 +1,10 @@
 import * as PIXI from 'pixi.js';
 import { Thread } from "../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { ShapeClass } from './ShapeClass';
 import { FilledShapeClass } from './FilledShapeClass';
-import { CallbackFunction } from '../../../common/interpreter/StepFunction';
+import { CallbackFunction } from '../../../common/interpreter/RuntimeConstants';
 import { StringClass } from '../system/javalang/ObjectClassStringClass';
 import { CallbackParameter } from '../../../common/interpreter/CallbackParameter';
 import { JRC } from '../../language/JavaRuntimeLibraryComments';

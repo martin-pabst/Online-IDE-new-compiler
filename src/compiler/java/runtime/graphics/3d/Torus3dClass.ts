@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { CallbackParameter } from "../../../../common/interpreter/CallbackParameter";
 import { Thread } from "../../../../common/interpreter/Thread";
-import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../module/libraries/LibraryTypeDeclaration";
 import { Mesh3dClass } from "./Mesh3dClass";
 
 export class Torus3dClass extends Mesh3dClass {

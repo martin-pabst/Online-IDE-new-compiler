@@ -41,5 +41,8 @@ export default {
     define: {
         'APP_VERSION': JSON.stringify(pkg.version),
         'BUILD_DATE': JSON.stringify(buildDate)
-      }
+      },
+    worker: {
+        format: 'es'
+    }
 } satisfies UserConfig

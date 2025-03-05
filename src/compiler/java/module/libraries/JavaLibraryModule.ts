@@ -1,10 +1,12 @@
-import { Klass } from "../../../common/interpreter/StepFunction.ts";
+import { Klass } from "../../../common/interpreter/RuntimeConstants.ts";
 import { CompilerFile } from "../../../common/module/CompilerFile";
+import { EnumClass } from "../../runtime/system/javalang/EnumClass.ts";
 import type { SystemModule } from "../../runtime/system/SystemModule.ts";
+import { JavaEnum } from "../../types/JavaEnum.ts";
 import { JavaType } from "../../types/JavaType";
 import { SerializedLibraryClass, WebworkerSystemModule } from "../../webworker/WebworkerSystemModule.ts";
 import { JavaBaseModule } from "../JavaBaseModule";
-import { LibraryDeclarations } from "./DeclareType.ts";
+import { getSerializableCopyOfLibraryDeclarations, LibraryDeclarations } from "./LibraryTypeDeclaration.ts";
 
 export type LibraryKlassType = {
 
@@ -40,13 +42,14 @@ export abstract class JavaLibraryModule extends JavaBaseModule {
 
     getSerializedLibraryClasses(): SerializedLibraryClass[] {
         return this.classesInterfacesEnums.map(cie => {
-            let ld = cie.__javaDeclarations.slice();
-            for(let ld1 of ld){
-                if(typeof ld1.comment == "function") ld1.comment = ld1.comment();
+
+            let slc: SerializedLibraryClass = {
+                __javaDeclarations: getSerializableCopyOfLibraryDeclarations(cie.__javaDeclarations)
             }
-            return {
-                __javaDeclarations: cie.__javaDeclarations
+            if(Array.isArray(cie["values"])){
+                slc.enumValues = cie.values.map((v: EnumClass) => v.name)
             }
+            return slc;
         })
     }
 }

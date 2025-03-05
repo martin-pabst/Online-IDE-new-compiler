@@ -21,7 +21,7 @@ export class JavaWebWorkerCompiler extends BaseWebworker<JavaWebworkerCompilerCo
 
     constructor(ctx: DedicatedWorkerGlobalScope){
         super(ctx);
-        debugger;
+        // debugger;
         this.compiler = new JavaCompiler(undefined, undefined);
         this.compiler.eventManager.on('compilationFinished', () => {
             this.caller.onCompilationFinished();

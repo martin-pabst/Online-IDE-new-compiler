@@ -1,6 +1,6 @@
 import { CompilerFile } from "../../common/module/CompilerFile";
 import { JavaTypeStore } from "./JavaTypeStore";
-import { JavaCompiledModule as JavaCompiledModule } from "./JavaCompiledModule";
+import { JavaCompiledModule } from "./JavaCompiledModule";
 import { NonPrimitiveType } from "../types/NonPrimitiveType";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType";
 import { CompilerWorkspace } from "../../common/module/CompilerWorkspace";

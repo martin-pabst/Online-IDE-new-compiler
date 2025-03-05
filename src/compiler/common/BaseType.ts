@@ -1,6 +1,7 @@
-import { BaseField, BaseSymbol } from "./BaseSymbolTable";
-import { Module } from "./module/Module";
-import { IRange } from "./range/Range";
+import { BaseSymbol } from "./BaseSymbolTable";
+import type { BaseField } from "./BaseSymbolTable";
+import type { Module } from "./module/Module";
+import type { IRange } from "./range/Range";
 
 /**
  * encapsultes methods for debugger

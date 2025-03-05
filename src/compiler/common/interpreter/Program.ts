@@ -1,10 +1,10 @@
-import { BaseSymbolTable } from "../BaseSymbolTable";
-import { Module } from "../module/Module";
+import type { BaseSymbolTable } from "../BaseSymbolTable";
+import type { Module } from "../module/Module";
 import { CodePrinter } from "../../java/codegenerator/CodePrinter.ts";
 import chalk from "chalk";
 import { getLine, threeDez } from "../../../tools/StringTools.ts";
 import { Step } from "./Step.ts";
-import { StepFunction } from "./StepFunction.ts";
+import type { StepFunction } from "./RuntimeConstants.ts";
 
 
 

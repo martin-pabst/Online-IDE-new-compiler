@@ -6,9 +6,9 @@ import { JavaCompiler } from "../compiler/java/JavaCompiler";
 import { getLine, getLineNumber, threeDez } from "../tools/StringTools";
 import { IPrintManager } from "../compiler/common/interpreter/IPrintManager";
 import { ViteTestAssertions } from "./ViteTestAssertions";
-import { CompilerFileMockup } from "./CompilerFileMockup";
 import { JavaLibraryManager } from "../compiler/java/runtime/JavaLibraryManager";
 import { CompilerFile } from "../compiler/common/module/CompilerFile";
+import { ThreadMethodNameChecker } from "./ThreadMethodNameChecker";
 
 class StoreOutputPrintManager implements IPrintManager {
 
@@ -36,6 +36,8 @@ class StoreOutputPrintManager implements IPrintManager {
 
     }
 }
+
+new ThreadMethodNameChecker().run();
 
 try {
 

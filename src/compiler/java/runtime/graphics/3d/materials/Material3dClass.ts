@@ -1,6 +1,6 @@
 import * as THREE from "three"
 
-import { LibraryDeclarations } from "../../../../module/libraries/DeclareType";
+import { LibraryDeclarations } from "../../../../module/libraries/LibraryTypeDeclaration";
 import { NonPrimitiveType } from "../../../../types/NonPrimitiveType";
 import { ObjectClass } from "../../../system/javalang/ObjectClassStringClass";
 import { ColorClass } from "../../ColorClass";

@@ -1,13 +1,11 @@
 import { CatchBlockInfo } from "../../common/interpreter/ExceptionInfo.ts";
-import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
+import { Helpers, ObjectClassMethodNames, StepParams } from "../../common/interpreter/RuntimeConstants.ts";
 import { EmptyRange, IRange, Range } from "../../common/range/Range.ts";
 import { TokenType } from "../TokenType";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { ASTArrayLiteralNode, ASTAttributeDereferencingNode, ASTBinaryNode, ASTBlockNode, ASTBreakNode, ASTCaseNode, ASTContinueNode, ASTDoWhileNode, ASTEnhancedForLoopNode, ASTFirstMainMethodStatementNode, ASTForLoopNode, ASTIfNode, ASTInitialFieldAssignmentInMainProgramNodes, ASTLambdaFunctionDeclarationNode, ASTLocalVariableDeclaration, ASTLocalVariableDeclarations, ASTNode, ASTPrintStatementNode, ASTReturnNode, ASTStatementNode, ASTSwitchCaseNode, ASTSymbolNode, ASTSynchronizedBlockNode, ASTTermNode, ASTThrowNode, ASTTryCatchNode, ASTUnaryPrefixNode, ASTWhileNode } from "../parser/AST";
-import { SystemCollection } from "../runtime/system/collections/SystemCollection.ts";
-import { ObjectClass } from "../runtime/system/javalang/ObjectClassStringClass.ts";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
 import { JavaArrayType } from "../types/JavaArrayType.ts";
@@ -176,7 +174,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         }
 
         if (this.currentSymbolTable.methodContext?.isSynchronized) {
-            snippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`));
+            snippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClassMethodNames[ObjectClassMethodNames.leaveSynchronizedBlock]}(${StepParams.thread});\n`));
         }
 
 
@@ -558,7 +556,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             this.synchronizedBlockCount++;
             let getLockObjectSnippet = this.compileTerm(lockObject);
             if (getLockObjectSnippet) {
-                let beforeEnteringSynchronizedBlockStatement = SnippetFramer.frame(getLockObjectSnippet, `§1.${ObjectClass.prototype.beforeEnteringSynchronizedBlock.name}(${StepParams.thread});\n`);
+                let beforeEnteringSynchronizedBlockStatement = SnippetFramer.frame(getLockObjectSnippet, `§1.${ObjectClassMethodNames[ObjectClassMethodNames.beforeEnteringSynchronizedBlock]}(${StepParams.thread});\n`);
                 snippet.addParts(beforeEnteringSynchronizedBlockStatement);
                 snippet.addNextStepMark();
 
@@ -576,7 +574,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if (lockObject) {
             let getLockObjectSnippet = this.compileTerm(lockObject);
             if (getLockObjectSnippet) {
-                let leaveSynchronizedBlockStatement = SnippetFramer.frame(getLockObjectSnippet, `§1.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`);
+                let leaveSynchronizedBlockStatement = SnippetFramer.frame(getLockObjectSnippet, `§1.${ObjectClassMethodNames[ObjectClassMethodNames.leaveSynchronizedBlock]}(${StepParams.thread});\n`);
                 snippet.addParts(leaveSynchronizedBlockStatement);
                 snippet.addNextStepMark();
             }

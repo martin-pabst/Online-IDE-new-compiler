@@ -1,5 +1,5 @@
-import { JavaField } from "../../java/types/JavaField.ts";
-import { RuntimeObject } from "./DebuggerSymbolEntry.ts";
+import type { JavaField } from "../../java/types/JavaField.ts";
+import type { RuntimeObject } from "./DebuggerSymbolEntry.ts";
 
 type ArrayOutputData = {
     text: string
