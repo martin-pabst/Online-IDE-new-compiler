@@ -1,6 +1,7 @@
 import { WebworkerWrapper } from '../../../tools/webworker/WebworkerWrapper';
 import { IMain } from '../../common/IMain';
 import { FileTypeManager } from '../../common/module/FileTypeManager';
+import { ErrorMarker } from '../../common/monacoproviders/ErrorMarker';
 import { JavaLibraryModuleManager } from '../module/libraries/JavaLibraryModuleManager';
 import { PrimitiveStringClass } from '../runtime/system/javalang/PrimitiveStringClass';
 import { SystemModule } from '../runtime/system/SystemModule';
@@ -15,7 +16,7 @@ export class JavaWebworkerCompilerController {
     lastTimeCompilationTriggered: number = performance.now();
     timeoutSet: boolean = false;
 
-    constructor(private main: IMain) {
+    constructor(private main: IMain, private errorMarker?: ErrorMarker) {
         const worker = new Worker(workerUrl, { type: 'module' });
         this.javaWebworkerCompiler = new WebworkerWrapper<JavaWebWorkerCompiler>(worker, this).getWrapper();
 
@@ -24,7 +25,19 @@ export class JavaWebworkerCompilerController {
     }
 
     onCompilationFinished() {
-        console.log("Compilation finished!");
+        this.printErrors();
+    }
+    
+    async printErrors() {
+        if (!this.errorMarker) return;
+        let errors = await this.javaWebworkerCompiler.getErrors();
+        const currentWorkspace = this.main?.getCurrentWorkspace();
+        if (!currentWorkspace) return;
+        let files = currentWorkspace.getFiles().filter(file => FileTypeManager.filenameToFileType(file.name).language == 'myJava');
+        for (let file of files) {
+            let errorsForFile = errors[file.uniqueID] || [];
+            this.errorMarker.markErrorsOfFile(file, errorsForFile);
+        }
     }
 
     triggerCompile() {
@@ -38,7 +51,7 @@ export class JavaWebworkerCompilerController {
             let files = currentWorkspace.getFiles().filter(file => FileTypeManager.filenameToFileType(file.name).language == 'myJava');
 
             this.javaWebworkerCompiler.setFiles(files.map(f => f.serialize()));
-        } else if(!this.timeoutSet){
+        } else if (!this.timeoutSet) {
             this.timeoutSet = true;
             window.setTimeout(() => {
                 this.triggerCompile();

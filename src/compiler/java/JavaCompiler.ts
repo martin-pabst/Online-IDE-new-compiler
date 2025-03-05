@@ -45,13 +45,14 @@ export class JavaCompiler implements Compiler {
 
     eventManager: EventManager<CompilerEvents> = new EventManager();
 
-    #progressManager = new CompilingProgressManager();
+    #progressManager;
 
     #compileTimer: number;
     lastTimeCompilationStarted: number = 0;
 
-    constructor(public main?: IMain, private errorMarker?: ErrorMarker) {
+    constructor(public main: IMain | undefined, private errorMarker: ErrorMarker | undefined, private isWebworker: boolean) {
         this.moduleManager = new JavaCompiledModuleManager();
+        this.#progressManager = new CompilingProgressManager(this.isWebworker ? 1000 : 0);
     }
 
     setLibraryModuleManager(lmm: JavaLibraryModuleManager){
@@ -235,12 +236,12 @@ export class JavaCompiler implements Compiler {
         }
 
         // ensure that there's at least compileTimeout ms between two compilation runs
-        let timeout: number = compileTimeout - (performance.now() - this.lastTimeCompilationStarted);
+        let timeout: number = (this.isWebworker ? 10 : compileTimeout) - (performance.now() - this.lastTimeCompilationStarted);
         if (timeout < 0) timeout = 0;
 
 
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        this.#compileTimer = window.setTimeout(async () => {
+        this.#compileTimer = <number><any>setTimeout(async () => {
             do {
                 try {
                     this.lastTimeCompilationStarted = performance.now();

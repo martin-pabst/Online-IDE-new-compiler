@@ -186,8 +186,6 @@ export class MainEmbedded implements MainBase {
 
     constructor(private $outerDiv: JQuery<HTMLElement>, private scriptList: JOScript[]) {
 
-        this.webworkerCompiler = new JavaWebworkerCompilerController(this);
-
         this.readConfig($outerDiv);
 
         this.initGUI($outerDiv);
@@ -213,7 +211,7 @@ export class MainEmbedded implements MainBase {
                                 this.setFileActive(files[0]);
                             }
                         }
-                        this.getCompiler().triggerCompile();
+                        this.getCompiler().triggerCompile(false);
 
                     });
                 }
@@ -241,7 +239,7 @@ export class MainEmbedded implements MainBase {
             this.scriptList.filter((script) => script.title.endsWith(".md")).forEach((script) => this.fileExplorer.addHint(script));
         } else {
             this.setFileActive(this.currentWorkspace.getFirstFile());
-            this.getCompiler().triggerCompile();
+            this.getCompiler().triggerCompile(false);
         }
 
     }
@@ -462,7 +460,7 @@ export class MainEmbedded implements MainBase {
 
     removeFile(file: GUIFile) {
         this.currentWorkspace.removeFile(file);
-        this.getCompiler()?.triggerCompile();
+        this.getCompiler()?.triggerCompile(false);
     }
 
 
@@ -610,6 +608,7 @@ export class MainEmbedded implements MainBase {
         */
         let errorMarker = new ErrorMarker();
         this.language = JavaLanguage.registerMain(this, errorMarker);
+        this.webworkerCompiler = new JavaWebworkerCompilerController(this, errorMarker);
 
         if (this.$junitDiv) {
             new JUnitTestrunner(this, this.$junitDiv[0]);
@@ -617,7 +616,7 @@ export class MainEmbedded implements MainBase {
 
         this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
 
-        // this.getCompiler().triggerCompile();
+        // this.getCompiler().triggerCompile(false);
 
         if (this.config.withPCode) {
             this.disassembler = new Disassembler(this.$disassemblerDiv[0], this);
@@ -897,7 +896,7 @@ export class MainEmbedded implements MainBase {
                 this.setFileActive(this.currentWorkspace.getFirstFile());
             }
 
-            this.getCompiler().triggerCompile();
+            this.getCompiler().triggerCompile(false);
 
             that.saveScripts();
 

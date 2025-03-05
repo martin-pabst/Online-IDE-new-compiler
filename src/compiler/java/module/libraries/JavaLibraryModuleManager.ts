@@ -37,8 +37,6 @@ export class JavaLibraryModuleManager {
         ldp.parseClassOrInterfaceDeclarationGenericsAndExtendsImplements(this.systemModule.primitiveStringClass, this.typestore, this.systemModule);
         ldp.parseFieldsAndMethods(this.systemModule.primitiveStringClass, this.typestore, this.systemModule);
 
-        this.typestore.addType(this.systemModule.primitiveStringClass.type);
-
         this.typestore.initFastExtendsImplementsLookup();
 
     }

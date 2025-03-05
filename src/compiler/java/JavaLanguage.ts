@@ -38,7 +38,7 @@ export class JavaLanguage extends Language {
 
 
     public static registerMain(main: IMain, errorMarker: ErrorMarker): JavaLanguage {
-        let compiler = new JavaCompiler(main, errorMarker);
+        let compiler = new JavaCompiler(main, errorMarker, false);
         let instance = JavaLanguage.getInstance();
         instance.registerCompiler(main, compiler);
         let repl = new JavaRepl(main, compiler);

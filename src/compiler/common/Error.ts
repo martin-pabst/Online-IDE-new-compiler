@@ -14,5 +14,6 @@ export type Error = {
     message: string,
     id: string,
     quickFix?: QuickFix,
-    level: ErrorLevel
+    level: ErrorLevel,
+    fileUniqueId?: number
 }

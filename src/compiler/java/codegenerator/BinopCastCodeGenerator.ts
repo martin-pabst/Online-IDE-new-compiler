@@ -8,6 +8,7 @@ import { JCM } from "../language/JavaCompilerMessages";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { ASTAnonymousClassNode, ASTLambdaFunctionDeclarationNode, ASTNode, AssignmentOperator, BinaryOperator, ConstantType, LogicOperator } from "../parser/AST";
+import { PrimitiveStringClass } from "../runtime/system/javalang/PrimitiveStringClass";
 import { JavaArrayType } from "../types/JavaArrayType";
 import { JavaClass } from "../types/JavaClass";
 import { JavaInterface } from "../types/JavaInterface";
@@ -109,7 +110,7 @@ export abstract class BinopCastCodeGenerator {
         this.throwableType = this.libraryTypestore.getType("Throwable")!;
         this.objectType = <JavaClass>this.libraryTypestore.getType("Object")!;
         this.stringNonPrimitiveType = <JavaClass>this.libraryTypestore.getType("String")!;
-        this.primitiveStringClass = <JavaClass>this.libraryTypestore.getType("string")!;
+        this.primitiveStringClass = PrimitiveStringClass.type;
         this.assertionsType = <JavaClass>this.libraryTypestore.getType("Assertions")!;
         this.iterableType = <JavaInterface>this.libraryTypestore.getType("Iterable")!;
         this.iteratorType = <JavaInterface>this.libraryTypestore.getType("Iterator")!;

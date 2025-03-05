@@ -44,7 +44,10 @@ export class ErrorMarker {
         if(module.file instanceof GUIFile){
             this.markErrors(module.errors, module.file.getMonacoModel()!);
         }
+    }
 
+    markErrorsOfFile(file: GUIFile, errors: Error[]){
+        this.markErrors(errors, file.getMonacoModel()!);
     }
 
     errorLevelToMarkerSeverity(errorlevel: ErrorLevel): monaco.MarkerSeverity {

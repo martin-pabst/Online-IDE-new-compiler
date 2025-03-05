@@ -82,7 +82,7 @@ export class WebworkerWrapper<WebworkerType> implements ProxyHandler<any> {
                 }
                 break;
             case "call":
-                const returnValue = (<Function>this.caller[data.methodIdentifier]).call(this, ...data.parameters);
+                const returnValue = (<Function>this.caller[data.methodIdentifier]).call(this.caller, ...data.parameters);
                 const returnMessage: WebworkerMethodReturnMessage = {
                     type: "return",
                     methodIdentifier: data.methodIdentifier,

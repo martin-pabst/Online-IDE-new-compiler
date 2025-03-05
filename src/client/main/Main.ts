@@ -271,7 +271,7 @@ export class Main implements MainBase {
 
         new EditorOpenerProvider(this);
 
-        this.webworkerCompiler = new JavaWebworkerCompilerController(this);
+        this.webworkerCompiler = new JavaWebworkerCompilerController(this, errorMarker);
 
 
     }

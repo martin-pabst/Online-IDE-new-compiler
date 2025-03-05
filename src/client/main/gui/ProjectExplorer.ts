@@ -104,7 +104,7 @@ export class ProjectExplorer {
                 that.main.networkManager.sendDeleteWorkspaceOrFile("file", file.id, (error: string) => {
                     if (error == null) {
                         that.main.getCurrentWorkspace().removeFile(file);
-                        that.main.getCompiler()?.triggerCompile();
+                        that.main.getCompiler()?.triggerCompile(false);
                         if (that.main.getCurrentWorkspace().getFiles().length == 0) {
 
                             that.fileListPanel.setCaption("Keine Datei vorhanden");
@@ -720,7 +720,7 @@ export class ProjectExplorer {
             });
 
             this.main.bottomDiv.gradingManager?.setValues(w);
-            this.main.getCompiler().triggerCompile();
+            this.main.getCompiler().triggerCompile(false);
 
         } else {
             this.setFileActive(null);
