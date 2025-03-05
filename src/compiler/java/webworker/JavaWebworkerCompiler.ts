@@ -6,8 +6,8 @@ import { ErrorMarker } from '../../common/monacoproviders/ErrorMarker';
 import { JavaLibraryModuleManager } from '../module/libraries/JavaLibraryModuleManager';
 import { PrimitiveStringClass } from '../runtime/system/javalang/PrimitiveStringClass';
 import { SystemModule } from '../runtime/system/SystemModule';
-import { JavaWebWorker } from './JavaWebworker';
-import workerUrl from './JavaWebworkerCompiler?worker&url';
+import type { JavaWebWorker } from './JavaWebworker';
+import workerUrl from './JavaWebworker?worker&url';
 
 
 export class JavaWebworkerCompiler implements WebworkerCompiler {
