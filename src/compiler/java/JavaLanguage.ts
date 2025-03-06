@@ -1,7 +1,7 @@
 import { Compiler } from "../common/language/Compiler.ts";
 import { IMain } from "../common/IMain";
 import { CompilerEvents, Language } from "../common/language/Language.ts";
-import { ColorProvider as JavaColorProvider } from "../common/monacoproviders/ColorProvider";
+import { JavaColorProvider as JavaColorProvider } from "../common/monacoproviders/ColorProvider";
 import { ErrorMarker } from "../common/monacoproviders/ErrorMarker";
 import { JavaCompiler } from "./JavaCompiler";
 import { JavaCompletionItemProvider } from "./monacoproviders/JavaCompletionItemProvider";
@@ -24,17 +24,24 @@ export class JavaLanguage extends Language {
     private static mains: IMain[] = [];
 
     private static registeredAtMonacoEditor = false;
-
-    private constructor(main: IMain) {
+    
+    constructor(main: IMain) {
         super("Java", ".java", "myJava", true);
         
         JavaLanguage.mains.push(main);
-
+        
         if(!JavaLanguage.registeredAtMonacoEditor){
             JavaLanguage.registerLanguageAtMonacoEditor();
-            JavaLanguage.registerProviders();
+            this.registerProviders();
             JavaLanguage.registeredAtMonacoEditor = true;
         }
+        
+        this._compiler = new JavaCompiler(main, false, this.eventManager);
+        this._webworkerCompiler = new JavaWebworkerCompiler(main, this.eventManager);
+        this._repl = new JavaRepl(main, <JavaCompiler>this._compiler, this.eventManager);
+
+        JavaOnDidTypeProvider.configureEditor(main.getMainEditor());
+        new JavaSymbolAndMethodMarker(main);
     }
 
     static findMainForModel(model: monaco.editor.ITextModel){
@@ -47,41 +54,24 @@ export class JavaLanguage extends Language {
     }
 
 
-    public static registerMain(main: IMain): JavaLanguage {
-        let eventManager: EventManager<CompilerEvents> = new EventManager();
-        instance.eventManagers.set(main, eventManager);
+    private registerProviders() {
 
-        let compiler = new JavaCompiler(main, false, eventManager);
-        let webworkerCompiler = new JavaWebworkerCompiler(main, eventManager);
-        instance.registerCompiler(main, compiler);
-        instance.registerWebworkerCompiler(main, webworkerCompiler);
-        let repl = new JavaRepl(main, compiler);
-        instance.registerRepl(main, repl);
-        JavaOnDidTypeProvider.configureEditor(main.getMainEditor());
-        new JavaSymbolAndMethodMarker(main);
-        return instance;
-    }
+        new JavaHoverProvider(this.monacoLanguageSelector);
+        new JavaCompletionItemProvider(this.monacoLanguageSelector);
+        new JavaRenameProvider(this.monacoLanguageSelector);
+        new JavaDefinitionProvider(this.monacoLanguageSelector);
+        new JavaReferenceProvider(this.monacoLanguageSelector);
+        new JavaSignatureHelpProvider(this.monacoLanguageSelector);
 
-
-
-    private static registerProviders() {
-
-        new JavaHoverProvider(this);
-        new JavaCompletionItemProvider(this);
-        new JavaRenameProvider(this);
-        new JavaDefinitionProvider(this);
-        new JavaReferenceProvider(this);
-        new JavaSignatureHelpProvider(this);
-
-        new JavaColorProvider(this);
+        new JavaColorProvider(this.monacoLanguageSelector);
 
         let formatter = new JavaFormatter();
         monaco.languages.registerDocumentFormattingEditProvider(this.monacoLanguageSelector, formatter);
         monaco.languages.registerOnTypeFormattingEditProvider(this.monacoLanguageSelector, formatter);
-        monaco.languages.registerCodeActionProvider(this.monacoLanguageSelector, new JavaCodeActionProvider(this));
+        monaco.languages.registerCodeActionProvider(this.monacoLanguageSelector, new JavaCodeActionProvider());
     }
 
-    private static registerLanguageAtMonacoEditor(): void {
+    public static registerLanguageAtMonacoEditor(): void {
         monaco.languages.register({
             id: 'myJava',
             extensions: ['.learnJava'],

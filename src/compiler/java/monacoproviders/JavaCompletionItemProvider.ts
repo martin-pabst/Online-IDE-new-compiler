@@ -1,5 +1,4 @@
 import { IMain } from "../../common/IMain.ts";
-import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import { IRange, Range } from "../../common/range/Range";
 import { JavaCompiler } from "../JavaCompiler.ts";
 import { JavaLanguage } from "../JavaLanguage.ts";
@@ -19,15 +18,14 @@ import { MonacoProviderLanguage } from "./MonacoProviderLanguage.ts";
 import * as monaco from 'monaco-editor'
 
 
-export class JavaCompletionItemProvider extends BaseMonacoProvider implements monaco.languages.CompletionItemProvider {
+export class JavaCompletionItemProvider implements monaco.languages.CompletionItemProvider {
 
     isConsole: boolean = false;
 
     public triggerCharacters: string[] = ['.', 'abcdefghijklmnopqrstuvwxyzäöüß_ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ', ' '];
 
-    constructor(public language: JavaLanguage) {
-        super(language);
-        monaco.languages.registerCompletionItemProvider(language.monacoLanguageSelector, this);
+    constructor(languageSelector: string) {
+        monaco.languages.registerCompletionItemProvider(languageSelector, this);
     }
 
     first: boolean = true;
@@ -35,7 +33,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
         context: monaco.languages.CompletionContext,
         token: monaco.CancellationToken): Promise<monaco.languages.CompletionList> {
 
-        let main = this.findMainForModel(model);
+        let main = JavaLanguage.findMainForModel(model);
         if (!main) return;
 
         let module: JavaCompiledModule;

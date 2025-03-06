@@ -1,24 +1,23 @@
 
 import * as monaco from 'monaco-editor'
-import { BaseMonacoProvider } from '../../../common/monacoproviders/BaseMonacoProvider.ts';
 import { Language } from '../../../common/language/Language.ts';
 import { Quickfix } from './Quickfix.ts';
 import { JavaCompiler } from '../../JavaCompiler.ts';
 import { GUIFile } from '../../../../client/workspace/GUIFile.ts';
 import { JavaCompiledModule } from '../../module/JavaCompiledModule.ts';
+import { JavaLanguage } from '../../JavaLanguage.ts';
 
 
 
-export class JavaCodeActionProvider extends BaseMonacoProvider implements monaco.languages.CodeActionProvider {
+export class JavaCodeActionProvider implements monaco.languages.CodeActionProvider {
     
-    constructor(language: Language){
-        super(language);
+    constructor(){
     }
 
     provideCodeActions(model: monaco.editor.ITextModel, range: monaco.Range, context: monaco.languages.CodeActionContext, token: monaco.CancellationToken): monaco.languages.ProviderResult<monaco.languages.CodeActionList> {
         let codeActions: monaco.languages.CodeAction[] = [];
 
-        let compiler = (<JavaCompiler>this.findMainForModel(model)?.getCompiler());
+        let compiler = <JavaCompiler> JavaLanguage.findMainForModel(model)?.getCompiler();
         if(!compiler) return undefined;
         
 

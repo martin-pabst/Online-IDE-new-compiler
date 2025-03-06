@@ -1,18 +1,16 @@
 import * as monaco from 'monaco-editor'
-import { BaseMonacoProvider } from "./BaseMonacoProvider.ts";
 import { JavaLanguage } from "../../java/JavaLanguage.ts";
 
 
-export class ColorProvider extends BaseMonacoProvider implements monaco.languages.DocumentColorProvider {
+export class JavaColorProvider implements monaco.languages.DocumentColorProvider {
 
 
-    constructor(language: JavaLanguage) {
-        super(language);
-        monaco.languages.registerColorProvider(language.monacoLanguageSelector, this);
+    constructor(languageSelector: string) {
+        monaco.languages.registerColorProvider(languageSelector, this);
     }
 
     async provideDocumentColors(model: monaco.editor.ITextModel, token: monaco.CancellationToken): Promise<monaco.languages.IColorInformation[]> {
-        let main = this.findMainForModel(model);
+        let main = JavaLanguage.findMainForModel(model);
         if (!main) return;
 
         let file = main.getCurrentWorkspace()?.getFileForMonacoModel(model);
@@ -20,7 +18,7 @@ export class ColorProvider extends BaseMonacoProvider implements monaco.language
 
         let compiler = main.getCompiler();
         if(!compiler.findModuleByFile(file)){
-            await compiler.eventManager.waitFor('compilationFinishedWithNewExecutable');
+            await main.getLanguage().eventManager.waitFor('compilationFinished');
         }
 
         let module = main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
@@ -30,7 +28,7 @@ export class ColorProvider extends BaseMonacoProvider implements monaco.language
             await main.getCompiler().interruptAndStartOverAgain(false);
         }
 
-        return module.colorInformation;
+        return module.file.colorInformation;
 
     }
 

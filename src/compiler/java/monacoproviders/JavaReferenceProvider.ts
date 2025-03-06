@@ -1,17 +1,15 @@
 import { GUIFile } from "../../../client/workspace/GUIFile.ts";
 import { IMain } from "../../common/IMain.ts";
-import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import { UsagePosition } from "../../common/UsagePosition.ts";
 import { JavaLanguage } from "../JavaLanguage.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
 import * as monaco from 'monaco-editor'
 
 
-export class JavaReferenceProvider extends BaseMonacoProvider implements monaco.languages.ReferenceProvider {
+export class JavaReferenceProvider implements monaco.languages.ReferenceProvider {
 
-    constructor(language: JavaLanguage) {
-        super(language);
-        monaco.languages.registerReferenceProvider(language.monacoLanguageSelector, this);
+    constructor(languageSelector: string) {
+        monaco.languages.registerReferenceProvider(languageSelector, this);
     }
 
     provideReferences(model: monaco.editor.ITextModel, position: monaco.Position, context: monaco.languages.ReferenceContext, token: monaco.CancellationToken):
@@ -20,7 +18,7 @@ export class JavaReferenceProvider extends BaseMonacoProvider implements monaco.
         let editor = monaco.editor.getEditors().find(e => e.getModel() == model);
         if(!editor) return;
 
-        let main = this.findMainForModel(model);
+        let main = JavaLanguage.findMainForModel(model);
         if (!main) return;
 
         let usagePosition = this.getUsagePosition(main, position, editor);

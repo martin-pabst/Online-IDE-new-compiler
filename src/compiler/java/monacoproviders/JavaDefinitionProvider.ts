@@ -1,6 +1,5 @@
 import { GUIFile } from "../../../client/workspace/GUIFile.ts";
 import { IMain } from "../../common/IMain.ts";
-import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import { Position } from "../../common/range/Position.ts";
 import { Range } from "../../common/range/Range.ts";
 import { UsagePosition } from "../../common/UsagePosition.ts";
@@ -9,11 +8,10 @@ import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
 import * as monaco from 'monaco-editor'
 
 
-export class JavaDefinitionProvider extends BaseMonacoProvider implements monaco.languages.DefinitionProvider {
+export class JavaDefinitionProvider implements monaco.languages.DefinitionProvider {
 
-    constructor(language: JavaLanguage) {
-        super(language);
-        monaco.languages.registerDefinitionProvider(language.monacoLanguageSelector, this);
+    constructor(languageSelector: string) {
+        monaco.languages.registerDefinitionProvider(languageSelector, this);
     }
 
     count: number = 0;
@@ -22,7 +20,7 @@ export class JavaDefinitionProvider extends BaseMonacoProvider implements monaco
         let editor = monaco.editor.getEditors().find(e => e.getModel() == model);
         if(!editor) return;
 
-        let main = this.findMainForModel(model);
+        let main = JavaLanguage.findMainForModel(model);
         if (!main) return;
 
         let usagePosition = this.getUsagePosition(main, position, editor);

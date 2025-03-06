@@ -1,5 +1,3 @@
-import { IMain } from "../../common/IMain.ts";
-import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import { JavaLanguage } from "../JavaLanguage.ts";
 import { JavaCompiledModule, JavaMethodCallPosition } from "../module/JavaCompiledModule.ts";
 import { JavaArrayType } from "../types/JavaArrayType.ts";
@@ -7,11 +5,10 @@ import { JavaMethod } from "../types/JavaMethod.ts";
 import * as monaco from 'monaco-editor'
 
 
-export class JavaSignatureHelpProvider extends BaseMonacoProvider implements monaco.languages.SignatureHelpProvider {
+export class JavaSignatureHelpProvider implements monaco.languages.SignatureHelpProvider {
 
-    constructor(language: JavaLanguage) {
-        super(language);
-        monaco.languages.registerSignatureHelpProvider(language.monacoLanguageSelector, this);
+    constructor(languageSelector: string) {
+        monaco.languages.registerSignatureHelpProvider(languageSelector, this);
     }
 
     signatureHelpTriggerCharacters?: readonly string[] = ['(', ',', ';', '<', '>', '=']; // semicolon, <, >, = for for-loop, if, while, ...
@@ -23,7 +20,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
         let that = this;
         if (model.getLanguageId() != 'myJava') return undefined;
 
-        let main = this.findMainForModel(model);
+        let main = JavaLanguage.findMainForModel(model);
         if (!main) return;
 
         let module: JavaCompiledModule;

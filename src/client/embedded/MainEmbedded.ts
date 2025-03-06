@@ -105,7 +105,7 @@ export class MainEmbedded implements MainBase {
     isEmbedded(): boolean { return true; }
 
     getCompiler(): Compiler {
-        return this.language.getCompiler(this);
+        return this.language.compiler;
     }
     getInterpreter(): Interpreter {
         return this.interpreter;
@@ -141,7 +141,7 @@ export class MainEmbedded implements MainBase {
     }
 
     getRepl(): JavaRepl {
-        return this.language?.getRepl(this);
+        return this.language?.repl;
     }
 
     getMainEditor(): monaco.editor.IStandaloneCodeEditor {
@@ -208,7 +208,7 @@ export class MainEmbedded implements MainBase {
                                 this.setFileActive(files[0]);
                             }
                         }
-                        this.getLanguage().triggerCompile(this, false);
+                        this.getLanguage().triggerCompile(true);
 
                     });
                 }
@@ -236,7 +236,7 @@ export class MainEmbedded implements MainBase {
             this.scriptList.filter((script) => script.title.endsWith(".md")).forEach((script) => this.fileExplorer.addHint(script));
         } else {
             this.setFileActive(this.currentWorkspace.getFirstFile());
-            this.getLanguage().triggerCompile(this, false);
+            this.getLanguage().triggerCompile(true);
         }
 
     }
@@ -604,15 +604,15 @@ export class MainEmbedded implements MainBase {
          * Compiler and Repl are fields of language!
         */
         this.errorMarker = new ErrorMarker();
-        this.language = JavaLanguage.registerMain(this);
+        this.language = new JavaLanguage(this);
 
         if (this.$junitDiv) {
             new JUnitTestrunner(this, this.$junitDiv[0]);
         }
 
-        this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
+        this.language.eventManager.on("compilationFinished", this.onCompilationFinished, this);
 
-        this.getLanguage().triggerCompile(this, false);
+        this.language.triggerCompile(true);
 
         if (this.config.withPCode) {
             this.disassembler = new Disassembler(this.$disassemblerDiv[0], this);
@@ -892,7 +892,7 @@ export class MainEmbedded implements MainBase {
                 this.setFileActive(this.currentWorkspace.getFirstFile());
             }
 
-            this.getLanguage().triggerCompile(this, false);
+            this.language.triggerCompile(true);
 
             that.saveScripts();
 

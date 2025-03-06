@@ -1,23 +1,21 @@
 import { GUIFile } from "../../../client/workspace/GUIFile.ts";
 import { IMain } from "../../common/IMain.ts";
-import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import { UsagePosition } from "../../common/UsagePosition.ts";
 import { JavaLanguage } from "../JavaLanguage.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
 import * as monaco from 'monaco-editor'
 
 
-export class JavaRenameProvider extends BaseMonacoProvider implements monaco.languages.RenameProvider {
+export class JavaRenameProvider implements monaco.languages.RenameProvider {
 
-    constructor(language: JavaLanguage) {
-        super(language);
-        monaco.languages.registerRenameProvider(language.monacoLanguageSelector, this);
+    constructor(languageSelector: string) {
+        monaco.languages.registerRenameProvider(languageSelector, this);
     }
 
     provideRenameEdits(model: monaco.editor.ITextModel, position: monaco.Position, newName: string, token: monaco.CancellationToken):
         monaco.languages.ProviderResult<monaco.languages.WorkspaceEdit & monaco.languages.Rejection> {
 
-        let main = this.findMainForModel(model);
+        let main = JavaLanguage.findMainForModel(model);
         if (!main) return;
 
         let editor = monaco.editor.getEditors().find(e => e.getModel() == model);
@@ -63,7 +61,7 @@ export class JavaRenameProvider extends BaseMonacoProvider implements monaco.lan
     }
 
     resolveRenameLocation?(model: monaco.editor.ITextModel, position: monaco.Position, token: monaco.CancellationToken): monaco.languages.ProviderResult<monaco.languages.RenameLocation & monaco.languages.Rejection> {
-        let main = this.findMainForModel(model);
+        let main = JavaLanguage.findMainForModel(model);
         if (!main) return;
 
         let editor = monaco.editor.getEditors().find(e => e.getModel() == model);

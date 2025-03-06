@@ -1,5 +1,7 @@
 import { BaseWebworker } from "../../../tools/webworker/BaseWebWorker";
 import { Error } from "../../common/Error";
+import { EventManager } from "../../common/interpreter/EventManager.ts";
+import { CompilerEvents } from "../../common/language/Language.ts";
 import { CompilerFile } from "../../common/module/CompilerFile";
 import { JavaCompiler } from "../JavaCompiler";
 import type { JavaWebworkerCompiler } from "./JavaWebworkerCompiler";
@@ -29,11 +31,13 @@ export class JavaWebWorker extends BaseWebworker<JavaWebworkerCompiler> {
     compiler: JavaCompiler;
     timeCompilationStarted: number;
 
+    eventManager: EventManager<CompilerEvents> = new EventManager();
+
     constructor(ctx: DedicatedWorkerGlobalScope){
         super(ctx);
         // debugger;
-        this.compiler = new JavaCompiler(undefined, true);
-        this.compiler.eventManager.on('compilationFinished', () => {
+        this.compiler = new JavaCompiler(undefined, true, this.eventManager);
+        this.eventManager.on('compilationFinished', () => {
             this.caller.onCompilationFinished();
             // console.log("Compilation took " + (Math.round(performance.now() - this.timeCompilationStarted)) + " ms");
         })

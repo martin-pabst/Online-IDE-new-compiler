@@ -9,6 +9,7 @@ import { ViteTestAssertions } from "./ViteTestAssertions";
 import { JavaLibraryManager } from "../compiler/java/runtime/JavaLibraryManager";
 import { CompilerFile } from "../compiler/common/module/CompilerFile";
 import { ThreadMethodNameChecker } from "./ThreadMethodNameChecker";
+import { EventManager } from "../compiler/common/interpreter/EventManager.ts";
 
 class StoreOutputPrintManager implements IPrintManager {
 
@@ -123,7 +124,7 @@ function compileAndTest(name: string, program: string, lineOffset: number,
 
         file.setText(program);
 
-        let compiler = new JavaCompiler();
+        let compiler = new JavaCompiler(undefined, false, new EventManager());
 
         let libManager = new JavaLibraryManager();
         libManager.addLibraries(...libraries);

@@ -15,7 +15,7 @@ import { IRange, Range } from '../../compiler/common/range/Range.js';
 import { JavaLanguage } from '../../compiler/java/JavaLanguage.js';
 import { JavaRepl } from '../../compiler/java/parser/repl/JavaRepl.js';
 import { DatabaseNewLongPollingListener } from '../../tools/database/DatabaseNewLongPollingListener.js';
-import { checkIfMousePresent, findGetParameter, getCookieValue } from "../../tools/HtmlTools.js";
+import { checkIfMousePresent, findGetParameter } from "../../tools/HtmlTools.js";
 import { ClassData, UserData, WorkspaceData, Workspaces } from "../communication/Data.js";
 import { NetworkManager } from "../communication/NetworkManager.js";
 import { PushClientManager } from '../communication/pushclient/PushClientManager.js';
@@ -107,12 +107,6 @@ export class Main implements MainBase {
     interpreter: Interpreter;
     errorMarker: ErrorMarker;
 
-    webworkerCompiler: JavaWebworkerCompiler;
-
-    getWebworkerCompiler(): JavaWebworkerCompiler {
-        return this.webworkerCompiler;
-    }
-
     showFile(file?: CompilerFile): void {
         if (!file) return;
         this.projectExplorer.setFileActive(<GUIFile>file);
@@ -135,11 +129,11 @@ export class Main implements MainBase {
     }
 
     getCompiler(): Compiler {
-        return this.language.getCompiler(this);
+        return this.language.compiler;
     }
 
     getRepl(): JavaRepl {
-        return this.language?.getRepl(this);
+        return this.language?.repl;
     }
 
     getMainEditor(): monaco.editor.IStandaloneCodeEditor {
@@ -256,25 +250,22 @@ export class Main implements MainBase {
         /**
          * Compiler and Repl are fields of language!
         */
-        this.language = JavaLanguage.registerMain(this);
+        this.language = new JavaLanguage(this);
 
         new JUnitTestrunner(this, jQuery('.jo_testrunnerTab')[0]);
 
-        this.getCompiler().eventManager.on('compilationFinishedWithNewExecutable', this.onCompilationFinished, this);
-        this.getCompiler().eventManager.on('compilationFinished', () => {
+        this.language.eventManager.on('compilationFinishedWithNewExecutable', this.onCompilationFinished, this);
+        this.language.eventManager.on('compilationFinished', () => {
             this.getInterpreter()?.onFileSelected();
         }, this);
         
-        this.getLanguage().triggerCompile(this, false);
+        this.getLanguage().triggerCompile(true);
 
         this.disassembler = new Disassembler(this.bottomDiv.getDisassemblerDiv(), this);
 
         this.programControlButtons = new ProgramControlButtons(jQuery('#controls'), this.interpreter, this.actionManager);
 
         new EditorOpenerProvider(this);
-
-        this.webworkerCompiler = new JavaWebworkerCompiler(this);
-
 
     }
 

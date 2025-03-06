@@ -35,7 +35,7 @@ export class ApiDoc {
 
     initEditor(){
 
-        JavaLanguage.getInstance();
+        JavaLanguage.registerLanguageAtMonacoEditor();
 
         monaco.editor.defineTheme('myCustomThemeDark', {
             base: 'vs-dark', // can also be vs-dark or hc-black

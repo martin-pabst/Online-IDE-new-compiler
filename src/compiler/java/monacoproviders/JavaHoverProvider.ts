@@ -1,12 +1,9 @@
 import { removeJavadocSyntax } from "../../../tools/StringTools.ts";
-import { IMain } from "../../common/IMain.ts";
 import { ValueRenderer } from "../../common/debugger/ValueRenderer.ts";
 import { SchedulerState } from "../../common/interpreter/SchedulerState.ts";
-import { Module } from "../../common/module/Module.ts";
-import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import { Range } from "../../common/range/Range.ts";
-import { JavaLanguage } from "../JavaLanguage.ts";
 import { JavaLocalVariable } from "../codegenerator/JavaLocalVariable.ts";
+import { JavaLanguage } from "../JavaLanguage.ts";
 import { ReplReturnValue } from "../parser/repl/ReplReturnValue.ts";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType.ts";
 import { JavaField } from "../types/JavaField.ts";
@@ -16,7 +13,7 @@ import { NonPrimitiveType } from "../types/NonPrimitiveType.ts";
 import * as monaco from 'monaco-editor'
 
 
-export class JavaHoverProvider extends BaseMonacoProvider {
+export class JavaHoverProvider {
 
     private static keywordDescriptions: { [keyword: string]: string } = {
         "print": "Die Anweisung ```print``` gibt eine Zeichenkette aus.",
@@ -61,9 +58,8 @@ export class JavaHoverProvider extends BaseMonacoProvider {
         "var": "```\nvar\n```  \nWird einer Variable beim Deklarieren sofort ein Startwert zugewiesen (z.B. Circle c = new Circle(100, 100, 10)), so kann statt des Datentyps das Schlüsselwort ```var``` verwendet werden (also var c = new Circle(100, 100, 10)).",
     }
 
-    constructor(public language: JavaLanguage) {
-        super(language);
-        monaco.languages.registerHoverProvider(language.monacoLanguageSelector, this);
+    constructor(languageSelector: string) {
+        monaco.languages.registerHoverProvider(languageSelector, this);
     }
 
     replReturnValueToOutput(replReturnValue: ReplReturnValue, caption: string) {
@@ -100,7 +96,7 @@ export class JavaHoverProvider extends BaseMonacoProvider {
     provideHover(model: monaco.editor.ITextModel, position: monaco.Position, token: monaco.CancellationToken):
         monaco.languages.ProviderResult<monaco.languages.Hover> {
 
-            let main = this.findMainForModel(model);
+            let main = JavaLanguage.findMainForModel(model);
             if (!main) return;
             let module = main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
             if (!module) return;

@@ -1,11 +1,13 @@
 import { Executable } from "../../../common/Executable.ts";
 import { IMain } from "../../../common/IMain.ts";
 import { DebuggerCallstackEntry } from "../../../common/debugger/DebuggerCallstackEntry.ts";
+import { EventManager } from "../../../common/interpreter/EventManager.ts";
 import { Interpreter } from "../../../common/interpreter/Interpreter.ts";
 import { Program } from "../../../common/interpreter/Program.ts";
 import { SchedulerState } from "../../../common/interpreter/SchedulerState.ts";
 import { Thread } from "../../../common/interpreter/Thread.ts";
 import { ThreadState } from "../../../common/interpreter/ThreadState.ts";
+import { CompilerEvents } from "../../../common/language/Language.ts";
 import { CompilerFile } from "../../../common/module/CompilerFile.ts";
 import { EmptyRange } from "../../../common/range/Range.ts";
 import { JavaCompiler } from "../../JavaCompiler.ts";
@@ -41,10 +43,10 @@ export class JavaRepl {
 
     state: ReplState = "none";
 
-    constructor(private main: IMain, private compiler: JavaCompiler) {
+    constructor(private main: IMain, private compiler: JavaCompiler, eventManager: EventManager<CompilerEvents>) {
 
         this.replCompiler = new JavaReplCompiler();
-        this.compiler.eventManager.on("compilationFinishedWithNewExecutable", (executable: Executable) => {
+        eventManager.on("compilationFinishedWithNewExecutable", (executable: Executable) => {
             setTimeout(() => {
                 this.init(executable);
             }, 100);

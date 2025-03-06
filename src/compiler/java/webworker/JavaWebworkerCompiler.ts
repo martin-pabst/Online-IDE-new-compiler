@@ -28,8 +28,9 @@ export class JavaWebworkerCompiler implements WebworkerCompiler {
     }
 
     onCompilationFinished() {
-        this.copyCompileInformationToFiles();
-        this.eventManager.fire("compilationFinished");
+        this.copyCompileInformationToFiles().then(() => {
+            this.eventManager.fire("compilationFinished");
+        });
     }
     
     async copyCompileInformationToFiles() {

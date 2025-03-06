@@ -123,7 +123,7 @@ export class Editor {
             if (![SchedulerState.stopped, SchedulerState.error, SchedulerState.not_initialized].includes(state)) {
                 this.main.getActionManager().trigger("interpreter.stop");
             }
-            this.main.getLanguage().triggerCompile(this.main, false);
+            this.main.getLanguage().triggerCompile(false);
         })
 
         let that: Editor = this;
