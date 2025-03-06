@@ -1,15 +1,13 @@
 import { FileTypeManager } from "../common/module/FileTypeManager.ts";
 import type { BaseType } from "../common/BaseType.ts";
-import type { Compiler, CompilerEvents } from "../common/language/Compiler.ts";
-import type { Error, ErrorLevel } from "../common/Error.ts";
+import type { Compiler } from "../common/language/Compiler.ts";
+import type { Error } from "../common/Error.ts";
 import { Executable } from "../common/Executable.ts";
 import type { IMain } from "../common/IMain.ts";
 import { EventManager } from "../common/interpreter/EventManager.ts";
 import type { KlassObjectRegistry } from "../common/interpreter/RuntimeConstants.ts";
 import type { CompilerFile } from "../common/module/CompilerFile";
 import type { Module } from "../common/module/Module.ts";
-import type { ErrorMarker } from "../common/monacoproviders/ErrorMarker.ts";
-import { Range } from "../common/range/Range.ts";
 import { Lexer } from "./lexer/Lexer";
 import { Parser } from "./parser/Parser";
 import { TypeResolver } from "./TypeResolver/TypeResolver";
@@ -20,6 +18,7 @@ import type { JavaCompiledModule } from "./module/JavaCompiledModule.ts";
 import { JavaCompiledModuleManager } from "./module/JavaCompiledModuleManager.ts";
 import type { JavaLibraryModuleManager } from "./module/libraries/JavaLibraryModuleManager";
 import { CompilingProgressManager, CompilingProgressManagerException } from "./CompilingProgressManager.ts";
+import { CompilerEvents } from "../common/language/Language.ts";
 
 
 
@@ -43,14 +42,14 @@ export class JavaCompiler implements Compiler {
 
     #files: CompilerFile[] = [];
 
-    eventManager: EventManager<CompilerEvents> = new EventManager();
-
     #progressManager;
 
     #compileTimer: number;
     lastTimeCompilationStarted: number = 0;
 
-    constructor(public main: IMain | undefined, private errorMarker: ErrorMarker | undefined, private isWebworker: boolean) {
+    constructor(public main: IMain | undefined, private isWebworker: boolean,
+        private eventManager: EventManager<CompilerEvents>
+    ) {
         this.moduleManager = new JavaCompiledModuleManager();
         this.#progressManager = new CompilingProgressManager(this.isWebworker ? 1000 : 0);
     }
@@ -176,8 +175,9 @@ export class JavaCompiler implements Compiler {
         this.eventManager.fire("compilationFinishedWithNewExecutable", this.#lastCompiledExecutable);
 
         for (const module of this.#lastCompiledExecutable.moduleManager.modules) {
-            this.errorMarker?.markErrorsOfModule(module);
             module.file.isStartable = module.isStartable();
+            module.file.errors = module.errors;
+            module.file.colorInformation = module.colorInformation;
         }
 
         return executable;
@@ -276,39 +276,6 @@ export class JavaCompiler implements Compiler {
         module?.setDirty(true);
     }
 
-    getSortedAndFilteredErrors(file: CompilerFile): Error[] {
-        const module = this.findModuleByFile(file);
-        if (!module) return [];
-
-        const list: Error[] = module.errors.slice();
-
-        list.sort((a, b) => {
-            return Range.compareRangesUsingStarts(a.range, b.range);
-        });
-
-        for (let i = 0; i < list.length - 1; i++) {
-            const e1 = list[i];
-            const e2 = list[i + 1];
-            if (e1.range.startLineNumber == e2.range.startLineNumber && e1.range.startColumn + 10 > e2.range.startColumn) {
-                if (this.#errorLevelCompare(e1.level, e2.level) == 1) {
-                    list.splice(i + 1, 1);
-                } else {
-                    list.splice(i, 1);
-                }
-                i--;
-            }
-        }
-
-        return list;
-    }
-
-    #errorLevelCompare(level1: ErrorLevel, level2: ErrorLevel): number {
-        if (level1 == "error") return 1;
-        if (level2 == "error") return -1;
-        if (level1 == "warning") return 1;
-        if (level2 == "warning") return -1;
-        return 1;
-    }
 
     async interruptAndStartOverAgain(onlyForCodeCompletion: boolean): Promise<void> {
 

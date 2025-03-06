@@ -11,7 +11,7 @@ export class BaseMonacoProvider {
 
     protected findMainForModel(model: monaco.editor.ITextModel){
         let editor = monaco.editor.getEditors().find(e => e.getModel() == model);
-        for(let main of this.language.mains){
+        for(let main of this.language.#mains){
             if(main.getMainEditor() == editor || main.getReplEditor() == editor){
                 return main;
             }

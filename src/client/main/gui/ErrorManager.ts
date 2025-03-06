@@ -3,10 +3,11 @@ import { Main } from "../Main.js";
 import { MainBase } from "../MainBase.js";
 import jQuery from 'jquery';
 import { GUIFile } from "../../workspace/GUIFile.js";
-import { Error } from "../../../compiler/common/Error.js";
+import { Error, ErrorLevel } from "../../../compiler/common/Error.js";
 import { MainEmbedded } from "../../embedded/MainEmbedded.js";
 import type * as monaco from 'monaco-editor'
 import { Range } from "../../../compiler/common/range/Range.js";
+import { CompilerFile } from "../../../compiler/common/module/CompilerFile.js";
 
 export class ErrorManager {
 
@@ -28,9 +29,7 @@ export class ErrorManager {
         }).attr('title', 'Undo');
     }
 
-    showErrors(workspace: Workspace): Map<GUIFile, number> {
-
-        let errorCountMap: Map<GUIFile, number> = new Map();
+    showErrors(workspace: Workspace) {
 
         this.$errorDiv = this.$bottomDiv.find('.jo_tabs>.jo_errorsTab');
         this.$errorDiv.empty();
@@ -42,8 +41,7 @@ export class ErrorManager {
 
             let $errorList: JQuery<HTMLElement>[] = [];
 
-            let errors = this.main.getCompiler().getSortedAndFilteredErrors(file);
-            errorCountMap.set(file, errors.filter(error => error.level == "error").length);
+            let errors = this.getSortedAndFilteredErrors(file);
 
             for (let error of errors) {
 
@@ -65,8 +63,6 @@ export class ErrorManager {
         if (!hasErrors && this.$errorDiv.length > 0) {
             this.$errorDiv.append(jQuery('<div class="jo_noErrorMessage">Keine Fehler gefunden :-)</div>'));
         }
-
-        return errorCountMap;
 
     }
 
@@ -154,5 +150,38 @@ export class ErrorManager {
         }
         
     }
+
+    getSortedAndFilteredErrors(file: CompilerFile): Error[] {
+
+        const list: Error[] = file.errors.slice();
+
+        list.sort((a, b) => {
+            return Range.compareRangesUsingStarts(a.range, b.range);
+        });
+
+        for (let i = 0; i < list.length - 1; i++) {
+            const e1 = list[i];
+            const e2 = list[i + 1];
+            if (e1.range.startLineNumber == e2.range.startLineNumber && e1.range.startColumn + 10 > e2.range.startColumn) {
+                if (this.#errorLevelCompare(e1.level, e2.level) == 1) {
+                    list.splice(i + 1, 1);
+                } else {
+                    list.splice(i, 1);
+                }
+                i--;
+            }
+        }
+
+        return list;
+    }
+
+    #errorLevelCompare(level1: ErrorLevel, level2: ErrorLevel): number {
+        if (level1 == "error") return 1;
+        if (level2 == "error") return -1;
+        if (level1 == "warning") return 1;
+        if (level2 == "warning") return -1;
+        return 1;
+    }
+
 
 }

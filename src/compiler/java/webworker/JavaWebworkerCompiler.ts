@@ -1,8 +1,9 @@
 import { WebworkerWrapper } from '../../../tools/webworker/WebworkerWrapper';
 import { IMain } from '../../common/IMain';
+import { EventManager } from '../../common/interpreter/EventManager';
+import { CompilerEvents } from '../../common/language/Language';
 import { WebworkerCompiler } from '../../common/language/WebworkerCompiler';
 import { FileTypeManager } from '../../common/module/FileTypeManager';
-import { ErrorMarker } from '../../common/monacoproviders/ErrorMarker';
 import { JavaLibraryModuleManager } from '../module/libraries/JavaLibraryModuleManager';
 import { PrimitiveStringClass } from '../runtime/system/javalang/PrimitiveStringClass';
 import { SystemModule } from '../runtime/system/SystemModule';
@@ -16,25 +17,22 @@ export class JavaWebworkerCompiler implements WebworkerCompiler {
 
     lastTimeCompilationTriggered: number = performance.now();
 
-    callbackAfterCompilationFinished: (() => void) | undefined; 
     // timeoutSet: boolean = false;
 
-    constructor(private main: IMain, private errorMarker?: ErrorMarker) {
+    constructor(private main: IMain, private eventManager: EventManager<CompilerEvents>) {
         const worker = new Worker(workerUrl, { type: 'module' });
         this.javaWebworkerCompiler = new WebworkerWrapper<JavaWebWorker>(worker, this).getWrapper();
 
-        // let serializedLibraryModuleManager = new JavaLibraryModuleManager([], new SystemModule(PrimitiveStringClass)).getSerializedLibraryModuleManager();
-        // this.javaWebworkerCompiler.setLibraryModuleManager(serializedLibraryModuleManager);
+        let serializedLibraryModuleManager = new JavaLibraryModuleManager([], new SystemModule(PrimitiveStringClass)).getSerializedLibraryModuleManager();
+        this.javaWebworkerCompiler.setLibraryModuleManager(serializedLibraryModuleManager);
     }
 
     onCompilationFinished() {
-        this.printErrors();
-        if(this.callbackAfterCompilationFinished) this.callbackAfterCompilationFinished();
-        this.callbackAfterCompilationFinished = undefined;
+        this.copyCompileInformationToFiles();
+        this.eventManager.fire("compilationFinished");
     }
     
-    async printErrors() {
-        if (!this.errorMarker) return;
+    async copyCompileInformationToFiles() {
         let fileStatusMap = await this.javaWebworkerCompiler.getFileStatus();
         const currentWorkspace = this.main?.getCurrentWorkspace();
         if (!currentWorkspace) return;
@@ -42,18 +40,16 @@ export class JavaWebworkerCompiler implements WebworkerCompiler {
         for (let file of files) {
             let fileStatus = fileStatusMap[file.uniqueID];
             if(fileStatus){
-                let errorsForFile = fileStatus.errors || [];
-                this.errorMarker.markErrorsOfFile(file, errorsForFile);
                 file.isStartable = fileStatus.isStartable;
+                file.errors = fileStatus.errors;
+                file.colorInformation = fileStatus.colorInformation;
             } else {
                 file.isStartable = false;
             }
         }
     }
 
-    triggerCompile(callback: () => void) {
-
-        this.callbackAfterCompilationFinished = callback;
+    triggerCompile() {
 
         // let delta = performance.now() - this.lastTimeCompilationTriggered;
         // if (delta >= 500) {

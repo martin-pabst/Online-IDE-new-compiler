@@ -4,6 +4,7 @@ import { CompilerFile } from "../../common/module/CompilerFile";
 import { JavaCompiler } from "../JavaCompiler";
 import type { JavaWebworkerCompiler } from "./JavaWebworkerCompiler";
 import { SerializedLibraryModuleManager, WebworkerJavaLibraryModuleManager } from "./WebworkerJavaLibraryModuleManager";
+import type * as monaco from 'monaco-editor'
 
 const ctx: DedicatedWorkerGlobalScope = self as any;
 // Beware: additional code at end of this file!
@@ -17,8 +18,10 @@ export type SerializedCompilerFile = {
 }
 
 export type FileStatus = {
+    isStartable: boolean,
     errors: Error[],
-    isStartable: boolean
+    colorInformation: monaco.languages.IColorInformation[];
+    
 }
 
 export class JavaWebWorker extends BaseWebworker<JavaWebworkerCompiler> {
@@ -29,7 +32,7 @@ export class JavaWebWorker extends BaseWebworker<JavaWebworkerCompiler> {
     constructor(ctx: DedicatedWorkerGlobalScope){
         super(ctx);
         // debugger;
-        this.compiler = new JavaCompiler(undefined, undefined, true);
+        this.compiler = new JavaCompiler(undefined, true);
         this.compiler.eventManager.on('compilationFinished', () => {
             this.caller.onCompilationFinished();
             // console.log("Compilation took " + (Math.round(performance.now() - this.timeCompilationStarted)) + " ms");
@@ -59,7 +62,8 @@ export class JavaWebWorker extends BaseWebworker<JavaWebworkerCompiler> {
         for(let m of this.compiler.moduleManager.modules){
             errors[m.file.uniqueID] = {
                 errors: m.errors.map(e => {e.quickFix = undefined; return e;}),
-                isStartable: m.file.isStartable
+                isStartable: m.file.isStartable,
+                colorInformation: m.colorInformation
             } 
         }
         return errors;

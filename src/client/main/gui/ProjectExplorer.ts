@@ -639,10 +639,9 @@ export class ProjectExplorer {
 
     }
 
-    renderErrorCount(workspace: Workspace, errorCountMap: Map<GUIFile, number>) {
-        if (errorCountMap == null) return;
+    renderErrorCount(workspace: Workspace) {
         for (let f of workspace.getFiles()) {
-            let errorCount: number = errorCountMap.get(f);
+            let errorCount: number = f.errors.filter(error => error.level == "error").length;
             let errorCountS: string = ((errorCount == null || errorCount == 0) ? "" : "(" + errorCount + ")");
 
             this.fileListPanel.setTextAfterFilename(f.panelElement, errorCountS, 'jo_errorcount');

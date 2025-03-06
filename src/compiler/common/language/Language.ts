@@ -2,6 +2,9 @@ import { JavaRepl } from "../../java/parser/repl/JavaRepl";
 import { Compiler } from "./Compiler";
 import { IMain } from "../IMain";
 import { WebworkerCompiler } from "./WebworkerCompiler";
+import { EventManager } from "../interpreter/EventManager";
+
+export type CompilerEvents = "typesReadyForCodeCompletion" | "compilationFinishedWithNewExecutable" | "compilationFinished";
 
 export abstract class Language {
 
@@ -9,9 +12,12 @@ export abstract class Language {
     #repls: Map<IMain, JavaRepl> = new Map();
     #webworkerCompilers: Map<IMain, WebworkerCompiler> = new Map();
 
-    mains: Set<IMain> = new Set();
+    #mains: Set<IMain> = new Set();
 
-    constructor(public name: string, public fileEndingWithDot: string, public monacoLanguageSelector, protected withWebworker: boolean){
+    protected eventManagers: Map<IMain, EventManager<CompilerEvents>> = new Map();
+
+    constructor(public name: string, public fileEndingWithDot: string, 
+        public monacoLanguageSelector, protected withWebworker: boolean){
 
     }
 
@@ -26,24 +32,22 @@ export abstract class Language {
     triggerCompile(main: IMain, generateExecutable: boolean){
         let comp: WebworkerCompiler = (this.withWebworker && !generateExecutable) ? 
             this.#webworkerCompilers.get(main) : this.#compilers.get(main);
-        comp.triggerCompile(() => {
-            
-        })
+        comp.triggerCompile()
     }    
 
     protected registerCompiler(main: IMain, compiler: Compiler){
         this.#compilers.set(main, compiler);
-        this.mains.add(main);
+        this.#mains.add(main);
     }
     
     protected registerWebworkerCompiler(main: IMain, webworkercompiler: WebworkerCompiler){
         this.#webworkerCompilers.set(main, webworkercompiler);
-        this.mains.add(main);
+        this.#mains.add(main);
     }
     
     protected registerRepl(main: IMain, repl: JavaRepl){
         this.#repls.set(main, repl);
-        this.mains.add(main);
+        this.#mains.add(main);
     }
 
 }

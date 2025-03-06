@@ -105,6 +105,7 @@ export class Main implements MainBase {
 
     language: Language;
     interpreter: Interpreter;
+    errorMarker: ErrorMarker;
 
     webworkerCompiler: JavaWebworkerCompiler;
 
@@ -250,12 +251,12 @@ export class Main implements MainBase {
             programPointerManager, inputManager,
             fileManager, exceptionMarker, this);
 
-        let errorMarker = new ErrorMarker();
+        this.errorMarker = new ErrorMarker();
 
         /**
          * Compiler and Repl are fields of language!
         */
-        this.language = JavaLanguage.registerMain(this, errorMarker);
+        this.language = JavaLanguage.registerMain(this);
 
         new JUnitTestrunner(this, jQuery('.jo_testrunnerTab')[0]);
 
@@ -272,7 +273,7 @@ export class Main implements MainBase {
 
         new EditorOpenerProvider(this);
 
-        this.webworkerCompiler = new JavaWebworkerCompiler(this, errorMarker);
+        this.webworkerCompiler = new JavaWebworkerCompiler(this);
 
 
     }
@@ -322,8 +323,14 @@ export class Main implements MainBase {
     onCompilationFinished(executable: Executable | undefined): void {
 
         this.interpreter.setExecutable(executable);
-        let errors = this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
-        this.projectExplorer.renderErrorCount(this.currentWorkspace, errors);
+
+        for(let file of this.currentWorkspace.getFiles()){
+            this.errorMarker.markErrorsOfFile(file);
+        }
+
+        this.projectExplorer.renderErrorCount(this.currentWorkspace);
+        this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
+        
         this.drawClassDiagrams(!this.rightDiv.isClassDiagramEnabled());
 
         for (let module of this.getCompiler().getAllModules()) {

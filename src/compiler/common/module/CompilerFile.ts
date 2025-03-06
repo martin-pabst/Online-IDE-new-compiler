@@ -1,5 +1,6 @@
 import type { SerializedCompilerFile } from "../../java/webworker/JavaWebworker";
 import type * as monaco from 'monaco-editor'
+import { Error } from "../Error";
 
 export type FileContentChangedListener = (changedfile: CompilerFile) => void;
 
@@ -14,7 +15,10 @@ export class CompilerFile {
 
     private fileContentChangedListeners: FileContentChangedListener[] = [];
 
+    // This information is copied from module to file when compilation is finished:
     public isStartable: boolean = false;
+    errors: Error[] = [];
+    colorInformation: monaco.languages.IColorInformation[] = [];
 
     /*
      * monaco editor counts LanguageChangedListeners and issues ugly warnings in console if more than

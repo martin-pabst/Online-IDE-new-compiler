@@ -343,10 +343,9 @@ export class EmbeddedFileExplorer {
         this.main.onStartFileClicked(fd.file);
     }
 
-    renderErrorCount(currentWorkspace: Workspace, errorCountMap: Map<GUIFile, number>) {
-        if (errorCountMap == null) return;
+    renderErrorCount(currentWorkspace: Workspace) {
         for (let f of currentWorkspace.getFiles()) {
-            let errorCount: number = errorCountMap.get(f);
+            let errorCount: number = f.errors.filter(error => error.level == "error").length;
             let errorCountS: string = ((errorCount == null || errorCount == 0) ? "" : "(" + errorCount + ")");
 
             this.setTextAfterFilename(f, errorCountS, 'jo_errorcount');

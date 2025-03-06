@@ -68,6 +68,7 @@ export class MainEmbedded implements MainBase {
     actionManager: ActionManager;
 
     language: Language;
+    errorMarker: ErrorMarker;
 
     interpreter: Interpreter;
     $runDiv: JQuery<HTMLElement>;
@@ -154,9 +155,13 @@ export class MainEmbedded implements MainBase {
     onCompilationFinished(executable: Executable | undefined): void {
         this.interpreter.setExecutable(executable);
 
+        for(let file of this.currentWorkspace.getFiles()){
+            this.errorMarker.markErrorsOfFile(file);
+        }
+        
         if (this.bottomDiv && this.fileExplorer) {
-            let errors = this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
-            this.fileExplorer.renderErrorCount(this.currentWorkspace, errors);
+            this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
+            this.fileExplorer.renderErrorCount(this.currentWorkspace);
         }
 
         for (let module of this.getCompiler().getAllModules()) {
@@ -598,8 +603,8 @@ export class MainEmbedded implements MainBase {
         /**
          * Compiler and Repl are fields of language!
         */
-        let errorMarker = new ErrorMarker();
-        this.language = JavaLanguage.registerMain(this, errorMarker);
+        this.errorMarker = new ErrorMarker();
+        this.language = JavaLanguage.registerMain(this);
 
         if (this.$junitDiv) {
             new JUnitTestrunner(this, this.$junitDiv[0]);

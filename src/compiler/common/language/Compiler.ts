@@ -6,20 +6,15 @@ import type { CompilerFile } from "../module/CompilerFile";
 import type { Module } from "../module/Module";
 import { WebworkerCompiler } from "./WebworkerCompiler";
 
-export type CompilerEvents = "typesReadyForCodeCompletion" | "compilationFinishedWithNewExecutable" | "compilationFinished";
-
 export interface Compiler extends WebworkerCompiler {
     setFiles(files: CompilerFile[]): void;
     updateSingleModuleForCodeCompletion(module: Module): "success" | "completeCompilingNecessary";
     findModuleByFile(file: CompilerFile): Module | undefined;
     getAllModules(): Module[];
     setFileDirty(file: CompilerFile): void;
-    getSortedAndFilteredErrors(file: CompilerFile): Error[];
     getType(identifier: string): BaseType | undefined;
     interruptAndStartOverAgain(onlyForCodeCompletion: boolean): Promise<void>;
 
     setLibraryModuleManager(lmm: JavaLibraryModuleManager);
-
-    eventManager: EventManager<CompilerEvents>;
 
 }
