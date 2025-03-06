@@ -21,14 +21,15 @@ import { EventManager } from "../common/interpreter/EventManager.ts";
 
 export class JavaLanguage extends Language {
 
-    private static instance: JavaLanguage;
-
-    public static mains: IMain[]
+    private static mains: IMain[] = [];
 
     private static registeredAtMonacoEditor = false;
 
-    private constructor() {
+    private constructor(main: IMain) {
         super("Java", ".java", "myJava", true);
+        
+        JavaLanguage.mains.push(main);
+
         if(!JavaLanguage.registeredAtMonacoEditor){
             JavaLanguage.registerLanguageAtMonacoEditor();
             JavaLanguage.registerProviders();
@@ -36,16 +37,17 @@ export class JavaLanguage extends Language {
         }
     }
 
-    static getInstance(): JavaLanguage {
-        if (!JavaLanguage.instance) {
-            JavaLanguage.instance = new JavaLanguage();
+    static findMainForModel(model: monaco.editor.ITextModel){
+        let editor = monaco.editor.getEditors().find(e => e.getModel() == model);
+        for(let main of JavaLanguage.mains){
+            if(main.getMainEditor() == editor || main.getReplEditor() == editor){
+                return main;
+            }
         }
-
-        return JavaLanguage.instance;
     }
 
+
     public static registerMain(main: IMain): JavaLanguage {
-        let instance = JavaLanguage.getInstance();
         let eventManager: EventManager<CompilerEvents> = new EventManager();
         instance.eventManagers.set(main, eventManager);
 

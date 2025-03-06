@@ -8,26 +8,20 @@ export type CompilerEvents = "typesReadyForCodeCompletion" | "compilationFinishe
 
 export abstract class Language {
 
-    #compilers: Map<IMain, Compiler> = new Map();
-    #repls: Map<IMain, JavaRepl> = new Map();
-    #webworkerCompilers: Map<IMain, WebworkerCompiler> = new Map();
+    protected _compiler: Compiler;
+    protected _repl: JavaRepl;
+    protected _webworkerCompiler: WebworkerCompiler;
 
-    #mains: Set<IMain> = new Set();
-
-    protected eventManagers: Map<IMain, EventManager<CompilerEvents>> = new Map();
+    protected eventManager: EventManager<CompilerEvents> = new EventManager();
 
     constructor(public name: string, public fileEndingWithDot: string, 
         public monacoLanguageSelector, protected withWebworker: boolean){
-
     }
 
-    getCompiler(main: IMain): Compiler {
-        return this.#compilers.get(main);
-    }
+    get compiler(){return this._compiler};
+    get repl(){return this._repl};
+    get webworkerCompiler(){return this._webworkerCompiler};
 
-    getRepl(main: IMain): JavaRepl {   // TODO: Base Repl class
-        return this.#repls.get(main);
-    } 
 
     triggerCompile(main: IMain, generateExecutable: boolean){
         let comp: WebworkerCompiler = (this.withWebworker && !generateExecutable) ? 
