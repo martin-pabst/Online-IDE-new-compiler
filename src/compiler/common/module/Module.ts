@@ -15,7 +15,6 @@ import type * as monaco from 'monaco-editor'
 export abstract class Module {
 
     errors: Error[] = [];
-    bracketError?: string;
     colorInformation: monaco.languages.IColorInformation[] = [];
 
     quickfixes: Quickfix[] = [];
