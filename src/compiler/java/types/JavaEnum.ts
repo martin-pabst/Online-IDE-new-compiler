@@ -18,6 +18,7 @@ import { JavaParameter } from "./JavaParameter.ts";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { ClassClass } from "../runtime/system/ClassClass.ts";
 import type * as monaco from 'monaco-editor'
+import { MonacoConstants } from "../../common/monacoproviders/MonacoConstants.ts";
 
 
 export class JavaEnum extends JavaTypeWithInstanceInitializer {
@@ -163,7 +164,7 @@ export class JavaEnum extends JavaTypeWithInstanceInitializer {
         for (let field of this.getFields().filter(f => f.visibility <= visibilityUpTo && (f._isStatic || !onlyStatic))) {
             itemList.push({
                 label: field.toString(),
-                kind: 3, //monaco.languages.CompletionItemKind.Field,
+                kind: MonacoConstants.CompletionItemKind.Field, 
                 insertText: field.identifier,
                 range: rangeToReplace,
                 documentation: field.documentation == null ? undefined : {
@@ -182,11 +183,11 @@ export class JavaEnum extends JavaTypeWithInstanceInitializer {
                     title: '123',
                     arguments: []
                 },
-                kind: 0, //monaco.languages.CompletionItemKind.Method,
+                kind: MonacoConstants.CompletionItemKind.Method, 
                 insertText: method.getCompletionSnippet(leftBracketAlreadyThere),
                 range: rangeToReplace,
                 detail: method.returnParameterType ? method.returnParameterType.getDeclaration() : "void",
-                insertTextRules: 4, //monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet, 
                 documentation: method.documentation == null ? undefined : {
                     value: typeof method.documentation == "string" ? method.documentation : method.documentation()
                 }

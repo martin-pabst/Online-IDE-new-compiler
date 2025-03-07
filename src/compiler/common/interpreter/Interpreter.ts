@@ -112,9 +112,13 @@ export class Interpreter {
     }
 
     setExecutable(executable: Executable | undefined) {
-        if (!executable) return;
+        if (!executable){
+            this.setState(SchedulerState.stopped);
+            this.executable = undefined;
+            return;
+        } 
+
         this.executable = executable;
-        // if (executable.mainModule || executable.hasTests()) {
         executable.compileToJavascript();
         if (executable.isCompiledToJavascript) {
             this.#init(executable);
@@ -122,10 +126,8 @@ export class Interpreter {
             this.eventManager.fire("afterExcecutableInitialized", executable);
         } else {
             this.setState(SchedulerState.not_initialized);
+            this.executable = undefined;
         }
-        // } else {
-        //     this.setState(SchedulerState.not_initialized);
-        // }
     }
 
     attachAssertionObserver(observer: IAssertionObserver) {
@@ -160,14 +162,19 @@ export class Interpreter {
         this.#loadController.tick(timerIntervalMs);
     }
 
-    executeOneStep(stepInto: boolean) {
+    async executeOneStep(stepInto: boolean) {
 
         if (this.scheduler.state != SchedulerState.paused) {
             if (this.scheduler.state == SchedulerState.not_initialized) {
                 return;
             }
             this.printManager.clear();
-            this.#init(this.executable!);
+            if(!this.executable){
+                await this.main.getLanguage().triggerCompile(true);
+            } else {
+
+                this.#init(this.executable!);
+            }
             this.#resetRuntime();
             this.showProgramPointer(this.scheduler.getNextStepPosition());
             this.updateDebugger();
@@ -282,14 +289,18 @@ export class Interpreter {
 
     }
 
-    start(fileToStart?: GUIFile) {
+    async start(fileToStart?: GUIFile) {
         // this.main.getBottomDiv()?.console?.clearErrors();
 
         this.main?.getBottomDiv()?.errorManager?.hideAllErrorDecorations();
         this.keyboardManager?.clearPressedKeys();
         this.graphicsManager?.shrinkGraphicsDiv();
 
-        if (this.scheduler.state != SchedulerState.paused && this.executable) {
+        if(!this.executable){
+            await this.main.getLanguage().triggerCompile(true)
+        }
+
+        if (this.scheduler.state != SchedulerState.paused) {
             this.printManager.clear();
             this.#init(this.executable, fileToStart);
             this.#resetRuntime();
@@ -459,8 +470,7 @@ export class Interpreter {
                 this.actionManager.setActive("interpreter.stop", true);
             }
 
-            const mainModule = this.#findStartableModule();
-            const mainModuleExists = mainModule != null;
+            const mainModuleExists = this.main?.getLanguage()?.startableMainModuleExists();
             let mainModuleExistsOrTestIsRunning = mainModuleExists || (state == 2 && this.scheduler.state <= 2);
 
             let buttonStartActive = this.#buttonActiveMatrix['start'][state];
@@ -515,18 +525,7 @@ export class Interpreter {
         // this.gngEreignisbehandlungHelper = null;
     }
 
-    #init(executable: Executable, fileToStart?: GUIFile) {
-        // this.main.getBottomDiv()?.console?.clearErrors();
-        // this.main.getBottomDiv()?.console?.clearExceptions();
-
-        // /*
-        //     As long as there is no startable new Version of current workspace we keep current compiled modules so
-        //     that variables and objects defined/instantiated via console can be kept, too.
-        // */
-        // if (this.moduleStoreVersion != this.main.version && this.main.getCompiler().atLeastOneModuleIsStartable) {
-        //     this.main.copyExecutableModuleStoreToInterpreter();
-        //     this.main.getBottomDiv()?.console?.detachValues();  // detach values from console entries
-        // }
+    async #init(executable: Executable | undefined, fileToStart?: GUIFile) {
 
         let mainModule = this.#findStartableModule();
         if(fileToStart){

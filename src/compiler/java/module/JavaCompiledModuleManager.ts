@@ -154,6 +154,10 @@ export class JavaCompiledModuleManager {
         return this.modules.find(m => m.file == file);
     }
 
+    findModuleByFileUniqueID(fileUniqueID: number){
+        return this.modules.find(m => m.file.uniqueID == fileUniqueID);
+    }
+
     getTypeCompletionItems(module: JavaCompiledModule, rangeToReplace: monaco.IRange, classContext: NonPrimitiveType | StaticNonPrimitiveType| undefined): monaco.languages.CompletionItem[] {
         return this.typestore.getTypeCompletionItems(classContext, rangeToReplace, false, false);
     }

@@ -1,4 +1,5 @@
 import { IMain } from "../../common/IMain.ts";
+import { MonacoConstants } from "../../common/monacoproviders/MonacoConstants.ts";
 import { IRange, Range } from "../../common/range/Range";
 import { JavaCompiler } from "../JavaCompiler.ts";
 import { JavaLanguage } from "../JavaLanguage.ts";
@@ -204,8 +205,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                 label: "extends",
                 insertText: "extends $1" + (insideGenericParameterDefinition || startsWithCurlyBrace ? "" : " {\n\t$0\n}"),
                 detail: "extends",
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                kind: monaco.languages.CompletionItemKind.Snippet,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                kind: MonacoConstants.CompletionItemKind.Snippet,
                 range: range,
                 command: {
                     id: "editor.action.triggerSuggest",
@@ -217,8 +218,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                 label: "implements",
                 insertText: "implements $1" + (insideGenericParameterDefinition || startsWithCurlyBrace ? "" : " {\n\t$0\n}"),
                 detail: "implements",
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                kind: monaco.languages.CompletionItemKind.Snippet,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                kind: MonacoConstants.CompletionItemKind.Snippet,
                 range: range,
                 command: {
                     id: "editor.action.triggerSuggest",
@@ -230,8 +231,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                 label: "{}",
                 insertText: "{\n\t$0\n}",
                 detail: "empty block",
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                kind: monaco.languages.CompletionItemKind.Snippet,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                kind: MonacoConstants.CompletionItemKind.Snippet,
                 range: range
             },
         ]);
@@ -318,8 +319,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                         filterText: "this",
                         insertText: "this.",
                         detail: MonacoProviderLanguage.accessToFieldOrMethodOfThisClass(),
-                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                        kind: monaco.languages.CompletionItemKind.Snippet,
+                        insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                        kind: MonacoConstants.CompletionItemKind.Snippet,
                         range: rangeToReplace,
                         command: {
                             id: "editor.action.triggerSuggest",
@@ -336,8 +337,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                             filterText: "super",
                             insertText: "super.",
                             detail: MonacoProviderLanguage.useSuperToCallBaseClassMethod(),
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                            kind: MonacoConstants.CompletionItemKind.Snippet,
                             range: rangeToReplace,
                             command: {
                                 id: "editor.action.triggerSuggest",
@@ -362,8 +363,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                             filterText: "class",
                             insertText: "class ${1:" + name + "} {\n\t$0\n}\n",
                             detail: MonacoProviderLanguage.definitionOfClass(name),
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                            kind: monaco.languages.CompletionItemKind.Snippet,
+                            insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                            kind: MonacoConstants.CompletionItemKind.Snippet,
                             range: rangeToReplace
                         },
                         )
@@ -396,7 +397,7 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
         ).map(field => {
             let id = `${field.type.toString()} ${getPraefix + this.firstCharacterToUpperCase(field.identifier)}()`;
             return {
-                kind: monaco.languages.CompletionItemKind.Method,
+                kind: MonacoConstants.CompletionItemKind.Method,
                 insertText: `\t${id}{\n\t\treturn ${field.identifier};\n\t}\n\n\t`,
                 label: `${id}`,
                 detail: '-> Getter-Methode ergänzen',
@@ -418,7 +419,7 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
         ).map(field => {
             let id = `void ${setPraefix + this.firstCharacterToUpperCase(field.identifier)}(${field.type.toString()} ${field.identifier})`;
             return {
-                kind: monaco.languages.CompletionItemKind.Method,
+                kind: MonacoConstants.CompletionItemKind.Method,
                 insertText: `\t${id}{\n\t\tthis.${field.identifier} = ${field.identifier};\n\t}\n\n\t`,
                 label: `${id}`,
                 detail: '-> Setter-Methode ergänzen',
@@ -501,7 +502,7 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     {
                         label: "length",
                         filterText: "length",
-                        kind: monaco.languages.CompletionItemKind.Field,
+                        kind: MonacoConstants.CompletionItemKind.Field,
                         insertText: "length",
                         range: rangeToReplace,
                         documentation: {
@@ -525,8 +526,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                 label: "assertEquals(expected, actual, message)",
                 insertText: "assertEquals($1, $2, $3);\n$0",
                 detail: MonacoProviderLanguage.assertEquals(),
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                kind: monaco.languages.CompletionItemKind.Method,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                kind: MonacoConstants.CompletionItemKind.Method,
                 range: range,
                 command: {
                     id: "editor.action.triggerParameterHints",
@@ -538,8 +539,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                 label: "assertCodeReached(message)",
                 insertText: "assertCodeReached($1);\n$0",
                 detail: MonacoProviderLanguage.assertCodeReached(),
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                kind: monaco.languages.CompletionItemKind.Method,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                kind: MonacoConstants.CompletionItemKind.Method,
                 range: range,
                 command: {
                     id: "editor.action.triggerParameterHints",
@@ -551,8 +552,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                 label: "assertTrue(value, message)",
                 insertText: "assertTrue($1, $2);\n$0",
                 detail: MonacoProviderLanguage.assertTrue(),
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                kind: monaco.languages.CompletionItemKind.Method,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                kind: MonacoConstants.CompletionItemKind.Method,
                 range: range,
                 command: {
                     id: "editor.action.triggerParameterHints",
@@ -564,8 +565,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                 label: "assertFalse(value, message)",
                 insertText: "assertFalse($1, $2);\n$0",
                 detail: MonacoProviderLanguage.assertFalse(),
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                kind: monaco.languages.CompletionItemKind.Method,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                kind: MonacoConstants.CompletionItemKind.Method,
                 range: range,
                 command: {
                     id: "editor.action.triggerParameterHints",
@@ -577,8 +578,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                 label: "fail(message)",
                 insertText: "fail($1);\n$0",
                 detail: MonacoProviderLanguage.fail(),
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                kind: monaco.languages.CompletionItemKind.Method,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                kind: MonacoConstants.CompletionItemKind.Method,
                 range: range,
                 command: {
                     id: "editor.action.triggerParameterHints",
@@ -606,8 +607,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                         title: '123',
                         arguments: []
                     },
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -621,8 +622,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     //     title: '123',
                     //     arguments: []
                     // },
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -636,8 +637,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     //     title: '123',
                     //     arguments: []
                     // },
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -651,8 +652,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                         title: '123',
                         arguments: []
                     },
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -666,8 +667,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                         title: '123',
                         arguments: []
                     },
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -680,8 +681,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                         title: '123',
                         arguments: []
                     },
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -690,8 +691,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     detail: "else",
                     filterText: 'else',
                     sortText: 'aelse',
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
             ]);
@@ -703,8 +704,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     label: "instanceof",
                     insertText: "instanceof $0",
                     detail: "instanceof-Operator",
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -716,8 +717,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                         title: '123',
                         arguments: []
                     },
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -729,8 +730,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                         title: '123',
                         arguments: []
                     },
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
 
@@ -752,8 +753,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     filterText: "class",
                     insertText: "class ${1:" + identifier + "} {\n\t$0\n}\n",
                     detail: MonacoProviderLanguage.classDefinition(),
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -761,8 +762,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     filterText: "public class",
                     insertText: "public class ${1:" + MonacoProviderLanguage.identifier() + "} {\n\t$0\n}\n",
                     detail: MonacoProviderLanguage.classDefinition(),
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 }
 
@@ -774,8 +775,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     filterText: "public",
                     insertText: "public ",
                     detail: "public",
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -783,8 +784,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     filterText: "public",
                     insertText: "public ${1:void} ${2:" + MonacoProviderLanguage.identifier() + "}(${3:" + MonacoProviderLanguage.parameter() + "}) {\n\t$0\n}\n",
                     detail: MonacoProviderLanguage.methodDefinition(),
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -792,8 +793,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     filterText: "protected",
                     insertText: "protected ",
                     detail: "protected",
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -801,8 +802,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     filterText: "static",
                     insertText: "static ",
                     detail: "static",
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 },
                 {
@@ -810,8 +811,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     filterText: "private",
                     insertText: "private ",
                     detail: "private",
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 }
             ]);
@@ -824,8 +825,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     filterText: "return",
                     insertText: "return",
                     detail: "return",
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 }
             ]);
@@ -881,8 +882,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                     label: { label: label, detail: " -> " + MonacoProviderLanguage.implementOverrideMethod(m.isAbstract, label) },
                     filterText: filterText,
                     insertText: insertText,
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: MonacoConstants.CompletionItemKind.Snippet,
                     range: range
                 }
             );
@@ -919,8 +920,8 @@ export class JavaCompletionItemProvider implements monaco.languages.CompletionIt
                 label: { label: classContext.identifier + "(){...}", detail: " -> insert constructor" },
                 filterText: classContext.identifier,
                 insertText: insertText,
-                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                kind: monaco.languages.CompletionItemKind.Snippet,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet,
+                kind: MonacoConstants.CompletionItemKind.Snippet,
                 range: range,
                 sortText: "_aaa"
             }

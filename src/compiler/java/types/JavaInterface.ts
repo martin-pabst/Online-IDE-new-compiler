@@ -1,4 +1,5 @@
 import { CompilerFile } from "../../common/module/CompilerFile";
+import { MonacoConstants } from "../../common/monacoproviders/MonacoConstants.ts";
 import { IRange } from "../../common/range/Range";
 import { TokenType, TokenTypeReadable } from "../TokenType";
 import { JCM } from "../language/JavaCompilerMessages";
@@ -98,11 +99,11 @@ export abstract class IJavaInterface extends NonPrimitiveType {
                     title: '123',
                     arguments: []
                 },
-                kind: 0, //monaco.languages.CompletionItemKind.Method,
+                kind: MonacoConstants.CompletionItemKind.Method, 
                 insertText: method.getCompletionSnippet(leftBracketAlreadyThere),
                 detail: method.returnParameterType ? method.returnParameterType.getDeclaration() : "void",
                 range: rangeToReplace,
-                insertTextRules: 4, //monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet, 
                 documentation: method.documentation == null ? undefined : {
                     value: typeof method.documentation == "string" ? method.documentation : method.documentation()
                 }
@@ -278,7 +279,7 @@ export class JavaInterface extends IJavaInterface {
                 items.push({
                     label: gp.identifier,
                     detail: gp.getDeclaration(),
-                    kind: 24, //monaco.languages.CompletionItemKind.TypeParameter,
+                    kind: MonacoConstants.CompletionItemKind.TypeParameter, 
                     range: rangeToReplace,
                     insertText: gp.identifier 
                 })

@@ -1,4 +1,5 @@
 import { Klass } from "../../common/interpreter/RuntimeConstants.ts";
+import { MonacoConstants } from "../../common/monacoproviders/MonacoConstants.ts";
 import { IRange } from "../../common/range/Range";
 import { JavaCompilerStringConstants } from "../JavaCompilerStringConstants.ts";
 import { TokenType, TokenTypeReadable } from "../TokenType";
@@ -17,7 +18,7 @@ import { JavaType } from "./JavaType";
 import { JavaTypeWithInstanceInitializer } from "./JavaTypeWithInstanceInitializer.ts";
 import { NonPrimitiveType } from "./NonPrimitiveType";
 import { Visibility } from "./Visibility";
-import type * as monaco from 'monaco-editor'
+import * as monaco from 'monaco-editor'
 
 export abstract class IJavaClass extends JavaTypeWithInstanceInitializer {
 
@@ -60,7 +61,7 @@ export abstract class IJavaClass extends JavaTypeWithInstanceInitializer {
 
             itemList.push({
                 label: field.identifier, // field.toString(),
-                kind: isColor ? 19 : 3, // monaco.languages.CompletionItemKind.Color : monaco.languages.CompletionItemKind.Field,
+                kind: isColor ? MonacoConstants.CompletionItemKind.Color : MonacoConstants.CompletionItemKind.Field, 
                 detail: isColor ? ColorHelper.intColorToHexRGB(ColorHelper.predefinedColors[field.identifier]) : (field.type ? field.type.toString() : ""),
                 insertText: field.identifier,
                 range: rangeToReplace,
@@ -91,10 +92,10 @@ export abstract class IJavaClass extends JavaTypeWithInstanceInitializer {
                     arguments: []
                 },
                 detail: method.returnParameterType ? method.returnParameterType.getDeclaration() : "void",
-                kind: 0, //monaco.languages.CompletionItemKind.Method,
+                kind: MonacoConstants.CompletionItemKind.Method,
                 insertText: method.getCompletionSnippet(leftBracketAlreadyThere),
                 range: rangeToReplace,
-                insertTextRules: 4, //monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet, 
                 documentation: method.documentation == null ? undefined : {
                     value: typeof method.documentation == "string" ? method.documentation : method.documentation()
                 },
@@ -134,10 +135,10 @@ export abstract class IJavaClass extends JavaTypeWithInstanceInitializer {
                 title: '123',
                 arguments: []
             },
-            kind: 0, //monaco.languages.CompletionItemKind.Method,
+            kind: MonacoConstants.CompletionItemKind.Method, 
             insertText: method.getCompletionSnippet(leftBracketAlreadyThere).replace(method.identifier, "super"),
             range: rangeToReplace,
-            insertTextRules: 4, //monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            insertTextRules: MonacoConstants.CompletionItemInsertTextRule.InsertAsSnippet, 
             documentation: method.documentation == null ? undefined : {
                 value: typeof method.documentation == "string" ? method.documentation : method.documentation()
             }
@@ -599,7 +600,7 @@ export class JavaClass extends IJavaClass {
             items.push({
                 label: gp.identifier,
                 detail: gp.getDeclaration(),
-                kind: 24, //monaco.languages.CompletionItemKind.TypeParameter,
+                kind: MonacoConstants.CompletionItemKind.TypeParameter,
                 range: rangeToReplace,
                 insertText: gp.identifier
             })

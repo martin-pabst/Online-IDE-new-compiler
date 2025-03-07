@@ -7,7 +7,7 @@ import { FileTypeManager } from '../../common/module/FileTypeManager';
 import { JavaLibraryModuleManager } from '../module/libraries/JavaLibraryModuleManager';
 import { PrimitiveStringClass } from '../runtime/system/javalang/PrimitiveStringClass';
 import { SystemModule } from '../runtime/system/SystemModule';
-import type { JavaWebWorker } from './JavaWebworker';
+import type { JavaWebWorker, JavaWebworkerResult } from './JavaWebworker';
 import workerUrl from './JavaWebworker?worker&url';
 
 
@@ -16,6 +16,7 @@ export class JavaWebworkerCompiler implements WebworkerCompiler {
     javaWebworkerCompiler: JavaWebWorker;
 
     lastTimeCompilationTriggered: number = performance.now();
+    lastWebworkerResult: JavaWebworkerResult;
 
     // timeoutSet: boolean = false;
 
@@ -27,19 +28,26 @@ export class JavaWebworkerCompiler implements WebworkerCompiler {
         this.javaWebworkerCompiler.setLibraryModuleManager(serializedLibraryModuleManager);
     }
 
+    startableMainModuleExists(): boolean {
+        if(!this.lastWebworkerResult) return false;
+        return this.lastWebworkerResult.mainStartableFileUniqueID != null;
+    }
+
     onCompilationFinished() {
-        this.copyCompileInformationToFiles().then(() => {
-            this.eventManager.fire("compilationFinished");
+        this.copyCompileInformationToFiles().then((result: JavaWebworkerResult) => {
+            this.eventManager.fire("compilationFinished", undefined);
         });
     }
     
-    async copyCompileInformationToFiles() {
-        let fileStatusMap = await this.javaWebworkerCompiler.getFileStatus();
+    async copyCompileInformationToFiles(): Promise<JavaWebworkerResult> {
+        let result = await this.javaWebworkerCompiler.getWebworkerResult();
+        if(result) this.lastWebworkerResult = result;
+        
         const currentWorkspace = this.main?.getCurrentWorkspace();
-        if (!currentWorkspace) return;
+        if (!currentWorkspace) return result;
         let files = currentWorkspace.getFiles().filter(file => FileTypeManager.filenameToFileType(file.name).language == 'myJava');
         for (let file of files) {
-            let fileStatus = fileStatusMap[file.uniqueID];
+            let fileStatus = result.fileStatusMap[file.uniqueID];
             if(fileStatus){
                 file.isStartable = fileStatus.isStartable;
                 file.errors = fileStatus.errors;
@@ -48,6 +56,9 @@ export class JavaWebworkerCompiler implements WebworkerCompiler {
                 file.isStartable = false;
             }
         }
+
+        return result;
+    
     }
 
     triggerCompile() {
@@ -61,7 +72,7 @@ export class JavaWebworkerCompiler implements WebworkerCompiler {
             if (!currentWorkspace) return;
             let files = currentWorkspace.getFiles().filter(file => FileTypeManager.filenameToFileType(file.name).language == 'myJava');
 
-            this.javaWebworkerCompiler.setFiles(files.map(f => f.serialize()));
+            this.javaWebworkerCompiler.setFiles(files.map(f => f.serialize()), this.main.getCurrentWorkspace()?.getCurrentlyEditedModule()?.file.uniqueID);
     //     } else if (!this.timeoutSet) {
     //         this.timeoutSet = true;
     //         window.setTimeout(() => {

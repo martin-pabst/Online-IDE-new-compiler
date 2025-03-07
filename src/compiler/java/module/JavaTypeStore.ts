@@ -1,4 +1,5 @@
 import { KlassObjectRegistry } from "../../common/interpreter/RuntimeConstants";
+import { MonacoConstants } from "../../common/monacoproviders/MonacoConstants";
 import { JCM } from "../language/JavaCompilerMessages";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
 import { JavaClass } from "../types/JavaClass";
@@ -107,7 +108,7 @@ export class JavaTypeStore {
                     detail: type.getCompletionItemDetail(),
                     insertText: type.identifier,
                     documentation: type.getDocumentation(),
-                    kind: 6, //monaco.languages.CompletionItemKind.Struct,
+                    kind: MonacoConstants.CompletionItemKind.Struct, 
                     range: rangeToReplace,
                     insertTextRules: 4, //monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                     command: {
@@ -122,9 +123,9 @@ export class JavaTypeStore {
                 
                 if (classContext instanceof NonPrimitiveType && !npt.isVisibleFrom(classContext)) return;
 
-                let kind: monaco.languages.CompletionItemKind = 5; //monaco.languages.CompletionItemKind.Class;
-                if (type instanceof IJavaInterface) kind = 7; //monaco.languages.CompletionItemKind.Interface;
-                if (type instanceof JavaEnum) kind = 15; //monaco.languages.CompletionItemKind.Enum;
+                let kind: monaco.languages.CompletionItemKind = MonacoConstants.CompletionItemKind.Class; 
+                if (type instanceof IJavaInterface) kind = MonacoConstants.CompletionItemKind.Interface; 
+                if (type instanceof JavaEnum) kind = MonacoConstants.CompletionItemKind.Enum; 
 
                 let isGeneric: boolean = type.genericTypeParameters && type.genericTypeParameters.length > 0 ? true : false;
 

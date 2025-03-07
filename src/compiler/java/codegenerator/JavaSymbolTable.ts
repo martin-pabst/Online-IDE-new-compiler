@@ -1,4 +1,5 @@
 import { BaseStackframe, BaseSymbol, BaseSymbolTable, SymbolOnStackframe as SymbolOnStack, SymbolOnStackframe } from "../../common/BaseSymbolTable";
+import { MonacoConstants } from "../../common/monacoproviders/MonacoConstants.ts";
 import { IRange } from "../../common/range/Range";
 import { TokenType } from "../TokenType.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
@@ -142,7 +143,7 @@ export class JavaSymbolTable extends BaseSymbolTable {
         this.identifierToSymbolMap.forEach((symbol, identifier) => {
             items.push({
                 label: symbol.identifier,
-                kind: 4, //monaco.languages.CompletionItemKind.Variable,
+                kind: MonacoConstants.CompletionItemKind.Variable, 
                 detail: symbol.getDeclaration(),
                 insertText: symbol.identifier,
                 filterText: symbol.identifier,

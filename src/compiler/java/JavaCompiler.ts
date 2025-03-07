@@ -21,7 +21,6 @@ import { CompilingProgressManager, CompilingProgressManagerException } from "./C
 import { CompilerEvents } from "../common/language/Language.ts";
 
 
-
 const compileTimeout = 800
 
 /**
@@ -52,6 +51,11 @@ export class JavaCompiler implements Compiler {
     ) {
         this.moduleManager = new JavaCompiledModuleManager();
         this.#progressManager = new CompilingProgressManager(this.isWebworker ? 1000 : 0);
+    }
+
+    startableMainModuleExists(): boolean {
+        if(!this.#lastCompiledExecutable) return false;
+        return this.#lastCompiledExecutable.findStartableModule(this.main.getCurrentWorkspace()?.getCurrentlyEditedModule()) != null;
     }
 
     setLibraryModuleManager(lmm: JavaLibraryModuleManager){
@@ -172,13 +176,14 @@ export class JavaCompiler implements Compiler {
 
         this.#lastCompiledExecutable = executable;
 
-        this.eventManager.fire("compilationFinishedWithNewExecutable", this.#lastCompiledExecutable);
-
+        
         for (const module of this.#lastCompiledExecutable.moduleManager.modules) {
             module.file.isStartable = module.isStartable();
             module.file.errors = module.errors;
             module.file.colorInformation = module.colorInformation;
         }
+
+        this.eventManager.fire("compilationFinished", this.#lastCompiledExecutable);
 
         return executable;
     }
@@ -251,7 +256,6 @@ export class JavaCompiler implements Compiler {
                     this.#progressManager.initBeforeCompiling();
                     await this.compileIfDirty();
                     this.#progressManager.afterCompiling();
-                    this.eventManager.fire("compilationFinished");
                 } catch (exception) {
                     this.#progressManager.afterCompiling(exception.toString());
                     if (!(exception instanceof CompilingProgressManagerException)) {
@@ -265,6 +269,10 @@ export class JavaCompiler implements Compiler {
 
     findModuleByFile(file: CompilerFile): Module | undefined {
         return this.moduleManager.findModuleByFile(file);
+    }
+
+    findModuleByFileUniqueID(fileUniqueID: number): Module | undefined {
+        return this.moduleManager.findModuleByFileUniqueID(fileUniqueID);
     }
 
     getAllModules(): Module[] {
