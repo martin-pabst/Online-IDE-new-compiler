@@ -28,7 +28,7 @@ export class Administration {
 
     menuItems: AdminMenuItem[] = [
         new SchoolsWithAdminsMI(this),
-        new SchoolSettingsMI(this),
+        // new SchoolSettingsMI(this),
         new TeachersWithClassesMI(this),
         new ClassesWithStudentsMI(this),
         new StudentBulkImportMI(this),
