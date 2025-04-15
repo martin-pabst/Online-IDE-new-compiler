@@ -20,8 +20,14 @@ export function escapeHtml(unsafe: string): string {
        .replace(/'/g, "&#039;");
 }
 
-export function dateToString(date: Date): string{
-  return `${twoDez(date.getDate())}.${twoDez(date.getMonth() + 1)}.${date.getFullYear()}, ${twoDez(date.getHours())}:${twoDez(date.getMinutes())}`;
+export function dateToString(date: Date, withTime: boolean = false): string{
+  let s = `${twoDez(date.getDate())}.${twoDez(date.getMonth() + 1)}.${date.getFullYear()}, ${twoDez(date.getHours())}:${twoDez(date.getMinutes())}`;
+  
+  if(withTime){
+    s += `, ${twoDez(date.getHours())}:${twoDez(date.getMinutes())}`;
+  }
+
+  return s;
 }
 
 export function dateToStringWithoutTime(date: Date): string{
