@@ -31,7 +31,6 @@ export class Administration {
         // new SchoolSettingsMI(this),
         new TeachersWithClassesMI(this),
         new ClassesWithStudentsMI(this),
-        new StudentBulkImportMI(this),
         new ExportImportMI(this),
         new Pruefungen(this)
     ]
@@ -61,6 +60,10 @@ export class Administration {
 
     initMenu() {
 
+        if (!this.userData.vidis_akronym) {
+            this.menuItems.push(new StudentBulkImportMI(this));
+        }
+
         for (let mi of this.menuItems) {
             if (mi.checkPermission(this.userData)) {
                 let $button = jQuery('<div class="jo_menuitem">' + mi.getButtonIdentifier() + '</div>');
@@ -69,7 +72,7 @@ export class Administration {
 
                     jQuery('#main-heading').empty();
 
-                    if(this.activeMenuItem != null) this.activeMenuItem.destroy();
+                    if (this.activeMenuItem != null) this.activeMenuItem.destroy();
                     this.activeMenuItem = mi;
 
                     jQuery('#main-table-left').empty().css("flex-grow", "1");
@@ -91,7 +94,7 @@ export class Administration {
         jQuery('#menuitems .jo_menuitem').first().click();
     }
 
-    removeGrid($element: JQuery<HTMLElement>){
+    removeGrid($element: JQuery<HTMLElement>) {
         $element.removeClass('w2ui-reset w2ui-grid w2ui-ss');
         $element.css('flex', '');
     }

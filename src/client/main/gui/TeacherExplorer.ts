@@ -1,6 +1,6 @@
 import { AccordionPanel, AccordionElement } from "./Accordion.js";
 import { Main } from "../Main.js";
-import { ClassData, UserData, Pruefung, PruefungCaptions } from "../../communication/Data.js";
+import { ClassData, UserData, Pruefung, PruefungCaptions, getUserDisplayName } from "../../communication/Data.js";
 import { ajaxAsync, csrfToken } from "../../communication/AjaxHelper.js";
 import { Workspace } from "../../workspace/Workspace.js";
 import { GUIToggleButton } from "../../../tools/components/GUIToggleButton.js";
@@ -187,18 +187,21 @@ export class TeacherExplorer {
         this.studentPanel.setCaption(userDataList.length + " Schüler/innen");
 
         userDataList.sort((a, b) => {
-            if (a.familienname > b.familienname) return -1;
-            if (b.familienname > a.familienname) return 1;
-            if (a.rufname > b.rufname) return -1;
-            if (b.rufname > a.rufname) return 1;
+            if(a.vidis_akronym && b.vidis_akronym){
+                return getUserDisplayName(a) > getUserDisplayName(b) ? 1 : -1;
+            }
+            if (a.familienname > b.familienname) return 1;
+            if (b.familienname > a.familienname) return -1;
+            if (a.rufname > b.rufname) return 1;
+            if (b.rufname > a.rufname) return -1;
             return 0;
         })
 
         for (let i = 0; i < userDataList.length; i++) {
             let ud = userDataList[i];
             let ae: AccordionElement = {
-                name: ud.familienname + ", " + ud.rufname,
-                sortName: ud.familienname + " " + ud.rufname,
+                name: getUserDisplayName(ud, true),
+                sortName: ud.vidis_akronym ? getUserDisplayName(ud) : ud.familienname + " " + ud.rufname,
                 externalElement: ud,
                 isFolder: false,
                 path: [],

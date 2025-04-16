@@ -127,6 +127,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
                 { field: 'username', text: 'Benutzername', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
                 { field: 'rufname', text: 'Rufname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
                 { field: 'familienname', text: 'Familienname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                { field: 'vidis_akronym', text: 'vidis-Kürzel', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool()},
                 { field: 'is_schooladmin', text: 'Admin', size: '10%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
                 { field: 'locked', text: 'Locked', size: '15%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
                 {

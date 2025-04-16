@@ -16,6 +16,10 @@ export abstract class AdminMenuItem {
 
     abstract checkPermission(user: UserData): boolean;
 
+    isVidisSchool(): boolean {
+        return this.administration.userData.vidis_akronym != null;
+    }
+
     // protected selectTextInCell(){
     //     let i = 5;
     //     let f = () => {

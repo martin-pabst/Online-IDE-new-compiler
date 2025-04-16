@@ -105,6 +105,19 @@ export type UserData = {
 
 }
 
+export function getUserDisplayName(user: UserData, lastNameFirst: boolean = false): string {
+    if(user.vidis_akronym){
+        if(user.username && user.username.length > 0) return user.username;
+        return user.vidis_akronym;
+    }
+    if(user.familienname?.length > 0 && user.rufname?.length > 0){
+        if(lastNameFirst) return user.familienname + ", " + user.rufname;
+        return user.rufname + " " + user.familienname;
+    }
+    return user.username;
+}
+
+
 export type GetUserDataRequest = {
 
 }

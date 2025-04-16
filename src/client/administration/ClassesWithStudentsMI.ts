@@ -1,5 +1,5 @@
 import { AdminMenuItem } from "./AdminMenuItem.js";
-import { GetTeacherDataRequest, GetTeacherDataResponse, TeacherData, UserData, ClassData, CRUDClassRequest, CRUDUserRequest, CRUDResponse, GetClassesDataRequest, GetClassesDataResponse, ChangeClassOfStudentsRequest, ChangeClassOfStudentsResponse } from "../communication/Data.js";
+import { GetTeacherDataRequest, GetTeacherDataResponse, TeacherData, UserData, ClassData, CRUDClassRequest, CRUDUserRequest, CRUDResponse, GetClassesDataRequest, GetClassesDataResponse, ChangeClassOfStudentsRequest, ChangeClassOfStudentsResponse, getUserDisplayName } from "../communication/Data.js";
 import { ajax } from "../communication/AjaxHelper.js";
 import { Administration } from "./Administration.js";
 import { PasswordPopup } from "./PasswordPopup.js";
@@ -148,13 +148,13 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                         {
                             field: 'klasse', text: 'Klasse', size: '10%', sortable: true, resizable: true
                         },
-                        { field: 'username', text: 'Benutzername', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
-                        { field: 'rufname', text: 'Rufname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
-                        { field: 'familienname', text: 'Familienname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                        { field: 'username', text: this.isVidisSchool()?'Nickname' : 'Benutzername', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n'},
+                        { field: 'rufname', text: 'Rufname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
+                        { field: 'familienname', text: 'Familienname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
                         { field: 'locked', text: 'Locked', size: '10%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
-                        { field: 'vidis_sub', text: 'vidis-id', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: false},
-                        { field: 'vidis_akronym', text: 'vidis-Kürzel', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: true },
-                        { field: 'vidis_klasse', text: 'vidis-Klasse', size: '10%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: true },
+                        { field: 'vidis_sub', text: 'vidis-id', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool()},
+                        { field: 'vidis_akronym', text: 'vidis-Kürzel', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
+                        { field: 'vidis_klasse', text: 'vidis-Klasse', size: '10%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
                         {
                             field: 'id', text: 'PW', size: '40px', sortable: false, render: (e) => {
                                 return '<div class="pw_button" title="Passwort ändern" data-recid="' + e.recid + '" style="visibility: hidden">PW!</div>';
@@ -162,11 +162,11 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                         }
                     ],
                     searches: [
-                        { field: 'username', label: 'Benutzername', type: 'text' },
+                        { field: 'username', label: this.isVidisSchool()?'Nickname' : 'Benutzername', type: 'text' },
                         { field: 'rufname', label: 'Rufname', type: 'text' },
                         { field: 'familienname', label: 'Familienname', type: 'text' }
                     ],
-                    sortData: [{ field: 'klasse', direction: 'asc' }, { field: 'familienname', direction: 'asc' }, { field: 'rufname', direction: 'asc' }],
+                    sortData: [{ field: 'klasse', direction: 'asc' }, { field: 'familienname', direction: 'asc' }, { field: 'rufname', direction: 'asc' }, { field: 'vidis_akronym', direction: 'asc' }],
                     onAdd: (event) => { that.onAddStudent() },
                     onChange: (event) => { that.onUpdateStudent(event) },
                     onDelete: (event) => { that.onDeleteStudent(event) },

@@ -1,6 +1,6 @@
 import jQuery from 'jquery';
 import { ajax } from "../communication/AjaxHelper.js";
-import { LoginRequest, LoginResponse, LogoutRequest, UserData } from "../communication/Data.js";
+import { getUserDisplayName, LoginRequest, LoginResponse, LogoutRequest, UserData } from "../communication/Data.js";
 import { Main } from "./Main.js";
 import { Helper } from "./gui/Helper.js";
 import { SoundTools } from "../../tools/SoundTools.js";
@@ -207,7 +207,7 @@ export class Login {
                     jQuery('#bitteWarten').hide();
                     let $loginSpinner = jQuery('#login-spinner>img');
                     $loginSpinner.hide();
-                    jQuery('#menupanel-username').html(escapeHtml(user.rufname) + " " + escapeHtml(user.familienname));
+                    jQuery('#menupanel-username').html(escapeHtml(getUserDisplayName(user)));
 
                     new UserMenu(that.main).init();
 
