@@ -7,6 +7,7 @@ import { HistoryElement } from "./HistoryElement.js";
 import { SynchronizationManager } from "./RepositorySynchronizationManager.js";
 import * as monaco from 'monaco-editor'
 import diff_match_patch from 'diff-match-patch'
+import { dateToString } from "../../../tools/StringTools.js";
 
 
 export type SynchroFileState = "original" | "changed" | "new" | "deleted";
@@ -136,7 +137,7 @@ export class SynchroWorkspace {
             name: main.user.rufname + " " + main.user.familienname,
             username: main.user.username,
             isIntermediateEntry: false,
-            timestamp: new Date().toUTCString(),
+            timestamp: dateToString(new Date()),
             userId: main.user.id,
             version: oldRepository.version + 1,
             historyFiles: []
