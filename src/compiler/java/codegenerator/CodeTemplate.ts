@@ -413,9 +413,11 @@ export class BinaryOperatorTemplate extends CodeTemplate {
     }
 
     escapeString(s: string): string {
+        s = s.replaceAll("\\", "\\\\");
         s = s.replaceAll("\n", "\\n");
         s = s.replaceAll("\t", "\\t");
         s = s.replaceAll("\r", "\\r");
+        s = s.replaceAll("\"", "\\\"");
         return s;
     }
 
