@@ -5,6 +5,8 @@ import chalk from "chalk";
 import { getLine, threeDez } from "../../../tools/StringTools.ts";
 import { Step } from "./Step.ts";
 import { StepFunction } from "./StepFunction.ts";
+import { Error } from "../Error.ts";
+import { JCM } from "../../java/language/JavaCompilerMessages.ts";
 
 
 
@@ -35,19 +37,19 @@ export class Program {
 
     }
 
-    compileToJavascriptFunctions(): boolean {
-        let i = 0;
+    compileToJavascriptFunctions(): Error {
+        let i = -1;
+        let j = -1;
         let stepList: Step[] = this.stepsSingle;
         try {
             for (let step of this.stepsSingle) {
-                step.compileToJavascriptFunction();
                 i++;
+                step.compileToJavascriptFunction();
             }
-            i = 0
             stepList = this.#stepsMultiple;
             for (let step of this.#stepsMultiple) {
+                j++
                 step.compileToJavascriptFunction();
-                i++;
             }
         } catch (ex) {
             let message = "";
@@ -61,10 +63,16 @@ export class Program {
             message += chalk.blue("\njavascript-code:") + "\n";
             message += this.#printSteps(stepList, i);
             console.error(message);
-            return false;
+            return {
+                id: JCM.internalError().id,
+                level: "error",
+                message: JCM.internalError().message,
+                //@ts-ignore
+                range: step.range
+            };
         }
 
-        return true;
+        return undefined;
     }
 
     #printCode(code: string, errorLine: number, lineOffset: number): string {

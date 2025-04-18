@@ -132,7 +132,11 @@ export class JavaModuleManager {
         for(let module of this.modules){
             if(!module.hasErrors()){
                 for(let program of module.programsToCompileToFunctions){
-                    if(!program.compileToJavascriptFunctions()) return false;
+                    let error = program.compileToJavascriptFunctions();
+                    if(error != null){
+                        module.errors.push(error)
+                        return false;
+                    } 
                 }
             }
         }

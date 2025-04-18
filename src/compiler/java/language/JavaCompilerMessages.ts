@@ -746,6 +746,14 @@ export class JCM {
         "en": `There's a inheritence-cycle: ${cycle}   ... => compilation had to be cancelled.`
     })
 
+    /**
+     * Program
+     */
+    static internalError = () => le({
+        "de": `Interner Fehler, siehe Konsolenausgabe des Browsers`,
+        "en": `Internal error, see browser console output`
+    })
+
 
 
     /**

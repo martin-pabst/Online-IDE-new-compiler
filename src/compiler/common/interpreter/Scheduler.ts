@@ -459,7 +459,7 @@ export class Scheduler {
         let statement3 = `${Helpers.return}(); `;
         program.addStep(statement3);
 
-        if (!program.compileToJavascriptFunctions()) {
+        if (program.compileToJavascriptFunctions() != null) {
             // this error should be impossible:
             console.log("TestManager.executeSingleTest: Error compiling test method stub.");
             return undefined;
