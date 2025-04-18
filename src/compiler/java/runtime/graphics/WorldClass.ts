@@ -107,6 +107,7 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
         let existingWorld = <WorldClass>interpreter.retrieveObject("WorldClass");
         if (existingWorld) {
             t.s.push(existingWorld);
+            this.app.stage.removeChildren(0, this.app.stage.children.length).forEach(c => c.destroy());
             existingWorld.changeResolution(interpreter, width, height);
             if (callback) callback();
             return existingWorld;
@@ -253,6 +254,8 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
     }
 
     onProgramStopped() {
+
+        this.interpreter.deleteObject("WorldClass");
 
         const stageSize: PIXI.TextureSourceOptions = {
             width: this.app!.screen.width,
