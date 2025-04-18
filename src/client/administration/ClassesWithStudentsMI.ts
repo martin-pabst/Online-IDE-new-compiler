@@ -149,8 +149,8 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                             field: 'klasse', text: 'Klasse', size: '10%', sortable: true, resizable: true
                         },
                         { field: 'username', text: this.isVidisSchool()?'Nickname' : 'Benutzername', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n'},
-                        { field: 'rufname', text: 'Rufname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
-                        { field: 'familienname', text: 'Familienname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
+                        { field: 'rufname', text: 'Rufname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: this.isVidisSchool() },
+                        { field: 'familienname', text: 'Familienname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: this.isVidisSchool() },
                         { field: 'locked', text: 'Locked', size: '10%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
                         { field: 'vidis_sub', text: 'vidis-id', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool()},
                         { field: 'vidis_akronym', text: 'vidis-Kürzel', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
