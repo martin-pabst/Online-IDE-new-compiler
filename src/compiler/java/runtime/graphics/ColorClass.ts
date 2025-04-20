@@ -84,14 +84,8 @@ export class ColorClass extends ObjectClass {
     }
 
     static _randomColorMin(min: number): number {
-        if (min < 0) min = 0;
-        if (min > 255) min = 255;
-
-        let r: number = Math.floor(Math.random() * (256 - min)) + min;
-        let g: number = Math.floor(Math.random() * (256 - min)) + min;
-        let b: number = Math.floor(Math.random() * (256 - min)) + min;
-
-        return 0x10000 * r + 0x100 * g + b;
+        
+        return this._randomColorMinMax(min, 255);
 
     }
 
