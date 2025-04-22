@@ -1,6 +1,12 @@
+import { IMain } from "../../../compiler/common/IMain.js";
+import { base64ToBytes } from "../../../tools/Base64.js";
+import { SpriteManager } from "../../spritemanager/SpriteManager.js";
+import { SpritesheetData } from "../../spritemanager/SpritesheetData.js";
+import { GUIFile } from "../../workspace/File.js";
 import { Workspace } from "../../workspace/Workspace.js";
-import { ExportedWorkspace, WorkspaceImporterExporter } from "../../workspace/WorkspaceImporterExporter.js";
+import { ExportedFile, ExportedWorkspace, WorkspaceImporterExporter } from "../../workspace/WorkspaceImporterExporter.js";
 import { Main } from "../Main.js";
+import { MainBase } from "../MainBase.js";
 import { Dialog } from "./Dialog.js";
 import jQuery from "jquery";
 
@@ -20,7 +26,7 @@ export class WorkspaceImporter {
         this.dialog.heading("Workspace importieren");
         this.dialog.description("Bitte klicken Sie auf den Button 'Datei auswählen...' oder ziehen Sie eine Datei auf das gestrichelt umrahmte Feld.")
         let pathDescription = "Dieser Workspace wird auf unterster Ordnerebene in der Workspaceliste importiert.";
-        if(this.path.length  > 0){
+        if (this.path.length > 0) {
             pathDescription = "Dieser Workspace wird in den Ordner " + this.path.join("/") + " importiert.";
         }
         this.dialog.description(pathDescription);
@@ -31,7 +37,7 @@ export class WorkspaceImporter {
         let exportedWorkspaces: ExportedWorkspace[] = [];
 
         let $errorDiv = this.dialog.description("", "red");
-        let $workspacePreviewDiv = jQuery('<div class="jo_scrollable" style="flex-basis: 20px; flex-grow: 1; overflow: auto; background-color: #ffffff60"></div>');
+        let $workspacePreviewDiv = jQuery('<div class="jo_scrollable jo_workspaceImportList" style="flex-basis: 20px; flex-grow: 1; overflow: auto; background-color: #ffffff60"></div>');
         let $workspacePreviewList = jQuery(`<ul></ul>`);
         $workspacePreviewDiv.append($workspacePreviewList);
 
@@ -42,20 +48,39 @@ export class WorkspaceImporter {
                 var reader = new FileReader();
                 reader.onload = (event) => {
                     let text: string = <string>event.target.result;
-                    if (!text.startsWith("{")) {
+                    if (!(text.startsWith("{") || text.startsWith("["))) {
                         $errorDiv.append(jQuery(`<div>Das Format der Datei ${f.name} passt nicht.</div>`));
                         return;
                     }
 
-                    let ew: ExportedWorkspace = JSON.parse(text);
-
-                    if(ew.modules == null || ew.name == null || ew.settings == null){
-                        $errorDiv.append(jQuery(`<div>Das Format der Datei ${f.name} passt nicht.</div>`));
+                    let ew: ExportedWorkspace[] = [];
+                    try {
+                        ew = JSON.parse(text);
+                        if (!Array.isArray(ew)) {
+                            ew = [ew];
+                        }
+                    } catch (e) {
+                        $errorDiv.append(jQuery(`<div>Die Datei ${f.name} ist keine gültige JSON-Datei.</div>`));
                         return;
                     }
 
-                    exportedWorkspaces.push(ew);
-                    $workspacePreviewList.append(jQuery(`<li>Workspace ${ew.name} mit ${ew.modules.length} Dateien</li>`));
+                    for (let ew1 of ew) {
+                        if (ew1.modules == null || ew1.name == null || ew1.settings == null) {
+                            $errorDiv.append(jQuery(`<div>Das Format der Datei ${f.name} passt nicht.</div>`));
+                        } else {
+                            exportedWorkspaces.push(ew1);
+                            let checkbox = jQuery(`<input type="checkbox" checked="checked" />`);
+                            let pathString = (ew1.path && ew1.path.length > 0) ? ew1.path + "\\" : "";
+                            let listItem = jQuery(`<li><span>${pathString}${ew1.name} mit ${ew1.modules.length} Dateien<span></li>`);
+                            listItem.prepend(checkbox);
+                            ew1.isSelected = true
+                            $workspacePreviewList.append(listItem);
+                            checkbox.on('change', (event) => {
+                                ew1.isSelected = checkbox.is(':checked')
+                            });
+                        }
+                    }
+
 
                 };
                 reader.readAsText(f);
@@ -89,7 +114,11 @@ export class WorkspaceImporter {
 
         this.dialog.addDiv($workspacePreviewDiv);
 
-        let waitDiv = this.dialog.waitMessage("Bitte warten...")
+        let waitDiv = jQuery('#bitteWarten');
+        let waitProgressBar = jQuery('<div class="jo_waitProgressBar"></div>');
+        let waitProgressBarInner = jQuery('<div class="jo_waitProgressBarInner"></div>');
+        waitProgressBar.append(waitProgressBarInner);
+        waitDiv.append(waitProgressBar);
 
         this.dialog.buttons([
             {
@@ -100,7 +129,9 @@ export class WorkspaceImporter {
             {
                 caption: "Importieren",
                 color: "green",
-                callback: () => {
+                callback: async () => {
+
+                    waitDiv.css("display", "flex");
 
                     let networkManager = this.main.networkManager;
                     let projectExplorer = this.main.projectExplorer;
@@ -110,57 +141,129 @@ export class WorkspaceImporter {
                         owner_id = this.main.workspacesOwnerId;
                     }
 
-                    let count = 0;
-                    for(let wse of exportedWorkspaces) count += 1 + wse.modules.length;
+                    let workspacesToImport: ExportedWorkspace[] = exportedWorkspaces.filter(wse => wse.isSelected);
 
                     let firstWorkspace: Workspace;
 
-                    for(let wse of exportedWorkspaces){
+                    let i = 0;
+                    for (let wse of workspacesToImport) {
+                        waitProgressBarInner.css("width", (i++ / workspacesToImport.length * 100) + "%");
 
-                        let ws: Workspace = WorkspaceImporterExporter.importWorkspace(wse, this.path, this.main, owner_id);
-                        if(firstWorkspace == null) firstWorkspace = ws;
+                        let path = this.path.slice();
+                        if (wse.path != null) {
+                            path = path.concat(wse.path.split("/"));
+                        }
 
-                        networkManager.sendCreateWorkspace(ws, owner_id, (error: string) => {
-                            count--;
+                        let ws: Workspace[] = WorkspaceImporter.importWorkspace(wse, path, this.main, owner_id);
+
+                        for (let ws1 of ws) {
+                            let error = await networkManager.sendCreateWorkspace(ws1, owner_id);
                             if (error == null) {
                                 projectExplorer.workspaceListPanel.addElement({
-                                    name: ws.name,
-                                    externalElement: ws,
+                                    name: ws1.name,
+                                    externalElement: ws1,
                                     iconClass: "workspace",
-                                    isFolder: false,
-                                    path: that.path,
+                                    isFolder: ws1.isFolder,
+                                    path: ws1.path == '' ? [] : ws1.path.split("/"),
                                     readonly: false,
                                     isPruefungFolder: false
                                 }, true);
 
-                                for(let f of ws.getFiles()){
-                                    networkManager.sendCreateFile(f, ws, owner_id,
-                                        (error: string) => {
-                                            count--;
-                                            if (error == null) {
-                                                projectExplorer.workspaceListPanel.sortElements();
-                                                this.dialog.close();
-                                                if(firstWorkspace != null) projectExplorer.setWorkspaceActive(firstWorkspace, true);
-                                            } else {
-                                                alert('Der Server ist nicht erreichbar!');
 
-                                            }
-                                        });
+                                for (let f of ws1.getFiles()) {
+                                    await networkManager.sendCreateFile(f, ws1, owner_id)
+                                }
+
+                                if (!ws1.isFolder) {
+                                    if (firstWorkspace == null) firstWorkspace = ws1;
+                                    if (wse.spritesheetBase64) {
+                                        let zipFile = base64ToBytes(wse.spritesheetBase64);
+                                        try {
+                                            let spritesheetId = await SpriteManager.uploadSpritesheet(zipFile, ws1.id, false);
+                                            ws1.spritesheetId = spritesheetId;
+                                        } catch(e){}
+                                    }
                                 }
 
                             } else {
                                 alert('Der Server ist nicht erreichbar!');
-
                             }
-                        });
-
-
-
+                            
+                        }
                     }
+
+                    waitProgressBar.remove();
+                    waitDiv.css("display", "none");
+
+                    
+                    projectExplorer.workspaceListPanel.sortElements();
+                    this.dialog.close();
+                    if (firstWorkspace != null) projectExplorer.setWorkspaceActive(firstWorkspace, true);
 
                 }
             },
         ])
     }
+
+    static importWorkspace(wse: ExportedWorkspace, path: string[], main: MainBase, owner_id: number): Workspace[] {
+
+        if (wse.spritesheetBase64) {
+            let sd: SpritesheetData = new SpritesheetData();
+            base64ToBytes(wse.spritesheetBase64);
+        }
+        let ws: Workspace = new Workspace(wse.name, main, owner_id);
+
+        ws.isFolder = false;
+        ws.path = path.join("/");
+        ws.settings = wse.settings;
+        main.addWorkspace(ws);
+        for (let exportedFile of wse.modules) {
+            ws.addFile(WorkspaceImporter.importFile(main, exportedFile));
+        }
+
+        let workspaces: Workspace[] = [];
+
+        if (main instanceof Main) {
+            workspaces = WorkspaceImporter.buildPath(path, main, owner_id);
+        }
+
+        return workspaces.concat(ws);
+    }
+
+    static buildPath(path: string[], main: Main, owner_id: number): Workspace[] {
+        let workspaces: Workspace[] = [];
+        for (let i = 0; i < path.length; i++) {
+            let currentPath = path.slice(0, i + 1);
+            let ws = main.projectExplorer.workspaceListPanel.elements.find(el => {
+                if (!el.isFolder) return false;
+                let pathString = el.name;
+                if (el.path && el.path.length > 0) {
+                    pathString = el.path.join("/") + "/" + pathString;
+                }
+                return pathString == currentPath.join("/");
+            });
+
+            if (!ws) {
+                let newWs = new Workspace(path[i], main, owner_id);
+                newWs.isFolder = true;
+                newWs.path = path.slice(0, i).join("/");
+                main.addWorkspace(newWs);
+                workspaces.push(newWs);
+            }
+        }
+        return workspaces;
+    }
+
+    private static importFile(main: IMain, ef: ExportedFile): GUIFile {
+        let file = new GUIFile(main, ef.name);
+
+        file.setText(ef.text);
+        file.identical_to_repository_version = ef.identical_to_repository_version;
+        file.is_copy_of_id = ef.is_copy_of_id;
+        file.repository_file_version = ef.repository_file_version;
+
+        return file;
+    }
+
 
 }

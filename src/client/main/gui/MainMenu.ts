@@ -73,6 +73,15 @@ export class MainMenu {
                                  }
                             },
                             {
+                                identifier: "Alle Workspaces exportieren",
+                                action: async () => {
+                                    let name: string = "all_workspaces";
+                                    let user = this.main.user;
+                                    let workspaces = await WorkspaceImporterExporter.exportAllWorkspaces(this.main);
+                                    downloadFile(workspaces, name + ".json");
+                                 }
+                            },
+                            {
                                 identifier: "Speichern und Beenden",
                                 action: () => { jQuery('#buttonLogout').trigger("click"); }
                             },

@@ -346,7 +346,7 @@ export class SynchroWorkspace {
 
                 workspace.addFile(f);
 
-                main.networkManager.sendCreateFile(f, workspace, main.user.id,
+                main.networkManager.sendCreateFile(f, workspace, main.user.id).then(
                     (error: string) => {
                         if (error == null) {
                         } else {

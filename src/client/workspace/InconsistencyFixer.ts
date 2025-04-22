@@ -18,7 +18,7 @@ export class InconsistencyFixer {
                 newFolder.path = ws.path;
                 workspaceList.push(newFolder);
 
-                networkManager.sendCreateWorkspace(newFolder, newFolder.owner_id, (error: string) => {
+                networkManager.sendCreateWorkspace(newFolder, newFolder.owner_id).then((error: string) => {
                     if(error == null || error == ""){
                         console.log("Successfully created new Folder.");
                     } else {

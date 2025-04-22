@@ -1,6 +1,9 @@
 import { IMain } from "../../compiler/common/IMain";
+import { base64ToBytes, bytesToBase64 } from "../../tools/Base64";
 import { WorkspaceSettings } from "../communication/Data";
+import { Main } from "../main/Main";
 import { MainBase } from "../main/MainBase";
+import { SpritesheetData } from "../spritemanager/SpritesheetData";
 import { GUIFile } from "./File";
 import { Workspace } from "./Workspace";
 
@@ -8,9 +11,12 @@ export type ExportedWorkspace = {
     name: string;
     modules: ExportedFile[];
     settings: WorkspaceSettings;
+    spritesheetBase64?: string;
+    path?: string;
+    isSelected?: boolean;
 }
 
-type ExportedFile = {
+export type ExportedFile = {
     name: string;
     text: string;
 
@@ -23,11 +29,33 @@ type ExportedFile = {
 
 export class WorkspaceImporterExporter {
 
-    static exportWorkspace(workspace: Workspace): ExportedWorkspace {
+    static async exportAllWorkspaces(main: Main): Promise<ExportedWorkspace[]> {
+        let exportedWorkspaces: ExportedWorkspace[] = [];
+        for (let ws of main.projectExplorer.workspaceListPanel.elements.map(el => <Workspace>el.externalElement)) {
+            if (ws.isFolder) continue;
+            let exportedWorkspace: ExportedWorkspace = await WorkspaceImporterExporter.exportWorkspace(ws);
+            exportedWorkspaces.push(exportedWorkspace);
+        }
+        return exportedWorkspaces;
+    }
+
+
+
+    static async exportWorkspace(workspace: Workspace): Promise<ExportedWorkspace> {
+
+        let spritesheetBase64: string = undefined;
+        if (workspace.spritesheetId) {
+            let sd: SpritesheetData = new SpritesheetData();
+            await sd.load(workspace.spritesheetId);
+            spritesheetBase64 = bytesToBase64(sd.zipFile);
+        }
+
         return {
             name: workspace.name,
             modules: workspace.getFiles().map(file => WorkspaceImporterExporter.exportFile(file)),
-            settings: workspace.settings
+            settings: workspace.settings,
+            spritesheetBase64: spritesheetBase64,
+            path: workspace.path
         }
     }
 
@@ -41,31 +69,6 @@ export class WorkspaceImporterExporter {
         }
     }
 
-    static importWorkspace(wse: ExportedWorkspace, path: string[], main: MainBase, owner_id: number): Workspace {
-
-        let ws: Workspace = new Workspace(wse.name, main, owner_id);
-
-        ws.isFolder = false;
-        ws.path = path.join("/");
-        ws.settings = wse.settings;
-        main.addWorkspace(ws);
-        for(let exportedFile of wse.modules){
-            ws.addFile(WorkspaceImporterExporter.importFile(main, exportedFile));
-        }
-
-        return ws;
-    }
-
-    private static importFile(main: IMain, ef: ExportedFile): GUIFile {
-        let file = new GUIFile(main, ef.name);
-
-        file.setText(ef.text);
-        file.identical_to_repository_version = ef.identical_to_repository_version;
-        file.is_copy_of_id = ef.is_copy_of_id;
-        file.repository_file_version = ef.repository_file_version;
-
-        return file;
-    }
 
 
 }

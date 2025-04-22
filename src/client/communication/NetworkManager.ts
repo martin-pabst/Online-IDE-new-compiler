@@ -181,12 +181,11 @@ export class NetworkManager {
         }
     }
 
-    sendCreateWorkspace(w: Workspace, owner_id: number, callback: (error: string) => void) {
+    async sendCreateWorkspace(w: Workspace, owner_id: number): Promise<string | null> {
 
         if (this.main.user.is_testuser) {
             w.id = Math.round(Math.random() * 10000000);
-            callback(null);
-            return;
+            return null;
         }
 
         let wd: WorkspaceData = w.getWorkspaceData(false);
@@ -198,19 +197,21 @@ export class NetworkManager {
             userId: this.main.user.id
         }
 
-        ajax("createOrDeleteFileOrWorkspace", request, (response: CRUDResponse) => {
+        let response: CRUDResponse = await ajaxAsync("servlet/createOrDeleteFileOrWorkspace", request);
+        if (response.success) {
             w.id = response.id;
-            callback(null);
-        }, callback);
+            return null;
+        } else {
+            return "Netzwerkfehler!";
+        }
 
     }
 
-    sendCreateFile(f: GUIFile, ws: Workspace, owner_id: number, callback: (error: string) => void) {
+    async sendCreateFile(f: GUIFile, ws: Workspace, owner_id: number): Promise<string | null> {
 
         if (this.main.user.is_testuser) {
             f.id = Math.round(Math.random() * 10000000);
-            callback(null);
-            return;
+            return null;
         }
 
 
@@ -223,12 +224,14 @@ export class NetworkManager {
             userId: this.main.user.id
         }
 
-        ajax("createOrDeleteFileOrWorkspace", request, (response: CRUDResponse) => {
+        let response: CRUDResponse = await ajaxAsync("servlet/createOrDeleteFileOrWorkspace", request);
+        if(response.success) {
             f.id = response.id;
             f.setSaved(true);
-            callback(null);
-        }, callback);
-
+            return null;
+        } else {
+            return "Netzwerkfehler!";
+        }
     }
 
     sendDuplicateWorkspace(ws: Workspace, callback: (error: string, workspaceData?: WorkspaceData) => void) {

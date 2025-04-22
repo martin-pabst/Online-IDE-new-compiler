@@ -72,7 +72,7 @@ export class ProjectExplorer {
 
                 that.fileListPanel.setCaption(that.main.currentWorkspace.name);
 
-                that.main.networkManager.sendCreateFile(f, that.main.currentWorkspace, that.main.workspacesOwnerId,
+                that.main.networkManager.sendCreateFile(f, that.main.currentWorkspace, that.main.workspacesOwnerId).then(
                     (error: string) => {
                         if (error == null) {
                             successfulNetworkCommunicationCallback(f);
@@ -133,7 +133,7 @@ export class ProjectExplorer {
                     let workspace = that.main.getCurrentWorkspace();
                     workspace.addFile(newFile);
 
-                    that.main.networkManager.sendCreateFile(newFile, workspace, that.main.workspacesOwnerId,
+                    that.main.networkManager.sendCreateFile(newFile, workspace, that.main.workspacesOwnerId).then(
                         (error: string) => {
                             if (error == null) {
                                 let element: AccordionElement = {
@@ -275,7 +275,7 @@ export class ProjectExplorer {
                 w.path = accordionElement.path.join("/");
                 that.main.workspaceList.push(w);
 
-                that.main.networkManager.sendCreateWorkspace(w, that.main.workspacesOwnerId, (error: string) => {
+                that.main.networkManager.sendCreateWorkspace(w, that.main.workspacesOwnerId).then((error: string) => {
                     if (error == null) {
                         that.fileListPanel.enableNewButton(true);
                         successfulNetworkCommunicationCallback(w);
@@ -339,7 +339,7 @@ export class ProjectExplorer {
             newElement.externalElement = folder;
             that.main.workspaceList.push(folder);
 
-            that.main.networkManager.sendCreateWorkspace(folder, that.main.workspacesOwnerId, (error: string) => {
+            that.main.networkManager.sendCreateWorkspace(folder, that.main.workspacesOwnerId).then((error: string) => {
                 if (error == null) {
                     successCallback(folder);
                 } else {
@@ -378,7 +378,7 @@ export class ProjectExplorer {
             }
 
             workspace.addFile(newFile);
-            that.main.networkManager.sendCreateFile(newFile, workspace, that.main.workspacesOwnerId,
+            that.main.networkManager.sendCreateFile(newFile, workspace, that.main.workspacesOwnerId).then(
                 (error: string) => {
                     if (error == null) {
                     } else {
@@ -446,10 +446,10 @@ export class ProjectExplorer {
             },
                 {
                     caption: "Exportieren",
-                    callback: (element: AccordionElement) => {
+                    callback: async (element: AccordionElement) => {
                         let ws: Workspace = <Workspace>element.externalElement;
                         let name: string = ws.name.replace(/\//g, "_");
-                        downloadFile(WorkspaceImporterExporter.exportWorkspace(ws), name + ".json")
+                        downloadFile(await WorkspaceImporterExporter.exportWorkspace(ws), name + ".json")
                     }
                 }
             );
@@ -745,7 +745,7 @@ export class ProjectExplorer {
         } else {
             editor.updateOptions({ readOnly: this.main.getCurrentWorkspace()?.readonly && !this.main.user.is_teacher });
             editor.setModel(file.getMonacoModel());
-            if([SchedulerState.running, SchedulerState.paused].indexOf(this.main.getInterpreter().scheduler.state) < 0){
+            if ([SchedulerState.running, SchedulerState.paused].indexOf(this.main.getInterpreter().scheduler.state) < 0) {
                 setTimeout(() => {
                     editor.focus();
                 }, 100);

@@ -7,6 +7,7 @@ import { SpritesheetData } from "./SpritesheetData.js";
 import { UploadSpriteResponse } from "../communication/Data.js";
 import { csrfToken } from '../communication/AjaxHelper.js';
 import { SpriteLibrary } from '../../compiler/java/runtime/graphics/SpriteLibrary.js';
+import { Workspace } from '../workspace/Workspace.js';
 
 type SpriteLibraryEntry = {
     filename: string,
@@ -390,36 +391,44 @@ export class SpriteManager {
         let that = this;
 
         let deleteSpritesheet: boolean = this.userSpritesheet.spriteDataList.length == 0;
+        let workspace: Workspace = this.main.getCurrentWorkspace();
 
-        let headers: {[key: string]: string;} = { 'x-workspaceid': "" + that.main.getCurrentWorkspace().id, "x-filetype": deleteSpritesheet ? "delete" : "zip" };
-        if(csrfToken != null) headers["x-token-pm"] = csrfToken;
-
-
-        jQuery.ajax({
-            type: 'POST',
-            async: true,
-            contentType: 'application/octet-stream',
-            data: this.userSpritesheet.spritesheet.zipFile,
-            processData: false,
-            headers: headers,
-            url: "servlet/uploadSprite",
-            success: function (response: UploadSpriteResponse) {
-                if(response.success){
-                    that.main.getCurrentWorkspace().spritesheetId = deleteSpritesheet ? null : response.spriteFileId;
-                    that.userSpritesheet.spritesheet.initializeSpritesheetForWorkspace(that.main.getCurrentWorkspace(), that.main);
-                } else {
-                    alert(response.message);
-                }
-                that.exit();
-            },
-            error: function (jqXHR, message) {
-                alert(message);
-                that.exit();
-            }
-        }
-        );
+        SpriteManager.uploadSpritesheet(this.userSpritesheet.spritesheet.zipFile, workspace.id, deleteSpritesheet).then((spritesheetId: number) => {
+            workspace.spritesheetId = deleteSpritesheet ? null : spritesheetId;
+            that.exit();
+        }).catch((message) => {
+            alert(message);
+            that.exit();
+        });
 
     }
+
+    static async uploadSpritesheet(spriteSheet: Uint8Array, workspaceId: number, deleteSpritesheet: boolean): Promise<number> {
+        let headers: {[key: string]: string;} = { 'x-workspaceid': "" + workspaceId, "x-filetype": deleteSpritesheet ? "delete" : "zip" };
+        if(csrfToken != null) headers["x-token-pm"] = csrfToken;
+        return new Promise((resolve, reject) => {
+            jQuery.ajax({
+                type: 'POST',
+                async: true,
+                contentType: 'application/octet-stream',
+                data: spriteSheet,
+                processData: false,
+                headers: headers,
+                url: "servlet/uploadSprite",
+                success: function (response: UploadSpriteResponse) {
+                    if(response.success){
+                        resolve(response.spriteFileId);
+                    } else {
+                        reject(response.message);
+                    }
+                },
+                error: function (jqXHR, message) {
+                    reject(message);
+                }
+            });
+        });
+    }
+
 
     hide() {
         let $spriteDiv = jQuery('#spritemanager-div');
