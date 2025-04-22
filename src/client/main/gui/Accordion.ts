@@ -641,8 +641,6 @@ export class AccordionPanel {
                 })
             }
 
-            let mousePointer = window.PointerEvent ? "pointer" : "mouse";
-
             if (element.isFolder && !element.readonly) {
                 contextMenuItems = contextMenuItems.concat([
                     {
@@ -661,23 +659,12 @@ export class AccordionPanel {
                             });
 
                         }
-                    }, {
-                        caption: "Neuer Workspace...",
-                        callback: () => {
-                            that.select(element.externalElement);
-                            that.$buttonNew.trigger(mousePointer + 'down');
-                        }
-                    }, {
-                        caption: "Workspace importieren...",
-                        callback: () => {
-                            new WorkspaceImporter(<Main>that.accordion.main, element.path.concat([element.name])).show();
-                        }
                     }
                 ])
             }
 
 
-            if (that.contextMenuProvider != null && !element.isFolder) {
+            if (that.contextMenuProvider != null) {
 
                 for (let cmi of that.contextMenuProvider(element)) {
                     contextMenuItems.push({

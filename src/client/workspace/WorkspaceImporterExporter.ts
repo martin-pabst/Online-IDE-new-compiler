@@ -1,3 +1,4 @@
+import path from "path";
 import { IMain } from "../../compiler/common/IMain";
 import { base64ToBytes, bytesToBase64 } from "../../tools/Base64";
 import { WorkspaceSettings } from "../communication/Data";
@@ -6,6 +7,7 @@ import { MainBase } from "../main/MainBase";
 import { SpritesheetData } from "../spritemanager/SpritesheetData";
 import { GUIFile } from "./File";
 import { Workspace } from "./Workspace";
+import { AccordionPanel } from "../main/gui/Accordion";
 
 export type ExportedWorkspace = {
     name: string;
@@ -40,6 +42,23 @@ export class WorkspaceImporterExporter {
     }
 
 
+    static async exportFolder(workspace: Workspace, workspaceListPanel: AccordionPanel): Promise<ExportedWorkspace[]> {
+        let workspacesToExport: Workspace[] = [];
+        let pathString = workspace.path || '';
+        if (pathString.length > 0) pathString += '/';
+        pathString += workspace.name;
+        workspacesToExport = workspaceListPanel.elements.map(el => <Workspace>el.externalElement)
+            .filter(ws => ws.path && ws.path.startsWith(pathString));
+        let exportedWorkspaces: ExportedWorkspace[] = [];
+        for (let ws of workspacesToExport) {
+            if (ws.isFolder) continue;
+            let exportedWorkspace: ExportedWorkspace = await WorkspaceImporterExporter.exportWorkspace(ws);
+            exportedWorkspaces.push(exportedWorkspace);
+        }
+        
+        return exportedWorkspaces;
+
+    }
 
     static async exportWorkspace(workspace: Workspace): Promise<ExportedWorkspace> {
 

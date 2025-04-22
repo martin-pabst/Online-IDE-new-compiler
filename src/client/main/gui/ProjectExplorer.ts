@@ -18,6 +18,7 @@ import { WorkspaceImporterExporter } from '../../workspace/WorkspaceImporterExpo
 import { SchedulerState } from "../../../compiler/common/interpreter/SchedulerState.js";
 import { GuiMessages } from './GuiMessages.js';
 import * as monaco from 'monaco-editor'
+import { WorkspaceImporter } from './WorkspaceImporter.js';
 
 
 export class ProjectExplorer {
@@ -409,150 +410,178 @@ export class ProjectExplorer {
 
         this.workspaceListPanel.contextMenuProvider = (workspaceAccordionElement: AccordionElement) => {
 
+            let mousePointer = window.PointerEvent ? "pointer" : "mouse";
+            let ws: Workspace = <Workspace>workspaceAccordionElement.externalElement;
+
             let cmiList: AccordionContextMenuItem[] = [];
-
-            cmiList.push({
-                caption: "Duplizieren",
-                callback: (element: AccordionElement) => {
-                    let srcWorkspace: Workspace = element.externalElement;
-                    this.main.networkManager.sendDuplicateWorkspace(srcWorkspace,
-                        (error: string, workspaceData) => {
-                            if (error == null && workspaceData != null) {
-                                let newWorkspace: Workspace = Workspace.restoreFromData(workspaceData, this.main);
-
-                                this.main.rightDiv.classDiagram.duplicateSerializedClassDiagram(srcWorkspace.id, newWorkspace.id);
-
-                                this.main.workspaceList.push(newWorkspace);
-                                let path = workspaceData.path.split("/");
-                                if (path.length == 1 && path[0] == "") path = [];
-                                newWorkspace.panelElement = {
-                                    name: newWorkspace.name,
-                                    externalElement: newWorkspace,
-                                    iconClass: newWorkspace.repository_id == null ? 'workspace' : 'repository',
-                                    isFolder: false,
-                                    path: path,
-                                    readonly: false,
-                                    isPruefungFolder: false
-                                };
-
-                                this.workspaceListPanel.addElement(newWorkspace.panelElement, true);
-                                this.workspaceListPanel.sortElements();
-                            }
-                            if (error != null) {
-                                alert(error);
-                            }
-                        })
-                }
-            },
-                {
-                    caption: "Exportieren",
-                    callback: async (element: AccordionElement) => {
-                        let ws: Workspace = <Workspace>element.externalElement;
-                        let name: string = ws.name.replace(/\//g, "_");
-                        downloadFile(await WorkspaceImporterExporter.exportWorkspace(ws), name + ".json")
-                    }
-                }
-            );
-
-            if (this.main.user.is_teacher && this.main.teacherExplorer.classPanel.elements.length > 0) {
-                cmiList.push({
-                    caption: "An Klasse austeilen...",
-                    callback: (element: AccordionElement) => { },
-                    subMenu: this.main.teacherExplorer.classPanel.elements.map((ae) => {
-                        return {
-                            caption: ae.name,
-                            callback: (element: AccordionElement) => {
-                                let klasse = <any>ae.externalElement;
-
-                                let workspace: Workspace = element.externalElement;
-
-                                this.main.networkManager.sendDistributeWorkspace(workspace, klasse, null, (error: string) => {
-                                    if (error == null) {
-                                        let networkManager = this.main.networkManager;
-                                        let dt = networkManager.updateFrequencyInSeconds * networkManager.forcedUpdateEvery;
-                                        alert("Der Workspace " + workspace.name + " wurde an die Klasse " + klasse.name + " ausgeteilt. Er wird sofort in der Workspaceliste der Schüler/innen erscheinen.\n Falls das bei einer Schülerin/einem Schüler nicht klappt, bitten Sie sie/ihn, sich kurz aus- und wieder einzuloggen.");
-                                    } else {
-                                        alert(error);
-                                    }
-                                });
-
-                            }
-                        }
-                    })
-                },
+            if (workspaceAccordionElement.isFolder) {
+                cmiList.push(
                     {
-                        caption: "An einzelne Schüler/innen austeilen...",
-                        callback: (element: AccordionElement) => {
-                            let classes: ClassData[] = this.main.teacherExplorer.classPanel.elements.map(ae => ae.externalElement);
-                            let workspace: Workspace = element.externalElement;
-                            new DistributeToStudentsDialog(classes, workspace, this.main);
+                        caption: "Neuer Workspace...",
+                        callback: () => {
+                            that.workspaceListPanel.select(workspaceAccordionElement.externalElement);
+                            that.workspaceListPanel.$buttonNew.trigger(mousePointer + 'down');
+                        }
+                    }, {
+                        caption: "Workspace importieren...",
+                        callback: () => {
+                            new WorkspaceImporter(<Main>that.main, workspaceAccordionElement.path.concat(ws.name)).show();
+                        }
+                    },
+                    {
+                        caption: "Ordner Exportieren",
+                        callback: async (element: AccordionElement) => {
+                            let ws: Workspace = <Workspace>element.externalElement;
+                            let name: string = ws.name.replace(/\//g, "_");
+                            downloadFile(await WorkspaceImporterExporter.exportFolder(ws, this.workspaceListPanel), name + ".json")
                         }
                     }
                 );
-            }
+            } else {
+                cmiList.push({
+                    caption: "Duplizieren",
+                    callback: (element: AccordionElement) => {
+                        let srcWorkspace: Workspace = element.externalElement;
+                        this.main.networkManager.sendDuplicateWorkspace(srcWorkspace,
+                            (error: string, workspaceData) => {
+                                if (error == null && workspaceData != null) {
+                                    let newWorkspace: Workspace = Workspace.restoreFromData(workspaceData, this.main);
 
-            if (this.main.repositoryOn && this.main.workspacesOwnerId == this.main.user.id) {
-                if (workspaceAccordionElement.externalElement.repository_id == null) {
-                    cmiList.push({
-                        caption: "Repository anlegen...",
-                        callback: (element: AccordionElement) => {
-                            let workspace: Workspace = element.externalElement;
+                                    this.main.rightDiv.classDiagram.duplicateSerializedClassDiagram(srcWorkspace.id, newWorkspace.id);
 
-                            that.main.repositoryCreateManager.show(workspace);
-                        },
-                        subMenu: null,
-                        // [{ n: 0, text: "nur privat sichtbar" }, { n: 1, text: "sichtbar für die Klasse" },
-                        // { n: 2, text: "sichtbar für die Schule" }].map((k) => {
-                        //     return {
-                        //         caption: k.text,
-                        //         callback: (element: AccordionElement) => {
+                                    this.main.workspaceList.push(newWorkspace);
+                                    let path = workspaceData.path.split("/");
+                                    if (path.length == 1 && path[0] == "") path = [];
+                                    newWorkspace.panelElement = {
+                                        name: newWorkspace.name,
+                                        externalElement: newWorkspace,
+                                        iconClass: newWorkspace.repository_id == null ? 'workspace' : 'repository',
+                                        isFolder: false,
+                                        path: path,
+                                        readonly: false,
+                                        isPruefungFolder: false
+                                    };
 
-
-                        // this.main.networkManager.sendCreateRepository(workspace, k.n, (error: string, repository_id?: number) => {
-                        //     if (error == null) {
-                        //         this.workspaceListPanel.setElementClass(element, "repository");
-                        //         workspace.renderSynchronizeButton();
-                        //         this.showRepositoryButtonIfNeeded(workspace);
-                        //     } else {
-                        //         alert(error);
-                        //     }
-                        // });
-
-                        //         }
-                        //     }
-                        // })
-                    });
-                } else {
-                    cmiList.push({
-                        caption: "Mit Repository synchronisieren",
-                        callback: (element: AccordionElement) => {
-                            let workspace: Workspace = element.externalElement;
-                            workspace.synchronizeWithRepository();
+                                    this.workspaceListPanel.addElement(newWorkspace.panelElement, true);
+                                    this.workspaceListPanel.sortElements();
+                                }
+                                if (error != null) {
+                                    alert(error);
+                                }
+                            })
+                    }
+                },
+                    {
+                        caption: "Exportieren",
+                        callback: async (element: AccordionElement) => {
+                            let ws: Workspace = <Workspace>element.externalElement;
+                            let name: string = ws.name.replace(/\//g, "_");
+                            downloadFile(await WorkspaceImporterExporter.exportWorkspace(ws), name + ".json")
                         }
-                    });
-                    cmiList.push({
-                        caption: "Vom Repository loslösen",
-                        color: "#ff8080",
-                        callback: (element: AccordionElement) => {
-                            let workspace: Workspace = element.externalElement;
-                            workspace.repository_id = null;
-                            workspace.saved = false;
-                            this.main.networkManager.sendUpdatesAsync(true).then(() => {
-                                that.workspaceListPanel.setElementClass(element, "workspace");
-                                workspace.renderSynchronizeButton(element);
-                            });
-                        }
-                    });
-                }
-            }
+                    }
+                );
 
-            cmiList.push({
-                caption: "Einstellungen...",
-                callback: (element: AccordionElement) => {
-                    let workspace: Workspace = element.externalElement;
-                    new WorkspaceSettingsDialog(workspace, this.main).open();
+                if (this.main.user.is_teacher && this.main.teacherExplorer.classPanel.elements.length > 0) {
+                    cmiList.push({
+                        caption: "An Klasse austeilen...",
+                        callback: (element: AccordionElement) => { },
+                        subMenu: this.main.teacherExplorer.classPanel.elements.map((ae) => {
+                            return {
+                                caption: ae.name,
+                                callback: (element: AccordionElement) => {
+                                    let klasse = <any>ae.externalElement;
+
+                                    let workspace: Workspace = element.externalElement;
+
+                                    this.main.networkManager.sendDistributeWorkspace(workspace, klasse, null, (error: string) => {
+                                        if (error == null) {
+                                            let networkManager = this.main.networkManager;
+                                            let dt = networkManager.updateFrequencyInSeconds * networkManager.forcedUpdateEvery;
+                                            alert("Der Workspace " + workspace.name + " wurde an die Klasse " + klasse.name + " ausgeteilt. Er wird sofort in der Workspaceliste der Schüler/innen erscheinen.\n Falls das bei einer Schülerin/einem Schüler nicht klappt, bitten Sie sie/ihn, sich kurz aus- und wieder einzuloggen.");
+                                        } else {
+                                            alert(error);
+                                        }
+                                    });
+
+                                }
+                            }
+                        })
+                    },
+                        {
+                            caption: "An einzelne Schüler/innen austeilen...",
+                            callback: (element: AccordionElement) => {
+                                let classes: ClassData[] = this.main.teacherExplorer.classPanel.elements.map(ae => ae.externalElement);
+                                let workspace: Workspace = element.externalElement;
+                                new DistributeToStudentsDialog(classes, workspace, this.main);
+                            }
+                        }
+                    );
                 }
-            })
+
+                if (this.main.repositoryOn && this.main.workspacesOwnerId == this.main.user.id) {
+                    if (workspaceAccordionElement.externalElement.repository_id == null) {
+                        cmiList.push({
+                            caption: "Repository anlegen...",
+                            callback: (element: AccordionElement) => {
+                                let workspace: Workspace = element.externalElement;
+
+                                that.main.repositoryCreateManager.show(workspace);
+                            },
+                            subMenu: null,
+                            // [{ n: 0, text: "nur privat sichtbar" }, { n: 1, text: "sichtbar für die Klasse" },
+                            // { n: 2, text: "sichtbar für die Schule" }].map((k) => {
+                            //     return {
+                            //         caption: k.text,
+                            //         callback: (element: AccordionElement) => {
+
+
+                            // this.main.networkManager.sendCreateRepository(workspace, k.n, (error: string, repository_id?: number) => {
+                            //     if (error == null) {
+                            //         this.workspaceListPanel.setElementClass(element, "repository");
+                            //         workspace.renderSynchronizeButton();
+                            //         this.showRepositoryButtonIfNeeded(workspace);
+                            //     } else {
+                            //         alert(error);
+                            //     }
+                            // });
+
+                            //         }
+                            //     }
+                            // })
+                        });
+                    } else {
+                        cmiList.push({
+                            caption: "Mit Repository synchronisieren",
+                            callback: (element: AccordionElement) => {
+                                let workspace: Workspace = element.externalElement;
+                                workspace.synchronizeWithRepository();
+                            }
+                        });
+                        cmiList.push({
+                            caption: "Vom Repository loslösen",
+                            color: "#ff8080",
+                            callback: (element: AccordionElement) => {
+                                let workspace: Workspace = element.externalElement;
+                                workspace.repository_id = null;
+                                workspace.saved = false;
+                                this.main.networkManager.sendUpdatesAsync(true).then(() => {
+                                    that.workspaceListPanel.setElementClass(element, "workspace");
+                                    workspace.renderSynchronizeButton(element);
+                                });
+                            }
+                        });
+                    }
+                }
+
+                cmiList.push({
+                    caption: "Einstellungen...",
+                    callback: (element: AccordionElement) => {
+                        let workspace: Workspace = element.externalElement;
+                        new WorkspaceSettingsDialog(workspace, this.main).open();
+                    }
+                })
+
+            }
 
             return cmiList;
         }

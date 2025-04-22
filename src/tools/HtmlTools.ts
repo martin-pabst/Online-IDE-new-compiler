@@ -287,7 +287,7 @@ export function animateToTransparent($element: JQuery<HTMLElement>, cssProperty:
 }
 
 export function downloadFile(obj: any, filename: string, isBlob: boolean = false) {
-    var blob = isBlob ? obj : new Blob([typeof obj == 'string' ? obj : JSON.stringify(obj)], { type: 'text/plain' });
+    var blob = isBlob ? obj : new Blob([typeof obj == 'string' ? obj : JSON.stringify(obj, undefined, 3)], { type: 'text/plain' });
     //@ts-ignore
     if (window.navigator && window.navigator.msSaveOrOpenBlob) {
         //@ts-ignore
