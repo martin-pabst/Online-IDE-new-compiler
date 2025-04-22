@@ -717,6 +717,7 @@ export class ProjectExplorer {
                 for (let file of files) {
                     this.main.getCompiler().setFileDirty(file);
                 }
+                this.main.getCompiler().triggerCompile();
             });
 
             this.main.bottomDiv.gradingManager?.setValues(w);
