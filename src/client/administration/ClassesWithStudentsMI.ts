@@ -122,8 +122,8 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                     show: {
                         header: true,
                         toolbar: true,
-                        toolbarAdd: true,
-                        toolbarDelete: true,
+                        toolbarAdd: !this.isVidisSchool(),
+                        toolbarDelete: !this.isVidisSchool(),
                         footer: true,
                         selectColumn: true,
                         toolbarSearch: false
@@ -131,9 +131,8 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                     toolbar: {
                         items: [
                             { type: 'break' },
-                            { type: 'button', id: 'passwordButton', text: 'Passwort ändern...' }, //, img: 'fa-key' },
                             { type: 'button', id: 'changeClassButton', text: 'Klasse ändern...' } //, img: 'fa-key' }
-                        ],
+                        ].concat(this.isVidisSchool() ? [] : [{ type: 'button', id: 'passwordButton', text: 'Passwort ändern...' }]),
                         onClick: function (target, data) {
                             if (target == "passwordButton") {
                                 that.changePassword();
@@ -158,7 +157,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                         {
                             field: 'id', text: 'PW', size: '40px', sortable: false, render: (e) => {
                                 return '<div class="pw_button" title="Passwort ändern" data-recid="' + e.recid + '" style="visibility: hidden">PW!</div>';
-                            }
+                            }, hidden: this.isVidisSchool()
                         }
                     ],
                     searches: [

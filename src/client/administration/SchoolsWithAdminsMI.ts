@@ -133,7 +133,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
                 {
                     field: 'id', text: 'PW', size: '40px', sortable: false, render: (e) => {
                         return '<div class="pw_button" title="Passwort ändern" data-recid="' + e.recid + '" style="visibility: hidden">PW!</div>';
-                    }
+                    }, hidden: this.isVidisSchool()
                 }
             ],
             searches: [

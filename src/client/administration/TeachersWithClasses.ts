@@ -49,8 +49,8 @@ export class TeachersWithClassesMI extends AdminMenuItem {
             show: {
                 header: true,
                 toolbar: true,
-                toolbarAdd: true,
-                toolbarDelete: true,
+                toolbarAdd: !this.isVidisSchool(),
+                toolbarDelete: !this.isVidisSchool(),
                 footer: true,
                 selectColumn: true,
                 toolbarSearch: false
@@ -83,7 +83,7 @@ export class TeachersWithClassesMI extends AdminMenuItem {
                 {
                     field: 'id', text: 'PW', size: '40px', sortable: false, render: (e) => {
                         return '<div class="pw_button" title="Passwort ändern" style="visibility: hidden" data-recid="' + e.recid + '">PW!</div>';
-                    }
+                    }, hidden: this.isVidisSchool()
                 }
             ],
             searches: [
