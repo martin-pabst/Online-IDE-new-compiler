@@ -23,6 +23,7 @@ import "/assets/css/apidoc.css";
 import { Button } from '../../tools/Button.js';
 import { downloadFile } from '../../tools/HtmlTools.js';
 import { JavaSyntaxAPIPrinter } from './JavaSyntaxAPIPrinter.js';
+import { DatabaseModule } from '../libraries/java/database/DatabaseModule.js';
 
 
 export class ApiDoc {
@@ -67,7 +68,7 @@ export class ApiDoc {
     }
 
     getClassDocumentationForAI(): string {
-        let mm = new JavaLibraryModuleManager();
+        let mm = new JavaLibraryModuleManager(new DatabaseModule());
 
         let typeList = mm.javaTypes
         .sort(
@@ -89,7 +90,7 @@ export class ApiDoc {
 
     initClassDocumentation() {
 
-        let mm = new JavaLibraryModuleManager();
+        let mm = new JavaLibraryModuleManager(new DatabaseModule());
 
         let typeList = mm.javaTypes
         .sort(
