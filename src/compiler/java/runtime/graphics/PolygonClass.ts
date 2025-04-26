@@ -47,7 +47,9 @@ export class PolygonClass extends FilledShapeClass {
 
         let points: convexhull.Point[] = [];
         points = this.extractPoints(shape, points);
-        points = convexhull.makeHull(points);
+        if(shape instanceof GroupClass){
+            points = convexhull.makeHull(points);
+        }
 
 
         let pointsNumber: number[] = [];

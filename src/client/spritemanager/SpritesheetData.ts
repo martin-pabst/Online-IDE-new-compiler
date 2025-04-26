@@ -60,14 +60,14 @@ export class SpritesheetData {
             spritesheetIdOrURL = "sprites/" + ('0' + (spritesheetIdOrURL % 256).toString(16)).slice(-2).toUpperCase() + "/" + spritesheetIdOrURL + ".zip";
         }
 
-        let cacheManager = new CacheManager();
-        this.zipFile = await cacheManager.fetchUint8ArrayFromCache(spritesheetIdOrURL);
-        if (this.zipFile == null) {
+        // let cacheManager = new CacheManager();
+        // this.zipFile = await cacheManager.fetchUint8ArrayFromCache(spritesheetIdOrURL);
+        // if (this.zipFile == null) {
             await this.loadFromServer(spritesheetIdOrURL);
-            if (this.zipFile != null) {
-                cacheManager.store(spritesheetIdOrURL, this.zipFile);
-            }
-        }
+            // if (this.zipFile != null) {
+            //     cacheManager.store(spritesheetIdOrURL, this.zipFile);
+            // }
+        // }
 
         await this.unpackZip(this.zipFile)
 

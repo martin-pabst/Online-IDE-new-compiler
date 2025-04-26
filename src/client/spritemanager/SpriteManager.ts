@@ -46,6 +46,8 @@ export class SpriteManager {
     $buttonOK: JQuery<HTMLDivElement>;
     $buttonImport: JQuery<HTMLDivElement>;
 
+    $buttonFileImport: JQuery<HTMLInputElement>;
+
     fileList: FileList;
 
     hasErrors: boolean = false;
@@ -70,9 +72,9 @@ export class SpriteManager {
         this.$importDropZone = makeDiv(null, "jo_sm_importDropZone", null, null, $importExportLeft);
         makeDiv(null, null, "1. Schritt: png-Dateien hierhin ziehen oder...", { "font-weight": "bold" }, this.$importDropZone);
 
-        let $buttonImport = <JQuery<HTMLInputElement>>jQuery('<input type="file" multiple="multiple" style="cursor:pointer; margin-top: 30px" class="jo_sm_writeonly"></input>');
-        this.$importDropZone.append($buttonImport);
-        $buttonImport.on("change", (event) => {
+        this.$buttonFileImport = <JQuery<HTMLInputElement>>jQuery('<input type="file" multiple="multiple" style="cursor:pointer; margin-top: 30px" class="jo_sm_writeonly"></input>');
+        this.$importDropZone.append(this.$buttonFileImport);
+        this.$buttonFileImport.on("change", (event) => {
             var files = event.target.files;
             that.fileList = files;
             $filesCountDiv.text(files.length != 1 ? (files.length + " Dateien sind ausgewählt.") : "Eine Datei ist ausgewählt.");
@@ -113,7 +115,10 @@ export class SpriteManager {
         makeDiv(null, null, null, { "border-bottom": "2px solid var(--slider)", "margin-bottom": "5px" }, $importExportCenter);
 
         this.$buttonImport = makeDiv(null, "jo_active jo_sm_button jo_sm_importButton", "3. Schritt: Importieren", { width: "fit-content" }, $importExportCenter);
-        this.$buttonImport.on('click', () => { if (that.$buttonImport.hasClass("jo_active")) { that.importFiles(that.fileList); $filesCountDiv.text(""); } });
+        this.$buttonImport.on('click', () => { if (that.$buttonImport.hasClass("jo_active")) { 
+            that.importFiles(that.fileList); $filesCountDiv.text(""); 
+            that.$buttonFileImport.val("");
+        } });
 
 
         let $importExportMessages = makeDiv(null, "jo_sm_importExportMessages jo_sm_writeonly", null, null, $importExportArea);
@@ -322,6 +327,8 @@ export class SpriteManager {
             this.initGUI();
         }
 
+        this.$buttonFileImport.val("");
+
         let workspace = this.main.getCurrentWorkspace();
         if(workspace == null){
             alert('Kein Workspace ausgewählt.')
@@ -395,6 +402,13 @@ export class SpriteManager {
 
         SpriteManager.uploadSpritesheet(this.userSpritesheet.spritesheet.zipFile, workspace.id, deleteSpritesheet).then((spritesheetId: number) => {
             workspace.spritesheetId = deleteSpritesheet ? null : spritesheetId;
+            that.userSpritesheet.spritesheet.initializeSpritesheetForWorkspace(workspace, that.main, null).then(() => {
+                for (let file of workspace.getFiles()) {
+                    this.main.getCompiler().setFileDirty(file);
+                }
+                this.main.getCompiler().triggerCompile();
+            });
+
             that.exit();
         }).catch((message) => {
             alert(message);

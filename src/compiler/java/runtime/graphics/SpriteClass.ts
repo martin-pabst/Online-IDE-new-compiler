@@ -325,8 +325,8 @@ export class SpriteClass extends ShapeClass {
         let nameWithIndex = spriteLibrary + "#" + imageIndex;
         let texture: PIXI.Texture | undefined = sheet.textures[nameWithIndex];
         if (texture == null) {
-            let sheet1 = this.world.interpreter?.graphicsManager?.pixiUserSpritesheet;
-            texture = sheet1?.textures[nameWithIndex];
+            sheet = this.world.interpreter?.graphicsManager?.pixiUserSpritesheet;
+            texture = sheet?.textures[nameWithIndex];
         }
 
         if (texture != null) {
