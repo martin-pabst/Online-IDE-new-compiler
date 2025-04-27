@@ -148,7 +148,7 @@ export class ClassBox extends DiagramElement {
                 type: "line",
                 thicknessCm: 0.05
             });
-            for (let field of this.klass.getFields().filter(field => field.type instanceof ClassClass)) {
+            for (let field of this.klass.getFields().filter(field => field.type.identifier != 'Class')) {
 
                 let text: string = this.getVisibilityText(field.visibility) + field.type?.toString() + " " +  field.identifier;
 
@@ -167,7 +167,8 @@ export class ClassBox extends DiagramElement {
                 type: "line",
                 thicknessCm: 0.05
             });
-            this.klass.getOwnMethods().filter(m => m.getSignature() != "toJson()")
+            let hiddenSignatures: string[] = ["string toJson()", this.klass.identifier + " fromJson(string)"];
+            this.klass.getOwnMethods().filter(m => hiddenSignatures.indexOf(m.getSignature()) < 0)
             .filter(m => !m.isConstructor || m.identifier == this.klass.identifier)
             .forEach(m => {
                 let text: string = this.getVisibilityText(m.visibility) + m.identifier + "()";
