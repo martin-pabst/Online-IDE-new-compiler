@@ -13,9 +13,9 @@ export class Vector3Class extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", signature: "class Vector3 extends Object", comment: JRC.Vector3ClassComment },
 
-        { type: "field", signature: "public double x", comment: JRC.Vector3XComment },
-        { type: "field", signature: "public double y", comment: JRC.Vector3YComment },
-        { type: "field", signature: "public double z", comment: JRC.Vector3YComment },
+        { type: "field", signature: "public double x", nativeIdentifier: 'v.x', comment: JRC.Vector3XComment },
+        { type: "field", signature: "public double y", nativeIdentifier: 'v.y', comment: JRC.Vector3YComment },
+        { type: "field", signature: "public double z", nativeIdentifier: 'v.z', comment: JRC.Vector3YComment },
 
         { type: "method", signature: "Vector3(double x, double y, double z)", native: Vector3Class.prototype._constructor2, comment: JRC.Vector3ConstructorComment },
         { type: "method", signature: "Vector3(Vector2 xy, double z)", native: Vector3Class.prototype._constructor2xy, comment: JRC.Vector3ConstructorComment },
