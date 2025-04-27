@@ -20,6 +20,7 @@ export class Camera3dClass extends Object3dClass {
 
         { type: "method", signature: "void lookAt(double xTarget, double yTarget, double zTarget, Vector3 up, boolean keepTarget)", native: Camera3dClass.prototype.clookAt },
         { type: "method", signature: "void lookAt(Object3d target, Vector3 up, boolean keepTarget)", native: Camera3dClass.prototype.clookAtTarget },
+        { type: "method", signature: "Vector3 getViewingDirection()", native: Camera3dClass.prototype.getViewingDirection },
 
 
         { type: "method", signature: "void rotateX(double angleDeg)", native: Camera3dClass.prototype.rotateX },
@@ -70,6 +71,11 @@ export class Camera3dClass extends Object3dClass {
             this.target = undefined;
             this.up = up.v.clone();
         }
+    }
+
+    getViewingDirection(): Vector3Class {
+        let dir = this.camera3d.getWorldDirection(new THREE.Vector3)
+        return new Vector3Class(dir.x, dir.y, dir.z);
     }
     
     clookAtTarget(target: Object3dClass, up: Vector3Class, keepTarget: boolean): void{
