@@ -10,7 +10,7 @@ export class KeyClass extends ObjectClass {
         {type: "field", signature: "public static final string ArrowLeft", template: '"ArrowLeft"', constantValue: "ArrowLeft"},
         {type: "field", signature: "public static final string ArrowRight", template: '"ArrowRight"', constantValue: "ArrowRight"},
         {type: "field", signature: "public static final string Enter", template: '"Enter"', constantValue: "Enter"},
-        {type: "field", signature: "public static final string Space", template: '"Space"', constantValue: "Space"},
+        {type: "field", signature: "public static final string Space", template: '" "', constantValue: " "},
         {type: "field", signature: "public static final string Shift", template: '"Shift"', constantValue: "Shift"},
         {type: "field", signature: "public static final string Alt", template: '"Alt"', constantValue: "Alt"},
         {type: "field", signature: "public static final string Strg", template: '"Strg"', constantValue: "Strg"},
