@@ -237,7 +237,9 @@ export class PolygonClass extends FilledShapeClass {
 
     _setPoint(x: number, y: number, index: number) {
         if (index == 0 || index == 1) {
-            this.hitPolygonInitial[index] = { x: x, y: y };
+            let p = new PIXI.Point(x, y);
+            this.getWorldTransform().applyInverse(p, p);
+            this.hitPolygonInitial[index] = p;
             this.hitPolygonDirty = true;
             this.render();
         }
@@ -246,8 +248,11 @@ export class PolygonClass extends FilledShapeClass {
     _setPoints(coordinates: number[]) {
 
         this.hitPolygonInitial = [];
+        let transform = this.getWorldTransform();
         for(let i = 0; i < coordinates.length - 1; i += 2){
-            this.hitPolygonInitial.push({x: coordinates[i], y: coordinates[i+1]});
+            let p = new PIXI.Point(coordinates[i], coordinates[i + 1]);
+            transform.applyInverse(p, p);
+            this.hitPolygonInitial.push(p);
         }
 
         this.hitPolygonDirty = true;
