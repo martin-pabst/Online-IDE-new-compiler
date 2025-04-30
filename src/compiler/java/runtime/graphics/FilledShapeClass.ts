@@ -9,6 +9,7 @@ import { ColorClass } from './ColorClass';
 import { ColorHelper } from '../../lexer/ColorHelper';
 import { JRC } from '../../language/JavaRuntimeLibraryComments';
 import { NullPointerExceptionClass } from '../system/javalang/NullPointerExceptionClass';
+import { polygonzugEnthältPunkt } from '../../../../tools/MatheTools.ts';
 
 export class FilledShapeClass extends ShapeClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -216,6 +217,19 @@ export class FilledShapeClass extends ShapeClass {
             FilledShapeDefaults.defaultFillColor = color;
             if (alpha != null) FilledShapeDefaults.defaultFillAlpha = alpha;
         }
+
+    }
+
+    public borderContainsPoint(x: number, y: number, color: number = -1): boolean {
+        if(typeof this.borderColor == 'undefined') return false;
+        if(color != -1 && color != this.borderColor) return false;
+
+        if (!this.container.getBounds().containsPoint(x, y)) return false;
+
+        if (this.hitPolygonInitial == null) return true;
+
+        if (this.hitPolygonDirty) this.transformHitPolygon();
+        return polygonzugEnthältPunkt(this.hitPolygonTransformed, { x: x, y: y }, this.borderWidth/2);
 
     }
 

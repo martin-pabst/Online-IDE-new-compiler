@@ -9,6 +9,8 @@ import { StringClass } from '../system/javalang/ObjectClassStringClass';
 import { FilledShapeClass } from './FilledShapeClass';
 import { ShapeClass } from './ShapeClass';
 import { JRC } from '../../language/JavaRuntimeLibraryComments.ts';
+import { ColorClass } from './ColorClass.ts';
+import { ColorConverter } from './ColorConverter.ts';
 
 export type LineElement = {
     x: number,
@@ -33,7 +35,8 @@ export class TurtleClass extends FilledShapeClass {
         { type: "method", signature: "final void showTurtle(boolean showTurtle)", native: TurtleClass.prototype._setShowTurtle, comment: JRC.TurtleShowTurtleComment },
         { type: "method", signature: "final void clear()", native: TurtleClass.prototype._clear, comment: JRC.TurtleClearComment },
         { type: "method", signature: "final boolean collidesWithBorderColor(int borderColor)", native: TurtleClass.prototype._collidesWithBorderColor, comment: JRC.TurtleCollidesWithBorderColorComment },
-        { type: "method", signature: "final boolean collidesWithBorderColor(String borderColor)", native: TurtleClass.prototype._collidesWithBorderColor, comment: JRC.TurtleCollidesWithBorderColorComment },
+        { type: "method", signature: "final boolean collidesWithBorderColor(string borderColor)", native: TurtleClass.prototype._collidesWithBorderColor, comment: JRC.TurtleCollidesWithBorderColorComment },
+        { type: "method", signature: "final boolean collidesWithBorderColor(Color borderColor)", native: TurtleClass.prototype._collidesWithBorderColor, comment: JRC.TurtleCollidesWithBorderColorComment },
         { type: "method", signature: "final double getLastSegmentLength()", native: TurtleClass.prototype._getLastSegmentLength, comment: JRC.TurtleGetLastSegmentLengthComment },
         { type: "method", signature: "final double getX()", template: `§1.getPosition().x`, comment: JRC.TurtleGetXComment },
         { type: "method", signature: "final double getY()", template: `§1.getPosition().y`, comment: JRC.TurtleGetYComment },
@@ -457,10 +460,12 @@ export class TurtleClass extends FilledShapeClass {
     }
 
 
-    _collidesWithBorderColor(borderColor: number): boolean {
+    _collidesWithBorderColor(borderColor: number|ColorClass|string): boolean {
         let lastLineElement = this.lineElements[this.lineElements.length - 1];
         let x = lastLineElement.x;
         let y = lastLineElement.y;
+
+        borderColor = ColorConverter.convertToInt(borderColor);
 
         for (let sh of this.world.shapesWhichBelongToNoGroup) {
             if (sh == this) {

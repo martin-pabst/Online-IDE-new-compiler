@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import { Punkt, polygonBerührtPolygonExakt, polygonEnthältPunkt } from '../../../../tools/MatheTools';
+import { Punkt, polygonBerührtPolygonExakt, polygonEnthältPunkt, polygonzugEnthältPunkt } from '../../../../tools/MatheTools';
 import { CallbackParameter } from '../../../common/interpreter/CallbackParameter';
 import { Thread } from "../../../common/interpreter/Thread";
 import { JRC } from '../../language/JavaRuntimeLibraryComments';
