@@ -445,7 +445,7 @@ export abstract class TermParser extends TokenIterator {
                 let range: IRange = this.cct.range;
                 let identifier = this.expectAndSkipIdentifierAsString();
 
-                if(this.comesToken(TokenType.ellipsis, false)) replaceStringByPrimitiveString = true;
+                if (this.comesToken(TokenType.ellipsis, false)) replaceStringByPrimitiveString = true;
 
                 if (replaceStringByPrimitiveString && identifier == "String") {
                     identifier = "string";
@@ -474,7 +474,7 @@ export abstract class TermParser extends TokenIterator {
                         if (actualTypeArgument) (<ASTGenericTypeInstantiationNode>type).actualTypeArguments.push(actualTypeArgument);
                     } while (this.comesToken(TokenType.comma, true))
 
-                        if (this.comesToken(TokenType.shiftRight, false)) {
+                    if (this.comesToken(TokenType.shiftRight, false)) {
                         this.exchangeShiftRightForTwoClosingGreater();
                     }
 
@@ -490,6 +490,7 @@ export abstract class TermParser extends TokenIterator {
                 }
 
                 returnedType = type;
+                break;
         }
 
         if (returnedType) {
@@ -554,11 +555,11 @@ export abstract class TermParser extends TokenIterator {
         let dimension: number = 0;
         if (this.comesToken(TokenType.leftSquareBracket, false)) {
             do {
-                if(this.comesToken(TokenType.leftRightSquareBracket, false)){
-                    if(dimension == 0){
+                if (this.comesToken(TokenType.leftRightSquareBracket, false)) {
+                    if (dimension == 0) {
                         this.pushError(JCM.firstArrayDimensionMustNotBeZero(), "error");
                     } else {
-                        newArrayNode.dimensions.push(this.nodeFactory.buildConstantNode({tt: TokenType.integerLiteral, value: 0, range: this.cct.range}));
+                        newArrayNode.dimensions.push(this.nodeFactory.buildConstantNode({ tt: TokenType.integerLiteral, value: 0, range: this.cct.range }));
                     }
                     this.nextToken();
                 } else {

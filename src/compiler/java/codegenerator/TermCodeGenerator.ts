@@ -1400,7 +1400,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             return { best: undefined, possible: [] };
         }
 
-        possibleMethods = possibleMethods.filter(m => m.parameters.length >= parameterTypes.length);
+        possibleMethods = possibleMethods.filter(m => m.parameters.length >= parameterTypes.length || m.parameters.length > 0 && m.parameters[m.parameters.length - 1]?.isEllipsis);
 
         if (takingVisibilityIntoAccount) {
             possibleMethods = possibleMethods.filter(m => {

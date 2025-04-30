@@ -312,6 +312,14 @@ export class Parser extends StatementParser {
         } else {
             let genericParameters = this.parseGenericParameterDefinition();
 
+            // Method declaration without type?
+            if (this.lookahead(1).tt == TokenType.leftBracket) {
+                let identifier = this.cct.value + "";
+                this.pushError(JCM.methodDeclarationWithoutReturnType(identifier));
+                this.parseMethodDeclaration(classASTNode, modifiers, false, this.nodeFactory.buildVoidTypeNode(this.cct.range), [], documentation);
+                return;
+            }
+
             let type = this.parseType(false);
 
             if (this.lookahead(1).tt == TokenType.leftBracket) {
@@ -581,7 +589,11 @@ export class Parser extends StatementParser {
     parseImplements(node: ASTInterfaceDefinitionNode | ASTClassDefinitionNode) {
         do {
             let type = this.parseType(false);
-            if (type) node.implements.push(type);
+            if (type){
+                node.implements.push(type);
+            } else {
+                this.pushError(JCM.typeExpected(this.cct.value + ""));
+            }
         } while (this.comesToken(TokenType.comma, true));
     }
 
@@ -590,7 +602,11 @@ export class Parser extends StatementParser {
         this.nextToken(); // skip "extends"
 
         let type = this.parseType(false);
-        if (type) node.extends = type;
+        if (type){
+            node.extends = type;
+        } else {
+            this.pushError(JCM.typeExpected(this.cct.value + ""));
+        }
     }
 
     parseGenericParameterDefinition(): ASTGenericParameterDeclarationNode[] {

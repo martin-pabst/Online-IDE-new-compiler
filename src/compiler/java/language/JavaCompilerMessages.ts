@@ -519,6 +519,11 @@ export class JCM {
         "en": `Field definition mustn't start with generic parameter definition.`,
     })
 
+    static methodDeclarationWithoutReturnType = (identifier: string) => le({
+        "de": `Bei der Deklaration der methode ${identifier} fehlt der Rückgabedatentyp. Falls die Methode keinen Wert zurückgibt, muss vor dem Bezeichner ${identifier} der Typ void stehen.`,
+        "en": `Declaration of method ${identifier} is missing a return type. If this method doesn't return a value then precede ${identifier} with type void.`,
+    })
+
     static multipleVisibilityModifiers = (modifiers: string) => le({
         "de": `Es ist nicht zulässig, mehrere visibility-modifiers gleichzeitig zu setzen (hier: ${modifiers}).`,
         "en": `More than one visibility modifier found: ${modifiers}`,
@@ -595,6 +600,11 @@ export class JCM {
     static semicolonExpected = (found: string) => le({
         "de": `Erwartet wird ein Strichpunkt (Semicolon). Gefunden wurde: ${found}`,
         "en": `Semicolon (;) expected. Found: ${found}`,
+    })
+
+    static typeExpected = (found: string) => le({
+        "de": `Erwartet wird ein Datentyp. Gefunden wurde: ${found}`,
+        "en": `Data type expected. Found: ${found}`,
     })
 
     static identifierExpected = (found: string) => le({
