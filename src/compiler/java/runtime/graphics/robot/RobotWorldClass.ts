@@ -72,15 +72,15 @@ export class RobotWorldClass extends ObjectClass {
             } else {
                 this.maxX = worldX;
                 this.maxY = worldY!;
-
+                
                 this.initGraphics();
+                this.initWorldArrays(this.maxX, this.maxY);
             }
 
             this.world3d.orbitControls.dispose();
             this.world3d.currentCamera.camera3d.position.set(this.maxX, Math.max(this.maxX, this.maxY), this.maxY);
             this.world3d.orbitControls = new OrbitControls(this.world3d.currentCamera.camera3d, this.world3d.renderer.domElement);
 
-            this.initWorldArrays(this.maxX, this.maxY);
 
             if (callback) callback();
 

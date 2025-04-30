@@ -739,7 +739,7 @@ export class Lexer {
                 break;
             } else
                 if (char == "\r" || char == "\n") {
-                    this.next();
+                    if(char == "\r") this.next();
                     if (this.currentChar == "\n") this.next();
                     char = this.currentChar;
                     StringLines.push(currentStringLine);
