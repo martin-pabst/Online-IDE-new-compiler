@@ -240,11 +240,11 @@ export class Workspace extends CompilerWorkspace {
         return undefined;
     }
 
-    ensureModuleIsCompiled(module: Module): void {
+    async ensureModuleIsCompiled(module: Module) {
         if (module.isReplModule()) {
             this.main.getRepl().compile(module.file.getText(), false);
         } else {
-            this.main.getCompiler().updateSingleModuleForCodeCompletion(module);
+            await this.main.getCompiler().updateSingleModuleForCodeCompletion(module);
         }
     }
 

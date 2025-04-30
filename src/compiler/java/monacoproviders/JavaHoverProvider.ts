@@ -14,6 +14,8 @@ import { JavaMethod } from "../types/JavaMethod.ts";
 import { JavaParameter } from "../types/JavaParameter.ts";
 import { NonPrimitiveType } from "../types/NonPrimitiveType.ts";
 import * as monaco from 'monaco-editor'
+import { JavaSignatureHelpProvider } from "./JavaSignatureHelpProvider.ts";
+import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
 
 
 export class JavaHoverProvider extends BaseMonacoProvider {
@@ -211,6 +213,23 @@ export class JavaHoverProvider extends BaseMonacoProvider {
         let contents = [];
 
         if (value == null && declarationAsString.length == 0) {
+
+            let signatureHelp = JavaSignatureHelpProvider.provideSignatureHelpLater(<JavaCompiledModule>module, model, position, null, null);
+
+            if(signatureHelp?.value){
+                let sh = signatureHelp.value;
+                let signature = sh.signatures[sh.activeSignature];
+                let label = signature.parameters[sh.activeParameter]?.label
+                if(!label) return null;
+                if(Array.isArray(label)){
+                    label = signature.label.substring(label[0], label[1]);
+                }
+                return {
+                    range: undefined,
+                    contents: [{value: "```\n" + "Parameter: " + label + "\n```  \n"}]
+                }
+            }
+
             return null;
         }
 

@@ -182,7 +182,7 @@ export class JavaCompiler implements Compiler {
      * If user presses . or <ctrl> + <space> then we assume that only
      * currently edited file is dirty, therefore it suffices to compile only this module.
      */
-    updateSingleModuleForCodeCompletion(module: JavaCompiledModule): "success" | "completeCompilingNecessary" {
+    async updateSingleModuleForCodeCompletion(module: JavaCompiledModule): Promise<"success" | "completeCompilingNecessary"> {
         if (!module) return "completeCompilingNecessary";
 
         if (!module.isDirty()) return "success";
@@ -213,7 +213,7 @@ export class JavaCompiler implements Compiler {
 
         const codegenerator = new CodeGenerator(module, this.libraryModuleManager.typestore,
             this.moduleManager.typestore, exceptionTree, this.#progressManager);
-        codegenerator.start();
+        await codegenerator.start();
 
         /**
          * The compilation run we did is not sufficient to produce a up to date executable,

@@ -9,7 +9,7 @@ export type CompilerEvents = "typesReadyForCodeCompletion" | "compilationFinishe
 
 export interface Compiler {
     setFiles(files: CompilerFile[]): void;
-    updateSingleModuleForCodeCompletion(module: Module): "success" | "completeCompilingNecessary";
+    updateSingleModuleForCodeCompletion(module: Module): Promise<"success" | "completeCompilingNecessary">;
     findModuleByFile(file: CompilerFile): Module | undefined;
     getAllModules(): Module[];
     setFileDirty(file: CompilerFile): void;

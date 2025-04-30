@@ -1,4 +1,3 @@
-import { IMain } from "../../common/IMain.ts";
 import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import { JavaLanguage } from "../JavaLanguage.ts";
 import { JavaCompiledModule, JavaMethodCallPosition } from "../module/JavaCompiledModule.ts";
@@ -15,7 +14,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
     }
 
     signatureHelpTriggerCharacters?: readonly string[] = ['(', ',', ';', '<', '>', '=']; // semicolon, <, >, = for for-loop, if, while, ...
-    signatureHelpRetriggerCharacters?: readonly string[] = [];
+    signatureHelpRetriggerCharacters?: readonly string[] = [' '];
 
     provideSignatureHelp(model: monaco.editor.ITextModel, position: monaco.Position, token: monaco.CancellationToken, context: monaco.languages.SignatureHelpContext):
         monaco.languages.ProviderResult<monaco.languages.SignatureHelpResult> {
@@ -40,26 +39,21 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
         if (!module) return;
 
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
 
-            setTimeout(() => {
+                await main.getCurrentWorkspace()?.ensureModuleIsCompiled(module);
 
-                main.getCurrentWorkspace()?.ensureModuleIsCompiled(module);
-
-                resolve(that.provideSignatureHelpLater(module, model, position, token, context));
-
-            }, 300);
-
+                resolve(JavaSignatureHelpProvider.provideSignatureHelpLater(module, model, position, token, context));
 
         });
 
     }
 
-    provideSignatureHelpLater(module: JavaCompiledModule, model: monaco.editor.ITextModel,
+    static provideSignatureHelpLater(module: JavaCompiledModule, model: monaco.editor.ITextModel,
         position: monaco.Position,
         token: monaco.CancellationToken,
         context: monaco.languages.SignatureHelpContext):
-        monaco.languages.ProviderResult<monaco.languages.SignatureHelpResult> {
+        monaco.languages.SignatureHelpResult {
 
         let methodCallPositions = module.methodCallPositions[position.lineNumber];
 
@@ -83,12 +77,12 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
 
         if (methodCallPosition == null) return null;
 
-        return this.getSignatureHelp(methodCallPosition, position);
+        return JavaSignatureHelpProvider.getSignatureHelp(methodCallPosition, position);
 
     }
 
-    getSignatureHelp(methodCallPosition: JavaMethodCallPosition,
-        position: monaco.Position): monaco.languages.ProviderResult<monaco.languages.SignatureHelpResult> {
+    static getSignatureHelp(methodCallPosition: JavaMethodCallPosition,
+        position: monaco.Position): monaco.languages.SignatureHelpResult {
 
         let parameterIndex: number = 0;
 
@@ -103,14 +97,14 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
         let activeSignature: number = 0;
 
         if ((typeof methodCallPosition.possibleMethods) == "string") {
-            signatureInformationList = signatureInformationList.concat(this.makeIntrinsicSignatureInformation(<string>(methodCallPosition.possibleMethods), parameterIndex));
+            signatureInformationList = signatureInformationList.concat(JavaSignatureHelpProvider.makeIntrinsicSignatureInformation(<string>(methodCallPosition.possibleMethods), parameterIndex));
         } else {
             let i = 0;
             for (let method of methodCallPosition.possibleMethods) {
                 let m = <JavaMethod>method;
                 if (parameterIndex == 0 || m.parameters.length > parameterIndex) {
 
-                    signatureInformationList.push(this.makeSignatureInformation(m));
+                    signatureInformationList.push(JavaSignatureHelpProvider.makeSignatureInformation(m));
                     if (m == methodCallPosition.bestMethod) {
                         activeSignature = i;
                     }
@@ -119,17 +113,17 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
             }
         }
 
-        return Promise.resolve({
+        return {
             value: {
                 activeParameter: parameterIndex,
                 activeSignature: activeSignature,
                 signatures: signatureInformationList
             },
             dispose: () => { }
-        });
+        };
     }
 
-    makeIntrinsicSignatureInformation(method: string, parameterIndex: number): monaco.languages.SignatureInformation[] {
+    static makeIntrinsicSignatureInformation(method: string, parameterIndex: number): monaco.languages.SignatureInformation[] {
 
         switch (method) {
             case "while":
@@ -232,7 +226,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
     }
 
 
-    makeSignatureInformation(method: JavaMethod): monaco.languages.SignatureInformation {
+    static makeSignatureInformation(method: JavaMethod): monaco.languages.SignatureInformation {
 
         let label: string = "";
 
