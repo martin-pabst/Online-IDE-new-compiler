@@ -98,8 +98,8 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
 
         let activeSignature: number = 0;
 
-        if ((typeof methodCallPosition.possibleMethods) == "string") {
-            let keywordInfo: monaco.languages.SignatureInformation[] = JavaSignatureHelpProvider.makeIntrinsicSignatureInformation(methodCallPosition.possibleMethods, parameterIndex);
+        if (typeof methodCallPosition.possibleMethods == "string") {
+            let keywordInfo: monaco.languages.SignatureInformation[] = JavaSignatureHelpProvider.makeIntrinsicSignatureInformation(<string>methodCallPosition.possibleMethods, parameterIndex);
             for(let kwi of keywordInfo) {
                 if(!kwi.label.startsWith("print")) kwi[JavaSignatureHelpProvider.ISINTRINSIC] = true;
             }
