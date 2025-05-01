@@ -8,6 +8,8 @@ import * as monaco from 'monaco-editor'
 
 export class JavaSignatureHelpProvider extends BaseMonacoProvider implements monaco.languages.SignatureHelpProvider {
 
+    public static ISINTRINSIC: string = "isIntrinsic";
+
     constructor(language: JavaLanguage) {
         super(language);
         monaco.languages.registerSignatureHelpProvider(language.monacoLanguageSelector, this);
@@ -97,7 +99,11 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
         let activeSignature: number = 0;
 
         if ((typeof methodCallPosition.possibleMethods) == "string") {
-            signatureInformationList = signatureInformationList.concat(JavaSignatureHelpProvider.makeIntrinsicSignatureInformation(<string>(methodCallPosition.possibleMethods), parameterIndex));
+            let keywordInfo: monaco.languages.SignatureInformation[] = JavaSignatureHelpProvider.makeIntrinsicSignatureInformation(methodCallPosition.possibleMethods, parameterIndex);
+            for(let kwi of keywordInfo) {
+                if(!kwi.label.startsWith("print")) kwi[JavaSignatureHelpProvider.ISINTRINSIC] = true;
+            }
+            signatureInformationList = signatureInformationList.concat(keywordInfo);
         } else {
             let i = 0;
             for (let method of methodCallPosition.possibleMethods) {
@@ -132,7 +138,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
                         label: "while(Bedingung){ Anweisungen }",
                         documentation: "Wiederholung mit Anfangsbedingung (while-loop)",
                         parameters: [
-                            { label: "Bedingung", documentation: "Die Bedingung wird vor jeder Wiederholung ausgewertet. Ist sie erfüllt ist (d.h. hat sie den Wert true), so werden die Anweisungen in {} erneut ausgeführt, ansonsten wird mit der nächsten Anweisung nach { } fortgefahren." },
+                            { label: "Bedingung der while-loop", documentation: "Die Bedingung wird vor jeder Wiederholung ausgewertet. Ist sie erfüllt ist (d.h. hat sie den Wert true), so werden die Anweisungen in {} erneut ausgeführt, ansonsten wird mit der nächsten Anweisung nach { } fortgefahren." },
                         ]
                     }];
             case "if":
@@ -141,7 +147,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
                         label: "if(Bedingung){ Anweisungen1 } else { Anweisungen2 }",
                         documentation: "Bedingung (else... ist optional)",
                         parameters: [
-                            { label: "Bedingung", documentation: "Ist die Bedingung erfüllt (d.h. hat sie den Wert true), so werden die Anweisungen1 ausgeführt. Trifft die Bedingung nicht zu (d.h. hat sie den Wert false), so werden die Anweisungen2 ausgeführt." },
+                            { label: "Bedingung im if-statement", documentation: "Ist die Bedingung erfüllt (d.h. hat sie den Wert true), so werden die Anweisungen1 ausgeführt. Trifft die Bedingung nicht zu (d.h. hat sie den Wert false), so werden die Anweisungen2 ausgeführt." },
                         ]
                     }];
             case "switch":
@@ -150,7 +156,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
                         label: "switch(Selektor){case Wert_1: Anweisungen1; break; case Wert_2 Anweisungen2; break; default: Defaultanweisungen; break;}",
                         documentation: "Bedingung (else... ist optional)",
                         parameters: [
-                            { label: "Selektor", documentation: "Der Wert des Selektor-Terms wird ausgewertet. Hat er den Wert Wert_1, so werden die Anweisungen1 ausgeführt. Hat er den Wert Wert_2, so werden die Anweisungen2 ausgeführt usw. Hat er keinen der bei case... aufgeführten Werte, so werden die Defaultanweisungen ausgeführt." },
+                            { label: "Selektor des switch-statements", documentation: "Der Wert des Selektor-Terms wird ausgewertet. Hat er den Wert Wert_1, so werden die Anweisungen1 ausgeführt. Hat er den Wert Wert_2, so werden die Anweisungen2 ausgeführt usw. Hat er keinen der bei case... aufgeführten Werte, so werden die Defaultanweisungen ausgeführt." },
                         ]
                     }];
             case "for":
@@ -159,9 +165,9 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
                         label: "for(Startanweisung; Bedingung; Anweisung am Ende jeder Wiederholung){ Anweisungen }",
                         documentation: "Wiederholung mit for (for-loop)",
                         parameters: [
-                            { label: "Startanweisung", documentation: "Diese Anweisung wird vor der ersten Wiederholung einmal ausgeführt." },
-                            { label: "Bedingung", documentation: "Die Bedingung wird vor jeder Wiederholung ausgewertet. Ist sie erfüllt ist (d.h. hat sie den Wert true), so werden die Anweisungen in {} erneut ausgeführt, ansonsten wird mit der nächsten Anweisung nach { } fortgefahren." },
-                            { label: "Anweisung am Ende jeder Wiederholung", documentation: "Diese Anweisung wird stets am Ende jeder Wiederholung ausgeführt." },
+                            { label: [4, 18], documentation: "Startanweisung der for-loop: Anweisung wird vor der ersten Wiederholung einmal ausgeführt." },
+                            { label: [20, 29], documentation: "Die Bedingung der for-loop wird vor jeder Wiederholung ausgewertet. Ist sie erfüllt ist (d.h. hat sie den Wert true), so werden die Anweisungen in {} erneut ausgeführt, ansonsten wird mit der nächsten Anweisung nach { } fortgefahren." },
+                            { label: [31, 67], documentation: "Diese Anweisung wird stets am Ende jeder Wiederholung der for-loop ausgeführt." },
                         ]
                     }];
             case "print":

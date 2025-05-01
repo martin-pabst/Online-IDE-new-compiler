@@ -102,32 +102,14 @@ export class JavaHoverProvider extends BaseMonacoProvider {
     provideHover(model: monaco.editor.ITextModel, position: monaco.Position, token: monaco.CancellationToken):
         monaco.languages.ProviderResult<monaco.languages.Hover> {
 
-            let main = this.findMainForModel(model);
-            if (!main) return;
-            let module = main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
-            if (!module) return;
-    
-        // let selection: monaco.Selection | null = editor.getSelection();
+        let main = this.findMainForModel(model);
+        if (!main) return;
+        let module = main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
+        if (!module) return;
 
-        // if (selection != null) {
-        //     return;
+        let contents: monaco.IMarkdownString[] = [];
+        let range: monaco.IRange | undefined = undefined;
 
-        //     if (selection.startLineNumber != selection.endLineNumber || selection.startColumn != selection.endColumn) {
-        //         if (
-        //             (selection.startLineNumber < position.lineNumber || selection.startLineNumber == position.lineNumber && selection.startColumn <= position.column) &&
-        //             (selection.endLineNumber > position.lineNumber || selection.endLineNumber == position.lineNumber && selection.endColumn >= position.column)
-        //         ) {
-        //             if (this.main.getInterpreter().scheduler.state != SchedulerState.paused) return;
-        //             let text = model.getValueInRange(selection);
-        //             let replReturnValue = this.main.getRepl().executeSynchronously(text);
-
-        //             return {
-        //                 range: selection,
-        //                 contents: [{ value: this.replReturnValueToOutput(replReturnValue, text) }],
-        //             };
-        //         }
-        //     }
-        // }
 
         for (let error of module.errors) {
             if (error.level == "error" && Range.containsPosition(error.range, position)) {
@@ -138,49 +120,43 @@ export class JavaHoverProvider extends BaseMonacoProvider {
         let usagePosition = module.findSymbolAtPosition(position);
         let symbol = usagePosition?.symbol;
 
-        let declarationAsString = "";
 
         if (usagePosition && symbol && symbol.identifier != "var") {
             if (symbol instanceof NonPrimitiveType || symbol instanceof JavaMethod) {
-                declarationAsString = "```\n" + symbol.getDeclaration() + "\n```";
+                let declarationAsString1 = "```\n" + symbol.getDeclaration() + "\n```";
                 if (symbol.documentation) {
-                    declarationAsString += "\n" + this.formatDocumentation(symbol.getDocumentation());
+                    declarationAsString1 += "\n" + this.formatDocumentation(symbol.getDocumentation());
                 }
-                return {
-                    range: usagePosition.range,
-                    contents: [{ value: declarationAsString }],
-                }
+                range = usagePosition.range;
+                contents.push({ value: declarationAsString1 });
             } else if (symbol instanceof PrimitiveType) {
-                declarationAsString = "```\n" + symbol.identifier + "\n```  \nprimitiver Datentyp";
+                let declarationAsString2 = "```\n" + symbol.identifier + "\n```  \nprimitiver Datentyp";
                 if (symbol.documentation) {
-                    declarationAsString += "\n" + this.formatDocumentation(symbol.getDocumentation());
+                    declarationAsString2 += "\n" + this.formatDocumentation(symbol.getDocumentation());
                 }
-                return {
-                    range: usagePosition.range,
-                    contents: [{ value: declarationAsString }],
-                }
+                range = usagePosition.range;
+                contents.push({ value: declarationAsString2 });
+
             } else if (symbol instanceof JavaLocalVariable || symbol instanceof JavaField || symbol instanceof JavaParameter) {
                 // Variable
 
-                declarationAsString = symbol.getDeclaration();
+                let declarationAsString3 = "```\n" + symbol.getDeclaration() + "\n```"
                 if (symbol.documentation) {
-                    declarationAsString += "\n" + this.formatDocumentation(symbol.getDocumentation());
+                    declarationAsString3 += "\n" + this.formatDocumentation(symbol.getDocumentation());
                 }
+                range = usagePosition.range;
+                contents.push({ value: declarationAsString3 });
+
             }
         } else {
             let word = this.getWordUnderCursor(model, position);
             let desc = JavaHoverProvider.keywordDescriptions[word];
             if (desc != null) {
-                return {
-                    range: undefined,
-                    contents: [{ value: desc }],
-                }
+                contents.push({ value: desc })
             }
         }
 
         let state = main.getInterpreter().scheduler.state;
-
-        let value: string | undefined;
 
         if (state == SchedulerState.paused) {
 
@@ -202,50 +178,37 @@ export class JavaHoverProvider extends BaseMonacoProvider {
             //     // let type = (<RuntimeObject>resultObject).getType();
             //     declarationAsString = typeIdentifier + " " + identifier + ": " + ValueRenderer.renderValue(resultObject, 12);
             // } else
-
-            declarationAsString = this.replReturnValueToOutput(replReturnValue, identifier);
-            return {
-                range: undefined,
-                contents: [{ value: declarationAsString }]
+            if (replReturnValue != null) {
+                contents.push({ value: '```\n' + this.replReturnValueToOutput(replReturnValue, identifier) + '\n```' });
             }
         }
 
-        let contents = [];
 
-        if (value == null && declarationAsString.length == 0) {
+        if (contents.length < 2) {
 
             let signatureHelp = JavaSignatureHelpProvider.provideSignatureHelpLater(<JavaCompiledModule>module, model, position, null, null);
 
-            if(signatureHelp?.value){
+            if (signatureHelp?.value) {
                 let sh = signatureHelp.value;
                 let signature = sh.signatures[sh.activeSignature];
                 let label = signature.parameters[sh.activeParameter]?.label
-                if(!label) return null;
-                if(Array.isArray(label)){
+                let documentation = <string>signature.parameters[sh.activeParameter]?.documentation
+                if (!label) return null;
+                if (Array.isArray(label)) {
                     label = signature.label.substring(label[0], label[1]);
                 }
-                return {
-                    range: undefined,
-                    contents: [{value: "```\n" + "Parameter: " + label + "\n```  \n"}]
+                if(signature[JavaSignatureHelpProvider.ISINTRINSIC]){
+                    contents.push({ value: documentation || label });
+                } else {
+                    contents.push({ value: "```\n" + label + "\n```" });
                 }
             }
 
-            return null;
         }
 
-        if (value != null) {
-            // if (value.length + declarationAsString.length > 40) {
-            //     contents.push({ value: '```\n' + declarationAsString + ' ==\n```' });
-            //     contents.push({ value: '```\n' + value.replace(/&nbsp;/g, " ") + '\n```' });
-            // } else {
-            //     contents.push({ value: '```\n' + declarationAsString + " == " + value.replace(/&nbsp;/g, " ") + '\n```' });
-            // }
-        } else {
-            contents.push({ value: '```\n' + declarationAsString + '\n```' });
-        }
 
         return {
-            range: undefined,
+            range: range,
             contents: contents,
         }
 
