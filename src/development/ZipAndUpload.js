@@ -17,7 +17,7 @@ while(minute.length < 2) minute = "0" + minute;
 let seconds = "" + d.getSeconds();
 while(seconds.length < 2) seconds = "0" + seconds;
 
-const date = d.getDate() + "." + d.getMonth() + "." + d.getFullYear + ",_" + hour + "_" + minute + "_" + seconds;
+const date = d.getDate() + "." + d.getMonth() + "." + d.getFullYear() + ",_" + hour + "_" + minute + "_" + seconds;
 
 const zipDirectory = async (sourceDir, outputFilePath) => {
     const zip = new AdmZip();
@@ -48,7 +48,6 @@ await ssh.execCommand('unzip ./dist.zip', {cwd: '/var/www/online-ide/htdocs-new'
 
 console.log(chalk.blue('tidying up...'));
 await ssh.execCommand('rm dist.zip', {cwd: '/var/www/online-ide/htdocs-new'});
-
 await ssh.execCommand('mv htdocs /home/martin/backup/program_files/online-ide/htdocs-old_' + date, {cwd: '/var/www/online-ide'});
 await ssh.execCommand('mv ./htdocs-new htdocs', {cwd: '/var/www/online-ide'});
 

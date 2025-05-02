@@ -87,7 +87,7 @@ export class RobotClass extends ObjectClass {
 
     direction: RobotDirection = new RobotDirection(this);
     hatSteine: number = 1e7;
-    maxSteine: number = 1e7;
+    maxSteine: number = 1e10;
 
 
     constructor() {
