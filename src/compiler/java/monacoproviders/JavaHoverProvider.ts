@@ -200,7 +200,7 @@ export class JavaHoverProvider extends BaseMonacoProvider {
                 if(signature[JavaSignatureHelpProvider.ISINTRINSIC]){
                     contents.push({ value: documentation || label });
                 } else {
-                    contents.push({ value: "```\n" + label + "\n```" });
+                    contents.push({ value: "```\nParameter " + label + "\n```" });
                 }
             }
 

@@ -377,9 +377,18 @@ export class Parser extends StatementParser {
             methodNode.statement = statement;
         } else {
             if (!methodNode.isAbstract && parentNode.kind != TokenType.keywordInterface) {
+                if(this.comesToken(TokenType.semicolon, false)){
+                    this.pushError(JCM.noSemicolonAsMethodBody());
+                }
                 methodNode.statement = this.nodeFactory.buildBlockNode(this.cct);
+                this.expectSemicolon(true, true);
+            } else {
+                if(parentNode.kind == TokenType.keywordClass && !parentNode.isAbstract){
+                    this.setEndOfRange(methodNode);
+                    this.pushError(JCM.abstractMethodOnlyInAbstractClass(), "error", methodNode.range);
+                }
+                this.expectSemicolon(true, true);
             }
-            this.expectSemicolon(true, true);
         }
 
         this.currentMethod = undefined;

@@ -529,6 +529,18 @@ export class JCM {
         "en": `More than one visibility modifier found: ${modifiers}`,
     })
 
+    static noSemicolonAsMethodBody = () => le({
+        "de": `Diese Methode ist nicht abstrakt, daher ist ein Strichpunkt hier nicht zulässig.`,
+        "en": `This method is not abstract, therefore no semicolon is expected here.`,
+    })
+
+    static abstractMethodOnlyInAbstractClass = () => le({
+        "de": `Eine abstrakte Methode ist nur in einer abstrakten Klasse zulässig.`,
+        "en": `You can't have abstract methods in non-abstract classes.`,
+    })
+
+    
+
     /**
      * class StatementParser
      */

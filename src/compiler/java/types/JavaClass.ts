@@ -230,7 +230,7 @@ export class JavaClass extends IJavaClass {
 
         while (klass) {
             for (let m of klass.getOwnMethods()) {
-                if (m.isAbstract) {
+                if (m.isAbstract && klass != this) {
                     abstractMethods.push(m);
                 } else {
                     let signature = m.getSignatureWithoutReturnParameter();
