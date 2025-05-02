@@ -12,7 +12,8 @@
     "preview": "npm run build && vite preview --port 3000 --host",
     "preview-embedded": "npm run build-embedded && vite preview --port 3000 --host --config vite.config-embedded.js",
     "build_tools": "tsc --project tsconfig_development-tools.json",
-    "test": "vitest --config vitest.config.ts"
+    "test": "vitest --config vitest.config.ts",
+    "deploy": "node src/development/ZipAndUpload.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
@@ -25,10 +26,12 @@
     "@types/sql.js": "^1.4.9",
     "@types/three": "^0.167.2",
     "@types/upng-js": "^2.1.5",
+    "adm-zip": "^0.5.16",
     "eslint": "^9.14.0",
     "globals": "^15.12.0",
     "jimp": "^0.22.12",
     "jsdom": "^25.0.1",
+    "node-ssh": "^13.2.1",
     "postcss-prefix-selector": "^2.1.0",
     "spritesmith": "^3.4.1",
     "typescript": "^5.5.4",
