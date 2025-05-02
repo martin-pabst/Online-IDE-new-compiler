@@ -318,7 +318,7 @@ export class RobotClass extends ObjectClass {
     }
 
     _istMarke(param: string | null): boolean {
-        let marke = this.robotWorld.markers[this.x][this.y];
+        let marke = this.robotWorld.markers[this.x-1][this.y-1];
         if (param == null) return marke != null;
 
         if (typeof param == "string") {
