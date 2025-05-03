@@ -316,7 +316,11 @@ export class Parser extends StatementParser {
             if (this.lookahead(1).tt == TokenType.leftBracket) {
                 let identifier = this.cct.value + "";
                 this.pushError(JCM.methodDeclarationWithoutReturnType(identifier));
-                this.parseMethodDeclaration(classASTNode, modifiers, false, this.nodeFactory.buildVoidTypeNode(this.cct.range), [], documentation);
+                if(this.comesToken(TokenType.identifier, false)){
+                    this.parseMethodDeclaration(classASTNode, modifiers, false, this.nodeFactory.buildVoidTypeNode(this.cct.range), [], documentation);
+                } else {
+                    this.nextToken();
+                }
                 return;
             }
 
