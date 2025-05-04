@@ -42,8 +42,8 @@ export class GNGTurtle extends ObjectClass implements IGNGEventListener {
         { type: "method", signature: "void NachHintenBringen()", native: GNGTurtle.prototype._nachHintenBringen, comment: "Setzt das Grafikobjekt eine Ebene nach hinten." },
 
         { type: "method", signature: "boolean Berührt()", template: `§1.turtle.touchesAtLeastOneFigure()`, comment: "Gibt genau dann true zurück, wenn sich an der aktuellen Position der Turtle mindestens eine andere Figur befindet." },
-        { type: "method", signature: "boolean Berührt(String farbe)", template: `§1.touchesShape()`, comment: "Gibt genau dann true zurück, wenn sich an der aktuellen Position der Turtle mindestens eine andere Figur mit der angegebenen Farbe befindet." },
-        { type: "method", signature: "boolean Berührt(Object object)", template: `§1.touchesColor()`, comment: "Gibt genau dann true zurück, wenn die übergebene Figur die aktuelle Turtleposition enthält." },
+        { type: "method", signature: "boolean Berührt(Object object)", native: GNGTurtle.prototype._touchesShape, comment: "Gibt genau dann true zurück, wenn sich an der aktuellen Position der Turtle mindestens eine andere Figur mit der angegebenen Farbe befindet." },
+        { type: "method", signature: "boolean Berührt(string farbe)", native: GNGTurtle.prototype._touchesColor, comment: "Gibt genau dann true zurück, wenn die übergebene Figur die aktuelle Turtleposition enthält." },
 
         { type: "method", signature: "void AktionAusführen()", java: GNGTurtle.prototype._mj$AktionAusführen$void$, comment: "Diese Methode wird vom Taktgeber aufgerufen." },
         { type: "method", signature: "void TasteGedrückt(char taste)", java: GNGTurtle.prototype._mj$TasteGedrückt$void$char, comment: "Wird aufgerufen, wenn eine Taste gedrückt wird." },
@@ -135,7 +135,7 @@ export class GNGTurtle extends ObjectClass implements IGNGEventListener {
         this.turtle.bringOnePlaneFurtherToBack();
     }
 
-    touchesShape(object: any) {
+    _touchesShape(object: any) {
         let lastLineElement = this.turtle.lineElements[this.turtle.lineElements.length - 1];
         let x = lastLineElement.x;
         let y = lastLineElement.y;
@@ -188,4 +188,8 @@ export class GNGTurtle extends ObjectClass implements IGNGEventListener {
         this.turtle.destroy();
     }
 
+    _touchesColor(color: string) {
+        let colorInt: number = GNGFarben[color];
+        return this.turtle.touchesColor(colorInt);
+    }
 }
