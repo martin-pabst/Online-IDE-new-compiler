@@ -5920,6 +5920,30 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "en": `Creates a new 3d sprite at given position with given texture.`,
     })
 
+    /**
+     * Class Color
+     */
+    static RedValueOutOfBoundsException = () => lm({
+        "de": `Der Rotwert muss sich zwischen 0 und 255 befinden.`,
+        "en": `Red component has to be from 0 to 255.`,
+    })
+
+    static GreenValueOutOfBoundsException = () => lm({
+        "de": `Der Grünwert muss sich zwischen 0 und 255 befinden.`,
+        "en": `Green component has to be from 0 to 255.`,
+    })
+
+    static BlueValueOutOfBoundsException = () => lm({
+        "de": `Der Blauwert muss sich zwischen 0 und 255 befinden.`,
+        "en": `Blue component has to be from 0 to 255.`,
+    })
+
+    static AlphaValueOutOfBoundsException = () => lm({
+        "de": `Der Alphawert ("Undurchsichtigkeit") muss sich zwischen 0 und 1 befinden.`,
+        "en": `Alpha component (opacity) has to be from 0 to 1.`,
+    })
+
+
 }
 
 

@@ -1,9 +1,11 @@
 import { CallbackFunction, Klass } from "../../../common/interpreter/StepFunction";
 import { Thread } from "../../../common/interpreter/Thread";
+import { JRC } from "../../language/JavaRuntimeLibraryComments.ts";
 import { ColorHelper } from "../../lexer/ColorHelper";
 import { LibraryDeclarations } from "../../module/libraries/DeclareType";
 import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../system/javalang/ObjectClassStringClass";
+import { RuntimeExceptionClass } from "../system/javalang/RuntimeException.ts";
 
 export class ColorClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -68,14 +70,21 @@ export class ColorClass extends ObjectClass {
         this.red = red;
         this.green = green;
         this.blue = blue;
+        if(red < 0 || red > 255) throw new RuntimeExceptionClass(JRC.RedValueOutOfBoundsException());
+        if(green < 0 || green > 255) throw new RuntimeExceptionClass(JRC.GreenValueOutOfBoundsException());
+        if(blue < 0 || blue > 255) throw new RuntimeExceptionClass(JRC.BlueValueOutOfBoundsException());
         return this;
     }
-
+    
     _constructorColorClass1(red: number, green: number, blue: number, alpha: number): ColorClass {
         this.red = red;
         this.green = green;
         this.blue = blue;
+        if(red < 0 || red > 255) throw new RuntimeExceptionClass(JRC.RedValueOutOfBoundsException());
+        if(green < 0 || green > 255) throw new RuntimeExceptionClass(JRC.GreenValueOutOfBoundsException());
+        if(blue < 0 || blue > 255) throw new RuntimeExceptionClass(JRC.BlueValueOutOfBoundsException());
         this.alpha = alpha;
+        if(alpha < 0 || alpha > 1) throw new RuntimeExceptionClass(JRC.AlphaValueOutOfBoundsException());
         return this;
     }
 
