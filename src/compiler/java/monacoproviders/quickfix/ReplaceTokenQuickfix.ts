@@ -4,9 +4,10 @@ import * as monaco from 'monaco-editor';
 
 export class ReplaceTokenQuickfix extends Quickfix {
 
-    constructor(private rangeToReplace: monaco.IRange, private replaceBy: string, message: string) {
+    constructor(private rangeToReplace: monaco.IRange, private replaceBy: string, message: string, markerSeverity: monaco.MarkerSeverity = monaco.MarkerSeverity.Error) {
         super(rangeToReplace);
         this.message = message;
+        this.severity = markerSeverity;
     }
 
     provideCodeAction(model: editor.ITextModel): monaco.languages.CodeAction | undefined {

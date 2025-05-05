@@ -444,12 +444,14 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         let conditionNode = node.condition;
         // if (!conditionNode) return undefined;
-
+        
+        
         let negationResult = this.negateConditionIfPossible(conditionNode);
-
+        
         conditionNode = negationResult?.newNode;
-
+        
         let condition = this.compileTerm(conditionNode);
+        this.printErrorifValueNotBoolean(condition?.type, node.condition);
         // if (!condition) condition = new StringCodeSnippet('true', node.range, this.booleanType);
 
         let labelBeforeCheckingCondition = new LabelCodeSnippet();
@@ -592,7 +594,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if (type.identifier != "boolean") {
             if(node.kind == TokenType.binaryOp && (<ASTBinaryNode>node).operator == TokenType.assignment){
                 this.pushError(JCM.assignmentInsteadOfComparisonOperator(), "error", (<ASTBinaryNode>node).operatorRange);
-                this.module.quickfixes.push(new ReplaceTokenQuickfix((<ASTBinaryNode>node).operatorRange, "==", JCM.ReplaceTokenQuicfixDefaultMessage("=", "==")))
+                this.module.quickfixes.push(new ReplaceTokenQuickfix((<ASTBinaryNode>node).operatorRange, "==", JCM.ReplaceTokenQuickfixDefaultMessage("=", "==")))
             } else {
                 this.pushError(JCM.booleanTermExpected(type.identifier), "error", node);
             }

@@ -7,7 +7,7 @@ import { TokenType } from "../TokenType.ts";
 import { JavaType } from "../types/JavaType.ts";
 import { ASTDoWhileNode, ASTForLoopNode, ASTIfNode, ASTLocalVariableDeclarations, ASTReturnNode, ASTEnhancedForLoopNode, ASTStatementNode, ASTSwitchCaseNode, ASTTermNode, ASTThrowNode, ASTTryCatchNode, ASTTypeNode, ASTWhileNode, ASTClassDefinitionNode, ASTEnumDefinitionNode, ASTInterfaceDefinitionNode, ASTNodeWithModifiers, ASTSynchronizedBlockNode, ASTFieldDeclarationNode, ASTBinaryNode, ASTInitialFieldAssignmentInMainProgramNodes } from "./AST.ts";
 import { TermParser } from "./TermParser.ts";
-import type * as monaco from 'monaco-editor'
+import * as monaco from 'monaco-editor'
 
 
 export abstract class StatementParser extends TermParser {
@@ -115,7 +115,16 @@ export abstract class StatementParser extends TermParser {
                     statement = this.parseLocalVariableDeclaration();
                 }
                 break;
-            case "statement": statement = this.parseTerm();
+            case "statement":
+                statement = this.parseTerm();
+                if (statement && statement.kind == TokenType.binaryOp) {
+                    let binaryNode = statement as ASTBinaryNode;
+                    if (binaryNode.operator == TokenType.equal) {
+                        this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "warning", binaryNode.operatorRange);
+                        this.module.quickfixes.push(new ReplaceTokenQuickfix(binaryNode.operatorRange, "=",
+                            JCM.ReplaceTokenQuickfixDefaultMessage("==", "="), monaco.MarkerSeverity.Warning));
+                    }
+                }
                 break;
             // Only if this.isCodeOutsideClassdeclarations == true:
             case "methoddeclaration":
@@ -131,7 +140,7 @@ export abstract class StatementParser extends TermParser {
 
         if (!statement || (expectSemicolonAfterStatement && !this.expectSemicolon(true, true))) {
             if (pos == this.pos) {
-                if(!this.module.errors.find(error => error.level == "error")){
+                if (!this.module.errors.find(error => error.level == "error")) {
                     this.pushError(JCM.unexpectedToken(this.cct.value + ""))
                 }
                 this.skipTillNextTokenAfter([TokenType.semicolon, TokenType.newline, TokenType.rightCurlyBracket]);
@@ -171,9 +180,9 @@ export abstract class StatementParser extends TermParser {
             type = this.increaseArrayDimensionIfLeftRightSquareBracketsToCome(type);
 
             let assignmentOperatorRange = this.cct.range;
-            if(this.tt == TokenType.equal){
+            if (this.tt == TokenType.equal) {
                 this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "error", this.cct.range);
-                this.module.quickfixes.push(new ReplaceTokenQuickfix(this.cct.range, "=", JCM.ReplaceTokenQuicfixDefaultMessage("==", "=")));
+                this.module.quickfixes.push(new ReplaceTokenQuickfix(this.cct.range, "=", JCM.ReplaceTokenQuickfixDefaultMessage("==", "=")));
             }
             let initialization = this.comesToken([TokenType.assignment, TokenType.equal], true) ? this.parseTerm() : undefined;
 
@@ -222,9 +231,9 @@ export abstract class StatementParser extends TermParser {
 
             type = this.increaseArrayDimensionIfLeftRightSquareBracketsToCome(type);
 
-            if(this.tt == TokenType.equal){
+            if (this.tt == TokenType.equal) {
                 this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "error", this.cct.range);
-                this.module.quickfixes.push(new ReplaceTokenQuickfix(this.cct.range, "=", JCM.ReplaceTokenQuicfixDefaultMessage("==", "=")));
+                this.module.quickfixes.push(new ReplaceTokenQuickfix(this.cct.range, "=", JCM.ReplaceTokenQuickfixDefaultMessage("==", "=")));
             }
 
             let initialization: ASTTermNode | undefined = undefined;
@@ -424,11 +433,14 @@ export abstract class StatementParser extends TermParser {
     }
 
     parseStatementToRepeat(): ASTStatementNode | undefined {
-        let statementToRepeat = this.parseStatementOrExpression(false);
-        if (statementToRepeat?.isEmpty) {
-            let beginOfBlockRange: IRange = Range.fromPositions(Range.getStartPosition(statementToRepeat.range));
-            this.pushError(JCM.loopOverEmptyStatement(), "info", beginOfBlockRange);
+        if (this.comesToken(TokenType.semicolon, false)) {
+            this.pushError(JCM.loopOverEmptyStatement(), "warning");
         }
+        let statementToRepeat = this.parseStatementOrExpression(false);
+        // if (statementToRepeat?.isEmpty) {
+        //     let beginOfBlockRange: IRange = Range.fromPositions(Range.getStartPosition(statementToRepeat.range));
+        //     this.pushError(JCM.loopOverEmptyStatement(), "info", beginOfBlockRange);
+        // }
         return statementToRepeat;
     }
 

@@ -920,7 +920,7 @@ export class JCM {
 /**
  * Quickfixes
  */
-    static ReplaceTokenQuicfixDefaultMessage = (toReplace: string, replaceBy: string) => lm({
+    static ReplaceTokenQuickfixDefaultMessage = (toReplace: string, replaceBy: string) => lm({
         "de": `Ersetze ${toReplace} durch ${replaceBy}.`,
         "en": `Replace ${toReplace} by ${replaceBy}.`,
     })

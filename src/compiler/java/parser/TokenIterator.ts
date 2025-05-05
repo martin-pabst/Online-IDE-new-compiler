@@ -449,7 +449,7 @@ export class TokenIterator {
                 return "statement";
             }
             if (TokenIterator.possibleTokensInsideVariableDeclaration.indexOf(tt) < 0){
-                if(tt == TokenType.equal && !nonSpaceTokenTypesFound.find(tt => tt != TokenType.identifier)){
+                if(tt == TokenType.equal && !nonSpaceTokenTypesFound.find(tt => tt != TokenType.identifier) && nonSpaceTokenTypesFound.length >= 2){
                     // this is for cases like "int a == 10;"
                     // strategy: assume variable declaration and then print helping error message.
                     // this is better than assuming "statement" and then giving unhelpful error message.
