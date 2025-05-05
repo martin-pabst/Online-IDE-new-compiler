@@ -448,7 +448,12 @@ export class TokenIterator {
                 }
                 return "statement";
             }
-            if (TokenIterator.possibleTokensInsideVariableDeclaration.indexOf(tt) < 0) return "statement";
+            if (TokenIterator.possibleTokensInsideVariableDeclaration.indexOf(tt) < 0){
+                if(tt == TokenType.equal && !nonSpaceTokenTypesFound.find(tt => tt != TokenType.identifier)){
+                    return "variabledeclaration";
+                }
+                return "statement";
+            } 
             if (TokenIterator.spaceTokenTypes.indexOf(tt) < 0) nonSpaceTokenTypesFound.push(tt);
             pos++;
         }

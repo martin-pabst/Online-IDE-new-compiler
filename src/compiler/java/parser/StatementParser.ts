@@ -2,6 +2,7 @@ import { EmptyRange, IRange, Range } from "../../common/range/Range.ts";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { Token } from "../lexer/Token.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
+import { ReplaceTokenQuickfix } from "../monacoproviders/quickfix/ReplaceTokenQuickfix.ts";
 import { TokenType } from "../TokenType.ts";
 import { JavaType } from "../types/JavaType.ts";
 import { ASTDoWhileNode, ASTForLoopNode, ASTIfNode, ASTLocalVariableDeclarations, ASTReturnNode, ASTEnhancedForLoopNode, ASTStatementNode, ASTSwitchCaseNode, ASTTermNode, ASTThrowNode, ASTTryCatchNode, ASTTypeNode, ASTWhileNode, ASTClassDefinitionNode, ASTEnumDefinitionNode, ASTInterfaceDefinitionNode, ASTNodeWithModifiers, ASTSynchronizedBlockNode, ASTFieldDeclarationNode, ASTBinaryNode, ASTInitialFieldAssignmentInMainProgramNodes } from "./AST.ts";
@@ -170,7 +171,11 @@ export abstract class StatementParser extends TermParser {
             type = this.increaseArrayDimensionIfLeftRightSquareBracketsToCome(type);
 
             let assignmentOperatorRange = this.cct.range;
-            let initialization = this.comesToken(TokenType.assignment, true) ? this.parseTerm() : undefined;
+            if(this.tt == TokenType.equal){
+                this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "error", this.cct.range);
+                this.module.quickfixes.push(new ReplaceTokenQuickfix(this.cct.range, "=", JCM.ReplaceTokenQuicfixDefaultMessage("==", "=")));
+            }
+            let initialization = this.comesToken([TokenType.assignment, TokenType.equal], true) ? this.parseTerm() : undefined;
 
             if (identifier.value != "" && type != null) {
                 let node = this.nodeFactory.buildFieldDeclarationNode(rangeStart, identifier, type, undefined,
@@ -217,8 +222,13 @@ export abstract class StatementParser extends TermParser {
 
             type = this.increaseArrayDimensionIfLeftRightSquareBracketsToCome(type);
 
+            if(this.tt == TokenType.equal){
+                this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "error", this.cct.range);
+                this.module.quickfixes.push(new ReplaceTokenQuickfix(this.cct.range, "=", JCM.ReplaceTokenQuicfixDefaultMessage("==", "=")));
+            }
+
             let initialization: ASTTermNode | undefined = undefined;
-            if (this.comesToken(TokenType.assignment, true)) {
+            if (this.comesToken([TokenType.assignment, TokenType.equal], true)) {
                 initialization = this.parseTerm();
             }
 

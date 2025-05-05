@@ -130,8 +130,8 @@ export class JCM {
     })
 
     static cantInstantiateFromAbstractClass = () => le({
-    "de": `Von einer abstrakten Klasse kann man keine Objekte instanzieren.`,
-    "en": `You can't create objects of an abstract class.`,
+        "de": `Von einer abstrakten Klasse kann man keine Objekte instanzieren.`,
+        "en": `You can't create objects of an abstract class.`,
     })
 
     static interfacesDontHaveConstructors = () => le({
@@ -211,8 +211,8 @@ export class JCM {
 
 
     static cantRedeclareVariableError = (identifier: string) => le({
-    "de": "Die Variable " + identifier + " wurde zweifach deklariert.",
-    "en": "Variable " + identifier + " had been declared twice.",
+        "de": "Die Variable " + identifier + " wurde zweifach deklariert.",
+        "en": "Variable " + identifier + " had been declared twice.",
     })
 
     static breakNotExpected = () => le({
@@ -283,6 +283,16 @@ export class JCM {
     static booleanTermExpected = (actualType: string) => le({
         "de": "Hier wird eine Bedingung erwartet, deren Wert true oder false ergibt. Der Datentyp dieses Terms ist " + actualType,
         "en": `Boolean value expected, but expression of type ${actualType} found.`,
+    })
+
+    static assignmentInsteadOfComparisonOperator = () => le({
+        "de": "Hier wird ein boolescher Wert erwartet. Du musst statt des Zuweisungsoperators = den Vergleichsoperator == benutzen.",
+        "en": `Boolean value expected. Use comparison operator == instead of assignment operator =.`,
+    })
+
+    static comparisonOperatorInsteadOfAssignment = () => le({
+        "de": "Hier wird ein Zuweisungsoperator erwartet. Du musst statt des Vergleichsoperators == den Zuweisungsoperator == benutzen.",
+        "en": `Assignment operator expected. Use assignment operator = instead of comparison operator ==.`,
     })
 
     static enumIdentifierUnknown = (enumType: string, elementIdentifier: string) => le({
@@ -539,7 +549,7 @@ export class JCM {
         "en": `You can't have abstract methods in non-abstract classes.`,
     })
 
-    
+
 
     /**
      * class StatementParser
@@ -720,8 +730,8 @@ export class JCM {
     })
 
     static cantExtendFinalClass = () => le({
-    "de": `Von einer final class können keine Unterklassen gebildet werden.`,
-    "en": `You can't subclass a final class.`,
+        "de": `Von einer final class können keine Unterklassen gebildet werden.`,
+        "en": `You can't subclass a final class.`,
     })
 
     /**
@@ -888,22 +898,33 @@ export class JCM {
     })
 
     static class = () => lm({
-    "de": "Klass",
-    "en": "class",
+        "de": "Klass",
+        "en": "class",
     })
 
     static enum = () => lm({
-    "de": "Enum",
-    "en": "enum",
+        "de": "Enum",
+        "en": "enum",
     })
 
     static interface = () => lm({
-    "de": "Interface",
-    "en": "interface",
+        "de": "Interface",
+        "en": "interface",
     })
 
     static nullType = () => lm({
-    "de": "Der Wert null",
-    "en": "null value",
+        "de": "Der Wert null",
+        "en": "null value",
     })
+
+/**
+ * Quickfixes
+ */
+    static ReplaceTokenQuicfixDefaultMessage = (toReplace: string, replaceBy: string) => lm({
+        "de": `Ersetze ${toReplace} durch ${replaceBy}.`,
+        "en": `Replace ${toReplace} by ${replaceBy}.`,
+    })
+
+
+
 }
