@@ -29,7 +29,7 @@
         border-right: 1px solid var(--slider);
         font-family: Consolas, Courier New, monospace;
         font-weight: 400;
-        color: #fff;
+        color: var(--defaultPrintColor);
         letter-spacing: 0px;
     }
 
@@ -41,7 +41,7 @@
         flex: 4;
         font-family: Consolas, Courier New, monospace;
         font-weight: 400;
-        color: #fff;
+        color: var(--defaultPrintColor);
         letter-spacing: 0px;
     }
 
