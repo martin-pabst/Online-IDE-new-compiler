@@ -55,4 +55,9 @@
     .jo_valueSpan {
         padding: 0 2px;
     }
+    
+    .jo_valueSpanEditable:hover {
+        background-color: #ffffff38;
+    }
+
 }

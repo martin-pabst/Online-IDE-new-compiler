@@ -9,6 +9,7 @@ import { IPosition } from "../range/Position.ts";
 import jQuery from 'jquery';
 import { JavaField } from "../../java/types/JavaField.ts";
 import { Interpreter } from "../interpreter/Interpreter.ts";
+import { StringClass } from "../../java/runtime/system/javalang/ObjectClassStringClass.ts";
 
 export type RuntimeObject = {
     getType(): RuntimeObjectType & BaseType;
@@ -59,6 +60,9 @@ export class DebuggerSymbolEntry {
         } else if (Array.isArray(value)) {
             this.renderArray(value, DebuggerSymbolEntry.quickArrayOutputMaxLength);
         } else if (typeof value == "object") {
+            if(value.constructor.name == 'StringClass'){
+                this.renderStringClass(value, changeValueFunction);
+            }
             this.renderObject(<RuntimeObject>value);
         } else {
             this.renderPrimitiveValue(value, changeValueFunction);
@@ -106,65 +110,85 @@ export class DebuggerSymbolEntry {
         this.treeViewNode.caption = caption;
 
         if (setChangedValue) {
-            let valueSpan = <HTMLSpanElement>this.treeViewNode.captionDiv.getElementsByClassName('jo_valueSpan')[0]
+            setTimeout(() => {
+                
+                let valueSpan = <HTMLSpanElement>this.treeViewNode.captionDiv.getElementsByClassName('jo_valueSpan')[0]
+                
+                jQuery(valueSpan).addClass('jo_valueSpanEditable');
 
-            let oldValue: any = jQuery(valueSpan).text();
-
-            let endEditing = function () {
-                jQuery(this).attr('contentEditable', "false");
-                let newValue = jQuery(this).text();
-                if(oldValue != newValue){
-                    setChangedValue(newValue)
+                let oldValue: any = jQuery(valueSpan).text();
+                
+                let endEditing = function () {
+                    jQuery(this).attr('contentEditable', "false");
+                    let newValue = jQuery(this).text();
+                    if(oldValue != newValue){
+                        setChangedValue(newValue)
+                    }
+                };
+    
+                valueSpan.onfocus = function () {
+                    window.setTimeout(function () {
+                        var sel, range;
+                        if (window.getSelection && document.createRange) {
+                            range = document.createRange();
+                            range.selectNodeContents(valueSpan);
+                            sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        }
+                    }, 1);
+                };
+    
+                this.treeViewNode.onClickHandler = () => {
+                    jQuery(valueSpan).attr('contentEditable', "true");
+                    valueSpan.focus();
                 }
-            };
-
-
-
-            let span = jQuery(valueSpan)[0];
-            span.onfocus = function () {
-                window.setTimeout(function () {
-                    var sel, range;
-                    if (window.getSelection && document.createRange) {
-                        range = document.createRange();
-                        range.selectNodeContents(span);
-                        sel = window.getSelection();
-                        sel.removeAllRanges();
-                        sel.addRange(range);
-                    }
-                }, 1);
-            };
-
-            this.treeViewNode.onClickHandler = () => {
-                jQuery(span).attr('contentEditable', "true");
-                span.focus();
-            }
-
-            jQuery(valueSpan)
-                // .on('click', function (event) {
-                //     jQuery(this).attr('contentEditable', "true");
-                //     jQuery(this)[0].focus();
-                //     // document.execCommand('selectAll', false, null);
-                //     event.preventDefault();
-                // })
-                .on('blur', endEditing)
-                .on('keydown', function (event) {
-                    switch (event.key) {
-                        case "Enter":
-                            endEditing.call(this);
-                            event.preventDefault();
-                            break;
-                        case "Escape":
-                            jQuery(this).attr('contentEditable', "false");
-                            jQuery(this).text(oldValue);
-                            break;
-                    }
-                });
+    
+                jQuery(valueSpan)
+                    // .on('click', function (event) {
+                    //     jQuery(this).attr('contentEditable', "true");
+                    //     jQuery(this)[0].focus();
+                    //     // document.execCommand('selectAll', false, null);
+                    //     event.preventDefault();
+                    // })
+                    .on('blur', endEditing)
+                    .on('keydown', function (event) {
+                        switch (event.key) {
+                            case "Enter":
+                                endEditing.call(this);
+                                event.preventDefault();
+                                break;
+                            case "Escape":
+                                jQuery(this).attr('contentEditable', "false");
+                                jQuery(this).text(oldValue);
+                                break;
+                        }
+                    });
+            }, 10);
 
         }
 
     }
 
-
+    renderStringClass(value: StringClass, changeValueFunction?: (newValue) => void){
+        let s: string = value == null ? "null" : `"${value.value}"`;
+        this.setCaption(" = ", s, "jo_debugger_value", true, false, (newValue: string) => {
+            if(newValue == "null"){
+                if(changeValueFunction) changeValueFunction(null);
+                return;
+            } else if(changeValueFunction) {
+                newValue = "" + newValue;
+                if(newValue.startsWith('"')) newValue = newValue.substring(1);
+                if(newValue.endsWith('"')) newValue = newValue.substring(0, newValue.length - 1);
+                if(value == null){
+                    value = new StringClass(newValue);
+                } else {
+                    value.value = newValue;
+                }
+                changeValueFunction(value);
+            }
+        });
+    }
 
     renderPrimitiveValue(value: any, changeValueFunction?: (newValue) => void) {
         if (typeof value == "string") {
