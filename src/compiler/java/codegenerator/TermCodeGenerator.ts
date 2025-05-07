@@ -484,7 +484,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         }
 
-        if (arrayType.elementType.isPrimitive) return this.compileSelectArrayElementFast(node, isLeftSideOfAssignment,
+        if (arrayType.elementType.isPrimitive && arrayType.elementType != this.stringType) return this.compileSelectArrayElementFast(node, isLeftSideOfAssignment,
             arraySnippet, indexSnippets, remainingType
         )
 

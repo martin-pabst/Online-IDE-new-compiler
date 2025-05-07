@@ -34,6 +34,7 @@ export class Helpers {
     static array1 = StepParams.thread + "." + Thread.prototype.Array1.name;
     static array2 = StepParams.thread + "." + Thread.prototype.Array2.name;
     static arrayN = StepParams.thread + "." + Thread.prototype.ArrayN.name;
+    static primitiveStringToStringObject = StepParams.thread + "." + Thread.prototype.primitiveStringToStringObject.name;
     static checkLastIndex = StepParams.thread + "." + Thread.prototype.CheckLastIndex.name;
 
     static throwNPE = StepParams.thread + "." + Thread.prototype.NPE.name;

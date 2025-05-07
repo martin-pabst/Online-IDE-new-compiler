@@ -794,6 +794,12 @@ export class Thread {
         return ret;
     }
 
+    primitiveStringToStringObject(s: string | null): StringClass {
+        if(s == null) return null;
+        return new StringClass(s);
+    }
+
+
     CheckLastIndex(index: number, dimension: number): number {
         let array = this.#lastCheckedArrays.pop();
         if (index < 0 || index >= array!.length) throw new IndexOutOfBoundsExceptionClass(InterpreterMessages.ArrayIndexOutOfBoundsException(index, array!.length, dimension));

@@ -661,6 +661,8 @@ export abstract class BinopCastCodeGenerator {
             }
         }
 
+        if(typeTo == this.stringType && typeFrom == this.nullType) return true;
+
         if (!typeFromIndex || !typeToIndex) return false;
 
         if (typeFromIndex == typeToIndex) return true;
@@ -744,12 +746,15 @@ export abstract class BinopCastCodeGenerator {
         if (!boxedIdentifier || boxedIdentifier.length == 0) return snippet;
 
         let constant = snippet.getConstantValue();
-        let boxedType = this.libraryTypestore.getType(boxedIdentifier);
-        let boxedSnippet = SnippetFramer.frame(snippet, `new ${Helpers.classes}["${boxedIdentifier}"](§1)`, boxedType);
-
         if (snippet instanceof StringCodeSnippet) snippet.setConstantValue(constant || null);
 
-        return boxedSnippet;
+        let boxedType = this.libraryTypestore.getType(boxedIdentifier);
+        if(unboxedTypeIndex == nString){
+            return SnippetFramer.frame(snippet, `${Helpers.primitiveStringToStringObject}(§1)`, boxedType);
+        } else {
+            return SnippetFramer.frame(snippet, `new ${Helpers.classes}["${boxedIdentifier}"](§1)`, boxedType);
+        }
+
     }
 
     convertCharToNumber(snippet: CodeSnippet): CodeSnippet {
