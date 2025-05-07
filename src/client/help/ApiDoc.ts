@@ -19,6 +19,7 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 
 
 import "/assets/fonts/fonts.css";
+import "/assets/css/icons.css";
 import "/assets/css/apidoc.css";
 import { Button } from '../../tools/Button.js';
 import { downloadFile } from '../../tools/HtmlTools.js';
@@ -97,33 +98,22 @@ export class ApiDoc {
             (a, b) => a.identifier.localeCompare(b.identifier));
 
 
-        typeList.filter((type) => type instanceof JavaClass).forEach((type, index) => {
-            let $menuItem = jQuery('<div class="jo_menu-class">' + type.identifier + '</div>');
+        typeList.filter(type => type instanceof NonPrimitiveType).forEach((type, index) => {
+
+            let img: string = "img_classdeclaration-dark";
+            if(type instanceof JavaEnum) img = "img_enumdeclaration-dark";
+            if(type instanceof JavaInterface) img = "img_interfacedeclaration-dark";
+
+            let $menuItem = jQuery('<div class="jo_menu-class"><span class="' + img + ' jo_menu_img"></span>' + type.identifier + '</div>');
             jQuery('#classes').append($menuItem)
             $menuItem.on('click', () => {
                 this.showAPIHelp(type);
             })
         });
 
-        typeList.filter((type) => type instanceof JavaInterface).forEach((type, index) => {
-            let $menuItem = jQuery('<div class="jo_menu-class">' + type.identifier + '</div>');
-            jQuery('#interfaces').append($menuItem)
-            $menuItem.on('click', () => {
-                this.showAPIHelp(type);
-            })
-        });
-
-        typeList.filter((type) => type instanceof JavaEnum).forEach((type, index) => {
-            let $menuItem = jQuery('<div class="jo_menu-class">' + type.identifier + '</div>');
-            jQuery('#enums').append($menuItem)
-            $menuItem.on('click', () => {
-                this.showAPIHelp(type);
-            })
-        });
-
-        jQuery('#classesHeading').text(HelpMessages.apiDocClasses());
-        jQuery('#interfacesHeading').text(HelpMessages.apiDocInterfaces());
-        jQuery('#enumsHeading').text(HelpMessages.apiDocEnums());
+        // jQuery('#classesHeading').text(HelpMessages.apiDocClasses());
+        // jQuery('#interfacesHeading').text(HelpMessages.apiDocInterfaces());
+        // jQuery('#enumsHeading').text(HelpMessages.apiDocEnums());
         jQuery('#mainHeading').text(HelpMessages.apiDocMainHeading());
 
         let button = new Button(jQuery('#mainHeading')[0], "Download (für AI-Prompt)", "#303030", () => {

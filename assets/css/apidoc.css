@@ -116,10 +116,17 @@ body.joeCssFence {
         margin-top: 5px;
     }
 
+    .jo_menu_img {
+        display: inline-block;
+        position: relative;
+        top: 2px;
+    }
+
     .jo_menu-class {
         color: lightskyblue;
-        margin-left: 20px;
+        margin-left: 5px;
         user-select: none;
+        white-space: nowrap;
     }
 
     .jo_menu-class:hover {
