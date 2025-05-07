@@ -152,7 +152,7 @@ export class RobotClass extends ObjectClass {
 
         this.steve = (await loader.loadAsync(url + 'assets/graphics/robot/minecraft_steve/scene.gltf')).scene;
         this.steve.translateX(-this.robotWorld.maxX / 2 + startX - 1);
-        this.steve.translateY(1.45);
+        this.steve.translateY(1.45 + this.robotWorld.getBrickCount(startX, startY)/2);
         this.steve.translateZ(-this.robotWorld.maxY / 2 + startY - 1);
         this.steve.scale.set(0.06, 0.06, 0.06);
         this.robotWorld.world3d.scene.add(this.steve);
