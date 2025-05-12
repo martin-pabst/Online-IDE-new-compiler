@@ -11,6 +11,7 @@ import { JavaType } from "../types/JavaType.ts";
 import { JavaMethod } from "../types/JavaMethod.ts";
 import { Visibility } from "../types/Visibility.ts";
 import type * as monaco from 'monaco-editor'
+import { JavaLocalVariable } from "../codegenerator/JavaLocalVariable.ts";
 
 
 export type ASTNodes = ASTNode[];
@@ -334,6 +335,11 @@ export interface ASTBinaryNode extends ASTTermNode {
     operatorRange: IRange,
     leftSide: ASTTermNode;
     rightSide: ASTTermNode;
+
+    instanceofPatternIdentifier?: string;
+    instanceofVariables?: JavaLocalVariable[];
+    negatedInstanceofVariables?: JavaLocalVariable[];
+    instanceofPatternIdentifierRange?: IRange;
 }
 
 export interface ASTUnaryPrefixNode extends ASTTermNode {

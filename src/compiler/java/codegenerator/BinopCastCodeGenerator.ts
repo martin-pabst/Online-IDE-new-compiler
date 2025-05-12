@@ -7,7 +7,7 @@ import { TokenType, TokenTypeReadable } from "../TokenType";
 import { JCM } from "../language/JavaCompilerMessages";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
-import { ASTAnonymousClassNode, ASTLambdaFunctionDeclarationNode, ASTNode, AssignmentOperator, BinaryOperator, ConstantType, LogicOperator } from "../parser/AST";
+import { ASTAnonymousClassNode, ASTBinaryNode, ASTLambdaFunctionDeclarationNode, ASTNode, AssignmentOperator, BinaryOperator, ConstantType, LogicOperator } from "../parser/AST";
 import { PrimitiveStringClass } from "../runtime/system/javalang/PrimitiveStringClass";
 import { StringPrimitiveType } from "../runtime/system/primitiveTypes/StringPrimitiveType";
 import { JavaArrayType } from "../types/JavaArrayType";
@@ -20,6 +20,8 @@ import { CodeSnippet, ConstantValue, StringCodeSnippet } from "./CodeSnippet";
 import { CodeSnippetContainer } from "./CodeSnippetKinds";
 import { SnippetFramer } from "./CodeSnippetTools";
 import { BinaryOperatorTemplate, OneParameterTemplate, TwoParameterTemplate } from "./CodeTemplate";
+import { JavaLocalVariable } from "./JavaLocalVariable.ts";
+import { JavaSymbolTable } from "./JavaSymbolTable.ts";
 import { LabelCodeSnippet } from "./LabelManager";
 
 var nOtherClass = 0, nVoid = 1, nBoolean = 2, nChar = 3, nByte = 4, nShort = 5, nInteger = 6, nLong = 7, nFloat = 8, nDouble = 9, nString = 10;
@@ -96,6 +98,10 @@ export abstract class BinopCastCodeGenerator {
 
     primitiveTypes: JavaType[] = [];
 
+    currentSymbolTable!: JavaSymbolTable;
+
+    symbolTableStack: JavaSymbolTable[] = [];
+
 
     constructor(protected module: JavaCompiledModule,
         protected libraryTypestore: JavaTypeStore,
@@ -121,7 +127,7 @@ export abstract class BinopCastCodeGenerator {
 
     }
 
-    compileBinaryOperation(leftSnippet: CodeSnippet, rightSnippet: CodeSnippet, operator: BinaryOperator | AssignmentOperator, operatorRange: IRange, wholeRange: IRange): CodeSnippet | undefined {
+    compileBinaryOperation(leftSnippet: CodeSnippet, rightSnippet: CodeSnippet, ast: ASTBinaryNode): CodeSnippet | undefined {
         if (!leftSnippet || !rightSnippet) return leftSnippet; // there had been an error before...
 
         if (!leftSnippet.type) {
@@ -134,8 +140,12 @@ export abstract class BinopCastCodeGenerator {
             return undefined;
         }
 
+        let operator: BinaryOperator | AssignmentOperator = ast.operator;
+        let operatorRange: IRange = ast.operatorRange;
+        let wholeRange: IRange = ast.range;
+
         if (operator == TokenType.keywordInstanceof) {
-            return this.compileInstanceOf(leftSnippet, rightSnippet, operatorRange, wholeRange);
+            return this.compileInstanceOf(leftSnippet, rightSnippet, ast);
         }
 
         let leftType: JavaType = leftSnippet.type;
@@ -220,21 +230,32 @@ export abstract class BinopCastCodeGenerator {
 
     }
 
-    compileInstanceOf(leftSnippet: CodeSnippet, rightSnippet: CodeSnippet, operatorRange: IRange, wholeRange: IRange): CodeSnippet | undefined {
+    compileInstanceOf(leftSnippet: CodeSnippet, rightSnippet: CodeSnippet, ast: ASTBinaryNode): CodeSnippet | undefined {
         let leftType = leftSnippet.type!;
         let rightType = rightSnippet.type!;
 
         if (!(rightType instanceof StaticNonPrimitiveType)) {
-            this.pushError(JCM.rightSideOfInstanceofError(), "error", operatorRange);
+            this.pushError(JCM.rightSideOfInstanceofError(), "error", ast.operatorRange);
             return undefined;
         }
 
         if (!(leftType instanceof NonPrimitiveType)) {
-            this.pushError(JCM.leftSideOfInstanceofError(), "error", operatorRange);
+            this.pushError(JCM.leftSideOfInstanceofError(), "error", ast.operatorRange);
             return undefined;
         }
 
-        return SnippetFramer.frame(leftSnippet, `${Helpers.instanceof}(§1, "${(<StaticNonPrimitiveType>rightType).nonPrimitiveType.pathAndIdentifier}")`
+        let stackFramePositionString: string = "";
+        if(ast.instanceofPatternIdentifier){
+            let patternVariable: JavaLocalVariable = new JavaLocalVariable(ast.instanceofPatternIdentifier,ast.instanceofPatternIdentifierRange, rightType,  this.currentSymbolTable);
+            this.currentSymbolTable.getStackFrame().addSymbol(patternVariable, "localVariable");
+            stackFramePositionString = ", " + patternVariable.stackframePosition;
+            if(!ast.instanceofVariables){
+                ast.instanceofVariables = [];
+            }
+            ast.instanceofVariables.push(patternVariable)
+        }
+
+        return SnippetFramer.frame(leftSnippet, `${Helpers.instanceof}(§1, "${(<StaticNonPrimitiveType>rightType).nonPrimitiveType.pathAndIdentifier}"${stackFramePositionString})`
             , this.booleanType)
 
     }

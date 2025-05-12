@@ -37,9 +37,6 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     constantTypeToTypeMap: { [key: number]: JavaType } = {}
 
-    currentSymbolTable!: JavaSymbolTable;
-
-    symbolTableStack: JavaSymbolTable[] = [];
 
     classOfCurrentlyCompiledStaticInitialization?: NonPrimitiveType;
 
@@ -877,7 +874,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         let rightOperand = ast.rightSide?.kind == TokenType.lambdaOperator ? this.compileLambdaFunction(<ASTLambdaFunctionDeclarationNode>ast.rightSide, leftOperand?.type) : this.compileTerm(ast.rightSide);
 
         if (leftOperand && rightOperand && leftOperand.type && rightOperand.type) {
-            return this.compileBinaryOperation(leftOperand, rightOperand, ast.operator, ast.operatorRange, ast.range);
+            return this.compileBinaryOperation(leftOperand, rightOperand, ast);
         }
 
         return undefined;

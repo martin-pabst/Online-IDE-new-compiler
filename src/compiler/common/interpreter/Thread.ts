@@ -601,10 +601,14 @@ export class Thread {
         throw exception;
     }
 
-    Instanceof(object: ObjectClass, type: string): boolean {
+    Instanceof(object: ObjectClass, type: string, stackOffsetForPatternIdentifier?: number): boolean {
         if (object == null) return false;
         let objType = object.getType() as NonPrimitiveType;
-        return objType.fastExtendsImplements(type);
+        let ret = objType.fastExtendsImplements(type);
+        if(stackOffsetForPatternIdentifier){
+            this.s[stackOffsetForPatternIdentifier] = ret ? object : null;
+        }
+        return ret;
     }
 
     ToString(t: Thread, callback: CallbackParameter, object: ObjectClass, maximumLength: number = 200) {

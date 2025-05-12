@@ -102,6 +102,12 @@ export abstract class TermParser extends TokenIterator {
                 return node;
             }
 
+            let instanceofPatternIdentifier: Token;
+            if(operator == TokenType.keywordInstanceof && this.comesToken(TokenType.identifier, false)){
+                instanceofPatternIdentifier = this.cct;
+                this.nextToken();
+            }
+
             let h: number = 1;
             let newLeftNodesParent: ASTBinaryNode | null = null;
             let newLeftNode: ASTTermNode = node;
@@ -137,7 +143,9 @@ export abstract class TermParser extends TokenIterator {
                 operator: <BinaryOperator>operator,
                 operatorRange: operatorRange,
                 leftSide: newLeftNode,
-                rightSide: newRightNode
+                rightSide: newRightNode,
+                instanceofPatternIdentifier: <string>instanceofPatternIdentifier?.value,
+                instanceofPatternIdentifierRange: instanceofPatternIdentifier?.range
             }
 
             if (newLeftNodesParent) {
