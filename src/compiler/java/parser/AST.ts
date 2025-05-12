@@ -283,9 +283,13 @@ export interface ASTStatementNode extends ASTNode {
 
 export interface ASTTermNode extends ASTStatementNode {
     parenthesisNeeded?: boolean;
+
+    instanceofVariables?: JavaLocalVariable[];
+    negatedInstanceofVariables?: JavaLocalVariable[];
 }
 
 export interface ASTBracketNode extends ASTTermNode {
+    kind: TokenType.leftBracket;
     nodeInsideBrackets: ASTTermNode;
 }
 
@@ -337,8 +341,6 @@ export interface ASTBinaryNode extends ASTTermNode {
     rightSide: ASTTermNode;
 
     instanceofPatternIdentifier?: string;
-    instanceofVariables?: JavaLocalVariable[];
-    negatedInstanceofVariables?: JavaLocalVariable[];
     instanceofPatternIdentifierRange?: IRange;
 }
 

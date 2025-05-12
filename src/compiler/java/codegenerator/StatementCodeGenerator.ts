@@ -6,7 +6,7 @@ import { JCM } from "../language/JavaCompilerMessages.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { ReplaceTokenQuickfix } from "../monacoproviders/quickfix/ReplaceTokenQuickfix.ts";
-import { ASTArrayLiteralNode, ASTAttributeDereferencingNode, ASTBinaryNode, ASTBlockNode, ASTBreakNode, ASTCaseNode, ASTContinueNode, ASTDoWhileNode, ASTEnhancedForLoopNode, ASTFirstMainMethodStatementNode, ASTForLoopNode, ASTIfNode, ASTInitialFieldAssignmentInMainProgramNodes, ASTLambdaFunctionDeclarationNode, ASTLocalVariableDeclaration, ASTLocalVariableDeclarations, ASTNode, ASTPrintStatementNode, ASTReturnNode, ASTStatementNode, ASTSwitchCaseNode, ASTSymbolNode, ASTSynchronizedBlockNode, ASTTermNode, ASTThrowNode, ASTTryCatchNode, ASTUnaryPrefixNode, ASTWhileNode } from "../parser/AST";
+import { ASTArrayLiteralNode, ASTAttributeDereferencingNode, ASTBinaryNode, ASTBlockNode, ASTBracketNode, ASTBreakNode, ASTCaseNode, ASTContinueNode, ASTDoWhileNode, ASTEnhancedForLoopNode, ASTFirstMainMethodStatementNode, ASTForLoopNode, ASTIfNode, ASTInitialFieldAssignmentInMainProgramNodes, ASTLambdaFunctionDeclarationNode, ASTLocalVariableDeclaration, ASTLocalVariableDeclarations, ASTNode, ASTPrintStatementNode, ASTReturnNode, ASTStatementNode, ASTSwitchCaseNode, ASTSymbolNode, ASTSynchronizedBlockNode, ASTTermNode, ASTThrowNode, ASTTryCatchNode, ASTUnaryPrefixNode, ASTWhileNode } from "../parser/AST";
 import { SystemCollection } from "../runtime/system/collections/SystemCollection.ts";
 import { ObjectClass } from "../runtime/system/javalang/ObjectClassStringClass.ts";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
@@ -86,7 +86,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             case TokenType.initialFieldAssignementInMainProgram:
                 snippet = this.compileInitialFieldAssignmentInMainProgram(<ASTInitialFieldAssignmentInMainProgramNodes>ast); break;
             case TokenType.firstMainProgramStatement:
-                snippet = this.compileFirstMainProgramStatement(<ASTFirstMainMethodStatementNode> ast); break;
+                snippet = this.compileFirstMainProgramStatement(<ASTFirstMainMethodStatementNode>ast); break;
 
 
             default:
@@ -113,25 +113,25 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let klass = this.currentSymbolTable.classContext;
         return new StringCodeSnippet(`${StepParams.stack}.push(${Helpers.classes}.${klass.identifier});\n`);
     }
-    
+
     compileInitialFieldAssignmentInMainProgram(node: ASTInitialFieldAssignmentInMainProgramNodes): CodeSnippet {
 
         let snippets: CodeSnippet[] = [];
-        for(let assignment of node.assignments){
+        for (let assignment of node.assignments) {
             let field = <JavaField>this.currentSymbolTable.findSymbol(assignment.fieldNode.identifier).symbol;
             let leftSideSnippet = this.compileSymbolNode(assignment.fieldNode, true);
             let rightSideSnippet = this.compileInitialValue(assignment.initialTerm, leftSideSnippet.type);
-    
-            if(rightSideSnippet?.type && !field.type) field.type = rightSideSnippet.type;
-    
-            if(leftSideSnippet && rightSideSnippet) {
+
+            if (rightSideSnippet?.type && !field.type) field.type = rightSideSnippet.type;
+
+            if (leftSideSnippet && rightSideSnippet) {
                 snippets.push(new TwoParameterTemplate("§1 = §2;").applyToSnippet(this.voidType, node.range, leftSideSnippet, rightSideSnippet))
-            }                
+            }
 
         }
 
-        if(snippets.length == 0) return undefined;
-        if(snippets.length == 1) return snippets[0];
+        if (snippets.length == 0) return undefined;
+        if (snippets.length == 1) return snippets[0];
 
         return new CodeSnippetContainer(snippets);
 
@@ -162,7 +162,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
     compileReturnStatement(node: ASTReturnNode): CodeSnippet | undefined {
 
-        this. missingStatementManager.onReturnHappened();
+        this.missingStatementManager.onReturnHappened();
 
         let snippet = new CodeSnippetContainer([], node.range);
 
@@ -191,8 +191,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             let termSnippet = this.compileTerm(node.term);
             if (!termSnippet) return undefined;
 
-            if(method.returnParameterType instanceof GenericTypeParameter && method.returnParameterType.catches){
-                if(termSnippet.type.isPrimitive) termSnippet = this.box(termSnippet);
+            if (method.returnParameterType instanceof GenericTypeParameter && method.returnParameterType.catches) {
+                if (termSnippet.type.isPrimitive) termSnippet = this.box(termSnippet);
                 method.returnParameterType.catches.push(<NonPrimitiveType>termSnippet.type);
             } else {
                 if (!this.canCastTo(termSnippet.type, method.returnParameterType, "implicit")) {
@@ -202,13 +202,13 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
                 termSnippet = this.compileCast(termSnippet, method.returnParameterType, "implicit");
 
-            }    
+            }
 
 
             snippet.addParts(new OneParameterTemplate(`${Helpers.return}(§1);\n`).applyToSnippet(this.voidType, node.range, termSnippet));
 
         } else {
-            
+
             if (method.isConstructor) {
                 snippet.addStringPart(`${Helpers.return}(${Helpers.elementRelativeToStackbase(0)});\n`);
             } else {
@@ -444,12 +444,12 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         let conditionNode = node.condition;
         // if (!conditionNode) return undefined;
-        
-        
+
+
         let negationResult = this.negateConditionIfPossible(conditionNode);
-        
+
         conditionNode = negationResult?.newNode;
-        
+
         let condition = this.compileTerm(conditionNode);
         this.printErrorifValueNotBoolean(condition?.type, node.condition);
         // if (!condition) condition = new StringCodeSnippet('true', node.range, this.booleanType);
@@ -480,7 +480,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             forSnippet.addNextStepMark();
         }
         forSnippet.addParts(labelBeforeCheckingCondition);
-        if(condition){
+        if (condition) {
             forSnippet.addParts(new OneParameterTemplate(negationResult?.negationHappened ? 'if(§1){\n' : 'if(!(§1)){\n').applyToSnippet(this.voidType, node.condition!.range, condition));
             forSnippet.addParts(jumpToLabelAfterForBlock);
             forSnippet.addStringPart("}\n");
@@ -592,7 +592,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
     printErrorifValueNotBoolean(type: JavaType | undefined, node: ASTNode) {
         if (!type) return;
         if (type.identifier != "boolean") {
-            if(node.kind == TokenType.binaryOp && (<ASTBinaryNode>node).operator == TokenType.assignment){
+            if (node.kind == TokenType.binaryOp && (<ASTBinaryNode>node).operator == TokenType.assignment) {
                 this.pushError(JCM.assignmentInsteadOfComparisonOperator(), "error", (<ASTBinaryNode>node).operatorRange);
                 this.module.quickfixes.push(new ReplaceTokenQuickfix((<ASTBinaryNode>node).operatorRange, "==", JCM.ReplaceTokenQuickfixDefaultMessage("=", "==")))
             } else {
@@ -646,7 +646,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
 
     negateConditionIfPossible(node: ASTTermNode): { newNode: ASTTermNode, negationHappened: boolean } {
-        if(!node) return undefined;
+        if (!node) return undefined;
         if (node.kind == TokenType.binaryOp) {
             let node1 = <ASTBinaryNode>node;
             switch (node1.operator) {
@@ -765,38 +765,38 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
     compileSwitchCaseStatement(node: ASTSwitchCaseNode): CodeSnippet | undefined {
         let term = this.compileTerm(node.term);
 
-        
+
         if (!this.isDefined(term)) return undefined;
         if (!term.type) return undefined;
-        
+
         let type = term.type;
-        
+
         let enumType = type instanceof JavaEnum ? type as JavaEnum : undefined;
-        
+
         if (enumType) {
             term = SnippetFramer.frame(term, "§1.ordinal");
         }
-        
+
         if (!(enumType || type.identifier && ["byte", "short", "int", "char", "String", "string"].includes(type.identifier))) {
             this.pushError(JCM.switchOnlyFeasibleForTypes(), "error", node.term.range);
         }
-        
+
         if (type == this.stringNonPrimitiveType) {
             term = this.unbox(term);
             type = this.stringType;
         }
-        
+
         if (!type) return undefined;
-        
+
         // TODO: Check type
-        
+
         // Contains one label for every case
         // plus one label for default if it exists
         // plus one label to break out of the switch-case expression
-        
-        
+
+
         this.pushAndGetNewSymbolTable(node.range, false);
-        
+
         let labelArray = [...node.caseNodes].map((_) => new LabelCodeSnippet());
         let defaultLabel;
         if (node.defaultNode) {
@@ -841,10 +841,10 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
             let statementCode = node.defaultNode.statements.map((statementNode) => this.compileStatementOrTerm(statementNode));
 
-            if (!this.listHasNoUndefined(statementCode)){
+            if (!this.listHasNoUndefined(statementCode)) {
                 this.popSymbolTable();
                 return undefined;
-            } 
+            }
 
             defaultSnippet.addParts(statementCode);
             defaultSnippet.addNextStepMark();
@@ -869,20 +869,39 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let conditionNode = node.condition;
         if (!conditionNode) return undefined;
 
+        
         let negationResult = this.negateConditionIfPossible(conditionNode);
-
+        
         conditionNode = negationResult.newNode;
-
+        
         let condition = this.compileTerm(conditionNode);
 
         this.printErrorifValueNotBoolean(condition?.type, node.condition);
 
-        this.missingStatementManager.openBranch();
-        let statementIfTrue = this.compileStatementOrTerm(node.statementIfTrue);
-        this.missingStatementManager.closeBranch(this.module.errors);
+        let instanceOfVariables = negationResult.negationHappened ? conditionNode.negatedInstanceofVariables : conditionNode.instanceofVariables;
+        let negatedInstanceofVariables= negationResult.negationHappened ? conditionNode.instanceofVariables : conditionNode.negatedInstanceofVariables;
 
         this.missingStatementManager.openBranch();
+        if(instanceOfVariables){
+            let symbolTable = this.pushAndGetNewSymbolTable(conditionNode.range, false);
+            instanceOfVariables.forEach(v => symbolTable.addSymbolWithoutAddingToStackframe(v));
+        }
+        let statementIfTrue = this.compileStatementOrTerm(node.statementIfTrue);
+        if(instanceOfVariables){
+            this.popSymbolTable();
+        }
+        this.missingStatementManager.closeBranch(this.module.errors);
+        
+        
+        this.missingStatementManager.openBranch();
+        if(negatedInstanceofVariables){
+            let symbolTable = this.pushAndGetNewSymbolTable(conditionNode.range, false);
+            negatedInstanceofVariables.forEach(v => symbolTable.addSymbolWithoutAddingToStackframe(v));
+        }
         let statementIfFalse = this.compileStatementOrTerm(node.statementIfFalse);
+        if(negatedInstanceofVariables){
+            this.popSymbolTable();
+        }
         this.missingStatementManager.closeBranch(this.module.errors);
 
         this.missingStatementManager.endBranching();
@@ -935,7 +954,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         if (firstParameter?.type && firstParameter.type != this.voidType) {
 
-            if(firstParameter.type.isPrimitive){
+            if (firstParameter.type.isPrimitive) {
                 firstParameter = this.compileCast(firstParameter, this.stringType, "implicit", true);
             } else {
                 firstParameter = this.wrapWithToStringCall(firstParameter, "string");
@@ -967,7 +986,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
     compileLocalVariableDeclaration(node: ASTLocalVariableDeclaration): CodeSnippet | undefined {
 
-        if(this.codeGenerationMode == "repl"){
+        if (this.codeGenerationMode == "repl") {
             this.pushError(JCM.noVariableDeclarationWhileProgramIsRunning(), "error", node.range);
         }
 
@@ -976,10 +995,10 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         variable.isFinal = node.isFinal;
 
         let initValueSnippet: CodeSnippet | undefined = this.compileInitialValue(node.initialization, variable.type);
-        
+
         let oldVariableWithSameName = this.currentSymbolTable.findSymbolButNotInParentScopes(variable.identifier);
         if (oldVariableWithSameName) {
-            if(this.codeGenerationMode == "normal"){
+            if (this.codeGenerationMode == "normal") {
                 this.pushError(JCM.cantRedeclareVariableError(variable.identifier), "error", node.range);
             }
             variable = oldVariableWithSameName;

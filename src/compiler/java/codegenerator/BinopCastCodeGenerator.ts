@@ -1,4 +1,5 @@
 import { ErrormessageWithId } from "../../../tools/language/LanguageManager";
+import { BaseSymbol } from "../../common/BaseSymbolTable.ts";
 import { ErrorLevel, QuickFix } from "../../common/Error";
 import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
 import { EmptyRange, IRange } from "../../common/range/Range";
@@ -7,7 +8,8 @@ import { TokenType, TokenTypeReadable } from "../TokenType";
 import { JCM } from "../language/JavaCompilerMessages";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
-import { ASTAnonymousClassNode, ASTBinaryNode, ASTLambdaFunctionDeclarationNode, ASTNode, AssignmentOperator, BinaryOperator, ConstantType, LogicOperator } from "../parser/AST";
+import { JavaLibraryModule } from "../module/libraries/JavaLibraryModule.ts";
+import { ASTAnonymousClassNode, ASTBinaryNode, ASTBracketNode, ASTLambdaFunctionDeclarationNode, ASTNode, ASTTermNode, ASTUnaryPrefixNode, AssignmentOperator, BinaryOperator, ConstantType, LogicOperator } from "../parser/AST";
 import { PrimitiveStringClass } from "../runtime/system/javalang/PrimitiveStringClass";
 import { StringPrimitiveType } from "../runtime/system/primitiveTypes/StringPrimitiveType";
 import { JavaArrayType } from "../types/JavaArrayType";
@@ -246,7 +248,9 @@ export abstract class BinopCastCodeGenerator {
 
         let stackFramePositionString: string = "";
         if(ast.instanceofPatternIdentifier){
-            let patternVariable: JavaLocalVariable = new JavaLocalVariable(ast.instanceofPatternIdentifier,ast.instanceofPatternIdentifierRange, rightType,  this.currentSymbolTable);
+            let patternVariable: JavaLocalVariable = new JavaLocalVariable(ast.instanceofPatternIdentifier,ast.instanceofPatternIdentifierRange, rightType.nonPrimitiveType,  this.currentSymbolTable);
+            this.registerUsagePosition(patternVariable, ast.instanceofPatternIdentifierRange);
+            
             this.currentSymbolTable.getStackFrame().addSymbol(patternVariable, "localVariable");
             stackFramePositionString = ", " + patternVariable.stackframePosition;
             if(!ast.instanceofVariables){
@@ -259,6 +263,8 @@ export abstract class BinopCastCodeGenerator {
             , this.booleanType)
 
     }
+
+    
 
     /**
      * now both types are in [boolean, char, byte, short, int, long, float, double]
@@ -887,6 +893,14 @@ export abstract class BinopCastCodeGenerator {
 
     isAssignmentOperator(tt: TokenType): boolean {
         return assignmentOperators.indexOf(tt) >= 0;
+    }
+
+    registerUsagePosition(symbol: BaseSymbol, range: IRange) {
+        if (symbol.module instanceof JavaLibraryModule) {
+            this.module.systemSymbolsUsageTracker.registerUsagePosition(symbol, this.module.file, range);
+        } else {
+            this.module.compiledSymbolsUsageTracker.registerUsagePosition(symbol, this.module.file, range);
+        }
     }
 
     /**

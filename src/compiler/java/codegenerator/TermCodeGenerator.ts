@@ -134,6 +134,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         if (innerSnippet?.type && !innerSnippet.type.isPrimitive) {
             this.addTypePositionByTypeAndRange(innerSnippet.type, node.range)
         }
+        if(node.nodeInsideBrackets){
+            node.instanceofVariables = node.nodeInsideBrackets.instanceofVariables;
+            node.negatedInstanceofVariables = node.nodeInsideBrackets.negatedInstanceofVariables;
+        }
         return innerSnippet;
     }
 
@@ -871,7 +875,29 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         if (ast.operator == TokenType.ternaryOperator) return this.compileTernaryOperator(ast);
 
         let leftOperand = this.compileTerm(ast.leftSide, this.isAssignmentOperator(ast.operator));
-        let rightOperand = ast.rightSide?.kind == TokenType.lambdaOperator ? this.compileLambdaFunction(<ASTLambdaFunctionDeclarationNode>ast.rightSide, leftOperand?.type) : this.compileTerm(ast.rightSide);
+        if(ast.operator == TokenType.and){
+            ast.instanceofVariables = ast.leftSide.instanceofVariables;
+            ast.negatedInstanceofVariables = ast.leftSide.negatedInstanceofVariables;
+            if(ast.rightSide){
+                ast.rightSide.instanceofVariables = ast.instanceofVariables;
+            }
+        }
+
+        let rightOperand: CodeSnippet | undefined;
+        if(ast.rightSide){
+            if(ast.rightSide?.instanceofVariables){
+                this.pushAndGetNewSymbolTable(ast.rightSide.range, false);
+                ast.rightSide.instanceofVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
+            }
+            rightOperand = ast.rightSide?.kind == TokenType.lambdaOperator ? this.compileLambdaFunction(<ASTLambdaFunctionDeclarationNode>ast.rightSide, leftOperand?.type) : this.compileTerm(ast.rightSide);
+            if(ast.rightSide?.instanceofVariables){
+                this.popSymbolTable();
+            }
+        } else if(ast.instanceofVariables) {
+            this.pushAndGetNewSymbolTable({startLineNumber: ast.operatorRange.startLineNumber, startColumn: ast.operatorRange.startColumn, endLineNumber: ast.operatorRange.endLineNumber, endColumn: ast.operatorRange.endColumn + 3}, false);
+            ast.instanceofVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
+            this.popSymbolTable();
+        }
 
         if (leftOperand && rightOperand && leftOperand.type && rightOperand.type) {
             return this.compileBinaryOperation(leftOperand, rightOperand, ast);
@@ -924,7 +950,12 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
     }
 
     compileUnaryPrefixOperator(ast: ASTUnaryPrefixNode): CodeSnippet | undefined {
+        
         let operand = this.compileTerm(ast.term);
+        if(ast.operator == TokenType.not){
+            ast.instanceofVariables = ast.term?.negatedInstanceofVariables;
+            ast.negatedInstanceofVariables = ast.term?.instanceofVariables;
+        }
 
         return this.compileUnaryOperator(operand, ast.operator);
 
@@ -1507,12 +1538,5 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         return { best: undefined, possible: possibleMethods };
     }
 
-    registerUsagePosition(symbol: BaseSymbol, range: IRange) {
-        if (symbol.module instanceof JavaLibraryModule) {
-            this.module.systemSymbolsUsageTracker.registerUsagePosition(symbol, this.module.file, range);
-        } else {
-            this.module.compiledSymbolsUsageTracker.registerUsagePosition(symbol, this.module.file, range);
-        }
-    }
 
 }

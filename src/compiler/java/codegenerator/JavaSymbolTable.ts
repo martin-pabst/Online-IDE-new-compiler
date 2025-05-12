@@ -125,6 +125,10 @@ export class JavaSymbolTable extends BaseSymbolTable {
         }
     }
 
+    public addSymbolWithoutAddingToStackframe(symbol: BaseSymbol){
+        super.addSymbol(symbol);
+    }
+
     public insertInvisibleParameter(){
         this.getStackFrame()?.insertInvisibleParameter();
     }
