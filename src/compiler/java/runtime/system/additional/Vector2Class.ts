@@ -19,6 +19,7 @@ export class Vector2Class extends ObjectClass {
         { type: "method", signature: "final double getAngleRad()", native: Vector2Class.prototype._getAngleRad, comment: JRC.Vector2GetAngleRadComment },
         { type: "method", signature: "final double getLength()", native: Vector2Class.prototype._getLength, comment: JRC.Vector2GetLengthComment },
         { type: "method", signature: "final Vector2 getUnitVector()", native: Vector2Class.prototype._getUnitVector, comment: JRC.Vector2GetUnitVectorComment },
+        { type: "method", signature: "final Vector2 clone()", native: Vector2Class.prototype._clone, comment: JRC.Vector2CloneComment },
         { type: "method", signature: "final Vector2 setLength(double newLength)", native: Vector2Class.prototype._setLength, comment: JRC.Vector2SetLengthComment },
         { type: "method", signature: "final Vector2 scaledBy(double factor)", native: Vector2Class.prototype._scaledBy, comment: JRC.Vector2ScaledByComment },
         { type: "method", signature: "final Vector2 scale(double factor)", native: Vector2Class.prototype._scale, comment: JRC.Vector2ScaleComment },
@@ -93,6 +94,12 @@ export class Vector2Class extends ObjectClass {
         let length: number = Math.sqrt(length2);
 
         return new Vector2Class(this.x/length, this.y/length);
+
+    }
+
+    _clone(){
+
+        return new Vector2Class(this.x, this.y);
 
     }
 

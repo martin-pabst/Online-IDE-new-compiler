@@ -23,6 +23,7 @@ export class Vector3Class extends ObjectClass {
 
         { type: "method", signature: "final double getLength()", native: Vector3Class.prototype._getLength, comment: JRC.Vector3GetLengthComment },
         { type: "method", signature: "final Vector3 getUnitVector()", native: Vector3Class.prototype._getUnitVector, comment: JRC.Vector3GetUnitVectorComment },
+        { type: "method", signature: "final Vector3 clone()", native: Vector3Class.prototype._clone, comment: JRC.Vector3CloneComment },
         { type: "method", signature: "final Vector2 xy()", native: Vector3Class.prototype._xy },
         { type: "method", signature: "final Vector2 xz()", native: Vector3Class.prototype._xz },
         { type: "method", signature: "final Vector2 yz()", native: Vector3Class.prototype._yz },
@@ -91,6 +92,12 @@ export class Vector3Class extends ObjectClass {
         let length: number = Math.sqrt(length2);
 
         return new Vector3Class(this.v.x / length, this.v.y / length, this.v.z / length);
+
+    }
+
+    _clone() {
+
+        return new Vector3Class(this.v.x, this.v.y, this.v.z);
 
     }
 

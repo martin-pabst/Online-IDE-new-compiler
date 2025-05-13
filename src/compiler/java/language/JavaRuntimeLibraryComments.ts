@@ -3716,6 +3716,11 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "en": "Returns a NEW Vector parallel to this one but with length 1.",
     })
 
+    static Vector2CloneComment = () => lm({
+        "de": "Gibt eine identische Kopie dieses Vektors zurück.",
+        "en": "Returns an identical copy of this Vector2 object.",
+    })
+
     static Vector2SetLengthComment = () => lm({
         "de": "Streckt/staucht das Vector2-Objekt auf die angegebene Länge und gibt es zurück (für Method-Chaining!). Das Vector2-Objekt wird dabei verändert!",
         "en": "Scales this Vector2-object to given length and returns it for method chaining.",
@@ -3915,6 +3920,11 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     static Vector3GetUnitVectorComment = () => lm({
         "de": "Gibt einen NEUEN Vektor zurück, der parallel zu diesem ist aber die Länge 1 besitzt.",
         "en": "Returns a NEW Vector parallel to this one but with length 1.",
+    })
+
+    static Vector3CloneComment = () => lm({
+        "de": "Gibt eine identische Kopie dieses Vector3-Objekts zurück.",
+        "en": "Returns an identical copy of this Vector3-object.",
     })
 
     static Vector3SetLengthComment = () => lm({
