@@ -21,8 +21,8 @@ export class SectorClass extends FilledShapeClass {
             java: SectorClass.prototype._cj$_constructor_$Sector$double$double$double$double$double, comment: JRC.SectorConstructorComment
         },
 
-        { type: "method", signature: "final void setInnerRadius(double innerRadius)", native: SectorClass.prototype._setRadius, comment: JRC.SectorSetRadiusComment },
-        { type: "method", signature: "final double getInnerRadiusX()", template: '(§1.radius*§1.scaleFactor)', comment: JRC.SectorGetRadiusComment },
+        { type: "method", signature: "final void setRadius(double Radius)", native: SectorClass.prototype._setRadius, comment: JRC.SectorSetRadiusComment },
+        { type: "method", signature: "final double getRadiusX()", template: '(§1.radius*§1.scaleFactor)', comment: JRC.SectorGetRadiusComment },
 
         { type: "method", signature: "final void setStartAngle(double startAngle)", native: SectorClass.prototype._setStartAngle, comment: JRC.SectorSetStartAngleComment },
         { type: "method", signature: "final double getStartAngleX()", template: '(§1.startAngle/Math.PI*180)', comment: JRC.SectorGetStartAngleComment },
