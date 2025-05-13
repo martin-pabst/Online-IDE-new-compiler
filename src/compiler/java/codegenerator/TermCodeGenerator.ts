@@ -1165,8 +1165,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             let range = node.nodeToGetObject.range;
             if (
                 // !(objectSnippet.type instanceof JavaEnum) &&
-                objectSnippet.type != this.stringType
-                && !(objectSnippet.type instanceof StaticNonPrimitiveType) && !objectSnippet.isSuperKeywordWithLevel) {
+                // objectSnippet.type != this.stringType &&
+                !(objectSnippet.type instanceof StaticNonPrimitiveType) && !objectSnippet.isSuperKeywordWithLevel) {
                 objectSnippet = SnippetFramer.frame(objectSnippet, `${Helpers.checkNPE('§1', range)}`);
             }
         } else {
