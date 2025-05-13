@@ -58,11 +58,11 @@ export class ExceptionPrinter {
             let stacktraceDiv = DOM.makeDiv(outerDiv, 'jo_exceptionPrinter_stacktrace');
             let location;
             if(ste.methodIdentifierWithClass.endsWith("."+JavaCompilerStringConstants.mainMethodIdentifier)){
-                stacktraceDiv.innerHTML = `in main programm (<span class="jo_stacktraceLink">File ${ste.file.name}: ${ste.range.startLineNumber}</span>)`;
+                stacktraceDiv.innerHTML = `in main programm (<span class="jo_stacktraceLink">File ${ste.file.name} ${ste.range.startLineNumber}:${ste.range.startColumn}</span>)`;
             }else if(ste.methodIdentifierWithClass.startsWith("$MainClass")){
-                stacktraceDiv.innerHTML = `in ${ste.methodIdentifierWithClass.split(".")[1]} (<span class="jo_stacktraceLink">File ${ste.file.name}: ${ste.range.startLineNumber}</span>)`;
+                stacktraceDiv.innerHTML = `in ${ste.methodIdentifierWithClass.split(".")[1]} (<span class="jo_stacktraceLink">File ${ste.file.name} ${ste.range.startLineNumber}:${ste.range.startColumn}</span>)`;
             }else{
-                stacktraceDiv.innerHTML = `at ${ste.methodIdentifierWithClass} (<span class="jo_stacktraceLink">File ${ste.file.name}: ${ste.range.startLineNumber}</span>)`;
+                stacktraceDiv.innerHTML = `at ${ste.methodIdentifierWithClass} (<span class="jo_stacktraceLink">File ${ste.file.name} ${ste.range.startLineNumber}:${ste.range.startColumn}</span>)`;
             }
 
             let linkSpan = stacktraceDiv.getElementsByClassName("jo_stacktraceLink")[0];
