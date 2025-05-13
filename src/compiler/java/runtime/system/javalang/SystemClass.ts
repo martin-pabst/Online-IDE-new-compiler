@@ -9,10 +9,12 @@ import { ObjectClass, StringClass } from "../javalang/ObjectClassStringClass";
 export class PrintStreamClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", signature: "class PrintStream extends Object", comment: JRC.PrintStreamClassComment },
+        { type: "method", signature: "void print(char text)", java: PrintStreamClass.prototype._mn$print$void$string, comment: JRC.PrintStreamPrintComment},
         { type: "method", signature: "void print(string text)", java: PrintStreamClass.prototype._mn$print$void$string, comment: JRC.PrintStreamPrintComment},
         { type: "method", signature: "void print(int number)", java: PrintStreamClass.prototype._mn$print$void$int, comment: JRC.PrintStreamPrintComment},
         { type: "method", signature: "void print(double number)", java: PrintStreamClass.prototype._mn$print$void$double, comment: JRC.PrintStreamPrintComment},
         { type: "method", signature: "void print(boolean b)", java: PrintStreamClass.prototype._mn$print$void$boolean, comment: JRC.PrintStreamPrintComment},
+        { type: "method", signature: "void println(char text)", java: PrintStreamClass.prototype._mn$println$void$string, comment: JRC.PrintStreamPrintlnComment},
         { type: "method", signature: "void println(string text)", java: PrintStreamClass.prototype._mn$println$void$string, comment: JRC.PrintStreamPrintlnComment},
         { type: "method", signature: "void println(int number)", java: PrintStreamClass.prototype._mn$println$void$int, comment: JRC.PrintStreamPrintlnComment},
         { type: "method", signature: "void println(double number)", java: PrintStreamClass.prototype._mn$println$void$double, comment: JRC.PrintStreamPrintlnComment},
