@@ -890,6 +890,9 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if(instanceOfVariables){
             this.popSymbolTable();
         }
+        if(negatedInstanceofVariables && this.missingStatementManager.hasReturnHappened()){
+            negatedInstanceofVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
+        }
         this.missingStatementManager.closeBranch(this.module.errors);
         
         
@@ -901,6 +904,9 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let statementIfFalse = this.compileStatementOrTerm(node.statementIfFalse);
         if(negatedInstanceofVariables){
             this.popSymbolTable();
+        }
+        if(instanceOfVariables && this.missingStatementManager.hasReturnHappened()){
+            instanceOfVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
         }
         this.missingStatementManager.closeBranch(this.module.errors);
 

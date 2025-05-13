@@ -249,6 +249,7 @@ export abstract class BinopCastCodeGenerator {
         let stackFramePositionString: string = "";
         if(ast.instanceofPatternIdentifier){
             let patternVariable: JavaLocalVariable = new JavaLocalVariable(ast.instanceofPatternIdentifier,ast.instanceofPatternIdentifierRange, rightType.nonPrimitiveType,  this.currentSymbolTable);
+            patternVariable.isFinal = true;
             this.registerUsagePosition(patternVariable, ast.instanceofPatternIdentifierRange);
             
             this.currentSymbolTable.getStackFrame().addSymbol(patternVariable, "localVariable");
