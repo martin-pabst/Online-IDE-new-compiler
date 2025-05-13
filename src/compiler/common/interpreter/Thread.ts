@@ -344,6 +344,7 @@ export class Thread {
                 }
 
             });
+            this.stackTrace[0].range = exception.range;
             this.exception = exception;
             // ExceptionPrinter.print(exception, this.stackTrace, this.scheduler.interpreter.printManager);
             ExceptionPrinter.printWithLinks(exception, this.stackTrace, this.scheduler.interpreter.printManager,
