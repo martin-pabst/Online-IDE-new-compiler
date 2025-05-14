@@ -1005,18 +1005,18 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let shadowedSymbolInformation = this.currentSymbolTable.findSymbol(variable.identifier);
         let shadowedSymbol = shadowedSymbolInformation?.symbol;
 
-        if (shadowedSymbolInformation ) {
-            if (shadowedSymbol instanceof JavaLocalVariable) {
-                if (this.codeGenerationMode == "normal") {
+        if (shadowedSymbolInformation) {
+            if (this.codeGenerationMode == "normal") {
+                if (shadowedSymbol instanceof JavaLocalVariable) {
                     if (shadowedSymbolInformation.symbolTable == this.currentSymbolTable && this.codeGenerationMode == "normal") {
                         this.pushError(JCM.cantRedeclareVariableError(variable.identifier), "error", node.range);
                         variable = shadowedSymbol;
                     } else {
                         this.pushError(JCM.shadowedVariableError(variable.identifier), "warning", node.identifierRange);
                     }
+                } else if (shadowedSymbol instanceof JavaField && shadowedSymbol.classEnum.isMainClass) {
+                    this.pushError(JCM.shadowedVariableError(variable.identifier), "warning", node.identifierRange);
                 }
-            } else if(shadowedSymbol instanceof JavaField && shadowedSymbol.classEnum.isMainClass){
-                this.pushError(JCM.shadowedVariableError(variable.identifier), "warning", node.identifierRange);
             }
         }
 
