@@ -5,6 +5,8 @@ import { GuiComponentClass } from "./GuiComponentClass.ts";
 import { Thread } from '../../../../common/interpreter/Thread.ts';
 import { CallbackFunction } from '../../../../common/interpreter/StepFunction.ts';
 import { JRC } from '../../../language/JavaRuntimeLibraryComments.ts';
+import { ColorClass } from '../ColorClass.ts';
+import { ColorHelper } from '../../../lexer/ColorHelper.ts';
 
 export class GuiTextComponentClass extends GuiComponentClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -16,7 +18,9 @@ export class GuiTextComponentClass extends GuiComponentClass {
         {type: "method", signature: "string getText()", native: GuiTextComponentClass.prototype.getText, comment: JRC.GuiTextComponentGetTextComment},
         {type: "method", signature: "double getFontsize()", template: `§1.fontsize`, comment: JRC.GuiTextComponentGetFontsizeComment},
         {type: "method", signature: "void setStyle(boolean isBold, boolean isItalic)", native: GuiTextComponentClass.prototype.setStyle, comment: JRC.GuiTextComponentSetStyleComment},
+        {type: "method", signature: "void setTextColor(Color color)", native: GuiTextComponentClass.prototype.setTextColor, comment: JRC.GuiTextComponentSetTextColor},
         {type: "method", signature: "void setTextColor(int color)", native: GuiTextComponentClass.prototype.setTextColor, comment: JRC.GuiTextComponentSetTextColor},
+        {type: "method", signature: "void setTextColor(string color)", native: GuiTextComponentClass.prototype.setTextColor, comment: JRC.GuiTextComponentSetTextColor},
 
     ];
 
@@ -96,8 +100,17 @@ export class GuiTextComponentClass extends GuiComponentClass {
         this.render();
     }
 
-    setTextColor(color: number) {
-        this.textColor = color;
+    setTextColor(color: number | string | ColorClass) {
+
+        if (color) {
+            if (typeof color == "string") {
+                color = ColorHelper.parseColorToOpenGL(color).color;
+            } else if (color instanceof ColorClass) {
+                color = color._toInt();
+            }
+        }
+
+        this.textColor = <number>color;
         this.render();
     }
 
