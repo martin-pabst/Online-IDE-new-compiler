@@ -1,3 +1,4 @@
+import { SymbolTable } from "typescript";
 import { BaseStackframe, BaseSymbol, BaseSymbolTable, SymbolOnStackframe as SymbolOnStack, SymbolOnStackframe } from "../../common/BaseSymbolTable";
 import { IRange } from "../../common/range/Range";
 import { TokenType } from "../TokenType.ts";
@@ -16,7 +17,8 @@ import * as monaco from 'monaco-editor'
 
 export type LocalVariableInformation = {
     symbol: JavaLocalVariable | JavaField,
-    outerClassLevel: number
+    outerClassLevel: number,
+    symbolTable: BaseSymbolTable | null
 }
 
 
@@ -31,20 +33,20 @@ export class JavaSymbolTable extends BaseSymbolTable {
     constructor(public module: JavaCompiledModule, range: IRange, withStackFrame: boolean,
         parent?: BaseSymbolTable,
         public classContext?: JavaClass | JavaEnum | JavaInterface | StaticNonPrimitiveType | undefined,
-        public methodContext?: JavaMethod){
+        public methodContext?: JavaMethod) {
 
         super(range, parent);
 
-        if(parent){
-            if(!classContext) this.classContext = (<JavaSymbolTable>parent).classContext;
-            if(!methodContext) this.methodContext = (<JavaSymbolTable>parent).methodContext;
+        if (parent) {
+            if (!classContext) this.classContext = (<JavaSymbolTable>parent).classContext;
+            if (!methodContext) this.methodContext = (<JavaSymbolTable>parent).methodContext;
         }
 
-        if(!parent){
+        if (!parent) {
             module.symbolTables.push(this);
         }
 
-        if(withStackFrame){
+        if (withStackFrame) {
             // inside non-static java-methods: 1st element on stack is this
             this.stackframe = new BaseStackframe(classContext ? 1 : 0);
         }
@@ -52,10 +54,10 @@ export class JavaSymbolTable extends BaseSymbolTable {
 
     getSymbolsOnStackframeForDebugger(): SymbolOnStackframe[] {
         let symbols: SymbolOnStackframe[] = [];
-        this.identifierToSymbolMap.forEach((symbol, identifier) => {symbols.push(symbol)});
-        if(this.classContext && this.classContext != this.parent?.classContext && !(this.classContext instanceof StaticNonPrimitiveType)){
+        this.identifierToSymbolMap.forEach((symbol, identifier) => { symbols.push(symbol) });
+        if (this.classContext && this.classContext != this.parent?.classContext && !(this.classContext instanceof StaticNonPrimitiveType)) {
             let thisVariable = new JavaLocalVariable("this", this.classContext.identifierRange,
-            this.classContext, this);
+                this.classContext, this);
             thisVariable.stackframePosition = 0;
             symbols.push(thisVariable);
         }
@@ -75,40 +77,44 @@ export class JavaSymbolTable extends BaseSymbolTable {
     private findSymbolIntern(identifier: string, upToVisibility: Visibility, searchForFields: boolean, outerClassLevel: number): LocalVariableInformation | undefined {
         // local variable?
         let symbol = this.identifierToSymbolMap.get(identifier);
-        if(symbol) return {
+        if (symbol) return {
             symbol: symbol,
-            outerClassLevel: outerClassLevel
+            outerClassLevel: outerClassLevel,
+            symbolTable: this
         }
 
         // parameter?
         // Topmost Symbol table inside method has parameters...
         let methodContext = this.methodContext;
-        if(methodContext != null){
+        if (methodContext != null) {
             let parent: JavaSymbolTable | undefined = this.parent;
-            while(parent && parent.methodContext == methodContext){
+            while (parent && parent.methodContext == methodContext) {
                 symbol = parent.identifierToSymbolMap.get(identifier);
-                if(symbol){
+                if (symbol) {
                     return {
                         symbol: symbol,
-                        outerClassLevel: outerClassLevel                        }
+                        outerClassLevel: outerClassLevel,
+                        symbolTable: parent
+                    }
                 }
                 parent = parent.parent;
             }
         }
 
-        if(this.classContext && searchForFields){
+        if (this.classContext && searchForFields) {
             let field = this.classContext.getField(identifier, TokenType.keywordPrivate);
-            if(field){
+            if (field) {
                 return {
                     symbol: field,
-                    outerClassLevel: outerClassLevel
+                    outerClassLevel: outerClassLevel,
+                    symbolTable: null
                 }
             }
 
         }
 
-        if(this.parent){
-            if(this.parent.classContext == this.classContext){
+        if (this.parent) {
+            if (this.parent.classContext == this.classContext) {
                 return this.parent.findSymbolIntern(identifier, upToVisibility, false, outerClassLevel);
             } else {
                 return this.parent.findSymbolIntern(identifier, TokenType.keywordProtected, true, outerClassLevel + 1);
@@ -120,22 +126,22 @@ export class JavaSymbolTable extends BaseSymbolTable {
 
     public addSymbol(symbol: BaseSymbol): void {
         super.addSymbol(symbol);
-        if(symbol instanceof SymbolOnStack){
+        if (symbol instanceof SymbolOnStack) {
             this.getStackFrame()?.addSymbol(symbol, symbol instanceof JavaParameter ? "parameter" : "localVariable");
         }
     }
 
-    public addSymbolWithoutAddingToStackframe(symbol: BaseSymbol){
+    public addSymbolWithoutAddingToStackframe(symbol: BaseSymbol) {
         super.addSymbol(symbol);
     }
 
-    public insertInvisibleParameter(){
+    public insertInvisibleParameter() {
         this.getStackFrame()?.insertInvisibleParameter();
     }
 
     getStackFrame(): BaseStackframe | undefined {
         let st: JavaSymbolTable = this;
-        while(!st.stackframe && st.parent){
+        while (!st.stackframe && st.parent) {
             st = st.parent;
         }
         return st.stackframe;
@@ -154,7 +160,7 @@ export class JavaSymbolTable extends BaseSymbolTable {
             })
         })
 
-        if(this.parent){
+        if (this.parent) {
             let newItems = this.parent.getLocalVariableCompletionItems(rangeToReplace).filter(newItem => items.findIndex(item => item.insertText == newItem.insertText) == -1);
             items = items.concat(newItems);
         }
