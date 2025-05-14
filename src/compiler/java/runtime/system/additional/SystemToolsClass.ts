@@ -16,6 +16,7 @@ export class SystemToolsClass extends ObjectClass {
         {type: "method", signature: "static void pause(int milliseconds)", java: SystemToolsClass._mj$pause$void$int, comment: JRC.SystemToolsPauseComment},
         {type: "method", signature: "static int getStepCount()", java: SystemToolsClass._mj$getStepCount$int$, comment: JRC.SystemToolsGetStepCountComment},
         {type: "method", signature: "static void addKeyListener(KeyListener keyListener)", java: SystemToolsClass._mj$addKeyListener$void$KeyListener, comment: JRC.SystemToolsAddKeyListenerComment},
+        {type: "method", signature: "static int getNumberOfProcessorCores()", java: SystemToolsClass._mj$getNumberOfProcessorCores$int$, comment: JRC.SystemToolsGetNumberOfProcessorCoresComment},
 
     ]
 
@@ -29,6 +30,10 @@ export class SystemToolsClass extends ObjectClass {
 
     static _mj$getSpeed$int$(t: Thread) {
         t.s.push(t.scheduler.interpreter.getStepsPerSecond())
+    }
+
+    static _mj$getNumberOfProcessorCores$int$(t: Thread) {
+        t.s.push(navigator.hardwareConcurrency);
     }
 
     static _mj$pause$void$int(t: Thread, milliseconds: number){

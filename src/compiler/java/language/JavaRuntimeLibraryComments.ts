@@ -4172,6 +4172,11 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "en": "Returns execution speed in steps/second.",
     })
 
+    static SystemToolsGetNumberOfProcessorCoresComment = () => lm({
+        "de": "Gibt die Anzahl der Prozessorkerne des Systems zurück.",
+        "en": "Returns the number of logical processors available to run threads on the user's computer.",
+    })
+
     static SystemToolsPauseComment = () => lm({
         "de": "Pausiert das Programm für die angegebene Zeit in ms.",
         "en": "Makes current thread pause execution for given time in ms.",
