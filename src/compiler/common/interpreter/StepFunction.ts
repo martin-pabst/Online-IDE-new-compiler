@@ -58,7 +58,7 @@ export class Helpers {
     }
 
     static checkNPE(object: string, range: IRange){
-        return `(${object} || ${Helpers.throwNPE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}))`;
+        return `(${object} ?? ${Helpers.throwNPE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}))`;
     }
 
     static outerClassAttributeIdentifier = "__outerClass";
