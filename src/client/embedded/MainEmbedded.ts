@@ -766,7 +766,7 @@ export class MainEmbedded implements MainBase {
         // }, 500);
     }
 
-    saveWorkspaceToFile() {
+    async saveWorkspaceToFile() {
         let filename: string = prompt("Bitte geben Sie den Dateinamen ein", this.config.jsonFilename);
         if (filename == null) {
             alert("Der Dateiname ist leer, daher wird nichts gespeichert.");
@@ -774,8 +774,8 @@ export class MainEmbedded implements MainBase {
         }
         if (!filename.endsWith(".json")) filename = filename + ".json";
         let ws = this.currentWorkspace;
-        let name: string = ws.name.replace(/\//g, "_");
-        downloadFile(WorkspaceImporterExporter.exportWorkspace(ws), filename)
+        let exportedWorkspace = await WorkspaceImporterExporter.exportWorkspace(ws);
+        downloadFile(exportedWorkspace, filename)
     }
 
 
