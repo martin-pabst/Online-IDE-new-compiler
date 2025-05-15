@@ -210,8 +210,8 @@ export class ColorClass extends ObjectClass {
 
     fromIntAndAlpha(color: number | undefined, alpha: number){
         if(color){
-            this.red = color & 0xff0000/0x10000;
-            this.green = color & 0xff00/0x100;
+            this.red = (color & 0xff0000)/0x10000;
+            this.green = (color & 0xff00)/0x100;
             this.blue = color & 0xff;
         }
         this.alpha = alpha;
