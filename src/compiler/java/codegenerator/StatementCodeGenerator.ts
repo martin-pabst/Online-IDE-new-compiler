@@ -869,43 +869,43 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let conditionNode = node.condition;
         if (!conditionNode) return undefined;
 
-        
+
         let negationResult = this.negateConditionIfPossible(conditionNode);
-        
+
         conditionNode = negationResult.newNode;
-        
+
         let condition = this.compileTerm(conditionNode);
 
         this.printErrorifValueNotBoolean(condition?.type, node.condition);
 
         let instanceOfVariables = negationResult.negationHappened ? conditionNode.negatedInstanceofVariables : conditionNode.instanceofVariables;
-        let negatedInstanceofVariables= negationResult.negationHappened ? conditionNode.instanceofVariables : conditionNode.negatedInstanceofVariables;
+        let negatedInstanceofVariables = negationResult.negationHappened ? conditionNode.instanceofVariables : conditionNode.negatedInstanceofVariables;
 
         this.missingStatementManager.openBranch();
-        if(instanceOfVariables){
+        if (instanceOfVariables) {
             let symbolTable = this.pushAndGetNewSymbolTable(conditionNode.range, false);
             instanceOfVariables.forEach(v => symbolTable.addSymbolWithoutAddingToStackframe(v));
         }
         let statementIfTrue = this.compileStatementOrTerm(node.statementIfTrue);
-        if(instanceOfVariables){
+        if (instanceOfVariables) {
             this.popSymbolTable();
         }
-        if(negatedInstanceofVariables && this.missingStatementManager.hasReturnHappened()){
+        if (negatedInstanceofVariables && this.missingStatementManager.hasReturnHappened()) {
             negatedInstanceofVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
         }
         this.missingStatementManager.closeBranch(this.module.errors);
-        
-        
+
+
         this.missingStatementManager.openBranch();
-        if(negatedInstanceofVariables){
+        if (negatedInstanceofVariables) {
             let symbolTable = this.pushAndGetNewSymbolTable(conditionNode.range, false);
             negatedInstanceofVariables.forEach(v => symbolTable.addSymbolWithoutAddingToStackframe(v));
         }
         let statementIfFalse = this.compileStatementOrTerm(node.statementIfFalse);
-        if(negatedInstanceofVariables){
+        if (negatedInstanceofVariables) {
             this.popSymbolTable();
         }
-        if(instanceOfVariables && this.missingStatementManager.hasReturnHappened()){
+        if (instanceOfVariables && this.missingStatementManager.hasReturnHappened()) {
             instanceOfVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
         }
         this.missingStatementManager.closeBranch(this.module.errors);
@@ -1002,14 +1002,26 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         let initValueSnippet: CodeSnippet | undefined = this.compileInitialValue(node.initialization, variable.type);
 
-        let oldVariableWithSameName = this.currentSymbolTable.findSymbolButNotInParentScopes(variable.identifier);
-        if (oldVariableWithSameName) {
+        let shadowedSymbolInformation = this.currentSymbolTable.findSymbol(variable.identifier);
+        let shadowedSymbol = shadowedSymbolInformation?.symbol;
+
+        if (shadowedSymbolInformation) {
             if (this.codeGenerationMode == "normal") {
-                this.pushError(JCM.cantRedeclareVariableError(variable.identifier), "error", node.range);
+                if (shadowedSymbol instanceof JavaLocalVariable) {
+                    if (shadowedSymbolInformation.symbolTable == this.currentSymbolTable && this.codeGenerationMode == "normal") {
+                        this.pushError(JCM.cantRedeclareVariableError(variable.identifier), "error", node.range);
+                        variable = shadowedSymbol;
+                    } else {
+                        this.pushError(JCM.shadowedVariableError(variable.identifier), "warning", node.identifierRange);
+                    }
+                } else if (shadowedSymbol instanceof JavaField && shadowedSymbol.classEnum.isMainClass) {
+                    this.pushError(JCM.shadowedVariableError(variable.identifier), "warning", node.identifierRange);
+                }
             }
-            variable = oldVariableWithSameName;
-        } else {
-            this.currentSymbolTable.addSymbol(variable);    // sets stackOffset
+        }
+
+        if (variable != shadowedSymbolInformation?.symbol) {
+            this.currentSymbolTable.addSymbol(variable);
         }
 
         this.module.compiledSymbolsUsageTracker.registerUsagePosition(variable, this.module.file, node.identifierRange);

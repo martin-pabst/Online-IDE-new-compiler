@@ -215,6 +215,11 @@ export class JCM {
         "en": "Variable " + identifier + " had been declared twice.",
     })
 
+    static shadowedVariableError = (identifier: string) => le({
+        "de": "Die Variable " + identifier + " überdeckt eine gleichnamige Variable in einem äußeren Sichtbarkeitsbereich.",
+        "en": "Variable " + identifier + " shadowes a variable with same identifier in outer scope.",
+    })
+
     static breakNotExpected = () => le({
         "de": "An dieser Stelle kann kein break stehen, da der Ausdruck nicht innerhalb einer Schleife (for, while, do) oder switch-case Anweisung steht.",
         "en": `break statement is only expected inside loops (for, while, do...while) and switch-statements.`,
