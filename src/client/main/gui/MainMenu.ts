@@ -58,7 +58,7 @@ export class MainMenu {
                             },
                             {
                                 identifier: "Aktuellen Workspace exportieren",
-                                action: () => {
+                                action: async () => {
                                     let ws: Workspace = this.main.currentWorkspace;
                                     if(ws == null){
                                         alert('Kein Workspace ausgewählt.');
@@ -69,7 +69,7 @@ export class MainMenu {
                                     if(pruefung != null){
                                         name = pruefung.name.replace(/\//g, "_") + " (" + user.familienname + " " + user.rufname + "; " + user.username + ")";
                                     }
-                                    downloadFile(WorkspaceImporterExporter.exportWorkspace(ws), name + ".json");
+                                    downloadFile(await WorkspaceImporterExporter.exportWorkspace(ws), name + ".json");
                                  }
                             },
                             {
