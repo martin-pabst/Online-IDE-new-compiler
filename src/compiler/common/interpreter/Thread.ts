@@ -294,6 +294,7 @@ export class Thread {
                             break;
                         }
                     }
+                    if(foundCatchBlockInfo) break;
                 }
 
                 if (foundCatchBlockInfo) {
@@ -334,7 +335,7 @@ export class Thread {
 
         } while (this.programStack.length > 0 && !foundCatchBlockInfo)
 
-        if (this.programStack.length == 0) {
+        if (this.programStack.length == 0 && !foundCatchBlockInfo) {
             this.stackTrace = rawStackTrace.filter(ste => ste != null).map(ste => {
 
                 return {
