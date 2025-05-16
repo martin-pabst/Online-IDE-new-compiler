@@ -1,4 +1,18 @@
 .joeCssFence {
+   .img_flag-german {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/flag-german.svg');
+   }
+
+   .img_flag-english {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/flag-english.svg');
+   }
+
    .img_add-class-dark {
       width: 16px;
       height: 16px;
