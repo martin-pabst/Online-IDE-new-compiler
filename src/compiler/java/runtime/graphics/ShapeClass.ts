@@ -68,6 +68,7 @@ export class ShapeClass extends ActorClass {
         { type: "method", signature: "final boolean collidesWithFillColor(string color)", native: ShapeClass.prototype._collidesWithAnyShape, comment: JRC.shapeCollidesWithFillColorComment },
         { type: "method", signature: "final boolean collidesWithFillColor(Color color)", native: ShapeClass.prototype._collidesWithAnyShape, comment: JRC.shapeCollidesWithFillColorComment },
         { type: "method", signature: "final Sprite getFirstCollidingSprite(int imageIndex)", native: ShapeClass.prototype._getFirstCollidingSprite, comment: JRC.shapeGetFirstCollidingSpriteComment },
+        { type: "method", signature: "final Shape getFirstCollidingShape()", native: ShapeClass.prototype._getFirstCollidingShape, comment: JRC.shapeGetFirstCollidingShapeComment },
         { type: "method", signature: "final <T> T[] getCollidingShapes(Group<T> group)", native: ShapeClass.prototype._getCollidingShapes, comment: JRC.shapeGetCollidingShapesComment },
 
 
@@ -654,11 +655,11 @@ export class ShapeClass extends ActorClass {
         return ret;
     }
 
-    collidesWithAnyShapeHelper(color: number | undefined, shapes: ShapeClass[], bounds: PIXI.Bounds): boolean {
+    collidesWithAnyShapeHelper(color: number | undefined, shapes: ShapeClass[], bounds: PIXI.Bounds): ShapeClass | null {
 
         if (this.hitPolygonDirty) this.transformHitPolygon();
 
-        let collisionDetected: boolean = false;
+        let collidingShape: ShapeClass | null = null;
         for (let otherShape of shapes) {
 
             if (otherShape == this) continue;
@@ -672,8 +673,7 @@ export class ShapeClass extends ActorClass {
             if (!this.hasOverlappingBoundingBoxWith(otherShape, bounds)) continue;
             
             if (otherShape.shapes && !this.shapes) {
-                if (this.collidesWithAnyShapeHelper(color, otherShape.shapes, bounds)) {
-                    collisionDetected = true;
+                if (collidingShape = this.collidesWithAnyShapeHelper(color, otherShape.shapes, bounds)) {
                     break;
                 }
             }
@@ -681,24 +681,23 @@ export class ShapeClass extends ActorClass {
             if (this.shapes) {
                 let cd: boolean = false;
                 for(let shape of this.shapes){
-                    if (shape.collidesWithAnyShapeHelper(color, [otherShape], bounds)) {
+                    if (collidingShape = shape.collidesWithAnyShapeHelper(color, [otherShape], bounds)) {
                         cd = true;
                         break;
                     }
                 }
                 if(cd){
-                    collisionDetected = true;
                     break;
                 }
             }
 
             if (this.hitPolygonInitial == null || otherShape.hitPolygonInitial == null) {
-                collisionDetected = false;
+                collidingShape = null;
                 break;
             }
 
             if(this.hitPolygonTransformed.length == 0){
-                collisionDetected = true;
+                collidingShape = null;
                 break;
             }
 
@@ -706,13 +705,13 @@ export class ShapeClass extends ActorClass {
 
 
             if (polygonBerührtPolygonExakt(this.hitPolygonTransformed, otherShape.hitPolygonTransformed, true, true)) {
-                collisionDetected = true;
+                collidingShape = otherShape;
                 break;
             }
 
         }
 
-        return collisionDetected;
+        return collidingShape;
 
     }
 
@@ -732,7 +731,17 @@ export class ShapeClass extends ActorClass {
         let bb = this.container.getBounds();
         if (this.hitPolygonDirty) this.transformHitPolygon();
 
-        return this.collidesWithAnyShapeHelper(<number>color, this.world.shapesWhichBelongToNoGroup, bb);
+        return this.collidesWithAnyShapeHelper(<number>color, this.world.shapesWhichBelongToNoGroup, bb) != null;
+    }
+
+    _getFirstCollidingShape(): ShapeClass | null {
+
+        if (this.isDestroyed) return null;
+
+        let bb = this.container.getBounds();
+        if (this.hitPolygonDirty) this.transformHitPolygon();
+
+        return this.collidesWithAnyShapeHelper(undefined, this.world.shapesWhichBelongToNoGroup, bb);
     }
 
 

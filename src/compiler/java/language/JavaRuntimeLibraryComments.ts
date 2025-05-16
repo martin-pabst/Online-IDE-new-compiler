@@ -650,6 +650,11 @@ export class JRC {
         "en": "Returns true if graphic object collides with any other graphic object.",
     })
 
+    static shapeGetFirstCollidingShapeComment = () => lm({
+        "de": "Falls die Figur mit mindestens einer anderen Figur überlappt, wird die erste gefundene zurückgegeben. Ansonsten wird null zurückgegeben.",
+        "en": "If this graphic object collides with one/several other graphic objects then return the first one found. Otherwise return null.",
+    })
+
     static shapeCollidesWithFillColorComment = () => lm({
         "de": "Gibt genau dann true zurück, wenn die Figur mit irgendeiner anderen Figur mit der angegebenen Füllfarbe überlappt.",
         "en": "Returns true if graphic object collides with any other graphic object with given fillColor.",
