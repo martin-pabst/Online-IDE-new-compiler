@@ -28,8 +28,8 @@ export class IntegerClass extends NumberClass {
         {type: "method", signature: "public static int parseInt(String s)", native: IntegerClass.parseInt},
         {type: "method", signature: "public static int parseInt(String sr, int radix)", native: IntegerClass.parseInt},
         {type: "method", signature: "public static Integer valueOf(int i)", native: IntegerClass.valueOf},
-        {type: "method", signature: "public static Integer valueOf(String s)", native: IntegerClass.valueOfString},
-        {type: "method", signature: "public static Integer valueOf(String s, int radix)", native: IntegerClass.valueOfString},
+        {type: "method", signature: "public static Integer valueOf(string s)", native: IntegerClass.valueOfString},
+        {type: "method", signature: "public static Integer valueOf(string s, int radix)", native: IntegerClass.valueOfString},
     ]
 
     static type: NonPrimitiveType;
@@ -83,7 +83,7 @@ export class IntegerClass extends NumberClass {
     }
 
     static valueOfString(s: string, radix: number): IntegerClass {
-        return new IntegerClass(Number.parseInt(s, radix) % 0x100000000 - 0x80000000);
+        return new IntegerClass((Number.parseInt(s, radix) + 0x80000000) % 0x100000000 - 0x80000000);
     }
 
 }
