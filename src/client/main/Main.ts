@@ -51,6 +51,7 @@ import { ExceptionMarker } from '../../compiler/common/interpreter/ExceptionMark
 import { JUnitTestrunner } from '../../compiler/common/testrunner/JUnitTestrunner.js';
 import { IPosition } from '../../compiler/common/range/Position.js';
 import * as monaco from 'monaco-editor'
+import { LanguageManager } from '../../tools/language/LanguageManager.js';
 
 
 export class Main implements MainBase {
@@ -208,6 +209,9 @@ export class Main implements MainBase {
     }
 
     startupAfterMonacoEditorIsLoaded() {
+
+        new LanguageManager(this, document.body).setupLanguageSelector();
+
         this.editor = new Editor(this, true, false);
         this.editor.initGUI(jQuery('#editor'));
 

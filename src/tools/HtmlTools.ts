@@ -81,12 +81,15 @@ export type ContextMenuItem = {
     color?: string;
     callback: () => void;
     link?: string;
-    subMenu?: ContextMenuItem[]
+    subMenu?: ContextMenuItem[];
+    iconClass?: string
 };
 
 export function openContextMenu(items: ContextMenuItem[], x: number, y: number): JQuery<HTMLElement> {
 
     let mousePointer = window.PointerEvent ? "pointer" : "mouse";
+
+    jQuery('.jo_contextmenu').remove();
 
     let $contextMenu = jQuery('<div class="jo_contextmenu"></div>');
     let rootElement = <HTMLDivElement>jQuery('.joeCssFence')[0];
@@ -99,11 +102,12 @@ export function openContextMenu(items: ContextMenuItem[], x: number, y: number):
     let parentMenuItem: ContextMenuItem | undefined = undefined;
 
     for (let mi of items) {
+        let iconString = mi.iconClass ? `<span class="${mi.iconClass} jo_contextmenu_icon"></span>` : '';
         let caption: string = mi.caption;
         if (mi.link != null) {
             caption = `<a href="${mi.link}" target="_blank" class="jo_menulink">${mi.caption}</a>`;
         }
-        let $item: JQuery<HTMLElement> = jQuery('<div>' + caption + (mi.subMenu != null ? '<span style="float: right; "> &nbsp; &nbsp; &gt;</span>' : "") + '</div>');
+        let $item: JQuery<HTMLElement> = jQuery(`<div>${iconString}` + caption + (mi.subMenu != null ? '<span style="float: right; "> &nbsp; &nbsp; &gt;</span>' : "") + '</div>');
         $item.find('a').attr('style', 'color: ' + fontColorNormal + " !important");
         $item.attr('style', 'color: ' + fontColorNormal + " !important");
         if (mi.color != null) {
