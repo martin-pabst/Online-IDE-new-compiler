@@ -159,7 +159,7 @@ export class RobotClass extends ObjectClass {
 
         this.x = startX;
         this.y = startY;
-        this.z = 0;
+        this.z = this.robotWorld.getBrickCount(startX, startY)/2;
     }
 
     setZ(z: number) {
