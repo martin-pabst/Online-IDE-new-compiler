@@ -1532,8 +1532,8 @@ export class JRC {
     })
 
     static rectangleMoveToComment = () => lm({
-        "de": "Verschiebt das Grafikobjekt so, dass sich sein Diagonalenschnittpunkt an den angegebenen Koordinaten befindet.",
-        "en": "Moves the graphic object so that its diagonal intersection is at the specified coordinates",
+        "de": "Verschiebt das Grafikobjekt so, dass sich seine linke obere Ecke an den angegebenen Koordinaten befindet.",
+        "en": "Moves the graphic object so that its top-left edge is at the specified coordinates",
     })
 
     /**

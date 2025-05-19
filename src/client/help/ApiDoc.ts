@@ -190,6 +190,10 @@ export class ApiDoc {
                     (html) => {$caption.append(jQuery(html))}
                 );
 
+                if(method.classEnumInterface != t){
+                    $main.append(jQuery('<div style = "font-size: 70%"> (geerbt von ' + method.classEnumInterface.identifier + ')</div>'));
+                }
+
                 if(method.documentation != null && method.documentation != ""){
                     $main.append(jQuery('<div class="jo_documentation">' + this.docToString(method.documentation) + '</div>'));
                 }
