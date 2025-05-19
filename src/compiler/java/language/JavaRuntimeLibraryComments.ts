@@ -1597,6 +1597,11 @@ export class JRC {
         "en": "Creates a triangle from given points.",
     })
 
+    static TriangleSetPointsComment = () => lm({
+        "de": "Setzt die Koordinaten der Eckpunkte des Dreiecks.",
+        "en": "Set coordinates of triangle-edges.",
+    })
+
     static TriangleConstructorComment1 = () => lm({
         "de": "Erstellt ein Dreieck mit den Eckpunkten (0,0), (100, 0) und (0, 100).",
         "en": "Creates a triangle from given points.",

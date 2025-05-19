@@ -12,6 +12,7 @@ export class TriangleClass extends PolygonClass {
 
         { type: "method", signature: "Triangle()", java: TriangleClass.prototype._cj$_constructor_$Triangle$, comment: JRC.TriangleConstructorComment1 },
         { type: "method", signature: "Triangle(double x1, double y1, double x2, double y2, double x3, double y3)", java: TriangleClass.prototype._cj$_constructor_$Triangle$double$double$double$double$double$double, comment: JRC.TriangleConstructorComment },
+        { type: "method", signature: "void setPoints(double x1, double y1, double x2, double y2, double x3, double y3)", native: TriangleClass.prototype._setPoints2, comment: JRC.TriangleSetPointsComment },
         { type: "method", signature: "final Triangle copy()", java: TriangleClass.prototype._mj$copy$Triangle$, comment: JRC.TriangleCopyComment },
 
     ]
@@ -47,5 +48,8 @@ export class TriangleClass extends PolygonClass {
         if(callback) callback();
     }
 
+    _setPoints2(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number ){
+        this._setPoints([x1, y1, x2, y2, x3, y3]);
+    }
 
 }
