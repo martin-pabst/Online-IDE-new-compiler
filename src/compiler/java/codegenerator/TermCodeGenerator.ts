@@ -528,7 +528,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         if (node.parenthesisNeeded) {
-            returnSnippet = SnippetFramer.frame(returnSnippet, '($)');
+            returnSnippet = SnippetFramer.frame(returnSnippet, '(§1)');
         }
 
         returnSnippet.isLefty = true;
