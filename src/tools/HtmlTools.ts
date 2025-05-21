@@ -85,11 +85,11 @@ export type ContextMenuItem = {
     iconClass?: string
 };
 
-export function openContextMenu(items: ContextMenuItem[], x: number, y: number): JQuery<HTMLElement> {
+export function openContextMenu(items: ContextMenuItem[], x: number, y: number, isSubMenu: boolean = false): JQuery<HTMLElement> {
 
     let mousePointer = window.PointerEvent ? "pointer" : "mouse";
 
-    jQuery('.jo_contextmenu').remove();
+    if(!isSubMenu) jQuery('.jo_contextmenu').remove();
 
     let $contextMenu = jQuery('<div class="jo_contextmenu"></div>');
     let rootElement = <HTMLDivElement>jQuery('.joeCssFence')[0];
@@ -146,7 +146,7 @@ export function openContextMenu(items: ContextMenuItem[], x: number, y: number):
                 $openSubMenu = undefined;
             }
             if (mi.subMenu != null) {
-                $openSubMenu = openContextMenu(mi.subMenu, $item.offset()!.left + $item.width()!, $item.offset()!.top);
+                $openSubMenu = openContextMenu(mi.subMenu, $item.offset()!.left + $item.width()!, $item.offset()!.top, true);
             }
         });
 
