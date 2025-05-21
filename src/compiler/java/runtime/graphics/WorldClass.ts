@@ -106,8 +106,13 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
 
         let existingWorld = <WorldClass>interpreter.retrieveObject("WorldClass");
         if (existingWorld) {
+
+            if(this.constructor["type"].identifier != 'World'){
+                throw new RuntimeExceptionClass("Es wurde schon ein World-Objekt instanziert.");
+            }
+
             t.s.push(existingWorld);
-            this.app.stage.removeChildren(0, this.app.stage.children.length).forEach(c => c.destroy());
+            this.app?.stage.removeChildren(0, this.app.stage.children.length).forEach(c => c.destroy());
             existingWorld.changeResolution(interpreter, width, height);
             if (callback) callback();
             return existingWorld;
