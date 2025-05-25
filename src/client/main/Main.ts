@@ -210,7 +210,7 @@ export class Main implements MainBase {
 
     startupAfterMonacoEditorIsLoaded() {
 
-        new LanguageManager(this, document.body).setupLanguageSelector();
+        // new LanguageManager(this, document.body).setupLanguageSelector();
 
         this.editor = new Editor(this, true, false);
         this.editor.initGUI(jQuery('#editor'));

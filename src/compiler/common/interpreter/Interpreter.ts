@@ -226,7 +226,7 @@ export class Interpreter {
         if (this.scheduler.getNextStepPosition()) {
             this.#pauseIntern();
         } else {
-            if (this.hasActorsOrPApplet()) {
+            if (this.hasActorsOrPAppletOrRunningTimers()) {
                 this.scheduler.onStartingNextThreadCallback = () => {
                     this.#pauseIntern();
                 }
@@ -565,11 +565,14 @@ export class Interpreter {
             this.scheduler.state == SchedulerState.paused;
     }
 
-    hasActorsOrPApplet(): boolean {
+    hasActorsOrPAppletOrRunningTimers(): boolean {
         if (this.retrieveObject("PAppletClass")) return true;
 
         let world: IWorld = this.retrieveObject("WorldClass");
-        return this.actorManager.hasActors() || world?.hasActors();
+        if(this.actorManager.hasActors() || world?.hasActors()) return true;
+
+        let timerCount: number = this.retrieveObject("TimerCount") || 0;
+        return timerCount > 0;
     }
 
     setStepsPerSecond(value: number, isMaxSpeed: boolean) {
