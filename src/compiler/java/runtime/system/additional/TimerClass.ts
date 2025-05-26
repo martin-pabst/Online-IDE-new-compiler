@@ -6,12 +6,12 @@ import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { ObjectClass } from "../javalang/ObjectClassStringClass.ts";
 import { RunnableInterface } from "../javalang/RunnableInterface.ts";
+import { Interpreter } from "../../../../common/interpreter/Interpreter.ts";
 
 type TimerState = "running" | "paused" | "stopped";
 
 export class TimerClass extends ObjectClass {
 
-    static TIMERCOUNT = "Timercount";
 
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", signature: "class Timer extends Object", comment: JRC.TimerClassComment },
@@ -32,15 +32,15 @@ export class TimerClass extends ObjectClass {
 
     static _mj$repeat$void$Runnable$int(t: Thread, runnable: RunnableInterface, dt: number) {
         let interpreter = t.scheduler.interpreter;
-        let timerCount = interpreter.retrieveObject(TimerClass.TIMERCOUNT);
+        let timerCount = interpreter.retrieveObject(Interpreter.TimerCountIndentifier);
         if( typeof timerCount == "undefined"){
             interpreter.eventManager.on("resetRuntime", () => {
-                interpreter.deleteObject(TimerClass.TIMERCOUNT);
+                interpreter.deleteObject(Interpreter.TimerCountIndentifier);
             })
             timerCount = 0;
         }
 
-        interpreter.storeObject(TimerClass.TIMERCOUNT, timerCount + 1);
+        interpreter.storeObject(Interpreter.TimerCountIndentifier, timerCount + 1);
 
         let timer = new TimerClass();
         timer._mj$repeat$void$Runnable$int(t, undefined, runnable, dt);

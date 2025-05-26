@@ -75,6 +75,7 @@ export class Interpreter {
     }
 
     static #ProgramPointerIndentifier = "ProgramPointer";
+    static TimerCountIndentifier = "TimerCount";
 
     #mainThread?: Thread;
     public stepsPerSecondGoal: number | undefined = 1e8;
@@ -571,7 +572,7 @@ export class Interpreter {
         let world: IWorld = this.retrieveObject("WorldClass");
         if(this.actorManager.hasActors() || world?.hasActors()) return true;
 
-        let timerCount: number = this.retrieveObject("TimerCount") || 0;
+        let timerCount: number = this.retrieveObject(Interpreter.TimerCountIndentifier) || 0;
         return timerCount > 0;
     }
 
