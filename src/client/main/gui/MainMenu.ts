@@ -9,6 +9,7 @@ import { downloadFile } from "../../../tools/HtmlTools.js";
 import { WorkspaceImporterExporter } from "../../workspace/WorkspaceImporterExporter.js";
 import { IssueReporter } from "./IssueReporter.js";
 import * as monaco from 'monaco-editor'
+import { GuiMessages } from "./GuiMessages.js";
 
 
 declare var BUILD_DATE: string;
@@ -49,19 +50,19 @@ export class MainMenu {
         let mainMenu: Menu = {
             items: [
                 {
-                    identifier: "Datei", subMenu:
+                    identifier: GuiMessages.File(), subMenu:
                     {
                         items: [
                             {
-                                identifier: "Workspace importieren",
+                                identifier: GuiMessages.ImportWorkspace(),
                                 action: () => { new WorkspaceImporter(this.main).show(); }
                             },
                             {
-                                identifier: "Aktuellen Workspace exportieren",
+                                identifier: GuiMessages.ExportCurrentWorkspace(),
                                 action: async () => {
                                     let ws: Workspace = this.main.currentWorkspace;
                                     if(ws == null){
-                                        alert('Kein Workspace ausgewählt.');
+                                        alert(GuiMessages.NoWorkspaceSelected());
                                     }
                                     let name: string = ws.name.replace(/\//g, "_");
                                     let pruefung = this.main.pruefungManagerForStudents?.pruefung;
@@ -73,7 +74,7 @@ export class MainMenu {
                                  }
                             },
                             {
-                                identifier: "Alle Workspaces exportieren",
+                                identifier: GuiMessages.ExportAllWorkspaces(),
                                 action: async () => {
                                     let name: string = "all_workspaces";
                                     let user = this.main.user;
@@ -82,7 +83,7 @@ export class MainMenu {
                                  }
                             },
                             {
-                                identifier: "Speichern und Beenden",
+                                identifier: GuiMessages.SaveAndExit(),
                                 action: () => { jQuery('#buttonLogout').trigger("click"); }
                             },
 
@@ -90,41 +91,41 @@ export class MainMenu {
                     }
                 },
                 {
-                    identifier: "Bearbeiten", subMenu:
+                    identifier: GuiMessages.Edit(), subMenu:
                     {
                         items: [
-                            { identifier: "Rückgängig (Strg + z)", action: () => { editor.trigger(".", "undo", {}); } },
-                            { identifier: "Wiederholen (Strg + y)", action: () => { editor.trigger(".", "redo", {}); } },
+                            { identifier: GuiMessages.Undo(), action: () => { editor.trigger(".", "undo", {}); } },
+                            { identifier: GuiMessages.Redo(), action: () => { editor.trigger(".", "redo", {}); } },
                             { identifier: "-" },
-                            { identifier: "Kopieren (Strg + c)", action: () => { editor.getAction("editor.action.clipboardCopyAction").run(); } },
-                            { identifier: "Ausschneiden (Strg + x)", action: () => { editor.getAction("editor.action.clipboardCutAction").run(); } },
-                            { identifier: "Nach oben kopieren (Alt + Shift + Pfeil rauf)", action: () => { editor.getAction("editor.action.copyLinesUpAction").run(); } },
-                            { identifier: "Nach unten kopieren (Alt + Shift + Pfeil runter)", action: () => { editor.getAction("editor.action.copyLinesDownAction").run(); } },
-                            { identifier: "Nach oben verschieben (Alt + Pfeil rauf)", action: () => { editor.getAction("editor.action.moveLinesUpAction").run(); } },
-                            { identifier: "Nach unten verschieben (Alt + Pfeil runter)", action: () => { editor.getAction("editor.action.moveLinesDownAction").run(); } },
+                            { identifier: GuiMessages.Copy(), action: () => { editor.getAction("editor.action.clipboardCopyAction").run(); } },
+                            { identifier: GuiMessages.Cut(), action: () => { editor.getAction("editor.action.clipboardCutAction").run(); } },
+                            { identifier: GuiMessages.CopyToTop(), action: () => { editor.getAction("editor.action.copyLinesUpAction").run(); } },
+                            { identifier: GuiMessages.CopyToBottom(), action: () => { editor.getAction("editor.action.copyLinesDownAction").run(); } },
+                            { identifier: GuiMessages.MoveToTop(), action: () => { editor.getAction("editor.action.moveLinesUpAction").run(); } },
+                            { identifier: GuiMessages.MoveToBottom(), action: () => { editor.getAction("editor.action.moveLinesDownAction").run(); } },
                             { identifier: "-" },
-                            { identifier: "Suchen... (Strg + f)", action: () => { editor.getAction("actions.find").run(); } },
-                            { identifier: "Ersetzen... (Strg + h)", action: () => { editor.getAction("editor.action.startFindReplaceAction").run(); } },
+                            { identifier: GuiMessages.Find(), action: () => { editor.getAction("actions.find").run(); } },
+                            { identifier: GuiMessages.Replace(), action: () => { editor.getAction("editor.action.startFindReplaceAction").run(); } },
                             { identifier: "-" },
-                            { identifier: "Aus-/Einkommentieren (Strg + #)", action: () => { editor.getAction("editor.action.commentLine").run(); } },
-                            { identifier: "Dokument formatieren (Alt + Shift + f)", action: () => { editor.getAction("editor.action.formatDocument").run(); } },
+                            { identifier: GuiMessages.ToggleComment(), action: () => { editor.getAction("editor.action.commentLine").run(); } },
+                            { identifier: GuiMessages.AutoFormat(), action: () => { editor.getAction("editor.action.formatDocument").run(); } },
                             { identifier: "-" },
-                            { identifier: "Finde zugehörige Klammer (Strg + k)", action: () => { editor.getAction("editor.action.jumpToBracket").run(); } },
+                            { identifier: GuiMessages.FindCorrespondingBracket(), action: () => { editor.getAction("editor.action.jumpToBracket").run(); } },
                             { identifier: "-" },
-                            { identifier: "Alles zusammenfalten", action: () => { editor.getAction("editor.foldAll").run(); } },
-                            { identifier: "Alles auffalten", action: () => { editor.getAction("editor.unfoldAll").run(); } },
+                            { identifier: GuiMessages.FoldAll(), action: () => { editor.getAction("editor.foldAll").run(); } },
+                            { identifier: GuiMessages.UnfoldAll(), action: () => { editor.getAction("editor.unfoldAll").run(); } },
                             { identifier: "-" },
                             {
-                                identifier: "Vorschlag auslösen (Strg + Leertaste)", action: () => {
+                                identifier: GuiMessages.TriggerSuggest(), action: () => {
                                     editor.focus();
                                     setTimeout(() => {
                                         editor.getAction("editor.action.triggerSuggest").run();
                                     }, 200);
                                 }
                             },
-                            { identifier: "Parameterhilfe (Strg + Shift + Leertaste)", action: () => { editor.getAction("editor.action.triggerParameterHints").run(); } },
+                            { identifier: GuiMessages.TriggerParameterHint(), action: () => { editor.getAction("editor.action.triggerParameterHints").run(); } },
                             {
-                                identifier: "Gehe zur Definition (Strg + Click)", action: () => {
+                                identifier: GuiMessages.GoToDefinition(), action: () => {
                                     editor.focus();
                                     setTimeout(() => {
                                         editor.getAction("editor.action.revealDefinition").run();
