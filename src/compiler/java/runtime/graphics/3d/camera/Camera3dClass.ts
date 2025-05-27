@@ -104,9 +104,10 @@ export class Camera3dClass extends Object3dClass {
     }
 
     adjustViewingDirection(): void {
-        if (this.target) {
+        if (this.target && !this.target.isDestroyed) {
             this.camera3d.up = this.up;
             this.camera3d.lookAt(this.target.getObject3d().position);
+            return;
         }
         if (this.targetPosition) {
             this.camera3d.up = this.up;
