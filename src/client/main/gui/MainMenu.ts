@@ -137,21 +137,21 @@ export class MainMenu {
                     }
                 },
                 {
-                    identifier: "Ansicht", subMenu:
+                    identifier: GuiMessages.View(), subMenu:
                     {
                         items: [
                             {
-                                identifier: "Theme",
+                                identifier: GuiMessages.Theme(),
                                 subMenu: {
                                     items: [
                                         {
-                                            identifier: "Dark",
+                                            identifier: GuiMessages.Dark(),
                                             action: () => {
                                                 that.switchTheme("dark");
                                             }
                                         },
                                         {
-                                            identifier: "Light",
+                                            identifier: GuiMessages.Light(),
                                             action: () => {
                                                 that.switchTheme("light");
                                             }
@@ -160,14 +160,14 @@ export class MainMenu {
                                 }
                             },
                             { identifier: "-" },
-                            { identifier: "Hoher Kontrast im Editor ein/aus", action: () => { editor.getAction("editor.action.toggleHighContrast").run(); } },
+                            { identifier: GuiMessages.HighContrastOnOff(), action: () => { editor.getAction("editor.action.toggleHighContrast").run(); } },
 
                             { identifier: "-" },
-                            { identifier: "Zoom out (Strg + Mausrad)", action: () => { this.main.editor.changeEditorFontSize(-4); } },
-                            { identifier: "Zoom normal", action: () => { this.main.editor.setFontSize(14); } },
-                            { identifier: "Zoom in (Strg + Mausrad)", action: () => { this.main.editor.changeEditorFontSize(4); } },
+                            { identifier: GuiMessages.ZoomOut(), action: () => { this.main.editor.changeEditorFontSize(-4); } },
+                            { identifier: GuiMessages.ZoomNormal(), action: () => { this.main.editor.setFontSize(14); } },
+                            { identifier: GuiMessages.ZoomIn(), action: () => { this.main.editor.changeEditorFontSize(4); } },
                             { identifier: "-" },
-                            { identifier: "Automatischer Zeilenumbruch ein/aus", action: () => {
+                            { identifier: GuiMessages.LinebreakOnOff(), action: () => {
                                 let wordWrap = this.main.editor.editor.getOption(monaco.editor.EditorOption.wordWrap);
                                 wordWrap = wordWrap == "on" ? "off" : "on";
                                 this.main.editor.editor.updateOptions({wordWrap: wordWrap});
@@ -177,44 +177,44 @@ export class MainMenu {
                     }
                 },
                 {
-                    identifier: "Repository", subMenu: {
+                    identifier: GuiMessages.Repository(), subMenu: {
                         items: [
                             {
-                                identifier: "Eigene Repositories verwalten ...",
+                                identifier: GuiMessages.ConfigureOwnRepositories(),
                                 action: () => { this.main.repositoryUpdateManager.show(null) }
                             },
                             {
-                                identifier: "Workspace mit Repository verbinden (checkout) ...",
+                                identifier: GuiMessages.Checkout(),
                                 action: () => { this.main.repositoryCheckoutManager.show(null) }
                             },
                         ]
                     }
                 },
                 {
-                    identifier: "Sprites", subMenu: {
+                    identifier: GuiMessages.Sprites(), subMenu: {
                         items: [
                             {
-                                identifier: "Spritesheet ergänzen ...",
+                                identifier: GuiMessages.AddOwnSprites(),
                                 action: () => { this.main.spriteManager.show() }
                             },
                             { identifier: "-" },
                             {
-                                identifier: "Sprite-Bilderübersicht",
+                                identifier: GuiMessages.SpriteCatalogue(),
                                 link: serverURL + "spriteLibrary.html?csrfToken=" + csrfToken
                             },
                         ]
                     }
                 },
                 {
-                    identifier: "Hilfe", subMenu:
+                    identifier: GuiMessages.Help(), subMenu:
                     {
                         items: [
                             {
-                                identifier: "Kurze Video-Tutorials zur Bedienung dieser IDE",
+                                identifier: GuiMessages.VideoTutorials(),
                                 link: "https://www.learnj.de/doku.php?id=api:ide_manual:start"
                             },
                             {
-                                identifier: "Interaktives Java-Tutorial mit vielen Beispielen",
+                                identifier: GuiMessages.JavaTutorial(),
                                 link: "https://www.learnj.de/doku.php"
                             },
                             // {
@@ -223,32 +223,32 @@ export class MainMenu {
                             // },
                             { identifier: "-" },
                             {
-                                identifier: "API-Dokumentation",
+                                identifier: GuiMessages.APIDoc(),
                                 link: "https://www.learnj.de/doku.php?id=api:documentation:start"
                                 // link: "api_documentation.html"
                             },
                             {
-                                identifier: "API-Verzeichnis",
+                                identifier: GuiMessages.APIReference(),
                                 //link: "https://www.learnj.de/doku.php?id=api:documentation:start"
                                 link: serverURL + "api_documentation.html?csrfToken=" + csrfToken
                             },
                             { identifier: "-" },
                             {
-                                identifier: "Tastaturkommandos (Shortcuts)",
+                                identifier: GuiMessages.Shortcuts(),
                                 link: serverURL + "shortcuts.html?csrfToken=" + csrfToken
                             },
                             { identifier: "-" },
                             {
-                                identifier: "Java-Online Changelog",
+                                identifier: GuiMessages.Changelog(),
                                 link: "https://www.learnj.de/doku.php?id=javaonline:changelog"
                             },
                             {
-                                identifier: "Java-Online Roadmap",
+                                identifier: GuiMessages.Roadmap(),
                                 link: "https://www.learnj.de/doku.php?id=javaonline:roadmap"
                             },
                             { identifier: "-" },
                             {
-                                identifier: "Befehlspalette (F1)",
+                                identifier: GuiMessages.EditorCommandPalette(),
                                 action: () => {
                                     setTimeout(() => {
                                         that.main.getMainEditor().focus();
@@ -258,7 +258,7 @@ export class MainMenu {
                             },
                             { identifier: "-" },
                             {
-                                identifier: "Passwort ändern...",
+                                identifier: GuiMessages.ChangePassword(),
                                 action: () => {
                                     let passwortChanger = new PasswordChanger(that.main);
                                     passwortChanger.show();
@@ -266,26 +266,26 @@ export class MainMenu {
                             },
                             { identifier: "-" },
                             {
-                                identifier: "Fehler melden...",
+                                identifier: GuiMessages.BugReport(),
                                 action: () => {
                                     new IssueReporter(this.main).show();
                                 }
                             },
                             { identifier: "-" },
                             {
-                                identifier: "Über die Online-IDE...",
+                                identifier: GuiMessages.About(),
                                 link: "https://www.learnj.de/doku.php?id=javaonline:ueber"
                             },
                             {
-                                identifier: "Impressum...",
+                                identifier: GuiMessages.Imprint(),
                                 link: "https://www.learnj.de/doku.php?id=ide:impressum"
                             },
                             {
-                                identifier: "Datenschutzerklärung...",
+                                identifier: GuiMessages.PrivacyPolicy(),
                                 link: "https://www.learnj.de/doku.php?id=ide:datenschutzerklaerung"
                             },
                             {
-                                identifier: "<div class='jo_menu_version'>Version " + APP_VERSION + " vom " + BUILD_DATE + " </div>",
+                                identifier: "<div class='jo_menu_version'>" + GuiMessages.Version() + " " + APP_VERSION + " (" + BUILD_DATE + ")</div>",
                                 noHoverAnimation: true
                             }
 
@@ -311,7 +311,7 @@ export class MainMenu {
         if (user != null && (user.is_admin || user.is_schooladmin || user.is_teacher)) {
             mainMenu.items[0].subMenu.items.push(
                 {
-                    identifier: "Klassen/Benutzer/Prüfungen ...",
+                    identifier: GuiMessages.ClassesUserTests(),
                     link: serverURL + "administration_mc.html?csrfToken=" + csrfToken
                 }
             )
@@ -320,14 +320,14 @@ export class MainMenu {
         if (user != null && (user.is_admin)) {
             mainMenu.items[0].subMenu.items.push(
                 {
-                    identifier: "Serverauslastung ...",
+                    identifier: GuiMessages.ServerStatistics(),
                     link: serverURL + "statistics.html?csrfToken=" + csrfToken
                 }, {
-                identifier: "Shutdown server...",
+                identifier: GuiMessages.ShutdownServer(),
                 action: () => {
-                    if (confirm("Server wirklich herunterfahren?")) {
+                    if (confirm(GuiMessages.ReallyShutdownServer())) {
                         ajax("shutdown", {}, () => {
-                            alert('Server erfolgreich heruntergefahren.');
+                            alert(GuiMessages.ServerShutdownDone());
                         }, (message) => {
                             alert(message);
                         })

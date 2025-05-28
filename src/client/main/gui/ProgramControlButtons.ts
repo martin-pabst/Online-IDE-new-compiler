@@ -3,6 +3,7 @@ import jQuery from 'jquery';
 import { SpeedControl } from "./SpeedControl.js";
 import { ActionManager } from '../../../compiler/common/interpreter/ActionManager.js';
 import { Interpreter } from '../../../compiler/common/interpreter/Interpreter.js';
+import { GuiMessages } from './GuiMessages.js';
 
 
 type ButtonData = {
@@ -29,14 +30,14 @@ export class ProgramControlButtons {
     }
 
     buttonData: ButtonData[] = [
-        { actionIdentifier: "interpreter.start", title: "Start", iconClass: "img_start-dark jo_button" },
-        { actionIdentifier: "interpreter.pause", title: "Pause", iconClass: "img_pause-dark jo_button" },
-        { actionIdentifier: "interpreter.stop", title: "Stop", iconClass: "img_stop-dark jo_button" },
-        { actionIdentifier: "interpreter.stepOver", title: "Step Over", iconClass: "img_step-over-dark jo_button" },
-        { actionIdentifier: "interpreter.stepInto", title: "Step Into", iconClass: "img_step-into-dark jo_button" },
-        { actionIdentifier: "interpreter.stepOut", title: "Step Out", iconClass: "img_step-out-dark jo_button" },
-        { actionIdentifier: "interpreter.restart", title: "Restart", iconClass: "img_restart-dark jo_button" },
-        { actionIdentifier: "interpreter.startTests", title: "Alle JUnit-Tests im Workspace ausführen", iconClass: "img_test-start jo_button jo_start-test-button" },
+        { actionIdentifier: "interpreter.start", title: GuiMessages.ProgramRun(), iconClass: "img_start-dark jo_button" },
+        { actionIdentifier: "interpreter.pause", title: GuiMessages.ProgramPause(), iconClass: "img_pause-dark jo_button" },
+        { actionIdentifier: "interpreter.stop", title: GuiMessages.ProgramStop(), iconClass: "img_stop-dark jo_button" },
+        { actionIdentifier: "interpreter.stepOver", title: GuiMessages.ProgramStepOver(), iconClass: "img_step-over-dark jo_button" },
+        { actionIdentifier: "interpreter.stepInto", title: GuiMessages.ProgramStepInto(), iconClass: "img_step-into-dark jo_button" },
+        { actionIdentifier: "interpreter.stepOut", title: GuiMessages.ProgramStepOut(), iconClass: "img_step-out-dark jo_button" },
+        { actionIdentifier: "interpreter.restart", title: GuiMessages.ProgramRestart(), iconClass: "img_restart-dark jo_button" },
+        { actionIdentifier: "interpreter.startTests", title: GuiMessages.ProgramExecuteAllTests(), iconClass: "img_test-start jo_button jo_start-test-button" },
     ]
 
     constructor($buttonsContainer: JQuery<HTMLElement>, interpreter: Interpreter, actionManager: ActionManager) {

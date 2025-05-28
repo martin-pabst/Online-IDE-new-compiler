@@ -4,7 +4,6 @@ import { InputManager } from './InputManager.js';
 import { IPrintManager } from '../../../compiler/common/interpreter/IPrintManager.js';
 import { ColorClass } from '../../../compiler/java/runtime/graphics/ColorClass.js';
 import { ColorConverter } from '../../../compiler/java/runtime/graphics/ColorConverter.js';
-import { Main } from '../Main.js';
 
 type PrintCommand = {
     text: string;
