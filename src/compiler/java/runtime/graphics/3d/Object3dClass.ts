@@ -38,9 +38,10 @@ export class Object3dClass extends ActorClass {
         { type: "method", signature: "double getX()", template: `§1.getObject3d().position.x` },
         { type: "method", signature: "double getY()", template: `§1.getObject3d().position.y` },
         { type: "method", signature: "double getZ()", template: `§1.getObject3d().position.z` },
-
+        
         { type: "method", signature: "final World3d getWorld3d()", java: Object3dClass.prototype._mj$getWorld3d$World3d, comment: JRC.getWorld3dComment },
-
+        
+        { type: "method", signature: "final void setVisible(boolean isVisible)", native: Object3dClass.prototype.setVisible },
 
         { type: "method", signature: "abstract void destroy()", native: Object3dClass.prototype.destroy },
     ];
@@ -71,6 +72,10 @@ export class Object3dClass extends ActorClass {
 
     private constructorHelper() {
 
+    }
+
+    setVisible(isVisible: boolean){
+        this.getObject3d().visible = isVisible;
     }
 
     rotateX(angleDeg:number): void{}
