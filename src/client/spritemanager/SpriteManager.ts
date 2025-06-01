@@ -173,6 +173,7 @@ export class SpriteManager {
     }
 
     async importSpritesheet(fileList: FileList) {
+        if(!this.userSpritesheet) return;
 
         await this.userSpritesheet.spritesheet.unpackZip(fileList[0]);
 

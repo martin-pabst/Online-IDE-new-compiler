@@ -77,6 +77,7 @@ export class TextureManager3d {
                 throw new RuntimeExceptionClass(JRC.textureNotFoundError(spritesheet, index));
             }
             t = this.userTexture.clone();
+            t.flipY = true;
             isUserTexture = true;
         }
 
@@ -90,7 +91,8 @@ export class TextureManager3d {
         if (isUserTexture) {
             t.repeat.set(data.w / this.userTexture.image.width, data.h / this.userTexture.image.height);
             t.offset.x = data.x / this.userTexture.image.width;
-            t.offset.y = 1 - data.h / this.userTexture.image.height - data.y / this.userTexture.image.height;
+            t.offset.y = 1 - (data.h / this.userTexture.image.height + data.y / this.userTexture.image.height);
+            // t.offset.y = data.y / this.userTexture.image.height;
         } else {
             t.repeat.set(data.w / this.systemTexture.image.width, data.h / this.systemTexture.image.height);
             t.offset.x = data.x / this.systemTexture.image.width;
