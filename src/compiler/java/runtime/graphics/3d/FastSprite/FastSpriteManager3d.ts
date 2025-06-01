@@ -172,6 +172,9 @@ export class FastSpriteManager3d {
         let H: number = 1024;
 
         let texture = textureFrame.isSystemSpritesheet ? this.world3d.textureManager3d.systemTexture : this.world3d.textureManager3d.userTexture;
+        
+        texture.flipY = true;
+
         W = texture.image.width;
         H = texture.image.height;
 
