@@ -106,7 +106,9 @@ export class ApiDoc {
 
             let $menuItem = jQuery('<div class="jo_menu-class"><span class="' + img + ' jo_menu_img"></span>' + type.identifier + '</div>');
             jQuery('#classes').append($menuItem)
-            $menuItem.on('click', () => {
+            $menuItem.on('click', (e) => {
+                jQuery('.jo_menu-class').css('background-color', 'unset')
+                jQuery(e.target).css('background-color', '#a0a0a070');
                 this.showAPIHelp(type);
             })
         });
@@ -124,53 +126,55 @@ export class ApiDoc {
     }
 
     showAPIHelp(type: NonPrimitiveType) {
-        let $main = jQuery('#main');
-        $main.empty();
-
+        let $mainHeading = jQuery('#main-heading');
+        let $mainBody = jQuery('#main-body');
+        $mainHeading.empty();
+        $mainBody.empty();
+        
         let $caption = jQuery('<div class="jo_type"></div>');
-        $main.append($caption);
+        $mainHeading.append($caption);
         monaco.editor.colorize(type.getDeclaration(), "myJava", {}).then(
             (html) => {$caption.append(jQuery(html))}
         );
-
+        
         if(type.documentation){
-            $main.append(jQuery('<div class="jo_documentation">' + this.docToString(type.documentation) + '</div>'));
+            $mainHeading.append(jQuery('<div class="jo_documentation">' + this.docToString(type.documentation) + '</div>'));
         }
-
-
+        
+        
         if(type instanceof JavaClass) this.showConstructors(type);
         this.showMethods(type);
         if(type instanceof JavaClass || type instanceof JavaEnum) this.showAttributes(type);
-
+        
     }
-
+    
     showConstructors(t: JavaClass){
-        let $main = jQuery('#main');
-        $main.append(jQuery('<div class="jo_constructor-heading">Konstruktoren:</div>'));
+        let $mainBody = jQuery('#main-body');
+        $mainBody.append(jQuery('<div class="jo_constructor-heading">Konstruktoren:</div>'));
         let methods = t.getOwnMethods().filter((m) => m.isConstructor);
 
         methods.sort((a, b) => a.identifier.localeCompare(b.identifier));
 
         if(methods.length == 0){
-            $main.append(jQuery(`<div class="jo_method">${HelpMessages.apiDocNone()}</div>`));
+            $mainBody.append(jQuery(`<div class="jo_method">${HelpMessages.apiDocNone()}</div>`));
         } else {
             for(let method of methods){
                 let $caption = jQuery(jQuery('<div class="jo_method"></div>'));
-                $main.append($caption);
+                $mainBody.append($caption);
                 monaco.editor.colorize(method.getDeclaration(), "myJava", {}).then(
                     (html) => {$caption.append(jQuery(html))}
                 );
 
                 if(method.documentation != null && method.documentation != ""){
-                    $main.append(jQuery('<div class="jo_documentation">' + this.docToString(method.documentation) + '</div>'));
+                    $mainBody.append(jQuery('<div class="jo_documentation">' + this.docToString(method.documentation) + '</div>'));
                 }
             }
         }
     }
 
     showMethods(t: NonPrimitiveType){
-        let $main = jQuery('#main');
-        $main.append(jQuery('<div class="jo_method-heading">Methoden:</div>'));
+        let $mainBody = jQuery('#main-body');
+        $mainBody.append(jQuery('<div class="jo_method-heading">Methoden:</div>'));
         let methods: JavaMethod[];
         if(t instanceof JavaInterface){
             methods = t.getAllMethods().slice(0);
@@ -181,21 +185,21 @@ export class ApiDoc {
         methods.sort((a, b) => a.identifier.localeCompare(b.identifier));
 
         if(methods.length == 0){
-            $main.append(jQuery(`<div class="jo_method">${HelpMessages.apiDocNone()}</div>`));
+            $mainBody.append(jQuery(`<div class="jo_method">${HelpMessages.apiDocNone()}</div>`));
         } else {
             for(let method of methods){
                 let $caption = jQuery(jQuery('<div class="jo_method"></div>'));
-                $main.append($caption);
+                $mainBody.append($caption);
                 monaco.editor.colorize(method.getDeclaration(), "myJava", {}).then(
                     (html) => {$caption.append(jQuery(html))}
                 );
 
-                if(method.classEnumInterface != t){
-                    $main.append(jQuery('<div style = "font-size: 70%"> (geerbt von ' + method.classEnumInterface.identifier + ')</div>'));
+                if(method.classEnumInterface && method.classEnumInterface != t){
+                    $mainBody.append(jQuery('<div style = "font-size: 70%"> (geerbt von ' + method.classEnumInterface.identifier + ')</div>'));
                 }
 
                 if(method.documentation != null && method.documentation != ""){
-                    $main.append(jQuery('<div class="jo_documentation">' + this.docToString(method.documentation) + '</div>'));
+                    $mainBody.append(jQuery('<div class="jo_documentation">' + this.docToString(method.documentation) + '</div>'));
                 }
             }
         }
@@ -208,24 +212,24 @@ export class ApiDoc {
     }
 
     showAttributes(t: JavaClass | JavaEnum){
-        let $main = jQuery('#main');
-        $main.append(jQuery('<div class="jo_attribute-heading">Attribute:</div>'));
+        let $mainBody = jQuery('#main-body');
+        $mainBody.append(jQuery('<div class="jo_attribute-heading">Attribute:</div>'));
         let attributes = t.getFields().filter(field => field.visibility != TokenType.keywordPrivate);
 
         attributes.sort((a, b) => a.identifier.localeCompare(b.identifier));
 
         if(attributes.length == 0){
-            $main.append(jQuery(`<div class="jo_method">${HelpMessages.apiDocNone()}</div>`));
+            $mainBody.append(jQuery(`<div class="jo_method">${HelpMessages.apiDocNone()}</div>`));
         } else {
             for(let attribute of attributes){
                 let $caption = jQuery(jQuery('<div class="jo_method"></div>'));
-                $main.append($caption);
+                $mainBody.append($caption);
                 monaco.editor.colorize(attribute.getDeclaration(), "myJava", {}).then(
                     (html) => {$caption.append(jQuery(html))}
                 );
 
                 if(attribute.documentation != null && attribute.documentation != ""){
-                    $main.append(jQuery('<div class="jo_documentation">' + this.docToString(attribute.documentation) + '</div>'));
+                    $mainBody.append(jQuery('<div class="jo_documentation">' + this.docToString(attribute.documentation) + '</div>'));
                 }
             }
         }

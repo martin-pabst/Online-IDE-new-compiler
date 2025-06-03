@@ -65,7 +65,19 @@ body.joeCssFence {
     #main {
         flex: 6;
         padding: 10px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    #main-heading {
+        padding-bottom: 5px;
+        border-bottom: 1px solid gray;
+        margin-bottom: 2px;
+    }
+
+    #main-body {
         overflow: auto;
+        flex: 1;
     }
 
     .jo_identifier {
