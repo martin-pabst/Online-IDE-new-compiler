@@ -765,12 +765,12 @@ export class JRC {
     })
 
     static fsSetAlphaComment = () => lm({
-        "de": "Setzt den Alphy-Wert des Objekts. Dabei bedeutet 0.0 ganz durchsichtig, 1.0 ganz undurchsichtig.",
+        "de": "Setzt den Alpha-Wert des Objekts. Dabei bedeutet 0.0 ganz durchsichtig, 1.0 ganz undurchsichtig.",
         "en": "Sets alpha value (opacity) of this object. 0.0 means completely transparent, 1.0 means completely opaque.",
     })
 
     static fsGetAlphaComment = () => lm({
-        "de": "Gibt den Alphy-Wert des Objekts zurück. Dabei bedeutet 0.0 ganz durchsichtig, 1.0 ganz undurchsichtig.",
+        "de": "Gibt den Alpha-Wert des Objekts zurück. Dabei bedeutet 0.0 ganz durchsichtig, 1.0 ganz undurchsichtig.",
         "en": "Returns alpha value (opacity) of this object. 0.0 means completely transparent, 1.0 means completely opaque.",
     })
 
