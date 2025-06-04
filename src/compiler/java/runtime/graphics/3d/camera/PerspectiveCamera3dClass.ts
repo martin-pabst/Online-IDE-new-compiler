@@ -28,8 +28,6 @@ export class PerspectiveCamera3dClass extends Camera3dClass {
 
     _setViewport(xRel: number, yRel: number, widthRel: number, heightRel: number){
 
-        this.viewportRelativeCoordinates = [xRel, yRel, widthRel, heightRel];
-
         let dimensions = this.world3d.graphicsDiv!.getBoundingClientRect();
         xRel *= dimensions.width;
         yRel *= dimensions.height;

@@ -24,6 +24,17 @@ export class ArrayCamera3dClass extends Camera3dClass {
     _cj$_constructor_$ArrayCamera3d$PerspectiveCamera3dII(t: Thread, callback: CallbackParameter, cameras: PerspectiveCamera3dClass[]) {
         this.cameras = cameras;
         this.camera3d = new THREE.ArrayCamera(cameras.map(c => <THREE.PerspectiveCamera>c.camera3d));
+
+        // See https://stackoverflow.com/questions/64398567/using-arraycamera-causes-objects-outside-of-1-unit-disappear/64425887#64425887
+        // and https://discourse.threejs.org/t/objects-out-of-fustrum-when-using-arraycamera/19683/5
+        let dummyCamera = new THREE.PerspectiveCamera(75, 1, 0.1, 2e6);
+        dummyCamera.position.set(0, 0, 1e3);
+        dummyCamera.lookAt(new THREE.Vector3(0, 0, 0));
+
+        let arrayCamera = <THREE.ArrayCamera>this.camera3d;
+        arrayCamera.position.copy(dummyCamera.position);
+        arrayCamera.projectionMatrix.copy(dummyCamera.projectionMatrix);
+
         super._cj$_constructor_$Camera3d$(t, callback);
     }
 
