@@ -503,7 +503,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
             } else {
                 columnMapping[header] = index;
                 if (index > maxColumnIndex) maxColumnIndex = index;
-                headersFound.push(header);
+                headersFound.push(header.toLocaleLowerCase());
             }
         }
 
@@ -511,7 +511,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
         // if (missingHeaders.length > 0)
         //     this.$protocol.append(jQuery(`<div class="jo_bulk_error">Nicht gefunden wurden: ${missingHeaders.join(", ")}</div>`));
 
-        let line1HasHeaders = missingHeaders.length < 2;
+        let line1HasHeaders = headersFound.indexOf("rufname") >= 0 && headersFound.indexOf("familienname") >= 0;
 
         let lineNumber: number = 1;
         if (line1HasHeaders) {
