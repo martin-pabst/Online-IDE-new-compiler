@@ -1230,7 +1230,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             let outerType: NonPrimitiveType | StaticNonPrimitiveType | undefined = this.currentSymbolTable.classContext?.outerType;
             while (outerType && outerType instanceof NonPrimitiveType) {
                 outerTypeTemplate += "." + Helpers.outerClassAttributeIdentifier;
-                methods = this.searchMethod(node.identifier, objectSnippet.type, parameterValueSnippets.map(p => p?.type), false, objectSnippet instanceof StaticNonPrimitiveType, true, node.identifierRange);
+                methods = this.searchMethod(node.identifier, outerType, parameterValueSnippets.map(p => p?.type), false, objectSnippet instanceof StaticNonPrimitiveType, true, node.identifierRange);
                 method = methods.best;
                 if (method) {
                     break;
