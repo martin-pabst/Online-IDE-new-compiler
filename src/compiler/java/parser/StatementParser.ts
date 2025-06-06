@@ -80,6 +80,8 @@ export abstract class StatementParser extends TermParser {
             default:
                 let statement = this.parseVariableDeclarationOrMethodDeclarationTerm(expectSemicolonAfterStatement);
 
+                this.firstStatementInsideMethodBodyNotYetCompiled = false;
+
                 return statement;
         }
 

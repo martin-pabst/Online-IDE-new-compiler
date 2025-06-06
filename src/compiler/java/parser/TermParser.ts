@@ -50,6 +50,8 @@ export abstract class TermParser extends TokenIterator {
     currentClassOrInterface?: ASTClassDefinitionNode | ASTInterfaceDefinitionNode;
     currentMethod?: ASTMethodDeclarationNode;
 
+    firstStatementInsideMethodBodyNotYetCompiled: boolean = true;
+
     constructor(public module: JavaCompiledModule) {
         super(module.tokens!, module);
 
@@ -289,6 +291,9 @@ export abstract class TermParser extends TokenIterator {
                 node = this.nodeFactory.buildSuperNode(superToken);
                 if (this.comesToken(TokenType.leftBracket, false)) {
                     node = this.buildMethodCallNode(superToken, node);
+                    if(!this.firstStatementInsideMethodBodyNotYetCompiled){
+                        this.pushError(JCM.superCallInsideConstructorAfterFirstStatement(), "error", superToken.range);
+                    }
                 }
                 break;
             case TokenType.leftCurlyBracket:

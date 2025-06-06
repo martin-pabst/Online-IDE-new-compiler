@@ -529,6 +529,11 @@ export class JCM {
         "en": `Unexpected token: ${token}`,
     })
 
+    static superCallInsideConstructorAfterFirstStatement = () => le({
+        "de": "Der Aufruf des Konstruktors der Oberklasse mit super(...) kann nur als erste Anweisung im Konstruktor erfolgen.",
+        "en": "Call to constructors base class via super(...) must be first statement in constructor."
+    })
+
     static fieldDefinitionDoesntStartWithGenericParamter = () => le({
         "de": "Vor Attributen kann keine Definition generischer Parameter stehen.",
         "en": `Field definition mustn't start with generic parameter definition.`,

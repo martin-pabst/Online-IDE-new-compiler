@@ -376,6 +376,8 @@ export class Parser extends StatementParser {
             this.expect(TokenType.rightBracket, true);
         }
 
+        this.firstStatementInsideMethodBodyNotYetCompiled = true;
+
         if (this.comesToken(TokenType.leftCurlyBracket, false)) {
             let statement = this.parseStatementOrExpression();
             methodNode.statement = statement;
