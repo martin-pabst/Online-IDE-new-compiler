@@ -28,6 +28,8 @@ export class PerspectiveCamera3dClass extends Camera3dClass {
 
     _setViewport(xRel: number, yRel: number, widthRel: number, heightRel: number){
 
+        this.viewportRelativeCoordinates = [xRel, yRel, widthRel, heightRel];
+
         let dimensions = this.world3d.graphicsDiv!.getBoundingClientRect();
         xRel *= dimensions.width;
         yRel *= dimensions.height;
@@ -36,6 +38,8 @@ export class PerspectiveCamera3dClass extends Camera3dClass {
         heightRel *= dimensions.height;
 
         (<THREE.PerspectiveCamera>this.camera3d).viewport = new THREE.Vector4(xRel, yRel, widthRel, heightRel);
+        (<THREE.PerspectiveCamera>this.camera3d).aspect = widthRel/heightRel;
+
         (<THREE.PerspectiveCamera>this.camera3d).updateProjectionMatrix();
         this.camera3d.updateMatrixWorld();
         
