@@ -197,7 +197,7 @@ export class Main implements MainBase {
         
         this.networkManager = new NetworkManager(this, this.bottomDiv.$updateTimer);
 
-        this.rightDiv = new RightDiv(this, jQuery('#rightdiv-inner'));
+        this.rightDiv = new RightDiv(this, jQuery('#rightdiv-inner')[0], true);
         this.rightDiv.initGUI();
 
         this.checkStartupComplete();

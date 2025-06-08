@@ -69,7 +69,7 @@ export class Tab {
         }
 
         this.bodyDiv = document.createElement('div');
-        this.bodyDiv.classList.add('jo_tabbody');
+        this.bodyDiv.classList.add('jo_tab');
         for(let cssClass of cssClasses) this.bodyDiv.classList.add(cssClass);
 
     }
@@ -79,5 +79,8 @@ export class Tab {
         if(this.onShow) this.onShow();
     }
 
+    isActive(): boolean {
+        return this.headingDiv.classList.contains('jo_active');
+    }
 
 }

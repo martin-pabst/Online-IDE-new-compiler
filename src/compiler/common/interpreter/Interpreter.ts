@@ -452,7 +452,7 @@ export class Interpreter {
         }
 
         if (runningStates.indexOf(this.scheduler.state) < 0 && runningStates.indexOf(state) >= 0) {
-            this.main?.showDebugger();
+            this.main?.showDebugger();  
         }
 
         this.eventManager.fire("stateChanged", this.scheduler.state, state);

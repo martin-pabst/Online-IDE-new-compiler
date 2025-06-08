@@ -1,9 +1,7 @@
 import jQuery from 'jquery';
 import { ZoomControl } from "./ZoomControl.js";
-import { ClassBox } from "./classdiagram/ClassBox.js";
-import { Rectangle, Point } from "./classdiagram/Router.js";
+import { Point } from "./classdiagram/Router.js";
 import { DiagramElement } from "./DiagramElement.js";
-import { Main } from "../../Main.js";
 import { MainBase } from "../../MainBase.js";
 
 export var DiagramUnitCm = 0.2; // in cm

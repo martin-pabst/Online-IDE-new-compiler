@@ -3,36 +3,36 @@ import { makeTabs } from "../../../tools/HtmlTools.js";
 import { MainBase } from "../MainBase.js";
 import { ClassDiagram } from "./diagrams/classdiagram/ClassDiagram.js";
 import { IWorld } from '../../../compiler/java/runtime/graphics/IWorld.js';
+import { Tab, TabManager } from '../../../tools/TabManager.js';
+import { DOM } from '../../../tools/DOM.js';
 
 export class RightDiv {
 
     classDiagram: ClassDiagram;
     isWholePage: boolean = false;
 
-    $tabs: JQuery<HTMLElement>;
-    $headings: JQuery<HTMLElement>;
+    coordinatesDiv: HTMLDivElement;
+    controlContainer: HTMLDivElement;
 
-    constructor(private main: MainBase, public $rightDiv: JQuery<HTMLElement>) {
+    tabManager: TabManager;
 
-        this.$tabs = $rightDiv.find('.jo_tabs');
-        this.$headings = $rightDiv.find('.jo_tabheadings');
+    outputTab: Tab;
+    classDiagramTab: Tab;
 
-        let withClassDiagram = this.$headings.find('.jo_classDiagramTabHeading').length > 0;
+    constructor(private main: MainBase, private rightDivInner: HTMLElement, private withClassDiagram: boolean) {
 
-        if (withClassDiagram) {
-            this.classDiagram = new ClassDiagram(this.$tabs.find('.jo_classdiagram'), main);
-            this.$headings.find('.jo_classDiagramTabHeading').on("click", () => { that.main.drawClassDiagrams(false) });
-        }
+    }
 
-        let that = this;
+    private initWholeWindowButton(wholeWindowButton: HTMLDivElement) {
         let rightdiv_width: string = "100%";
-        $rightDiv.find('.jo_whole-window').on("click", () => {
 
-            that.isWholePage = !that.isWholePage;
+        jQuery(wholeWindowButton).on("click", () => {
 
-            let $wholeWindow = jQuery('.jo_whole-window');
+            this.isWholePage = !this.isWholePage;
 
-            if (!that.isWholePage) {
+            let $wholeWindow = jQuery(wholeWindowButton);
+
+            if (!this.isWholePage) {
                 jQuery('#code').css('display', 'flex');
                 jQuery('#rightdiv').css('width', rightdiv_width);
                 // jQuery('#run').css('width', '');
@@ -53,6 +53,97 @@ export class RightDiv {
                 jQuery('.jo_graphics').trigger('sizeChanged');
             }
         });
+        return rightdiv_width;
+    }
+
+    adjustWidthToWorld() {
+        let $runDiv = jQuery(this.outputTab.bodyDiv);
+        let world: IWorld = this.main.getInterpreter().retrieveObject("WorldClass");
+        if (world != null && this.isWholePage) {
+            let screenHeight = window.innerHeight - this.tabManager.headingsDiv.getBoundingClientRect().height - 6;
+            let screenWidthToHeight = window.innerWidth / (screenHeight);
+            let worldWidthToHeight = world.width / world.height;
+            if (worldWidthToHeight <= screenWidthToHeight) {
+                let newWidth = worldWidthToHeight * screenHeight;
+                $runDiv.css('width', newWidth + "px");
+                $runDiv.css('height', screenHeight + "px");
+            } else {
+                let newHeight = window.innerWidth / worldWidthToHeight;
+                $runDiv.css('width', window.innerWidth + "px");
+                $runDiv.css('height', newHeight + "px");
+            }
+        }
+
+    }
+
+    initGUI() {
+
+        this.tabManager = new TabManager(this.rightDivInner);
+
+        this.coordinatesDiv = DOM.makeDiv(undefined, 'jo_coordinates');
+        this.tabManager.insertIntoRightDiv(this.coordinatesDiv);
+
+        let wholeWindowButton = DOM.makeDiv(undefined, 'img_whole-window', 'jo_button', 'jo_whole-window', 'jo_active');
+        wholeWindowButton.style.marginRight = '8px';
+        wholeWindowButton.title = 'Auf Fenstergröße erweitern';
+        this.tabManager.insertIntoRightDiv(wholeWindowButton);
+
+        this.controlContainer = DOM.makeDiv(undefined, 'jo_control-container');
+        this.tabManager.insertIntoRightDiv(this.controlContainer);
+
+        this.tabManager.addTab(this.outputTab = new Tab('Ausgabe', ['jo_run']));
+        DOM.makeDiv(this.outputTab.bodyDiv, 'jo_run-programend').textContent = 'Programm beendet';
+
+        let $inputDiv = jQuery(`
+            <div class="jo_run-input">
+                            <div>
+                                <div>
+                                    <div class="jo_run-input-message" class="jo_rix">Bitte geben Sie eine Zahl ein!
+                                    </div>
+                                    <input class="jo_run-input-input" type="text" class="jo_rix">
+                                    <div class="jo_run-input-button-outer" class="jo_rix">
+                                        <div class="jo_run-input-button" class="jo_rix">OK</div>
+                                    </div>
+
+                                    <div class="jo_run-input-error" class="jo_rix"></div>
+                                </div>
+                            </div>
+                        </div>
+            `)
+        this.outputTab.bodyDiv.appendChild($inputDiv[0]);
+        
+        let $runInnerDiv = jQuery(`
+            <div class="jo_run-inner">
+            <div class="jo_graphics"></div>
+            <div class="jo_output" class="jo_scrollable"></div>
+            </div>
+            `);
+        this.outputTab.bodyDiv.appendChild($runInnerDiv[0]);
+
+        this.tabManager.addTab(this.classDiagramTab = new Tab('Klassendiagramm', ['jo_classdiagram']));
+        this.classDiagramTab.bodyDiv.appendChild(jQuery(`<img src="assets/graphics/ball-triangle.svg" class="jo_classdiagram-spinner">`)[0]);
+        this.classDiagramTab.onShow = () => {
+            this.main.drawClassDiagrams(false);
+        }
+
+        setTimeout(() => {            
+            this.classDiagram = new ClassDiagram(jQuery(this.classDiagramTab.bodyDiv), this.main);
+        }, 100);
+        
+        this.initWholeWindowButton(wholeWindowButton);
+
+        this.outputTab.show();
+        
+    }
+
+    isClassDiagramEnabled(): boolean {
+        return this.classDiagramTab.isActive();
+    }
+
+
+}
+
+
 
         // let child_window = window.open();
 
@@ -78,44 +169,9 @@ export class RightDiv {
         //     }, []).filter(rule => rule.indexOf('joeCssFence') >= 0)
 
         // const newSheet = cdocument.querySelector('head').appendChild(document.createElement('style')).sheet;
-        
+
         // // newSheet.insertRule('body{background-color: red}');
-        
+
         // for(let rule of rules){
         //     newSheet.insertRule(rule);
         // }
-
-
-    }
-
-    adjustWidthToWorld() {
-        let world: IWorld = this.main.getInterpreter().retrieveObject("WorldClass");
-        if (world != null && this.isWholePage) {
-            let screenHeight = window.innerHeight - this.$headings.height() - 6;
-            let screenWidthToHeight = window.innerWidth / (screenHeight);
-            let worldWidthToHeight = world.width / world.height;
-            if (worldWidthToHeight <= screenWidthToHeight) {
-                let newWidth = worldWidthToHeight * screenHeight;
-                this.$tabs.find('.jo_run').css('width', newWidth + "px");
-                this.$tabs.find('.jo_run').css('height', screenHeight + "px");
-            } else {
-                let newHeight = window.innerWidth / worldWidthToHeight;
-                this.$tabs.find('.jo_run').css('width', window.innerWidth + "px");
-                this.$tabs.find('.jo_run').css('height', newHeight + "px");
-            }
-        }
-
-    }
-
-    initGUI() {
-        makeTabs(this.$rightDiv);
-    }
-
-    isClassDiagramEnabled(): boolean {
-        let heading = this.$headings.find('.jo_classDiagramTabHeading');
-        if (heading.length == 0) return false;
-        return heading.hasClass("jo_active");
-    }
-
-
-}

@@ -302,7 +302,7 @@ export class Scheduler {
                 callback();
             });
 
-            this.setState(SchedulerState.running);
+            this.interpreter.setState(SchedulerState.running);
         }
     }
 

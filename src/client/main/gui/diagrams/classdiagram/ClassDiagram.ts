@@ -12,6 +12,9 @@ import { JavaCompiledModule } from '../../../../../compiler/java/module/JavaComp
 import { ClassDiagramHelper } from '../../../../../compiler/java/types/ClassDiagramHelper.js';
 import RouterWorker from './Router?worker';
 
+import "/assets/css/diagram.css";
+
+
 type ClassBoxes = {
     active: ClassBox[],
     inactive: ClassBox[],

@@ -40,6 +40,7 @@ import { IPosition } from "../../compiler/common/range/Position.js";
 import { JUnitTestrunner } from "../../compiler/common/testrunner/JUnitTestrunner.js";
 import * as monaco from 'monaco-editor'
 import { OnlineIDEAccessImpl } from "./EmbeddedInterface.js";
+import { Tab } from "../../tools/TabManager.js";
 
 
 type JavaOnlineConfig = {
@@ -158,6 +159,8 @@ export class MainEmbedded implements MainBase {
             let errors = this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
             this.fileExplorer.renderErrorCount(this.currentWorkspace, errors);
         }
+
+        this.drawClassDiagrams(!this.rightDiv.isClassDiagramEnabled());
 
         for (let module of this.getCompiler().getAllModules()) {
             if (!(module.file instanceof GUIFile)) return;
@@ -563,23 +566,13 @@ export class MainEmbedded implements MainBase {
 
         if ($div.attr('tabindex') == null) $div.attr('tabindex', "0");
 
-        if(this.config.withBottomPanel){
+        if (this.config.withBottomPanel) {
             this.bottomDiv = new BottomDiv(this, $bottomDivInner, this.config.withConsole, this.config.withPCode, this.config.withErrorList, true);
             this.bottomDiv.initGUI();
         }
 
-        this.rightDiv = new RightDiv(this, this.$rightDivInner);
-        this.rightDiv.initGUI();
-
-        let $rightSideContainer = jQuery('<div class="jo_rightdiv-rightside-container">');
-        let $coordinates = jQuery('<div class="jo_coordinates"></div>');
-        this.$rightDivInner.append($rightSideContainer);
-        $rightSideContainer.append($coordinates);
-
-        let graphicsDiv = this.$runDiv.find('.jo_graphics')[0]!;
-        let coordinatesDiv = <HTMLDivElement>$coordinates[0]!;
-
-
+        let graphicsDiv = this.$rightDivInner.find('.jo_graphics')[0];
+        let coordinatesDiv = <HTMLDivElement>this.$rightDivInner.find('.jo_coordinates')[0];
 
         this.debugger = new Debugger(<HTMLDivElement>this.$debuggerDiv[0], this);
         let breakpointManager = new BreakpointManager(this);
@@ -605,7 +598,7 @@ export class MainEmbedded implements MainBase {
         let errorMarker = new ErrorMarker();
         this.language = JavaLanguage.registerMain(this, errorMarker);
 
-        if(this.config.withBottomPanel){
+        if (this.config.withBottomPanel) {
             new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
         }
 
@@ -761,10 +754,10 @@ export class MainEmbedded implements MainBase {
     }
 
     drawClassDiagrams(onlyUpdateIdentifiers: boolean) {
-        // clearTimeout(this.debounceDiagramDrawing);
-        // this.debounceDiagramDrawing = setTimeout(() => {
-        //     this.rightDiv?.classDiagram?.drawDiagram(this.currentWorkspace, onlyUpdateIdentifiers);
-        // }, 500);
+        clearTimeout(this.debounceDiagramDrawing);
+        this.debounceDiagramDrawing = setTimeout(() => {
+            this.rightDiv?.classDiagram?.drawDiagram(this.currentWorkspace, onlyUpdateIdentifiers);
+        }, 500);
     }
 
     async saveWorkspaceToFile() {
@@ -830,43 +823,16 @@ export class MainEmbedded implements MainBase {
         this.$rightDivInner = jQuery('<div class="joe_rightDivInner"></div>');
         $rightDiv.append(this.$rightDivInner);
 
-        this.$debuggerDiv = jQuery('<div class="joe_debuggerDiv"></div>');
-        this.$runDiv = jQuery(
-            `
-            <div class="jo_tab jo_active jo_run">
-            <div class="jo_run-programend">Programm beendet</div>
-            <div class="jo_run-input">
-            <div>
-            <div>
-        <div class="jo_run-input-message" class="jo_rix">Bitte geben Sie eine Zahl ein!</div>
-        <input class="jo_run-input-input" type="text" class="jo_rix">
-        <div class="jo_run-input-button-outer" class="jo_rix">
-        <div class="jo_run-input-button" class="jo_rix">OK</div>
-        </div>
-
-        <div class="jo_run-input-error" class="jo_rix"></div>
-    </div>
-    </div>
-    </div>
-    <div class="jo_run-inner">
-    <div class="jo_graphics"></div>
-    <div class="jo_output jo_scrollable"></div>
-    </div>
-
-    </div>
-
-    `);
-
+        this.rightDiv = new RightDiv(this, this.$rightDivInner[0], true);
+        this.rightDiv.initGUI();
 
         if (!this.config.hideEditor) {
-            let $tabheadings = jQuery('<div class="jo_tabheadings"></div>');
-            $tabheadings.css('position', 'relative');
-            let $thRun = jQuery('<div class="jo_tabheading jo_active" data-target="jo_run" style="line-height: 24px">Ausgabe</div>');
-            let $thVariables = jQuery('<div class="jo_tabheading jo_console-tab" data-target="jo_variablesTab" style="line-height: 24px">Variablen</div>');
-            $tabheadings.append($thRun, $thVariables);
-            this.$rightDivInner.append($tabheadings);
-            let $vd = jQuery('<div class="jo_scrollable jo_editorFontSize jo_variablesTab"></div>');
+            let debuggerTab = new Tab('Debugger', ['jo_scrollable', 'jo_editorFontSize', 'jo_variablesTab']);
+            this.rightDiv.tabManager.addTab(debuggerTab);
 
+            let $vd = jQuery(debuggerTab.bodyDiv);
+
+            this.$debuggerDiv = jQuery(`<div class="joe_debuggerDiv"></div>`);
             this.$alternativeDebuggerDiv = jQuery(`
             <div class="jo_alternativeText jo_scrollable">
             <div style="font-weight: bold">Tipp:</div>
@@ -882,13 +848,9 @@ export class MainEmbedded implements MainBase {
 
             this.$debuggerDiv.hide();
             $vd.append(this.$debuggerDiv, this.$alternativeDebuggerDiv);
-            let $tabs = jQuery('<div class="jo_tabs jo_scrollable"></div>');
-            $tabs.append(this.$runDiv, $vd);
-            this.$rightDivInner.append($tabs);
-            makeTabs($rightDiv);
-        } else {
-            this.$rightDivInner.append(this.$runDiv);
         }
+
+        this.$runDiv = jQuery(this.rightDiv.outputTab.bodyDiv);
 
         return $rightDiv;
     }
