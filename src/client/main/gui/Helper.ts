@@ -127,7 +127,7 @@ export class Helper {
                 case "consoleHelper":
                     text = GuiMessages.HelperConsole();
                     direction = "bottom";
-                    $element = main.bottomDiv.console.$consoleTab.find('.jo_monaco-editor');
+                    $element = jQuery(main.bottomDiv.console.consoleCommandline);
                     break;
                 case "spritesheetHelper":
                     text = GuiMessages.HelperSpritesheet();
