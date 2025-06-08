@@ -5,72 +5,79 @@ export class TabManager {
     headingsDiv: HTMLDivElement;
     bodiesDiv: HTMLDivElement;
 
-    headingDivs: HTMLDivElement[] = [];
-    bodyDivs: HTMLDivElement[] = [];
+    tabheadingRightDiv: HTMLDivElement;
+
+    tabs: Tab[] = [];
 
 
-    constructor(private container: HTMLElement, headings: string[]){
+    constructor(private container: HTMLElement) {
         this.container.classList.add('jo_tabs_container');
 
         this.headingsDiv = document.createElement('div');
-        this.headingsDiv.classList.add('jo_tabs_tabheadings')
+        this.headingsDiv.classList.add('jo_tabheadings')
         this.container.appendChild(this.headingsDiv);
 
         this.bodiesDiv = document.createElement('div');
-        this.bodiesDiv.classList.add('jo_tabs_tabbodies')
+        this.bodiesDiv.classList.add('jo_tabs')
         this.container.appendChild(this.bodiesDiv);
 
-        for(let caption of headings){
-            let headingDiv = document.createElement('div');
-            headingDiv.classList.add('jo_tabs_tabheading');
-            headingDiv.textContent = caption;
-
-            headingDiv.onclick = (ev: MouseEvent) => {
-                this.setActive(<HTMLDivElement>ev.target);
-            }
-
-            this.headingDivs.push(headingDiv);
-            this.headingsDiv.appendChild(headingDiv);
-
-            let bodyDiv = document.createElement('div');
-            bodyDiv.classList.add('jo_tabs_tabbody');
-            this.bodiesDiv.appendChild(bodyDiv);
-            this.bodyDivs.push(bodyDiv);
-
-        }
-
-        if(this.bodyDivs.length > 0){
-            this.setActive(this.headingDivs[0]);
-        }
+        this.tabheadingRightDiv = document.createElement('div');
+        this.tabheadingRightDiv.classList.add("jo_tabheading-right", "jo_noHeading");
+        this.headingsDiv.appendChild(this.tabheadingRightDiv);
 
     }
 
+    addTab(tab: Tab) {
+        tab.tabManager = this;
+        this.tabs.push(tab);
+        this.headingsDiv.insertBefore(tab.headingDiv, this.tabheadingRightDiv);
+        this.bodiesDiv.appendChild(tab.bodyDiv);
+    }
 
-    setActive(heading: HTMLDivElement | number){
-        if(typeof heading == 'number'){
-            heading = this.headingDivs[heading];
+    insertIntoRightDiv(element: HTMLElement){
+        this.tabheadingRightDiv.appendChild(element);
+    }
+
+    setActive(tab: Tab) {
+
+        for (let tab1 of this.tabs) {
+            if(tab1 == tab) continue;
+            tab1.headingDiv.classList.remove('jo_active');
+            tab1.bodyDiv.style.display = 'none';
         }
 
-        for(let h of this.headingDivs){
-            h.classList.remove('jo_tabs_active');
-        }
-
-        heading.classList.add('jo_tabs_active');
-
-        let index = this.headingDivs.indexOf(heading);
-        for(let b of this.bodyDivs){
-            b.style.display = 'none';
-        }
-        this.bodyDivs[index].style.display = 'flex';
+        tab.headingDiv.classList.add('jo_active');
+        tab.bodyDiv.style.display = 'flex'
 
     }
 
-    getBodyElement(index: number): HTMLDivElement {
-        return this.bodyDivs[index];
+}
+
+export class Tab {
+    headingDiv: HTMLDivElement;
+    bodyDiv: HTMLDivElement;
+    tabManager: TabManager;
+    onShow: () => void;
+
+    constructor(caption: string, cssClasses: string[] = []) {
+        this.headingDiv = document.createElement('div');
+        this.headingDiv.classList.add('jo_tabheading');
+        this.headingDiv.textContent = caption;
+
+        this.headingDiv.onclick = (ev: MouseEvent) => {
+            this.show();
+        }
+
+        this.bodyDiv = document.createElement('div');
+        this.bodyDiv.classList.add('jo_tabbody');
+        for(let cssClass of cssClasses) this.bodyDiv.classList.add(cssClass);
+
     }
 
-    setBodyElementClass(c: string){
-        this.bodyDivs.forEach(bd => bd.classList.add(c));
+    show(){
+        this.tabManager.setActive(this);
+        if(this.onShow) this.onShow();
     }
+
 
 }

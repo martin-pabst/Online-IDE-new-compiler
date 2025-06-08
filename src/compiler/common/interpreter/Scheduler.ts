@@ -264,10 +264,10 @@ export class Scheduler {
 
     #ifBreakpointPresentDisableOnce() {
         let currentThread = this.runningThreads[this.#currentThreadIndex];
-        let programState = currentThread.currentProgramState;
         if (currentThread) {
-            let currentStep = programState.currentStepList[programState.stepIndex];
-            if (currentStep.isBreakpoint()) {
+            let programState = currentThread.currentProgramState;
+            let currentStep = programState?.currentStepList[programState.stepIndex];
+            if (currentStep?.isBreakpoint()) {
                 currentThread.haltAtNextBreakpoint = false;
             }
         }
@@ -373,7 +373,7 @@ export class Scheduler {
         currentThread = currentThread || this.runningThreads[this.#currentThreadIndex];
         if (!currentThread) return undefined;
         let programState = currentThread.currentProgramState;
-        let step = programState.currentStepList[programState.stepIndex];
+        let step = programState?.currentStepList[programState.stepIndex];
         return step || undefined;
     }
 

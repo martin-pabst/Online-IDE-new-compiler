@@ -195,7 +195,6 @@
         position: relative;
         height: 150px;
         display: flex;
-        flex-direction: row;
         border-top: 1px solid gray;
         overflow: hidden;
         max-width: 100%;
@@ -276,5 +275,11 @@
     }
     .joe_controlsDiv {
         display: flex;
+        padding: 3px 0 1px 2px;
+        border-bottom: 1px solid gray;
+    }
+
+    .joe_controlsDiv>.jo_speedcontrol-outer {
+        top: -1px;
     }
 }

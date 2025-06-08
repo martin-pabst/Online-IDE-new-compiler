@@ -59,11 +59,11 @@ export class NRWDatabaseConnectorClass extends ObjectClass {
         this.ch = new ConnectionClass(t.scheduler.interpreter);
 
         interpreter.showProgramPointer(undefined, "DatabaseManager");
-        main.getBottomDiv().showHideBusyIcon(true);
+        main.getBottomDiv().showHideDBBusyIcon(true);
         t.state = ThreadState.waiting;
 
         this.ch.connect(code, (error: string) => {
-            main.getBottomDiv().showHideBusyIcon(false);
+            main.getBottomDiv().showHideDBBusyIcon(false);
             if(error){
                 this.message = NRWLang.connectionError() + ": " + error;
             }
@@ -82,14 +82,14 @@ export class NRWDatabaseConnectorClass extends ObjectClass {
         }
 
         t.scheduler.interpreter.showProgramPointer(undefined, "DatabaseManager");
-        this.ch.main.getBottomDiv().showHideBusyIcon(true);
+        this.ch.main.getBottomDiv().showHideDBBusyIcon(true);
         t.state = ThreadState.waiting;
 
         if(statement.trim().toLowerCase().startsWith('select')){
 
             this.ch.executeQuery(statement, (error: string, data: QueryResult) => {
                 
-                this.ch.main.getBottomDiv().showHideBusyIcon(false);
+                this.ch.main.getBottomDiv().showHideDBBusyIcon(false);
                 t.state = ThreadState.running;
     
                 if(error){
@@ -123,7 +123,7 @@ export class NRWDatabaseConnectorClass extends ObjectClass {
 
             this.ch.executeWriteStatement(statement, (error: string) => {
                 
-                this.ch.main.getBottomDiv().showHideBusyIcon(false);
+                this.ch.main.getBottomDiv().showHideDBBusyIcon(false);
                 t.state = ThreadState.running;
     
                 if(error){

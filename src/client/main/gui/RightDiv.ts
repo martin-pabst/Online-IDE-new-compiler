@@ -3,8 +3,6 @@ import { makeTabs } from "../../../tools/HtmlTools.js";
 import { MainBase } from "../MainBase.js";
 import { ClassDiagram } from "./diagrams/classdiagram/ClassDiagram.js";
 import { IWorld } from '../../../compiler/java/runtime/graphics/IWorld.js';
-import { SchedulerState } from "../../../compiler/common/interpreter/SchedulerState.js";
-import { DOM } from '../../../tools/DOM.js';
 
 export class RightDiv {
 

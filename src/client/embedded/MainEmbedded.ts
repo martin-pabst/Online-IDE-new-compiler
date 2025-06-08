@@ -78,8 +78,6 @@ export class MainEmbedded implements MainBase {
 
     bottomDiv: BottomDiv;
     $filesListDiv: JQuery<HTMLElement>;
-    $disassemblerDiv: JQuery<HTMLElement>;
-    $junitDiv: JQuery<HTMLElement>;
     disassembler?: Disassembler;
 
     $hintDiv: JQuery<HTMLElement>;
@@ -150,7 +148,7 @@ export class MainEmbedded implements MainBase {
     }
 
     getReplEditor(): monaco.editor.IStandaloneCodeEditor {
-        return this.bottomDiv.console.editor;
+        return this.bottomDiv?.console.editor;
     }
 
     onCompilationFinished(executable: Executable | undefined): void {
@@ -514,7 +512,8 @@ export class MainEmbedded implements MainBase {
 
         if (this.config.withBottomPanel) {
             let $bottomDiv = jQuery('<div class="joe_bottomDiv"></div>');
-            this.makeBottomDiv($bottomDivInner, $controlsDiv);
+            $bottomDivInner.append($controlsDiv);
+
             $bottomDiv.append($bottomDivInner);
             if (this.config.withFileList) {
                 let $filesDiv = this.makeFilesDiv();
@@ -564,8 +563,10 @@ export class MainEmbedded implements MainBase {
 
         if ($div.attr('tabindex') == null) $div.attr('tabindex', "0");
 
-        this.bottomDiv = new BottomDiv(this, $bottomDivInner, $div);
-        this.bottomDiv.initGUI();
+        if(this.config.withBottomPanel){
+            this.bottomDiv = new BottomDiv(this, $bottomDivInner, this.config.withConsole, this.config.withPCode, this.config.withErrorList, true);
+            this.bottomDiv.initGUI();
+        }
 
         this.rightDiv = new RightDiv(this, this.$rightDivInner);
         this.rightDiv.initGUI();
@@ -604,16 +605,16 @@ export class MainEmbedded implements MainBase {
         let errorMarker = new ErrorMarker();
         this.language = JavaLanguage.registerMain(this, errorMarker);
 
-        if (this.$junitDiv) {
-            new JUnitTestrunner(this, this.$junitDiv[0]);
+        if(this.config.withBottomPanel){
+            new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
         }
 
         this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
 
         // this.getCompiler().triggerCompile();
 
-        if (this.config.withPCode) {
-            this.disassembler = new Disassembler(this.$disassemblerDiv[0], this);
+        if (this.config.withBottomPanel && this.config.withPCode) {
+            this.disassembler = new Disassembler(this.bottomDiv.disassemblerTab.bodyDiv, this);
         }
 
         this.programControlButtons = new ProgramControlButtons($controlsDiv, this.interpreter, this.actionManager);
@@ -776,82 +777,6 @@ export class MainEmbedded implements MainBase {
         let ws = this.currentWorkspace;
         let exportedWorkspace = await WorkspaceImporterExporter.exportWorkspace(ws);
         downloadFile(exportedWorkspace, filename)
-    }
-
-
-    makeBottomDiv($bottomDiv: JQuery<HTMLElement>, $buttonDiv: JQuery<HTMLElement>) {
-
-        let $tabheadings = jQuery('<div class="jo_tabheadings"></div>');
-        $tabheadings.css('position', 'relative');
-        let $thRightSide = jQuery('<div class="joe_tabheading-right jo_noHeading"></div>');
-
-        $thRightSide.append($buttonDiv);
-
-        if (this.config.withConsole) {
-            let $thConsoleClear = jQuery('<div class="img_clear-dark jo_button jo_active jo_console-clear"' +
-                'style="display: none; margin-left: 8px;" title="Console leeren"></div>');
-            $thRightSide.append($thConsoleClear);
-            let $thConsoleCopy = jQuery('<div class="img_copy-dark jo_button jo_active jo_console-copy"' +
-                'style="display: none; margin-left: 8px;" title="Anweisungen aus der Console in die Zwischenablage kopieren"></div>');
-            $thRightSide.append($thConsoleCopy);
-        }
-
-        if (this.config.withErrorList) {
-            let $thErrors = jQuery('<div class="jo_tabheading jo_active" data-target="jo_errorsTab" style="line-height: 24px">Fehler</div>');
-            $tabheadings.append($thErrors);
-        }
-
-
-        if (this.config.withConsole) {
-            let $thConsole = jQuery('<div class="jo_tabheading jo_console-tab" data-target="jo_consoleTab" style="line-height: 24px">Console</div>');
-            $tabheadings.append($thConsole);
-        }
-
-        if (this.config.withPCode) {
-            let $thPCode = jQuery('<div class="jo_tabheading" data-target="jo_pcodeTab" style="line-height: 24px">Disassembler </div>');
-            $tabheadings.append($thPCode);
-        }
-
-        let $thJunit = jQuery('<div class="jo_tabheading jo_testrunnerTabheading" data-target="jo_junitTab" style="line-height: 24px">Testrunner </div>');
-        $tabheadings.append($thJunit);
-
-
-        $tabheadings.append($thRightSide);
-
-        $bottomDiv.append($tabheadings);
-
-        let $tabs = jQuery('<div class="jo_tabs jo_scrollable"></div>');
-
-        if (this.config.withErrorList) {
-            let $tabError = jQuery('<div class="jo_active jo_scrollable jo_errorsTab"></div>');
-            $tabs.append($tabError);
-        }
-
-        if (this.config.withConsole) {
-            let $tabConsole = jQuery(
-                `
-        <div class="jo_editorFontSize jo_consoleTab">
-        <div class="jo_console-inner">
-            <div class="jo_scrollable jo_console-top"></div>
-            <div class="jo_commandline"></div>
-        </div>
-        </div>
-    `);
-
-            $tabs.append($tabConsole);
-        }
-
-        if (this.config.withPCode) {
-            this.$disassemblerDiv = jQuery('<div class="jo_scrollable jo_pcodeTab"></div>');
-            $tabs.append(this.$disassemblerDiv);
-        }
-
-        this.$junitDiv = jQuery('<div class="jo_scrollable jo_junitTab"></div>');
-        $tabs.append(this.$junitDiv);
-
-
-        $bottomDiv.append($tabs);
-
     }
 
     loadWorkspaceFromFile(file: globalThis.File) {

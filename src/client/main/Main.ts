@@ -185,16 +185,17 @@ export class Main implements MainBase {
         this.actionManager = new ActionManager(null);
         this.actionManager.init();
 
-        this.networkManager = new NetworkManager(this, jQuery('#bottomdiv-outer .jo_updateTimerDiv'));
-
+        
         let sliders = new Sliders(this);
         sliders.initSliders();
-
+        
         this.mainMenu = new MainMenu(this);
         this.projectExplorer = new ProjectExplorer(this, jQuery('#leftpanel>.jo_projectexplorer'));
         this.projectExplorer.initGUI();
-
-        this.bottomDiv = new BottomDiv(this, jQuery('#bottomdiv-outer>.jo_bottomdiv-inner'), jQuery('body'));
+        
+        this.bottomDiv = new BottomDiv(this, jQuery('#bottomdiv-outer>.jo_bottomdiv-inner'), true, true, true, false);
+        
+        this.networkManager = new NetworkManager(this, this.bottomDiv.$updateTimer);
 
         this.rightDiv = new RightDiv(this, jQuery('#rightdiv-inner'));
         this.rightDiv.initGUI();
@@ -254,7 +255,7 @@ export class Main implements MainBase {
         */
         this.language = JavaLanguage.registerMain(this, errorMarker);
 
-        new JUnitTestrunner(this, jQuery('.jo_testrunnerTab')[0]);
+        new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
 
         this.getCompiler().eventManager.on('compilationFinishedWithNewExecutable', this.onCompilationFinished, this);
         this.getCompiler().eventManager.on('compilationFinished', () => {
@@ -262,7 +263,7 @@ export class Main implements MainBase {
         }, this);
         // this.getCompiler().triggerCompile();
 
-        this.disassembler = new Disassembler(this.bottomDiv.getDisassemblerDiv(), this);
+        this.disassembler = new Disassembler(this.bottomDiv.disassemblerTab.bodyDiv, this);
 
         this.programControlButtons = new ProgramControlButtons(jQuery('#controls'), this.interpreter, this.actionManager);
 

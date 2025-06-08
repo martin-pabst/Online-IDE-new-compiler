@@ -1,11 +1,14 @@
 import { Error } from "../../../../compiler/common/Error.js";
 import { ErrorMarker } from "../../../../compiler/common/monacoproviders/ErrorMarker.js";
 import { ReplReturnValue } from "../../../../compiler/java/parser/repl/ReplReturnValue.js";
+import { DOM } from "../../../../tools/DOM.js";
 import { copyTextToClipboard } from "../../../../tools/HtmlTools.js";
+import { Tab, TabManager } from "../../../../tools/TabManager.js";
 import { MainBase } from "../../MainBase.js";
 import { Helper } from "../Helper.js";
 import { ConsoleEntry } from "./ConsoleEntry.js";
 import * as monaco from 'monaco-editor'
+import jQuery from 'jquery';
 
 export class MyConsole {
 
@@ -19,8 +22,7 @@ export class MyConsole {
 
     consoleEntries: ConsoleEntry[] = [];
 
-    $consoleTabHeading: JQuery<HTMLElement>;
-    $consoleTab: JQuery<HTMLElement>;
+    tab: Tab;
 
     errorMarker: ErrorMarker = new ErrorMarker();
 
@@ -28,27 +30,56 @@ export class MyConsole {
 
     lastCompileTime: number = 0;
 
-    constructor(private main: MainBase, public $bottomDiv: JQuery<HTMLElement>) {
-        if ($bottomDiv == null) return; // Console is only used to highlight exceptions
+    consoleTop: HTMLDivElement;
+    consoleCommandline: HTMLDivElement;
 
-        this.$consoleTabHeading = $bottomDiv.find('.jo_tabheadings>.jo_console-tab');
-        this.$consoleTab = $bottomDiv.find('.jo_tabs>.jo_consoleTab');
+
+    constructor(private main: MainBase, private tabManager: TabManager | null) {
+        if (tabManager == null) return; // Console is only used to highlight exceptions
+
+        this.tab = new Tab("Console", ["jo_editorFontSize", "jo_consoleTab"]);
+        tabManager.addTab(this.tab);
+
+        // <div class="jo_editorFontSize jo_consoleTab">
+        //     <div class="jo_console-inner">
+        //         <div class="jo_scrollable jo_console-top"></div>
+        //         <div class="jo_commandline"></div>
+        //     </div>
+        // </div>
+        let consoleInner = DOM.makeDiv(this.tab.bodyDiv, "jo_console-inner");
+        this.consoleTop = DOM.makeDiv(consoleInner, "jo_scrollable", "jo_console-top");
+        this.consoleCommandline = DOM.makeDiv(consoleInner, "jo_commandline");
+
     }
 
     initConsoleClearButton() {
 
         let that = this;
 
-        let $consoleClear = this.$consoleTabHeading.parent().find('.jo_console-clear');
-        let $consoleCopy = this.$consoleTabHeading.parent().find('.jo_console-copy');
+        let $consoleTab = jQuery(this.tab.bodyDiv);
 
-        this.$consoleTab.on('myshow', () => {
+        //         <div class="img_clear-dark jo_button jo_active jo_console-clear" alt=""
+        //     style="display: none; margin-right: 8px;" title="Console leeren"></div>
+        // <div class="img_copy-dark jo_button jo_active jo_console-copy" alt=""
+        //     style="display: none; margin-right: 8px;"
+        //     title="Anweisungen aus der Console in die Zwischenablage kopieren"></div>
+
+        let $consoleClear = jQuery(`<div class="img_clear-dark jo_button jo_active jo_console-clear" alt=""
+             style="display: none; margin-right: 8px;" title="Console leeren"></div>`);
+        this.tabManager.insertIntoRightDiv($consoleClear[0]);
+
+        let $consoleCopy = jQuery(`<div class="img_copy-dark jo_button jo_active jo_console-copy" alt=""
+             style="display: none; margin-right: 8px;"
+             title="Anweisungen aus der Console in die Zwischenablage kopieren"></div>`);
+        this.tabManager.insertIntoRightDiv($consoleCopy[0]);
+
+        $consoleTab.on('myshow', () => {
             $consoleClear.show();
             $consoleCopy.show();
             that.editor.layout();
         });
 
-        this.$consoleTab.on('myhide', () => {
+        $consoleTab.on('myhide', () => {
             $consoleClear.hide();
             $consoleCopy.hide();
         });
@@ -67,13 +98,15 @@ export class MyConsole {
 
     initGUI() {
 
-        if (this.$bottomDiv == null) return;
+        if (this.tabManager == null) return;
 
         this.initConsoleClearButton();
 
-        let $editorDiv = this.$consoleTab.find('.jo_commandline');
+        this.tab.onShow = () => {
+            this.editor.layout();
+        }
 
-        this.editor = monaco.editor.create($editorDiv[0], {
+        this.editor = monaco.editor.create(this.consoleCommandline, {
             value: [
                 ''
             ].join('\n'),
@@ -216,7 +249,7 @@ export class MyConsole {
         })
 
 
-        this.$consoleTabHeading.on("mousedown", () => {
+        jQuery(this.tab.headingDiv).on("mousedown", () => {
             Helper.showHelper("consoleHelper", this.main);
 
             setTimeout(() => {
@@ -263,8 +296,7 @@ export class MyConsole {
     }
 
     showTab() {
-        let mousePointer = window.PointerEvent ? "pointer" : "mouse";
-        this.$consoleTabHeading.trigger(mousePointer + "down");
+        this.tab.show();
     }
 
 
@@ -300,10 +332,11 @@ export class MyConsole {
 
     writeConsoleError(command: string | JQuery<HTMLElement>, error: Error) {
 
-        if (this.$consoleTab == null) {
+        if (this.tabManager == null) {
             return;
         }
-        let consoleTop = this.$consoleTab.find('.jo_console-top');
+
+        let consoleTop = jQuery(this.consoleTop);
 
         let commandEntry = new ConsoleEntry(true, command, null, null, null, null, false);
         this.consoleEntries.push(commandEntry);
@@ -324,10 +357,10 @@ export class MyConsole {
 
     writeConsoleEntry(command: string | JQuery<HTMLElement>, value: ReplReturnValue, color: string = null) {
 
-        if (this.$consoleTab == null) {
+        if (this.tabManager == null) {
             return;
         }
-        let consoleTop = this.$consoleTab.find('.jo_console-top');
+        let consoleTop = jQuery(this.consoleTop);
 
         let commandEntry = new ConsoleEntry(true, command, null, null, null, null, value == null, color);
         this.consoleEntries.push(commandEntry);
@@ -349,7 +382,7 @@ export class MyConsole {
     }
 
     clear() {
-        let consoleTop = this.$consoleTab.find('.jo_console-top');
+        let consoleTop = jQuery(this.consoleTop);
         consoleTop.children().remove(); // empty();
         this.consoleEntries = [];
         this.statements = [];
@@ -363,12 +396,14 @@ export class MyConsole {
 
 
     clearExceptions() {
-        if (this.$bottomDiv == null) return;
-        let $consoleTop = this.$consoleTab.find('.jo_console-top');
+        if (this.tabManager == null) {
+            return;
+        }
+        let $consoleTop = jQuery(this.consoleTop);
         $consoleTop.find('.jo_exception').parents('.jo_consoleEntry').remove();
     }
 
-    copyToClipboard(){
+    copyToClipboard() {
         copyTextToClipboard(this.statements.join("\n"));
     }
 

@@ -3,6 +3,7 @@ import { makeDiv } from "../../../tools/HtmlTools.js";
 import { PushClientManager } from '../../communication/pushclient/PushClientManager.js';
 import { Workspace } from "../../workspace/Workspace.js";
 import { Main } from "../Main.js";
+import { Tab, TabManager } from '../../../tools/TabManager.js';
 
 export class GradingManager {
 
@@ -14,8 +15,13 @@ export class GradingManager {
 
     dontFireOnChange: boolean = false;
 
-    constructor(private main: Main, $bottomDiv: JQuery<HTMLElement>, public $tabHeading: JQuery<HTMLElement>) {
-        this.$gradingTab = $bottomDiv.find('.jo_tabs>.jo_gradingTab');
+    tab: Tab;
+
+    constructor(private main: Main, tabManager: TabManager) {
+
+        this.tab = new Tab("Bewertung", ["jo_gradingTab"]);
+        tabManager.addTab(this.tab);
+        this.$gradingTab = jQuery(this.tab.bodyDiv);
 
         PushClientManager.getInstance().subscribe("onGradeChangedInPruefungAdministration", () => {this.setValues(this.main.currentWorkspace)})
     }
@@ -81,7 +87,7 @@ export class GradingManager {
         if(hideGrading){
             this.$gradingTab.removeClass('jo_active');
         }
-        this.$tabHeading.css('display', hideGrading ? 'none' : 'block');
+        this.tab.headingDiv.style.display = hideGrading ? 'none' : 'block';
 
         this.dontFireOnChange = true;
         this.$gradingMark.val(ws.grade == null ? "" : ws.grade);

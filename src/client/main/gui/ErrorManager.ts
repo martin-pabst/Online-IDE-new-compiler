@@ -7,6 +7,7 @@ import { Error } from "../../../compiler/common/Error.js";
 import { MainEmbedded } from "../../embedded/MainEmbedded.js";
 import type * as monaco from 'monaco-editor'
 import { Range } from "../../../compiler/common/range/Range.js";
+import { Tab, TabManager } from "../../../tools/TabManager.js";
 
 export class ErrorManager {
 
@@ -15,24 +16,22 @@ export class ErrorManager {
 
     minimapColor: {[key: string]:string } = {};
 
-    constructor(private main: MainBase, private $bottomDiv: JQuery<HTMLElement>, $mainDiv: JQuery<HTMLElement>) {
+    tab: Tab;
+
+    constructor(private main: MainBase, tabManager: TabManager) {
         this.minimapColor["error"] = "#bc1616";
         this.minimapColor["warning"] = "#cca700";
         this.minimapColor["info"] = "#75beff";
 
-
-        let that = this;
-        $mainDiv.find(".jo_pw_undo").on("click", () => {
-            let editor = that.main.getMainEditor();
-            editor.trigger(".", "undo", {});
-        }).attr('title', 'Undo');
+        this.tab = new Tab("Fehler", ["jo_active", "jo_scrollable", "jo_editorFontSize", "jo_errorsTab"])
+        tabManager.addTab(this.tab);
+        this.$errorDiv = jQuery(this.tab.bodyDiv);
     }
 
     showErrors(workspace: Workspace): Map<GUIFile, number> {
 
         let errorCountMap: Map<GUIFile, number> = new Map();
 
-        this.$errorDiv = this.$bottomDiv.find('.jo_tabs>.jo_errorsTab');
         this.$errorDiv.empty();
 
         let hasErrors = false;

@@ -80,7 +80,7 @@ export class WebSocketClass extends ObjectClass {
         }
 
         t.scheduler.interpreter.showProgramPointer(undefined, "WebSocketClass");
-        this.main.getBottomDiv().showHideBusyIcon(true);
+        this.main.getBottomDiv().showHideDBBusyIcon(true);
         t.state = ThreadState.waiting;
 
 
@@ -106,7 +106,7 @@ export class WebSocketClass extends ObjectClass {
                 })
 
                 this.isOpen = true;
-                this.main.getBottomDiv().showHideBusyIcon(false);
+                this.main.getBottomDiv().showHideDBBusyIcon(false);
                 this.sendIntern(JSON.stringify(request));
                 this.onOpen();
                 t.state = ThreadState.running;
