@@ -1,5 +1,4 @@
 import jQuery from 'jquery';
-import { makeTabs } from "../../../tools/HtmlTools.js";
 import { MainBase } from "../MainBase.js";
 import { ClassDiagram } from "./diagrams/classdiagram/ClassDiagram.js";
 import { IWorld } from '../../../compiler/java/runtime/graphics/IWorld.js';
@@ -111,7 +110,7 @@ export class RightDiv {
                         </div>
             `)
         this.outputTab.bodyDiv.appendChild($inputDiv[0]);
-        
+
         let $runInnerDiv = jQuery(`
             <div class="jo_run-inner">
             <div class="jo_graphics"></div>
@@ -120,20 +119,22 @@ export class RightDiv {
             `);
         this.outputTab.bodyDiv.appendChild($runInnerDiv[0]);
 
-        this.tabManager.addTab(this.classDiagramTab = new Tab('Klassendiagramm', ['jo_classdiagram']));
-        this.classDiagramTab.bodyDiv.appendChild(jQuery(`<img src="assets/graphics/ball-triangle.svg" class="jo_classdiagram-spinner">`)[0]);
-        this.classDiagramTab.onShow = () => {
-            this.main.drawClassDiagrams(false);
+        if (this.withClassDiagram) {
+            this.tabManager.addTab(this.classDiagramTab = new Tab('Klassendiagramm', ['jo_classdiagram']));
+            this.classDiagramTab.bodyDiv.appendChild(jQuery(`<img src="assets/graphics/ball-triangle.svg" class="jo_classdiagram-spinner">`)[0]);
+            this.classDiagramTab.onShow = () => {
+                this.main.drawClassDiagrams(false);
+            }
+
+            setTimeout(() => {
+                this.classDiagram = new ClassDiagram(jQuery(this.classDiagramTab.bodyDiv), this.main);
+            }, 100);
         }
 
-        setTimeout(() => {            
-            this.classDiagram = new ClassDiagram(jQuery(this.classDiagramTab.bodyDiv), this.main);
-        }, 100);
-        
         this.initWholeWindowButton(wholeWindowButton);
 
         this.outputTab.show();
-        
+
     }
 
     isClassDiagramEnabled(): boolean {
@@ -145,33 +146,33 @@ export class RightDiv {
 
 
 
-        // let child_window = window.open();
+// let child_window = window.open();
 
-        // const cdocument = child_window.document;
-        // const cbody = cdocument.body;
-        // cbody.style.margin = '0';
-        // cbody.style.padding = '0';
+// const cdocument = child_window.document;
+// const cbody = cdocument.body;
+// cbody.style.margin = '0';
+// cbody.style.padding = '0';
 
-        // let cssFence = DOM.makeDiv(cbody, 'joeCssFence');
-        // cssFence.appendChild($rightDiv[0]);
-        // cssFence.style.margin = '0';
+// let cssFence = DOM.makeDiv(cbody, 'joeCssFence');
+// cssFence.appendChild($rightDiv[0]);
+// cssFence.style.margin = '0';
 
-        // const rules = Array.from(document.styleSheets)
-        //     .reduce((sum, sheet) => {
-        //         // errors in CORS at some sheets (e.g. qiita)
-        //         // like: "Uncaught DOMException: Failed to read the 'cssRules' property from 'CSSStyleSheet': Cannot access rules"
-        //         try {
-        //             return [...sum, ...Array.from(sheet.cssRules).map(rule => rule.cssText)];
-        //         } catch (e) {
-        //             // console.log('errored', e);
-        //             return sum;
-        //         }
-        //     }, []).filter(rule => rule.indexOf('joeCssFence') >= 0)
+// const rules = Array.from(document.styleSheets)
+//     .reduce((sum, sheet) => {
+//         // errors in CORS at some sheets (e.g. qiita)
+//         // like: "Uncaught DOMException: Failed to read the 'cssRules' property from 'CSSStyleSheet': Cannot access rules"
+//         try {
+//             return [...sum, ...Array.from(sheet.cssRules).map(rule => rule.cssText)];
+//         } catch (e) {
+//             // console.log('errored', e);
+//             return sum;
+//         }
+//     }, []).filter(rule => rule.indexOf('joeCssFence') >= 0)
 
-        // const newSheet = cdocument.querySelector('head').appendChild(document.createElement('style')).sheet;
+// const newSheet = cdocument.querySelector('head').appendChild(document.createElement('style')).sheet;
 
-        // // newSheet.insertRule('body{background-color: red}');
+// // newSheet.insertRule('body{background-color: red}');
 
-        // for(let rule of rules){
-        //     newSheet.insertRule(rule);
-        // }
+// for(let rule of rules){
+//     newSheet.insertRule(rule);
+// }

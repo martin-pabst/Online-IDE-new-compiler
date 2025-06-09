@@ -49,6 +49,7 @@ type JavaOnlineConfig = {
     withConsole?: boolean,
     withErrorList?: boolean,
     withBottomPanel?: boolean,
+    withClassDiagram?: boolean,
     speed?: number | "max",
     id?: string,
     hideStartPanel?: boolean,
@@ -257,6 +258,7 @@ export class MainEmbedded implements MainBase {
 
         if (this.config.hideEditor) {
             this.config.withBottomPanel = false;
+            this.config.withClassDiagram = false;
             this.config.withFileList = false;
             this.config.withConsole = false;
             this.config.withPCode = false;
@@ -823,7 +825,7 @@ export class MainEmbedded implements MainBase {
         this.$rightDivInner = jQuery('<div class="joe_rightDivInner"></div>');
         $rightDiv.append(this.$rightDivInner);
 
-        this.rightDiv = new RightDiv(this, this.$rightDivInner[0], true);
+        this.rightDiv = new RightDiv(this, this.$rightDivInner[0], this.config.withClassDiagram);
         this.rightDiv.initGUI();
 
         if (!this.config.hideEditor) {
