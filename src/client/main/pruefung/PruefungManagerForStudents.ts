@@ -3,16 +3,22 @@ import { Pruefung, ReportPruefungStudentStateRequest, ReportPruefungStudentState
 import { PushClientManager } from "../../communication/pushclient/PushClientManager.js";
 import { Main } from "../Main.js";
 import jQuery from "jquery";
+import { PruefungManagerForStudentsMessages } from "./PruefungManagerForStudentsMessages.js";
 
 type MessagePruefungStart = { pruefung: Pruefung }
 
 export class PruefungManagerForStudents {
 
     pruefung: Pruefung;
+    $pruefungLaeuft: JQuery<HTMLDivElement>;
 
     timer: any;
 
     constructor(private main: Main) {
+        jQuery('#pruefunglaeuft').remove();
+        this.$pruefungLaeuft = jQuery(`<div id="pruefunglaeuft"> <span class="img_test-state-running"></span> ${PruefungManagerForStudentsMessages.pruefungLaeuft()}</div>`);
+        jQuery('.jo_projectexplorer').prepend(this.$pruefungLaeuft);
+
         PushClientManager.subscribe("startPruefung", (message: MessagePruefungStart) => {
             this.startPruefung(message.pruefung);
         })
