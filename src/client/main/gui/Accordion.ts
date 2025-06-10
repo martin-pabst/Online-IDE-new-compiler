@@ -8,6 +8,7 @@ import { Main } from "../Main.js";
 import { MainBase } from "../MainBase.js";
 import { Workspace } from '../../workspace/Workspace.js';
 import { EmbeddedMessages } from '../../embedded/EmbeddedMessages.js';
+import { AccordionMessages } from './language/GUILanguage.js';
 
 export type AccordionElement = {
     name: string;
@@ -77,8 +78,8 @@ export class AccordionPanel {
 
         if (withFolders) {
             let that = this;
-            this.$newFolderAction = jQuery('<div class="img_add-folder-dark jo_button jo_active" style="margin-right: 4px"' +
-                ' title="Neuen Ordner auf oberster Ebene anlegen">');
+            this.$newFolderAction = jQuery(`<div class="img_add-folder-dark jo_button jo_active" style="margin-right: 4px" +
+                 title="${AccordionMessages.createFolderTopmostLevel()}">`);
             this.$newFolderAction.on(mousePointer + 'down', (e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -98,8 +99,8 @@ export class AccordionPanel {
             this.addAction(this.$newFolderAction);
 
 
-            let $collapseAllAction = jQuery('<div class="img_collapse-all-dark jo_button jo_active" style="margin-right: 4px"' +
-                ' title="Alle Ordner zusammenfalten">');
+            let $collapseAllAction = jQuery(`<div class="img_collapse-all-dark jo_button jo_active" style="margin-right: 4px"` +
+                ` title="${AccordionMessages.collapseAllFoders()}">`);
             $collapseAllAction.on(mousePointer + 'down', (e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -634,7 +635,7 @@ export class AccordionPanel {
             let contextMenuItems: ContextMenuItem[] = [];
             if (that.renameCallback != null && !element.readonly) {
                 contextMenuItems.push({
-                    caption: "Umbenennen",
+                    caption: AccordionMessages.rename(),
                     callback: () => {
                         that.renameElement(element);
                     }
@@ -644,13 +645,13 @@ export class AccordionPanel {
             if (element.isFolder && !element.readonly) {
                 contextMenuItems = contextMenuItems.concat([
                     {
-                        caption: "Neuen Unterordner anlegen (unterhalb '" + element.name + "')...",
+                        caption: AccordionMessages.createNewFolderBelow(element.name),
                         callback: () => {
                             that.select(element.externalElement);
                             // that.$newFolderAction.trigger(mousePointer + 'down');
                             let pathArray = that.getCurrentlySelectedPath();
 
-                            that.addFolder("Neuer Ordner", pathArray, (newElement: AccordionElement) => {
+                            that.addFolder(AccordionMessages.newFolder(), pathArray, (newElement: AccordionElement) => {
                                 that.newFolderCallback(newElement, () => {
                                     that.sortElements();
                                     newElement.$htmlFirstLine[0].scrollIntoView();
@@ -737,13 +738,13 @@ export class AccordionPanel {
                         // nothing to do.
                     }
                 }, {
-                    caption: "Ich bin mir sicher: löschen!",
+                    caption: AccordionMessages.sureDelete(),
                     color: "#ff6060",
                     callback: () => {
 
                         if (element.isFolder) {
                             if (that.getChildElements(element).length > 0) {
-                                alert('Dieser Ordner kann nicht gelöscht werden, da er nicht leer ist.');
+                                alert(AccordionMessages.cannotDeleteNonEmptyFolder());
                                 return;
                             }
                         }

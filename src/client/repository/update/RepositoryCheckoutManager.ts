@@ -4,6 +4,7 @@ import { ajax } from "../../communication/AjaxHelper.js";
 import { AttachWorkspaceToRepositoryRequest, AttachWorkspaceToRepositoryResponse, GetRepositoryListRequest, GetRepositoryListResponse, RepositoryInfo } from "../../communication/Data.js";
 import { Main } from "../../main/Main.js";
 import { Workspace } from "../../workspace/Workspace.js";
+import { RepocheckoutManagerMessages } from '../language/RepositoryMessages.js';
 
 
 export class RepositoryCheckoutManager {
@@ -21,7 +22,8 @@ export class RepositoryCheckoutManager {
     $filterButtonDiv: JQuery<HTMLElement>;
     $filterInput: JQuery<HTMLInputElement>;
 
-    filterbuttonOptions = ["alle", "private", "für die Klasse freigegebene", "für die Schule freigegebene"];
+    filterbuttonOptions = [RepocheckoutManagerMessages.all(), RepocheckoutManagerMessages.private(), 
+        RepocheckoutManagerMessages.accessableForClass(), RepocheckoutManagerMessages.accessableForSchool()];
 
     workspace: Workspace;
 
@@ -37,8 +39,8 @@ export class RepositoryCheckoutManager {
         let $checkoutDiv = jQuery('#checkoutRepo-div');
 
         $checkoutDiv.append(this.$mainHeading = makeDiv('checkoutRepo-mainHeading', "createUpdateRepo-mainHeading", ""));
-        this.$mainHeading.append(makeDiv("", "", "Checkout Repository - Workspace mit Repository verbinden"));
-        this.$mainHeading.append(this.$exitButton = makeDiv("", "jo_synchro_button", "Zurück zum Programmieren", { "background-color": "var(--speedcontrol-grip)", "color": "var(--fontColorLight)", "font-size": "10pt" }));
+        this.$mainHeading.append(makeDiv("", "", RepocheckoutManagerMessages.caption()));
+        this.$mainHeading.append(this.$exitButton = makeDiv("", "jo_synchro_button", RepocheckoutManagerMessages.backToCoding(), { "background-color": "var(--speedcontrol-grip)", "color": "var(--fontColorLight)", "font-size": "10pt" }));
         this.$exitButton.on("click", () => { that.exitButtonClicked() })
 
 
@@ -47,13 +49,13 @@ export class RepositoryCheckoutManager {
 
         let $chooseWorkspaceDiv = makeDiv("", "checkoutRepo-chooseDiv");
         $divBelow.append($chooseWorkspaceDiv);
-        $chooseWorkspaceDiv.append(makeDiv("", "checkoutRepo-minorHeading", "Diesen Worspace mit dem Repository verbinden:"));
+        $chooseWorkspaceDiv.append(makeDiv("", "checkoutRepo-minorHeading", RepocheckoutManagerMessages.connectThisWorkspaceToRepository()));
         this.$workspaceDropdown = jQuery('<select></select>');
         $chooseWorkspaceDiv.append(this.$workspaceDropdown);
 
         let $codeDiv = makeDiv("", "checkoutRepo-chooseDiv");
         $divBelow.append($codeDiv);
-        $codeDiv.append(makeDiv("", "checkoutRepo-minorHeading", "Alternativ zur Auswahl unten Eingabe eines Repository-Codes:"));
+        $codeDiv.append(makeDiv("", "checkoutRepo-minorHeading", RepocheckoutManagerMessages.inputRepositoryCode()));
         this.$codeInput = jQuery('<input type="text"></input>');
         $codeDiv.append(this.$codeInput);
 
@@ -68,7 +70,7 @@ export class RepositoryCheckoutManager {
 
         let $publishedToFilterDiv = makeDiv("", "checkoutRepo-chooseDiv");
         $divBelow.append($publishedToFilterDiv);
-        $publishedToFilterDiv.append(makeDiv("", "checkoutRepo-minorHeading", "Diese Repositories anzeigen:"));
+        $publishedToFilterDiv.append(makeDiv("", "checkoutRepo-minorHeading", RepocheckoutManagerMessages.showTheseRepositories()));
         this.$filterButtonDiv = jQuery('<fieldset></fieldset>');
         $publishedToFilterDiv.append(this.$filterButtonDiv);
 
@@ -84,7 +86,7 @@ export class RepositoryCheckoutManager {
 
         let $inputFilterDiv = makeDiv("", "checkoutRepo-chooseDiv");
         $divBelow.append($inputFilterDiv);
-        $inputFilterDiv.append(makeDiv("", "checkoutRepo-minorHeading", "Filter/Suche:"));
+        $inputFilterDiv.append(makeDiv("", "checkoutRepo-minorHeading", RepocheckoutManagerMessages.filterSearch()));
         this.$filterInput = jQuery('<input type="text"></input>');
         $inputFilterDiv.append(this.$filterInput);
 
@@ -136,7 +138,7 @@ export class RepositoryCheckoutManager {
         // Init Workspace-Dropdown
         this.$workspaceDropdown.empty();
         setSelectItems(this.$workspaceDropdown, [{
-            caption: "Neuen Workspace erstellen",
+            caption: RepocheckoutManagerMessages.createNewWorkspace(),
             object: null,
             value: -1
         }].concat(this.main.workspaceList.filter(ws => ws.repository_id == null && !ws.isFolder).map(ws => {
@@ -225,7 +227,7 @@ export class RepositoryCheckoutManager {
         if(combinedSecret != ""){
             let tIndex = combinedSecret.indexOf('T');
             if(tIndex < 0){
-                alert("Der Code muss den Buchstaben T enthalten.");
+                alert(RepocheckoutManagerMessages.codeMustContainT());
                 return;
             }
             let number = Number.parseInt(combinedSecret.substring(0, tIndex));
@@ -233,7 +235,7 @@ export class RepositoryCheckoutManager {
                 repositoryId = number;
                 secret = combinedSecret.substring(tIndex + 1);
             } else {
-                alert ("Im Code muss vor dem T eine Zahl stehen.");
+                alert (RepocheckoutManagerMessages.digitPriorToTInsideCode());
                 return;
             }
         } else {
@@ -267,14 +269,14 @@ export class RepositoryCheckoutManager {
                     that.main.projectExplorer.setWorkspaceActive(newWorkspace, true);
                 }, 400);
 
-                alert('Der neue Workspace ' + response.new_workspace.name + " wurde erfolgreich angelegt.");
+                alert(RepocheckoutManagerMessages.newWorkspaceCreateSuccessfully(response.new_workspace.name));
 
             } else {
 
                 workspace.repository_id = repositoryId;
                 let explorer = that.main.projectExplorer;
                 explorer.workspaceListPanel.setElementClass(workspace.panelElement, "repository");
-                alert(`Der Workspace ${workspace.name} wurde erfolgreich mit dem Repository verknüpft.`);
+                alert(RepocheckoutManagerMessages.workspaceSuccessfullyConnectedToRepository(workspace.name));
 
             }
 

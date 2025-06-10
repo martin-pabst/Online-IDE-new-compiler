@@ -4,6 +4,7 @@ import { PushClientManager } from '../../communication/pushclient/PushClientMana
 import { Workspace } from "../../workspace/Workspace.js";
 import { Main } from "../Main.js";
 import { Tab, TabManager } from '../../../tools/TabManager.js';
+import { GradingManagerMessages } from './language/GUILanguage.js';
 
 export class GradingManager {
 
@@ -19,7 +20,7 @@ export class GradingManager {
 
     constructor(private main: Main, tabManager: TabManager) {
 
-        this.tab = new Tab("Bewertung", ["jo_gradingTab"]);
+        this.tab = new Tab(GradingManagerMessages.evaluation(), ["jo_gradingTab"]);
         tabManager.addTab(this.tab);
         this.$gradingTab = jQuery(this.tab.bodyDiv);
 
@@ -45,14 +46,14 @@ export class GradingManager {
         let $l2 = makeDiv(null, "jo_grading_markdiv");
         let $l3 = makeDiv(null, "jo_grading_markdiv");
 
-        $l1.append(makeDiv(null, null, "Punkte:"), this.$gradingPoints);
-        $l2.append(makeDiv(null, null, "Note:", {"margin-top": "3px"}), this.$gradingMark);
-        $l3.append(makeDiv(null, null, "Anwesend:", {"margin-top": "3px"}), this.$attendedExam);
+        $l1.append(makeDiv(null, null, GradingManagerMessages.points() + ":"), this.$gradingPoints);
+        $l2.append(makeDiv(null, null, GradingManagerMessages.grade() + ":", {"margin-top": "3px"}), this.$gradingMark);
+        $l3.append(makeDiv(null, null, GradingManagerMessages.attendance() + ":", {"margin-top": "3px"}), this.$attendedExam);
 
         $markColumn.append($l1, $l2, $l3);
 
 
-        this.$gradingCommentMarkdown = jQuery(`<textarea class="jo_grading_commentmarkdown" placeholder="Bemerkung..."></textarea>`);
+        this.$gradingCommentMarkdown = jQuery(`<textarea class="jo_grading_commentmarkdown" placeholder="${GradingManagerMessages.remark} ..."></textarea>`);
         this.$gradingCommentMarkdown.on('input', () => {that.onChange()})
 
         if(!that.main.user.is_teacher){

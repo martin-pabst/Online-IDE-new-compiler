@@ -18,7 +18,8 @@ export type UserSettings = {
     },
     //    theme: string,  // old!
     viewModes: ViewModes,
-    classDiagram: SerializedClassDiagram
+    classDiagram: SerializedClassDiagram,
+    language: string
 }
 
 export type ViewModes = {

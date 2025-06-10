@@ -13,6 +13,7 @@ import { SqlIdeUrlHolder } from './SqlIdeUrlHolder.js';
 import { AutoLogout } from './AutoLogout.js';
 import { SchedulerState } from "../../compiler/common/interpreter/SchedulerState.js";
 import * as monaco from 'monaco-editor';
+import { LoginMessages } from './language/MainLanguage.js';
 
 export class Login {
 
@@ -108,7 +109,7 @@ export class Login {
 
         this.main.interpreter.eventManager.fire("resetRuntime");
 
-        jQuery('#bitteWartenText').html('Bitte warten, der letzte Bearbeitungsstand wird noch gespeichert ...');
+        jQuery('#bitteWartenText').html(LoginMessages.pleaseWaitWhileSaving());
         jQuery('#bitteWarten').css('display', 'flex');
 
         if (this.main.workspacesOwnerId != this.main.user.id) {
@@ -159,7 +160,7 @@ export class Login {
         ajax(servlet, loginRequest, (response: LoginResponse) => {
 
             if (!response.success) {
-                jQuery('#login-message').html('Fehler: Benutzername und/oder Passwort ist falsch.');
+                jQuery('#login-message').html(LoginMessages.wrongUsernameOrPassword());
                 jQuery('#login-spinner>img').hide();
             } else {
 
@@ -171,7 +172,7 @@ export class Login {
                 jQuery('#login').hide();
                 jQuery('#main').css('visibility', 'visible');
 
-                jQuery('#bitteWartenText').html('Bitte warten ...');
+                jQuery('#bitteWartenText').html(LoginMessages.pleaseWait());
                 jQuery('#bitteWarten').css('display', 'flex');
 
                 let user: UserData = response.user;
@@ -190,17 +191,21 @@ export class Login {
                             folderButtonDone: false
                         },
                         viewModes: null,
-                        classDiagram: null
+                        classDiagram: null,
+                        language: 'de'
                     }
                 }
 
                 that.main.user = user;
+
+                that.main.languagemanager.setLanguage(user.settings.language);
 
                 SqlIdeUrlHolder.sqlIdeURL = response.sqlIdeForOnlineIdeClient + "/servlet/";
 
                 this.main.waitForGUICallback = () => {
 
                     that.main.mainMenu.initGUI(user, "");
+                    that.main.initGUIAfterLogin();
 
                     that.main.bottomDiv.gradingManager?.initGUI();
 
@@ -264,7 +269,7 @@ export class Login {
             }
 
         }, (errorMessage: string) => {
-            jQuery('#login-message').html('Login gescheitert: ' + errorMessage);
+            jQuery('#login-message').html(LoginMessages.loginFailed() + errorMessage);
             jQuery('#login-spinner>img').hide();
         }
         );
@@ -276,7 +281,7 @@ export class Login {
         jQuery('#login').hide();
         jQuery('#main').css('visibility', 'visible');
 
-        jQuery('#bitteWartenText').html('Bitte warten ...');
+        jQuery('#bitteWartenText').html(LoginMessages.pleaseWait());
         jQuery('#bitteWarten').css('display', 'flex');
         this.sendLoginRequest(singleUseToken);
     }

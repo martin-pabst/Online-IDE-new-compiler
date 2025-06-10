@@ -1,7 +1,6 @@
 import { ajaxAsync } from "../../communication/AjaxHelper.js";
 import { Pruefung, ReportPruefungStudentStateRequest, ReportPruefungStudentStateResponse, WorkspaceData } from "../../communication/Data.js";
 import { PushClientManager } from "../../communication/pushclient/PushClientManager.js";
-import { Workspace } from "../../workspace/Workspace.js";
 import { Main } from "../Main.js";
 import jQuery from "jquery";
 
@@ -46,7 +45,7 @@ export class PruefungManagerForStudents {
         this.main.networkManager.sendUpdatesAsync(true, false, false).then(() => {
 
             let wss = this.main.workspaceList.filter(ws => ws.pruefung_id == pruefung.id);
-            if (wss.length == 0) alert('Es fehlt der Prüfungsworkspace.');
+            if (wss.length == 0) alert('Workspace missing.');
 
             let pruefungWorkspace = wss[0];
             this.main.workspaceList = [pruefungWorkspace];

@@ -7,6 +7,7 @@ import { GUIToggleButton } from "../../../tools/components/GUIToggleButton.js";
 import jQuery from "jquery";
 import { PushClientManager } from "../../communication/pushclient/PushClientManager.js";
 import * as monaco from 'monaco-editor'
+import { ProjectExplorerMessages, TeacherExplorerMessages } from "./language/GUILanguage.js";
 
 
 export class TeacherExplorer {
@@ -54,7 +55,7 @@ export class TeacherExplorer {
     initStudentPanel() {
 
         this.studentPanel = new AccordionPanel(this.main.projectExplorer.accordion,
-            "Schüler/innen", "3", null,
+           TeacherExplorerMessages.students() , "3", null,
             "", "student", false, false, "student", false, [], "", "");
 
         this.studentPanel.selectCallback = (ae: UserData) => {
@@ -95,8 +96,8 @@ export class TeacherExplorer {
         let that = this;
 
         let $buttonContainer = jQuery('<div class="joe_teacherExplorerClassButtons"></div>');
-        let toggleButtonClass = new GUIToggleButton("Klassen", $buttonContainer, true);
-        let toggleButtonTest = new GUIToggleButton("Prüfungen", $buttonContainer, false);
+        let toggleButtonClass = new GUIToggleButton(TeacherExplorerMessages.classes(), $buttonContainer, true);
+        let toggleButtonTest = new GUIToggleButton(TeacherExplorerMessages.tests(), $buttonContainer, false);
         toggleButtonClass.linkTo(toggleButtonTest);
 
         this.classPanel = new AccordionPanel(this.main.projectExplorer.accordion,
@@ -106,7 +107,7 @@ export class TeacherExplorer {
         this.classPanel.$captionElement.find('.jo_actions').append($buttonPruefungAdministration);
 
 
-        $buttonPruefungAdministration.attr("title", "Neue Prüfung erstellen").hide();
+        $buttonPruefungAdministration.attr("title", TeacherExplorerMessages.createNewTest()).hide();
 
         this.classPanel.selectCallback = (ea) => {
 
@@ -159,14 +160,13 @@ export class TeacherExplorer {
         let projectExplorer = this.main.projectExplorer;
 
         if (p.state == "preparing" || p.state == "running") {
-            alert('Die Prüfung befindet sich im Zustand "' + PruefungCaptions[p.state] + ", daher kann noch keine Schülerliste zur Korrektur angezeigt werden." +
-                "\nKlicken Sie auf das Zahnrad rechts oberhalb der Prüfungsliste, um zur Prüfungsverwaltung zu gelangen. Dort können Sie den Zustand der Prüfung ändern.");
+            alert(TeacherExplorerMessages.testIsInState(PruefungCaptions[p.state]));
 
             projectExplorer.fileListPanel.clear();
             projectExplorer.fileListPanel.setCaption("---");
             projectExplorer.workspaceListPanel.clear();
             this.studentPanel.clear();
-            this.main.getMainEditor().setModel(monaco.editor.createModel("Keine Datei vorhanden.", "text"));
+            this.main.getMainEditor().setModel(monaco.editor.createModel(TeacherExplorerMessages.noFile(), "text"));
 
 
         } else {
@@ -184,7 +184,7 @@ export class TeacherExplorer {
     renderStudents(userDataList: UserData[]) {
         this.studentPanel.clear();
 
-        this.studentPanel.setCaption(userDataList.length + " Schüler/innen");
+        this.studentPanel.setCaption(userDataList.length + " " + TeacherExplorerMessages.students());
 
         userDataList.sort((a, b) => {
             if(a.vidis_akronym && b.vidis_akronym){
@@ -215,7 +215,7 @@ export class TeacherExplorer {
 
     renderClasses(classDataList: ClassData[]) {
         this.studentPanel.clear();
-        this.studentPanel.setCaption("Schüler/innen");
+        this.studentPanel.setCaption(TeacherExplorerMessages.students());
         this.classPanel.clear();
 
         classDataList.sort((a, b) => {

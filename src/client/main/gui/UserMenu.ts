@@ -3,6 +3,7 @@ import { openContextMenu, ContextMenuItem } from "../../../tools/HtmlTools.js";
 import { Dialog } from "./Dialog.js";
 import { ajax } from "../../communication/AjaxHelper.js";
 import jQuery from 'jquery';
+import { UserMenuMessages } from "./language/GUILanguage.js";
 
 export class UserMenu {
 
@@ -20,7 +21,7 @@ export class UserMenu {
 
             let contextMenuItems: ContextMenuItem[] = [
                 {
-                    caption: "Passwort ändern...",
+                    caption: UserMenuMessages.changePassword() + "...",
                     callback: () => {
                         let passwortChanger = new PasswordChanger(that.main);
                         passwortChanger.show();
@@ -51,32 +52,31 @@ export class PasswordChanger {
 
     show() {
         this.dialog.init();
-        this.dialog.heading("Passwort ändern");
-        this.dialog.description("Bitte geben Sie Ihr bisheriges Passwort und darunter zweimal Ihr neues Passwort ein. <br>" +
-        "Das Passwort muss mindestens 8 Zeichen lang sein und sowohl Buchstaben als auch Zahlen oder Sonderzeichen enthalten.")
-        let $oldPassword = this.dialog.input("password", "Altes Passwort");
-        let $newPassword1 = this.dialog.input("password", "Neues Passwort");
-        let $newPassword2 = this.dialog.input("password", "Neues Passwort wiederholen");
+        this.dialog.heading(UserMenuMessages.changePassword());
+        this.dialog.description(UserMenuMessages.changePasswordDescription())
+        let $oldPassword = this.dialog.input("password", UserMenuMessages.oldPassword());
+        let $newPassword1 = this.dialog.input("password", UserMenuMessages.newPassword());
+        let $newPassword2 = this.dialog.input("password", UserMenuMessages.repeatNewPassword());
         let $errorDiv = this.dialog.description("", "red");
-        let waitDiv = this.dialog.waitMessage("Bitte warten...")
+        let waitDiv = this.dialog.waitMessage(UserMenuMessages.pleaseWait())
 
         this.dialog.buttons([
             {
-                caption: "Abbrechen",
+                caption: UserMenuMessages.cancel(),
                 color: "#a00000",
                 callback: () => {this.dialog.close()}
             },
             {
-                caption: "OK",
+                caption: UserMenuMessages.ok(),
                 color: "green",
                 callback: () => {
                     if($newPassword1.val() != $newPassword2.val()){
-                        $errorDiv.text("Die zwei eingegebenen neuen Passwörter stimmen nicht überein.")
+                        $errorDiv.text(UserMenuMessages.passwordsDontMatch())
                     } else {
                         waitDiv(true);
                         ajax("changePassword", {oldPassword: $oldPassword.val(), newPassword: $newPassword1.val()}, () => {
                             waitDiv(false);
-                            alert("Das Passwort wurde erfolgreich geändert.");
+                            alert(UserMenuMessages.settingPasswordSuccessful());
                             this.dialog.close();
                         }, (message) => {
                             waitDiv(false);

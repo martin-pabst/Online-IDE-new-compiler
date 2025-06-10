@@ -2,6 +2,7 @@ import { JavaLibraryManager, LibraryData } from "../../../compiler/java/runtime/
 import { Workspace } from "../../workspace/Workspace.js";
 import { Main } from "../Main.js";
 import { Dialog } from "./Dialog.js";
+import { WorkspaceSettingsDialogMessages } from "./language/GUILanguage.js";
 
 
 
@@ -16,8 +17,8 @@ export class WorkspaceSettingsDialog{
     open(){
         let dialog = new Dialog();
         dialog.init();
-        dialog.heading("Einstellungen zum Workspace " + this.workspace.name);
-        dialog.subHeading("A. Verwendete Bibliotheken:");
+        dialog.heading(WorkspaceSettingsDialogMessages.workspaceSettings(this.workspace.name));
+        dialog.subHeading(WorkspaceSettingsDialogMessages.usedLibraries());
 
         let currentLibraries = this.workspace.settings.libraries;
 
@@ -28,12 +29,12 @@ export class WorkspaceSettingsDialog{
 
         dialog.buttons([
             {
-                caption: "Abbrechen",
+                caption: WorkspaceSettingsDialogMessages.cancel(),
                 color: "#a00000",
                 callback: () => {dialog.close()}
             },
             {
-                caption: "OK",
+                caption: WorkspaceSettingsDialogMessages.OK(),
                 color: "green",
                 callback: () => {
                     let changed: boolean = false;

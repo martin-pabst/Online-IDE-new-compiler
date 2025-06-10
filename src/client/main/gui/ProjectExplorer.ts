@@ -16,9 +16,10 @@ import { WorkspaceSettingsDialog } from "./WorkspaceSettingsDialog.js";
 import { GUIFile } from '../../workspace/File.js';
 import { WorkspaceImporterExporter } from '../../workspace/WorkspaceImporterExporter.js';
 import { SchedulerState } from "../../../compiler/common/interpreter/SchedulerState.js";
-import { GuiMessages } from './GuiMessages.js';
+import { GuiMessages } from './language/GuiMessages.js';
 import * as monaco from 'monaco-editor'
 import { WorkspaceImporter } from './WorkspaceImporter.js';
+import { ProjectExplorerMessages } from './language/GUILanguage.js';
 
 
 export class ProjectExplorer {
@@ -48,8 +49,8 @@ export class ProjectExplorer {
 
         let that = this;
 
-        this.fileListPanel = new AccordionPanel(this.accordion, "Kein Workspace gewählt", "3",
-            "img_add-file-dark", "Neue Datei...", "emptyFile", true, false, "file", true, [],
+        this.fileListPanel = new AccordionPanel(this.accordion, ProjectExplorerMessages.noWorkspaceSelected(), "3",
+            "img_add-file-dark", ProjectExplorerMessages.newFile(), "emptyFile", true, false, "file", true, [],
             GuiMessages.NewFileName(), ".java");
 
         this.fileListPanel.newElementCallback =
@@ -57,7 +58,7 @@ export class ProjectExplorer {
             (accordionElement, successfulNetworkCommunicationCallback) => {
 
                 if (that.main.currentWorkspace == null) {
-                    alert('Bitte wählen Sie zuerst einen Workspace aus.');
+                    alert(ProjectExplorerMessages.firstChooseWorkspace());
                     return null;
                 }
 
@@ -78,7 +79,7 @@ export class ProjectExplorer {
                         if (error == null) {
                             successfulNetworkCommunicationCallback(f);
                         } else {
-                            alert('Der Server ist nicht erreichbar!');
+                            alert(ProjectExplorerMessages.serverNotReachable());
 
                         }
                     });
@@ -108,11 +109,11 @@ export class ProjectExplorer {
                         that.main.getCompiler()?.triggerCompile();
                         if (that.main.getCurrentWorkspace().getFiles().length == 0) {
 
-                            that.fileListPanel.setCaption("Keine Datei vorhanden");
+                            that.fileListPanel.setCaption(ProjectExplorerMessages.noFile());
                         }
                         callbackIfSuccessful();
                     } else {
-                        alert('Der Server ist nicht erreichbar!');
+                        alert(ProjectExplorerMessages.serverNotReachable());
 
                     }
                 });
@@ -124,11 +125,11 @@ export class ProjectExplorer {
             let that = this;
 
             cmiList.push({
-                caption: "Duplizieren",
+                caption: ProjectExplorerMessages.duplicate(),
                 callback: (element: AccordionElement) => {
 
                     let oldFile: GUIFile = element.externalElement;
-                    let newFile: GUIFile = new GUIFile(this.main, oldFile.name + " - Kopie", oldFile.getText());
+                    let newFile: GUIFile = new GUIFile(this.main, oldFile.name + " - " + ProjectExplorerMessages.copy(), oldFile.getText());
                     newFile.remote_version = oldFile.remote_version;
 
                     let workspace = that.main.getCurrentWorkspace();
@@ -152,7 +153,7 @@ export class ProjectExplorer {
                                 that.setFileActive(newFile);
                                 that.fileListPanel.renameElement(element);
                             } else {
-                                alert('Der Server ist nicht erreichbar!');
+                                alert(ProjectExplorerMessages.serverNotReachable());
 
                             }
                         });
@@ -165,7 +166,7 @@ export class ProjectExplorer {
 
                 if (file.submitted_date == null) {
                     cmiList.push({
-                        caption: "Als Hausaufgabe markieren",
+                        caption: ProjectExplorerMessages.markAsAssignment(),
                         callback: (element: AccordionElement) => {
 
                             let file = <GUIFile>element.externalElement;
@@ -177,7 +178,7 @@ export class ProjectExplorer {
                     });
                 } else {
                     cmiList.push({
-                        caption: "Hausaufgabenmarkierung entfernen",
+                        caption: ProjectExplorerMessages.removeAssignmentLabel(),
                         callback: (element: AccordionElement) => {
 
                             let file = <GUIFile>element.externalElement;
@@ -204,7 +205,7 @@ export class ProjectExplorer {
 
 
         this.$synchronizeAction = jQuery('<div class="img_open-change jo_button jo_active" style="margin-right: 4px"' +
-            ' title="Workspace mit Repository synchronisieren">');
+            ` title="${ProjectExplorerMessages.synchronizeWorkspaceWithRepository()}">`);
 
 
 
@@ -231,7 +232,7 @@ export class ProjectExplorer {
         let title: string = "";
         if (file.submitted_date != null) {
             klass = "img_homework";
-            title = "Wurde als Hausaufgabe abgegeben: " + file.submitted_date
+            title = ProjectExplorerMessages.labeledAsAssignment() + ": " + file.submitted_date
             if (file.text_before_revision) {
                 klass = "img_homework-corrected";
                 title = "Korrektur liegt vor."
@@ -258,8 +259,8 @@ export class ProjectExplorer {
 
         let that = this;
 
-        this.workspaceListPanel = new AccordionPanel(this.accordion, "WORKSPACES", "4",
-            "img_add-workspace-dark", "Neuer Workspace...", "workspace", true, true, "workspace", false, ["file"],
+        this.workspaceListPanel = new AccordionPanel(this.accordion, ProjectExplorerMessages.WORKSPACES(), "4",
+            "img_add-workspace-dark", ProjectExplorerMessages.newWorkspace() + "...", "workspace", true, true, "workspace", false, ["file"],
             GuiMessages.NewWorkspaceName(), "");
 
         this.workspaceListPanel.newElementCallback =
@@ -283,7 +284,7 @@ export class ProjectExplorer {
                         that.setWorkspaceActive(w);
                         w.renderSynchronizeButton(accordionElement);
                     } else {
-                        alert('Der Server ist nicht erreichbar!');
+                        alert(ProjectExplorerMessages.serverNotReachable());
 
                     }
                 });
@@ -306,11 +307,11 @@ export class ProjectExplorer {
                         that.main.removeWorkspace(workspace);
                         that.fileListPanel.clear();
                         that.main.getMainEditor().setModel(null);
-                        that.fileListPanel.setCaption('Bitte Workspace selektieren');
+                        that.fileListPanel.setCaption(ProjectExplorerMessages.selectWorkspace());
                         this.$synchronizeAction.hide();
                         successfulNetworkCommunicationCallback();
                     } else {
-                        alert('Der Server ist nicht erreichbar!');
+                        alert(ProjectExplorerMessages.serverNotReachable());
 
                     }
                 });
@@ -344,7 +345,7 @@ export class ProjectExplorer {
                 if (error == null) {
                     successCallback(folder);
                 } else {
-                    alert("Fehler: " + error);
+                    alert(ProjectExplorerMessages.error() + ": " + error);
                     that.workspaceListPanel.removeElement(newElement);
                 }
             });
@@ -383,7 +384,7 @@ export class ProjectExplorer {
                 (error: string) => {
                     if (error == null) {
                     } else {
-                        alert('Der Server ist nicht erreichbar!');
+                        alert(ProjectExplorerMessages.serverNotReachable());
 
                     }
                 });
@@ -391,7 +392,7 @@ export class ProjectExplorer {
         }
 
         this.$homeAction = jQuery('<div class="img_home-dark jo_button jo_active" style="margin-right: 4px"' +
-            ' title="Meine eigenen Workspaces anzeigen">');
+            ` title="${ProjectExplorerMessages.displayOwnWorkspaces()}">`);
         this.$homeAction.on('pointerdown', (e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -417,19 +418,19 @@ export class ProjectExplorer {
             if (workspaceAccordionElement.isFolder) {
                 cmiList.push(
                     {
-                        caption: "Neuer Workspace...",
+                        caption: ProjectExplorerMessages.newWorkspace() + "...",
                         callback: () => {
                             that.workspaceListPanel.select(workspaceAccordionElement.externalElement);
                             that.workspaceListPanel.$buttonNew.trigger(mousePointer + 'down');
                         }
                     }, {
-                        caption: "Workspace importieren...",
+                        caption: ProjectExplorerMessages.importWorkspace() + "...",
                         callback: () => {
                             new WorkspaceImporter(<Main>that.main, workspaceAccordionElement.path.concat(ws.name)).show();
                         }
                     },
                     {
-                        caption: "Ordner Exportieren",
+                        caption: ProjectExplorerMessages.exportFolder(),
                         callback: async (element: AccordionElement) => {
                             let ws: Workspace = <Workspace>element.externalElement;
                             let name: string = ws.name.replace(/\//g, "_");
@@ -439,7 +440,7 @@ export class ProjectExplorer {
                 );
             } else {
                 cmiList.push({
-                    caption: "Duplizieren",
+                    caption: ProjectExplorerMessages.duplicate(),
                     callback: (element: AccordionElement) => {
                         let srcWorkspace: Workspace = element.externalElement;
                         this.main.networkManager.sendDuplicateWorkspace(srcWorkspace,
@@ -472,7 +473,7 @@ export class ProjectExplorer {
                     }
                 },
                     {
-                        caption: "Exportieren",
+                        caption: ProjectExplorerMessages.exportToFile(),
                         callback: async (element: AccordionElement) => {
                             let ws: Workspace = <Workspace>element.externalElement;
                             let name: string = ws.name.replace(/\//g, "_");
@@ -483,7 +484,7 @@ export class ProjectExplorer {
 
                 if (this.main.user.is_teacher && this.main.teacherExplorer.classPanel.elements.length > 0) {
                     cmiList.push({
-                        caption: "An Klasse austeilen...",
+                        caption: ProjectExplorerMessages.distributeToClass() + "...",
                         callback: (element: AccordionElement) => { },
                         subMenu: this.main.teacherExplorer.classPanel.elements.map((ae) => {
                             return {
@@ -497,7 +498,7 @@ export class ProjectExplorer {
                                         if (error == null) {
                                             let networkManager = this.main.networkManager;
                                             let dt = networkManager.updateFrequencyInSeconds * networkManager.forcedUpdateEvery;
-                                            alert("Der Workspace " + workspace.name + " wurde an die Klasse " + klasse.name + " ausgeteilt. Er wird sofort in der Workspaceliste der Schüler/innen erscheinen.\n Falls das bei einer Schülerin/einem Schüler nicht klappt, bitten Sie sie/ihn, sich kurz aus- und wieder einzuloggen.");
+                                            alert(ProjectExplorerMessages.workspaceDistributed(workspace.name, klasse.name));
                                         } else {
                                             alert(error);
                                         }
@@ -508,7 +509,7 @@ export class ProjectExplorer {
                         })
                     },
                         {
-                            caption: "An einzelne Schüler/innen austeilen...",
+                            caption: ProjectExplorerMessages.distributeToStudents(),
                             callback: (element: AccordionElement) => {
                                 let classes: ClassData[] = this.main.teacherExplorer.classPanel.elements.map(ae => ae.externalElement);
                                 let workspace: Workspace = element.externalElement;
@@ -521,7 +522,7 @@ export class ProjectExplorer {
                 if (this.main.repositoryOn && this.main.workspacesOwnerId == this.main.user.id) {
                     if (workspaceAccordionElement.externalElement.repository_id == null) {
                         cmiList.push({
-                            caption: "Repository anlegen...",
+                            caption: ProjectExplorerMessages.createRepository(),
                             callback: (element: AccordionElement) => {
                                 let workspace: Workspace = element.externalElement;
 
@@ -551,14 +552,14 @@ export class ProjectExplorer {
                         });
                     } else {
                         cmiList.push({
-                            caption: "Mit Repository synchronisieren",
+                            caption: ProjectExplorerMessages.synchronizeWorkspaceWithRepository(),
                             callback: (element: AccordionElement) => {
                                 let workspace: Workspace = element.externalElement;
                                 workspace.synchronizeWithRepository();
                             }
                         });
                         cmiList.push({
-                            caption: "Vom Repository loslösen",
+                            caption: ProjectExplorerMessages.detachFromRepository(),
                             color: "#ff8080",
                             callback: (element: AccordionElement) => {
                                 let workspace: Workspace = element.externalElement;
@@ -574,7 +575,7 @@ export class ProjectExplorer {
                 }
 
                 cmiList.push({
-                    caption: "Einstellungen...",
+                    caption: ProjectExplorerMessages.settings() + "...",
                     callback: (element: AccordionElement) => {
                         let workspace: Workspace = element.externalElement;
                         new WorkspaceSettingsDialog(workspace, this.main).open();
@@ -600,7 +601,7 @@ export class ProjectExplorer {
 
     renderFiles(workspace: Workspace) {
 
-        let name = workspace == null ? "Kein Workspace vorhanden" : workspace.name;
+        let name = workspace == null ? ProjectExplorerMessages.noWorkspace() : workspace.name;
 
         this.fileListPanel.setCaption(name);
         this.fileListPanel.clear();
@@ -767,9 +768,9 @@ export class ProjectExplorer {
         this.lastOpenFile?.saveViewState(editor);
 
         if (file == null) {
-            editor.setModel(monaco.editor.createModel("Keine Datei vorhanden.", "text"));
+            editor.setModel(monaco.editor.createModel(ProjectExplorerMessages.noFile(), "text"));
             editor.updateOptions({ readOnly: true });
-            this.fileListPanel.setCaption('Keine Datei vorhanden');
+            this.fileListPanel.setCaption(ProjectExplorerMessages.noFile());
         } else {
             editor.updateOptions({ readOnly: this.main.getCurrentWorkspace()?.readonly && !this.main.user.is_teacher });
             editor.setModel(file.getMonacoModel());
@@ -827,7 +828,7 @@ export class ProjectExplorer {
 
         if (color == null) {
             color = "transparent";
-            caption = "Meine WORKSPACES";
+            caption = ProjectExplorerMessages.myWorkspaces();
         } else {
             caption = usersFullName;
         }

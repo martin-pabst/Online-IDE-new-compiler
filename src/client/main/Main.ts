@@ -103,6 +103,8 @@ export class Main implements MainBase {
 
     viewModeController: ViewModeController;
 
+    languagemanager: LanguageManager;
+
     language: Language;
     interpreter: Interpreter;
 
@@ -169,6 +171,8 @@ export class Main implements MainBase {
 
         checkIfMousePresent();
 
+        this.languagemanager = new LanguageManager(this, document.body);
+
         this.login = new Login(this);
 
         // let singleUseToken: string | undefined = getCookieValue("singleUseToken");
@@ -185,16 +189,16 @@ export class Main implements MainBase {
         this.actionManager = new ActionManager(null);
         this.actionManager.init();
 
-        
+
         let sliders = new Sliders(this);
         sliders.initSliders();
-        
+
         this.mainMenu = new MainMenu(this);
         this.projectExplorer = new ProjectExplorer(this, jQuery('#leftpanel>.jo_projectexplorer'));
         this.projectExplorer.initGUI();
-        
+
         this.bottomDiv = new BottomDiv(this, jQuery('#bottomdiv-outer>.jo_bottomdiv-inner'), true, true, true, false);
-        
+
         this.networkManager = new NetworkManager(this, this.bottomDiv.$updateTimer);
 
         this.rightDiv = new RightDiv(this, jQuery('#rightdiv-inner')[0], true);
@@ -210,8 +214,6 @@ export class Main implements MainBase {
     }
 
     startupAfterMonacoEditorIsLoaded() {
-
-        // new LanguageManager(this, document.body).setupLanguageSelector();
 
         this.editor = new Editor(this, true, false);
         this.editor.initGUI(jQuery('#editor'));
@@ -269,7 +271,9 @@ export class Main implements MainBase {
 
         new EditorOpenerProvider(this);
 
+    }
 
+    initGUIAfterLogin() {
     }
 
     initTeacherExplorer(classdata: ClassData[]) {

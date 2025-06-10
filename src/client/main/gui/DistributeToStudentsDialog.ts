@@ -2,6 +2,7 @@ import { ClassData, UserData } from "../../communication/Data.js";
 import { Workspace } from "../../workspace/Workspace.js";
 import { Main } from "../Main.js";
 import jQuery from "jquery";
+import { DistributeToStudentsDialogMessages } from "./language/GUILanguage.js";
 
 export class DistributeToStudentsDialog {
 
@@ -17,17 +18,17 @@ export class DistributeToStudentsDialog {
         this.$dialog = jQuery('#dialog');
         jQuery('#main').css('visibility', 'hidden');
         this.$dialog.append(jQuery(
-            `<div class="jo_ds_heading">Austeilen eines Workspace an einzelne Schüler/innen</div>
+            `<div class="jo_ds_heading">${DistributeToStudentsDialogMessages.distributeWorkspaceToIndividualStudents()}</div>
              <div class="jo_ds_settings">
-                <div class="jo_ds_settings_caption">Workspace:</div><div class="jo_ds_workspacename">${this.workspace.name}</div>
-                <div class="jo_ds_settings_caption">Liste filtern:</div><div class="jo_ds_filterdiv"><input class="dialog-input"></input></div>
+                <div class="jo_ds_settings_caption">${DistributeToStudentsDialogMessages.workspace()}:</div><div class="jo_ds_workspacename">${this.workspace.name}</div>
+                <div class="jo_ds_settings_caption">${DistributeToStudentsDialogMessages.filterList()}:</div><div class="jo_ds_filterdiv"><input class="dialog-input"></input></div>
              </div>
              <div class="jo_ds_student_list jo_scrollable">
              </div>
              <div class="jo_ds_selected_message"></div>
              <div class="dialog-buttonRow jo_ds_buttonRow">
-                <button id="jo_ds_cancel_button">Abbrechen</button>
-                <button id="jo_ds_distribute_button">Austeilen</button>
+                <button id="jo_ds_cancel_button">${DistributeToStudentsDialogMessages.cancel()}</button>
+                <button id="jo_ds_distribute_button">${DistributeToStudentsDialogMessages.distribute()}</button>
              </div>
             `
         ));
@@ -59,7 +60,7 @@ export class DistributeToStudentsDialog {
             $studentLine.on('mousedown', () => {
                 $studentLine.toggleClass('jo_active');
                  that.studentCount += $studentLine.hasClass('jo_active') ? 1 : -1;
-                 jQuery('.jo_ds_selected_message').text(`${that.studentCount} Schüler/inn/en selektiert`);
+                 jQuery('.jo_ds_selected_message').text(`${that.studentCount} ${DistributeToStudentsDialogMessages.studentsSelected()}`);
             });
             $studentLine.data('student', student);
             $studentLine.data('klass', student["klass"]);
@@ -120,7 +121,7 @@ export class DistributeToStudentsDialog {
             if (error == null) {
                 let networkManager = this.main.networkManager;
                 let dt = networkManager.updateFrequencyInSeconds;
-                alert(`Der Workspace ${this.workspace.name} wurde an ${student_ids.length} Schüler/innen ausgeteilt. Er wird in maximal ${dt} s bei jedem Schüler ankommen.`);
+                alert(DistributeToStudentsDialogMessages.workspaceDistributed(this.workspace.name, student_ids.length + "", dt + ""));
             } else {
                 alert(error);
             }

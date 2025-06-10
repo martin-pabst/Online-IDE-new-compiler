@@ -1,9 +1,6 @@
-import path from "path";
-import { IMain } from "../../compiler/common/IMain";
-import { base64ToBytes, bytesToBase64 } from "../../tools/Base64";
+import { bytesToBase64 } from "../../tools/Base64";
 import { WorkspaceSettings } from "../communication/Data";
 import { Main } from "../main/Main";
-import { MainBase } from "../main/MainBase";
 import { SpritesheetData } from "../spritemanager/SpritesheetData";
 import { GUIFile } from "./File";
 import { Workspace } from "./Workspace";

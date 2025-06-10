@@ -7,6 +7,7 @@ import { csrfToken } from "../communication/AjaxHelper.js";
 import { JavaEnum } from "../../compiler/java/types/JavaEnum.js";
 import * as UPNG from 'upng-js'
 import JSZip from 'jszip'
+import { SpritesheetDataMessages } from "./SpriteManagerLanguage.js";
 
 
 export class SpritesheetData {
@@ -102,7 +103,7 @@ export class SpritesheetData {
 
                 },
                 error: (jqXHR, message) => {
-                    alert("Konnte das Spritesheet nicht laden: " + message);
+                    alert(SpritesheetDataMessages.couldntLoadSpritesheet() + message);
                 }
             });
 

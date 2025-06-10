@@ -4,6 +4,7 @@ import { ClassDiagram } from "./diagrams/classdiagram/ClassDiagram.js";
 import { IWorld } from '../../../compiler/java/runtime/graphics/IWorld.js';
 import { Tab, TabManager } from '../../../tools/TabManager.js';
 import { DOM } from '../../../tools/DOM.js';
+import { RightDivMessages } from './language/GUILanguage.js';
 
 export class RightDiv {
 
@@ -38,7 +39,7 @@ export class RightDiv {
                 $wholeWindow.removeClass('img_whole-window-back');
                 $wholeWindow.addClass('img_whole-window');
                 jQuery('#controls').insertAfter(jQuery('#view-mode'));
-                $wholeWindow.attr('title', 'Auf Fenstergröße vergrößern');
+                $wholeWindow.attr('title', RightDivMessages.wholeWindow());
                 jQuery('.jo_graphics').trigger('sizeChanged');
             } else {
                 jQuery('#code').css('display', 'none');
@@ -48,7 +49,7 @@ export class RightDiv {
                 $wholeWindow.addClass('img_whole-window-back');
                 // that.adjustWidthToWorld();
                 jQuery('.jo_control-container').append(jQuery('#controls'));
-                $wholeWindow.attr('title', 'Auf normale Größe zurückführen');
+                $wholeWindow.attr('title', RightDivMessages.backToNormalSize());
                 jQuery('.jo_graphics').trigger('sizeChanged');
             }
         });
@@ -73,7 +74,7 @@ export class RightDiv {
             }
         }
 
-    }
+    }   
 
     initGUI() {
 
@@ -84,20 +85,20 @@ export class RightDiv {
 
         let wholeWindowButton = DOM.makeDiv(undefined, 'img_whole-window', 'jo_button', 'jo_whole-window', 'jo_active');
         wholeWindowButton.style.marginRight = '8px';
-        wholeWindowButton.title = 'Auf Fenstergröße erweitern';
+        wholeWindowButton.title = RightDivMessages.wholeWindow();
         this.tabManager.insertIntoRightDiv(wholeWindowButton);
 
         this.controlContainer = DOM.makeDiv(undefined, 'jo_control-container');
         this.tabManager.insertIntoRightDiv(this.controlContainer);
 
-        this.tabManager.addTab(this.outputTab = new Tab('Ausgabe', ['jo_run']));
-        DOM.makeDiv(this.outputTab.bodyDiv, 'jo_run-programend').textContent = 'Programm beendet';
+        this.tabManager.addTab(this.outputTab = new Tab(RightDivMessages.output(), ['jo_run']));
+        DOM.makeDiv(this.outputTab.bodyDiv, 'jo_run-programend').textContent = RightDivMessages.programEnd();
 
         let $inputDiv = jQuery(`
             <div class="jo_run-input">
                             <div>
                                 <div>
-                                    <div class="jo_run-input-message" class="jo_rix">Bitte geben Sie eine Zahl ein!
+                                    <div class="jo_run-input-message" class="jo_rix">${RightDivMessages.inputNumber()}
                                     </div>
                                     <input class="jo_run-input-input" type="text" class="jo_rix">
                                     <div class="jo_run-input-button-outer" class="jo_rix">
@@ -120,7 +121,7 @@ export class RightDiv {
         this.outputTab.bodyDiv.appendChild($runInnerDiv[0]);
 
         if (this.withClassDiagram) {
-            this.tabManager.addTab(this.classDiagramTab = new Tab('Klassendiagramm', ['jo_classdiagram']));
+            this.tabManager.addTab(this.classDiagramTab = new Tab(RightDivMessages.classDiagram(), ['jo_classdiagram']));
             this.classDiagramTab.bodyDiv.appendChild(jQuery(`<img src="assets/graphics/ball-triangle.svg" class="jo_classdiagram-spinner">`)[0]);
             this.classDiagramTab.onShow = () => {
                 this.main.drawClassDiagrams(false);
@@ -138,7 +139,10 @@ export class RightDiv {
     }
 
     isClassDiagramEnabled(): boolean {
-        return this.classDiagramTab.isActive();
+        if(this.classDiagramTab){
+            return this.classDiagramTab.isActive();
+        }
+        return false;
     }
 
 

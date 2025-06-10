@@ -3,6 +3,7 @@ import { getSelectedObject, makeDiv, SelectItem, setSelectItems } from "../../..
 import { RepositoryUser } from "../../communication/Data.js";
 import { Main } from "../../main/Main.js";
 import { Workspace } from "../../workspace/Workspace.js";
+import { RepositoryCreateManagerMessages } from '../language/RepositoryMessages.js';
 
 
 
@@ -38,14 +39,14 @@ export class RepositoryCreateManager {
 
         $updateDiv.append(this.$settingsDiv = makeDiv('', "createUpdateRepo-settingsDiv"));
 
-        this.$settingsDiv.append(jQuery('<div class="createUpdateRepo-settingsLabel">Name des Repositorys:</div>'));
-        this.$settingsDiv.append(this.$repoName = jQuery('<input type="text" class="createUpdateRepo-inputcolumn"></input>'));
+        this.$settingsDiv.append(jQuery(`<div class="createUpdateRepo-settingsLabel">${RepositoryCreateManagerMessages.nameOfRepository()}</div>`));
+        this.$settingsDiv.append(this.$repoName = jQuery(`<input type="text" class="createUpdateRepo-inputcolumn"></input>`));
 
-        this.$settingsDiv.append(jQuery('<div class="createUpdateRepo-settingsLabel">Beschreibung:</div>'));
-        this.$settingsDiv.append(this.$repoDescription = jQuery('<textarea class="createUpdateRepo-inputcolumn" style="min-height: 4em"></textarea>'));
+        this.$settingsDiv.append(jQuery(`<div class="createUpdateRepo-settingsLabel">${RepositoryCreateManagerMessages.description()}</div>`));
+        this.$settingsDiv.append(this.$repoDescription = jQuery(`<textarea class="createUpdateRepo-inputcolumn" style="min-height: 4em"></textarea>`));
 
-        this.$settingsDiv.append(jQuery('<div class="createUpdateRepo-settingsLabel">Veröffentlicht für:</div>'));
-        this.$settingsDiv.append(this.$repoPublishedTo = jQuery('<select class="createUpdateRepo-inputcolumn"></select>'));
+        this.$settingsDiv.append(jQuery(`<div class="createUpdateRepo-settingsLabel">${RepositoryCreateManagerMessages.publishedFor()}</div>`));
+        this.$settingsDiv.append(this.$repoPublishedTo = jQuery(`<select class="createUpdateRepo-inputcolumn"></select>`));
 
         let $buttonDiv = makeDiv("createRepo-buttonDiv");
 
@@ -73,9 +74,9 @@ export class RepositoryCreateManager {
 
         this.publishedToItems =
             [
-                { value: "0", object: 0, caption: "Keine Veröffentlichung (privates Repository)" },
-                { value: "1", object: 1, caption: isStudent ? "Veröffentlicht für alle Schüler/innen der Klasse" : "Veröffentlicht für alle Schüler/innen der unterrichteten Klassen" },
-                { value: "2", object: 2, caption: "Veröffentlicht für alle Schüler/innen der Schule" },
+                { value: "0", object: 0, caption: RepositoryCreateManagerMessages.privateRepository() },
+                { value: "1", object: 1, caption: isStudent ? RepositoryCreateManagerMessages.publishedToClassStudents() : RepositoryCreateManagerMessages.publishedToClasses() },
+                { value: "2", object: 2, caption: RepositoryCreateManagerMessages.publishedToSchool() },
             ];
         setSelectItems(this.$repoPublishedTo, this.publishedToItems, "0");
 
@@ -107,7 +108,7 @@ export class RepositoryCreateManager {
             klasse: ""
         }
 
-        this.$mainHeading.text(`Repository anlegen und mit Workspace "${workspace.name}" verknüpfen:`);
+        this.$mainHeading.text(RepositoryCreateManagerMessages.createRepositoryAndConnectToWorkspace(workspace.name));
         this.$createButton.show();
         this.$repoName.val(workspace.name);
     }

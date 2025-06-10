@@ -8,6 +8,7 @@ import { SynchronizationManager } from "./RepositorySynchronizationManager.js";
 import * as monaco from 'monaco-editor'
 import diff_match_patch from 'diff-match-patch'
 import { dateToString } from "../../../tools/StringTools.js";
+import { SynchroListElementMessages, SynchroWorkspaceMessages } from "../language/RepositoryMessages.js";
 
 
 export type SynchroFileState = "original" | "changed" | "new" | "deleted";
@@ -78,7 +79,7 @@ export class SynchroWorkspace {
             })
         });
 
-        this.name = "Workspace: " + workspace.name;
+        this.name = SynchroWorkspaceMessages.Workspace() + workspace.name;
         this.copiedFromWorkspace = workspace;
 
         return this;
@@ -113,7 +114,7 @@ export class SynchroWorkspace {
     copyFromHistoryElement(historyElement: HistoryElement): SynchroWorkspace {
         let repo = historyElement.getRepositoryState();
         this.copyFromRepository(repo, false);
-        this.name = "History-Version " + repo.version;
+        this.name = SynchroWorkspaceMessages.historyVersion() + repo.version;
         return this;
     }
 
@@ -321,7 +322,7 @@ export class SynchroWorkspace {
                 main.networkManager.sendDeleteWorkspaceOrFile("file", file.id, (error: string) => {
                     if (error == null) {
                     } else {
-                        alert('Der Server ist nicht erreichbar!');
+                        alert(SynchroWorkspaceMessages.serverNotReachable());
                     }
                 });
 
@@ -350,7 +351,7 @@ export class SynchroWorkspace {
                     (error: string) => {
                         if (error == null) {
                         } else {
-                            alert('Der Server ist nicht erreichbar!');
+                            alert(SynchroWorkspaceMessages.serverNotReachable());
 
                         }
                     });

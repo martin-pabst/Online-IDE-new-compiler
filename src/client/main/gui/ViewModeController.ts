@@ -1,6 +1,7 @@
 import jQuery from 'jquery';
 import { ViewMode } from "../../communication/Data";
 import { Main } from "../Main";
+import { ViewModeControllerMessages } from './language/GUILanguage';
 
 export class ViewModeController {
 
@@ -18,9 +19,9 @@ export class ViewModeController {
 
     constructor(private $buttonsContainer: JQuery<HTMLElement>, private main: Main) {
 
-        this.$buttonEditorFullscreen = jQuery('<div title="Editor in voller Breite" class="img_whole-window jo_button jo_active" style="padding: 1px; margin-right: 8px"></div>');
-        this.$buttonPresentationMode = jQuery('<div title="Präsentation (Beamer)" class="img_presentation-mode jo_button jo_active" syle="padding: 1px"></div>');
-        this.$buttonMonitorMode = jQuery('<div title="Monitor" class="img_monitor-mode jo_button jo_active" style="margin-left: 5px; padding: 1px"></div>');
+        this.$buttonEditorFullscreen = jQuery(`<div title="${ViewModeControllerMessages.fullWidth()}" class="img_whole-window jo_button jo_active" style="padding: 1px; margin-right: 8px"></div>`);
+        this.$buttonPresentationMode = jQuery(`<div title="${ViewModeControllerMessages.presentation()}" class="img_presentation-mode jo_button jo_active" syle="padding: 1px"></div>`);
+        this.$buttonMonitorMode = jQuery(`<div title="${ViewModeControllerMessages.monitor()}" class="img_monitor-mode jo_button jo_active" style="margin-left: 5px; padding: 1px"></div>`);
         $buttonsContainer.append(this.$buttonEditorFullscreen, this.$buttonPresentationMode, this.$buttonMonitorMode);
 
         this.$buttonMap = {
@@ -30,19 +31,19 @@ export class ViewModeController {
 
         let am = this.main.actionManager;
 
-        am.registerAction("editor.fullwidth", [], "Editor auf die volle Breite erweitern",
+        am.registerAction("editor.fullwidth", [], ViewModeControllerMessages.fullWidth(),
             () => {
                 this.toggleEditorFullwidth();
             });
         am.registerButton("editor.fullwidth", this.$buttonEditorFullscreen)
 
-        am.registerAction("viewmode.presentation", [], "Präsentationsansicht",
+        am.registerAction("viewmode.presentation", [], ViewModeControllerMessages.presentation(),
             () => {
                 this.setMode("presentation");
             });
         am.registerButton("viewmode.presentation", this.$buttonPresentationMode);
 
-        am.registerAction("viewmode.monitor", [], "Monitoransicht",
+        am.registerAction("viewmode.monitor", [], ViewModeControllerMessages.monitor(),
             () => {
                 this.setMode("monitor");
             });
@@ -54,7 +55,7 @@ export class ViewModeController {
         if (this.editorHasFullWidth) {
             this.$buttonEditorFullscreen.removeClass('img_whole-window-back');
             this.$buttonEditorFullscreen.addClass('img_whole-window');
-            this.$buttonEditorFullscreen.attr('title', 'Editor in voller Breite');
+            this.$buttonEditorFullscreen.attr('title', ViewModeControllerMessages.fullWidth());
             jQuery('#rightdiv').css('width', this.rightDivWidth + "px");
             jQuery('#editor>.monaco-editor').css('width', this.editorWidth + 'px');
 
@@ -65,7 +66,7 @@ export class ViewModeController {
         } else {
             this.$buttonEditorFullscreen.removeClass('img_whole-window');
             this.$buttonEditorFullscreen.addClass('img_whole-window-back');
-            this.$buttonEditorFullscreen.attr('title', 'Editor in normaler Breite');
+            this.$buttonEditorFullscreen.attr('title', ViewModeControllerMessages.defaultWidth());
 
             this.rightDivWidth = Number.parseInt(jQuery('#rightdiv').css('width').replace('px', ''));
             this.editorWidth = Number.parseInt(jQuery('#editor>.monaco-editor').css('width').replace('px', ''));

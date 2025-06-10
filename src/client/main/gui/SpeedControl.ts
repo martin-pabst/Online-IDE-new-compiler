@@ -1,6 +1,7 @@
 import jQuery from 'jquery';
 import { Interpreter } from '../../../compiler/common/interpreter/Interpreter.js';
 import { convertPxToNumber } from '../../../tools/HtmlTools.js';
+import { SpeedControlMessages } from './language/GUILanguage.js';
 
 
 export class SpeedControl {
@@ -29,10 +30,10 @@ export class SpeedControl {
 
     constructor($container: JQuery<HTMLElement>, private interpreter: Interpreter){
 
-        this.$outer = jQuery('<div class="jo_speedcontrol-outer" title="Geschwindigkeitsregler" draggable="false"></div>');
+        this.$outer = jQuery('<div class="jo_speedcontrol-outer" title="' + SpeedControlMessages.speedControl() + '" draggable="false"></div>');
         this.$bar = jQuery('<div class="jo_speedcontrol-bar" draggable="false"></div>');
         this.$grip = jQuery('<div class="jo_speedcontrol-grip" draggable="false"></div>');
-        this.$display = jQuery('<div class="jo_speedcontrol-display" draggable="false">100 Schritte/s</div>');
+        this.$display = jQuery('<div class="jo_speedcontrol-display" draggable="false">100 ' + SpeedControlMessages.stepsPerSecond() + '</div>');
 
         this.$grip.append(this.$display);
         this.$outer.append(this.$bar, this.$grip);
@@ -172,11 +173,11 @@ export class SpeedControl {
         let isMaxSpeed: boolean = false;
         let speedString = "" + SpeedControl.printMillions(stepsPerSecond);
         if(stepsPerSecond >= this.intervalBorders[this.intervalBorders.length - 1] - 10 - 10){
-            speedString = "maximum speed";
+            speedString = SpeedControlMessages.maximumSpeed();
             isMaxSpeed = true;
         }
 
-        this.$display.html(speedString + " steps/s");
+        this.$display.html(speedString + (isMaxSpeed ? "" : (" " + SpeedControlMessages.stepsPerSecond())));
 
         this.interpreter.setStepsPerSecond(stepsPerSecond, isMaxSpeed);
 
@@ -188,7 +189,7 @@ export class SpeedControl {
 
         n = Math.trunc(n/1e3)*1e3/1e6;
 
-        return n + " million";
+        return n + " " + SpeedControlMessages.millions();
     }
 
 }

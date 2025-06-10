@@ -1,7 +1,7 @@
 import { Main } from "../Main.js";
 import { MainBase } from "../MainBase.js";
 import jQuery from "jquery";
-import { GuiMessages } from "./GuiMessages.js";
+import { GuiMessages } from "./language/GuiMessages.js";
 
 
 export type HelperDirection = "top" | "bottom" | "left" | "right";

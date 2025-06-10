@@ -1,4 +1,5 @@
 import * as UPNG from 'upng-js'
+import { ImageFileMessages } from './SpriteManagerLanguage';
 
 export type SpriteData = {
     image: Uint8Array,
@@ -17,7 +18,7 @@ export class ImageFile {
 
     async loadFiles(files: FileList): Promise<SpriteData[]>{
         if(files == null || files.length == 0){
-            alert('Keine Dateien zum Importieren vorhanden.');
+            alert(ImageFileMessages.noFilesToImport());
             return null;
         }
 

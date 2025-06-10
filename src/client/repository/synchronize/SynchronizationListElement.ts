@@ -3,6 +3,7 @@ import { makeDiv } from "../../../tools/HtmlTools.js";
 import { SynchronizationManager } from "./RepositorySynchronizationManager.js";
 import { SynchroFile, SynchroWorkspace } from "./SynchroWorkspace.js";
 import * as monaco from 'monaco-editor'
+import { SynchroListElementMessages } from '../language/RepositoryMessages.js';
 
 
 type ButtonKind = "create" | "delete" | "update" | "commit" | "updateAll" | "commitAll";
@@ -185,11 +186,11 @@ export class SynchronizationListElement {
         if (this.leftSynchroFile != null) {
             leftCaption = this.leftSynchroFile.name;
             if (this.leftSynchroFile.repository_file_version == null) {
-                leftVersionCaption = "(ohne Version)";
+                leftVersionCaption = SynchroListElementMessages.withoutVersion();
             } else {
                 leftVersionCaption = "(V " + this.leftSynchroFile.repository_file_version;
                 if (!(this.leftSynchroFile.identical_to_repository_version || this.leftSynchroFile?.text == this.rightSynchroFile?.text)) {
-                    leftVersionCaption += '<span class="jo_synchro_withChanges"> mit Änderungen</span>';
+                    leftVersionCaption += `<span class="jo_synchro_withChanges"> ${SynchroListElementMessages.withChanges()}</span>`;
                 }
                 if (this.rightSynchroFile != null && this.leftSynchroFile.synchroWorkspace.isWritable()) {
                     if (this.rightSynchroFile.repository_file_version > this.leftSynchroFile.repository_file_version) {
@@ -201,7 +202,7 @@ export class SynchronizationListElement {
             }
 
             if (this.leftSynchroFile.state == "deleted") {
-                leftCaption += " - GELÖSCHT";
+                leftCaption += SynchroListElementMessages.DELETED();
                 leftVersionCaption = "";
             }
         }
@@ -209,7 +210,7 @@ export class SynchronizationListElement {
         let rightCaption = this.rightSynchroFile == null ? "---" : this.rightSynchroFile.name;
         let rightVersionCaption = this.rightSynchroFile == null ? "" : "(V " + this.rightSynchroFile.repository_file_version + ")";
         if (this.rightSynchroFile?.state == "deleted") {
-            rightCaption += " - GELÖSCHT";
+            rightCaption += SynchroListElementMessages.DELETED();
             rightVersionCaption = "";
         }
 
@@ -292,8 +293,8 @@ export class SynchronizationListElement {
             }
 
             if (isSynchronized) {
-                this.$buttonLeftDiv.append(jQuery('<div>synchron - </div>'));
-                this.$buttonRightDiv.append(jQuery('<div> - synchron</div>'));
+                this.$buttonLeftDiv.append(jQuery(`<div>${SynchroListElementMessages.synchronized()} - </div>`));
+                this.$buttonRightDiv.append(jQuery(`<div> - ${SynchroListElementMessages.synchronized()}</div>`));
             } else {
                 if (this.leftSynchroWorkspace.isWritable()) {
                     this.$buttonLeftDiv.append(SynchronizationListElement.makeButton("update", "left", () => {
@@ -331,7 +332,7 @@ export class SynchronizationListElement {
         this.$rightFileDiv.append(jQuery(`<div class="jo_synchro_filename">${rightCaption}<span class="jo_synchro_fileVersion">${rightVersionCaption}</span></div>`));
 
         if (needsMerge) {
-            this.$markAsMergedButtonDiv = jQuery(`<div class="jo_synchro_button jo_synchro_markAsMergedButton">Als "merged" markieren</div>`);
+            this.$markAsMergedButtonDiv = jQuery(`<div class="jo_synchro_button jo_synchro_markAsMergedButton">${SynchroListElementMessages.markAsMerged()}</div>`);
             this.$leftFileDiv.append(this.$markAsMergedButtonDiv);
             this.$markAsMergedButtonDiv.on("click", (e) => {
                 e.stopPropagation();
@@ -349,7 +350,7 @@ export class SynchronizationListElement {
     }
 
     showMergedDiv() {
-        let $mergedDiv = jQuery(`<div class="jo_synchro_mergedDiv">merged</div><div class="img_errorfree"></div>`);
+        let $mergedDiv = jQuery(`<div class="jo_synchro_mergedDiv">${SynchroListElementMessages.merged()}</div><div class="img_errorfree"></div>`);
         this.$leftFileDiv.append($mergedDiv);
     }
 

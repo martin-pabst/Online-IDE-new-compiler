@@ -6,6 +6,7 @@ import { Main } from "../Main.js";
 import { GUIFile } from '../../workspace/File.js';
 import * as monaco from 'monaco-editor'
 import { Tab, TabManager } from '../../../tools/TabManager.js';
+import { HomeworkManagerMessages } from './language/GUILanguage.js';
 
 
 type FileWithWorkspace = {
@@ -32,7 +33,7 @@ export class HomeworkManager {
     tab: Tab;
 
     constructor(private main: Main, public tabManager: TabManager) {
-        this.tab = new Tab("Hausaufgaben", ["jo_homeworkTab"]);
+        this.tab = new Tab(HomeworkManagerMessages.homework(), ["jo_homeworkTab"]);
         tabManager.addTab(this.tab);
     }
 
@@ -55,7 +56,7 @@ export class HomeworkManager {
     }
 
     showHomeWorkRevisionButton() {
-        this.$showRevisionButton.text(this.showRevisionActive ? "Normalansicht" : "Korrekturen zeigen");
+        this.$showRevisionButton.text(this.showRevisionActive ? HomeworkManagerMessages.defaultView() : HomeworkManagerMessages.showRemarks());
         this.$showRevisionButton.show();
     }
 
@@ -139,7 +140,7 @@ export class HomeworkManager {
 
         let that = this;
 
-        this.$homeworkTabLeft.append(makeDiv("", "jo_homeworkHeading", "Abgabetage:"));
+        this.$homeworkTabLeft.append(makeDiv("", "jo_homeworkHeading", HomeworkManagerMessages.filingDays() + ":"));
 
 
         daysWithModules.sort((a, b) => {
@@ -176,12 +177,12 @@ export class HomeworkManager {
 
     select(dwm: DayWithModules) {
         this.$homeworkTabRight.empty();
-        this.$homeworkTabRight.append(makeDiv("", "jo_homeworkHeading", "Abgegebene Dateien:"));
+        this.$homeworkTabRight.append(makeDiv("", "jo_homeworkHeading", HomeworkManagerMessages.givenFiles() + ":"));
         let that = this;
         dwm.modules.forEach(moduleWithWorkspace => {
-            let $div = jQuery(`<div class="jo_homeworkEntry">Workspace <span class="jo_homework-workspace">
-                    ${moduleWithWorkspace.workspace.name}</span>, Datei <span class="jo_homework-file">
-                    ${moduleWithWorkspace.file.name}</span> (Abgabe: ${moduleWithWorkspace.file.submitted_date} )</div>`);
+            let $div = jQuery(`<div class="jo_homeworkEntry">${HomeworkManagerMessages.workspace()} <span class="jo_homework-workspace">
+                    ${moduleWithWorkspace.workspace.name}</span>, ${HomeworkManagerMessages.file()} <span class="jo_homework-file">
+                    ${moduleWithWorkspace.file.name}</span> (${HomeworkManagerMessages.dateFiled()}: ${moduleWithWorkspace.file.submitted_date} )</div>`);
             that.$homeworkTabRight.append($div);
             $div.on("click", () => {
                     that.main.projectExplorer.setWorkspaceActive(moduleWithWorkspace.workspace, true);

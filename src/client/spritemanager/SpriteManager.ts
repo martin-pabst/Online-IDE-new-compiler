@@ -8,6 +8,7 @@ import { UploadSpriteResponse } from "../communication/Data.js";
 import { csrfToken } from '../communication/AjaxHelper.js';
 import { SpriteLibrary } from '../../compiler/java/runtime/graphics/SpriteLibrary.js';
 import { Workspace } from '../workspace/Workspace.js';
+import { SpriteManagerMessages } from './SpriteManagerLanguage.js';
 
 type SpriteLibraryEntry = {
     filename: string,
@@ -63,21 +64,21 @@ export class SpriteManager {
 
         // Heading
         $spritemanagerDiv.append(this.$mainHeading = makeDiv(null, "jo_sm_mainHeading"));
-        this.$mainHeading.append(makeDiv("", "jo_sm_heading", "Sprites verwalten"));
+        this.$mainHeading.append(makeDiv("", "jo_sm_heading", SpriteManagerMessages.heading()));
 
         // Import/Export area
         let $importExportArea = makeDiv(null, "jo_sm_importExportArea", null, null, $spritemanagerDiv);
 
         let $importExportLeft = makeDiv(null, "jo_sm_importExportLeft jo_sm_writeonly", null, null, $importExportArea);
         this.$importDropZone = makeDiv(null, "jo_sm_importDropZone", null, null, $importExportLeft);
-        makeDiv(null, null, "1. Schritt: png-Dateien hierhin ziehen oder...", { "font-weight": "bold" }, this.$importDropZone);
+        makeDiv(null, null, SpriteManagerMessages.stepOne(), { "font-weight": "bold" }, this.$importDropZone);
 
         this.$buttonFileImport = <JQuery<HTMLInputElement>>jQuery('<input type="file" multiple="multiple" style="cursor:pointer; margin-top: 30px" class="jo_sm_writeonly"></input>');
         this.$importDropZone.append(this.$buttonFileImport);
         this.$buttonFileImport.on("change", (event) => {
             var files = event.target.files;
             that.fileList = files;
-            $filesCountDiv.text(files.length != 1 ? (files.length + " Dateien sind ausgewählt.") : "Eine Datei ist ausgewählt.");
+            $filesCountDiv.text(files.length != 1 ? (files.length + SpriteManagerMessages.filesSelected()) : SpriteManagerMessages.fileSelected());
             this.$buttonImport.addClass("jo_active");
          })
 
@@ -94,27 +95,27 @@ export class SpriteManager {
 
             var files = evt.originalEvent.dataTransfer.files;
             that.fileList = files;
-            $filesCountDiv.text(files.length != 1 ? (files.length + " Dateien sind ausgewählt.") : "Eine Datei ist ausgewählt.");
+            $filesCountDiv.text(files.length != 1 ? (files.length + SpriteManagerMessages.filesSelected()) : SpriteManagerMessages.fileSelected());
             this.$buttonImport.addClass("jo_active");
         })
 
 
         let $importExportCenter = makeDiv(null, "jo_sm_importExportCenter jo_sm_writeonly", null, null, $importExportArea);
-        makeDiv(null, "jo_sm_importParameters", "2. Schritt: Angaben zu den Grafikdateien", { "margin-bottom": "10px", "font-weight": "bold" }, $importExportCenter);
+        makeDiv(null, "jo_sm_importParameters", SpriteManagerMessages.stepTwo(), { "margin-bottom": "10px", "font-weight": "bold" }, $importExportCenter);
         let $importParameters1 = makeDiv(null, "jo_sm_importParameters", null, null, $importExportCenter);
 
-        this.$uploadLinesCount = this.makeIntParameterInput($importParameters1, "Zeilen:", 1);
-        this.$uploadColumnsCount = this.makeIntParameterInput($importParameters1, "Spalten:", 1);
-        this.$uploadMargin = this.makeIntParameterInput($importParameters1, "Rand (in px):", 0);
-        this.$uploadSpace = this.makeIntParameterInput($importParameters1, "Abstand (in px):", 0);
+        this.$uploadLinesCount = this.makeIntParameterInput($importParameters1, SpriteManagerMessages.rows(), 1);
+        this.$uploadColumnsCount = this.makeIntParameterInput($importParameters1, SpriteManagerMessages.columns(), 1);
+        this.$uploadMargin = this.makeIntParameterInput($importParameters1, SpriteManagerMessages.margin(), 0);
+        this.$uploadSpace = this.makeIntParameterInput($importParameters1, SpriteManagerMessages.distance(), 0);
 
         let $importParameters2 = makeDiv(null, "jo_sm_importParameters", null, null, $importExportCenter);
-        this.$uploadSeries = this.makeStringParameterInput($importParameters2, "Serie: ", "Test", "10em");
-        this.$uploadIndex = this.makeIntParameterInput($importParameters2, "Ab Index: ", 0);
+        this.$uploadSeries = this.makeStringParameterInput($importParameters2, SpriteManagerMessages.series(), "Test", "10em");
+        this.$uploadIndex = this.makeIntParameterInput($importParameters2, SpriteManagerMessages.fromIndex(), 0);
 
         makeDiv(null, null, null, { "border-bottom": "2px solid var(--slider)", "margin-bottom": "5px" }, $importExportCenter);
 
-        this.$buttonImport = makeDiv(null, "jo_active jo_sm_button jo_sm_importButton", "3. Schritt: Importieren", { width: "fit-content" }, $importExportCenter);
+        this.$buttonImport = makeDiv(null, "jo_active jo_sm_button jo_sm_importButton", SpriteManagerMessages.stepThree(), { width: "fit-content" }, $importExportCenter);
         this.$buttonImport.on('click', () => { if (that.$buttonImport.hasClass("jo_active")) { 
             that.importFiles(that.fileList); $filesCountDiv.text(""); 
             that.$buttonFileImport.val("");
@@ -122,25 +123,25 @@ export class SpriteManager {
 
 
         let $importExportMessages = makeDiv(null, "jo_sm_importExportMessages jo_sm_writeonly", null, null, $importExportArea);
-        makeDiv(null, null, "Meldungen:", { "font-weight": "bold" }, $importExportMessages);
+        makeDiv(null, null, SpriteManagerMessages.messages(), { "font-weight": "bold" }, $importExportMessages);
         let $messagesOuter = makeDiv(null, "jo_sm_messagesOuter jo_scrollable", null, null, $importExportMessages);
         this.$messagesDiv = makeDiv(null, "jo_sm_messagesDiv jo_scrollable", "Test", null, $messagesOuter);
-        this.$zipSizeDiv = makeDiv(null, "jo_sm_pngSizeDiv", "Größe des Spritesheet: 0 kB", null, $importExportMessages);
+        this.$zipSizeDiv = makeDiv(null, "jo_sm_pngSizeDiv", SpriteManagerMessages.fileSize() + "0 kB", null, $importExportMessages);
 
         let $importExportRight = makeDiv(null, "jo_sm_importExportRight", null, null, $importExportArea);
-        makeDiv(null, "jo_sm_writeonly", "Gesamtes Spritesheet aus Datei importieren:", null, $importExportRight);
+        makeDiv(null, "jo_sm_writeonly", SpriteManagerMessages.importWholeSpritesheet(), null, $importExportRight);
         let $buttonImportAll = <JQuery<HTMLInputElement>>jQuery('<input type="file" style="cursor:pointer" class="jo_sm_writeonly"></input>');
         $importExportRight.append($buttonImportAll);
-        let $buttonExportAll = makeDiv(null, 'jo_sm_buttonExportAll jo_sm_button jo_active', "Gesamtes Spritesheet in Datei exportieren", null, $importExportRight);
-        let $buttonDeleteAll = makeDiv(null, 'jo_sm_buttonDeleteAll jo_sm_button jo_active jo_sm_writeonly', "Alle Sprites aus dem Spritesheet entfernen", null, $importExportRight);
+        let $buttonExportAll = makeDiv(null, 'jo_sm_buttonExportAll jo_sm_button jo_active', SpriteManagerMessages.exportWholeSpritesheet(), null, $importExportRight);
+        let $buttonDeleteAll = makeDiv(null, 'jo_sm_buttonDeleteAll jo_sm_button jo_active jo_sm_writeonly', SpriteManagerMessages.removeAllSprites(), null, $importExportRight);
 
         $buttonDeleteAll.on("click", (ev) => {
             ev.preventDefault();
             openContextMenu([{
-                caption: "Abbrechen",
+                caption: SpriteManagerMessages.cancel(),
                 callback: () => { }
             }, {
-                caption: "Ich bin mir sicher: löschen!",
+                caption: SpriteManagerMessages.sureDelete(),
                 color: "#ff6060",
                 callback: () => {
                     that.$spriteListDiv.empty()
@@ -164,10 +165,10 @@ export class SpriteManager {
         // Buttons at page bottom
         $spritemanagerDiv.append(this.$buttonDiv = makeDiv(null, "jo_sm_buttonDiv"));
 
-        this.$buttonDiv.append(this.$buttonCancel = makeDiv("", "jo_active jo_sm_button", "Abbrechen", { "background-color": "var(--speedcontrol-grip)", "color": "var(--fontColorLight)", "font-size": "10pt" }));
+        this.$buttonDiv.append(this.$buttonCancel = makeDiv("", "jo_active jo_sm_button", SpriteManagerMessages.cancel(), { "background-color": "var(--speedcontrol-grip)", "color": "var(--fontColorLight)", "font-size": "10pt" }));
         this.$buttonCancel.on("click", () => { that.exit() })
 
-        this.$buttonDiv.append(this.$buttonOK = makeDiv("", "jo_active jo_sm_button jo_sm_writeonly", "Speichern", { "background-color": "var(--updateButtonBackground)", "color": "var(--fontColorLight)", "font-size": "10pt" }));
+        this.$buttonDiv.append(this.$buttonOK = makeDiv("", "jo_active jo_sm_button jo_sm_writeonly", SpriteManagerMessages.save(), { "background-color": "var(--updateButtonBackground)", "color": "var(--fontColorLight)", "font-size": "10pt" }));
         this.$buttonOK.on("click", () => { if (that.$buttonOK.hasClass('jo_active')) that.saveAndExit() })
 
     }
@@ -187,7 +188,7 @@ export class SpriteManager {
     }
 
     async exportSpritesheet() {
-        let filename = window.prompt("Name des Spritesheets?", "Spritesheet");
+        let filename = window.prompt(SpriteManagerMessages.nameOfSpritesheet(), "Spritesheet");
         if(filename.endsWith(".zip")) filename = filename.replace(".zip", "");
 
         await this.userSpritesheet.generateAndZipSpritesheet(filename);
@@ -213,7 +214,7 @@ export class SpriteManager {
         this.checkSeriesAndIndexesAndSetNextSpriteIndex();
 
         setTimeout(() => {
-            this.printMessage(images.length + " Bilder hinzugefügt");
+            this.printMessage(images.length + SpriteManagerMessages.imagesAdded());
             this.generateZipAndPrintZipSize();
         }, 500);
 
@@ -265,17 +266,17 @@ export class SpriteManager {
         let $inputDiv = makeDiv(null, "jo_sm_inputDiv", null, null, $inputInfoDiv);
 
         if(!this.readonly){
-            let $seriesInput = this.makeStringParameterInput($inputDiv, "Serie: ", imageData.series ? imageData.series : "", "10em");
+            let $seriesInput = this.makeStringParameterInput($inputDiv, SpriteManagerMessages.series(), imageData.series ? imageData.series : "", "10em");
             $seriesInput.addClass('jo_sm_series');
 
-            let $indexInput = this.makeIntParameterInput($inputDiv, "Index: ", imageData.index ? imageData.index : 0);
+            let $indexInput = this.makeIntParameterInput($inputDiv, SpriteManagerMessages.index(), imageData.index ? imageData.index : 0);
             $indexInput.addClass('jo_sm_index');
 
             $seriesInput.on("input", () => { imageData.series = <string>$seriesInput.val(); that.checkSeriesAndIndexesAndSetNextSpriteIndex(); })
             $indexInput.on("input", () => { imageData.index = <number><any>$indexInput.val(); that.checkSeriesAndIndexesAndSetNextSpriteIndex(); })
         }
 
-        let $infoDiv = makeDiv(null, "jo_sm_infoDiv", "Breite: " + imageData.width + " px, Höhe: " + imageData.height + " px", null, $inputInfoDiv);
+        let $infoDiv = makeDiv(null, "jo_sm_infoDiv", SpriteManagerMessages.widthHeight(imageData.width, imageData.height), null, $inputInfoDiv);
         let $errorSpan = jQuery('<span class="jo_sm_errorspan"></span>');
         $infoDiv.append($errorSpan);
 
@@ -284,10 +285,10 @@ export class SpriteManager {
             $deleteButton.on('pointerdown', (ev) => {
                 ev.preventDefault();
                 openContextMenu([{
-                    caption: "Abbrechen",
+                    caption: SpriteManagerMessages.cancel(),
                     callback: () => { }
                 }, {
-                    caption: "Ich bin mir sicher: löschen!",
+                    caption: SpriteManagerMessages.sureDelete(),
                     color: "#ff6060",
                     callback: () => {
                         let index = that.userSpritesheet.spriteDataList.indexOf(imageData);
@@ -332,7 +333,7 @@ export class SpriteManager {
 
         let workspace = this.main.getCurrentWorkspace();
         if(workspace == null){
-            alert('Kein Workspace ausgewählt.')
+            alert(SpriteManagerMessages.noWorkspaceSelected())
             return;
         }
 
@@ -346,9 +347,9 @@ export class SpriteManager {
         }
 
         if(workspace.repository_id == null){
-            this.$mainHeading.find('.jo_sm_heading').text('Sprites des Workspace "' + workspace.name + '" verwalten');
+            this.$mainHeading.find('.jo_sm_heading').text(SpriteManagerMessages.mangeWorkspaceSprites(workspace.name));
         } else {
-            this.$mainHeading.find('.jo_sm_heading').text('Sprites des Repository "' + workspace.name + '" verwalten');
+            this.$mainHeading.find('.jo_sm_heading').text(SpriteManagerMessages.mangeRepositorySprites(workspace.name));
         }
 
 
@@ -481,12 +482,12 @@ export class SpriteManager {
             let index = Number.parseInt(<string>(jQuery(element).find('.jo_sm_index').val()));
             let $errordiv = jQuery(element).find('.jo_sm_errorspan');
             if (internalSeries[series]) {
-                $errordiv.text('Der Bezeichner ' + series + ' wird schon für interne Sprites verwendet.');
+                $errordiv.text(SpriteManagerMessages.identifierAlreadyUsed(series));
                 that.hasErrors = true;
                 return;
             }
             if (seriesIndexMap[series + "#" + index]) {
-                $errordiv.text('Serie ' + series + ', index ' + index + " ist schon weiter oben vergeben.");
+                $errordiv.text(SpriteManagerMessages.seriesIndexAlreadyUsed(series, index));
                 that.hasErrors = true;
                 return;
             }

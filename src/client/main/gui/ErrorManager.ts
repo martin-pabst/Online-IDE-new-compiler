@@ -8,6 +8,7 @@ import { MainEmbedded } from "../../embedded/MainEmbedded.js";
 import type * as monaco from 'monaco-editor'
 import { Range } from "../../../compiler/common/range/Range.js";
 import { Tab, TabManager } from "../../../tools/TabManager.js";
+import { ErrorManagerMessages } from "./language/GUILanguage.js";
 
 export class ErrorManager {
 
@@ -23,7 +24,7 @@ export class ErrorManager {
         this.minimapColor["warning"] = "#cca700";
         this.minimapColor["info"] = "#75beff";
 
-        this.tab = new Tab("Fehler", ["jo_active", "jo_scrollable", "jo_editorFontSize", "jo_errorsTab"])
+        this.tab = new Tab(ErrorManagerMessages.errors(), ["jo_active", "jo_scrollable", "jo_editorFontSize", "jo_errorsTab"])
         tabManager.addTab(this.tab);
         this.$errorDiv = jQuery(this.tab.bodyDiv);
     }
@@ -62,7 +63,7 @@ export class ErrorManager {
         }
 
         if (!hasErrors && this.$errorDiv.length > 0) {
-            this.$errorDiv.append(jQuery('<div class="jo_noErrorMessage">Keine Fehler gefunden :-)</div>'));
+            this.$errorDiv.append(jQuery(`<div class="jo_noErrorMessage">${ErrorManagerMessages.noErrorsFound()}</div>`));
         }
 
         return errorCountMap;
@@ -72,13 +73,13 @@ export class ErrorManager {
     processError(error: Error, f: GUIFile, $errorDivs: JQuery<HTMLElement>[]) {
 
         let $div = jQuery('<div class="jo_error-line"></div>');
-        let $lineColumn = jQuery('<span class="jo_error-position">[Z&nbsp;<span class="jo_linecolumn">' + error.range.startLineNumber + '</span>' +
-            ' Sp&nbsp;<span class="jo_linecolumn">' + error.range.startColumn + '</span>]</span>:&nbsp;');
+        let $lineColumn = jQuery('<span class="jo_error-position">[<span class="jo_linecolumn">' + error.range.startLineNumber + '</span>' +
+            '/<span class="jo_linecolumn">' + error.range.startColumn + '</span>]</span>:&nbsp;');
         let category = "";
         switch (error.level) {
             case "error": break;
-            case "warning": category = '<span class="jo_warning_category">Warnung: </span>'; break;
-            case "info": category = '<span class="jo_info_category">Info: </span>'; break;
+            case "warning": category = `<span class="jo_warning_category">${ErrorManagerMessages.warning()}: </span>`; break;
+            case "info": category = `<span class="jo_info_category">${ErrorManagerMessages.info()}: </span>`; break;
         }
         let $message = jQuery('<div class="jo_error-text">' + category + error.message + "</div>");
 

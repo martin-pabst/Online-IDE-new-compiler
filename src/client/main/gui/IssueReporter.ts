@@ -2,6 +2,7 @@ import { DOM } from "../../../tools/DOM.js";
 import { ajax, ajaxAsync } from "../../communication/AjaxHelper.js";
 import { Main } from "../Main.js";
 import { Dialog } from "./Dialog.js";
+import { IssueReporterMessages } from "./language/GUILanguage.js";
 import '/assets/css/issuereporter.css';
 
 type ReportIssueRequest = {
@@ -25,25 +26,25 @@ export class IssueReporter {
     show() {
         let that = this;
         this.dialog.init();
-        this.dialog.heading("Fehler melden");
-        this.dialog.description("Fehlerbeschreibung:")
+        this.dialog.heading(IssueReporterMessages.reportBug());
+        this.dialog.description(IssueReporterMessages.bugReport() + ":")
 
         let textfield = <HTMLTextAreaElement>DOM.makeElement(this.dialog.$dialogMain[0], "textarea", "jo_issuereporterr_textfield");
 
-        let addWorkspace = this.dialog.addCheckbox("Der Fehlermeldung eine Kopie des aktuell offenen Workspaces beifügen", true, "jo_cbIssueAddWorkspace");
-        let emailInput = this.dialog.input("text", "E-Mail-Adresse (für Rückfragen, optional)");
-        let rufnameInput = this.dialog.input("text", "Rufname (für Rückfragen, optional)");
-        let familiennameInput = this.dialog.input("text", "Familienname (für Rückfragen, optional)");
+        let addWorkspace = this.dialog.addCheckbox(IssueReporterMessages.sendCopyOfWorkspace(), true, "jo_cbIssueAddWorkspace");
+        let emailInput = this.dialog.input("text", IssueReporterMessages.email());
+        let rufnameInput = this.dialog.input("text", IssueReporterMessages.firstName());
+        let familiennameInput = this.dialog.input("text", IssueReporterMessages.lastName());
 
 
         this.dialog.buttons([
             {
-                caption: "Abbrechen",
+                caption: IssueReporterMessages.cancel(),
                 color: "#a00000",
                 callback: () => { this.dialog.close() }
             },
             {
-                caption: "Senden",
+                caption: IssueReporterMessages.send(),
                 color: "green",
                 callback: async() => {
 
@@ -57,7 +58,7 @@ export class IssueReporter {
 
                     let response: {success: boolean, message: string} = await ajaxAsync("/servlet/reportIssue", request);
                     if(response.success){
-                        alert("Danke für die Fehlermeldung!\nDer Fehler wurde erfolgreich übermittelt.");
+                        alert(IssueReporterMessages.thanks());
                     }
 
                     this.dialog.close();

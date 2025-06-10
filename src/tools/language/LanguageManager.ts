@@ -1,5 +1,7 @@
+import { Main } from "../../client/main/Main";
 import { IMain } from "../../compiler/common/IMain";
 import { openContextMenu } from "../HtmlTools";
+import { LanguageManagerMessages } from "./LanguagemanagerMessages";
 
 type Language = {
     id: string,
@@ -65,20 +67,32 @@ export function le(map: Record<string, string>): ErrormessageWithId {
 
 export class LanguageManager {
 
-    constructor(private main: IMain, private rootHtmlElement: HTMLElement){
-        this.setupLanguageSelector();
+    selectorDivEventListener: (ev: MouseEvent) => void;
+
+    constructor(private main: Main, private rootHtmlElement: HTMLElement){
     }
 
     setupLanguageSelector(){
         let selectorDivList = this.rootHtmlElement.getElementsByClassName('languageElement');
         if(selectorDivList.length == 0) return;
         let selectorDiv = <HTMLDivElement>selectorDivList.item(0);
-        selectorDiv.classList.add('img_flag-german');
 
-        selectorDiv.addEventListener('click', (ev) => {
+        let language: Language = languages.find(lang => lang.id == currentLanguageId);
+        selectorDiv.classList.add(language.iconClass);
+        
+        if(this.selectorDivEventListener){
+            selectorDiv.removeEventListener('click', this.selectorDivEventListener);
+            this.selectorDivEventListener = undefined;
+        }
+
+        selectorDiv.addEventListener('click', 
+            this.selectorDivEventListener = (ev) => {
             openContextMenu(languages.filter(la => la.id != currentLanguageId).map(la => {
                 return {
-                    callback: () => {},
+                    callback: () => {
+                        this.setLanguage(la.id);
+                        alert(LanguageManagerMessages.alertMessage());
+                    },
                     caption: la.name,
                     iconClass: la.iconClass
                 }
@@ -89,9 +103,21 @@ export class LanguageManager {
 
     }
 
-    setLanguage(languageAbbreviation: string){
-        currentLanguageId = languageAbbreviation;
+    setLanguage(languageAbbreviation: string | undefined){
 
+        let language = languages[0];
+        if(languageAbbreviation){
+            language = languages.find(lang => lang.id.toLowerCase() == languageAbbreviation.toLowerCase());
+        }
+
+        currentLanguageId = language.id;
+
+        this.setupLanguageSelector();
+
+        if(this.main.user.settings.language != language.id){
+            this.main.user.settings.language = language.id;
+            this.main.userDataDirty = true;
+        }
     }
 
 

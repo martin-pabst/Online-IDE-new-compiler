@@ -11,6 +11,7 @@ import { RepositoryTool } from "./RepositoryTool.js";
 import { LeftRight, SynchronizationListElement } from "./SynchronizationListElement.js";
 import { SynchroFile, SynchroWorkspace } from "./SynchroWorkspace.js";
 import * as monaco from 'monaco-editor'
+import { RepoSMessages } from '../language/RepositoryMessages.js';
 
 
 type FileElement = {
@@ -91,7 +92,7 @@ export class SynchronizationManager {
 
                     this.gainRepositoryLock(this.currentRepository.id, (success) => {
                         if (!success) {
-                            alert('Der Server ist temporär nicht erreichbar.');
+                            alert(RepoSMessages.serverTemporarilyNotReachable());
                             window.history.back();
                         }
                     })
@@ -233,8 +234,8 @@ export class SynchronizationManager {
         });
 
         this.diffEditor.setModel({
-            original: monaco.editor.createModel("Wählen Sie oben eine Datei aus!", "myJava"),
-            modified: monaco.editor.createModel("Wählen Sie oben eine Datei aus!", "myJava")
+            original: monaco.editor.createModel(RepoSMessages.chooseFile(), "myJava"),
+            modified: monaco.editor.createModel(RepoSMessages.chooseFile(), "myJava")
         });
 
         this.diffEditor.updateOptions({
@@ -242,7 +243,7 @@ export class SynchronizationManager {
         })
 
         if (this.leftSynchroWorkspace == this.currentUserSynchroWorkspace) {
-            this.setHeader("left", "Dein Workspace:");
+            this.setHeader("left", RepoSMessages.yourWorkspace());
             this.$backToWorkspaceButton.hide();
         } else {
             this.setHeader("left", this.leftSynchroWorkspace.name + ":");
@@ -251,8 +252,8 @@ export class SynchronizationManager {
         }
 
         if (this.rightSynchroWorkspace == this.currentRepositorySynchroWorkspace) {
-            let writable: string = this.repositoryIsWritable ? ", mit Schreibzugriff" : ", ohne Schreibzugriff";
-            this.setHeader("right", "Repository (aktuelle Version" + writable + "):");
+            let writable: string = this.repositoryIsWritable ? RepoSMessages.withWriteAccess() : RepoSMessages.withoutWriteAccess();
+            this.setHeader("right", RepoSMessages.repoCurrentVersion(writable));
             this.$backToCurrentRepositoryVersionButton.hide();
         } else {
             this.setHeader("right", this.rightSynchroWorkspace.name + ":");
@@ -260,7 +261,7 @@ export class SynchronizationManager {
             this.$writeRepositoryChangesButton.hide();
         }
 
-        jQuery('#jo_synchro_main_heading_text').text(`Synchronisieren mit Repository "${this.currentRepository.name}"${this.repositoryIsWritable ? "" : " (read-only)"}`);
+        jQuery('#jo_synchro_main_heading_text').text(`${RepoSMessages.synchronizeWithRepository()} "${this.currentRepository.name}"${this.repositoryIsWritable ? "" : " (read-only)"}`);
 
         let lastFileSelected: boolean = false;
         if (lastSynchroFileLeft != null || lastSynchroFileRight != null) {
@@ -325,14 +326,14 @@ export class SynchronizationManager {
 
         $synchroDiv.append(
 
-            this.$mainHeadingDiv = jQuery('<div id="jo_synchro_main_heading"><span id="jo_synchro_main_heading_text">Java-Online: Workspace mit Repository synchronisieren</span></div>'),
+            this.$mainHeadingDiv = jQuery(`<div id="jo_synchro_main_heading"><span id="jo_synchro_main_heading_text">${RepoSMessages.synchronizeWorkspaceWithRepository()}</span></div>`),
 
             this.$belowMainHeadingDiv = makeDiv("jo_synchro_below_main_heading"));
 
         let $buttonsTopRightDiv = makeDiv("jo_synchro_buttonsTopRight");
         this.$mainHeadingDiv.append($buttonsTopRightDiv);
 
-        $buttonsTopRightDiv.append(this.$exitButton = jQuery('<div id="jo_synchro_exitButton" class="jo_synchro_button">Zurück zum Programmieren</div>'));
+        $buttonsTopRightDiv.append(this.$exitButton = jQuery(`<div id="jo_synchro_exitButton" class="jo_synchro_button">${RepoSMessages.backToCoding()}</div>`));
 
         this.$exitButton.on('click', () => {
             window.history.back();
@@ -341,7 +342,7 @@ export class SynchronizationManager {
         this.$leftDiv = makeDiv("jo_synchro_leftDiv");
         this.$historyOuterDiv = makeDiv("jo_synchro_historyOuterDiv");
 
-        this.$historyOuterDiv.append(jQuery('<div id="jo_synchro_historyHeader"><div class="jo_synchro_tabHeading">History:</div></div>)'));
+        this.$historyOuterDiv.append(jQuery(`<div id="jo_synchro_historyHeader"><div class="jo_synchro_tabHeading">${RepoSMessages.history()}</div></div>)`));
 
         this.$belowMainHeadingDiv.append(this.$leftDiv, this.$historyOuterDiv);
 
@@ -377,11 +378,11 @@ export class SynchronizationManager {
         this.$fileListHeaderOuterDiv.append(this.$fileListHeaderDivs);
         this.$fileListOuterDiv.append(this.$fileListDivs);
 
-        this.$fileListHeaderDivs[0].append("<div class='jo_synchro_tabHeading'>Dein Workspace:</div>");
-        fileListHeaderRight.append("<div class='jo_synchro_tabHeading'>Repository (aktuelle Version):</div>");
+        this.$fileListHeaderDivs[0].append(`<div class='jo_synchro_tabHeading'>${RepoSMessages.yourWorkspace()}</div>`);
+        fileListHeaderRight.append(`<div class='jo_synchro_tabHeading'>${RepoSMessages.repositoryCurrentVersion()}</div>`);
 
 
-        this.$fileListHeaderDivs[0].append(this.$backToWorkspaceButton = jQuery('<div class="jo_synchro_button jo_synchro_backToButton">Zeige eigenen Workspace</div>'));
+        this.$fileListHeaderDivs[0].append(this.$backToWorkspaceButton = jQuery(`<div class="jo_synchro_button jo_synchro_backToButton">${RepoSMessages.showOwnWorkspace()}</div>`));
         this.$backToWorkspaceButton.on('click', () => {
             that.backToWorkspace();
         });
@@ -390,19 +391,19 @@ export class SynchronizationManager {
 
 
 
-        fileListHeaderRight.append(this.$backToCurrentRepositoryVersionButton = jQuery('<div class="jo_synchro_button jo_synchro_backToButton">Zeige aktuelle Repository-Version</div>'));
+        fileListHeaderRight.append(this.$backToCurrentRepositoryVersionButton = jQuery(`<div class="jo_synchro_button jo_synchro_backToButton">${RepoSMessages.showCurrentRepoVersion()}</div>`));
         this.$backToCurrentRepositoryVersionButton.on('click', () => {
             that.backToCurrentRepositoryVersion();
         });
         this.$backToWorkspaceButton.hide();
 
-        this.$fileListHeaderDivs[0].append(this.$writeWorkspaceChangesButton = jQuery('<div id="jo_synchro_writeChangesButton" class="jo_synchro_button">Änderungen am Workspace (rot!) speichern</div>'));
-        this.$writeWorkspaceChangesButton.on('click', () => {
+        this.$fileListHeaderDivs[0].append(this.$writeWorkspaceChangesButton = jQuery(`<div id="jo_synchro_writeChangesButton" class="jo_synchro_button">${RepoSMessages.saveWorkspaceChanges()}</div>`));
+        this.$writeWorkspaceChangesButton.on(`click`, () => {
             that.writeWorkspaceChanges();
         });
         this.$writeWorkspaceChangesButton.hide();
 
-        fileListHeaderRight.append(this.$writeRepositoryChangesButton = jQuery('<div id="jo_synchro_writeChangesButton" class="jo_synchro_button">Änderungen am Repository (rot!) speichern</div>'));
+        fileListHeaderRight.append(this.$writeRepositoryChangesButton = jQuery(`<div id="jo_synchro_writeChangesButton" class="jo_synchro_button">${RepoSMessages.saveRepoChanges()}</div>`));
         this.$writeRepositoryChangesButton.on('click', () => {
             that.writeRepositoryChanges();
         });
@@ -473,7 +474,7 @@ export class SynchronizationManager {
         $dialogDiv.hide();
         this.$fileListHeaderContainerRight.append($dialogDiv);
 
-        $dialogDiv.append(makeDiv("", "jo_synchro_commitDialogCaption", "Bitte beschreibe kurz die vorgenommenen Änderungen am Repository:"));
+        $dialogDiv.append(makeDiv("", "jo_synchro_commitDialogCaption", RepoSMessages.commitMessage()));
         let $dialogTextarea: JQuery<HTMLTextAreaElement> = jQuery('<textarea class="jo_synchro_commitDialogTextarea"></textarea>');
         $dialogDiv.append($dialogTextarea);
 
@@ -488,7 +489,7 @@ export class SynchronizationManager {
             that.$writeRepositoryChangesButton.show();
         })
 
-        let $buttonOK = makeDiv("", "jo_synchro_button", "OK", { "background-color": "var(--createButtonBackground)", "color": "var(--createButtonColor)" })
+        let $buttonOK = makeDiv("", "jo_synchro_button", RepoSMessages.OK(), { "background-color": "var(--createButtonBackground)", "color": "var(--createButtonColor)" })
         $dialogButtonDiv.append($buttonOK);
 
         $dialogDiv.show(600);

@@ -9,7 +9,7 @@ import { downloadFile } from "../../../tools/HtmlTools.js";
 import { WorkspaceImporterExporter } from "../../workspace/WorkspaceImporterExporter.js";
 import { IssueReporter } from "./IssueReporter.js";
 import * as monaco from 'monaco-editor'
-import { GuiMessages } from "./GuiMessages.js";
+import { GuiMessages } from "./language/GuiMessages.js";
 
 
 declare var BUILD_DATE: string;

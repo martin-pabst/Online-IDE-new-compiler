@@ -4,11 +4,12 @@ import { SpriteManager } from "../../spritemanager/SpriteManager.js";
 import { SpritesheetData } from "../../spritemanager/SpritesheetData.js";
 import { GUIFile } from "../../workspace/File.js";
 import { Workspace } from "../../workspace/Workspace.js";
-import { ExportedFile, ExportedWorkspace, WorkspaceImporterExporter } from "../../workspace/WorkspaceImporterExporter.js";
+import { ExportedFile, ExportedWorkspace } from "../../workspace/WorkspaceImporterExporter.js";
 import { Main } from "../Main.js";
 import { MainBase } from "../MainBase.js";
 import { Dialog } from "./Dialog.js";
 import jQuery from "jquery";
+import { WorkspaceImporterMessages } from "./language/GUILanguage.js";
 
 export class WorkspaceImporter {
 
@@ -23,11 +24,11 @@ export class WorkspaceImporter {
     show() {
         let that = this;
         this.dialog.init();
-        this.dialog.heading("Workspace importieren");
-        this.dialog.description("Bitte klicken Sie auf den Button 'Datei auswählen...' oder ziehen Sie eine Datei auf das gestrichelt umrahmte Feld.")
-        let pathDescription = "Dieser Workspace wird auf unterster Ordnerebene in der Workspaceliste importiert.";
+        this.dialog.heading(WorkspaceImporterMessages.importWorkspace());
+        this.dialog.description(WorkspaceImporterMessages.importWorkspaceDescription())
+        let pathDescription = WorkspaceImporterMessages.pathDescription1();
         if (this.path.length > 0) {
-            pathDescription = "Dieser Workspace wird in den Ordner " + this.path.join("/") + " importiert.";
+            pathDescription = WorkspaceImporterMessages.pathDescription2(this.path.join("/"));
         }
         this.dialog.description(pathDescription);
 
@@ -49,10 +50,10 @@ export class WorkspaceImporter {
                 reader.onload = (event) => {
                     let text: string = <string>event.target.result;
                     if (!(text.startsWith("{") || text.startsWith("["))) {
-                        $errorDiv.append(jQuery(`<div>Das Format der Datei ${f.name} passt nicht.</div>`));
+                        $errorDiv.append(jQuery(`<div>${WorkspaceImporterMessages.wrongFileFormat(f.name)}</div>`));
                         return;
                     }
-
+                    
                     let ew: ExportedWorkspace[] = [];
                     try {
                         ew = JSON.parse(text);
@@ -60,18 +61,18 @@ export class WorkspaceImporter {
                             ew = [ew];
                         }
                     } catch (e) {
-                        $errorDiv.append(jQuery(`<div>Die Datei ${f.name} ist keine gültige JSON-Datei.</div>`));
+                        $errorDiv.append(jQuery(`<div>${WorkspaceImporterMessages.noJson(f.name)}</div>`));
                         return;
                     }
-
+                    
                     for (let ew1 of ew) {
                         if (ew1.modules == null || ew1.name == null || ew1.settings == null) {
-                            $errorDiv.append(jQuery(`<div>Das Format der Datei ${f.name} passt nicht.</div>`));
+                            $errorDiv.append(jQuery(`<div>${WorkspaceImporterMessages.wrongFileFormat(f.name)}</div>`));
                         } else {
                             exportedWorkspaces.push(ew1);
                             let checkbox = jQuery(`<input type="checkbox" checked="checked" />`);
                             let pathString = (ew1.path && ew1.path.length > 0) ? ew1.path + "\\" : "";
-                            let listItem = jQuery(`<li><span>${pathString}${ew1.name} mit ${ew1.modules.length} Dateien<span></li>`);
+                            let listItem = jQuery(`<li><span>${pathString}${ew1.name} ${WorkspaceImporterMessages.withFiles(ew1.modules.length)}<span></li>`);
                             listItem.prepend(checkbox);
                             ew1.isSelected = true
                             $workspacePreviewList.append(listItem);
@@ -93,9 +94,9 @@ export class WorkspaceImporter {
             registerFiles(files);
         })
 
-        let $dropZone = jQuery(`<div class="jo_workspaceimport_dropzone">Dateien hierhin ziehen</div>`);
+        let $dropZone = jQuery(`<div class="jo_workspaceimport_dropzone">${WorkspaceImporterMessages.dragFilesHere()}</div>`);
         this.dialog.addDiv($dropZone);
-        this.dialog.description('<b>Diese Workspaces werden importiert:</b>');
+        this.dialog.description(`<b>${WorkspaceImporterMessages.theseWorkspacesGetImported()}</b>`);
 
 
 
@@ -122,12 +123,12 @@ export class WorkspaceImporter {
 
         this.dialog.buttons([
             {
-                caption: "Abbrechen",
+                caption: WorkspaceImporterMessages.cancel(),
                 color: "#a00000",
                 callback: () => { this.dialog.close() }
             },
             {
-                caption: "Importieren",
+                caption: WorkspaceImporterMessages.import(),
                 color: "green",
                 callback: async () => {
 
@@ -186,7 +187,7 @@ export class WorkspaceImporter {
                                 }
 
                             } else {
-                                alert('Der Server ist nicht erreichbar!');
+                                alert(WorkspaceImporterMessages.serverNotReachable());
                             }
                             
                         }

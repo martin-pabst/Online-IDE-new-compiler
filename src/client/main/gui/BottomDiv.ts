@@ -10,6 +10,9 @@ import { Tab, TabManager } from "../../../tools/TabManager.js";
 import jQuery from 'jquery';
 
 import '/assets/css/tabs.css';
+import gridSVG from '/assets/graphics/grid.svg';
+import compileGIF from '/assets/graphics/compile.gif';
+import { BottomDivMessages } from "./language/GUILanguage.js";
 
 export class BottomDiv {
 
@@ -53,11 +56,11 @@ export class BottomDiv {
         }
 
         if (withPCode) {
-            this.disassemblerTab = new Tab("Code", ["jo_scrollable", "jo_pcodeTab"]);
+            this.disassemblerTab = new Tab(BottomDivMessages.code(), ["jo_scrollable", "jo_pcodeTab"]);
             this.tabManager.addTab(this.disassemblerTab);
         }
 
-        this.jUnitTab = new Tab("Testrunner", ["jo_testrunnerTab"]);
+        this.jUnitTab = new Tab(BottomDivMessages.testRunner(), ["jo_testrunnerTab"]);
         this.tabManager.addTab(this.jUnitTab);
 
         //         <img class="jo_db-busy" title="Warten auf Datenbank..."
@@ -72,9 +75,9 @@ export class BottomDiv {
         // </div>
 
         if(!isEmbedded){
-            this.$dbBusyImage = jQuery(`<img class="jo_db-busy" title="Warten auf Datenbank..." src="assets/graphics/grid.svg">`);
+            this.$dbBusyImage = jQuery(`<img class="jo_db-busy" title="${BottomDivMessages.waitForDatabase()}" src="${gridSVG}">`);
             this.tabManager.insertIntoRightDiv(this.$dbBusyImage[0]);
-            this.$networkBusyImage = jQuery(`<img class="jo_network-busy" src="assets/graphics/compile.gif" alt="">`);
+            this.$networkBusyImage = jQuery(`<img class="jo_network-busy" src="${compileGIF}" alt="">`);
             this.tabManager.insertIntoRightDiv(this.$networkBusyImage[0]);
             
             this.$updateTimer = jQuery(`<div class="jo_updateTimerDiv">

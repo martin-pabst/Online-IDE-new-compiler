@@ -3,7 +3,7 @@ import jQuery from 'jquery';
 import { SpeedControl } from "./SpeedControl.js";
 import { ActionManager } from '../../../compiler/common/interpreter/ActionManager.js';
 import { Interpreter } from '../../../compiler/common/interpreter/Interpreter.js';
-import { GuiMessages } from './GuiMessages.js';
+import { GuiMessages } from './language/GuiMessages.js';
 
 
 type ButtonData = {

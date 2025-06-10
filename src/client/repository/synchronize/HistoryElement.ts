@@ -4,6 +4,7 @@ import { Repository, RepositoryFileEntry, RepositoryHistoryEntry, RepositoryHist
 import { SynchronizationManager } from "./RepositorySynchronizationManager.js";
 import { SynchroWorkspace } from "./SynchroWorkspace.js";
 import diff_match_patch from 'diff-match-patch'
+import { HistoryElementMessages } from "../language/RepositoryMessages.js";
 
 
 export class HistoryElement {
@@ -41,7 +42,7 @@ export class HistoryElement {
             ev.preventDefault();
             openContextMenu([
                 {
-                    caption: "Auf der linken Seite darstellen",
+                    caption: HistoryElementMessages.displayOnLeftSide(),
                     callback: () => {
                         let sw = new SynchroWorkspace(this.manager).copyFromHistoryElement(this);
                         this.manager.leftSynchroWorkspace = sw;
@@ -49,7 +50,7 @@ export class HistoryElement {
                     }
                 },
                 {
-                    caption: "Auf der rechten Seite darstellen",
+                    caption: HistoryElementMessages.displayOnRightSide(),
                     callback: () => {
                         let sw = new SynchroWorkspace(this.manager).copyFromHistoryElement(this);
                         this.manager.rightSynchroWorkspace = sw;

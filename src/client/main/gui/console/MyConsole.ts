@@ -9,6 +9,7 @@ import { Helper } from "../Helper.js";
 import { ConsoleEntry } from "./ConsoleEntry.js";
 import * as monaco from 'monaco-editor'
 import jQuery from 'jquery';
+import { ConsoleMessages } from "../language/GUILanguage.js";
 
 export class MyConsole {
 
@@ -37,7 +38,7 @@ export class MyConsole {
     constructor(private main: MainBase, private tabManager: TabManager | null) {
         if (tabManager == null) return; // Console is only used to highlight exceptions
 
-        this.tab = new Tab("Console", ["jo_editorFontSize", "jo_consoleTab"]);
+        this.tab = new Tab(ConsoleMessages.console(), ["jo_editorFontSize", "jo_consoleTab"]);
         tabManager.addTab(this.tab);
 
         // <div class="jo_editorFontSize jo_consoleTab">
@@ -65,12 +66,12 @@ export class MyConsole {
         //     title="Anweisungen aus der Console in die Zwischenablage kopieren"></div>
 
         let $consoleClear = jQuery(`<div class="img_clear-dark jo_button jo_active jo_console-clear" alt=""
-             style="display: none; margin-right: 8px;" title="Console leeren"></div>`);
+             style="display: none; margin-right: 8px;" title="${ConsoleMessages.emptyConsole}"></div>`);
         this.tabManager.insertIntoRightDiv($consoleClear[0]);
 
         let $consoleCopy = jQuery(`<div class="img_copy-dark jo_button jo_active jo_console-copy" alt=""
              style="display: none; margin-right: 8px;"
-             title="Anweisungen aus der Console in die Zwischenablage kopieren"></div>`);
+             title="${ConsoleMessages.copyToClipboard()}"></div>`);
         this.tabManager.insertIntoRightDiv($consoleCopy[0]);
 
         $consoleTab.on('myshow', () => {
@@ -343,7 +344,7 @@ export class MyConsole {
         consoleTop.append(commandEntry.$consoleEntry);
 
 
-        let resultEntry = new ConsoleEntry(false, null, error.message, error.message, "Fehler:", null, true, "#ff0000");
+        let resultEntry = new ConsoleEntry(false, null, error.message, error.message, ConsoleMessages.error() + ":", null, true, "#ff0000");
         this.consoleEntries.push(resultEntry);
         consoleTop.append(resultEntry.$consoleEntry);
 
