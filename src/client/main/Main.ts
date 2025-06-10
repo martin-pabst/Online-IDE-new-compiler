@@ -88,9 +88,6 @@ export class Main implements MainBase {
 
     bottomDiv: BottomDiv;
 
-    startupComplete = 2;
-    waitForGUICallback: () => void;
-
     user: UserData;
     userDataDirty: boolean = false;
 
@@ -167,7 +164,7 @@ export class Main implements MainBase {
         this.projectExplorer.setFileActive(file);
     }
 
-    startupBeforeMonacoEditorIsLoaded() {
+    startupBeforeLogin() {
 
         checkIfMousePresent();
 
@@ -185,6 +182,9 @@ export class Main implements MainBase {
             this.login.initGUI();
         }
 
+    }
+
+    startupAfterLogin() {
 
         this.actionManager = new ActionManager(null);
         this.actionManager.init();
@@ -204,16 +204,10 @@ export class Main implements MainBase {
         this.rightDiv = new RightDiv(this, jQuery('#rightdiv-inner')[0], true);
         this.rightDiv.initGUI();
 
-        this.checkStartupComplete();
-
         //@ts-ignore
         window.UZIP = null; // needed by UPNG
 
         this.viewModeController = new ViewModeController(jQuery("#view-mode"), this);
-
-    }
-
-    startupAfterMonacoEditorIsLoaded() {
 
         this.editor = new Editor(this, true, false);
         this.editor.initGUI(jQuery('#editor'));
@@ -271,36 +265,26 @@ export class Main implements MainBase {
 
         new EditorOpenerProvider(this);
 
-    }
+        this.getMainEditor().updateOptions({ readOnly: true });
 
-    initGUIAfterLogin() {
-    }
+        this.bottomDiv.initGUI();
 
-    initTeacherExplorer(classdata: ClassData[]) {
-        if (this.teacherExplorer != null) {
-            this.teacherExplorer.removePanels();
-        }
-        this.teacherExplorer = new TeacherExplorer(this, classdata);
-        this.teacherExplorer.initGUI();
-    }
+        if (this.repositoryOn) {
+            this.synchronizationManager = new SynchronizationManager(this);
+            // this.synchronizationManager.initGUI();
+            this.repositoryCreateManager = new RepositoryCreateManager(this);
+            this.repositoryCreateManager.initGUI();
+            this.repositoryUpdateManager = new RepositorySettingsManager(this);
+            this.repositoryUpdateManager.initGUI();
+            this.repositoryCheckoutManager = new RepositoryCheckoutManager(this);
+            this.repositoryCheckoutManager.initGUI();
 
-
-    checkStartupComplete() {
-        this.startupComplete--;
-        if (this.startupComplete == 0) {
-            this.start();
-        }
-    }
-
-    start() {
-
-        if (this.waitForGUICallback != null) {
-            this.waitForGUICallback();
         }
 
-        let that = this;
+        this.spriteManager = new SpriteManager(this);
+
         setTimeout(() => {
-            that.getMainEditor().layout();
+            this.getMainEditor().layout();
         }, 200);
 
         jQuery(window).on('unload', async function () {
@@ -316,6 +300,15 @@ export class Main implements MainBase {
 
         });
 
+
+    }
+
+    initTeacherExplorer(classdata: ClassData[]) {
+        if (this.teacherExplorer != null) {
+            this.teacherExplorer.removePanels();
+        }
+        this.teacherExplorer = new TeacherExplorer(this, classdata);
+        this.teacherExplorer.initGUI();
     }
 
     onCompilationFinished(executable: Executable | undefined): void {

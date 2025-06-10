@@ -345,7 +345,7 @@ export class Interpreter {
     #registerActions() {
         if (!this.actionManager) return;
 
-        this.actionManager.registerAction("interpreter.start", ['F5'], "Programm starten",
+        this.actionManager.registerAction("interpreter.start", ['F5'], InterpreterMessages.runProgram(),
             () => {
                 if (this.actionManager!.isActive("interpreter.start")) {
                     this.start();
@@ -355,7 +355,7 @@ export class Interpreter {
 
             });
 
-        this.actionManager.registerAction("interpreter.pause", ['F5'], "Pause",
+        this.actionManager.registerAction("interpreter.pause", ['F5'], InterpreterMessages.pause(),
             () => {
                 if (this.actionManager!.isActive("interpreter.start")) {
                     this.start();
@@ -365,7 +365,7 @@ export class Interpreter {
 
             });
 
-        this.actionManager.registerAction("interpreter.stop", [], "Programm anhalten",
+        this.actionManager.registerAction("interpreter.stop", [], InterpreterMessages.stop(),
             () => {
                 if (this.main?.getRepl().state == "standalone") {
                     this.main?.getRepl().init(this.executable);
@@ -375,32 +375,32 @@ export class Interpreter {
                 }
             });
 
-        this.actionManager.registerAction("interpreter.toggleBreakpoint", ['F9'], "Haltepunkt an/aus",
+        this.actionManager.registerAction("interpreter.toggleBreakpoint", ['F9'], InterpreterMessages.toggleBreakpoint(),
             () => {
                 this.breakpointManager.toggleBreakpoint(this.main.getMainEditor().getSelection().startLineNumber);
             });
 
-        this.actionManager.registerAction("interpreter.stepOver", ['F10'], "Einzelschritt (Step over)",
+        this.actionManager.registerAction("interpreter.stepOver", ['F10'], InterpreterMessages.stepOver(),
             () => {
                 this.executeOneStep(false);
             });
 
-        this.actionManager.registerAction("interpreter.stepInto", ['F11'], "Einzelschritt (Step into)",
+        this.actionManager.registerAction("interpreter.stepInto", ['F11'], InterpreterMessages.stepInto(),
             () => {
                 this.executeOneStep(true);
             });
 
-        this.actionManager.registerAction("interpreter.stepOut", [], "Step out",
+        this.actionManager.registerAction("interpreter.stepOut", [], InterpreterMessages.stepOut(),
             () => {
                 this.#stepOut();
             });
 
-        this.actionManager.registerAction("interpreter.restart", [], "Neu starten",
+        this.actionManager.registerAction("interpreter.restart", [], InterpreterMessages.restart(),
             () => {
                 this.stop(true);
             });
 
-        this.actionManager.registerAction("interpreter.goto", [], "Goto",
+        this.actionManager.registerAction("interpreter.goto", [], InterpreterMessages.goto(),
             () => {
                 this.#goto(this.main.getMainEditor().getSelection().startLineNumber)
             });

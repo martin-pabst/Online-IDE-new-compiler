@@ -28,7 +28,6 @@ export class Login {
         let that = this;
         jQuery('#login').css('display', 'flex');
         jQuery('#bitteWarten').css('display', 'none');
-        this.startAnimations();
 
         let $loginSpinner = jQuery('#login-spinner>img');
 
@@ -134,7 +133,8 @@ export class Login {
                     window.location.assign("https://aai-test.vidis.schule/auth/realms/vidis/protocol/openid-connect/logout?ID_TOKEN_HINT=" + this.main.user.vidis_sub + "&post_logout_redirect_uri=https%3A%2F%2Fwww.online-ide.de");
 
                 } else {
-                    that.showLoginForm();
+                    window.location.assign("/");
+                    // that.showLoginForm();
                 }
 
             });
@@ -202,68 +202,59 @@ export class Login {
 
                 SqlIdeUrlHolder.sqlIdeURL = response.sqlIdeForOnlineIdeClient + "/servlet/";
 
-                this.main.waitForGUICallback = () => {
+                this.main.startupAfterLogin();
 
-                    that.main.mainMenu.initGUI(user, "");
-                    that.main.initGUIAfterLogin();
+                that.main.mainMenu.initGUI(user, "");
 
-                    that.main.bottomDiv.gradingManager?.initGUI();
+                that.main.bottomDiv.gradingManager?.initGUI();
 
-                    jQuery('#bitteWarten').hide();
-                    let $loginSpinner = jQuery('#login-spinner>img');
-                    $loginSpinner.hide();
-                    jQuery('#menupanel-username').html(escapeHtml(getUserDisplayName(user)));
+                jQuery('#bitteWarten').hide();
+                let $loginSpinner = jQuery('#login-spinner>img');
+                $loginSpinner.hide();
+                jQuery('#menupanel-username').html(escapeHtml(getUserDisplayName(user)));
 
-                    new UserMenu(that.main).init();
+                new UserMenu(that.main).init();
 
-                    if (user.is_teacher) {
-                        that.main.initTeacherExplorer(response.classdata);
-                    }
+                if (user.is_teacher) {
+                    that.main.initTeacherExplorer(response.classdata);
+                }
 
 
-                    that.main.workspacesOwnerId = user.id;
-                    that.main.restoreWorkspaces(response.workspaces, true);
+                that.main.workspacesOwnerId = user.id;
+                that.main.restoreWorkspaces(response.workspaces, true);
 
-                    that.main.networkManager.initializeTimer();
+                that.main.networkManager.initializeTimer();
 
-                    that.main.projectExplorer.fileListPanel.setFixed(!user.is_teacher);
-                    that.main.projectExplorer.workspaceListPanel.setFixed(!user.is_teacher);
+                that.main.projectExplorer.fileListPanel.setFixed(!user.is_teacher);
+                that.main.projectExplorer.workspaceListPanel.setFixed(!user.is_teacher);
 
-                    that.main.rightDiv?.classDiagram?.clear();
+                that.main.rightDiv?.classDiagram?.clear();
 
-                    if (user.settings.classDiagram != null) {
-                        that.main.rightDiv?.classDiagram?.deserialize(user.settings.classDiagram);
-                    }
+                if (user.settings.classDiagram != null) {
+                    that.main.rightDiv?.classDiagram?.deserialize(user.settings.classDiagram);
+                }
 
-                    that.main.viewModeController.initViewMode();
-                    that.main.bottomDiv.hideHomeworkTab();
+                that.main.viewModeController.initViewMode();
+                that.main.bottomDiv.hideHomeworkTab();
 
-                    if (!this.main.user.settings.helperHistory.folderButtonDone && that.main.projectExplorer.workspaceListPanel.elements.length > 5) {
+                if (!this.main.user.settings.helperHistory.folderButtonDone && that.main.projectExplorer.workspaceListPanel.elements.length > 5) {
 
-                        Helper.showHelper("folderButton", this.main, jQuery('.img_add-folder-dark'));
-
-                    }
-
-                    that.main.networkManager.initializeSSE();
-
-                    this.main.pruefungManagerForStudents?.close();
-
-                    if (!user.is_teacher && !user.is_admin && !user.is_schooladmin) {
-                        this.main.pruefungManagerForStudents = new PruefungManagerForStudents(this.main);
-                        if (response.activePruefung != null) {
-
-                            let workspaceData = this.main.workspaceList.filter(w => w.pruefung_id == response.activePruefung.id)[0].getWorkspaceData(true);
-
-                            this.main.pruefungManagerForStudents.startPruefung(response.activePruefung);
-                        }
-                    }
-
+                    Helper.showHelper("folderButton", this.main, jQuery('.img_add-folder-dark'));
 
                 }
 
-                if (this.main.startupComplete == 0) {
-                    this.main.waitForGUICallback();
-                    this.main.waitForGUICallback = null;
+                that.main.networkManager.initializeSSE();
+
+                this.main.pruefungManagerForStudents?.close();
+
+                if (!user.is_teacher && !user.is_admin && !user.is_schooladmin) {
+                    this.main.pruefungManagerForStudents = new PruefungManagerForStudents(this.main);
+                    if (response.activePruefung != null) {
+
+                        let workspaceData = this.main.workspaceList.filter(w => w.pruefung_id == response.activePruefung.id)[0].getWorkspaceData(true);
+
+                        this.main.pruefungManagerForStudents.startPruefung(response.activePruefung);
+                    }
                 }
 
             }
@@ -309,24 +300,5 @@ export class Login {
         this.main.user = null;
 
     }
-
-
-    startAnimations() {
-        // let $loginAnimationDiv = $('#jo_login_animations');
-        // $loginAnimationDiv.empty();
-
-
-        // let $gifAnimation = $('<img src="assets/startpage/code_1.gif" class="jo_gif_animation">');
-        // $loginAnimationDiv.append($gifAnimation);
-
-        // let left = Math.trunc(Math.random()*(screen.width - 400)) + "px";
-        // let top = Math.trunc(Math.random()*(screen.height - 400)) + "px";
-
-        // $gifAnimation.css({
-        //     "left": left,
-        //     "top": top
-        // })
-    }
-
 
 }

@@ -99,33 +99,10 @@ window.onload = () => {
 
     // p5.disableFriendlyErrors = true
 
-    let main = new Main();
     loadSpritesheet();
-
+    
     initMonacoEditor()
-
-    main.startupBeforeMonacoEditorIsLoaded();
-    main.startupAfterMonacoEditorIsLoaded();
-    main.getMainEditor().updateOptions({ readOnly: true });
-
-    main.bottomDiv.initGUI();
-    main.checkStartupComplete();
-
-    if (main.repositoryOn) {
-        main.synchronizationManager = new SynchronizationManager(main);
-        // main.synchronizationManager.initGUI();
-        main.repositoryCreateManager = new RepositoryCreateManager(main);
-        main.repositoryCreateManager.initGUI();
-        main.repositoryUpdateManager = new RepositorySettingsManager(main);
-        main.repositoryUpdateManager.initGUI();
-        main.repositoryCheckoutManager = new RepositoryCheckoutManager(main);
-        main.repositoryCheckoutManager.initGUI();
-
-    }
-
-    main.spriteManager = new SpriteManager(main);
-    // main.spriteManager.initGUI();
-
-
-    // document.body.innerText = 'Hello World!';
+    
+    let main = new Main();
+    main.startupBeforeLogin();
 }
