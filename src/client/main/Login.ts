@@ -110,29 +110,30 @@ export class Login {
 
         jQuery('#bitteWartenText').html(LoginMessages.pleaseWaitWhileSaving());
         jQuery('#bitteWarten').css('display', 'flex');
-
+        
         if (this.main.workspacesOwnerId != this.main.user.id) {
             this.main.projectExplorer.onHomeButtonClicked();
         }
-
+        
         this.main.networkManager.sendUpdatesAsync().then(() => {
-
+            
             this.main.pruefungManagerForStudents?.stopPruefung(false);
-
+            
             this.main.rightDiv.classDiagram.clearAfterLogout();
-
+            
             let logoutRequest: LogoutRequest = {
                 currentWorkspaceId: this.main.currentWorkspace?.pruefung_id == null ? this.main.currentWorkspace?.id : null
             }
-
+            
             let that = this;
             ajax('logout', logoutRequest, () => {
                 // window.location.href = 'index.html';
-
+                
                 if (this.loggedInWithVidis) {
                     window.location.assign("https://aai-test.vidis.schule/auth/realms/vidis/protocol/openid-connect/logout?ID_TOKEN_HINT=" + this.main.user.vidis_sub + "&post_logout_redirect_uri=https%3A%2F%2Fwww.online-ide.de");
-
+                    
                 } else {
+                    jQuery('#bitteWartenText').html(LoginMessages.done());
                     window.location.assign("/");
                     // that.showLoginForm();
                 }

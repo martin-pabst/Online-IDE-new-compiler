@@ -21,4 +21,11 @@ export class LoginMessages {
         'en': 'Login failed: '
     });
     
+    static done = () => lm({
+        'de': 'fertig!',
+        'en': 'Done!'
+    });
+    
+    
+
 }
