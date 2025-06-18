@@ -1,6 +1,7 @@
 import { LoginRequest, PerformanceData } from "./Data.js";
 import jQuery from 'jquery';
 import { PushClientManager } from "./pushclient/PushClientManager.js";
+import { currentLanguageId, setLanguageId } from "../../tools/language/LanguageManager.js";
 // export var credentials: { username: string, password: string } = { username: null, password: null };
 
 export class PerformanceCollector {
@@ -46,16 +47,16 @@ export function ajax(url: string, request: any, successCallback: (response: any)
 
     errorCallback?: (message: string) => void) {
 
-        if(!url.startsWith("http")){
-            url = "servlet/" + url;
-        }
+    if (!url.startsWith("http")) {
+        url = "servlet/" + url;
+    }
 
 
     showNetworkBusy(true);
     let time = performance.now();
 
-    let headers: {[key: string]: string;} = {};
-    if(csrfToken != null) headers = {"x-token-pm": csrfToken};
+    let headers: { [key: string]: string; } = {};
+    if (csrfToken != null) headers = { "x-token-pm": csrfToken };
 
     jQuery.ajax({
         type: 'POST',
@@ -68,8 +69,7 @@ export function ajax(url: string, request: any, successCallback: (response: any)
 
             PerformanceCollector.registerPerformanceEntry(url, time);
 
-            if(response["csrfToken"] != null)
-            {
+            if (response["csrfToken"] != null) {
                 csrfToken = response["csrfToken"];
                 PushClientManager.getInstance().open();
             }
@@ -118,27 +118,42 @@ export function showNetworkBusy(busy: boolean) {
 }
 
 
-export async function extractCsrfTokenFromGetRequest(retrieveNewCsrfToken: boolean = false){
+export async function extractCsrfTokenFromGetRequest(retrieveNewCsrfToken: boolean = false) {
     let url = window.location.href;
-    let tokenIndex = url.indexOf("csrfToken=");
-    if(tokenIndex >= 0){
-        let token = url.substring(tokenIndex + "csrfToken=".length);
-        if(token != null && token.length > 0){
-            csrfToken = token;
-        }
+    let token = fetchGetParameterValue(url, "csrfToken");
+    if (token != null && token.length > 0) {
+        csrfToken = token;
     }
 
-    if(retrieveNewCsrfToken){
+    if (retrieveNewCsrfToken) {
         await ajaxAsync("/servlet/retrieveNewCsrfToken", {});
+    }
+}
+
+function fetchGetParameterValue(url: string, parameterIdentifier: string): string | null {
+    let index = url.indexOf(parameterIdentifier + "=");
+    if (index >= 0) {
+        let endIndex = url.indexOf('&', index);
+        if (endIndex < 0) endIndex = url.length;
+        return url.substring(index + (parameterIdentifier + "=").length, endIndex);
+    }
+    return null;
+}
+
+export async function extractLanguageFromGetRequest(retrieveNewCsrfToken: boolean = false) {
+    let url = window.location.href;
+    let lang = fetchGetParameterValue(url, 'lang');
+    if(lang != null){
+        setLanguageId(lang);
     }
 }
 
 
 
-export async function ajaxAsync(url: string, data: any): Promise<any>{
+export async function ajaxAsync(url: string, data: any): Promise<any> {
     let headers: [string, string][] = [["content-type", "text/json"]];
 
-    if(csrfToken != null){
+    if (csrfToken != null) {
         headers.push(["x-token-pm", csrfToken]);
     }
 
@@ -150,21 +165,21 @@ export async function ajaxAsync(url: string, data: any): Promise<any>{
             body: JSON.stringify(data)
         })
 
-         let obj: any = await response.json()
+        let obj: any = await response.json()
 
-        if(obj["token"] != null){
+        if (obj["token"] != null) {
             csrfToken = obj["token"];
             PushClientManager.getInstance().open();
         }
 
-        if(obj == null){
+        if (obj == null) {
             alert("Fehler beim Übertragen der Daten.");
-        } else if(obj.success != true){
+        } else if (obj.success != true) {
             alert("Fehler beim Übertragen der Daten:\n" + obj.message);
         }
         showNetworkBusy(false);
         return obj;
-    } catch (exception){
+    } catch (exception) {
         showNetworkBusy(false);
         return {
             status: "Error",

@@ -6,6 +6,7 @@ import { MoveTeacherToSchoolPopup } from "./MoveTeacherToSchoolPopup.js";
 import { w2grid, w2utils, w2alert } from 'w2ui'
 import { StudentBulkImportMI } from "./StudentBulkImortMI.js";
 import jQuery from 'jquery'
+import { AdminMessages } from "./AdministrationMessages.js";
 
 
 // declare var w2prompt: any;
@@ -26,7 +27,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
     }
 
     getButtonIdentifier(): string {
-        return "Schulen mit Administratoren";
+        return AdminMessages.schoolsWithAdmins();
     }
 
     onMenuButtonPressed($mainHeading: JQuery<HTMLElement>, $tableLeft: JQuery<HTMLElement>,
@@ -35,7 +36,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
 
         this.schoolGrid = new w2grid({
             name: "schoolgrid",
-            header: 'Schulen',
+            header: AdminMessages.schools(),
             // selectType: "cell",
             multiSelect: false,
             show: {
@@ -59,17 +60,17 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
             recid: "id",
             columns: [
                 { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
-                { field: 'name', text: 'Bezeichnung', size: '30%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
-                { field: 'kuerzel', text: 'Kürzel', size: '10%', sortable: true, resizable: true, editable: { type: 'text', maxlength: "10" }, hidden: true },
-                { field: 'vidis_schulkennung', text: 'Vidis-Kennung', size: '30%', sortable: true, resizable: true, editable: { type: 'text', maxlength: "256" } },
-                { field: 'numberOfClasses', text: 'Klassen', size: '30%', sortable: true, resizable: true },
-                { field: 'numberOfUsers', text: 'Users', size: '30%', sortable: true, resizable: true },
+                { field: 'name', text: AdminMessages.identifier(), size: '30%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                { field: 'kuerzel', text: AdminMessages.abbreviation(), size: '10%', sortable: true, resizable: true, editable: { type: 'text', maxlength: "10" }, hidden: true },
+                { field: 'vidis_schulkennung', text: AdminMessages.vidisID(), size: '30%', sortable: true, resizable: true, editable: { type: 'text', maxlength: "256" } },
+                { field: 'numberOfClasses', text: AdminMessages.classes(), size: '30%', sortable: true, resizable: true },
+                { field: 'numberOfUsers', text: AdminMessages.users(), size: '30%', sortable: true, resizable: true },
                 { field: 'userMinutesLastMonth', text: '(m)', size: '20%', sortable: true, resizable: true },
                 { field: 'userMinutesLastYear', text: '(y)', size: '20%', sortable: true, resizable: true },
                 { field: 'userMinutesOverall', text: '(all)', size: '20%', sortable: true, resizable: true },
             ],
             searches: [
-                { field: 'name', label: 'Bezeichnung', type: 'text' }
+                { field: 'name', label: AdminMessages.identifier(), type: 'text' }
             ],
             sortData: [{ field: 'name', direction: 'asc' }, { field: 'kuerzel', direction: 'asc' },
             { field: 'numberOfClasses', direction: 'asc' }, { field: 'numberOfUsers', direction: 'asc' }],
@@ -92,7 +93,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
 
         this.teacherGrid = new w2grid({
             name: "teachergrid",
-            header: 'Lehrkräfte',
+            header: AdminMessages.teachers(),
             // selectType: "cell",
             show: {
                 header: true,
@@ -107,8 +108,8 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
             toolbar: {
                 items: [
                     { type: 'break' },
-                    { type: 'button', id: 'passwordButton', text: 'Passwort ändern...' }, //, img: 'fa-key' }
-                    { type: 'button', id: 'moveTeacherButton', text: 'Versetzen in Schule...' } //, img: 'fa-key' }
+                    { type: 'button', id: 'passwordButton', text: AdminMessages.changePassword() }, //, img: 'fa-key' }
+                    { type: 'button', id: 'moveTeacherButton', text: AdminMessages.moveToSchool() } //, img: 'fa-key' }
                 ],
                 onClick: function (target, data) {
                     switch (target) {
@@ -124,22 +125,22 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
             recid: "id",
             columns: [
                 { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
-                { field: 'username', text: 'Benutzername', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
-                { field: 'rufname', text: 'Rufname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
-                { field: 'familienname', text: 'Familienname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
-                { field: 'vidis_akronym', text: 'vidis-Kürzel', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool()},
-                { field: 'is_schooladmin', text: 'Admin', size: '10%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
-                { field: 'locked', text: 'Locked', size: '15%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
+                { field: 'username', text: AdminMessages.username(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                { field: 'rufname', text: AdminMessages.firstName(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                { field: 'familienname', text: AdminMessages.lastName(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                { field: 'vidis_akronym', text: AdminMessages.vidisAbbreviation(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool()},
+                { field: 'is_schooladmin', text: AdminMessages.isAdmin(), size: '10%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
+                { field: 'locked', text: AdminMessages.locked(), size: '15%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
                 {
                     field: 'id', text: 'PW', size: '40px', sortable: false, render: (e) => {
-                        return '<div class="pw_button" title="Passwort ändern" data-recid="' + e.recid + '" style="visibility: hidden">PW!</div>';
+                        return '<div class="pw_button" title="' + AdminMessages.changePassword() + '" data-recid="' + e.recid + '" style="visibility: hidden">PW!</div>';
                     }, hidden: this.isVidisSchool()
                 }
             ],
             searches: [
-                { field: 'username', label: 'Benutzername', type: 'text' },
-                { field: 'rufname', label: 'Rufname', type: 'text' },
-                { field: 'familienname', label: 'Familienname', type: 'text' }
+                { field: 'username', label: AdminMessages.username(), type: 'text' },
+                { field: 'rufname', label: AdminMessages.firstName(), type: 'text' },
+                { field: 'familienname', label: AdminMessages.lastName(), type: 'text' }
             ],
             sortData: [{ field: 'klasse', direction: 'asc' }, { field: 'familienname', direction: 'asc' }, { field: 'rufname', direction: 'asc' }],
             onAdd: (event) => { that.onAddTeacher() },
@@ -171,7 +172,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
     moveTeacherToOtherSchool() {
         let recIds = <number[]>this.teacherGrid.getSelection();
         if (recIds.length != 1) {
-            this.teacherGrid.error("Zum Verschieben in eine andere Schule muss genau eine Lehrkraft ausgewählt werden.");
+            this.teacherGrid.error(AdminMessages.selectTeacherToMove());
         } else {
             let teacher: UserData = <UserData>this.teacherGrid.get(recIds[0] + "", false);
             let oldSchool = this.schoolDataList.find(sd => sd.id == teacher.schule_id);
@@ -183,7 +184,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
                     newSchool = this.schoolDataList.find(s => s.id == newSchool.id);
 
                     if (teacher.schule_id == newSchool.id) {
-                        alert("Die gewählte Schule stimmt mit der bisherigen Schule überein, es wird daher nichts verändert.");
+                        alert(AdminMessages.schoolsIdenticalThereforeNothingToDo());
                         return;
                     }
 
@@ -199,7 +200,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
                         oldSchool.usersWithoutClass.splice(oldSchool.usersWithoutClass.indexOf(teacher), 1);
                         this.onSelectSchool();
                     }, (error) => {
-                        w2alert('Fehler beim Versetzen der Lehrkraft: ' + error);
+                        w2alert(AdminMessages.errorMovingTeacher() + error);
                     });
 
                 }
@@ -219,7 +220,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
         }
 
         if (recIds.length != 1) {
-            this.teacherGrid.error("Zum Ändern eines Passworts muss genau ein Admin ausgewählt werden.");
+            this.teacherGrid.error(AdminMessages.chooseAdminToChangePassword());
         } else {
             let admin: UserData = <UserData>this.teacherGrid.get(recIds[0] + "", false);
 
@@ -234,16 +235,16 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
                     type: "update",
                     data: admin,
                 }
-                w2utils.lock(jQuery('body'), "Bitte warten, das Hashen <br> des Passworts kann <br>bis zu 1 Minute<br> dauern...", true);
+                w2utils.lock(jQuery('body'), AdminMessages.pleaseWaitForPasswordHashing() , true);
 
                 ajax("CRUDUser", request, (response: CRUDResponse) => {
 
                     w2utils.unlock(jQuery('body'));
-                    w2alert('Das Passwort für ' + admin.rufname + " " + admin.familienname + " (" + admin.username + ") wurde erfolgreich geändert.");
+                    w2alert(AdminMessages.passwordChangedSuccessfully(admin.rufname, admin.familienname, admin.username));
 
                 }, (message: string) => {
                     w2utils.unlock(jQuery('body'));
-                    w2alert('Fehler beim Ändern des Passworts: ' + message);
+                    w2alert(AdminMessages.errorSettingPassword() + message);
                 });
             });
 
@@ -307,7 +308,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
             type: "create",
             data: {
                 id: -1,
-                name: "Name der Schule",
+                name: AdminMessages.nameOfSchool(),
                 kuerzel: "kuerzel",
                 classes: [],
                 usersWithoutClass: [],
@@ -358,7 +359,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
         let adminList: UserData[] = [];
 
         for (let sc of selectedSchools) {
-            this.teacherGrid.header = "Lehrkräfte der Schule " + sc.name;
+            this.teacherGrid.header = AdminMessages.teachersOfSchool() + sc.name;
             for (let sd of sc.usersWithoutClass) {
                 if (sd.is_teacher) adminList.push(sd);
             }
@@ -421,7 +422,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
 
             this.schoolGrid.refresh();
         }, (error) => {
-            alert('Fehler beim Holen der Daten: ' + error);
+            alert(AdminMessages.errorFetchingData() + error);
             debugger;
         });
 
@@ -497,7 +498,7 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
         let selectedSchools = <number[]>this.schoolGrid.getSelection();
         // let selectedSchools = <number[]>this.schoolGrid.getSelection().map((d: { recid: number }) => d.recid).filter((value, index, array) => array.indexOf(value) === index);
         if (selectedSchools.length != 1) {
-            this.teacherGrid.error("Wenn Sie Lehrkräfte hinzufügen möchten muss links genau eine Schule ausgewählt sein.");
+            this.teacherGrid.error(AdminMessages.selectSchoolToAddTeachers());
             return;
         }
         let schoolId = selectedSchools[0];
@@ -509,9 +510,9 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
                 id: -1,
                 schule_id: schoolId,
                 klasse_id: null,
-                username: "Benutzername" + Math.round(Math.random() * 10000000),
-                rufname: "Rufname",
-                familienname: "Familienname",
+                username: AdminMessages.username() + Math.round(Math.random() * 10000000),
+                rufname: AdminMessages.firstName(),
+                familienname: AdminMessages.lastName(),
                 is_admin: false,
                 is_schooladmin: false,
                 is_teacher: true,

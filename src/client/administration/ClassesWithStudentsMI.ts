@@ -6,6 +6,7 @@ import { PasswordPopup } from "./PasswordPopup.js";
 import { w2alert, w2form, w2grid, w2popup, w2ui, w2utils } from 'w2ui'
 import { StudentBulkImportMI } from "./StudentBulkImortMI.js";
 import jQuery from 'jquery'
+import { AdminMessages } from "./AdministrationMessages.js";
 
 
 export class ClassesWithStudentsMI extends AdminMenuItem {
@@ -32,7 +33,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
     }
 
     getButtonIdentifier(): string {
-        return "Klassen mit Schülern";
+        return AdminMessages.classesWithStudents();
     }
 
     onMenuButtonPressed($mainHeading: JQuery<HTMLElement>, $tableLeft: JQuery<HTMLElement>,
@@ -46,7 +47,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
 
             this.classesGrid = new w2grid({
                 name: "classesGrd",
-                header: 'Klassen',
+                header: AdminMessages.classes(),
                 // selectType: "cell",
                 show: {
                     header: true,
@@ -61,15 +62,15 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                 recid: "id",
                 columns: [
                     { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
-                    { field: 'name', text: 'Bezeichnung', size: '30%', sortable: true, resizable: true, editable: { type: 'text' } },
+                    { field: 'name', text: AdminMessages.identifier(), size: '30%', sortable: true, resizable: true, editable: { type: 'text' } },
                     {
-                        field: 'numberOfStudents', text: 'Anz.', size: '20%', sortable: false, resizable: true,
+                        field: 'numberOfStudents', text: AdminMessages.count(), size: '20%', sortable: false, resizable: true,
                         render: function (record: ClassData) {
                             return '<div>' + record.students.length + '</div>';
                         }
                     },
                     {
-                        field: 'teacher', text: 'Lehrkraft', size: '30%', sortable: true, resizable: true,
+                        field: 'teacher', text: AdminMessages.teacher(), size: '30%', sortable: true, resizable: true,
                         editable: { type: 'list', items: that.teacherDataList, showAll: true, openOnFocus: true },
                         render: function (record: ClassData) {
                             let teacher = that.teacherDataList.find(td => td.userData.id == record.lehrkraft_id);
@@ -79,7 +80,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                         }
                     },
                     {
-                        field: 'teacher2', text: 'Zweitlehrkraft', size: '30%', sortable: true, resizable: true,
+                        field: 'teacher2', text: AdminMessages.secondTeacher(), size: '30%', sortable: true, resizable: true,
                         render: function (record: ClassData) {
                             let teacher = that.teacherDataList.find(td => td.userData.id == record.zweitlehrkraft_id);
                             if (teacher != null) {
@@ -89,10 +90,10 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                         editable: {
                             type: 'list', items: that.teacherDataList.slice(0).concat([{
                                 //@ts-ignore
-                                userData: { id: -1, rufname: "Keine Zweitlehrkraft", familienname: "" },
+                                userData: { id: -1, rufname: AdminMessages.noSecondTeacher(), familienname: "" },
                                 classes: [],
                                 id: -1,
-                                text: "Keine Zweitlehrkraft"
+                                text: AdminMessages.noSecondTeacher()
                             }]), showAll: false, openOnFocus: true
                         }
                     },
@@ -102,7 +103,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                     }
                 ],
                 searches: [
-                    { field: 'name', label: 'Bezeichnung', type: 'text' }
+                    { field: 'name', label: AdminMessages.identifier(), type: 'text' }
                 ],
                 sortData: [{ field: 'name', direction: 'ASC' }],
                 onSelect: (event) => { event.done(() => { that.onSelectClass(event) }) },
@@ -117,7 +118,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
             this.loadClassDataList(() => {
                 this.studentGrid = new w2grid({
                     name: "studentGrid",
-                    header: 'Schüler/innen',
+                    header: AdminMessages.students(),
                     // selectType: "cell",
                     show: {
                         header: true,
@@ -131,8 +132,8 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                     toolbar: {
                         items: [
                             { type: 'break' },
-                            { type: 'button', id: 'changeClassButton', text: 'Klasse ändern...' } //, img: 'fa-key' }
-                        ].concat(this.isVidisSchool() ? [] : [{ type: 'button', id: 'passwordButton', text: 'Passwort ändern...' }]),
+                            { type: 'button', id: 'changeClassButton', text: AdminMessages.changeClass() } //, img: 'fa-key' }
+                        ].concat(this.isVidisSchool() ? [] : [{ type: 'button', id: 'passwordButton', text: AdminMessages.changePassword() }]),
                         onClick: function (target, data) {
                             if (target == "passwordButton") {
                                 that.changePassword();
@@ -145,25 +146,25 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                     columns: [
                         { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
                         {
-                            field: 'klasse', text: 'Klasse', size: '10%', sortable: true, resizable: true
+                            field: 'klasse', text: AdminMessages.classWord(), size: '10%', sortable: true, resizable: true
                         },
-                        { field: 'username', text: this.isVidisSchool()?'Nickname (kein Klartext!)' : 'Benutzername', size: '40%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n'},
-                        { field: 'rufname', text: 'Rufname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: this.isVidisSchool() },
-                        { field: 'familienname', text: 'Familienname', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: this.isVidisSchool() },
-                        { field: 'locked', text: 'Locked', size: '10%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
-                        { field: 'vidis_sub', text: 'vidis-id', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool()},
-                        { field: 'vidis_akronym', text: 'vidis-Kürzel', size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
-                        { field: 'vidis_klasse', text: 'vidis-Klasse', size: '10%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
+                        { field: 'username', text: this.isVidisSchool()?AdminMessages.nickname() : AdminMessages.username(), size: '40%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n'},
+                        { field: 'rufname', text: AdminMessages.firstName(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: this.isVidisSchool() },
+                        { field: 'familienname', text: AdminMessages.lastName(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: this.isVidisSchool() },
+                        { field: 'locked', text: AdminMessages.locked(), size: '10%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
+                        { field: 'vidis_sub', text: AdminMessages.vidisID(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool()},
+                        { field: 'vidis_akronym', text: AdminMessages.vidisAbbreviation(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
+                        { field: 'vidis_klasse', text: AdminMessages.vidisClass(), size: '10%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
                         {
                             field: 'id', text: 'PW', size: '40px', sortable: false, render: (e) => {
-                                return '<div class="pw_button" title="Passwort ändern" data-recid="' + e.recid + '" style="visibility: hidden">PW!</div>';
+                                return '<div class="pw_button" title="' + AdminMessages.changePassword() + '" data-recid="' + e.recid + '" style="visibility: hidden">PW!</div>';
                             }, hidden: this.isVidisSchool()
                         }
                     ],
                     searches: [
-                        { field: 'username', label: this.isVidisSchool()?'Nickname' : 'Benutzername', type: 'text' },
-                        { field: 'rufname', label: 'Rufname', type: 'text' },
-                        { field: 'familienname', label: 'Familienname', type: 'text' }
+                        { field: 'username', label: this.isVidisSchool()?AdminMessages.nickname() : AdminMessages.username(), type: 'text' },
+                        { field: 'rufname', label: AdminMessages.firstName(), type: 'text' },
+                        { field: 'familienname', label: AdminMessages.lastName(), type: 'text' }
                     ],
                     sortData: [{ field: 'klasse', direction: 'asc' }, { field: 'familienname', direction: 'asc' }, { field: 'rufname', direction: 'asc' }, { field: 'vidis_akronym', direction: 'asc' }],
                     onAdd: (event) => { that.onAddStudent() },
@@ -243,7 +244,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
 
             ajax("changeClassOfStudents", request, (response: ChangeClassOfStudentsResponse) => {
 
-                w2alert("Die Schüler wurden erfolgreich in die Klasse " + newClass.name + " verschoben.");
+                w2alert(AdminMessages.movedStudentsSuccessfully(newClass.name));
 
                 for (let klasse of this.allClassesList) {
                     klasse.students = klasse.students.filter((student) => recIds.indexOf(student.id) < 0);
@@ -260,7 +261,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                 that.updateStudentTableToSelectedClasses();
 
             }, (message: string) => {
-                w2alert("Fehler beim versetzen der Schüler: " + message);
+                w2alert(AdminMessages.errorMovingStudents() + message);
             });
 
         }, this.allClassesList);
@@ -281,7 +282,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
         }
 
         if (recIds.length != 1) {
-            this.studentGrid.error("Zum Ändern eines Passworts muss genau ein Schüler ausgewählt werden.");
+            this.studentGrid.error(AdminMessages.selectStudentToSetPassword());
         } else {
             let student: UserData = <UserData>this.studentGrid.get(recIds[0] + "", false);
 
@@ -297,17 +298,17 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                     type: "update",
                     data: student,
                 }
-                w2utils.lock(jQuery('body'), "Bitte warten, das Hashen <br> des Passworts kann <br>bis zu 1 Minute<br> dauern...", true);
+                w2utils.lock(jQuery('body'), AdminMessages.pleaseWaitForPasswordHashing(), true);
 
                 ajax("CRUDUser", request, (response: CRUDResponse) => {
                     w2utils.unlock(jQuery('body'));
 
-                    w2alert('Das Passwort für ' + student.rufname + " " + student.familienname + " (" + student.username + ") wurde erfolgreich geändert.");
+                    w2alert(AdminMessages.passwordChangedSuccessfully(student.rufname, student.familienname, student.username));
                     this.studentGrid.searchReset();
                     that.preparePasswordButtons();
                 }, (message: string) => {
                     w2utils.unlock(jQuery('body'));
-                    w2alert('Fehler beim Ändern des Passworts: ' + message);
+                    w2alert(AdminMessages.errorSettingPassword() + message);
                     this.studentGrid.searchReset();
                     that.preparePasswordButtons();
                 });
@@ -492,7 +493,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
             callback();
 
         }, () => {
-            w2alert('Fehler beim Holen der Daten.');
+            w2alert(AdminMessages.errorFetchingData());
         });
 
 
@@ -589,7 +590,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
             this.studentGrid.refresh();
             this.classesGrid.refresh();
         }, (message: string) => {
-            w2alert('Fehler beim Löschen der Schüler: ' + message);
+            w2alert(AdminMessages.errorDeletingStudents() + message);
             this.studentGrid.refresh();
         });
 
@@ -641,7 +642,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
 
         // let selectedClasses = <number[]>this.classesGrid.getSelection().filter((value, index, array) => array.indexOf(value) === index).map(cl => (<any>cl).recid);
         if (selectedClasses.length != 1) {
-            this.studentGrid.error("Wenn Sie Schüler hinzufügen möchten muss links genau eine Klasse ausgewählt sein.");
+            this.studentGrid.error(AdminMessages.selectClassToAddStudents());
             return;
         }
         let classId = selectedClasses[0];
@@ -665,7 +666,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
         };
 
         //@ts-ignore
-        w2utils.lock(jQuery('body'), "Bitte warten, das Hashen <br> des Passworts kann <br>bis zu 1 Minute<br> dauern...", true);
+        w2utils.lock(jQuery('body'), AdminMessages.pleaseWaitForPasswordHashing(), true);
 
         ajax("CRUDUser", request, (response: CRUDResponse) => {
             let ud: UserData = request.data;
@@ -683,7 +684,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
         }, (errormessage) => {
             //@ts-ignore
             w2utils.unlock(jQuery('body'));
-            w2alert("Beim Anlegen des Benutzers ist ein Fehler aufgetreten: " + errormessage);
+            w2alert(AdminMessages.errorCreatingUser() + errormessage);
         });
     }
 
@@ -696,15 +697,15 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                 formHTML:
                     '<div class="w2ui-page page-0">' +
                     '    <div class="w2ui-field">' +
-                    '        <label>Neue Klasse:</label>' +
+                    '        <label>' + AdminMessages.newClass() + '</label>' +
                     '        <div>' +
                     '           <input name="newClass" type="text" style="width: 150px"/>' +
                     '        </div>' +
                     '    </div>' +
                     '</div>' +
                     '<div class="w2ui-buttons">' +
-                    '    <button class="w2ui-btn" name="cancel">Abbrechen</button>' +
-                    '    <button class="w2ui-btn" name="OK">OK</button>' +
+                    '    <button class="w2ui-btn" name="cancel">' + AdminMessages.cancel() + '</button>' +
+                    '    <button class="w2ui-btn" name="OK">' + AdminMessages.ok() + '</button>' +
                     '</div>',
                 fields: [
                     {
@@ -735,7 +736,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
 
         //@ts-ignore
         w2popup.open({
-            title: 'Neue Klasse wählen',
+            title: AdminMessages.chooseNewClass(),
             body: '<div id="form" style="width: 100%; height: 100%;"></div>',
             style: 'padding: 15px 0px 0px 0px',
             width: 500,

@@ -3,6 +3,7 @@ import { UserData, CRUDSchoolRequest, CRUDResponse, SchoolData, GetSchoolDataReq
 import { ajax, csrfToken } from "../communication/AjaxHelper.js";
 import { w2grid } from 'w2ui'
 import jQuery from 'jquery'
+import { AdminMessages } from "./AdministrationMessages.js";
 
 
 declare var w2alert: any;
@@ -21,7 +22,7 @@ export class ExportImportMI extends AdminMenuItem {
     }
 
     getButtonIdentifier(): string {
-        return "Schulen Exportieren/Importieren";
+        return AdminMessages.exportImportSchools();
     }
 
     onMenuButtonPressed($mainHeading: JQuery<HTMLElement>, $tableLeft: JQuery<HTMLElement>,
@@ -30,7 +31,7 @@ export class ExportImportMI extends AdminMenuItem {
 
         this.schoolGrid = new w2grid({
             name: "schoolGridExportImport",
-            header: 'Schulen',
+            header: AdminMessages.schools(),
             // selectType: "cell",
             multiSelect: true,
             show: {
@@ -45,13 +46,13 @@ export class ExportImportMI extends AdminMenuItem {
             recid: "id",
             columns: [
                 { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
-                { field: 'name', text: 'Bezeichnung', size: '30%', sortable: true, resizable: true, editable: { type: 'text' } },
-                { field: 'kuerzel', text: 'Kürzel', size: '10%', sortable: true, resizable: true, editable: { type: 'text', maxlength: "10" } },
-                { field: 'numberOfClasses', text: 'Klassen', size: '30%', sortable: true, resizable: true },
-                { field: 'numberOfUsers', text: 'User', size: '30%', sortable: true, resizable: true },
+                { field: 'name', text: AdminMessages.identifier(), size: '30%', sortable: true, resizable: true, editable: { type: 'text' } },
+                { field: 'kuerzel', text: AdminMessages.abbreviation(), size: '10%', sortable: true, resizable: true, editable: { type: 'text', maxlength: "10" } },
+                { field: 'numberOfClasses', text: AdminMessages.classes(), size: '30%', sortable: true, resizable: true },
+                { field: 'numberOfUsers', text: AdminMessages.users(), size: '30%', sortable: true, resizable: true },
             ],
             searches: [
-                { field: 'name', label: 'Bezeichnung', type: 'text' }
+                { field: 'name', label: AdminMessages.identifier(), type: 'text' }
             ],
             sortData: [{ field: 'name', direction: 'asc' }, { field: 'kuerzel', direction: 'asc' },
             { field: 'numberOfClasses', direction: 'asc' }, { field: 'numberOfUsers', direction: 'asc' }],
@@ -71,10 +72,10 @@ export class ExportImportMI extends AdminMenuItem {
         $tableRight.append(jQuery(`
         <div id="jo_exportschools">
         <div>
-            <a href="servlet/exportSchools?csrfToken=${csrfToken}"><b>Markierte Schulen exportieren</b></a>
+            <a href="servlet/exportSchools?csrfToken=${csrfToken}"><b>${AdminMessages.exportSelectedSchools()}</b></a>
         </div>
         <div style="margin-top: 10px">
-            <b>Schulen importieren:</b>
+            <b>${AdminMessages.importSchools()}</b>
             <form action="servlet/importSchools" method="POST" enctype="multipart/form-data">
                 <input type="file" name="files" multiple>
                 <input id="jo_upload_school_button" type="button" value="Upload">
@@ -88,7 +89,7 @@ export class ExportImportMI extends AdminMenuItem {
         jQuery('#jo_upload_school_button').on('click', () => {
             let loggingDiv = jQuery('.jo_importSchoolsLoggingDiv');
             loggingDiv.empty();
-            loggingDiv.append(jQuery('<div style="color: green; font-weight: bold; margin-bottom: 5px;">Die Daten werden hochgeladen. Bitte warten...</div>'));
+            loggingDiv.append(jQuery('<div style="color: green; font-weight: bold; margin-bottom: 5px;">' + AdminMessages.pleaseWaitForDataUpload() + '</div>'));
 
             let headers: { [key: string]: string; } = {};
             if (csrfToken != null) headers = { "x-token-pm": csrfToken };
@@ -133,7 +134,7 @@ export class ExportImportMI extends AdminMenuItem {
                 fetchLog();
 
             }).fail(function () {
-                console.log("An error occurred, the files couldn't be sent!");
+                console.log(AdminMessages.errorSendingFiles());
             });
         })
 
@@ -206,7 +207,7 @@ export class ExportImportMI extends AdminMenuItem {
             type: "create",
             data: {
                 id: -1,
-                name: "Name der Schule",
+                name: AdminMessages.nameOfSchool(),
                 kuerzel: "kuerzel",
                 classes: [],
                 usersWithoutClass: [],
@@ -268,7 +269,7 @@ export class ExportImportMI extends AdminMenuItem {
 
             this.schoolGrid.refresh();
         }, (error) => {
-            w2alert('Fehler beim Holen der Daten: ' + error);
+            w2alert(AdminMessages.errorFetchingData() + error);
             debugger;
         });
 

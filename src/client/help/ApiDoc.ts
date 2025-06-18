@@ -7,7 +7,7 @@ import { JavaEnum } from '../../compiler/java/types/JavaEnum.js';
 import { JavaInterface } from '../../compiler/java/types/JavaInterface.js';
 import { JavaMethod } from '../../compiler/java/types/JavaMethod.js';
 import { NonPrimitiveType } from '../../compiler/java/types/NonPrimitiveType.js';
-import { extractCsrfTokenFromGetRequest } from "../communication/AjaxHelper.js";
+import { extractCsrfTokenFromGetRequest, extractLanguageFromGetRequest } from "../communication/AjaxHelper.js";
 import { HelpMessages } from './HelpMessages.js';
 import * as monaco from 'monaco-editor'
 
@@ -31,6 +31,7 @@ export class ApiDoc {
     async start() {
 
         await extractCsrfTokenFromGetRequest(true);
+        extractLanguageFromGetRequest();
 
         this.initEditor();
         this.initClassDocumentation();
@@ -118,7 +119,7 @@ export class ApiDoc {
         // jQuery('#enumsHeading').text(HelpMessages.apiDocEnums());
         jQuery('#mainHeading').text(HelpMessages.apiDocMainHeading());
 
-        let button = new Button(jQuery('#mainHeading')[0], "Download (für AI-Prompt)", "#303030", () => {
+        let button = new Button(jQuery('#mainHeading')[0], HelpMessages.apiDocDownloadForAIPrompt(), "#303030", () => {
             downloadFile(this.getClassDocumentationForAI(), "Online-IDE API-Documentation.txt", false);
         })
         button.buttonDiv.classList.add('aiDownloadButton');
@@ -150,7 +151,7 @@ export class ApiDoc {
     
     showConstructors(t: JavaClass){
         let $mainBody = jQuery('#main-body');
-        $mainBody.append(jQuery('<div class="jo_constructor-heading">Konstruktoren:</div>'));
+        $mainBody.append(jQuery('<div class="jo_constructor-heading">' + HelpMessages.apiDocConstructors() + ':</div>'));
         let methods = t.getOwnMethods().filter((m) => m.isConstructor);
 
         methods.sort((a, b) => a.identifier.localeCompare(b.identifier));
@@ -174,7 +175,7 @@ export class ApiDoc {
 
     showMethods(t: NonPrimitiveType){
         let $mainBody = jQuery('#main-body');
-        $mainBody.append(jQuery('<div class="jo_method-heading">Methoden:</div>'));
+        $mainBody.append(jQuery('<div class="jo_method-heading">' + HelpMessages.apiDocMethods() + ':</div>'));
         let methods: JavaMethod[];
         if(t instanceof JavaInterface){
             methods = t.getAllMethods().slice(0);
@@ -195,7 +196,7 @@ export class ApiDoc {
                 );
 
                 if(method.classEnumInterface && method.classEnumInterface != t){
-                    $mainBody.append(jQuery('<div style = "font-size: 70%"> (geerbt von ' + method.classEnumInterface.identifier + ')</div>'));
+                    $mainBody.append(jQuery('<div style = "font-size: 70%"> (' + HelpMessages.apiDocInheritedFrom() + ' ' + method.classEnumInterface.identifier + ')</div>'));
                 }
 
                 if(method.documentation != null && method.documentation != ""){
@@ -213,7 +214,7 @@ export class ApiDoc {
 
     showAttributes(t: JavaClass | JavaEnum){
         let $mainBody = jQuery('#main-body');
-        $mainBody.append(jQuery('<div class="jo_attribute-heading">Attribute:</div>'));
+        $mainBody.append(jQuery('<div class="jo_attribute-heading">' + HelpMessages.apiDocFields() + ':</div>'));
         let attributes = t.getFields().filter(field => field.visibility != TokenType.keywordPrivate);
 
         attributes.sort((a, b) => a.identifier.localeCompare(b.identifier));

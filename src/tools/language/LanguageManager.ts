@@ -1,5 +1,4 @@
 import { Main } from "../../client/main/Main";
-import { IMain } from "../../compiler/common/IMain";
 import { openContextMenu } from "../HtmlTools";
 import { LanguageManagerMessages } from "./LanguagemanagerMessages";
 
@@ -65,6 +64,10 @@ export function le(map: Record<string, string>): ErrormessageWithId {
     }
 }
 
+export function setLanguageId(lang: string){
+    currentLanguageId = lang;
+}
+
 export class LanguageManager {
 
     selectorDivEventListener: (ev: MouseEvent) => void;
@@ -119,7 +122,5 @@ export class LanguageManager {
             this.main.userDataDirty = true;
         }
     }
-
-
 
 }

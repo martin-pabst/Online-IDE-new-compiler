@@ -7,6 +7,7 @@ import { makeDiv } from "../../tools/HtmlTools";
 import { AdminMenuItem } from "./AdminMenuItem";
 import { NewPruefungPopup } from "./NewPruefungPopup";
 import jQuery from 'jquery'
+import { AdminMessages } from "./AdministrationMessages";
 
 
 type GetPruefungForPrintingRequest = {
@@ -67,7 +68,7 @@ export class Pruefungen extends AdminMenuItem {
     timerActive: boolean = false;
 
     getButtonIdentifier(): string {
-        return "Prüfungen verwalten";
+        return AdminMessages.manageTests();
     }
 
     async onMenuButtonPressed($mainHeading: JQuery<HTMLElement>, $tableLeft: JQuery<HTMLElement>, $tableRight: JQuery<HTMLElement>, $mainFooter: JQuery<HTMLElement>): Promise<void> {
@@ -93,8 +94,8 @@ export class Pruefungen extends AdminMenuItem {
         this.workspaces = this.workspaces.sort((wsa, wsb) => { return this.compareWithPath(wsa.name, wsa.path.split("/"), wsb.name, wsb.path.split("/")) });
 
         this.workspaces.unshift({
-            name: "Kein Vorlage-Workspace",
-            text: "Kein Vorlage-Workspace",
+            name: AdminMessages.noTemplateWorkspace(),
+            text: AdminMessages.noTemplateWorkspace(),
             id: -1,
             files: [],
             path: ""
@@ -202,7 +203,7 @@ export class Pruefungen extends AdminMenuItem {
         w2ui["pruefungTable"]?.destroy();
         this.pruefungTable = new w2grid({
             name: "pruefungTable",
-            header: 'Prüfungen',
+            header: AdminMessages.pruefungen(),
             multiSelect: false,
             show: {
                 header: true,
@@ -213,33 +214,33 @@ export class Pruefungen extends AdminMenuItem {
             recid: "id",
             columns: [
                 { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
-                { field: 'name', text: 'Bezeichnung', size: '15%', sortable: true, resizable: true, editable: { type: 'text' } },
+                { field: 'name', text: AdminMessages.identifier(), size: '15%', sortable: true, resizable: true, editable: { type: 'text' } },
                 {
-                    field: 'klasse_id', text: 'Klasse', size: '10%', sortable: true, resizable: true,
+                    field: 'klasse_id', text: AdminMessages.classWord(), size: '10%', sortable: true, resizable: true,
                     editable: { type: 'list', items: this.klassen, showAll: true, openOnFocus: true, align: 'left' },
                     render: (e) => {
                         return this.klassen.find(c => c.id == e.klasse_id).text
                     }
                 },
                 {
-                    field: 'datum', text: 'Datum', size: '15%', sortable: true, resizable: true, editable: { type: 'date' },
+                    field: 'datum', text: AdminMessages.date(), size: '15%', sortable: true, resizable: true, editable: { type: 'date' },
                     render: (e) => {
                         return e.datum == null ? '----' : e.datum;
                     }
                 },
                 {
-                    field: 'template_workspace_id', text: 'Vorlage-Workspace', size: '25%', sortable: true, resizable: true,
+                    field: 'template_workspace_id', text: AdminMessages.templateWorkspace(), size: '25%', sortable: true, resizable: true,
                     editable: {
                         type: 'list', items: this.workspaces, showAll: true, openOnFocus: true, align: 'left',
                         style: 'width: 400px'
                     },
                     render: (e) => {
                         let ws = this.workspaces.find(c => c.id == e.template_workspace_id);
-                        return ws == null ? "Kein Vorlage-Workspace" : ws.name;
+                        return ws == null ? AdminMessages.noTemplateWorkspace() : ws.name;
                     }
                 },
                 {
-                    field: 'state', caption: 'Zustand', size: '15%', sortable: true, resizable: true,
+                    field: 'state', caption: AdminMessages.state(), size: '15%', sortable: true, resizable: true,
                     render: (e, extra) => `<div class="jo_pruefung_state_cell">
                     <div class="jo_pruefung_state_cell_icon img_test-state-${e.state}"></div>
                     <div class="jo_pruefung_state_text">${PruefungCaptions[e.state]}</div></div>`
@@ -279,25 +280,25 @@ export class Pruefungen extends AdminMenuItem {
 
         this.studentTable = new w2grid({
             name: "studentTable",
-            header: 'Schüler/innen',
+            header: AdminMessages.students(),
             show: {
                 header: true
             },
             recid: "id",
             columns: [
                 { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
-                { field: 'familienname', text: 'Familienname', size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
-                { field: 'rufname', text: 'Rufname', size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
-                { field: 'username', text: 'Username', size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
-                { field: 'grade', text: 'Note', size: '13%', sortable: true, resizable: true, editable: { type: "text" } },
-                { field: 'points', text: 'Punkte', size: '13%', sortable: true, resizable: true, editable: { type: "text" } },
+                { field: 'familienname', text: AdminMessages.lastName(), size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
+                { field: 'rufname', text: AdminMessages.firstName(), size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
+                { field: 'username', text: AdminMessages.username(), size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
+                { field: 'grade', text: AdminMessages.mark(), size: '13%', sortable: true, resizable: true, editable: { type: "text" } },
+                { field: 'points', text: AdminMessages.points(), size: '13%', sortable: true, resizable: true, editable: { type: "text" } },
                 {
-                    field: 'attended_exam', text: 'anwesend', size: '13%', sortable: true, resizable: true,
+                    field: 'attended_exam', text: AdminMessages.attendance(), size: '13%', sortable: true, resizable: true,
                     editable: { type: 'checkbox', style: 'text-align: center' }
                 },
                 // see https://w2ui.com/web/docs/2.0/w2grid.columns
                 {
-                    field: 'state', text: 'Status', size: '20%', sortable: true, resizable: true,
+                    field: 'state', text: AdminMessages.state(), size: '20%', sortable: true, resizable: true,
                     render: (record: PSchuelerData) => {
                         let state = record.state;
                         if (state == null) state = "---";
@@ -322,21 +323,21 @@ export class Pruefungen extends AdminMenuItem {
         // Actions
         let $actionsDiv = jQuery('#pruefungActions');
 
-        makeDiv(null, 'jo_action_caption', "Zustand der ausgewählten Prüfung:", null, $actionsDiv);
+        makeDiv(null, 'jo_action_caption', AdminMessages.stateOfSelectedTest(), null, $actionsDiv);
 
         this.$stateDiv = jQuery(`<div style="display: flex; flex-direction: column; width: 400px">
             <div style="display: flex; flex-direction: row; justify-content: space-between">
-            <div class="pruefungState" id="joe_z0">Vorbereitung</div><div class="img_arrow-right-blue"></div>
-            <div class="pruefungState" id="joe_z1">Prüfung läuft</div><div class="img_arrow-leftright-blue"></div>
-            <div class="pruefungState" id="joe_z2">Korrektur</div><div class="img_arrow-leftright-blue"></div>
-            <div class="pruefungState" id="joe_z3">Herausgabe</div>
+            <div class="pruefungState" id="joe_z0">${AdminMessages.preparation()}</div><div class="img_arrow-right-blue"></div>
+            <div class="pruefungState" id="joe_z1">${AdminMessages.testRunning()}</div><div class="img_arrow-leftright-blue"></div>
+            <div class="pruefungState" id="joe_z2">${AdminMessages.correction()}</div><div class="img_arrow-leftright-blue"></div>
+            <div class="pruefungState" id="joe_z3">${AdminMessages.issueTest()}</div>
             </div>
             </div>
         `)
 
         let $leftRightButtonDiv = jQuery(`<div style="display: flex; flex-direction: row; justify-content: space-between; margin-top: 5px"></div>`);
-        this.buttonBack = new GUIButton("<- Zustand zurück", $leftRightButtonDiv);
-        this.buttonForward = new GUIButton("Zustand vor ->", $leftRightButtonDiv);
+        this.buttonBack = new GUIButton("<- " + AdminMessages.stateBack(), $leftRightButtonDiv);
+        this.buttonForward = new GUIButton(AdminMessages.stateForward() + " ->", $leftRightButtonDiv);
 
         this.$stateDiv.append($leftRightButtonDiv);
 
@@ -347,11 +348,11 @@ export class Pruefungen extends AdminMenuItem {
             if (performance.now() - lastTimeClicked < 1000) return;
             lastTimeClicked = performance.now();
             if (this.selectedStateIndex == 1) {
-                alert("Die Prüfung läuft schon. Sie kann nicht mehr in den Zustand " + PruefungCaptions[0] + " versetzt werden.");
+                alert(AdminMessages.cantSetTestToState(PruefungCaptions[0]));
                 return;
             }
             if (this.selectedStateIndex == 2) {
-                if (!confirm("Soll die Prüfung wirklich sofort erneut gestartet werden?")) return;
+                if (!confirm(AdminMessages.sureToStartTestAgain())) return;
             }
 
             let oldState = this.selectedStateIndex;
@@ -374,7 +375,7 @@ export class Pruefungen extends AdminMenuItem {
             if (performance.now() - lastTimeClicked < 1000) return;
             lastTimeClicked = performance.now();
             if (this.selectedStateIndex == 0) {
-                if (!confirm("Soll die Prüfung wirklich sofort gestartet werden?")) return;
+                if (!confirm(AdminMessages.sureToStartTest())) return;
             }
 
             let oldState = this.selectedStateIndex;
@@ -395,12 +396,12 @@ export class Pruefungen extends AdminMenuItem {
 
         let $actions2Div = makeDiv(null, "joe_pruefung_actionsDiv", "", null, $actionsDiv);
 
-        makeDiv(null, 'jo_action_caption', "Aktionen für die ausgewählte Prüfung:", null, $actions2Div);
+        makeDiv(null, 'jo_action_caption', AdminMessages.actionsForSelectedTest(), null, $actions2Div);
 
         let $actionButtonsDiv = makeDiv(null, "joe_pruefung_actionButtonsDiv", "", null, $actions2Div);
 
 
-        new GUIButton(" Alle Arbeiten drucken...", $actionButtonsDiv, "#5050ff", () => {
+        new GUIButton(" " + AdminMessages.printAll(), $actionButtonsDiv, "#5050ff", () => {
             this.print();
         });
 
@@ -449,23 +450,23 @@ export class Pruefungen extends AdminMenuItem {
 
         let klasse = this.klassen.find(k => k.id == this.currentPruefung.klasse_id).text;
 
-        let datumText = this.currentPruefung.datum == null ? "" : ", am " +
+        let datumText = this.currentPruefung.datum == null ? "" : ", " +
             w2utils.formatDate(this.currentPruefung.datum, 'dd.mm.yyyy');
 
         for (let sd of p.pSchuelerDataList) {
-            $printingDiv.append(`<h1>${sd.familienname}, ${sd.rufname} (Klasse ${klasse})</h1>`);
+            $printingDiv.append(`<h1>${sd.familienname}, ${sd.rufname} (${AdminMessages.classWord()} ${klasse})</h1>`);
             $printingDiv.append(`<h1>${this.currentPruefung.name}${datumText}</h1>`);
             for (let f of sd.files) {
 
-                makeDiv(null, 'jo_fileCaption', 'Datei: ' + f.name, null, $printingDiv);
+                makeDiv(null, 'jo_fileCaption', AdminMessages.file() + f.name, null, $printingDiv);
 
                 if (f.text_before_revision != null) {
                     let $twoColumnDiv = makeDiv(null, 'jo_twoColumnDiv', null, null, $printingDiv);
                     let $leftDiv = makeDiv(null, 'jo_leftColumn', null, null, $twoColumnDiv);
                     let $rightDiv = makeDiv(null, 'jo_rightColumn', null, null, $twoColumnDiv);
 
-                    makeDiv(null, 'jo_originalCaption', 'Datei der Schülerin/des Schülers:', null, $leftDiv);
-                    makeDiv(null, 'jo_originalCaption', 'Korrektur:', null, $rightDiv);
+                    makeDiv(null, 'jo_originalCaption', AdminMessages.studentsFile(), null, $leftDiv);
+                    makeDiv(null, 'jo_originalCaption', AdminMessages.correction() + ':', null, $rightDiv);
 
                     let $codeLeft = makeDiv(null, 'jo_codeBlock', null, null, $leftDiv);
                     this.insertCodeIntoDiv(f.text_before_revision, $codeLeft);
@@ -512,7 +513,7 @@ export class Pruefungen extends AdminMenuItem {
                 break;
             case "klasse_id":
                 if (data.state != this.states[0]) {
-                    alert('Die Klasse kann nur im Zustand "Vorbereitung" noch geändert werden.');
+                    alert(AdminMessages.alterClassOnlyInStatePreparation());
                     event.isCancelled = true;
                     return;
                 }
@@ -525,7 +526,7 @@ export class Pruefungen extends AdminMenuItem {
                 break;
             case "template_workspace_id":
                 if (data.state != this.states[0]) {
-                    alert('Der Vorlagenworkspace kann nur im Zustand "Vorbereitung" noch geändert werden.');
+                    alert(AdminMessages.alterTemplateWorkspaceOnlyInStatePreparation());
                     event.isCancelled = true;
                     return;
                 }
@@ -636,7 +637,7 @@ export class Pruefungen extends AdminMenuItem {
     onUnselectPruefung() {
         jQuery('#pruefungActions').addClass('jo_inactive');
         this.studentTable.clear();
-        this.studentTable.lock("Keine Prüfung ausgewählt", false);
+        this.studentTable.lock(AdminMessages.noTestSelected(), false);
     }
 
     async savePruefung(): Promise<boolean> {

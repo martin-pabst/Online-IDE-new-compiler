@@ -1,8 +1,9 @@
 import '/assets/css/imagesprites.css';
 import '/assets/css/spriteLibrary.css';
 import jQuery from 'jquery';
-import { extractCsrfTokenFromGetRequest } from '../communication/AjaxHelper.js';
+import { extractCsrfTokenFromGetRequest, extractLanguageFromGetRequest } from '../communication/AjaxHelper.js';
 import { SpriteLibrary } from '../../compiler/java/runtime/graphics/SpriteLibrary.js';
+import { HelpMessages } from './HelpMessages.js';
 
 // type SpriteLibraryEntry = {
 //     filename: string,
@@ -22,10 +23,15 @@ export class SpriteLibraryPage {
     async start() {
 
         await extractCsrfTokenFromGetRequest(true);
+        extractLanguageFromGetRequest();
 
         let $entries = jQuery('#entries');
         let $set: JQuery<HTMLElement>;
         let $currentLine: JQuery<HTMLElement>;
+
+        jQuery('#heading').text(HelpMessages.spriteLibraryHeading());
+        jQuery('#codeexample').text(HelpMessages.spriteLibraryCodeExample());
+        jQuery('#description').text(HelpMessages.spriteLibraryDescription());
 
         let nameOld: string = "";
         for (let e of SpriteLibrary) {

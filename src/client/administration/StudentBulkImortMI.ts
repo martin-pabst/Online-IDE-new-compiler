@@ -5,10 +5,11 @@ import { Administration } from "./Administration.js";
 import { setSelectItems, getSelectedObject } from "../../tools/HtmlTools.js";
 import { w2grid } from 'w2ui'
 import jQuery from 'jquery'
+import { AdminMessages } from "./AdministrationMessages.js";
 
 
 
-type Step = "Step 1 Paste" | "Step 2 check" | "Step 3 import" | "Step 4 print";
+type Step = "Step 1 paste" | "Step 2 check" | "Step 3 import" | "Step 4 print";
 
 type Column = "klasse" | "rufname" | "familienname" | "username" | "passwort";
 type ColumnMapping = { [column: string]: number };
@@ -41,7 +42,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
     }
 
     getButtonIdentifier(): string {
-        return "Schülerdatenimport";
+        return AdminMessages.importStudents();
     }
 
     async fetchClassesFromServer(){
@@ -67,7 +68,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
         let that = this;
         this.studentGrid = new w2grid({
             name: "studentgrid",
-            header: 'Schüler/innen',
+            header: AdminMessages.students(),
             selectType: "cell",
             show: {
                 header: true,
@@ -84,7 +85,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
             recid: "id",
             columns: [
                 { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
-                { field: 'klasse_id', text: 'Klasse', size: '20%', sortable: true, resizable: true, 
+                { field: 'klasse_id', text: AdminMessages.classWord(), size: '20%', sortable: true, resizable: true, 
                     render: function (record: UserData) {
                         let classData = that.classes.find(cl => cl.id == record.klasse_id);
                         let classIdentifier = classData != null ? classData.name : "";
@@ -92,15 +93,15 @@ export class StudentBulkImportMI extends AdminMenuItem {
                     },
                     editable: { type: 'list', items: that.classes.map(cl => {return {id: cl.id, text: cl.name}}), showAll: true, openOnFocus: true },
                     sortMode: 'i18n' },
-                { field: 'rufname', text: 'Rufname', size: '20%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
-                { field: 'familienname', text: 'Familienname', size: '20%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
-                { field: 'username', text: 'Benutzername', size: '20%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
-                { field: 'password', text: 'Passwort', size: '20%', sortable: false, editable: { type: 'text' } }
+                { field: 'rufname', text: AdminMessages.firstName(), size: '20%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                { field: 'familienname', text: AdminMessages.lastName(), size: '20%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                { field: 'username', text: AdminMessages.username(), size: '20%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                { field: 'password', text: AdminMessages.password(), size: '20%', sortable: false, editable: { type: 'text' } }
             ],
             searches: [
-                { field: 'username', label: 'Benutzername', type: 'text' },
-                { field: 'rufname', label: 'Rufname', type: 'text' },
-                { field: 'familienname', label: 'Familienname', type: 'text' }
+                { field: 'username', label: AdminMessages.username(), type: 'text' },
+                { field: 'rufname', label: AdminMessages.firstName(), type: 'text' },
+                { field: 'familienname', label: AdminMessages.lastName(), type: 'text' }
             ],
             sortData: [{ field: 'klasse_id', direction: 'asc' }, { field: 'familienname', direction: 'asc' }, { field: 'rufname', direction: 'asc' }],
             onDelete: function (event) {
@@ -117,7 +118,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
         this.studentGrid.render($tableRight[0]);
 
-        this.showStep("Step 1 Paste");
+        this.showStep("Step 1 paste");
 
     }
 
@@ -139,7 +140,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
         this.$tableLeft.empty();
 
         switch (step) {
-            case "Step 1 Paste":
+            case "Step 1 paste":
                 this.enableGrid(false);
                 this.showStep1Paste();
                 break;
@@ -162,21 +163,19 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
     showStep4Print() {
 
-        let description: string = `Die Schüler/innen wurden erfolgreich angelegt und der Klasse/den Klassen (ersatzweise: ${this.selectedClass.name}) zugeordnet.
-        Eine Liste der Zugangsdaten zum Ausdrucken erhalten Sie durch Klick auf den Button "Drucken...".
-        `
+        let description: string = AdminMessages.step4Description(this.selectedClass.name);
 
-        this.$tableLeft.append(jQuery('<div class="jo_bulk_heading">Schritt 4: Fertig!</div>'));
+        this.$tableLeft.append(jQuery('<div class="jo_bulk_heading">' + AdminMessages.step4Done() + '</div>'));
         let $description = jQuery(`<div class="jo_bulk_description"></div>`);
         $description.html(description);
         this.$tableLeft.append($description);
 
         let $buttondiv = jQuery(`<div class="jo_bulk_buttondiv" style="justify-content: space-between"></div>`);
         this.$tableLeft.append($buttondiv);
-        let $buttonPrint = jQuery(`<div class="jo_buttonContinue jo_button jo_active">Drucken...</div>`);
+        let $buttonPrint = jQuery(`<div class="jo_buttonContinue jo_button jo_active">${AdminMessages.printDots()}</div>`);
         $buttondiv.append($buttonPrint);
 
-        let $buttonWriteUsers = jQuery(`<div class="jo_buttonContinue jo_button jo_active">OK</div>`);
+        let $buttonWriteUsers = jQuery(`<div class="jo_buttonContinue jo_button jo_active">${AdminMessages.ok()}</div>`);
         $buttondiv.append($buttonWriteUsers);
 
         let $printDiv = jQuery('#print');
@@ -184,10 +183,10 @@ export class StudentBulkImportMI extends AdminMenuItem {
         this.usersToWrite.forEach((user) => {
             $printDiv.append(`<div style="page-break-inside: avoid;">
             <div><b>URL:</b> https://www.online-ide.de</div>
-            <div><b>Name:</b> ${user.rufname} ${user.familienname}</div>
-            <div><b>Klasse:</b> ${this.classes.find(cl => cl.id == user.klasse_id)?.name}</div>
-            <div><b>Benutzername:</b> ${user.username}</div>
-            <div style="margin-bottom: 3em"><b>Passwort:</b> ${user.password}</div>
+            <div><b>${AdminMessages.name()}:</b> ${user.rufname} ${user.familienname}</div>
+            <div><b>${AdminMessages.classWord()}:</b> ${this.classes.find(cl => cl.id == user.klasse_id)?.name}</div>
+            <div><b>${AdminMessages.username()}:</b> ${user.username}</div>
+            <div style="margin-bottom: 3em"><b>${AdminMessages.password()}:</b> ${user.password}</div>
             </div>`);
         });
 
@@ -200,7 +199,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
         $buttonWriteUsers.on('click', () => {
 
             this.studentGrid.clear();
-            this.showStep("Step 1 Paste");
+            this.showStep("Step 1 paste");
 
         })
 
@@ -209,18 +208,18 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
     showStep3Import() {
 
-        let description: string = `Die Schüler/innen können jetzt angelegt und der Klasse ${this.selectedClass.name} zugeordnet werden.`
+        let description: string = AdminMessages.step3Description(this.selectedClass.name);
 
-        this.$tableLeft.append(jQuery('<div class="jo_bulk_heading">Schritt 3: Benutzer anlegen</div>'));
+        this.$tableLeft.append(jQuery('<div class="jo_bulk_heading">' + AdminMessages.step3Heading() + '</div>'));
         let $description = jQuery(`<div class="jo_bulk_description"></div>`);
         $description.html(description);
         this.$tableLeft.append($description);
 
         let $buttondiv = jQuery(`<div class="jo_bulk_buttondiv" style="justify-content: space-between"></div>`);
         this.$tableLeft.append($buttondiv);
-        let $buttonBack = jQuery(`<div class="jo_buttonContinue jo_button jo_active">Zurück</div>`);
+        let $buttonBack = jQuery(`<div class="jo_buttonContinue jo_button jo_active">${AdminMessages.back()}</div>`);
         $buttondiv.append($buttonBack);
-        let $buttonWriteUsers = jQuery(`<div class="jo_buttonWriteUsers jo_button jo_active">Benutzer anlegen</div>`);
+        let $buttonWriteUsers = jQuery(`<div class="jo_buttonWriteUsers jo_button jo_active">${AdminMessages.createUsers()}</div>`);
         $buttondiv.append($buttonWriteUsers);
 
         this.$protocol = jQuery('<div class="jo_bulk_protocol"></div>');
@@ -237,7 +236,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
             $buttonWriteUsers.removeClass('jo_active');
 
             this.$protocol.show();
-            this.$protocol.html("<div>Die Benutzer werden angelegt. Bitte warten...</div>");
+            this.$protocol.html("<div>" + AdminMessages.waitForUserCreation() + "</div>");
 
             let request: BulkCreateUsersRequest = {
                 onlyCheckUsernames: false,
@@ -248,7 +247,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
             ajax('bulkCreateUsers', request, (response: BulkCreateUsersResponse) => {
                 this.showStep("Step 4 print");
             }, (message) => {
-                alert("Fehler: " + message);
+                alert(AdminMessages.error() +  ": " + message);
                 this.showStep("Step 2 check");
             });
 
@@ -259,10 +258,9 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
     showStep2Check() {
 
-        let description: string = `Bitte wählen Sie im Auswahlfeld die Klasse aus, in die die Schülerdaten importiert werden sollen, 
-        für die in den Eingabedaten keine Klasse angegeben ist. Sie können die Daten in der Tabelle noch bearbeiten, bevor Sie sie zur Überprüfung (noch kein Import!) absenden.`
+        let description: string = AdminMessages.step2Description();
 
-        this.$tableLeft.append(jQuery('<div class="jo_bulk_heading">Schritt 2: Daten überprüfen</div>'));
+        this.$tableLeft.append(jQuery('<div class="jo_bulk_heading">' + AdminMessages.step2heading() + '</div>'));
         let $description = jQuery(`<div class="jo_bulk_description"></div>`);
         $description.html(description);
         this.$tableLeft.append($description);
@@ -282,17 +280,17 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
         let $buttondiv = jQuery(`<div class="jo_bulk_buttondiv" style="justify-content: space-between"></div>`);
         this.$tableLeft.append($buttondiv);
-        let $buttonBack = jQuery(`<div class="jo_buttonContinue jo_button jo_active">Zurück</div>`);
+        let $buttonBack = jQuery(`<div class="jo_buttonContinue jo_button jo_active">${AdminMessages.back()}</div>`);
         $buttondiv.append($buttonBack);
-        let $buttonContinue = jQuery(`<div class="jo_buttonContinue jo_button jo_active">Daten überprüfen...</div>`);
+        let $buttonContinue = jQuery(`<div class="jo_buttonContinue jo_button jo_active">${AdminMessages.checkingData()}</div>`);
         $buttondiv.append($buttonContinue);
 
-        this.$tableLeft.append(jQuery('<div class="jo_bulk_heading_protocol">Fehlerprotokoll</div>'));
+        this.$tableLeft.append(jQuery('<div class="jo_bulk_heading_protocol">' + AdminMessages.errorLog() + '</div>'));
         this.$protocol = jQuery('<div class="jo_bulk_protocol"></div>');
         this.$tableLeft.append(this.$protocol);
 
         $buttonBack.on('click', () => {
-            this.showStep("Step 1 Paste");
+            this.showStep("Step 1 paste");
         })
 
         $buttonContinue.on('click', () => {
@@ -333,10 +331,10 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
                 this.showStep("Step 3 import");
             } else {
-                this.$protocol.html('Diese Benutzernamen sind schon anderen Benutzern zugeordnet und können daher nicht verwendet werden: <br>' + response.namesAlreadyUsed.join(", "));
+                this.$protocol.html(AdminMessages.usernamesAlreadyUsed() + ' <br>' + response.namesAlreadyUsed.join(", "));
             }
         }, (message) => {
-            alert("Fehler: " + message);
+            alert(AdminMessages.error() + message);
         });
 
         return false;
@@ -344,16 +342,9 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
     showStep1Paste() {
 
-        let description: string = `
-        Zum Importieren wird eine Tabelle mit den Spalten Rufname, Familienname, Username, (optional:) Klasse und (ebenso optional:) Passwort benötigt,
-        wobei die Daten in den Zellen jeweils mit Tab-Zeichen getrennt sind. Sie erhalten dieses Format beispielsweise,
-        indem Sie eine Tabelle in Excel in die Zwischenablage kopieren. <br> Falls die erste Zeile Spaltenköpfe mit
-        den korrekten Bezeichnern (Klasse, Rufname, Familienname, Username, Passwort) enthält, kümmert sich der Import-Algorithmus
-        um die richtige Reihenfolge und blendet ggf. auch überflüssige Spalten aus. Falls eine Zeile kein Passwort enthält,
-        setzt die Online-IDE ein Zufallspasswort.<br>
-        Bitte fügen Sie den Inhalt der Tabelle per Copy-Paste in dieses Eingabefeld ein:`
+        let description: string = AdminMessages.step1description();
 
-        this.$tableLeft.append(jQuery('<div class="jo_bulk_heading">Schritt 1: Daten einlesen</div>'));
+        this.$tableLeft.append(jQuery('<div class="jo_bulk_heading">' + AdminMessages.step1heading() + '</div>'));
         let $description = jQuery(`<div class="jo_bulk_description"></div>`);
         this.$tableLeft.append($description);
         // this.$tableLeft.append(description);
@@ -364,7 +355,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
         let $buttondiv = jQuery(`<div class="jo_bulk_buttondiv" style="justify-content: flex-end"></div>`);
         this.$tableLeft.append($buttondiv);
-        let $buttonContinue = jQuery(`<div class="jo_buttonContinue jo_button jo_active">Weiter</div>`);
+        let $buttonContinue = jQuery(`<div class="jo_buttonContinue jo_button jo_active">${AdminMessages.continue()}</div>`);
         $buttondiv.append($buttonContinue);
 
         $buttonContinue.on('click', () => {
@@ -443,7 +434,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
     }
 
     static getRandomPassword(minimumLength: number = 8, minimumNumberOfCategries: number = 3): string {
-        let categoryList: string[] = ["abcdefghkmnpqrstuvwxy", "ABCDEFGHKLMNPQRSTUVW", "123456789", "#!§$%&/()=[]{}*+:;,.-"];
+        let categoryList: string[] = ["abcdefghkmnpqrstuvwxy", "ABCDEFGHKLMNPQRSTUVW", "123456789", "#!§$%&/()=[]{}*+:;-"];
 
         let goodCharacters: string = categoryList.join("");
 

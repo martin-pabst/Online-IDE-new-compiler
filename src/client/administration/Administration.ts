@@ -1,6 +1,6 @@
 import { AdminMenuItem } from "./AdminMenuItem.js";
 import { SchoolsWithAdminsMI } from "./SchoolsWithAdminsMI.js";
-import { ajax, extractCsrfTokenFromGetRequest } from "../communication/AjaxHelper.js";
+import { ajax, extractCsrfTokenFromGetRequest, extractLanguageFromGetRequest } from "../communication/AjaxHelper.js";
 import { GetUserDataResponse, UserData, ClassData } from "../communication/Data.js";
 import { TeachersWithClassesMI } from "./TeachersWithClasses.js";
 import { ClassesWithStudentsMI } from "./ClassesWithStudentsMI.js";
@@ -41,6 +41,7 @@ export class Administration {
     async start() {
 
         await extractCsrfTokenFromGetRequest(true);
+        extractLanguageFromGetRequest();
 
         let that = this;
         //@ts-ignore

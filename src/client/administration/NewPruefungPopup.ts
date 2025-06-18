@@ -1,5 +1,6 @@
 import { KlassData, Pruefung, WorkspaceShortData } from "../communication/Data";
 import { w2form, w2popup, w2ui } from 'w2ui'
+import { AdminMessages } from "./AdministrationMessages";
 
 
 export class NewPruefungPopup {
@@ -21,16 +22,16 @@ export class NewPruefungPopup {
             fields: [
                 {
                     field: 'name', type: 'text', required: true,
-                    html: { label: 'Name der Prüfung', attr: 'style="width: 300px"' }
+                    html: { label: AdminMessages.nameOfTest(), attr: 'style="width: 300px"' }
                 },
                 {
                     field: 'klasse', type: 'list',
-                    html: { label: 'Klasse', attr: 'style="width: 300px"' },
+                    html: { label: AdminMessages.classWord(), attr: 'style="width: 300px"' },
                     options: { items: classList.sort((a, b) => a.text.localeCompare(b.text)) }
                 },
                 {
                     field: 'template', type: 'list',
-                    html: { label: 'Vorlage-Workspace', attr: 'style="width: 300px"' },
+                    html: { label: AdminMessages.templateWorkspace(), attr: 'style="width: 300px"' },
                     options: { items: workspaces }
                 },
             ],
@@ -64,7 +65,7 @@ export class NewPruefungPopup {
 
 
         w2popup.open({
-            title: 'Neue Prüfung anlegen',
+            title: AdminMessages.createNewTest(),
             body: '<div id="form" style="width: 100%; height: 100%;"></div>',
             style: 'padding: 15px 0px 0px 0px',
             width: 500,

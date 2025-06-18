@@ -1,10 +1,11 @@
 import Chart from "chart.js";
-import { ajax, extractCsrfTokenFromGetRequest } from "../communication/AjaxHelper.js";
+import { ajax, extractCsrfTokenFromGetRequest, extractLanguageFromGetRequest } from "../communication/AjaxHelper.js";
 import { GetStatisticsRequest, GetStatisticsResponse, StatisticData } from "../communication/Data.js";
 import moment from 'moment'
 import jQuery from 'jquery'
 
 import '/assets/css/statistics.css';
+import { AdminMessages } from "./AdministrationMessages.js";
 
 
 
@@ -18,6 +19,8 @@ class Statistics {
     async start(){
 
         await extractCsrfTokenFromGetRequest(true);
+
+        extractLanguageFromGetRequest();
 
         let request: GetStatisticsRequest = {now: false};
         let that = this;
@@ -34,7 +37,7 @@ class Statistics {
             }, response.statisticPeriodSeconds*1000);
 
             setInterval(()=>{
-                jQuery('#updatetimer').text('Nächste Messung in ' + (response.statisticPeriodSeconds - secondsSinceLastUpdate) + " s");
+                jQuery('#updatetimer').text(AdminMessages.nextUpdatein() + (response.statisticPeriodSeconds - secondsSinceLastUpdate) + " s");
                 secondsSinceLastUpdate++;
             }, 1000);
 
@@ -47,9 +50,9 @@ class Statistics {
             ajax("getStatistics", request, (response: GetStatisticsResponse) => {
 
                 let d = response.data[0];
-                let text: string = d.users + " User, " + Math.round(d.memory/1000) + " kB, Requests pro Minute: " + d.requestsPerMinute + ", " + that.getMsPerRequest(d) + " ms/Request.";
-                text += "<br>WebSockets: " + d.webSocketSessionCount + " Sessions with " + d.webSocketClientCount + " Clients, ";
-                text += d.webSocketRequestPerSecond + " Requests pro Sekunde";
+                let text: string = d.users + " User, " + Math.round(d.memory/1000) + " kB, Requests per minute: " + d.requestsPerMinute + ", " + that.getMsPerRequest(d) + " ms/Request.";
+                text += "<br>WebSockets: " + d.webSocketSessionCount + " sessions with " + d.webSocketClientCount + " clients, ";
+                text += d.webSocketRequestPerSecond + " requests/s";
                 jQuery('#current').html(text);
 
                 jQuery('#userlist').text(d.userlist.join(", "));
@@ -59,7 +62,7 @@ class Statistics {
 
 
             }, (message: string) => {
-                alert("Es ist ein Fehler aufgetreten: " + message);
+                alert(AdminMessages.error() + message);
             });
         }
 

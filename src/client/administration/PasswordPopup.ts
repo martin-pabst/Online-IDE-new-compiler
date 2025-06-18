@@ -1,4 +1,5 @@
 import { w2form, w2popup } from 'w2ui'
+import { AdminMessages } from './AdministrationMessages';
 
 
 export class PasswordPopup {
@@ -18,15 +19,15 @@ export class PasswordPopup {
                 formHTML:
                     '<div class="w2ui-page page-0">' +
                     '    <div class="w2ui-field">' +
-                    '        <label>Neues Passwort:</label>' +
+                    '        <label>' + AdminMessages.newPassword() + '</label>' +
                     '        <div>' +
                     '           <input name="password" type="password" autocomplete="new-password" maxlength="100" style="width: 250px"/>' +
                     '        </div>' +
                     '    </div>' +
                     '</div>' +
                     '<div class="w2ui-buttons">' +
-                    '    <button class="w2ui-btn" name="cancel">Abbrechen</button>' +
-                    '    <button class="w2ui-btn" name="ok">OK</button>' +
+                    '    <button class="w2ui-btn" name="cancel">' + AdminMessages.cancel() + '</button>' +
+                    '    <button class="w2ui-btn" name="ok">' + AdminMessages.ok() + '</button>' +
                     '</div>',
                 fields: [
                     { field: 'password', type: 'password', required: true },
@@ -47,7 +48,7 @@ export class PasswordPopup {
             });
 
         w2popup.open({
-            title: 'Passwort ändern für ' + passwordFor,
+            title: AdminMessages.setPasswordFor() + passwordFor,
             body: '<div id="form" style="width: 100%; height: 100%;"></div>',
             style: 'padding: 15px 0px 0px 0px',
             width: 500,

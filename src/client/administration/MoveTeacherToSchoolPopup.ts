@@ -1,5 +1,6 @@
 import { SchoolData } from "../communication/Data";
 import { w2form, w2popup } from 'w2ui'
+import { AdminMessages } from "./AdministrationMessages";
 
 
 export class MoveTeacherToSchoolPopup {
@@ -21,9 +22,9 @@ export class MoveTeacherToSchoolPopup {
                 style: 'border: 0px; background-color: transparent;',
                 fields: [
                     { field: 'oldSchool', type: 'text', required: false, disabled: true,
-                    html: { label: 'Bisherige Schule', attr: 'style="width: 300px"' } },
+                    html: { label: AdminMessages.oldSchool(), attr: 'style="width: 300px"' } },
                     { field: 'newSchool', type: 'list',
-                    html: { label: 'Neue Schule', attr: 'style="width: 300px"' }, options: { items: schoolDataList.sort((a, b) => a.text.localeCompare(b.text)) } }
+                    html: { label: AdminMessages.newSchool(), attr: 'style="width: 300px"' }, options: { items: schoolDataList.sort((a, b) => a.text.localeCompare(b.text)) } }
                 ],
                 record: {
                     oldSchool: oldSchool.name,
@@ -44,7 +45,7 @@ export class MoveTeacherToSchoolPopup {
 
 
         w2popup.open({
-            title: 'Lehrkraft verschieben: ' + name,
+            title: AdminMessages.moveTeacher() + name,
             body: '<div id="form" style="width: 100%; height: 100%;"></div>',
             style: 'padding: 15px 0px 0px 0px',
             width: 500,
