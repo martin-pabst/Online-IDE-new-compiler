@@ -338,7 +338,7 @@ export class RobotWorldClass extends ObjectClass {
     }
 
     _setzeMarke(x: number, y: number, farbe: string){
-        if(x < 1 || x > this.maxX || y < 1 || y < this.maxY){
+        if(x < 1 || x > this.maxX || y < 1 || y > this.maxY){
             throw new RuntimeExceptionClass(JRC.robotWorldPositionOutsideWorldError(x, y));
         }
 

@@ -614,7 +614,8 @@ export class ShapeClass extends ActorClass {
                 if (collidingSprite) break;
             } else {
                 let spriteIndex = otherShape.imageIndex;
-                if (!spriteIndex || spriteIndex != imageIndex) continue;
+                if(!spriteIndex) continue;
+                if (imageIndex != -1 && spriteIndex != imageIndex) continue;
 
                 if (!this.hasOverlappingBoundingBoxWith(otherShape, bounds)) continue;
 

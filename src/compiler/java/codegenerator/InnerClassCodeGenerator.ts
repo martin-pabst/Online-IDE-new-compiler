@@ -44,12 +44,8 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
     compileAnonymousInnerClass(node: ASTAnonymousClassNode): CodeSnippet | undefined {
 
         // let outerClass = this.currentSymbolTable.classContext;
-        let klass = node.klass.resolvedType!;
-        // let klass = new JavaClass("", node.newObjectNode.range, "", this.module);
-        // klass.outerType = outerClass;
-        // klass.setExtends(this.objectType);
-
-        // node.klass.resolvedType = klass;
+        let klass = node.klass.resolvedType;
+        if(!klass) return undefined;
 
         // setup provisionally version of runtime class to collect programs:
         klass.runtimeClass = class {
@@ -57,29 +53,6 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
         };  //
 
         let oldRuntimeClass = klass.runtimeClass;
-        // oldClass.__programs = [];
-
-        // let type = node.newObjectNode.type.resolvedType;
-        // if (type instanceof IJavaInterface) {
-        //     node.klass.implements.push(node.newObjectNode.type);
-        //     klass.addImplements(type);
-        // } else if (type instanceof IJavaClass) {
-        //     node.klass.extends = node.newObjectNode.type;
-        //     klass.setExtends(type);
-        // } else {
-        //     this.pushError("Anonyme innere Klassen können nur auf Grundlage von Interfaces oder von Klassen erstellt werden.", "error", node.newObjectNode.range);
-        // }
-
-        // klass.methods = node.klass.methods.map(m => m.method!);
-
-        // node.klass.fieldsOrInstanceInitializers.filter(fieldNode => fieldNode.kind == TokenType.fieldDeclaration).forEach(fn => {
-        //     let field: ASTFieldDeclarationNode = <any>fn;
-        //     let f: Field = new Field(field.identifier, field.range, klass.module, field.type.resolvedType!, field.visibility);
-        //     f.isStatic = field.isStatic;
-        //     f.isFinal = field.isFinal;
-        //     f.classEnum = klass;
-        //     klass.fields.push(f);
-        // });
 
         node.newObjectNode.type.resolvedType = klass;
 
