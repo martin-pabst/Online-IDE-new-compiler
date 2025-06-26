@@ -704,7 +704,7 @@ export class ProjectExplorer {
         * To keep monaco.editor.ITextModel instance count low we instantiate it only when needed and dispose of it
         * when switching to another workspace.
         */
-
+        if(w == null) return;
         this.main.editor.editor.setModel(null); // detach current model from editor
         this.main.getCurrentWorkspace()?.disposeMonacoModels();
         w.createMonacoModels();

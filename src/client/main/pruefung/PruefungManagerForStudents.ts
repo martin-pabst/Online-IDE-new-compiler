@@ -51,7 +51,10 @@ export class PruefungManagerForStudents {
         this.main.networkManager.sendUpdatesAsync(true, false, false).then(() => {
 
             let wss = this.main.workspaceList.filter(ws => ws.pruefung_id == pruefung.id);
-            if (wss.length == 0) alert('Workspace missing.');
+            if (wss.length == 0) {
+                alert('Workspace missing.');
+                return;
+            }
 
             let pruefungWorkspace = wss[0];
             this.main.workspaceList = [pruefungWorkspace];
@@ -60,8 +63,10 @@ export class PruefungManagerForStudents {
             projectExplorer.workspaceListPanel.clear();
             projectExplorer.fileListPanel.clear();
             projectExplorer.workspaceListPanel.hide();
+            projectExplorer.fileListPanel.enableNewButton(true);
 
             projectExplorer.setWorkspaceActive(pruefungWorkspace);
+            pruefungWorkspace.saved = false;
 
             // this.pruefung = pruefung;
 
@@ -71,13 +76,19 @@ export class PruefungManagerForStudents {
                 this.timer = null;
             }
 
-            this.timer = setInterval(async () => {
+            let sendPruefungState = () => {
                 let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, clientState: "", running: true }
-                let response: ReportPruefungStudentStateResponse = await ajaxAsync('/servlet/reportPruefungState', request)
-                if (response.pruefungState != "running") {
-                    this.stopPruefung(true);
-                }
-            }, 5000)
+                ajaxAsync('/servlet/reportPruefungState', request).then(
+                    (response: ReportPruefungStudentStateResponse) => {
+                        if (response.pruefungState != "running") {
+                            this.stopPruefung(true);
+                        }
+                    }
+                )
+            }
+
+            sendPruefungState();
+            this.timer = setInterval(sendPruefungState, 5000)
 
         });
 
@@ -94,6 +105,12 @@ export class PruefungManagerForStudents {
         if (this.pruefung == null) {
             return;
         }
+
+        if(!renderWorkspaces){
+            let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, clientState: "", running: false }
+            ajaxAsync('/servlet/reportPruefungState', request)
+        }
+
 
         this.pruefung = null;
 

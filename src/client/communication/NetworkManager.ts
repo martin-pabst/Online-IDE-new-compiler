@@ -112,7 +112,7 @@ export class NetworkManager {
             this.forcedUpdatesInARow = 0;
         }
 
-        classDiagram.dirty = false;
+        if(classDiagram) classDiagram.dirty = false;
 
         let wdList: WorkspaceData[] = [];
         let fdList: FileData[] = [];
