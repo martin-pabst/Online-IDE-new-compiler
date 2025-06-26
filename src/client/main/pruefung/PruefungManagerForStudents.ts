@@ -94,6 +94,11 @@ export class PruefungManagerForStudents {
 
     }
 
+    /**
+     * 
+     * @param renderWorkspaces set to false if user has logged out
+     * @returns 
+     */
     async stopPruefung(renderWorkspaces: boolean) {
         // await this.main.networkManager.sendUpdatesAsync();  // is done by fetchAndRenderOwnWorkspaces later on
 
