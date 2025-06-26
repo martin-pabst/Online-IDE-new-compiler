@@ -5968,6 +5968,79 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "en": `Alpha component (opacity) has to be from 0 to 1.`,
     })
 
+    static ColorFromRGB = () => lm({
+        "de": `Erzeugt aus den Werten für Rot, Grün und Blau (jeweils zwischen 0 und 255) ein Color-Objekt.`,
+        "en": `Creates a Color object from red, green and blue value. Values between 0 and 255.`,
+    })
+    
+    static ColorConstructorFromRGB = () => lm({
+        "de": `Erzeugt aus den Werten für Rot, Grün und Blau (jeweils zwischen 0 und 255) ein Color-Objekt.`,
+        "en": `Creates a Color object from red, green and blue value. Values between 0 and 255.`,
+    })
+    
+    static ColorFromRGBA = () => lm({
+        "de": `Erzeugt aus den Werten für Rot, Grün, Blau (jeweils zwischen 0 und 255) und Alpha (zwischen 0 und 1) ein Color-Objekt.`,
+        "en": `Creates a Color object from red, green, blue (0...255) and alpha (0 - 1) value.`,
+    })
+
+    static ColorConstructorFromRGBA = () => lm({
+        "de": `Erzeugt aus den Werten für Rot, Grün, Blau (jeweils zwischen 0 und 255) und Alpha (zwischen 0 und 1) ein Color-Objekt.`,
+        "en": `Creates a Color object from red, green, blue (0...255) and alpha (0 - 1) value.`,
+    })
+
+    static ColorFromHSLA = () => lm({
+        "de": `Erzeugt aus den Werten für hue (Farbton, zwischen 0 und 360), saturation (Sättigung, zwischen 0 und 100), luminescence (Helligkeit, zwischen 0 und 100) und alpha (zwischen 0 und 1) ein Color-Objekt.`,
+        "en": `Creates a Color object from values for hue (between 0 and 360), saturation (between 0 and 100), luminescence (between 0 and 100) and alpha (between 0 and 1) value.`,
+    })
+
+    static ColorFromHSL = () => lm({
+        "de": `Erzeugt aus den Werten für hue (Farbton, zwischen 0 und 360), saturation (Sättigung, zwischen 0 und 100) und luminescence (Helligkeit, zwischen 0 und 100) ein Color-Objekt.`,
+        "en": `Creates a Color object from values for hue (between 0 and 360), saturation (between 0 and 100) and luminescence (between 0 and 100) value.`,
+    })
+
+    static ColorGetRed = () => lm({
+        "de": `Gibt den Rotwert der Farbe zurück (zwischen 0 und 255).`,
+        "en": `Returns this color's red component (between 0 and 255).`,
+    })
+
+    static ColorGetGreen = () => lm({
+        "de": `Gibt den Grünwert der Farbe zurück (zwischen 0 und 255).`,
+        "en": `Returns this color's green component (between 0 and 255).`,
+    })
+
+    static ColorGetBlue = () => lm({
+        "de": `Gibt den Blauwert der Farbe zurück (zwischen 0 und 255).`,
+        "en": `Returns this color's blue component (between 0 and 255).`,
+    })
+
+    static ColorToInt = () => lm({
+        "de": `Gibt die Farbe (ohne Berücksichtigung des Alpha-Wertes) als int-Zahl zurück.`,
+        "en": `Returns this color as int value (without alpha).`,
+    })
+
+    static ColorToString = () => lm({
+        "de": `Gibt die Farbe als Zeichenkette zurück.`,
+        "en": `Returns this color as String value.`,
+    })
+
+    static ColorRandomColor0 = () => lm({
+        "de": `Erzeugt eine zufällige Farbe.`,
+        "en": `Returns a random color.`,
+    })
+    static ColorRandomColor1 = () => lm({
+        "de": `Erzeugt eine zufällige Farbe mit der angegebenen Maximalhelligkeit (zwischen 0 und 255).`,
+        "en": `Returns a random color with given maximum brightness (between 0 and 255).`,
+    })
+
+    static ColorRandomColor2 = () => lm({
+        "de": `Erzeugt eine zufällige Farbe mit der angegebenen Minimal- und Maximalhelligkeit (zwischen 0 und 255).`,
+        "en": `Returns a random color with given minimum and maximum brightness (between 0 and 255).`,
+    })
+
+
+
+    
+
 
 }
 
