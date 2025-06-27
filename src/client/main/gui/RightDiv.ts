@@ -5,6 +5,9 @@ import { IWorld } from '../../../compiler/java/runtime/graphics/IWorld.js';
 import { Tab, TabManager } from '../../../tools/TabManager.js';
 import { DOM } from '../../../tools/DOM.js';
 import { RightDivMessages } from './language/GUILanguage.js';
+import ballTriangleSVG from '/assets/graphics/ball-triangle.svg';
+
+
 
 export class RightDiv {
 
@@ -122,7 +125,7 @@ export class RightDiv {
 
         if (this.withClassDiagram) {
             this.tabManager.addTab(this.classDiagramTab = new Tab(RightDivMessages.classDiagram(), ['jo_classdiagram']));
-            this.classDiagramTab.bodyDiv.appendChild(jQuery(`<img src="assets/graphics/ball-triangle.svg" class="jo_classdiagram-spinner">`)[0]);
+            this.classDiagramTab.bodyDiv.appendChild(jQuery(`<img src="${ballTriangleSVG}" class="jo_classdiagram-spinner">`)[0]);
             this.classDiagramTab.onShow = () => {
                 this.main.drawClassDiagrams(false);
             }

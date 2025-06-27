@@ -202,6 +202,10 @@ export type LoginResponse = {
     sqlIdeForOnlineIdeClient: string
 }
 
+export type CheckIfPruefungIsRunningResponse = {
+    runningPruefung: Pruefung | null
+}
+
 export type LogoutRequest = {
     currentWorkspaceId: number
 }
