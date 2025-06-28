@@ -7,8 +7,19 @@ export class PushClientLongPollingStrategy extends PushClientStrategy {
     isClosed: boolean;
     csrfToken: string;
 
-    shortestTimeoutMs: number = 60000;   // 60 s
+    /**
+     * Problem: If a router between browser and server has a client timeout,
+     * then the browser is informed but the server does not which leads to resources
+     * not being freed on server side. 
+     * The solution for this problem is to make the server timeout after a certain amount
+     * of time and free it's resources. To get a rough estimation for this timeout we 
+     * let the client measure how long polling requests last and tell it to the server.
+     */
+    serverTimeoutMs: number = 180000;   // 3 min
+
     timeOpened: number = null;
+
+    degregadeToPollingWithIntervalMs = 10000;
 
     abortController: AbortController;
 
@@ -31,7 +42,7 @@ export class PushClientLongPollingStrategy extends PushClientStrategy {
 
         headers.push(["x-token-pm", csrfToken]);
         this.csrfToken = csrfToken;
-        headers.push(["x-timeout", this.shortestTimeoutMs + ""]);
+        headers.push(["x-timeout", this.serverTimeoutMs + ""]);
 
         try {
             fetch("/servlet/registerLongpollingListener", {
@@ -40,48 +51,55 @@ export class PushClientLongPollingStrategy extends PushClientStrategy {
                 headers: headers,
                 body: JSON.stringify({})
             }).then((response) => {
-
+                
+                let timeSinceOpenedMs = Math.round(performance.now() - this.timeOpened);
                 if (response.status != 200) {
                     console.log(`Long-polling listener got http-status: ${response.status} (${response.statusText})`);
-                    let timeMs = Math.round(performance.now() - this.timeOpened) - 4000;
-                    if (timeMs < this.shortestTimeoutMs) this.shortestTimeoutMs = timeMs;
+                    if (timeSinceOpenedMs + 4000 < this.serverTimeoutMs) this.serverTimeoutMs = timeSinceOpenedMs + 4000;
                 }
+
+                let reopenInMs = Math.max(10, this.degregadeToPollingWithIntervalMs - timeSinceOpenedMs);
 
                 switch (response.status) {
                     case 200:
-                        this.reopen();
+                        this.reopen(10);        // reopen BEFORE processing message so that reopen is done even if exception occurs during message processing
                         response.json().then(data => {
                             this.manager.onMessage(data)
                         });
                         break;
                     case 502:   // timeout!
                     case 504:   // gateway timeout!
-                        this.reopen(500, false);
+                        this.reopen(reopenInMs, false);
                         break;
                     case 401:
-                        console.log("PushClientLongPollingStrategy: Got http status code 401, therefore stopping.");
+                        console.log("PushClientLongPollingStrategy: Got http status code 401, -> trying again in reopenInMs ms.");
+                        this.reopen(reopenInMs, false);
                         break;
                     default:
-                        this.reopen(2000, false);
+                        this.reopen(reopenInMs, false);
                         break;
                 }
 
             }).catch((reason) => {
                 console.log(`Long-polling listener failed due to reason: ${reason}`);
-                this.reopen(10000, false);
+                let timeSinceOpenedMs = Math.round(performance.now() - this.timeOpened);
+                let reopenInMs = Math.max(10, this.degregadeToPollingWithIntervalMs - timeSinceOpenedMs);
+                this.reopen(reopenInMs, false);
             }).finally(() => {
                 this.abortController = null;
             })
 
         } catch (ex) {
-            this.reopen(10000, false);
+                let timeSinceOpenedMs = Math.round(performance.now() - this.timeOpened);
+                let reopenInMs = Math.max(10, this.degregadeToPollingWithIntervalMs - timeSinceOpenedMs);
+            this.reopen(reopenInMs, false);
         }
 
     }
 
     reopen(timeout: number = 500, silently: boolean = true) {
         if (this.isClosed) return;
-        if(timeout > 500){
+        if (timeout > 500) {
             console.log(`Reopen long-polling listener in ${timeout / 1000} seconds...`);
         }
         setTimeout(() => {

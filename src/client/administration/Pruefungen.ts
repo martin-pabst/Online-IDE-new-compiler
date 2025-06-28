@@ -619,6 +619,7 @@ export class Pruefungen extends AdminMenuItem {
     }
 
     async onSelectPruefung(recId: number) {
+        if(typeof recId == 'undefined') return;
         let request: GetPruefungForPrintingRequest = { pruefungId: recId };
 
         let p: GetPruefungForPrintingResponse = await ajaxAsync("/servlet/getPruefungForPrinting", request);
