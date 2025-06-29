@@ -68,6 +68,8 @@ export class PruefungManagerForStudents {
             projectExplorer.setWorkspaceActive(pruefungWorkspace);
             pruefungWorkspace.saved = false;
 
+            this.main.getInterpreter().resetRuntime();
+
             // this.pruefung = pruefung;
 
             jQuery('#pruefunglaeuft').css('display', 'block');
@@ -111,7 +113,9 @@ export class PruefungManagerForStudents {
             return;
         }
 
-        if(!renderWorkspaces){
+        this.main.getInterpreter().resetRuntime();
+
+        if (!renderWorkspaces) {
             let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, clientState: "", running: false }
             ajaxAsync('/servlet/reportPruefungState', request)
         }

@@ -38,6 +38,7 @@ export class GraphicsManager {
         this.interpreter = interpreter;
         interpreter.eventManager.on("resetRuntime", () => {
             this.graphicSystems = [];
+            this.graphicsDiv.style.height = "0px";
         });
     }
 

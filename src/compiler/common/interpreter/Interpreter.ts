@@ -169,7 +169,7 @@ export class Interpreter {
             }
             this.printManager.clear();
             this.#init(this.executable!);
-            this.#resetRuntime();
+            this.resetRuntime();
 
             // for java (and maybe other languages) the first step pushes the main object
             // onto the stack. We want to execute it immediately...
@@ -303,7 +303,7 @@ export class Interpreter {
         if (this.scheduler.state != SchedulerState.paused && this.executable) {
             this.printManager.clear();
             this.#init(this.executable, fileToStart);
-            this.#resetRuntime();
+            this.resetRuntime();
         }
 
         this.hideProgrampointerPosition();
@@ -509,10 +509,11 @@ export class Interpreter {
         this.main?.markFilesAsStartable(startableFiles, state >= 3);
     }
 
-    #resetRuntime() {
+    resetRuntime() {
         this.eventManager.fire("resetRuntime");
 
         this.main?.getBottomDiv()?.console?.detachValues();
+        this.printManager?.clear();
 
         // this.printManager.clear();
         // this.worldHelper?.destroyWorld();

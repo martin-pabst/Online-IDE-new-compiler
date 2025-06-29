@@ -64,6 +64,7 @@ export class PrintManager implements IPrintManager {
 
 
         });
+
     }
 
     isTestPrintManager(): boolean {
