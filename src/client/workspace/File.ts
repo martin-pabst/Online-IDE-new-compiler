@@ -78,18 +78,24 @@ export class GUIFile extends CompilerFile {
         }
 
         if (!hadMonacoModel && !this.main.isEmbedded()) {
-            this.monacoModel.onDidChangeContent(() => {
+            this.monacoModel.onDidChangeContent((ev) => {
                 let main1: Main = <Main>this.main;
                 if (main1.workspacesOwnerId != main1.user.id) {
-                    if (this.text_before_revision == null || this.student_edited_after_revision) {
-                        this.student_edited_after_revision = false;
-                        this.text_before_revision = this.getText();
-
-                        this.setSaved(false);
-                        main1.networkManager.sendUpdatesAsync(false).then(() => {
-                            main1.bottomDiv.homeworkManager.showHomeWorkRevisionButton();
-                            main1.projectExplorer.renderHomeworkButton(this);
-                        })
+                    if(!(ev.isUndoing || ev.isRedoing)){
+                        if (this.text_before_revision == null || this.student_edited_after_revision) {
+                            this.student_edited_after_revision = false;
+                            //@ts-ignore
+                            (<monaco.editor.IEditorModel>this.monacoModel).undo();
+                            this.text_before_revision = this.monacoModel.getValue(monaco.editor.EndOfLinePreference.LF);
+                            //@ts-ignore
+                            this.monacoModel.redo();
+    
+                            this.setSaved(false);
+                            main1.networkManager.sendUpdatesAsync(false).then(() => {
+                                main1.bottomDiv.homeworkManager.showHomeWorkRevisionButton();
+                                main1.projectExplorer.renderHomeworkButton(this);
+                            })
+                        }
                     }
                 } else {
                     this.student_edited_after_revision = true;
