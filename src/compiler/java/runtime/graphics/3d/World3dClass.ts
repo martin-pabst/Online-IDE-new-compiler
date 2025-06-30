@@ -182,6 +182,9 @@ export class World3dClass extends ObjectClass implements IWorld3d, GraphicSystem
         this.textureManager3d.init(interpreter).then(() => {
             this.coordinateSystemHelper = new CoordinateSystemHelper3d(this).show();
             this.fastSpriteManager = new FastSpriteManager3d(this);
+            console.log("Vor createSprite");
+            this.fastSpriteManager.createSprite(1, "Spawnable", 0);
+            console.log("Nach createSprite");
             t.state = oldState;
             // t.scheduler.restoreThread(t);
             t.state = oldState;

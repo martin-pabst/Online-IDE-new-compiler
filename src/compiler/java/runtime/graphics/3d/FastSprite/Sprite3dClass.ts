@@ -60,7 +60,7 @@ export class Sprite3dClass extends Object3dClass {
     }
     
     init(width: number, library: SpriteLibraryEnum, index: number){
-        this.fastSprite = this.world3d.fastSpriteManager.getSprite(width, library, index);
+        this.fastSprite = this.world3d.fastSpriteManager.createSprite(width, library, index);
     }
 
     destroy(): void {

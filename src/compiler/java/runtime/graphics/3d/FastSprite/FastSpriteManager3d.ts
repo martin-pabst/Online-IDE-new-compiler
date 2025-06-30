@@ -162,10 +162,11 @@ export class FastSpriteManager3d {
 
     }
 
-    getSprite(width: number, library: SpriteLibraryEnum, index: number): FastSprite {
-        let textureFrame = this.world3d.textureManager3d.getFrame(library.name, index);
+    createSprite(width: number, library: SpriteLibraryEnum | string, index: number): FastSprite {
+        let libraryName = (typeof library == "string") ? library : library.name;
+        let textureFrame = this.world3d.textureManager3d.getFrame(libraryName, index);
         if (!textureFrame) {
-            throw new RuntimeExceptionClass("Didn't find sprite " + index + " in library " + library.name + ".");
+            throw new RuntimeExceptionClass("Didn't find sprite " + index + " in library " + libraryName + ".");
         }
 
         let frame = textureFrame.frame;
@@ -217,8 +218,6 @@ export class FastSpriteManager3d {
 
         this.interleavedBuffer[base + 13] = 1;    // alpha
 
-        // this.instanceInterleavedBuffer.needsUpdate = true;
-
         this.fastsprites.push(fs);
 
         this.dirty = true;
@@ -229,6 +228,7 @@ export class FastSpriteManager3d {
 
 
     resizeBuffers() {
+        console.log("resizeBuffers")
         this.maxCount *= 3;
         const newInterleavedBuffer = new Float32Array(this.maxCount * this.bufferElementSize);
         newInterleavedBuffer.set(this.interleavedBuffer);
@@ -336,6 +336,8 @@ export class FastSpriteManager3d {
     }
 
     sortByDistanceToCamera() {
+        console.log("sortByDistanceToCamera")
+
         this.instanceInterleavedBuffer.needsUpdate = true;
 
         
@@ -349,7 +351,7 @@ export class FastSpriteManager3d {
         this.removeIntern();
         let count = this.geometry.instanceCount;
         if (count < 2) return;
-
+        
         this.oldCameraPos = cameraPosition.clone();
         this.dirty = false;
         let cameraDirection = camera.getWorldDirection(new THREE.Vector3()).normalize();
