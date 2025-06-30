@@ -80,6 +80,8 @@ export class FastSpriteManager3d {
             transparent: true
         });
 
+        mat.needsUpdate = true;
+
         this.mesh = new THREE.Mesh(this.geometry, mat);
         this.world3d.scene.add(this.mesh);
 
