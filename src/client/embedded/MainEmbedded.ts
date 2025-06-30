@@ -41,6 +41,7 @@ import { JUnitTestrunner } from "../../compiler/common/testrunner/JUnitTestrunne
 import * as monaco from 'monaco-editor'
 import { OnlineIDEAccessImpl } from "./EmbeddedInterface.js";
 import { Tab } from "../../tools/TabManager.js";
+import { base64ToBytes } from "../../tools/Base64.js";
 
 
 type JavaOnlineConfig = {
@@ -100,8 +101,6 @@ export class MainEmbedded implements MainBase {
     breakpointManager: BreakpointManager;
 
     compileRunsAfterCodeReset: number = 0;
-
-
 
     isEmbedded(): boolean { return true; }
 
@@ -400,6 +399,7 @@ export class MainEmbedded implements MainBase {
             }
 
             this.indexedDB.writeScript(this.config.id, JSON.stringify(scriptList));
+
         }
 
     }
@@ -778,7 +778,7 @@ export class MainEmbedded implements MainBase {
         let that = this;
         if (file == null) return;
         var reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
             let text: string = <string>event.target.result;
             if (!text.startsWith("{")) {
                 alert(`<div>Das Format der Datei ${file.name} passt nicht.</div>`);
@@ -801,6 +801,11 @@ export class MainEmbedded implements MainBase {
             }
 
             that.currentWorkspace = ws;
+
+            if (ew.spritesheetBase64) {
+                let zipFile = base64ToBytes(ew.spritesheetBase64);
+                await new SpritesheetData().initializeSpritesheetForWorkspace(ws, this, zipFile);
+            }
 
             if (that.fileExplorer != null) {
                 that.fileExplorer.removeAllFiles();

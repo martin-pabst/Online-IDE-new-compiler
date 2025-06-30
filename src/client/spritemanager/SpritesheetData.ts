@@ -17,26 +17,38 @@ export class SpritesheetData {
     pngFile: Uint8Array;
     zipFile: Uint8Array;
 
-    async initializeSpritesheetForWorkspace(workspace: Workspace, main: MainBase, spritesheetURL?: string) {
+    async initializeSpritesheetForWorkspace(workspace: Workspace, main: MainBase, spritesheetURLOrBlob?: string | Uint8Array) {
 
         let spriteIdentifiers: Set<string> = new Set();
 
-        if (workspace.spritesheetId != null || spritesheetURL != null) {
-            await this.load(workspace.spritesheetId != null ? workspace.spritesheetId : spritesheetURL);
+        let newSpritesheetLoaded: boolean = false;
 
 
+        if (workspace.spritesheetId != null || ((typeof spritesheetURLOrBlob == "string") && spritesheetURLOrBlob != null)) {
+            
+            await this.load(workspace.spritesheetId != null ? workspace.spritesheetId : <string>spritesheetURLOrBlob);
+            newSpritesheetLoaded = true;
+            
+        }
+
+        if(spritesheetURLOrBlob != null && (typeof spritesheetURLOrBlob != "string")){
+            await this.unpackZip(spritesheetURLOrBlob);
+            newSpritesheetLoaded = true;
+        }
+        
+        if(newSpritesheetLoaded){
             if (this.pngImageData != null && this.pixiSpritesheetData != null) {
-
+    
                 let graphicsManager = main.getInterpreter().graphicsManager;
                 graphicsManager.setUserData(this.pixiSpritesheetData, this.pngImageData);
-
+    
                 for (let identifier in this.pixiSpritesheetData.frames) {
                     let hashIndex = identifier.indexOf('#');
                     spriteIdentifiers.add(identifier.substring(0, hashIndex));
                 }
             }
-
         }
+
 
         /**
          * See user-defined-spritesheets.md

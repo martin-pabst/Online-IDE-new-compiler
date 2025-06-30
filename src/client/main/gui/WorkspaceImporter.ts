@@ -155,7 +155,7 @@ export class WorkspaceImporter {
                             path = path.concat(wse.path.split("/"));
                         }
 
-                        let ws: Workspace[] = WorkspaceImporter.importWorkspace(wse, path, this.main, owner_id);
+                        let ws: Workspace[] = WorkspaceImporter.importWorkspaceWithoutSpritesheet(wse, path, this.main, owner_id);
 
                         for (let ws1 of ws) {
                             let error = await networkManager.sendCreateWorkspace(ws1, owner_id);
@@ -206,12 +206,8 @@ export class WorkspaceImporter {
         ])
     }
 
-    static importWorkspace(wse: ExportedWorkspace, path: string[], main: MainBase, owner_id: number): Workspace[] {
+    static importWorkspaceWithoutSpritesheet(wse: ExportedWorkspace, path: string[], main: MainBase, owner_id: number): Workspace[] {
 
-        if (wse.spritesheetBase64) {
-            let sd: SpritesheetData = new SpritesheetData();
-            base64ToBytes(wse.spritesheetBase64);
-        }
         let ws: Workspace = new Workspace(wse.name, main, owner_id);
 
         ws.isFolder = false;
