@@ -53,8 +53,11 @@ export class BasePushClientManager {
 
         for(let message of messages){
             if(message.eventType == "keepAlive") return;
-
-            this.eventTypeToSubscriberInfoMap.get(message.eventType)?.handler(message.data);
+            try {
+                this.eventTypeToSubscriberInfoMap.get(message.eventType)?.handler(message.data);
+            } catch (ex){
+                
+            }
         }
 
 
