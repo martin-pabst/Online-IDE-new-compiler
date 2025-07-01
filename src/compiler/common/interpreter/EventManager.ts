@@ -62,10 +62,11 @@ export class EventManager<EventType extends string> {
 
         let callbacksToDelete: CallbackEntry[] = [];
 
-        for (let callback of callbackList) {
+        for (let callback of callbackList.slice()) {
             callback.f.call(callback.thisArg, ...args);
             if (this.onceMap.get(callback.f)) {
                 callbacksToDelete.push(callback);
+                this.onceMap.delete(callback.f);
             }
         }
 
