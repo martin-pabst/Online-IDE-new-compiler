@@ -181,10 +181,10 @@ export class World3dClass extends ObjectClass implements IWorld3d, GraphicSystem
 
         this.textureManager3d.init(interpreter).then(() => {
             this.coordinateSystemHelper = new CoordinateSystemHelper3d(this).show();
-            this.fastSpriteManager = new FastSpriteManager3d(this);
-            console.log("Vor createSprite");
-            this.fastSpriteManager.createSprite(1, "Spawnable", 0);
-            console.log("Nach createSprite");
+            this.fastSpriteManager = new FastSpriteManager3d(this, interpreter);
+            // console.log("Vor createSprite");
+            // this.fastSpriteManager.createSprite(1, "Spawnable", 0);
+            // console.log("Nach createSprite");
             t.state = oldState;
             // t.scheduler.restoreThread(t);
             t.state = oldState;
@@ -240,6 +240,7 @@ export class World3dClass extends ObjectClass implements IWorld3d, GraphicSystem
         interpreter.deleteObject("robotWorldClass");
         interpreter.isExternalTimer = false;
         this.fastSpriteManager?.destroy();
+        this.textureManager3d?.destroy();
     }
 
     changeResolution(interpreter: Interpreter, width: number, height: number) {

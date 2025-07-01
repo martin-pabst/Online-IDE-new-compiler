@@ -179,6 +179,9 @@ export class TextureManager3d {
     //     return renderTarget.texture;
     // }
 
-
+    destroy(){
+        this.systemTexture.dispose();
+        this.userTexture.dispose();
+    }
 
 }

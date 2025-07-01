@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { World3dClass } from '../World3dClass';
 import { SpriteLibraryEnum } from '../../SpriteLibraryEnum';
 import { RuntimeExceptionClass } from '../../../system/javalang/RuntimeException';
+import { Interpreter } from '../../../../../common/interpreter/Interpreter.ts';
 
 
 
@@ -16,7 +17,7 @@ export class FastSpriteManager3d {
     geometry: THREE.InstancedBufferGeometry;
     material: THREE.ShaderMaterial;
 
-    maxCount: number = 200;
+    maxCount: number = 60;
 
     iOffset = 0;
     iSize = this.iOffset + 3;
@@ -38,17 +39,34 @@ export class FastSpriteManager3d {
 
     indicesToRemove: number[] = [];
 
-    constructor(private world3d: World3dClass) {
+    constructor(private world3d: World3dClass, interpreter: Interpreter) {
 
-        this.initMesh();
+        // this.initMesh();
+
+        if(this.world3d.textureManager3d.userTexture){
+            let frames = this.world3d.textureManager3d.userSpritesheetData.frames;
+            let propertyNames = Object.getOwnPropertyNames(frames);
+            if(propertyNames.length > 0){
+                let name = propertyNames[0];
+                let spritelLibrary: string = name.substring(0, name.indexOf('#'));
+                let sprite = this.createSprite(1e-6, spritelLibrary, 0);
+                this.moveSprite(sprite, 1e6, 1e6, 1e6);
+            }
+
+        }
 
         this.intervalID = setInterval(() => {
             this.sortByDistanceToCamera();
         }, 10);
 
+        interpreter.eventManager.once("resetRuntime", () => {
+            if(this.intervalID) clearInterval(this.intervalID);
+            this.intervalID = null;
+        })
+
     }
 
-    initMesh(oldInstanceCount: number = 0) {
+    initMesh(oldInstanceCount: number) {
         this.geometry = new THREE.InstancedBufferGeometry();
         //cubeGeo.maxInstancedCount = 8;
         const positions = [0.5, 0.5, 0, -0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, -0.5, 0];
@@ -79,12 +97,12 @@ export class FastSpriteManager3d {
             side: THREE.FrontSide,
             transparent: true
         });
-
+        
         mat.needsUpdate = true;
-
+        
         this.mesh = new THREE.Mesh(this.geometry, mat);
         this.world3d.scene.add(this.mesh);
-
+        
     }
 
     getVertexShader(): string {
@@ -186,7 +204,7 @@ export class FastSpriteManager3d {
         let xStart = frame.x / W;
         let yStart = 1 - frame.y / H - hFraction;
 
-        if (this.geometry.instanceCount >= this.maxCount) {
+        if (this.geometry == null || this.geometry.instanceCount >= this.maxCount) {
             this.resizeBuffers();
             this.sortByDistanceToCamera();
         }
@@ -336,7 +354,7 @@ export class FastSpriteManager3d {
     }
 
     sortByDistanceToCamera() {
-        console.log("sortByDistanceToCamera")
+        if(!this.mesh) return;
 
         this.instanceInterleavedBuffer.needsUpdate = true;
 
