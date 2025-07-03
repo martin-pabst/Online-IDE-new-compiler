@@ -15,9 +15,9 @@ export class TimerClass extends ObjectClass {
 
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", signature: "class Timer extends Object", comment: JRC.TimerClassComment },
-        { type: "method", signature: "static void repeat(Runnable runnable, int deltaTimeMilliseconds)", java: TimerClass._mj$repeat$void$Runnable$int, comment: JRC.TimerClassRepeatComment },
         { type: "method", signature: "static void executeLater(Runnable runnable, int deltaTimeMilliseconds)", java: TimerClass._mj$executeLater$void$Runnable$int, comment: JRC.TimerClassExecuteLaterComment },
         { type: "method", signature: "void repeat(Runnable runnable, int deltaTimeMilliseconds)", java: TimerClass.prototype._mj$repeat$void$Runnable$int, comment: JRC.TimerClassRepeatComment },
+        { type: "method", signature: "static void repeat(Runnable runnable, int deltaTimeMilliseconds)", java: TimerClass._mj$repeat$void$Runnable$int, comment: JRC.TimerClassRepeatComment },
         { type: "method", signature: "void pause()", native: TimerClass.prototype._pause, comment: JRC.TimerClassPauseComment },
         { type: "method", signature: "void restart()", native: TimerClass.prototype._restart, comment: JRC.TimerClassRestartComment }
     ];
@@ -66,6 +66,8 @@ export class TimerClass extends ObjectClass {
 
         let index = this.intervalIds.length;
         this.isCurrentlyRunning.push(false);
+        this.state = "running";
+
         let that = this;
 
         this.intervalIds.push(setInterval(() => {
