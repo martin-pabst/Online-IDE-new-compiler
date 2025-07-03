@@ -3,11 +3,12 @@ import { CacheManager } from "../../tools/CacheManager.js";
 import { Workspace } from "../workspace/Workspace.js";
 import { PixiSpritesheetData } from "./PixiSpritesheetData.js";
 import jQuery from 'jquery';
-import { csrfToken } from "../communication/AjaxHelper.js";
+import { ajaxAsync, csrfToken } from "../communication/AjaxHelper.js";
 import { JavaEnum } from "../../compiler/java/types/JavaEnum.js";
 import * as UPNG from 'upng-js'
 import JSZip from 'jszip'
 import { SpritesheetDataMessages } from "./SpriteManagerLanguage.js";
+import { GetSpritesheetIdForWorkspaceRequest, GetSpritesheetIdForWorkspaceResponse } from "../communication/Data.js";
 
 
 export class SpritesheetData {
@@ -26,6 +27,12 @@ export class SpritesheetData {
 
         if (workspace.spritesheetId != null || ((typeof spritesheetURLOrBlob == "string") && spritesheetURLOrBlob != null)) {
             
+            if(workspace.repository_id != null){
+                let request: GetSpritesheetIdForWorkspaceRequest = {workspace_id: workspace.id};
+                let response: GetSpritesheetIdForWorkspaceResponse = await ajaxAsync('servlet/getSpritesheetIdForWorkspace', request);
+                workspace.spritesheetId = response.spritesheet_id;
+            }
+
             await this.load(workspace.spritesheetId != null ? workspace.spritesheetId : <string>spritesheetURLOrBlob);
             newSpritesheetLoaded = true;
             

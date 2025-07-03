@@ -912,3 +912,12 @@ export type VidisNewUserRequest = {
     familienname?: string,
     klasse?: string,
 }
+
+export type GetSpritesheetIdForWorkspaceRequest = {
+    workspace_id: number
+}
+
+export type GetSpritesheetIdForWorkspaceResponse = {
+    spritesheet_id: number
+}
+
