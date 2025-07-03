@@ -20,6 +20,8 @@ export interface Compiler {
 
     setAdditionalModules(...modules: JavaLibraryModule[]): void;
 
+    waitTillCompilationFinished(): Promise<void>;
+
     eventManager: EventManager<CompilerEvents>;
 
 }

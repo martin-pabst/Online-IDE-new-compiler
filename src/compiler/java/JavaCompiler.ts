@@ -309,9 +309,19 @@ export class JavaCompiler implements Compiler {
             this.#progressManager.interruptCompilerIfRunning(false);
         }
         this.#progressManager.initBeforeCompiling();
-        await this.compileIfDirty(onlyForCodeCompletion);
+        try {
+            await this.compileIfDirty(onlyForCodeCompletion);
+        } catch (ex){
+
+        }
         this.#progressManager.afterCompiling();
 
+    }
+
+    async waitTillCompilationFinished(): Promise<void> {
+        return new Promise((resolve) => {
+            this.eventManager.on("compilationFinished", resolve);
+        })
     }
 
 }

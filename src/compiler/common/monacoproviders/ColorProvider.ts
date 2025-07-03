@@ -27,7 +27,8 @@ export class ColorProvider extends BaseMonacoProvider implements monaco.language
         if (!module) return;
 
         if (module.isDirty()) {
-            await main.getCompiler().interruptAndStartOverAgain(false);
+            await main.getCompiler().waitTillCompilationFinished();
+            // await main.getCompiler().interruptAndStartOverAgain(false);
         }
 
         return module.colorInformation;
