@@ -180,8 +180,10 @@ export class TextureManager3d {
     // }
 
     destroy(){
-        this.systemTexture.dispose();
-        this.userTexture.dispose();
+        this.systemTexture?.dispose();
+        this.userTexture?.dispose();
+        this.systemTexture = null;
+        this.userTexture = null;
     }
 
 }
