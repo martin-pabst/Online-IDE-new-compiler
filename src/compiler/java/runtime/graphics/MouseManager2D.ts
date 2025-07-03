@@ -96,9 +96,14 @@ export class MouseManager {
                 //         gngEreignisbehandlung.handleMouseClickedEvent(x, y);
                 //     }
                 // }
+
             });
 
             this.listeners.set(mouseEventKind, listener);
+
+            canvas.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+            })
 
         }
 
