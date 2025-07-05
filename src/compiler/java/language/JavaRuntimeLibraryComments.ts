@@ -1849,8 +1849,8 @@ export class JRC {
      * Enum RepeatType
      */
     static repeatTypeEnumComment = () => lm({
-        "de": "Gibt an, auf welche Art eine Sprite-Animation wiederholt werden soll.",
-        "en": "Enumerates how a sprite animation may be repeated.",
+        "de": "Gibt an, auf welche Art eine Sprite-Animation wiederholt werden soll. Wichtig: RepeatType.once zerstört das Sprite-Objekt nach Ausführung der Animation!",
+        "en": "Enumerates how a sprite animation may be repeated. RepeatType.once destroys Sprite after animation.",
     })
 
     /**

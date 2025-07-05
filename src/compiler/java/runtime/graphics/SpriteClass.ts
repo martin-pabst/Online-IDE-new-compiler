@@ -474,10 +474,13 @@ export class SpriteClass extends ShapeClass {
                 image = Math.trunc(image);
                 break;
             case RepeatType.once:
+            case RepeatType.onceWithoutDestroying:
                 image = Math.trunc(this.imagesPerMillisecond * this.animationTime);
                 if (image >= this.animationIndices.length) {
                     this._stopAnimation(true);
-                    this.destroy();
+                    if(this.repeatTypeOrdinal == RepeatType.once){
+                        this.destroy();
+                    }
                     return;
                 }
                 break;
