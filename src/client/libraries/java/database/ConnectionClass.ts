@@ -28,6 +28,8 @@ export class ConnectionClass extends ObjectClass {
     token: string;
     databaseSSEListener: DatabaseNewLongPollingListener;
 
+    alreadyClosed: boolean = false;
+
     main: Main;
 
     constructor(private interpreter: Interpreter) {
@@ -79,6 +81,7 @@ export class ConnectionClass extends ObjectClass {
             this.database = null;
         }
 
+        this.alreadyClosed = true;
     }
 
     skipNextServerSentStatement: boolean = false;
@@ -175,6 +178,10 @@ export class ConnectionClass extends ObjectClass {
     }
 
     executeQuery(query: string, callback: (error: string, data: QueryResult) => void) {
+
+        if(this.alreadyClosed){
+            throw new RuntimeExceptionClass(JRC.connectionAlreadyClosedError(), null);
+        }
 
         if (this.database == null || this.databaseSSEListener == null) {
             throw new RuntimeExceptionClass(JRC.connectionDatabaseConnectionError(), null);

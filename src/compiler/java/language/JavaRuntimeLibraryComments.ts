@@ -5303,6 +5303,11 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "en": `Connection to database lost.`,
     })
 
+    static connectionAlreadyClosedError = () => lm({
+        "de": `Die Verbindung wurde bereits mit der Methode close() geschlossen.`,
+        "en": `Connection has already been closed with method close().`,
+    })
+
     /**
      * class Statement
      */
