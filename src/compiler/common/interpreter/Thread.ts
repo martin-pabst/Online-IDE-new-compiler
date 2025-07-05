@@ -178,7 +178,9 @@ export class Thread {
             if (exception instanceof ThrowableClass) {
                 this.#throwException(exception, step!);
             } else {
-                this.#handleSystemException(exception, step!, currentProgramState);
+                if(this.#state != ThreadState.terminatedWithException){
+                    this.#handleSystemException(exception, step!, currentProgramState);
+                }
             }
 
         }
@@ -191,7 +193,11 @@ export class Thread {
      * called by a network-event in database-classes.
      */
     throwRuntimeExceptionOnLastExecutedStep(exception: Exception & IThrowable) {
-        this.#throwException(exception, this.currentProgramState!.lastExecutedStep!);
+        let lastExcecutedStep = this.currentProgramState!.lastExecutedStep;
+        if(!lastExcecutedStep){
+            lastExcecutedStep = this.currentProgramState.currentStepList[this.currentProgramState.stepIndex];
+        }
+        this.#throwException(exception, lastExcecutedStep);
     }
 
     #handleSystemException(exception: any, step: Step, currentProgramState: ProgramState) {

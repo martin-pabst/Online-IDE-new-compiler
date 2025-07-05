@@ -65,7 +65,7 @@ export class DatabaseNewLongPollingListener {
                 switch (response.status) {
                     case 200:
                         response.json().then(data => {
-                            console.log("http 200: " + JSON.stringify(data));
+                            // console.log("http 200: " + JSON.stringify(data));
                             this.onMessage(data);
                             this.reopen();
                         })
@@ -104,7 +104,7 @@ export class DatabaseNewLongPollingListener {
 
     onDBMessage(data: DatabaseChangedSSEMessage) {
         if (data.databaseId != this.databaseId) return;
-        console.log("Message: " + JSON.stringify(data));
+        // console.log("Message: " + JSON.stringify(data));
         this.onServerSentStatementsCallback(data.firstNewStatementIndex, data.newStatements, data.rollbackToVersion)
     }
 

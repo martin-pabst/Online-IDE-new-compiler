@@ -4,6 +4,7 @@ import { Interpreter } from "../../../../compiler/common/interpreter/Interpreter
 import { JRC } from "../../../../compiler/java/language/JavaRuntimeLibraryComments";
 import { LibraryDeclarations } from "../../../../compiler/java/module/libraries/DeclareType";
 import { ObjectClass } from "../../../../compiler/java/runtime/system/javalang/ObjectClassStringClass";
+import { RuntimeExceptionClass } from "../../../../compiler/java/runtime/system/javalang/RuntimeException";
 import { NonPrimitiveType } from "../../../../compiler/java/types/NonPrimitiveType";
 import { DatabaseNewLongPollingListener } from "../../../../tools/database/DatabaseNewLongPollingListener";
 import { DatabaseTool, QueryResult } from "../../../../tools/database/DatabaseTool";
@@ -176,8 +177,7 @@ export class ConnectionClass extends ObjectClass {
     executeQuery(query: string, callback: (error: string, data: QueryResult) => void) {
 
         if (this.database == null || this.databaseSSEListener == null) {
-            callback(JRC.connectionDatabaseConnectionError(), null);
-            return;
+            throw new RuntimeExceptionClass(JRC.connectionDatabaseConnectionError(), null);
         }
 
         this.database.executeQuery(query, (results: QueryResult[]) => {
