@@ -10,20 +10,20 @@ export class CompilerFile {
      */
     public name: string;
 
-    private lastSavedVersion: number = -1;
-
+    
     private fileContentChangedListeners: FileContentChangedListener[] = [];
-
+    
     private editorState: monaco.editor.ICodeEditorViewState | null = null;
-
+    
     /*
-     * monaco editor counts LanguageChangedListeners and issues ugly warnings in console if more than
-     * 200, 300, ... are created. Unfortunately it creates one each time a monaco.editor.ITextModel is created.
-     * To keep monaco.editor.ITextModel instance count low we instantiate it only when needed and dispose of it
-     * when switching to another workspace. Meanwhile we store file text here:
-     */
-    private __textWhenMonacoModelAbsent: string = "";
-    protected localVersion: number = 0;
+    * monaco editor counts LanguageChangedListeners and issues ugly warnings in console if more than
+    * 200, 300, ... are created. Unfortunately it creates one each time a monaco.editor.ITextModel is created.
+    * To keep monaco.editor.ITextModel instance count low we instantiate it only when needed and dispose of it
+    * when switching to another workspace. Meanwhile we store file text here:
+    */
+   private __textWhenMonacoModelAbsent: string = "";
+   private lastSavedVersion: number = 0;
+   protected localVersion: number = this.lastSavedVersion;
 
 
     constructor(name?: string) {

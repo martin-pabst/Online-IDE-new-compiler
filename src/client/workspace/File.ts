@@ -145,10 +145,12 @@ export class GUIFile extends CompilerFile {
         if (uriCounter > 0) path += " (" + uriCounter + ")";
         let uri = monaco.Uri.from({ path: path, scheme: 'inmemory' });
         let language = FileTypeManager.filenameToFileType(this.name).language;
+        let isSaved = this.isSaved();
         this.monacoModel = monaco.editor.createModel(super.getText(), language, uri);
         this.monacoModel.updateOptions({ tabSize: 3, bracketColorizationOptions: { enabled: true, independentColorPoolPerBracketType: false } });
 
         this.monacoModel.onDidChangeContent(() => { this.notifyListeners() });
+        this.setSaved(isSaved);
     }
 
     disposeMonacoModel() {
