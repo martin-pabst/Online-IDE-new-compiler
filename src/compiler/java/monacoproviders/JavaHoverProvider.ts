@@ -191,16 +191,18 @@ export class JavaHoverProvider extends BaseMonacoProvider {
             if (signatureHelp?.value) {
                 let sh = signatureHelp.value;
                 let signature = sh.signatures[sh.activeSignature];
-                let label = signature.parameters[sh.activeParameter]?.label
-                let documentation = <string>signature.parameters[sh.activeParameter]?.documentation
-                if (!label) return null;
-                if (Array.isArray(label)) {
-                    label = signature.label.substring(label[0], label[1]);
-                }
-                if(signature[JavaSignatureHelpProvider.ISINTRINSIC]){
-                    contents.push({ value: documentation || label });
-                } else {
-                    contents.push({ value: "```\nParameter " + label + "\n```" });
+                if(signature){
+                    let label = signature.parameters[sh.activeParameter]?.label
+                    let documentation = <string>signature.parameters[sh.activeParameter]?.documentation
+                    if (!label) return null;
+                    if (Array.isArray(label)) {
+                        label = signature.label.substring(label[0], label[1]);
+                    }
+                    if(signature[JavaSignatureHelpProvider.ISINTRINSIC]){
+                        contents.push({ value: documentation || label });
+                    } else {
+                        contents.push({ value: "```\nParameter " + label + "\n```" });
+                    }
                 }
             }
 

@@ -248,6 +248,7 @@ export class JavaCompiler implements Compiler {
                     this.#progressManager.afterCompiling();
                     this.eventManager.fire("compilationFinished");
                 } catch (exception) {
+                    console.log(exception);
                     this.#progressManager.afterCompiling(exception.toString());
                     if (!(exception instanceof CompilingProgressManagerException)) {
                         break;   // if this.progressManager.restartNecessary then we would get an infinite loop if we wouldn't break

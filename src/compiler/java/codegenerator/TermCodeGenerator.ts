@@ -1469,6 +1469,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 let toType = ellipsisType;
                 if (!toType) {
                     let parameter = method.parameters[i];
+                    if(!parameter) continue;
                     if (parameter.isEllipsis) {
                         toType = (<JavaArrayType>parameter.type).getElementType();
                         ellipsisType = toType;
