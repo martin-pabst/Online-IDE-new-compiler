@@ -5,6 +5,7 @@ import { UsagePosition } from "../../common/UsagePosition.ts";
 import { JavaLanguage } from "../JavaLanguage.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
 import * as monaco from 'monaco-editor'
+import { JavaMethod } from "../types/JavaMethod.ts";
 
 
 export class JavaRenameProvider extends BaseMonacoProvider implements monaco.languages.RenameProvider {
@@ -29,12 +30,17 @@ export class JavaRenameProvider extends BaseMonacoProvider implements monaco.lan
             return;
         }
 
+        let symbol = usagePosition.symbol;
+        if(usagePosition.symbol instanceof JavaMethod && usagePosition.symbol.isConstructor){
+            symbol = usagePosition.symbol.classEnumInterface;
+        }
+
         let edits: monaco.languages.IWorkspaceTextEdit[] = [];
 
         let ranges: Set<string> = new Set();
         for (let module of main.getCompiler().getAllModules()) {
 
-            let allUsagePositions = (<JavaCompiledModule>module).getUsagePositionsForSymbol(usagePosition?.symbol);
+            let allUsagePositions = (<JavaCompiledModule>module).getUsagePositionsForSymbol(symbol);
 
             if (!allUsagePositions) continue;
 

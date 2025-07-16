@@ -183,7 +183,10 @@ export class JavaMethod extends BaseSymbol {
         let decl: string = TokenTypeReadable[this.visibility] + " ";
         if (this.isStatic) decl += "static ";
         if (this.isFinal) decl += "final ";
-        decl += this.returnParameterType?.toString() + " " + this.identifier;
+        if(!this.isConstructor){
+            decl += this.returnParameterType?.toString() + " ";
+        }
+        decl += this.identifier;
         return decl + "(" + this.parameters.map(p => p.getDeclaration()).join(", ") + ")";
     }
 

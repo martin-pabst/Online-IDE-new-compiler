@@ -82,11 +82,17 @@ export class UsageTracker {
         let usagePositionsOnLine = this.lineToUsagePositionListMap.get(position.lineNumber);
         if (!usagePositionsOnLine) return undefined;
 
+        let bestUP: UsagePosition | undefined = undefined;
+
         for (let up of usagePositionsOnLine) {
-            if (Range.containsPosition(up.range, position)) return up;
+            if (Range.containsPosition(up.range, position)){
+                if(bestUP == null || up.range.endColumn - up.range.startColumn <= bestUP.range.endColumn - bestUP.range.startColumn){
+                    bestUP = up;
+                }
+            }
         }
 
-        return undefined;
+        return bestUP;
     }
 
     getUsagePositionsForSymbol(symbol: BaseSymbol) {

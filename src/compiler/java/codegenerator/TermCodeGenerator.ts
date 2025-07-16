@@ -273,6 +273,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
     
             return new StringCodeSnippet("null", node.range, klassType);
+        } 
+        
+        if(method) {
+            this.registerUsagePosition(method, node.klassIdentifierRange);
         }
 
 
