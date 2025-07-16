@@ -279,12 +279,12 @@ export class SpriteClass extends ShapeClass {
 
     _getWidth(): number {
         let sprite = <PIXI.Sprite>this.container;
-        return sprite.width * this.scaleFactor;
+        return sprite.width;
     }
 
     _getHeight(): number {
         let sprite = <PIXI.Sprite>this.container;
-        return sprite.height * this.scaleFactor;
+        return sprite.height;
     }
 
     _mj$copy$Shape$(t: Thread, callback: CallbackParameter){
