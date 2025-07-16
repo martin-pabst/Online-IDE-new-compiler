@@ -106,12 +106,12 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
             signatureInformationList = signatureInformationList.concat(keywordInfo);
         } else {
             let i = 0;
-            for (let method of methodCallPosition.possibleMethods) {
+            for (let method of methodCallPosition.possibleMethods.sort((m1, m2) => { return Math.sign(m2.parameters.length - m1.parameters.length)})) {
                 let m = <JavaMethod>method;
                 if (parameterIndex == 0 || m.parameters.length > parameterIndex) {
 
                     signatureInformationList.push(JavaSignatureHelpProvider.makeSignatureInformation(m));
-                    if (m == methodCallPosition.bestMethod) {
+                    if (m == methodCallPosition.bestMethod && m.parameters.length > 0) {
                         activeSignature = i;
                     }
                     i++;
