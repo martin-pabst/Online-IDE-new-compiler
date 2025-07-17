@@ -7,6 +7,8 @@ import { Main } from "../Main.ts";
 import { MainBase } from "../MainBase.ts";
 import { FileTypeManager } from "../../../compiler/common/module/FileTypeManager.ts";
 import * as monaco from 'monaco-editor'
+import { JavaCompiledModule, JavaMethodCallPosition } from '../../../compiler/java/module/JavaCompiledModule.ts';
+import { Range } from '../../../compiler/common/range/Range.ts';
 
 export type HistoryEntry = {
     file_id: number,
@@ -180,22 +182,26 @@ export class Editor {
         this.editor.onDidChangeCursorPosition((event) => {
 
             let currentModelId = (<GUIFile | undefined>this.main.getCurrentWorkspace()?.getCurrentlyEditedFile())?.id;
-            if (currentModelId == null) return;
-            let pushNeeded = this.lastPosition == null
-                || event.source == "api"
-                || currentModelId != this.lastPosition.file_id
-                || Math.abs(this.lastPosition.position.lineNumber - event.position.lineNumber) > 20;
+            if (currentModelId != null) {
+                let pushNeeded = this.lastPosition == null
+                    || event.source == "api"
+                    || currentModelId != this.lastPosition.file_id
+                    || Math.abs(this.lastPosition.position.lineNumber - event.position.lineNumber) > 20;
 
-            if (pushNeeded && this.dontPushNextCursorMove == 0) {
-                this.pushHistoryState(false, this.getPositionForHistory());
-            } else if (currentModelId == history.state?.module_id) {
+                if (pushNeeded && this.dontPushNextCursorMove == 0) {
+                    this.pushHistoryState(false, this.getPositionForHistory());
+                } else if (currentModelId == history.state?.module_id) {
 
-                this.pushHistoryState(true, this.getPositionForHistory());
+                    this.pushHistoryState(true, this.getPositionForHistory());
+                }
             }
 
             that.onEvaluateSelectedText(event);
 
+            that.onShowSignatureHelp(event);
+
         });
+
 
         // We need this to set our model after user uses Strg+click on identifier
         this.editor.onDidChangeModel((event) => {
@@ -239,7 +245,42 @@ export class Editor {
         return this.editor;
     }
 
-    createContextKeys(){
+    lastMethodCallPosition: JavaMethodCallPosition | undefined;
+    async onShowSignatureHelp(event: monaco.editor.ICursorPositionChangedEvent) {
+
+        let model = this.editor.getModel();
+        let module: JavaCompiledModule;
+
+
+        let onlineIDEConsole = this.main.getBottomDiv()?.console;
+        if (onlineIDEConsole?.editor?.getModel() != model) {
+            module = <JavaCompiledModule>this.main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
+        }
+
+        if (!module) return;
+
+        let methodCallPositions = module.methodCallPositions[event.position.lineNumber]
+            .filter(mcp => {
+                return mcp.identifierRange.endColumn < event.position.column && mcp.rightBracketPosition.column >= event.position.column;
+            });
+
+        if (methodCallPositions.length > 0) {
+            let firstMethodCallPosition = methodCallPositions[0];
+            if (firstMethodCallPosition != this.lastMethodCallPosition) {
+                this.lastMethodCallPosition = firstMethodCallPosition;
+                setTimeout(() => {
+                    this.editor.trigger("xy", "editor.action.triggerParameterHints", {});
+                }, 100)
+            }
+            return;
+        }
+
+        this.lastMethodCallPosition = undefined;
+
+    }
+
+
+    createContextKeys() {
         Object.values(SchedulerState).filter(v => typeof v == 'string').forEach(key =>
             this.main.getActionManager().registerEditorContextKey("Scheduler_" + key, this.editor.createContextKey("Scheduler_" + key, false))
         );
