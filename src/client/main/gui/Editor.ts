@@ -9,6 +9,7 @@ import { FileTypeManager } from "../../../compiler/common/module/FileTypeManager
 import * as monaco from 'monaco-editor'
 import { JavaCompiledModule, JavaMethodCallPosition } from '../../../compiler/java/module/JavaCompiledModule.ts';
 import { Range } from '../../../compiler/common/range/Range.ts';
+import { JavaMethod } from '../../../compiler/java/types/JavaMethod.ts';
 
 export type HistoryEntry = {
     file_id: number,
@@ -259,18 +260,28 @@ export class Editor {
 
         if (!module) return;
 
-        let methodCallPositions = module.methodCallPositions[event.position.lineNumber]
-            .filter(mcp => {
-                return mcp.identifierRange.endColumn < event.position.column && mcp.rightBracketPosition.column >= event.position.column;
+        let mcps = module.methodCallPositions[event.position.lineNumber];
+        if(!mcps) return;
+
+        let methodCallPositions = mcps.filter(mcp => {
+                return mcp.identifierRange.endColumn < event.position.column && mcp.rightBracketPosition.column >= event.position.column ;
             });
 
         if (methodCallPositions.length > 0) {
             let firstMethodCallPosition = methodCallPositions[0];
-            if (firstMethodCallPosition != this.lastMethodCallPosition) {
-                this.lastMethodCallPosition = firstMethodCallPosition;
-                setTimeout(() => {
-                    this.editor.trigger("xy", "editor.action.triggerParameterHints", {});
-                }, 100)
+            if (firstMethodCallPosition && firstMethodCallPosition != this.lastMethodCallPosition) {
+                let maxParameterCount: number = 0;
+                for(let m of firstMethodCallPosition.possibleMethods){
+                    if(m instanceof JavaMethod && m.parameters.length > maxParameterCount){
+                        maxParameterCount = m.parameters.length;
+                    }
+                }
+                if(maxParameterCount > 0){
+                    this.lastMethodCallPosition = firstMethodCallPosition;
+                    setTimeout(() => {
+                        this.editor.trigger("xy", "editor.action.triggerParameterHints", {});
+                    }, 10)
+                }
             }
             return;
         }
