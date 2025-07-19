@@ -246,6 +246,7 @@ export class Editor {
         return this.editor;
     }
 
+
     lastMethodCallPosition: JavaMethodCallPosition | undefined;
     async onShowSignatureHelp(event: monaco.editor.ICursorPositionChangedEvent) {
 
@@ -261,32 +262,43 @@ export class Editor {
         if (!module) return;
 
         let mcps = module.methodCallPositions[event.position.lineNumber];
-        if(!mcps) return;
+        if (!mcps) return;
 
         let methodCallPositions = mcps.filter(mcp => {
-                return mcp.identifierRange.endColumn < event.position.column && mcp.rightBracketPosition.column >= event.position.column ;
-            });
+            return mcp.identifierRange.endColumn < event.position.column && mcp.rightBracketPosition.column >= event.position.column;
+        });
 
         if (methodCallPositions.length > 0) {
             let firstMethodCallPosition = methodCallPositions[0];
-            if (firstMethodCallPosition && firstMethodCallPosition != this.lastMethodCallPosition) {
-                let maxParameterCount: number = 0;
-                for(let m of firstMethodCallPosition.possibleMethods){
-                    if(m instanceof JavaMethod && m.parameters.length > maxParameterCount){
-                        maxParameterCount = m.parameters.length;
+            if (firstMethodCallPosition) {
+                if (firstMethodCallPosition != this.lastMethodCallPosition) {
+                    let maxParameterCount: number = 0;
+                    if(Array.isArray(firstMethodCallPosition.possibleMethods)){
+                        for (let m of firstMethodCallPosition.possibleMethods) {
+                            if (m instanceof JavaMethod) {
+                                if (m.parameters.length > maxParameterCount) {
+                                    maxParameterCount = m.parameters.length;
+                                }
+                            } 
+                        }
+                    }
+
+                    // if(firstMethodCallPosition.possibleMethods.toString().indexOf("print") >= 0) maxParameterCount = 2;
+
+                    if (maxParameterCount > 1) {
+                        this.lastMethodCallPosition = firstMethodCallPosition;
+                        setTimeout(() => {
+                            this.editor.trigger("xy", "editor.action.triggerParameterHints", {});
+                        }, 10)
+                        return;
                     }
                 }
-                if(maxParameterCount > 0){
-                    this.lastMethodCallPosition = firstMethodCallPosition;
-                    setTimeout(() => {
-                        this.editor.trigger("xy", "editor.action.triggerParameterHints", {});
-                    }, 10)
-                }
+            } else {
+                this.lastMethodCallPosition = undefined;
             }
-            return;
         }
 
-        this.lastMethodCallPosition = undefined;
+        return;
 
     }
 
