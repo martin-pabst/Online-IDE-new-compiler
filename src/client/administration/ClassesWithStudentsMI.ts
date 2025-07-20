@@ -143,30 +143,40 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                         }
                     },
                     recid: "id",
-                    columns: [
+                    columns: this.isVidisSchool() ? 
+                    [
+                        {
+                            field: 'klasse', text: AdminMessages.classWord(), size: '10%', sortable: true, resizable: true
+                        },
+                        { field: 'username', text: AdminMessages.nickname(), size: '40%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n'},
+                        // { field: 'vidis_sub', text: AdminMessages.vidisID(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool()},
+                        { field: 'vidis_akronym', text: AdminMessages.vidisAbbreviation(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                        { field: 'vidis_klasse', text: AdminMessages.vidisClass(), size: '10%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' }
+                    ] : 
+                    [
                         { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
                         {
                             field: 'klasse', text: AdminMessages.classWord(), size: '10%', sortable: true, resizable: true
                         },
                         { field: 'username', text: this.isVidisSchool()?AdminMessages.nickname() : AdminMessages.username(), size: '40%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n'},
-                        { field: 'rufname', text: AdminMessages.firstName(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: this.isVidisSchool() },
-                        { field: 'familienname', text: AdminMessages.lastName(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: this.isVidisSchool() },
+                        { field: 'rufname', text: AdminMessages.firstName(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
+                        { field: 'familienname', text: AdminMessages.lastName(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n' },
                         { field: 'locked', text: AdminMessages.locked(), size: '10%', sortable: true, resizable: false, editable: { type: 'checkbox', style: 'text-align: center' } },
-                        { field: 'vidis_sub', text: AdminMessages.vidisID(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool()},
-                        { field: 'vidis_akronym', text: AdminMessages.vidisAbbreviation(), size: '25%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
-                        { field: 'vidis_klasse', text: AdminMessages.vidisClass(), size: '10%', sortable: true, resizable: true, editable: { type: 'text' }, sortMode: 'i18n', hidden: !this.isVidisSchool() },
                         {
                             field: 'id', text: 'PW', size: '40px', sortable: false, render: (e) => {
                                 return '<div class="pw_button" title="' + AdminMessages.changePassword() + '" data-recid="' + e.recid + '" style="visibility: hidden">PW!</div>';
-                            }, hidden: this.isVidisSchool()
+                            }
                         }
                     ],
-                    searches: [
-                        { field: 'username', label: this.isVidisSchool()?AdminMessages.nickname() : AdminMessages.username(), type: 'text' },
-                        { field: 'rufname', label: AdminMessages.firstName(), type: 'text' },
-                        { field: 'familienname', label: AdminMessages.lastName(), type: 'text' }
-                    ],
-                    sortData: [{ field: 'klasse', direction: 'asc' }, { field: 'familienname', direction: 'asc' }, { field: 'rufname', direction: 'asc' }, { field: 'vidis_akronym', direction: 'asc' }],
+                    // searches: [
+                    //     { field: 'username', label: this.isVidisSchool()?AdminMessages.nickname() : AdminMessages.username(), type: 'text' },
+                    //     { field: 'rufname', label: AdminMessages.firstName(), type: 'text' },
+                    //     { field: 'familienname', label: AdminMessages.lastName(), type: 'text' }
+                    // ],
+                    sortData: this.isVidisSchool() ?
+                    [{ field: 'username', direction: 'asc' }, { field: 'vidis_akronym', direction: 'asc' }]
+                    :
+                    [{ field: 'klasse', direction: 'asc' }, { field: 'familienname', direction: 'asc' }, { field: 'rufname', direction: 'asc' }, { field: 'vidis_akronym', direction: 'asc' }],
                     onAdd: (event) => { that.onAddStudent() },
                     onChange: (event) => { that.onUpdateStudent(event) },
                     onDelete: (event) => { that.onDeleteStudent(event) },
