@@ -38,7 +38,7 @@ export class GNGFigur extends ObjectClass implements IGNGEventListener {
         { type: "method", signature: "int WinkelGeben()", native: GNGFigur.prototype._winkelGeben, comment: "Gibt den Blickwinkel der Figur zurück." },
         { type: "method", signature: "int XPositionGeben()", template: '§1.center.x', comment: "Gibt x-Position der Figur zurück." },
         { type: "method", signature: "int YPositionGeben()", template: '§1.center.y', comment: "Gibt y-Position der Figur zurück." },
-        { type: "method", signature: "void SichtbarkeitSetzen()", native: GNGFigur.prototype._sichtbarkeitSetzen, comment: "Schaltet die Sichtbarkeit der Figur ein oder aus." },
+        { type: "method", signature: "void SichtbarkeitSetzen(boolean isSichtbar)", native: GNGFigur.prototype._sichtbarkeitSetzen, comment: "Schaltet die Sichtbarkeit der Figur ein oder aus." },
         { type: "method", signature: "void Entfernen()", native: GNGFigur.prototype._entfernen, comment: "Entfernt die Figur aus dem Zeichenfenster." },
         { type: "method", signature: "void GanzNachVornBringen()", native: GNGFigur.prototype._ganzNachVornBringen, comment: "Setzt das Grafikobjekt vor alle anderen." },
         { type: "method", signature: "void GanzNachHintenBringen()", native: GNGFigur.prototype._ganzNachHintenBringen, comment: "Setzt das Grafikobjekt hinter alle anderen." },
