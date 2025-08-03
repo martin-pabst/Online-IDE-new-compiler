@@ -42,6 +42,7 @@ import * as monaco from 'monaco-editor'
 import { OnlineIDEAccessImpl } from "./EmbeddedInterface.js";
 import { Tab } from "../../tools/TabManager.js";
 import { base64ToBytes } from "../../tools/Base64.js";
+import { Settings } from "../settings/Settings.js";
 
 
 type JavaOnlineConfig = {
@@ -102,6 +103,8 @@ export class MainEmbedded implements MainBase {
 
     compileRunsAfterCodeReset: number = 0;
 
+    settings: Settings;
+
     isEmbedded(): boolean { return true; }
 
     getCompiler(): Compiler {
@@ -150,6 +153,13 @@ export class MainEmbedded implements MainBase {
 
     getReplEditor(): monaco.editor.IStandaloneCodeEditor {
         return this.bottomDiv?.console.editor;
+    }
+
+    getSettings(): Settings {
+        if(!this.settings) {
+            this.settings = new Settings(undefined, {}, {});
+        }
+        return this.settings;
     }
 
     onCompilationFinished(executable: Executable | undefined): void {

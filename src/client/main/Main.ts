@@ -52,6 +52,7 @@ import { JUnitTestrunner } from '../../compiler/common/testrunner/JUnitTestrunne
 import { IPosition } from '../../compiler/common/range/Position.js';
 import * as monaco from 'monaco-editor'
 import { LanguageManager } from '../../tools/language/LanguageManager.js';
+import { Settings } from '../settings/Settings.js';
 
 
 export class Main implements MainBase {
@@ -104,6 +105,8 @@ export class Main implements MainBase {
 
     language: Language;
     interpreter: Interpreter;
+
+    settings: Settings;
 
     showFile(file?: CompilerFile): void {
         if (!file) return;
@@ -162,6 +165,10 @@ export class Main implements MainBase {
 
     setFileActive(file: GUIFile) {
         this.projectExplorer.setFileActive(file);
+    }
+
+    getSettings(): Settings {
+        return this.settings;
     }
 
     startupBeforeLogin() {

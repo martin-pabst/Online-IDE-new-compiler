@@ -8,6 +8,8 @@ type Language = {
     iconClass: string
 }
 
+export type TranslatedText = () => string;
+
 export var currentLanguageId: string = "de";
 export var languages: Language[] = [
     {

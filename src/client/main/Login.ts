@@ -14,6 +14,7 @@ import { AutoLogout } from './AutoLogout.js';
 import { SchedulerState } from "../../compiler/common/interpreter/SchedulerState.js";
 import * as monaco from 'monaco-editor';
 import { LoginMessages } from './language/MainLanguage.js';
+import { Settings } from '../settings/Settings.js';
 
 export class Login {
 
@@ -194,11 +195,13 @@ export class Login {
                         },
                         viewModes: null,
                         classDiagram: null,
-                        language: 'de'
+                        language: 'de',
+                        settings: {}
                     }
                 }
 
                 that.main.user = user;
+                that.main.settings = new Settings(user, response.classSettings, response.schoolSettings);
 
                 that.main.languagemanager.setLanguage(user.settings.language);
 

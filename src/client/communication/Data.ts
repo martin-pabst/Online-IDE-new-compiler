@@ -1,4 +1,5 @@
 import { SerializedClassDiagram } from "../main/gui/diagrams/classdiagram/ClassDiagram.js"
+import { SettingValues } from "../settings/SettingsMetadata.js";
 
 export interface BaseResponse {
     success: boolean;
@@ -19,7 +20,8 @@ export type UserSettings = {
     //    theme: string,  // old!
     viewModes: ViewModes,
     classDiagram: SerializedClassDiagram,
-    language: string
+    language: string,
+    settings: SettingValues, // user settings
 }
 
 export type ViewModes = {
@@ -107,12 +109,12 @@ export type UserData = {
 }
 
 export function getUserDisplayName(user: UserData, lastNameFirst: boolean = false): string {
-    if(user.vidis_akronym){
-        if(user.username && user.username.length > 0) return user.username;
+    if (user.vidis_akronym) {
+        if (user.username && user.username.length > 0) return user.username;
         return user.vidis_akronym;
     }
-    if(user.familienname?.length > 0 && user.rufname?.length > 0){
-        if(lastNameFirst) return user.familienname + ", " + user.rufname;
+    if (user.familienname?.length > 0 && user.rufname?.length > 0) {
+        if (lastNameFirst) return user.familienname + ", " + user.rufname;
         return user.rufname + " " + user.familienname;
     }
     return user.username;
@@ -199,7 +201,9 @@ export type LoginResponse = {
     workspaces: Workspaces,
     isTestuser: boolean,
     activePruefung: Pruefung,
-    sqlIdeForOnlineIdeClient: string
+    sqlIdeForOnlineIdeClient: string,
+    classSettings: SettingValues, // settings for class if user is student
+    schoolSettings: SettingValues // settings for school
 }
 
 export type CheckIfPruefungIsRunningResponse = {
@@ -812,7 +816,7 @@ export type UploadSpriteResponse = {
 }
 
 export type PruefungState = "preparing" | "running" | "correcting" | "opening";
-export var PruefungCaptions: {[index: string]: string} = {
+export var PruefungCaptions: { [index: string]: string } = {
     "preparing": "Vorbereitung",
     "running": "Prüfung läuft",
     "correcting": "Korrektur",
@@ -854,7 +858,7 @@ export type GetPruefungStudentStatesRequest = {
 export type GetPruefungStudentStatesResponse = {
     success: boolean,
     pruefungState: string,
-    pruefungStudentStates: {[id: number]: StudentPruefungStateInfo},
+    pruefungStudentStates: { [id: number]: StudentPruefungStateInfo },
     message: string
 }
 
