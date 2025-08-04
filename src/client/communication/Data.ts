@@ -925,3 +925,24 @@ export type GetSpritesheetIdForWorkspaceResponse = {
     spritesheet_id: number
 }
 
+export type GetSettingsRequest = {
+
+}
+
+export type GetSettingsResponse = {
+    success: boolean,
+    classSettings: {classId: number, className: number, settings: SettingValues}[] | null, // settings for classes if user is teacher
+    schoolSettings: SettingValues | null // settings for school if user is schooladmin
+}
+
+export type AlterSettingsRequest = {
+    userSettings: SettingValues | null, // user settings
+    classSettings: {classId: number, settings: SettingValues}[] | null, // settings for classes if user is teacher
+    schoolSettings: SettingValues | null // settings for school if user is schooladmin
+}
+
+export type AlterSettingsResponse = {
+    success: boolean,
+    message: string
+}
+
