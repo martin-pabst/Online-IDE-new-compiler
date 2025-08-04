@@ -20,3 +20,28 @@
    * translation-functions for name, description, values
    * group of settings with translation-function for name, description
 
+
+
+Layout:
+
+
+Heading
+
+My Settings   Class Settings <DropDown>  School Settings
+-----------
+------------------------------------------------------------------------------
+             |    MainGroup-description
+MainGroup1   |    
+             |    SubGroup1-Heading
+MainGroup2   |    SubGroup1-description
+             |    
+MainGroup3   |    Setting1-Identifier
+             |    Setting1-Description
+...          |    ...
+                  
+                  SubGroup2-Heading
+                  SubGroup2-Description
+
+                  Setting1-Identifier
+                  Setting1-Description
+                  

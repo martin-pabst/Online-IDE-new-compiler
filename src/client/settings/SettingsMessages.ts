@@ -3,6 +3,30 @@ import { lm } from "../../tools/language/LanguageManager";
 export class SettingsMessages {
 
 
+    static SettingsHeading = () => lm({
+        'de': 'Einstellungen',
+        'en': 'Settings',
+        'fr': 'Paramètres'
+    })
+
+    static UserSettingsTabHeading = () => lm({
+        'de': 'Meine Einstellungen',
+        'en': 'My Settings',
+        'fr': 'Mes paramètres'
+    });
+
+    static ClassSettingsTabHeading = () => lm({
+        'de': 'Klassen-Einstellungen',
+        'en': 'Class Settings',
+        'fr': 'Paramètres de la classe'
+    });
+
+    static SchoolSettingsTabHeading = () => lm({
+        'de': 'Schul-Einstellungen',
+        'en': 'School Settings',
+        'fr': 'Paramètres de l\'école'
+    });
+
     static ScopeUser = () => lm({
         'de': 'Benutzer',
         'en': 'User',

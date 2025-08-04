@@ -1,7 +1,7 @@
 import { TranslatedText } from "../../tools/language/LanguageManager";
 import { SettingsMessages } from "./SettingsMessages";
 
-export type SettingScope = 'user' | 'class' | 'school' | 'default';
+export type SettingsScope = 'user' | 'class' | 'school' | 'default';
 
 export type SettingKey = "editor.hoverVerbosity.showHelpOnKeywordsAndOperators" |
     "editor.hoverVerbosity.showMethodDeclaration" |
@@ -15,7 +15,7 @@ export type SettingsMetadataType = 'setting' | 'group';
 export type SettingMetadata = {
     key: SettingKey;
     settingType: 'setting',
-    scopes?: SettingScope[]; // Optional scopes for the setting
+    scopes?: SettingsScope[]; // Optional scopes for the setting
     name: TranslatedText;
     description: TranslatedText | undefined;
     type: 'string' | 'number' | 'boolean';
@@ -26,7 +26,7 @@ export type SettingMetadata = {
 
 export type GroupOfSettingMetadata = {
     settingType: 'group';
-    scopes?: SettingScope[]; // Optional scopes for the group
+    scopes?: SettingsScope[]; // Optional scopes for the group
     name: TranslatedText;
     description: TranslatedText | undefined;
     settings: (SettingMetadata | GroupOfSettingMetadata)[];

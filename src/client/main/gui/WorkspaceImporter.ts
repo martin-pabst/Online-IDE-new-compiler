@@ -23,7 +23,7 @@ export class WorkspaceImporter {
 
     show() {
         let that = this;
-        this.dialog.init();
+        this.dialog.initAndOpen();
         this.dialog.heading(WorkspaceImporterMessages.importWorkspace());
         this.dialog.description(WorkspaceImporterMessages.importWorkspaceDescription())
         let pathDescription = WorkspaceImporterMessages.pathDescription1();

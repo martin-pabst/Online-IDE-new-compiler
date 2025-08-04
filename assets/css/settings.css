@@ -1,0 +1,17 @@
+.jo_settingsTabBody {
+    flex: 1;
+    display: flex;
+    flex-direction: row; 
+    border-top: 1px solid #888;
+}
+
+.jo_settingsLeftMenu {
+    width: 10em;
+    border-right: 1px solid #888;
+}
+
+.jo_settingsMain {
+    flex: 1;
+    height: 100%;
+    overflow: auto;
+}

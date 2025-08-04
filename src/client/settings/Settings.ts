@@ -1,18 +1,18 @@
 import { SettingsMessages } from "./SettingsMessages";
 import { TranslatedText } from "../../tools/language/LanguageManager";
-import { AllSettingsMetadata, GroupOfSettingMetadata, SettingKey, SettingMetadata, SettingScope, SettingValue, SettingValues } from "./SettingsMetadata";
+import { AllSettingsMetadata, GroupOfSettingMetadata, SettingKey, SettingMetadata, SettingsScope, SettingValue, SettingValues } from "./SettingsMetadata";
 import { UserData } from "../communication/Data";
 
 export class Settings {
 
-    hierarchy: SettingScope[] = ['user', 'class', 'school', 'default'];
+    hierarchy: SettingsScope[] = ['user', 'class', 'school', 'default'];
     hieararchyTexts: TranslatedText[] = [
         SettingsMessages.ScopeUser,
         SettingsMessages.ScopeClass,
         SettingsMessages.ScopeSchool
     ];
 
-    values: Record<SettingScope, SettingValues> = {
+    values: Record<SettingsScope, SettingValues> = {
         user: {},
         class: {},
         school: {},
@@ -46,11 +46,11 @@ export class Settings {
         }
     }
 
-    public setValue(scope: SettingScope, key: SettingKey, value: SettingValue) {
+    public setValue(scope: SettingsScope, key: SettingKey, value: SettingValue) {
         this.values[scope][key] = value;
     }
 
-    public getValue(key: SettingKey, scope?: SettingScope): SettingValue | undefined {
+    public getValue(key: SettingKey, scope?: SettingsScope): SettingValue | undefined {
         if(scope) {
             return this.values[scope][key];
         } 

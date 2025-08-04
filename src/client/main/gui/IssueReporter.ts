@@ -25,7 +25,7 @@ export class IssueReporter {
 
     show() {
         let that = this;
-        this.dialog.init();
+        this.dialog.initAndOpen();
         this.dialog.heading(IssueReporterMessages.reportBug());
         this.dialog.description(IssueReporterMessages.bugReport() + ":")
 

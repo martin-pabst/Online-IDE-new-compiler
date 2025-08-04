@@ -51,7 +51,7 @@ export class PasswordChanger {
     }
 
     show() {
-        this.dialog.init();
+        this.dialog.initAndOpen();
         this.dialog.heading(UserMenuMessages.changePassword());
         this.dialog.description(UserMenuMessages.changePasswordDescription())
         let $oldPassword = this.dialog.input("password", UserMenuMessages.oldPassword());

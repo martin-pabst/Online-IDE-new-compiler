@@ -15,7 +15,7 @@ export class Dialog {
     $dialogMain: JQuery<HTMLElement>;
     $dialogFooter: JQuery<HTMLElement>;
 
-    init() {
+    initAndOpen() {
         this.$dialog = jQuery('#dialog');
         this.$dialog.empty();
         jQuery('#main').css('visibility', 'hidden');

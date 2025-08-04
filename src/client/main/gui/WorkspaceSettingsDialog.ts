@@ -16,7 +16,7 @@ export class WorkspaceSettingsDialog{
 
     open(){
         let dialog = new Dialog();
-        dialog.init();
+        dialog.initAndOpen();
         dialog.heading(WorkspaceSettingsDialogMessages.workspaceSettings(this.workspace.name));
         dialog.subHeading(WorkspaceSettingsDialogMessages.usedLibraries());
 

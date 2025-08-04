@@ -10,7 +10,7 @@ export class TabManager {
     tabs: Tab[] = [];
 
 
-    constructor(private container: HTMLElement) {
+    constructor(private container: HTMLElement, public sharedBody: boolean = false) {
         this.container.classList.add('jo_tabs_container');
 
         this.headingsDiv = document.createElement('div');
@@ -31,7 +31,9 @@ export class TabManager {
         tab.tabManager = this;
         this.tabs.push(tab);
         this.headingsDiv.insertBefore(tab.headingDiv, this.tabheadingRightDiv);
-        this.bodiesDiv.appendChild(tab.bodyDiv);
+        if(!this.sharedBody){
+            this.bodiesDiv.appendChild(tab.bodyDiv);
+        }
     }
 
     insertIntoRightDiv(element: HTMLElement){
@@ -43,11 +45,11 @@ export class TabManager {
         for (let tab1 of this.tabs) {
             if(tab1 == tab) continue;
             tab1.headingDiv.classList.remove('jo_active');
-            tab1.bodyDiv.style.display = 'none';
+            if(!this.sharedBody) tab1.bodyDiv.style.display = 'none';
         }
 
         tab.headingDiv.classList.add('jo_active');
-        tab.bodyDiv.style.display = 'flex'
+        if(!this.sharedBody) tab.bodyDiv.style.display = 'flex'
 
     }
 
@@ -59,7 +61,7 @@ export class Tab {
     tabManager: TabManager;
     onShow: () => void;
 
-    constructor(caption: string, cssClasses: string[] = []) {
+    constructor(caption: string, cssClasses: string[] = [], withoutBody: boolean = false) {
         this.headingDiv = document.createElement('div');
         this.headingDiv.classList.add('jo_tabheading');
         this.headingDiv.textContent = caption;
@@ -67,10 +69,12 @@ export class Tab {
         this.headingDiv.onclick = (ev: MouseEvent) => {
             this.show();
         }
-
-        this.bodyDiv = document.createElement('div');
-        this.bodyDiv.classList.add('jo_tab');
-        for(let cssClass of cssClasses) this.bodyDiv.classList.add(cssClass);
+        
+        if(!withoutBody) {  
+            this.bodyDiv = document.createElement('div');
+            this.bodyDiv.classList.add('jo_tab');
+            for(let cssClass of cssClasses) this.bodyDiv.classList.add(cssClass);        
+        }
 
     }
 
