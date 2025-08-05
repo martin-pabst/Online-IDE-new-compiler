@@ -15,3 +15,13 @@
     height: 100%;
     overflow: auto;
 }
+
+.jo_settingsSelect {
+    background-color: inherit;
+    color: inherit;
+}
+
+.jo_settingsSelect option {
+    background-color: var(--backgroundDark);
+}
+

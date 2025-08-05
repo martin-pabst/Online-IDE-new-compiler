@@ -931,7 +931,7 @@ export type GetSettingsRequest = {
 
 export type GetSettingsResponse = {
     success: boolean,
-    classSettings: {classId: number, className: number, settings: SettingValues}[] | null, // settings for classes if user is teacher
+    classSettings: {classId: number, className: string, settings: SettingValues}[] | null, // settings for classes if user is teacher
     schoolSettings: SettingValues | null // settings for school if user is schooladmin
 }
 

@@ -2,6 +2,11 @@ import { lm } from "../../tools/language/LanguageManager";
 
 export class SettingsMessages {
 
+    static CloseButton = () => lm({
+        'de': 'Schließen',
+        'en': 'Close',
+        'fr': 'Fermer'
+    });
 
     static SettingsHeading = () => lm({
         'de': 'Einstellungen',
@@ -16,9 +21,9 @@ export class SettingsMessages {
     });
 
     static ClassSettingsTabHeading = () => lm({
-        'de': 'Klassen-Einstellungen',
-        'en': 'Class Settings',
-        'fr': 'Paramètres de la classe'
+        'de': 'Klassen-Einstellungen für ',
+        'en': 'Class Settings for ',
+        'fr': 'Paramètres de la classe pour '
     });
 
     static SchoolSettingsTabHeading = () => lm({

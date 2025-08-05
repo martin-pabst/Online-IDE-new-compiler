@@ -10,6 +10,8 @@ import { WorkspaceImporterExporter } from "../../workspace/WorkspaceImporterExpo
 import { IssueReporter } from "./IssueReporter.js";
 import * as monaco from 'monaco-editor'
 import { GuiMessages } from "./language/GuiMessages.js";
+import { Settings } from "../../settings/Settings.js";
+import { SettingsGUI } from "../../settings/SettingsGUI.js";
 
 
 declare var BUILD_DATE: string;
@@ -36,7 +38,7 @@ type MenuItem = {
 export class MainMenu {
 
     constructor(private main: Main) {
-        
+
     }
 
     currentSubmenu: { [level: number]: JQuery<HTMLElement> } = {};
@@ -61,17 +63,17 @@ export class MainMenu {
                                 identifier: GuiMessages.ExportCurrentWorkspace(),
                                 action: async () => {
                                     let ws: Workspace = this.main.currentWorkspace;
-                                    if(ws == null){
+                                    if (ws == null) {
                                         alert(GuiMessages.NoWorkspaceSelected());
                                     }
                                     let name: string = ws.name.replace(/\//g, "_");
                                     let pruefung = this.main.pruefungManagerForStudents?.pruefung;
                                     let user = this.main.user;
-                                    if(pruefung != null){
+                                    if (pruefung != null) {
                                         name = pruefung.name.replace(/\//g, "_") + " (" + user.familienname + " " + user.rufname + "; " + user.username + ")";
                                     }
                                     downloadFile(await WorkspaceImporterExporter.exportWorkspace(ws), name + ".json");
-                                 }
+                                }
                             },
                             {
                                 identifier: GuiMessages.ExportAllWorkspaces(),
@@ -80,12 +82,8 @@ export class MainMenu {
                                     let user = this.main.user;
                                     let workspaces = await WorkspaceImporterExporter.exportAllWorkspaces(this.main);
                                     downloadFile(workspaces, name + ".json");
-                                 }
-                            },
-                            {
-                                identifier: GuiMessages.SaveAndExit(),
-                                action: () => { jQuery('#buttonLogout').trigger("click"); }
-                            },
+                                }
+                            }
 
                         ]
                     }
@@ -167,11 +165,13 @@ export class MainMenu {
                             { identifier: GuiMessages.ZoomNormal(), action: () => { this.main.editor.setFontSize(14); } },
                             { identifier: GuiMessages.ZoomIn(), action: () => { this.main.editor.changeEditorFontSize(4); } },
                             { identifier: "-" },
-                            { identifier: GuiMessages.LinebreakOnOff(), action: () => {
-                                let wordWrap = this.main.editor.editor.getOption(monaco.editor.EditorOption.wordWrap);
-                                wordWrap = wordWrap == "on" ? "off" : "on";
-                                this.main.editor.editor.updateOptions({wordWrap: wordWrap});
-                            } },
+                            {
+                                identifier: GuiMessages.LinebreakOnOff(), action: () => {
+                                    let wordWrap = this.main.editor.editor.getOption(monaco.editor.EditorOption.wordWrap);
+                                    wordWrap = wordWrap == "on" ? "off" : "on";
+                                    this.main.editor.editor.updateOptions({ wordWrap: wordWrap });
+                                }
+                            },
 
                         ]
                     }
@@ -336,6 +336,20 @@ export class MainMenu {
             }
             )
         }
+
+        mainMenu.items[0].subMenu.items.push({
+            identifier: GuiMessages.Settings(),
+            action: () => {
+                let settingsGUI = new SettingsGUI(that.main);
+                settingsGUI.open();
+            }
+        },
+            {
+                identifier: GuiMessages.SaveAndExit(),
+                action: () => { jQuery('#buttonLogout').trigger("click"); }
+            }
+
+        );
 
         jQuery('#mainmenu').empty();
         this.initMenu(mainMenu, 0);

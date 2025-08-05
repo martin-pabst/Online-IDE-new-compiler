@@ -50,6 +50,12 @@ export class GuiMessages {
         "fr": "Exporter tous les espaces de travail",
     })
 
+    static Settings = () => lm({
+        "de": "Einstellungen",
+        "en": "Settings",
+        "fr": "Paramètres",
+    })
+
     static SaveAndExit = () => lm({
         "de": "Speichern und beenden",
         "en": "Save and exit",
