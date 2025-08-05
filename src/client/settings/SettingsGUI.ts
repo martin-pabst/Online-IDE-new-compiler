@@ -19,6 +19,8 @@ export class SettingsGUI {
     currentSettings: SettingValues | null = null; // current settings for the selected scope
     currentClassId: number | null = null; // current class id if scope is class
 
+    $settingsLeftMenuDiv: JQuery<HTMLDivElement>; // left menu for settings tabs
+    $settingsMainDiv: JQuery<HTMLDivElement>; // main div for settings content
 
     constructor(private main: Main) {
         this.userSettings = main.user.settings.settings || {};
@@ -37,11 +39,11 @@ export class SettingsGUI {
         let $tabBody = jQuery('<div class="jo_settingsTabBody"></div>');
         dialog.addDiv($tabBody);
 
-        let $settingsLeftMenuDiv = jQuery('<div class="jo_settingsLeftMenu"></div>');
-        $tabBody.append($settingsLeftMenuDiv);
+        this.$settingsLeftMenuDiv = jQuery('<div class="jo_settingsLeftMenu"></div>');
+        $tabBody.append(this.$settingsLeftMenuDiv);
 
-        let $settingsMainDiv = jQuery('<div class="jo_settingsMain jo_scrollable"></div>');
-        $tabBody.append($settingsMainDiv);
+        this.$settingsMainDiv = jQuery('<div class="jo_settingsMain jo_scrollable"></div>');
+        $tabBody.append(this.$settingsMainDiv);
 
         let tabManager = new TabManager($tabDiv[0], true);
 
@@ -88,7 +90,9 @@ export class SettingsGUI {
     }
 
     showTab(scope: SettingsScope) {
-
+        this.$settingsLeftMenuDiv.empty();
+        this.$settingsMainDiv.empty();
+        
     }
 
 
