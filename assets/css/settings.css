@@ -6,7 +6,7 @@
 }
 
 .jo_settingsLeftMenu {
-    width: 10em;
+    width: 15em;
     border-right: 1px solid #888;
 }
 
@@ -14,6 +14,7 @@
     flex: 1;
     height: 100%;
     overflow: auto;
+    padding: 10px;
 }
 
 .jo_settingsSelect {
@@ -23,5 +24,11 @@
 
 .jo_settingsSelect option {
     background-color: var(--backgroundDark);
+}
+
+.jo_settingsGroupCaption {
+    font-size: 150%;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 

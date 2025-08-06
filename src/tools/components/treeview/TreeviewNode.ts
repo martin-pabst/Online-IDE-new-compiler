@@ -244,11 +244,11 @@ export class TreeviewNode<E> {
 
                 if(this.treeview.config.withSelection){
                     ev.stopPropagation();
-                    if (!ev.shiftKey && !ev.ctrlKey) {
+                    if (!this.treeview.config.selectMultiple || (!ev.shiftKey && !ev.ctrlKey)) {
                         this.treeview.unselectAllNodes();
                     }
 
-                    if (ev.shiftKey) {
+                    if (ev.shiftKey && this.treeview.config.selectMultiple) {
                         this.treeview.expandSelectionTo(this);
                     } else {
                         this.treeview.setLastSelectedElement(this);

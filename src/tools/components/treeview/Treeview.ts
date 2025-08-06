@@ -29,7 +29,8 @@ export type TreeviewConfig<E> = {
     defaultIconClass?: string,
 
     initialExpandCollapseState?: ExpandCollapseState,
-    withSelection: boolean
+    withSelection: boolean,
+    selectMultiple?: boolean
 }
 
 
@@ -162,7 +163,8 @@ export class Treeview<E> {
             buttonAddFolders: true,
             buttonAddElements: true,
             buttonAddElementsCaption: "Elemente hinzufügen",
-            withSelection: true
+            withSelection: true,
+            selectMultiple: true
         }
 
         this._lastExpandedHeight = config?.minHeight!;
