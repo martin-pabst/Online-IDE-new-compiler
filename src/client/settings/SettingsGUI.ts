@@ -4,7 +4,7 @@ import { GetSettingsResponse } from "../communication/Data.ts";
 import { Dialog } from "../main/gui/Dialog.ts";
 import { Main } from "../main/Main.ts";
 import { SettingsMessages } from "./SettingsMessages.ts";
-import { AllSettingsMetadata, GroupOfSettingMetadata, SettingsScope, SettingValues } from "./SettingsMetadata.ts";
+import { AllSettingsMetadata, GroupOfSettingMetadata, SettingMetadata, SettingsScope, SettingValues } from "./SettingsMetadata.ts";
 import jQuery from 'jquery';
 import '/assets/css/settings.css';
 import { setSelectItems } from "../../tools/HtmlTools.ts";
@@ -103,9 +103,18 @@ export class SettingsGUI {
         if(!this.currentSettingsGroup) return;
 
         this.$settingsMainDiv.append(jQuery(`<div class="jo_settingsGroupCaption">${this.currentSettingsGroup.name()}</div>`));
-        this.$settingsMainDiv.append(jQuery(`<div>${this.currentSettingsGroup.description()}</div>`));
+        if(this.currentSettingsGroup.description) this.$settingsMainDiv.append(jQuery(`<div style="margin-bottom: 10px">${this.currentSettingsGroup.description()}</div>`));
 
+        for(let setting of this.currentSettingsGroup.settings.filter(s => s.settingType == 'setting')){
+            let $settingDiv = jQuery(`<div class="jo_settingDiv"></div>`);
+            this.$settingsMainDiv.append($settingDiv);
+            this.renderSetting(setting, $settingDiv);
+        }
+    }
 
+    renderSetting(setting: SettingMetadata, $settingDiv: JQuery<HTMLElement>) {
+        $settingDiv.append(jQuery(`<div class="jo_settingCaption">${setting.name()}</div>`));
+        if(setting.description) $settingDiv.append(jQuery(`<div>${setting.description()}</div>`)); 
     }
 
 
