@@ -4,7 +4,7 @@ import { GetSettingsResponse } from "../communication/Data.ts";
 import { Dialog } from "../main/gui/Dialog.ts";
 import { Main } from "../main/Main.ts";
 import { SettingsMessages } from "./SettingsMessages.ts";
-import { AllSettingsMetadata, GroupOfSettingMetadata, SettingMetadata, SettingsScope, SettingValues } from "./SettingsMetadata.ts";
+import { AllSettingsMetadata, GroupOfSettingMetadata, SettingMetadata, SettingsScope, SettingValue, SettingValues } from "./SettingsMetadata.ts";
 import jQuery from 'jquery';
 import '/assets/css/settings.css';
 import { setSelectItems } from "../../tools/HtmlTools.ts";
@@ -14,6 +14,7 @@ import { TreeviewNode } from "../../tools/components/treeview/TreeviewNode.ts";
 export class SettingsGUI {
 
     userSettings: SettingValues | null; // settings for user 
+    ownClassSettings?: SettingValues | null;
     classSettings?: { classId: number, className: string, settings: SettingValues }[] | null; // settings for classes if user is teacher
     schoolSettings?: SettingValues | null; // settings for school if user is schooladmin
 
@@ -97,15 +98,15 @@ export class SettingsGUI {
     }
 
     showSettingsData(scope?: SettingsScope) {
-        if(scope) this.currentScope = scope;
+        if (scope) this.currentScope = scope;
         this.$settingsMainDiv.empty();
 
-        if(!this.currentSettingsGroup) return;
+        if (!this.currentSettingsGroup) return;
 
         this.$settingsMainDiv.append(jQuery(`<div class="jo_settingsGroupCaption">${this.currentSettingsGroup.name()}</div>`));
-        if(this.currentSettingsGroup.description) this.$settingsMainDiv.append(jQuery(`<div style="margin-bottom: 10px">${this.currentSettingsGroup.description()}</div>`));
+        if (this.currentSettingsGroup.description) this.$settingsMainDiv.append(jQuery(`<div style="margin-bottom: 10px">${this.currentSettingsGroup.description()}</div>`));
 
-        for(let setting of this.currentSettingsGroup.settings.filter(s => s.settingType == 'setting')){
+        for (let setting of this.currentSettingsGroup.settings.filter(s => s.settingType == 'setting')) {
             let $settingDiv = jQuery(`<div class="jo_settingDiv"></div>`);
             this.$settingsMainDiv.append($settingDiv);
             this.renderSetting(setting, $settingDiv);
@@ -114,9 +115,66 @@ export class SettingsGUI {
 
     renderSetting(setting: SettingMetadata, $settingDiv: JQuery<HTMLElement>) {
         $settingDiv.append(jQuery(`<div class="jo_settingCaption">${setting.name()}</div>`));
-        if(setting.description) $settingDiv.append(jQuery(`<div>${setting.description()}</div>`)); 
+        if (setting.description) $settingDiv.append(jQuery(`<div>${setting.description()}</div>`));
+
+        let key = setting.key;
+        let immediateSettingValue = this.getCurrentSettingValues()[key];
+        let defaultSettingValue = this.getDefaultSettingValue(key);
+
+        switch (setting.type) {
+            case 'boolean':
+                
+                break;
+        }
+
+
     }
 
+    appendSelectElement($parent: JQuery<HTMLElement>, options: string[], defaultValue: SettingValue, 
+        onChangedCallback: () => void
+    ): JQuery<HTMLSelectElement> {
+
+        let $selectElement: JQuery<HTMLSelectElement> = jQuery('<select class="jo_settingsSelect"></select>');
+
+        $parent.append($selectElement);
+
+        setSelectItems($selectElement, options.map(option => ({
+            value: option,
+            object: option,
+            caption: option
+        })).concat([{
+            value: 'default',
+            object: undefined,
+            caption: 'default(' + defaultValue + ')'
+        }]))
+
+        $selectElement.on('change', onChangedCallback);
+
+        return $selectElement;
+    }
+
+    getDefaultSettingValue(key: string) {
+        let value = this.getCurrentSettingValues()[key];
+        if (typeof value == 'undefined') {
+            if (this.currentScope == 'user' && this.ownClassSettings) {
+                value = this.ownClassSettings[key];
+            }
+            if (typeof value == 'undefined') {
+                value = this.schoolSettings[key];
+            }
+        }
+        return value;
+    }
+
+    getCurrentSettingValues(): SettingValues {
+        switch (this.currentScope) {
+            case 'user': return this.userSettings;
+            case 'class': if (this.ownClassSettings) return this.ownClassSettings;
+                return this.classSettings.find(cs => cs.classId == this.currentClassId)?.settings || {};
+            case 'school': return this.schoolSettings;
+        }
+        return {};
+    }
 
     initSettingsExplorer() {
         this.settingsExplorer = new Treeview(this.$settingsLeftMenuDiv[0], {
