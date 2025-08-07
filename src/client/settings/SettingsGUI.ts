@@ -7,9 +7,8 @@ import { SettingsMessages } from "./SettingsMessages.ts";
 import { AllSettingsMetadata, GroupOfSettingMetadata, SettingMetadata, SettingsScope, SettingValue, SettingValues } from "./SettingsMetadata.ts";
 import jQuery from 'jquery';
 import '/assets/css/settings.css';
-import { setSelectItems } from "../../tools/HtmlTools.ts";
+import { getSelectedObject, SelectItem, setSelectItems } from "../../tools/HtmlTools.ts";
 import { Treeview } from "../../tools/components/treeview/Treeview.ts";
-import { TreeviewNode } from "../../tools/components/treeview/TreeviewNode.ts";
 
 export class SettingsGUI {
 
@@ -123,6 +122,15 @@ export class SettingsGUI {
 
         switch (setting.type) {
             case 'boolean':
+                let optionCaptions: string[] = ["true", "false"];
+                if(setting.optionTexts) optionCaptions = setting.optionTexts.map(t => t());
+                optionCaptions.push("default: " + (defaultSettingValue ? optionCaptions[0] : optionCaptions[1]));
+                let optionValues: SettingValue[] = [true, false, defaultSettingValue]
+                this.appendSelectElement($settingDiv, optionCaptions, optionValues, immediateSettingValue, (selectedValue => {
+
+                }))
+                break;
+            case 'number':
                 
                 break;
         }
@@ -130,27 +138,37 @@ export class SettingsGUI {
 
     }
 
-    appendSelectElement($parent: JQuery<HTMLElement>, options: string[], defaultValue: SettingValue, 
-        onChangedCallback: () => void
-    ): JQuery<HTMLSelectElement> {
+    appendSelectElement($parent: JQuery<HTMLElement>, 
+        optionCaptions: string[], 
+        optionValues: SettingValue[],
+        selectedValue: SettingValue,   // undefined -> defaultCaption 
+        onChangedCallback: (selectedValue: SettingValue) => void
+    ){
 
         let $selectElement: JQuery<HTMLSelectElement> = jQuery('<select class="jo_settingsSelect"></select>');
 
         $parent.append($selectElement);
 
-        setSelectItems($selectElement, options.map(option => ({
-            value: option,
-            object: option,
-            caption: option
-        })).concat([{
-            value: 'default',
-            object: undefined,
-            caption: 'default(' + defaultValue + ')'
-        }]))
+        let selectItems: SelectItem[] = [];
+        for(let i = 0; i < optionValues.length; i++){
+            selectItems.push({
+                value: optionCaptions[i],
+                caption: optionCaptions[i],
+                object: optionValues[i]
+            })
+        }
 
-        $selectElement.on('change', onChangedCallback);
+        setSelectItems($selectElement, selectItems)
 
-        return $selectElement;
+        let selectedIndex: number = selectItems.findIndex(item => item.object === selectedValue);
+        $selectElement[0].selectedIndex = selectedIndex;
+
+        $selectElement.on('change', 
+            () => {
+                onChangedCallback(getSelectedObject($selectElement));
+            }
+        );
+
     }
 
     getDefaultSettingValue(key: string) {
