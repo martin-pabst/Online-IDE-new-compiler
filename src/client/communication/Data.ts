@@ -20,8 +20,7 @@ export type UserSettings = {
     //    theme: string,  // old!
     viewModes: ViewModes,
     classDiagram: SerializedClassDiagram,
-    language: string,
-    settings: SettingValues, // user settings
+    language: string
 }
 
 export type ViewModes = {
@@ -202,6 +201,7 @@ export type LoginResponse = {
     isTestuser: boolean,
     activePruefung: Pruefung,
     sqlIdeForOnlineIdeClient: string,
+    userSettings: SettingValues,   // new user settings
     classSettings: SettingValues, // settings for class if user is student
     schoolSettings: SettingValues // settings for school
 }
@@ -935,13 +935,14 @@ export type GetSettingsResponse = {
     schoolSettings: SettingValues | null // settings for school if user is schooladmin
 }
 
-export type AlterSettingsRequest = {
-    userSettings: SettingValues | null, // user settings
-    classSettings: {classId: number, settings: SettingValues}[] | null, // settings for classes if user is teacher
-    schoolSettings: SettingValues | null // settings for school if user is schooladmin
+export type UpdateSettingsDataRequest = {
+    userId?: number,
+    klasseId?: number,
+    schuleId?: number,
+    settings: SettingValues
 }
 
-export type AlterSettingsResponse = {
+export type UpdateSettingsDataResponse = {
     success: boolean,
     message: string
 }

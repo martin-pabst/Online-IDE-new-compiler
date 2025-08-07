@@ -195,13 +195,13 @@ export class Login {
                         },
                         viewModes: null,
                         classDiagram: null,
-                        language: 'de',
-                        settings: {}
+                        language: 'de'
                     }
                 }
 
                 that.main.user = user;
-                that.main.settings = new Settings(user, response.classSettings, response.schoolSettings);
+                that.main.settings = new Settings(user, 
+                    response.userSettings, response.classSettings, response.schoolSettings);
 
                 that.main.languagemanager.setLanguage(user.settings.language);
 

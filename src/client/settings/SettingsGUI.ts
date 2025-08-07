@@ -1,6 +1,6 @@
 import { Tab, TabManager } from "../../tools/TabManager.ts";
 import { ajaxAsync } from "../communication/AjaxHelper.ts";
-import { GetSettingsResponse } from "../communication/Data.ts";
+import { GetSettingsResponse, UpdateSettingsDataRequest, UpdateSettingsDataResponse, UpdateUserSettingsRequest } from "../communication/Data.ts";
 import { Dialog } from "../main/gui/Dialog.ts";
 import { Main } from "../main/Main.ts";
 import { SettingsMessages } from "./SettingsMessages.ts";
@@ -10,11 +10,13 @@ import '/assets/css/settings.css';
 import { getSelectedObject, SelectItem, setSelectItems } from "../../tools/HtmlTools.ts";
 import { Treeview } from "../../tools/components/treeview/Treeview.ts";
 
+type ClassSettings = { classId: number, className: string, settings: SettingValues };
+
 export class SettingsGUI {
 
     userSettings: SettingValues | null; // settings for user 
     ownClassSettings?: SettingValues | null;
-    classSettings?: { classId: number, className: string, settings: SettingValues }[] | null; // settings for classes if user is teacher
+    classSettings?: ClassSettings[] | null; // settings for classes if user is teacher
     schoolSettings?: SettingValues | null; // settings for school if user is schooladmin
 
     currentScope: SettingsScope = "user"; // current scope of settings, can be user, class or school
@@ -28,7 +30,9 @@ export class SettingsGUI {
     settingsExplorer: Treeview<GroupOfSettingMetadata>;
 
     constructor(private main: Main) {
-        this.userSettings = main.user.settings.settings || {};
+        this.userSettings = main.settings.values.user || {};
+        this.ownClassSettings = main.settings.values.class;
+        this.schoolSettings = main.settings.values.school;
     }
 
     async open() {
@@ -59,7 +63,9 @@ export class SettingsGUI {
 
         if (this.classSettings && this.classSettings.length > 0) {
             let classSettingsTab = new Tab(SettingsMessages.ClassSettingsTabHeading(), []);
-            classSettingsTab.onShow = () => { this.showSettingsData("class"); };
+            classSettingsTab.onShow = () => { 
+                this.showSettingsData("class"); 
+            };
             tabManager.addTab(classSettingsTab);
 
             let $selectElement: JQuery<HTMLSelectElement> = jQuery('<select class="jo_settingsSelect"></select>');
@@ -70,6 +76,16 @@ export class SettingsGUI {
                 object: cs,
                 caption: cs.className
             })));
+
+            this.currentClassId = this.classSettings[0].classId;
+
+            $selectElement.on('change', () => {
+                let cs: ClassSettings = getSelectedObject($selectElement);
+                this.currentClassId = cs.classId;
+                if(this.currentScope == 'class'){
+                    this.showSettingsData();
+                }
+            })
 
         }
 
@@ -92,8 +108,10 @@ export class SettingsGUI {
 
     async getSettingsFromServer() {
         let response = <GetSettingsResponse>await ajaxAsync("/servlet/getSettings", {})
-        this.classSettings = response.classSettings;
-        this.schoolSettings = response.schoolSettings;
+        if (response.success) {
+            this.classSettings = response.classSettings;
+            this.schoolSettings = response.schoolSettings;
+        }
     }
 
     showSettingsData(scope?: SettingsScope) {
@@ -117,40 +135,98 @@ export class SettingsGUI {
         if (setting.description) $settingDiv.append(jQuery(`<div>${setting.description()}</div>`));
 
         let key = setting.key;
-        let immediateSettingValue = this.getCurrentSettingValues()[key];
+        let currentSettingValue = this.getCurrentSettingValues()[key];
         let defaultSettingValue = this.getDefaultSettingValue(key);
 
         switch (setting.type) {
             case 'boolean':
                 let optionCaptions: string[] = ["true", "false"];
-                if(setting.optionTexts) optionCaptions = setting.optionTexts.map(t => t());
+                if (setting.optionTexts) optionCaptions = setting.optionTexts.map(t => t());
                 optionCaptions.push("default: " + (defaultSettingValue ? optionCaptions[0] : optionCaptions[1]));
-                let optionValues: SettingValue[] = [true, false, defaultSettingValue]
-                this.appendSelectElement($settingDiv, optionCaptions, optionValues, immediateSettingValue, (selectedValue => {
-
-                }))
+                let optionValues: SettingValue[] = [true, false, undefined]
+                this.appendSelectElement($settingDiv, optionCaptions, optionValues, currentSettingValue, 
+                    async (selectedValue, $savingMessage) => {
+                    await this.storeAndSave(setting.key, selectedValue, $savingMessage);
+                })
                 break;
-            case 'number':
-                
+            case 'string':
+                this.appendInputElement($settingDiv, <string>currentSettingValue, defaultSettingValue, 
+                    async (selectedValue, $savingMessage) => {
+                    await this.storeAndSave(setting.key, selectedValue, $savingMessage)
+                })
+                break;
+            case 'enumeration':
+                let optionCaptions1: string[] = setting.optionTexts.map(t => t());
+                optionCaptions1.push("default: " + defaultSettingValue);
+                let optionValues1: SettingValue[] = setting.optionValues.slice();
+                optionValues1.push(undefined);
+
+                this.appendSelectElement($settingDiv, optionCaptions, optionValues, currentSettingValue, 
+                    async (selectedValue, $savingMessage) => {
+                    await this.storeAndSave(setting.key, selectedValue, $savingMessage);
+                })
                 break;
         }
 
+    }
+
+    async storeAndSave(key: string, selectedValue: string | number | boolean, $savingMessage: JQuery<HTMLDivElement>) {
+        this.getCurrentSettingValues()[key] = selectedValue;
+        let request: UpdateSettingsDataRequest = {
+            userId: this.currentScope == 'user' ? this.main.user.id : undefined,
+            klasseId: this.currentScope == 'class' ? this.currentClassId : undefined,
+            schuleId: this.currentScope == 'school' ? this.main.user.schule_id : undefined,
+            settings: this.getCurrentSettingValues()
+        }
+
+        $savingMessage.text('saving...');
+        $savingMessage.css('color', 'var(--loginMessageColor)');
+        $savingMessage.show();
+        let response: UpdateSettingsDataResponse = await ajaxAsync('/servlet/updateSettings', request);
+        $savingMessage.text('-> saved✓');
+        $savingMessage.css('color', 'var(--loginButtonBackground)')
+    }
+
+    wrapWithSavingMessageAndAppendToParent($element: JQuery<HTMLElement>, $parent: JQuery<HTMLElement>): JQuery<HTMLDivElement>{
+        let $wrapper = jQuery(`<div class='jo_settingsWrapper'></div>`);
+        $wrapper.append($element);
+        let $savingMessage: JQuery<HTMLDivElement> = jQuery(`<div class='jo_settingsSavingMessage'>saving...</div>`);
+        $wrapper.append($savingMessage);
+        $savingMessage.hide();
+        $parent.append($wrapper);
+        return $savingMessage;
 
     }
 
-    appendSelectElement($parent: JQuery<HTMLElement>, 
-        optionCaptions: string[], 
+    appendInputElement($parent: JQuery<HTMLElement>, currentValue: string, defaultValue: string,
+        onChangedCallback: (selectedValue: SettingValue, $savingMessage: JQuery<HTMLDivElement>) => Promise<void>
+    ) {
+        let $inputElement: JQuery<HTMLInputElement> = jQuery(`<input type='text' placeholder='default: ${defaultValue}' class='jo_settingsInput'>`);
+        let $savingMessage = this.wrapWithSavingMessageAndAppendToParent($inputElement, $parent);
+        $inputElement.on('focusout', async () => {
+            let value = $inputElement.val();
+            if (value == '') value = undefined; // default-value!
+            await onChangedCallback(value, $savingMessage);
+        })
+
+        $inputElement.on('change', () => {
+            $savingMessage.hide();
+        })
+    }
+
+    appendSelectElement($parent: JQuery<HTMLElement>,
+        optionCaptions: string[],
         optionValues: SettingValue[],
         selectedValue: SettingValue,   // undefined -> defaultCaption 
-        onChangedCallback: (selectedValue: SettingValue) => void
-    ){
+        onChangedCallback: (selectedValue: SettingValue, $savingMessage: JQuery<HTMLDivElement>) => Promise<void>
+    ) {
 
         let $selectElement: JQuery<HTMLSelectElement> = jQuery('<select class="jo_settingsSelect"></select>');
 
-        $parent.append($selectElement);
+        let $savingMessage = this.wrapWithSavingMessageAndAppendToParent($selectElement, $parent);
 
         let selectItems: SelectItem[] = [];
-        for(let i = 0; i < optionValues.length; i++){
+        for (let i = 0; i < optionValues.length; i++) {
             selectItems.push({
                 value: optionCaptions[i],
                 caption: optionCaptions[i],
@@ -163,13 +239,14 @@ export class SettingsGUI {
         let selectedIndex: number = selectItems.findIndex(item => item.object === selectedValue);
         $selectElement[0].selectedIndex = selectedIndex;
 
-        $selectElement.on('change', 
-            () => {
-                onChangedCallback(getSelectedObject($selectElement));
+        $selectElement.on('change',
+            async () => {
+                await onChangedCallback(getSelectedObject($selectElement), $savingMessage);
             }
         );
 
     }
+
 
     getDefaultSettingValue(key: string) {
         let value = this.getCurrentSettingValues()[key];
@@ -180,6 +257,9 @@ export class SettingsGUI {
             if (typeof value == 'undefined') {
                 value = this.schoolSettings[key];
             }
+            if (typeof value == 'undefined') {
+                value = this.main.settings.values.default[key];
+            }
         }
         return value;
     }
@@ -187,7 +267,7 @@ export class SettingsGUI {
     getCurrentSettingValues(): SettingValues {
         switch (this.currentScope) {
             case 'user': return this.userSettings;
-            case 'class': if (this.ownClassSettings) return this.ownClassSettings;
+            case 'class': if (!(this.main.user.is_schooladmin || this.main.user.is_admin || this.main.user.is_teacher)) return this.ownClassSettings;
                 return this.classSettings.find(cs => cs.classId == this.currentClassId)?.settings || {};
             case 'school': return this.schoolSettings;
         }

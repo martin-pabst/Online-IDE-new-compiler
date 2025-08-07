@@ -2,12 +2,13 @@
     flex: 1;
     display: flex;
     flex-direction: row; 
-    border-top: 1px solid #888;
+    border-top: 1px solid #444;
 }
 
 .jo_settingsLeftMenu {
     width: 15em;
-    border-right: 1px solid #888;
+    border-right: 1px solid #444;
+    padding: 5px;
 }
 
 .jo_settingsMain {
@@ -22,8 +23,27 @@
     color: inherit;
 }
 
+.jo_settingsSelect:focus {
+    border-color: var(--file-active-border);
+    background-color: var(--file-active);
+    outline: none;
+    color: inherit;
+}
+
 .jo_settingsSelect option {
     background-color: var(--backgroundDark);
+    font-size: inherit;
+}
+
+.jo_settingsSelect option:hover {
+    background-color: var(--file-active);
+}
+
+.jo_settingsInput:focus {
+    border-color: var(--file-active-border);
+    background-color: var(--file-active);
+    outline: none;
+    color: inherit;
 }
 
 .jo_settingsGroupCaption {
@@ -40,6 +60,15 @@
 
 .jo_settingDiv {
     margin-left: 10px;
+    margin-bottom: 20px;
 }
 
+.jo_settingsSavingMessage {
+    margin-left: 10px;
+}
+
+.jo_settingsWrapper {
+    display: flex;
+    flex-direction: row;
+}
 

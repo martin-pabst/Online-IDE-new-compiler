@@ -18,7 +18,7 @@ export type SettingMetadata = {
     scopes?: SettingsScope[]; // Optional scopes for the setting
     name: TranslatedText;
     description: TranslatedText | undefined;
-    type: 'string' | 'number' | 'boolean';
+    type: 'enumeration' | 'string' | 'boolean';
     defaultValue?: SettingValue;
     optionValues?: string[]; // For string settings with predefined options
     optionTexts?: TranslatedText[]; // For string settings with translated options

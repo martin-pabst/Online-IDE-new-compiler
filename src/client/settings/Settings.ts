@@ -19,16 +19,16 @@ export class Settings {
         default: {}
     }
 
-    constructor(private user: UserData | undefined, classSettings: SettingValues | undefined, schoolSettings: SettingValues | undefined) {
+    constructor(private user: UserData | undefined, 
+        userSettings: SettingValues | undefined,
+        classSettings: SettingValues | undefined, schoolSettings: SettingValues | undefined) {
         // Initialize default values
         for (let setting of AllSettingsMetadata) {
             this.setDefaultValues(setting);
         }
 
-        if(user){
-            this.values.user = user.settings.settings || {};
-        }
-
+        
+        this.values.user = userSettings || {};
         this.values.class = classSettings || {};
         this.values.school = schoolSettings || {};
 
