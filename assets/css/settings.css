@@ -52,6 +52,10 @@
     margin-bottom: 5px;
 }
 
+.jo_settingsGroupDescription {
+    margin-bottom: 30px;
+}
+
 .jo_settingCaption {
     font-size: 120%;
     font-weight: bold;

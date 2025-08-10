@@ -244,7 +244,7 @@ export function setSelectItems($selectElement: JQuery<HTMLSelectElement>, items:
     $selectElement.empty();
     items.forEach(item => {
         let selected: string = (item.value == activeItemValue) ? ' selected="selected"' : "";
-        let element = jQuery(`<option value=${item.value}${selected}>${item.caption}</option>`);
+        let element = jQuery(`<option value="${item.value}"${selected}>${item.caption}</option>`);
         $selectElement.append(element);
         element.data('object', item.object);
     }

@@ -1,4 +1,5 @@
 import { BottomDiv } from "../../client/main/gui/BottomDiv.ts";
+import { Settings } from "../../client/settings/Settings.ts";
 import { GUIFile } from "../../client/workspace/File.ts";
 import { Workspace } from "../../client/workspace/Workspace.ts";
 import { Compiler } from "../common/Compiler.ts";
@@ -53,6 +54,8 @@ export interface IMain {
 
     hideDebugger(): void;
     showDebugger(): void;
+
+    getSettings(): Settings;
 
 
 }

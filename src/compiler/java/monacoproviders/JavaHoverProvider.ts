@@ -16,6 +16,7 @@ import { NonPrimitiveType } from "../types/NonPrimitiveType.ts";
 import * as monaco from 'monaco-editor'
 import { JavaSignatureHelpProvider } from "./JavaSignatureHelpProvider.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
+import { Settings } from "../../../client/settings/Settings.ts";
 
 
 export class JavaHoverProvider extends BaseMonacoProvider {
@@ -110,6 +111,7 @@ export class JavaHoverProvider extends BaseMonacoProvider {
         let contents: monaco.IMarkdownString[] = [];
         let range: monaco.IRange | undefined = undefined;
 
+        let settings = main.getSettings();
 
         for (let error of module.errors) {
             if (error.level == "error" && Range.containsPosition(error.range, position)) {
@@ -122,14 +124,28 @@ export class JavaHoverProvider extends BaseMonacoProvider {
 
 
         if (usagePosition && symbol && symbol.identifier != "var") {
-            if (symbol instanceof NonPrimitiveType || symbol instanceof JavaMethod) {
-                let declarationAsString1 = "```\n" + symbol.getDeclaration() + "\n```";
-                if (symbol.documentation) {
-                    declarationAsString1 += "\n" + this.formatDocumentation(symbol.getDocumentation());
+            if (symbol instanceof NonPrimitiveType) {
+                let md = settings.getValue('editor.hoverVerbosity.showClassDeclaration');
+                if (md !== 'none') {
+                    let declarationAsString1 = "```\n" + symbol.getDeclaration() + "\n```";
+                    if (symbol.documentation && md !== 'declarations') {
+                        declarationAsString1 += "\n" + this.formatDocumentation(symbol.getDocumentation());
+                    }
+                    range = usagePosition.range;
+                    contents.push({ value: declarationAsString1 });
                 }
-                range = usagePosition.range;
-                contents.push({ value: declarationAsString1 });
-            } else if (symbol instanceof PrimitiveType) {
+            } else if (symbol instanceof JavaMethod) {
+                let md = settings.getValue('editor.hoverVerbosity.showMethodDeclaration');
+                if (md !== 'none') {
+                    let declarationAsString1 = "```\n" + symbol.getDeclaration() + "\n```";
+                    if (symbol.documentation && md !== 'declarations') {
+                        declarationAsString1 += "\n" + this.formatDocumentation(symbol.getDocumentation());
+                    }
+                    range = usagePosition.range;
+                    contents.push({ value: declarationAsString1 });
+                }
+            }
+            else if (symbol instanceof PrimitiveType && settings.getValue('editor.hoverVerbosity.showHelpOnKeywordsAndOperators')) {
                 let declarationAsString2 = "```\n" + symbol.identifier + "\n```  \nprimitiver Datentyp";
                 if (symbol.documentation) {
                     declarationAsString2 += "\n" + this.formatDocumentation(symbol.getDocumentation());
@@ -151,7 +167,7 @@ export class JavaHoverProvider extends BaseMonacoProvider {
         } else {
             let word = this.getWordUnderCursor(model, position);
             let desc = JavaHoverProvider.keywordDescriptions[word];
-            if (desc != null) {
+            if (desc != null && settings.getValue('editor.hoverVerbosity.showHelpOnKeywordsAndOperators')) {
                 contents.push({ value: desc })
             }
         }
@@ -191,14 +207,14 @@ export class JavaHoverProvider extends BaseMonacoProvider {
             if (signatureHelp?.value) {
                 let sh = signatureHelp.value;
                 let signature = sh.signatures[sh.activeSignature];
-                if(signature){
+                if (signature) {
                     let label = signature.parameters[sh.activeParameter]?.label
                     let documentation = <string>signature.parameters[sh.activeParameter]?.documentation
                     if (!label) return null;
                     if (Array.isArray(label)) {
                         label = signature.label.substring(label[0], label[1]);
                     }
-                    if(signature[JavaSignatureHelpProvider.ISINTRINSIC]){
+                    if (signature[JavaSignatureHelpProvider.ISINTRINSIC]) {
                         contents.push({ value: documentation || label });
                     } else {
                         contents.push({ value: "```\nParameter " + label + "\n```" });

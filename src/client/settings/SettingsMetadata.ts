@@ -20,7 +20,7 @@ export type SettingMetadata = {
     description: TranslatedText | undefined;
     type: 'enumeration' | 'string' | 'boolean';
     defaultValue?: SettingValue;
-    optionValues?: string[]; // For string settings with predefined options
+    optionValues?: SettingValue[]; // For string settings with predefined options
     optionTexts?: TranslatedText[]; // For string settings with translated options
 }
 
@@ -56,7 +56,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         settingType: 'setting',
                         name: SettingsMessages.ShowMethodDeclaration,
                         description: undefined,
-                        type: 'string',
+                        type: 'enumeration',
                         optionValues: ['none', 'declarations', 'declarationsAndComments'],
                         optionTexts: [
                             SettingsMessages.None,
@@ -70,7 +70,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         settingType: 'setting',
                         name: SettingsMessages.ShowClassDeclaration,
                         description: undefined,
-                        type: 'string',
+                        type: 'enumeration',
                         optionValues: ['none', 'declarations', 'declarationsAndComments'],
                         optionTexts: [
                             SettingsMessages.None,

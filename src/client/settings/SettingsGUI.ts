@@ -63,8 +63,8 @@ export class SettingsGUI {
 
         if (this.classSettings && this.classSettings.length > 0) {
             let classSettingsTab = new Tab(SettingsMessages.ClassSettingsTabHeading(), []);
-            classSettingsTab.onShow = () => { 
-                this.showSettingsData("class"); 
+            classSettingsTab.onShow = () => {
+                this.showSettingsData("class");
             };
             tabManager.addTab(classSettingsTab);
 
@@ -82,7 +82,7 @@ export class SettingsGUI {
             $selectElement.on('change', () => {
                 let cs: ClassSettings = getSelectedObject($selectElement);
                 this.currentClassId = cs.classId;
-                if(this.currentScope == 'class'){
+                if (this.currentScope == 'class') {
                     this.showSettingsData();
                 }
             })
@@ -121,7 +121,7 @@ export class SettingsGUI {
         if (!this.currentSettingsGroup) return;
 
         this.$settingsMainDiv.append(jQuery(`<div class="jo_settingsGroupCaption">${this.currentSettingsGroup.name()}</div>`));
-        if (this.currentSettingsGroup.description) this.$settingsMainDiv.append(jQuery(`<div style="margin-bottom: 10px">${this.currentSettingsGroup.description()}</div>`));
+        if (this.currentSettingsGroup.description) this.$settingsMainDiv.append(jQuery(`<div class="jo_settingsGroupDescription">${this.currentSettingsGroup.description()}</div>`));
 
         for (let setting of this.currentSettingsGroup.settings.filter(s => s.settingType == 'setting')) {
             let $settingDiv = jQuery(`<div class="jo_settingDiv"></div>`);
@@ -140,31 +140,32 @@ export class SettingsGUI {
 
         switch (setting.type) {
             case 'boolean':
-                let optionCaptions: string[] = ["true", "false"];
+                let optionCaptions: string[] = [SettingsMessages.OptionTrue(), SettingsMessages.OptionFalse()];
                 if (setting.optionTexts) optionCaptions = setting.optionTexts.map(t => t());
-                optionCaptions.push("default: " + (defaultSettingValue ? optionCaptions[0] : optionCaptions[1]));
+                optionCaptions.push(SettingsMessages.OptionDefault() + ": " + (defaultSettingValue ? optionCaptions[0] : optionCaptions[1]));
                 let optionValues: SettingValue[] = [true, false, undefined]
-                this.appendSelectElement($settingDiv, optionCaptions, optionValues, currentSettingValue, 
+                this.appendSelectElement($settingDiv, optionCaptions, optionValues, currentSettingValue,
                     async (selectedValue, $savingMessage) => {
-                    await this.storeAndSave(setting.key, selectedValue, $savingMessage);
-                })
+                        await this.storeAndSave(setting.key, selectedValue, $savingMessage);
+                    })
                 break;
             case 'string':
-                this.appendInputElement($settingDiv, <string>currentSettingValue, defaultSettingValue, 
+                this.appendInputElement($settingDiv, <string>currentSettingValue, <string>defaultSettingValue,
                     async (selectedValue, $savingMessage) => {
-                    await this.storeAndSave(setting.key, selectedValue, $savingMessage)
-                })
+                        await this.storeAndSave(setting.key, selectedValue, $savingMessage)
+                    })
                 break;
             case 'enumeration':
                 let optionCaptions1: string[] = setting.optionTexts.map(t => t());
-                optionCaptions1.push("default: " + defaultSettingValue);
+                let defaultSettingIndex = setting.optionValues.indexOf(defaultSettingValue);
+                optionCaptions1.push(SettingsMessages.OptionDefault() + ": " + setting.optionTexts[defaultSettingIndex]());
                 let optionValues1: SettingValue[] = setting.optionValues.slice();
                 optionValues1.push(undefined);
 
-                this.appendSelectElement($settingDiv, optionCaptions, optionValues, currentSettingValue, 
+                this.appendSelectElement($settingDiv, optionCaptions1, optionValues1, currentSettingValue,
                     async (selectedValue, $savingMessage) => {
-                    await this.storeAndSave(setting.key, selectedValue, $savingMessage);
-                })
+                        await this.storeAndSave(setting.key, selectedValue, $savingMessage);
+                    })
                 break;
         }
 
@@ -179,18 +180,18 @@ export class SettingsGUI {
             settings: this.getCurrentSettingValues()
         }
 
-        $savingMessage.text('saving...');
+        $savingMessage.text(SettingsMessages.Saving() + '...');
         $savingMessage.css('color', 'var(--loginMessageColor)');
         $savingMessage.show();
         let response: UpdateSettingsDataResponse = await ajaxAsync('/servlet/updateSettings', request);
-        $savingMessage.text('-> saved✓');
+        $savingMessage.text(`-> ${SettingsMessages.Saved()} ✓`);
         $savingMessage.css('color', 'var(--loginButtonBackground)')
     }
 
-    wrapWithSavingMessageAndAppendToParent($element: JQuery<HTMLElement>, $parent: JQuery<HTMLElement>): JQuery<HTMLDivElement>{
+    wrapWithSavingMessageAndAppendToParent($element: JQuery<HTMLElement>, $parent: JQuery<HTMLElement>): JQuery<HTMLDivElement> {
         let $wrapper = jQuery(`<div class='jo_settingsWrapper'></div>`);
         $wrapper.append($element);
-        let $savingMessage: JQuery<HTMLDivElement> = jQuery(`<div class='jo_settingsSavingMessage'>saving...</div>`);
+        let $savingMessage: JQuery<HTMLDivElement> = jQuery(`<div class='jo_settingsSavingMessage'></div>`);
         $wrapper.append($savingMessage);
         $savingMessage.hide();
         $parent.append($wrapper);
@@ -202,7 +203,7 @@ export class SettingsGUI {
         onChangedCallback: (selectedValue: SettingValue, $savingMessage: JQuery<HTMLDivElement>) => Promise<void>
     ) {
         let $inputElement: JQuery<HTMLInputElement> = jQuery(`<input type='text' placeholder='default: ${defaultValue}' class='jo_settingsInput'>`);
-        if(typeof currentValue !== 'undefined') $inputElement.val(currentValue);
+        if (typeof currentValue !== 'undefined') $inputElement.val(currentValue);
         let $savingMessage = this.wrapWithSavingMessageAndAppendToParent($inputElement, $parent);
         $inputElement.on('focusout', async () => {
             let value = $inputElement.val();
@@ -229,7 +230,7 @@ export class SettingsGUI {
         let selectItems: SelectItem[] = [];
         for (let i = 0; i < optionValues.length; i++) {
             selectItems.push({
-                value: optionCaptions[i],
+                value: "" + optionValues[i],
                 caption: optionCaptions[i],
                 object: optionValues[i]
             })
@@ -250,17 +251,15 @@ export class SettingsGUI {
 
 
     getDefaultSettingValue(key: string) {
-        let value = this.getCurrentSettingValues()[key];
+        let value: SettingValue = undefined;
+        if (this.currentScope == 'user' && this.ownClassSettings) {
+            value = this.ownClassSettings[key];
+        }
         if (typeof value == 'undefined') {
-            if (this.currentScope == 'user' && this.ownClassSettings) {
-                value = this.ownClassSettings[key];
-            }
-            if (typeof value == 'undefined') {
-                value = this.schoolSettings[key];
-            }
-            if (typeof value == 'undefined') {
-                value = this.main.settings.values.default[key];
-            }
+            value = this.schoolSettings[key];
+        }
+        if (typeof value == 'undefined') {
+            value = this.main.settings.values.default[key];
         }
         return value;
     }

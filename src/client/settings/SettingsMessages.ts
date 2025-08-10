@@ -2,6 +2,38 @@ import { lm } from "../../tools/language/LanguageManager";
 
 export class SettingsMessages {
 
+    static Saving = () => lm({
+        'de': 'Speichere...',
+        'en': 'saving...',
+        'fr': 'enregistrement...'
+    });
+    
+    static Saved = () => lm({
+        'de': 'Gespeichert',
+        'en': 'saved',
+        'fr': 'enregistré'
+    });
+    
+
+    static OptionDefault = () => lm({
+        'de': 'Standard',
+        'en': 'default',
+        'fr': 'par défaut'
+    });
+
+    static OptionTrue = () => lm({
+        'de': 'Ja',
+        'en': 'true',
+        'fr': 'Oui'
+    });
+
+    static OptionFalse = () => lm({
+        'de': 'Nein',
+        'en': 'false',
+        'fr': 'Non'
+    });
+    
+
     static CloseButton = () => lm({
         'de': 'Schließen',
         'en': 'Close',
@@ -81,9 +113,9 @@ export class SettingsMessages {
     });
     
     static ShowMethodDeclaration = () => lm({
-        'de': 'Methodendeklaration anzeigen',
-        'en': 'Show method declaration',
-        'fr': 'Afficher la déclaration de la méthode'
+        'de': 'Methodendeklarationen anzeigen',
+        'en': 'Show method declarations',
+        'fr': 'Afficher les déclarations de méthodes'
     });
 
     static None = () => lm({
@@ -105,9 +137,9 @@ export class SettingsMessages {
     });
 
     static ShowClassDeclaration = () => lm({
-        'de': 'Klassendeklaration anzeigen',
+        'de': 'Klassendeklarationen anzeigen',
         'en': 'Show class declaration',
-        'fr': 'Afficher la déclaration de la classe'
+        'fr': 'Afficher la déclarations de la classes'
     });
     
     
