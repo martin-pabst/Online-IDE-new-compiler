@@ -298,7 +298,7 @@ export class Main implements MainBase {
 
             if (navigator.sendBeacon && that.user != null) {
                 await that.networkManager.sendUpdatesAsync(false, true);
-                await that.networkManager.sendUpdateUserSettings();
+                await that.networkManager.sendUpdateGuiState();
                 that.interpreter.eventManager.fire("resetRuntime");
 
                 DatabaseNewLongPollingListener.close();

@@ -6,7 +6,7 @@ export interface BaseResponse {
     message: string;
 }
 
-export type UserSettings = {
+export type GuiState = {
     helperHistory: {
         newWorkspaceHelperDone: boolean,
         newFileHelperDone: boolean,
@@ -97,9 +97,10 @@ export type UserData = {
     familienname: string,
     rufname: string,
     currentWorkspace_id?: number,
-    settings?: UserSettings,
+    gui_state?: GuiState,
     password?: string,
     is_testuser?: boolean,
+    settings: SettingValues,
 
     vidis_sub?: string,
     vidis_klasse?: string,
@@ -234,12 +235,12 @@ export type SendUpdatesResponse = {
     activePruefung: Pruefung
 }
 
-export type UpdateUserSettingsRequest = {
-    settings: UserSettings,
+export type UpdateGuiStateRequest = {
+    gui_state: GuiState,
     userId: number
 }
 
-export type UpdateUserSettingsResponse = {
+export type UpdateGuiStateResponse = {
     success: boolean;
 
 }

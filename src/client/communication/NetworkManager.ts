@@ -5,7 +5,7 @@ import { SqlIdeUrlHolder } from "../main/SqlIdeUrlHolder.js";
 import { CacheManager } from "../../tools/database/CacheManager.js";
 import { Workspace } from "../workspace/Workspace.js";
 import { ajax, ajaxAsync, csrfToken, PerformanceCollector } from "./AjaxHelper.js";
-import { CheckIfPruefungIsRunningResponse, ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateUserSettingsRequest, UpdateUserSettingsResponse, WorkspaceData } from "./Data.js";
+import { CheckIfPruefungIsRunningResponse, ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateGuiStateRequest, UpdateGuiStateResponse, WorkspaceData } from "./Data.js";
 import { PushClientManager } from "./pushclient/PushClientManager.js";
 import { GUIFile } from '../workspace/File.js';
 import pako from 'pako'
@@ -110,13 +110,13 @@ export class NetworkManager {
         }
 
         let classDiagram = this.main.rightDiv?.classDiagram;
-        let userSettings = this.main.user.settings;
+        let userSettings = this.main.user.gui_state;
 
         if (classDiagram?.dirty || this.main.userDataDirty) {
 
             this.main.userDataDirty = false;
             userSettings.classDiagram = classDiagram?.serialize();
-            await this.sendUpdateUserSettings(sendBeacon);
+            await this.sendUpdateGuiState(sendBeacon);
             this.forcedUpdatesInARow = 0;
         }
 
@@ -348,21 +348,21 @@ export class NetworkManager {
 
     }
 
-    async sendUpdateUserSettings(sendBeacon: boolean = false): Promise<string> {
+    async sendUpdateGuiState(sendBeacon: boolean = false): Promise<string> {
 
         if (this.main.user.is_testuser) {
             return;
         }
 
-        let request: UpdateUserSettingsRequest = {
-            settings: this.main.user.settings,
+        let request: UpdateGuiStateRequest = {
+            gui_state: this.main.user.gui_state,
             userId: this.main.user.id
         }
 
         if (sendBeacon) {
-            navigator.sendBeacon("updateUserSettings", JSON.stringify(request));
+            navigator.sendBeacon("updateGuiState", JSON.stringify(request));
         } else {
-            let response: UpdateUserSettingsResponse = await ajaxAsync("servlet/updateUserSettings", request);
+            let response: UpdateGuiStateResponse = await ajaxAsync("servlet/updateGuiState", request);
             if (response.success) {
                 return null;
             } else {

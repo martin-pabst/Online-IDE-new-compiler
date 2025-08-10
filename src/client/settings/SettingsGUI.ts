@@ -1,6 +1,6 @@
 import { Tab, TabManager } from "../../tools/TabManager.ts";
 import { ajaxAsync } from "../communication/AjaxHelper.ts";
-import { GetSettingsResponse, UpdateSettingsDataRequest, UpdateSettingsDataResponse, UpdateUserSettingsRequest } from "../communication/Data.ts";
+import { GetSettingsResponse, UpdateSettingsDataRequest, UpdateSettingsDataResponse, UpdateGuiStateRequest } from "../communication/Data.ts";
 import { Dialog } from "../main/gui/Dialog.ts";
 import { Main } from "../main/Main.ts";
 import { SettingsMessages } from "./SettingsMessages.ts";
