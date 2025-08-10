@@ -90,7 +90,7 @@ export class Main implements MainBase {
     bottomDiv: BottomDiv;
 
     user: UserData;
-    userDataDirty: boolean = false;
+    gui_state_dirty: boolean = false;
 
     themeManager: ThemeManager;
 
@@ -298,7 +298,6 @@ export class Main implements MainBase {
 
             if (navigator.sendBeacon && that.user != null) {
                 await that.networkManager.sendUpdatesAsync(false, true);
-                await that.networkManager.sendUpdateGuiState();
                 that.interpreter.eventManager.fire("resetRuntime");
 
                 DatabaseNewLongPollingListener.close();

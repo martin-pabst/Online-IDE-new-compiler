@@ -119,9 +119,9 @@ export class LanguageManager {
 
         this.setupLanguageSelector();
 
-        if(this.main.user.settings.language != language.id){
-            this.main.user.settings.language = language.id;
-            this.main.userDataDirty = true;
+        if(this.main.user.gui_state.language != language.id){
+            this.main.user.gui_state.language = language.id;
+            this.main.gui_state_dirty = true;
         }
     }
 

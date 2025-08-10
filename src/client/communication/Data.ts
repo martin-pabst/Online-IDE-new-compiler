@@ -100,7 +100,7 @@ export type UserData = {
     gui_state?: GuiState,
     password?: string,
     is_testuser?: boolean,
-    settings: SettingValues,
+    settings?: SettingValues,
 
     vidis_sub?: string,
     vidis_klasse?: string,

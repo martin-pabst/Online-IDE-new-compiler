@@ -73,7 +73,7 @@ export class Helper {
             return;
         }
 
-        let helperHistory = main.user.settings!.helperHistory;
+        let helperHistory = main.user.gui_state!.helperHistory;
 
         if (id == "speedControlHelper" && helperHistory["speedControlHelperDone"]) {
             id = "stepButtonHelper";

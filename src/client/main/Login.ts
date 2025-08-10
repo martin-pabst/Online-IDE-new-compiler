@@ -181,8 +181,8 @@ export class Login {
                 let user: UserData = response.user;
                 user.is_testuser = response.isTestuser;
 
-                if (user.settings == null || user.settings.helperHistory == null) {
-                    user.settings = {
+                if (user.gui_state == null || user.gui_state.helperHistory == null) {
+                    user.gui_state = {
                         helperHistory: {
                             consoleHelperDone: false,
                             newFileHelperDone: false,
@@ -203,7 +203,7 @@ export class Login {
                 that.main.settings = new Settings(user, 
                     response.userSettings, response.classSettings, response.schoolSettings);
 
-                that.main.languagemanager.setLanguage(user.settings.language);
+                that.main.languagemanager.setLanguage(user.gui_state.language);
 
                 SqlIdeUrlHolder.sqlIdeURL = response.sqlIdeForOnlineIdeClient + "/servlet/";
 
@@ -235,14 +235,14 @@ export class Login {
 
                 that.main.rightDiv?.classDiagram?.clear();
 
-                if (user.settings.classDiagram != null) {
-                    that.main.rightDiv?.classDiagram?.deserialize(user.settings.classDiagram);
+                if (user.gui_state.classDiagram != null) {
+                    that.main.rightDiv?.classDiagram?.deserialize(user.gui_state.classDiagram);
                 }
 
                 that.main.viewModeController.initViewMode();
                 that.main.bottomDiv.hideHomeworkTab();
 
-                if (!this.main.user.settings.helperHistory.folderButtonDone && that.main.projectExplorer.workspaceListPanel.elements.length > 5) {
+                if (!this.main.user.gui_state.helperHistory.folderButtonDone && that.main.projectExplorer.workspaceListPanel.elements.length > 5) {
 
                     Helper.showHelper("folderButton", this.main, jQuery('.img_add-folder-dark'));
 

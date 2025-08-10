@@ -10,6 +10,7 @@ import { JavaClass } from '../../../../../compiler/java/types/JavaClass.js';
 import { JavaInterface } from '../../../../../compiler/java/types/JavaInterface.js';
 import { JavaCompiledModule } from '../../../../../compiler/java/module/JavaCompiledModule.js';
 import { ClassDiagramHelper } from '../../../../../compiler/java/types/ClassDiagramHelper.js';
+import type { Main } from '../../../Main.js';
 import RouterWorker from './Router?worker';
 
 import "/assets/css/diagram.css";
@@ -51,6 +52,14 @@ export class ClassDiagram extends Diagram {
         super($htmlElement, main);
 
         let that = this;
+
+        if(!main.isEmbedded()){
+            let serializedClassDiagram = (<Main>main).user.gui_state?.classDiagram;
+            if(serializedClassDiagram){
+                this.deserialize(serializedClassDiagram);
+            }
+        }
+
         this.$menuButton.on('click', (ev) => {
             ev.preventDefault();
             let displaysSystemClasses = that.currentClassBoxes.displaySystemClasses == true;

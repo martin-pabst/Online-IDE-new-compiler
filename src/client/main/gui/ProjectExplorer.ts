@@ -683,7 +683,7 @@ export class ProjectExplorer {
         if (w.repository_id != null && w.owner_id == this.main.user.id) {
             this.$synchronizeAction.show();
 
-            if (!this.main.user.settings.helperHistory.repositoryButtonDone) {
+            if (!this.main.user.gui_state.helperHistory.repositoryButtonDone) {
 
                 Helper.showHelper("repositoryButton", this.main, this.$synchronizeAction);
 
@@ -734,7 +734,7 @@ export class ProjectExplorer {
                 this.setFileActive(null);
             }
 
-            if (files.length == 0 && !this.main.user.settings.helperHistory.newFileHelperDone) {
+            if (files.length == 0 && !this.main.user.gui_state.helperHistory.newFileHelperDone) {
 
                 Helper.showHelper("newFileHelper", this.main, this.fileListPanel.$captionElement);
 

@@ -112,9 +112,9 @@ export class NetworkManager {
         let classDiagram = this.main.rightDiv?.classDiagram;
         let userSettings = this.main.user.gui_state;
 
-        if (classDiagram?.dirty || this.main.userDataDirty) {
+        if (classDiagram?.dirty || this.main.gui_state_dirty) {
 
-            this.main.userDataDirty = false;
+            this.main.gui_state_dirty = false;
             userSettings.classDiagram = classDiagram?.serialize();
             await this.sendUpdateGuiState(sendBeacon);
             this.forcedUpdatesInARow = 0;

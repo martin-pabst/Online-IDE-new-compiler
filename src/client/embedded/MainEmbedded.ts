@@ -157,7 +157,7 @@ export class MainEmbedded implements MainBase {
 
     getSettings(): Settings {
         if(!this.settings) {
-            this.settings = new Settings(undefined, {}, {});
+            this.settings = new Settings(undefined, {}, {}, {});
         }
         return this.settings;
     }

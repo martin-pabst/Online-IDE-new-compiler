@@ -202,6 +202,7 @@ export class SettingsGUI {
         onChangedCallback: (selectedValue: SettingValue, $savingMessage: JQuery<HTMLDivElement>) => Promise<void>
     ) {
         let $inputElement: JQuery<HTMLInputElement> = jQuery(`<input type='text' placeholder='default: ${defaultValue}' class='jo_settingsInput'>`);
+        if(typeof currentValue !== 'undefined') $inputElement.val(currentValue);
         let $savingMessage = this.wrapWithSavingMessageAndAppendToParent($inputElement, $parent);
         $inputElement.on('focusout', async () => {
             let value = $inputElement.val();

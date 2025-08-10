@@ -200,7 +200,7 @@ export class MainMenu {
                             { identifier: "-" },
                             {
                                 identifier: GuiMessages.SpriteCatalogue(),
-                                link: serverURL + "spriteLibrary.html?csrfToken=" + csrfToken + "&lang=" + (user.settings.language ?? "de")
+                                link: serverURL + "spriteLibrary.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
                             },
                         ]
                     }
@@ -230,12 +230,12 @@ export class MainMenu {
                             {
                                 identifier: GuiMessages.APIReference(),
                                 //link: "https://www.learnj.de/doku.php?id=api:documentation:start"
-                                link: serverURL + "api_documentation.html?csrfToken=" + csrfToken + "&lang=" + (user.settings.language ?? "de")
+                                link: serverURL + "api_documentation.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
                             },
                             { identifier: "-" },
                             {
                                 identifier: GuiMessages.Shortcuts(),
-                                link: serverURL + "shortcuts.html?csrfToken=" + csrfToken + "&lang=" + (user.settings.language ?? "de")
+                                link: serverURL + "shortcuts.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
                             },
                             { identifier: "-" },
                             {
@@ -312,7 +312,7 @@ export class MainMenu {
             mainMenu.items[0].subMenu.items.push(
                 {
                     identifier: GuiMessages.ClassesUserTests(),
-                    link: serverURL + "administration_mc.html?csrfToken=" + csrfToken + "&lang=" + (user.settings.language ?? "de")
+                    link: serverURL + "administration_mc.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
                 }
             )
         }
@@ -321,7 +321,7 @@ export class MainMenu {
             mainMenu.items[0].subMenu.items.push(
                 {
                     identifier: GuiMessages.ServerStatistics(),
-                    link: serverURL + "statistics.html?csrfToken=" + csrfToken + "&lang=" + (user.settings.language ?? "de")
+                    link: serverURL + "statistics.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
                 }, {
                 identifier: GuiMessages.ShutdownServer(),
                 action: () => {
