@@ -172,20 +172,23 @@ export class SettingsGUI {
     }
 
     async storeAndSave(key: string, selectedValue: string | number | boolean, $savingMessage: JQuery<HTMLDivElement>) {
-        this.getCurrentSettingValues()[key] = selectedValue;
-        let request: UpdateSettingsDataRequest = {
-            userId: this.currentScope == 'user' ? this.main.user.id : undefined,
-            klasseId: this.currentScope == 'class' ? this.currentClassId : undefined,
-            schuleId: this.currentScope == 'school' ? this.main.user.schule_id : undefined,
-            settings: this.getCurrentSettingValues()
+        let oldValue = this.getCurrentSettingValues()[key];
+        if(oldValue !== selectedValue){
+            this.getCurrentSettingValues()[key] = selectedValue;
+            let request: UpdateSettingsDataRequest = {
+                userId: this.currentScope == 'user' ? this.main.user.id : undefined,
+                klasseId: this.currentScope == 'class' ? this.currentClassId : undefined,
+                schuleId: this.currentScope == 'school' ? this.main.user.schule_id : undefined,
+                settings: this.getCurrentSettingValues()
+            }
+    
+            $savingMessage.text(SettingsMessages.Saving() + '...');
+            $savingMessage.css('color', 'var(--loginMessageColor)');
+            $savingMessage.show();
+            let response: UpdateSettingsDataResponse = await ajaxAsync('/servlet/updateSettings', request);
+            $savingMessage.text(`-> ${SettingsMessages.Saved()} ✓`);
+            $savingMessage.css('color', 'var(--loginButtonBackground)')
         }
-
-        $savingMessage.text(SettingsMessages.Saving() + '...');
-        $savingMessage.css('color', 'var(--loginMessageColor)');
-        $savingMessage.show();
-        let response: UpdateSettingsDataResponse = await ajaxAsync('/servlet/updateSettings', request);
-        $savingMessage.text(`-> ${SettingsMessages.Saved()} ✓`);
-        $savingMessage.css('color', 'var(--loginButtonBackground)')
     }
 
     wrapWithSavingMessageAndAppendToParent($element: JQuery<HTMLElement>, $parent: JQuery<HTMLElement>): JQuery<HTMLDivElement> {
@@ -195,6 +198,11 @@ export class SettingsGUI {
         $wrapper.append($savingMessage);
         $savingMessage.hide();
         $parent.append($wrapper);
+
+        $element.on('click', () => {
+            $savingMessage.text('');
+        })
+
         return $savingMessage;
 
     }
