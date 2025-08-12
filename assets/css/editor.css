@@ -408,28 +408,6 @@
         background-color: var(--backgroundDark);
     }
 
-    .jo_sliderknob {
-        position: absolute;
-        top: -8px;
-        transform: scale(1.5);
-        /* cursor: move !important; */
-    }
-
-    #slider1 {
-        width: 4px;
-        height: 100%;
-        background-color: transparent;
-        position: absolute;
-        top: 0px;
-        left: calc(100% - 2px);
-        cursor: col-resize;
-        z-index: 10;
-    }
-
-    .jo_slider:active {
-        background-color: var(--scrollbar-thumb-active) !important;
-    }
-
     #belowmainmenu {
         flex-grow: 1;
         background-color: var(--backgroundDark);
@@ -626,27 +604,6 @@
 
     .jo_scrollable::-webkit-scrollbar-thumb:active {
         background-color: var(--scrollbar-thumb-active);
-    }
-
-    #slider2 {
-        height: 4px;
-        width: 100%;
-        background-color: transparent;
-        position: absolute;
-        left: 0px;
-        cursor: row-resize;
-        z-index: 10;
-    }
-
-    #slider3 {
-        width: 4px;
-        height: 100%;
-        background-color: transparent;
-        position: relative;
-        top: 0px;
-        left: -1px;
-        cursor: col-resize;
-        z-index: 10;
     }
 
     #mainmenu {

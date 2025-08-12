@@ -2,7 +2,7 @@ import jQuery from 'jquery';
 import { makeDiv } from "../../../tools/HtmlTools.js";
 import { ajax } from "../../communication/AjaxHelper.js";
 import { GainRepositoryLockRequest, GainRepositoryLockResponse, GetRepositoryRequest, GetRepositoryResponse, LeaseRepositoryLockRequest, LeaseRepositoryLockResponse, Repository } from "../../communication/Data.js";
-import { EmbeddedSlider } from "../../../tools/components/EmbeddedSlider.js";
+import { Slider } from "../../../tools/components/Slider.js";
 import { Main } from "../../main/Main.js";
 import { SpritesheetData } from "../../spritemanager/SpritesheetData.js";
 import { Workspace } from "../../workspace/Workspace.js";
@@ -346,7 +346,7 @@ export class SynchronizationManager {
 
         this.$belowMainHeadingDiv.append(this.$leftDiv, this.$historyOuterDiv);
 
-        new EmbeddedSlider(this.$historyOuterDiv[0], true, false, () => { this.diffEditor.layout(); }).sliderDiv.style.left = '-3px';
+        new Slider(this.$historyOuterDiv[0], true, false, () => { this.diffEditor.layout(); }).sliderDiv.style.left = '-3px';
         this.$historyOuterDiv.find('.joe_slider').css('position', 'absolute');
 
         this.$historyScrollDiv = makeDiv("historyScrollDiv", "jo_scrollable");
@@ -412,7 +412,7 @@ export class SynchronizationManager {
 
 
 
-        let horizontalSlider = new EmbeddedSlider(this.$editorDiv[0], true, true, () => { this.diffEditor.layout(); });
+        let horizontalSlider = new Slider(this.$editorDiv[0], true, true, () => { this.diffEditor.layout(); });
         horizontalSlider.setColor('var(--slider)');
 
         this.makeDroppable("left", this.$fileListDivs[0]);

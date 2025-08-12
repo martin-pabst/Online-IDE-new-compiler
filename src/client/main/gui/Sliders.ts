@@ -2,6 +2,8 @@ import jQuery from 'jquery';
 import { jo_mouseDetected } from "../../../tools/HtmlTools.js";
 import { Main } from "../Main.js";
 import { ZoomControl } from "./diagrams/ZoomControl.js";
+import { Slider } from '../../../tools/components/Slider.js';
+import { Sliderknob } from '../../../tools/components/Sliderknob.js';
 
 export class Sliders {
 
@@ -12,72 +14,64 @@ export class Sliders {
     }
 
     initSliders() {
+        let $leftPanel = jQuery('#leftpanel');
+        let $editor = jQuery('#editor');
+        let $editorInner = jQuery('#editor>.monaco-editor');
+        let $rightDiv = jQuery('#rightdiv');
+        let $bottomDiv = jQuery('#bottomdiv-outer');
+
+        new Slider($leftPanel[0], false, false, (newLength) => {
+            this.main.getMainEditor().layout();
+            if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
+                this.main.bottomDiv.homeworkManager.diffEditor.layout();
+            }
+        }, $editor[0]);
+
+        new Slider($rightDiv[0], true, false, (newLength) => {
+            this.main.getMainEditor().layout();
+            if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
+                this.main.bottomDiv.homeworkManager.diffEditor.layout();
+            }
+        }, $editor[0]);
+
+        new Slider($bottomDiv[0], true, true, (newLength) => {
+            this.main.getMainEditor().layout();
+            if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
+                this.main.bottomDiv.homeworkManager.diffEditor.layout();
+            }
+        }, $editor[0]);
+
+        new Sliderknob([
+            {element: $leftPanel[0], neighbourOrientation: ["left"]},
+            {element: $editor[0], neighbourOrientation: ["right", "top"]},
+            {element: $bottomDiv[0], neighbourOrientation: ["bottom"]},
+
+        ], () => {
+            this.main.getMainEditor().layout();
+            if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
+                this.main.bottomDiv.homeworkManager.diffEditor.layout();
+            }
+        })
+
+        new Sliderknob([
+            {element: $rightDiv[0], neighbourOrientation: ["right"]},
+            {element: $bottomDiv[0], neighbourOrientation: ["bottom"]},
+            {element: $editor[0], neighbourOrientation: ["left", "top"]},
+
+        ], () => {
+            this.main.getMainEditor().layout();
+            if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
+                this.main.bottomDiv.homeworkManager.diffEditor.layout();
+            }
+        })
+
+    }
+
+
+    initSlidersOld() {
         let that = this;
 
         let mousePointer = window.PointerEvent ? "pointer" : "mouse";
-
-        jQuery('#slider1').on(mousePointer + "down", (md: JQuery.MouseDownEvent) => {
-
-            let x = md.clientX;
-
-            jQuery(document).on(mousePointer + "move.slider1", (mm: JQuery.MouseMoveEvent) => {
-                let dx = mm.clientX - x;
-
-                that.moveLeftPanel(dx);
-
-                x = mm.clientX;
-            });
-
-            jQuery(document).on(mousePointer + "up.slider1", () => {
-                jQuery(document).off(mousePointer + "move.slider1");
-                jQuery(document).off(mousePointer + "up.slider1");
-            });
-
-
-        });
-
-        jQuery('#slider2').on(mousePointer + "down", (md: JQuery.MouseDownEvent) => {
-
-            let y = md.clientY;
-
-            jQuery(document).on(mousePointer + "move.slider2", (mm: JQuery.MouseMoveEvent) => {
-                let dy = mm.clientY - y;
-
-                that.moveBottomDiv(dy);
-
-                y = mm.clientY;
-            });
-
-            jQuery(document).on(mousePointer + "up.slider2", () => {
-                jQuery(document).off(mousePointer + "move.slider2");
-                jQuery(document).off(mousePointer + "up.slider2");
-            });
-
-
-        });
-
-        jQuery('#slider3').on(mousePointer + "down", (md: JQuery.MouseDownEvent) => {
-
-            let x = md.clientX;
-            ZoomControl.preventFading = true;
-
-            jQuery(document).on(mousePointer + "move.slider3", (mm: JQuery.MouseMoveEvent) => {
-                let dx = mm.clientX - x;
-
-                that.moveRightDiv(dx);
-
-                x = mm.clientX;
-                mm.stopPropagation();
-            });
-
-            jQuery(document).on(mousePointer + "up.slider3", () => {
-                jQuery(document).off(mousePointer + "move.slider3");
-                jQuery(document).off(mousePointer + "up.slider3");
-                ZoomControl.preventFading = false;
-            });
-
-
-        });
 
         let sliderknobLeft = jQuery('<div class="jo_sliderknob img_knob jo_button jo_active" style="left: -8px" draggable="false"></div>');
         jQuery('#slider2').append(sliderknobLeft);
@@ -150,13 +144,13 @@ export class Sliders {
         $editor.css('width', (mewidth + dx) + "px");
 
         this.main.getMainEditor().layout();
-        if(this.main.bottomDiv.homeworkManager.diffEditor != null){
+        if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
             this.main.bottomDiv.homeworkManager.diffEditor.layout();
         }
 
         jQuery('.jo_graphics').trigger('sizeChanged');
         width += dx;
-}
+    }
     moveBottomDiv(dy: number) {
         let $editor = jQuery('#editor>.monaco-editor');
         let $bottomDiv = jQuery('#bottomdiv-outer');
@@ -168,10 +162,10 @@ export class Sliders {
         $editor.css('height', (meheight + dy) + "px");
 
         this.main.getMainEditor().layout();
-        if(this.main.bottomDiv.homeworkManager.diffEditor != null){
+        if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
             this.main.bottomDiv.homeworkManager.diffEditor.layout();
         }
-}
+    }
 
     moveLeftPanel(dx: number) {
         let $leftPanel = jQuery('#leftpanel');
@@ -183,7 +177,7 @@ export class Sliders {
         let mewidth = Number.parseInt($editor.css('width').replace('px', ''));
         $editor.css('width', (mewidth - dx) + "px");
         this.main.getMainEditor().layout();
-        if(this.main.bottomDiv.homeworkManager.diffEditor != null){
+        if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
             this.main.bottomDiv.homeworkManager.diffEditor.layout();
         }
 

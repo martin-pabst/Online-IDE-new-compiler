@@ -196,10 +196,6 @@ export class Main implements MainBase {
         this.actionManager = new ActionManager(null);
         this.actionManager.init();
 
-
-        let sliders = new Sliders(this);
-        sliders.initSliders();
-
         this.mainMenu = new MainMenu(this);
         this.projectExplorer = new ProjectExplorer(this, jQuery('#leftpanel>.jo_projectexplorer'));
         this.projectExplorer.initGUI();
@@ -292,6 +288,10 @@ export class Main implements MainBase {
 
         setTimeout(() => {
             this.getMainEditor().layout();
+
+            let sliders = new Sliders(this);
+            sliders.initSliders();
+
         }, 200);
 
         jQuery(window).on('unload', async function () {

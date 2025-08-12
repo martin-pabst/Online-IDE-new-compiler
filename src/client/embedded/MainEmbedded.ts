@@ -31,7 +31,7 @@ import { Workspace } from "../workspace/Workspace.js";
 import { ExportedWorkspace, WorkspaceImporterExporter } from "../workspace/WorkspaceImporterExporter.js";
 import { EmbeddedFileExplorer } from "./EmbeddedFileExplorer.js";
 import { EmbeddedIndexedDB } from "./EmbeddedIndexedDB.js";
-import { EmbeddedSlider } from "../../tools/components/EmbeddedSlider.js";
+import { Slider } from "../../tools/components/Slider.js";
 import { JOScript } from "./EmbeddedStarter.js";
 import { CompilerFile } from "../../compiler/common/module/CompilerFile.js";
 import { Disassembler } from "../../compiler/common/disassembler/Disassembler.js";
@@ -533,13 +533,13 @@ export class MainEmbedded implements MainBase {
             if (this.config.withFileList) {
                 let $filesDiv = this.makeFilesDiv();
                 $bottomDiv.prepend($filesDiv);
-                new EmbeddedSlider($filesDiv[0], false, false, () => { });
+                new Slider($filesDiv[0], false, false, () => { });
             }
             makeTabs($bottomDivInner);
 
 
             $centerDiv.append($editorDiv, $bottomDiv);
-            new EmbeddedSlider($bottomDiv[0], true, true, () => { this.editor.editor.layout(); });
+            new Slider($bottomDiv[0], true, true, () => { this.editor.editor.layout(); });
         } else {
             $centerDiv.prepend($editorDiv);
         }
@@ -564,7 +564,7 @@ export class MainEmbedded implements MainBase {
         $div.append($centerDiv, $rightDiv);
 
         if (!this.config.hideEditor) {
-            new EmbeddedSlider($rightDiv[0], true, false, () => {
+            new Slider($rightDiv[0], true, false, () => {
                 this.editor.editor.layout();
             });
         }

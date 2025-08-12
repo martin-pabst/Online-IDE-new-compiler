@@ -1,5 +1,5 @@
 .joeCssFence {
-    .joe_slider {
+    .jo_slider {
         /* width: 4px;
         height: 100%; */
         background-color: transparent;
@@ -9,11 +9,19 @@
         z-index: 10;
     }
 
-    .joe_slider:hover {
+    .jo_slider:hover {
         background-color: #6969697a;
     }
 
-    .joe_slider:active {
+    .jo_slider:active {
         background-color: rgba(255, 0, 0, 0.397) !important;
     }
+
+    .jo_sliderknob {
+        position: absolute;
+        top: -8px;
+        transform: scale(1.5);
+        /* cursor: move !important; */
+    }
+
 }

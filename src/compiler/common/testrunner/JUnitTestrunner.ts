@@ -1,4 +1,4 @@
-import { EmbeddedSlider } from "../../../tools/components/EmbeddedSlider";
+import { Slider } from "../../../tools/components/Slider";
 import { Treeview } from "../../../tools/components/treeview/Treeview";
 import { DOM } from "../../../tools/DOM";
 import { JavaClass } from "../../java/types/JavaClass";
@@ -84,7 +84,7 @@ export class JUnitTestrunner {
             ]
         }
 
-        new EmbeddedSlider(leftDiv, false, false, () => { });
+        new Slider(leftDiv, false, false, () => { });
 
     }
 

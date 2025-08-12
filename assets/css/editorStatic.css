@@ -29,6 +29,10 @@ body.joeCssFence {
         background-color: var(--backgroundBeta)
     }
 
+    #rightdiv {
+        position: relative;
+    }
+
     #beta-version {
         position: absolute;
         font-size: 150%;

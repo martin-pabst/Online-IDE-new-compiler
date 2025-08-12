@@ -41,6 +41,13 @@
             "webRoot": "${workspaceFolder}"
         },
         {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Debug Treeviewtest Chrome",
+            "url": "http://localhost:3000/treeviewTest.html",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
             "name": "Generate Spritesheet",
             "program": "${workspaceFolder}/src/development/spritesheetgenerator.js",
             "request": "launch",
