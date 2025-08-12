@@ -40,6 +40,12 @@ export class SettingsGUI {
 
         let dialog = new Dialog();
         dialog.initAndOpen();
+
+        this.main.windowStateManager.registerOneTimeBackButtonListener(() => {
+            dialog.close();
+        });
+
+
         dialog.heading(SettingsMessages.SettingsHeading());
 
         let $tabDiv = jQuery('<div></div>');
@@ -99,7 +105,7 @@ export class SettingsGUI {
             {
                 caption: SettingsMessages.CloseButton(),
                 color: 'green',
-                callback: () => { dialog.close(); }
+                callback: () => { window.history.back(); }
             }
         ]);
 
@@ -132,7 +138,7 @@ export class SettingsGUI {
 
     renderSetting(setting: SettingMetadata, $settingDiv: JQuery<HTMLElement>) {
         $settingDiv.append(jQuery(`<div class="jo_settingCaption">${setting.name()}</div>`));
-        if (setting.description) $settingDiv.append(jQuery(`<div>${setting.description()}</div>`));
+        if (setting.description) $settingDiv.append(jQuery(`<div class="jo_settingDescription">${setting.description()}</div>`));
 
         let key = setting.key;
         let currentSettingValue = this.getCurrentSettingValues()[key];
@@ -146,13 +152,13 @@ export class SettingsGUI {
                 let optionValues: SettingValue[] = [true, false, undefined]
                 this.appendSelectElement($settingDiv, optionCaptions, optionValues, currentSettingValue,
                     async (selectedValue, $savingMessage) => {
-                        await this.storeAndSave(setting.key, selectedValue, $savingMessage);
+                        await this.storeAndSave(setting, setting.key, selectedValue, $savingMessage);
                     })
                 break;
             case 'string':
                 this.appendInputElement($settingDiv, <string>currentSettingValue, <string>defaultSettingValue,
                     async (selectedValue, $savingMessage) => {
-                        await this.storeAndSave(setting.key, selectedValue, $savingMessage)
+                        await this.storeAndSave(setting, setting.key, selectedValue, $savingMessage)
                     })
                 break;
             case 'enumeration':
@@ -164,24 +170,30 @@ export class SettingsGUI {
 
                 this.appendSelectElement($settingDiv, optionCaptions1, optionValues1, currentSettingValue,
                     async (selectedValue, $savingMessage) => {
-                        await this.storeAndSave(setting.key, selectedValue, $savingMessage);
+                        await this.storeAndSave(setting, setting.key, selectedValue, $savingMessage);
                     })
                 break;
         }
 
     }
 
-    async storeAndSave(key: string, selectedValue: string | number | boolean, $savingMessage: JQuery<HTMLDivElement>) {
+    async storeAndSave(setting: SettingMetadata, key: string, selectedValue: string | number | boolean, $savingMessage: JQuery<HTMLDivElement>) {
         let oldValue = this.getCurrentSettingValues()[key];
-        if(oldValue !== selectedValue){
+        if (oldValue !== selectedValue) {
             this.getCurrentSettingValues()[key] = selectedValue;
+
+            // If the setting has an action, execute it
+            if (setting.action) {
+                setting.action(this.main, selectedValue);
+            }
+
             let request: UpdateSettingsDataRequest = {
                 userId: this.currentScope == 'user' ? this.main.user.id : undefined,
                 klasseId: this.currentScope == 'class' ? this.currentClassId : undefined,
                 schuleId: this.currentScope == 'school' ? this.main.user.schule_id : undefined,
                 settings: this.getCurrentSettingValues()
             }
-    
+
             $savingMessage.text(SettingsMessages.Saving() + '...');
             $savingMessage.css('color', 'var(--loginMessageColor)');
             $savingMessage.show();

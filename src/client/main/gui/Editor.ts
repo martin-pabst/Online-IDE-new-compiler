@@ -8,7 +8,6 @@ import { MainBase } from "../MainBase.ts";
 import { FileTypeManager } from "../../../compiler/common/module/FileTypeManager.ts";
 import * as monaco from 'monaco-editor'
 import { JavaCompiledModule, JavaMethodCallPosition } from '../../../compiler/java/module/JavaCompiledModule.ts';
-import { Range } from '../../../compiler/common/range/Range.ts';
 import { JavaMethod } from '../../../compiler/java/types/JavaMethod.ts';
 
 export type HistoryEntry = {

@@ -6,9 +6,13 @@
 }
 
 .jo_settingsLeftMenu {
-    width: 15em;
+    width: 20em;
     border-right: 1px solid #444;
     padding: 5px;
+}
+
+.jo_settingsLeftMenu .jo_treeviewNode_caption {
+    text-wrap-mode: wrap;
 }
 
 .jo_settingsMain {
@@ -76,3 +80,6 @@
     flex-direction: row;
 }
 
+.jo_settingDescription {
+    margin-bottom: 5px;
+}

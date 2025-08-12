@@ -95,7 +95,7 @@ export class SettingsMessages {
     });
 
     static HoverVerbosityName = () => lm({
-        'de': 'Hover-Verbosity',
+        'de': 'Texte beim Hovern über Code',
         'en': 'Hover-Verbosity',
         'fr': 'Verbosité des infobulles'
     });
@@ -142,9 +142,84 @@ export class SettingsMessages {
         'fr': 'Afficher la déclarations de la classes'
     });
     
-    
-    
+    static TypingAssistanceName = () => lm({
+        'de': 'Unterstützung bei der Eingabe von Code',
+        'en': 'Typing Assistance',
+        'fr': 'Assistance à la saisie de code'
+    });
 
+    static TypingAssistanceDescription = () => lm({
+        'de': 'Hier können Sie die Eingabeunterstützung des Editors anpassen.',
+        'en': 'Here you can adjust the typing assistance of the editor.',
+        'fr': 'Ici, vous pouvez ajuster l\'assistance à la saisie de l\'éditeur.'
+    });
+    
+    static AutoClosingBracketsName = () => lm({
+        'de': 'Automatisches Schließen von Klammern',
+        'en': 'Auto Closing Brackets',
+        'fr': 'Fermeture automatique des parenthèses'
+    });
+
+    static AutoClosingBracketsDescription = () => lm({
+        'de': 'Bei Eingabe von öffnenden Klammern wird automatisch die schließende Klammer hinzugefügt.',
+        'en': 'Automatically add closing brackets when typing opening brackets.',
+        'fr': 'Ajoute automatiquement les parenthèses fermantes lors de la saisie des parenthèses ouvrantes.'
+    });
+    
+    static AutoClosingBracketsAlways = () => lm({
+        'de': 'Immer',
+        'en': 'Always',
+        'fr': 'Toujours'
+    });
+
+    static AutoClosingBracketsNever = () => lm({
+        'de': 'Nie',
+        'en': 'Never',
+        'fr': 'Jamais'
+    });
+
+    static AutoClosingBracketsBeforeWhitespace = () => lm({
+        'de': 'Nur vor Leerzeichen',
+        'en': 'Only before whitespace',
+        'fr': 'Seulement avant les espaces'
+    });
+    
+    static ClassDiagramSettingsName = () => lm({
+        'de': 'Klassendiagramm',
+        'en': 'Class Diagram',
+        'fr': 'Diagramme de classes'
+    });
+
+    static ClassDiagramSettingsDescription = () => lm({
+        'de': 'Hier können Sie die Einstellungen für das Klassendiagramm anpassen.',
+        'en': 'Here you can adjust the settings for the class diagram.',
+        'fr': 'Ici, vous pouvez ajuster les paramètres du diagramme de classes.'
+    });
+
+    static ClassDiagramTypeConventionName = () => lm({
+        'de': 'Darstellungsweise von Datentypen',
+        'en': 'Type Representation',
+        'fr': 'Représentation des types'
+    });
+    
+    static ClassDiagramTypeConventionDescription = () => lm({
+        'de': 'Wenn Datentypen im Klassendiagramm angezeigt werden, kann dies entweder in der Art von Java (z.B. String name) erfolgen oder in der Art von Pascal (name: String).',
+        'en': 'If data types are displayed in the class diagram, they can be shown in either Java style (e.g., String name) or Pascal style (name: String).',
+        'fr': 'Si les types de données sont affichés dans le diagramme de classes, ils peuvent être présentés dans le style Java (par exemple, String name) ou dans le style Pascal (name: String).'
+    });
+    
+    static ClassDiagramTypeConventionJava = () => lm({
+        'de': 'Java-Stil (z.B. String name)',
+        'en': 'Java Style (e.g., String name)',
+        'fr': 'Style Java (par exemple, String name)'
+    });
+
+    static ClassDiagramTypeConventionPascal = () => lm({
+        'de': 'Pascal-Stil (name: String)',
+        'en': 'Pascal Style (name: String)',
+        'fr': 'Style Pascal (name: String)'
+    });
+    
     
     
 

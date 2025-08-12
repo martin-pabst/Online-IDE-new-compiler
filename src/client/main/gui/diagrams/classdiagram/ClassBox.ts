@@ -98,9 +98,9 @@ export class ClassBox extends DiagramElement {
 
     }
 
-    documentationToString(documentation: string | (() => string)){
-        if(!documentation) return "";
-        if(typeof documentation == "string") return documentation;
+    documentationToString(documentation: string | (() => string)) {
+        if (!documentation) return "";
+        if (typeof documentation == "string") return documentation;
         return documentation();
     }
 
@@ -135,7 +135,7 @@ export class ClassBox extends DiagramElement {
 
         this.addTextLine({
             type: "text",
-            text: (this.klass instanceof JavaInterface ? "<<interface>> " : ( this.klass.isAbstract() ? "<<abstract>> " : "")) + this.klass.identifier,
+            text: (this.klass instanceof JavaInterface ? "<<interface>> " : (this.klass.isAbstract() ? "<<abstract>> " : "")) + this.klass.identifier,
             tooltip: this.klass.getDeclaration(),
             alignment: Alignment.center,
             bold: true,
@@ -150,7 +150,17 @@ export class ClassBox extends DiagramElement {
             });
             for (let field of this.klass.getFields().filter(field => field.type.identifier != 'Class')) {
 
-                let text: string = this.getVisibilityText(field.visibility) + field.type?.toString() + " " +  field.identifier;
+                let text: string = this.getVisibilityText(field.visibility);
+
+                switch (this.diagram.main.getSettings().getValue("classDiagram.typeConvention")) {
+                    default:
+                        // Default to Java-like convention
+                        text += field.type?.toString() + " " + field.identifier;
+                        break;
+                    case "pascal":
+                        text += field.identifier + ": " + field.type?.toString();
+                        break;
+                }
 
                 this.addTextLine({
                     type: "text",
@@ -169,27 +179,40 @@ export class ClassBox extends DiagramElement {
             });
             let hiddenSignatures: string[] = ["string toJson()", this.klass.identifier + " fromJson(string)"];
             this.klass.getOwnMethods().filter(m => hiddenSignatures.indexOf(m.getSignature()) < 0)
-            .filter(m => !m.isConstructor || m.identifier == this.klass.identifier)
-            .forEach(m => {
-                let text: string = this.getVisibilityText(m.visibility) + m.identifier + "()";
+                .filter(m => !m.isConstructor || m.identifier == this.klass.identifier)
+                .forEach(m => {
+                    let text: string = this.getVisibilityText(m.visibility) + m.identifier + "()";
 
-                if (parametersWithTypes) {
                     let returnType: string = m.isConstructor ? "" :
-                        (m.returnParameterType == null ? "void " : m.returnParameterType.toString() + " ");
-                    text = this.getVisibilityText(m.visibility) + returnType + m.identifier + "(" +
-                        m.parameters.map((p) => { return p.type.toString() + " " + p.identifier }).join(", ") + ")";
-                }
+                        (m.returnParameterType == null ? "" : m.returnParameterType.toString());
 
-                this.addTextLine({
-                    type: "text",
-                    text: text,
-                    tooltip: m.getDeclaration(),
-                    alignment: Alignment.left,
-                    italics: this.klass instanceof JavaInterface || m.isAbstract,
-                    onClick: this.isSystemClass ? undefined : () => { this.jumpToDeclaration(m) }
+                    if (parametersWithTypes) {
+                        switch (this.diagram.main.getSettings().getValue("classDiagram.typeConvention")) {
+                            default:
+                                // Default to Java-like convention
+                                if (returnType !== "") returnType += " ";
+                                text = this.getVisibilityText(m.visibility) + returnType + m.identifier + "(" +
+                                m.parameters.map((p) => { return p.type.toString() + " " + p.identifier }).join(", ") + ")";
+                                break;
+                                case "pascal":
+                                if (returnType !== "") returnType = " : " + returnType;
+                                text = this.getVisibilityText(m.visibility) + m.identifier + "(" +
+                                    m.parameters.map((p) => { return p.identifier + ": " + p.type.toString() }).join(", ") + ")" +
+                                    returnType;
+                                break;
+                        }
+                    }
+
+                    this.addTextLine({
+                        type: "text",
+                        text: text,
+                        tooltip: m.getDeclaration(),
+                        alignment: Alignment.left,
+                        italics: this.klass instanceof JavaInterface || m.isAbstract,
+                        onClick: this.isSystemClass ? undefined : () => { this.jumpToDeclaration(m) }
+                    });
+
                 });
-
-            });
         }
 
         this.backgroundColor = this.isSystemClass ? "#aaaaaa" : "#ffffff";
