@@ -71,8 +71,13 @@ export class Slider {
 
         let mousePointer = window.PointerEvent ? "pointer" : "mouse";
 
+        this.sliderDiv.addEventListener("mousedown", (md) => {md.stopPropagation(); md.preventDefault();})
+
         //@ts-ignore
-        this.sliderDiv.addEventListener(mousePointer + "down", (md: PointerEvent) => {
+        this.sliderDiv.addEventListener("pointerdown", (md: PointerEvent) => {
+
+            md.stopPropagation();
+            md.preventDefault();
 
             let x = md.clientX;
             let y = md.clientY;
@@ -102,6 +107,9 @@ export class Slider {
             this.transparentOverlay.addEventListener("pointermove", moveListener = (mm: PointerEvent) => {
                 let dx = mm.clientX - x;
                 let dy = mm.clientY - y;
+
+                mm.preventDefault();
+                mm.stopPropagation();
 
                 if (this.vertHor) {
                     let newHeight = ownStartHeight + (this.lastFirst ? -dy : dy);

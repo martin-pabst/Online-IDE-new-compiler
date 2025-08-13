@@ -24,15 +24,153 @@ export class Sliderknob {
     DX = -8;
     DY = -8;
 
+    xStart: number;
+    yStart: number;
+    touchIdentifier: number;
+
     constructor(private neighbours: SliderKnobNeighbour[],
         private sliderMovedCallback: SliderknobMovedCallback) {
 
-        this.initSlider();
+        this.init();
     }
 
-    initSlider() {
+    init() {
+
+        this.initSliderknobPosition();
+
+        this.initPointerEvents();
+
+        this.initTouchEvents();
+    }
+
+    private initTouchEvents(){
+        this.sliderknobDiv.addEventListener("touchstart", (ev: TouchEvent) => {
+            ev.preventDefault();
+            if(ev.touches.length > 0 && typeof this.touchIdentifier == 'undefined'){
+                let touch = ev.touches[0];
+                this.xStart = touch.clientX;
+                this.yStart = touch.clientY;
+                this.touchIdentifier = touch.identifier;
+            }
+        })
+
+        this.sliderknobDiv.addEventListener("touchmove", (ev: TouchEvent) => {
+            for(let i = 0; i < ev.touches.length; i++){
+                let touch = ev.touches[i];
+                if(touch.identifier == this.touchIdentifier){
+                    this.dragMove(touch.clientX, touch.clientY);
+                }
+            }
+        })
+
+        this.sliderknobDiv.addEventListener("touchend", (ev: TouchEvent) => {
+            for(let i = 0; i < ev.touches.length; i++){
+                let touch = ev.touches[i];
+                if(touch.identifier == this.touchIdentifier){
+                    this.touchIdentifier == undefined;
+                    this.dragEnd();
+                }
+            }
+
+        })
+        
+
+    }
 
 
+
+    private initPointerEvents() {
+        this.sliderknobDiv.addEventListener("mousedown", (md: PointerEvent) => { md.stopPropagation(); md.preventDefault(); });
+
+        this.sliderknobDiv.addEventListener("pointerdown", (md: PointerEvent) => {
+
+            md.preventDefault();
+            md.stopPropagation();
+
+            this.dragStart(md.clientX, md.clientY);
+
+            this.transparentOverlay = DOM.makeDiv(document.body);
+            this.transparentOverlay.style.cursor = 'ns-resize';
+            this.transparentOverlay.style.position = 'absolute';
+            this.transparentOverlay.style.left = '0';
+            this.transparentOverlay.style.top = '0';
+            this.transparentOverlay.style.bottom = '0';
+            this.transparentOverlay.style.right = '0';
+            this.transparentOverlay.style.zIndex = '1000';
+
+
+            this.transparentOverlay.addEventListener("mousemove", (ev) => { ev.preventDefault(); ev.stopPropagation(); });
+
+
+            this.transparentOverlay.addEventListener("pointermove", (mm: PointerEvent) => {
+
+                mm.stopPropagation();
+                mm.preventDefault();
+
+                this.dragMove(mm.clientX, mm.clientY);
+
+                // this.container.style.flex = "0 1 auto";
+            });
+
+            this.transparentOverlay!.onmousemove = (ev) => { ev.stopPropagation(); };
+
+            this.transparentOverlay.addEventListener("pointerup", () => {
+                this.transparentOverlay!.remove();
+                this.dragEnd();
+            });
+            
+            
+        });
+    }
+    
+    private dragEnd(){
+        if (this.sliderknobEndCallback) this.sliderknobEndCallback();
+    }
+
+    private dragMove(x: number, y: number) {
+        let dx = x - this.xStart;
+        let dy = y - this.yStart;
+
+        for (let neighbour of this.neighbours) {
+            for (let orientation of neighbour.neighbourOrientation) {
+                switch (orientation) {
+                    case "top":
+                        neighbour.element.style.height = neighbour.oldHeight + dy + "px";
+                        break;
+                    case "bottom":
+                        neighbour.element.style.height = neighbour.oldHeight - dy + "px";
+                        break;
+                    case "left":
+                        neighbour.element.style.width = neighbour.oldWidth + dx + "px";
+                        break;
+                    case "right":
+                        neighbour.element.style.width = neighbour.oldWidth - dx + "px";
+                        break;
+                }
+            }
+
+        }
+
+        if (this.sliderMovedCallback) {
+            this.sliderMovedCallback();
+        }
+    }
+
+    private dragStart(x: number, y: number) {
+        this.xStart = x;
+        this.yStart = y;
+
+        for (let neighbour of this.neighbours) {
+            let neighbourBoundingBox = neighbour.element.getBoundingClientRect();
+            neighbour.oldWidth = neighbourBoundingBox.width;
+            neighbour.oldHeight = neighbourBoundingBox.height;
+        }
+
+        if (this.sliderknobBeginCallback) this.sliderknobBeginCallback();
+
+    }
+
+    private initSliderknobPosition() {
         this.sliderknobDiv = DOM.makeDiv(undefined, "jo_sliderknob", "img_knob", "jo_button", "jo_active");
         this.sliderknobDiv.draggable = false;
         this.sliderknobDiv.style.zIndex = "10";
@@ -54,7 +192,7 @@ export class Sliderknob {
                         top = neighbourBoundingBox.top;
                         new ResizeObserver(() => {
                             this.sliderknobDiv.style.top = neighbour.element.getBoundingClientRect().top + this.DY + window.scrollY + "px";
-                            }).observe(neighbour.element);
+                        }).observe(neighbour.element);
                         break;
                     case "left":
                         left = neighbourBoundingBox.left + neighbourBoundingBox.width;
@@ -63,7 +201,7 @@ export class Sliderknob {
                         left = neighbourBoundingBox.left;
                         new ResizeObserver(() => {
                             this.sliderknobDiv.style.left = neighbour.element.getBoundingClientRect().left + this.DX + window.scrollX + "px";
-                            }).observe(neighbour.element);
+                        }).observe(neighbour.element);
                         break;
                 }
             }
@@ -72,81 +210,5 @@ export class Sliderknob {
 
         this.sliderknobDiv.style.top = top + window.scrollY + this.DY + "px";
         this.sliderknobDiv.style.left = left + window.scrollX + this.DX + "px";
-
-
-        let mousePointer = window.PointerEvent ? "pointer" : "mouse";
-
-        this.sliderknobDiv.addEventListener(mousePointer + "down", (md: PointerEvent) => {
-
-            let x = md.clientX;
-            let y = md.clientY;
-
-            for (let neighbour of this.neighbours) {
-                let neighbourBoundingBox = neighbour.element.getBoundingClientRect();
-                neighbour.oldWidth = neighbourBoundingBox.width;
-                neighbour.oldHeight = neighbourBoundingBox.height;
-            }
-
-            let moveListener: EventListener;
-
-            this.transparentOverlay = DOM.makeDiv(document.body);
-            this.transparentOverlay.style.cursor = 'ns-resize';
-            this.transparentOverlay.style.position = 'absolute';
-            this.transparentOverlay.style.left = '0';
-            this.transparentOverlay.style.top = '0';
-            this.transparentOverlay.style.bottom = '0';
-            this.transparentOverlay.style.right = '0';
-            this.transparentOverlay.style.zIndex = '1000';
-
-            if (this.sliderknobBeginCallback) this.sliderknobBeginCallback();
-
-            //@ts-ignore
-            this.transparentOverlay.addEventListener("pointermove", moveListener = (mm: PointerEvent) => {
-                let dx = mm.clientX - x;
-                let dy = mm.clientY - y;
-
-                for (let neighbour of this.neighbours) {
-                    for (let orientation of neighbour.neighbourOrientation) {
-                        switch (orientation) {
-                            case "top":
-                                neighbour.element.style.height = neighbour.oldHeight + dy + "px";
-                                break;
-                            case "bottom":
-                                neighbour.element.style.height = neighbour.oldHeight - dy + "px";
-                                break;
-                            case "left":
-                                neighbour.element.style.width = neighbour.oldWidth + dx + "px";
-                                break;
-                            case "right":
-                                neighbour.element.style.width = neighbour.oldWidth - dx + "px";
-                                break;
-                        }
-                    }
-
-                }
-
-                // this.sliderknobDiv.style.top = top + dy + "px";
-                // this.sliderknobDiv.style.left = left + dx + "px";
-
-                if (this.sliderMovedCallback) {
-                    this.sliderMovedCallback();
-                }
-
-                // this.container.style.flex = "0 1 auto";
-
-            });
-
-            this.transparentOverlay!.onmousemove = (ev) => { ev.stopPropagation() };
-
-            this.transparentOverlay.addEventListener("pointerup", () => {
-                this.transparentOverlay!.remove();
-                if (this.sliderknobEndCallback) this.sliderknobEndCallback();
-            });
-
-
-        });
-
     }
-
-
 }

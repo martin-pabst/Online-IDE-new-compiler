@@ -7,6 +7,7 @@
         /* top: 0px;
         left: calc(100% - 2px); */
         z-index: 10;
+        user-select: none;
     }
 
     .jo_slider:hover {
@@ -21,6 +22,7 @@
         position: absolute;
         top: -8px;
         transform: scale(1.5);
+        user-select: none;
         /* cursor: move !important; */
     }
 
