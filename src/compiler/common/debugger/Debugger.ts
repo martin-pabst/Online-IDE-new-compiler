@@ -138,8 +138,7 @@ export class Debugger {
             let caption = thread.name;
             let icon = "img_thread-" + ThreadState[thread.state];
             let node = this.threadsTreeview.addNode(false, caption,
-                icon, thread, thread, undefined, true
-            )
+                icon, thread, undefined)
 
             node.setTooltip(caption + "(" + ThreadState[thread.state] + ")");
 
@@ -198,7 +197,7 @@ export class Debugger {
             let programState = programStack[i];
             let entry = new DebuggerCallstackEntry(programState);
             let node = this.callstackTreeview.addNode(false, entry.getCaption(), undefined,
-                entry, entry, undefined, true);
+                entry, undefined);
             node.onClickHandler = (entry) => {
                 this.showVariablesOfProgramState(thread, entry?.programState);
                 this.showCallstackPositionInsideProgram(thread, entry);

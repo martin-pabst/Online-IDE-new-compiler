@@ -39,7 +39,6 @@ export class JUnitTreeviewEntry {
         public method: JavaMethod | undefined) {
 
         this.treeviewNode = new TreeviewNode(testrunner.testTreeview, !this.method, "", "img_test-start", this, this, parent, true);
-        this.treeviewNode.render();
         this.treeviewNode.onIconClicked = (element) => {
             testrunner.clearOutput();
             element?.runTests();

@@ -3,7 +3,7 @@ import { TreeviewAccordion } from './TreeviewAccordion.ts';
 import '/assets/css/treeview.css';
 import '/assets/css/icons.css';
 import { ExpandCollapseComponent, ExpandCollapseState } from '../ExpandCollapseComponent.ts';
-import { IconButtonComponent, IconButtonListener } from '../IconButtonComponent.ts';
+import { IconButtonComponent } from '../IconButtonComponent.ts';
 import { TreeviewNode, TreeviewNodeOnClickHandler } from './TreeviewNode.ts';
 import { makeEditable } from '../../HtmlTools.ts';
 
@@ -14,7 +14,9 @@ export type TreeviewConfig<E> = {
         text?: string
     },
     contextMenu?: {
-        messageNewNode?: string
+        messageNewNode?: string,
+        messageNewFolder?: (parentFolder: string) => string,
+        messageRename?: string
     },
     flexWeight?: string,
     withFolders?: boolean,
@@ -128,10 +130,10 @@ export class Treeview<E> {
     }
 
     private _onNodeClickedHandler?: TreeviewNodeOnClickHandler<E>;
-    set onNodeClickedHandler(och: TreeviewNodeOnClickHandler<E>){
+    set onNodeClickedHandler(och: TreeviewNodeOnClickHandler<E>) {
         this._onNodeClickedHandler = och;
     }
-    get onNodeClickedHandler(): TreeviewNodeOnClickHandler<E> | undefined{
+    get onNodeClickedHandler(): TreeviewNodeOnClickHandler<E> | undefined {
         return this._onNodeClickedHandler;
     }
 
@@ -145,8 +147,6 @@ export class Treeview<E> {
             this.parentElement = parent;
         }
 
-        let c = config ? config : {};
-
         let standardConfig: TreeviewConfig<E> = {
             captionLine: {
                 enabled: true,
@@ -156,7 +156,12 @@ export class Treeview<E> {
             withDeleteButtons: true,
             withDragAndDrop: true,
             contextMenu: {
-                messageNewNode: "Neues Element anlegen..."
+                messageNewNode: "Neues Element anlegen...",
+                messageNewFolder: (parentFolder: string) => (
+                    "Neuen Ordner anlegen (unterhalb " + parentFolder + ")"
+                ),
+                messageRename: "Umbenennen"
+
             },
             minHeight: 150,
             initialExpandCollapseState: "expanded",
@@ -167,16 +172,22 @@ export class Treeview<E> {
             selectMultiple: true
         }
 
-        this._lastExpandedHeight = config?.minHeight!;
+        this._lastExpandedHeight = config?.minHeight ?? 100;
 
-        this.config = Object.assign(standardConfig, c);
+        if(config){
+            if(config.contextMenu){  
+                config.contextMenu = Object.assign(standardConfig.contextMenu, config.contextMenu);
+            }
+            this.config = Object.assign(standardConfig, config);
+        } else {
+            this.config = standardConfig;
+        }
 
         this.buildHtmlScaffolding();
 
         if (config?.flexWeight) this.setFlexWeight(config.flexWeight);
 
         this.rootNode = new TreeviewNode<E>(this, true, 'Root', undefined, null, null, null);
-        this.rootNode.render();
 
         if (this.treeviewAccordion) this.treeviewAccordion.addTreeview(this);
 
@@ -188,7 +199,7 @@ export class Treeview<E> {
 
     setFlexWeight(flex: string) {
         this._outerDiv.style.flexGrow = flex;
-        if(this.config.minHeight! > 0){
+        if (this.config.minHeight! > 0) {
             this._outerDiv.style.flexBasis = this.config.minHeight + "px";
         }
     }
@@ -247,22 +258,23 @@ export class Treeview<E> {
 
         if (this.config.buttonAddElements) {
             this.captionLineAddIconButton("img_add-dark", () => {
-                    this.addNewNode();
+                this.addNewNode();
             }, this.config.buttonAddElementsCaption);
         }
 
     }
 
-    addNewNode(){
+    addNewNode() {
         let selectedNodes = this.getCurrentlySelectedNodes();
 
         let folder: TreeviewNode<E> | undefined;
-        if(selectedNodes.length == 1 && selectedNodes[0].isFolder) folder = selectedNodes[0];
+        if (selectedNodes.length == 1 && selectedNodes[0].isFolder) folder = selectedNodes[0];
 
-        let node = this.addNode(false, "", this.config.defaultIconClass, {} as E, null, folder?.externalObject, true);
+        let node = this.addNode(false, "", this.config.defaultIconClass, {} as E, 
+            folder?.externalObject);
         makeEditable(node.captionDiv, node.captionDiv, (newContent: string) => {
             node.caption = newContent;
-            if(this.newNodeCallback){
+            if (this.newNodeCallback) {
                 node.externalObject = this.newNodeCallback(newContent, node);
             }
         })
@@ -270,7 +282,7 @@ export class Treeview<E> {
     }
 
 
-    captionLineAddIconButton(iconClass: string, callback: IconButtonListener, tooltip?: string): IconButtonComponent {
+    captionLineAddIconButton(iconClass: string, callback: () => void, tooltip?: string): IconButtonComponent {
         return new IconButtonComponent(this.captionLineButtonsDiv, iconClass, callback, tooltip);
     }
 
@@ -282,60 +294,77 @@ export class Treeview<E> {
         this.captionLineTextDiv.textContent = text;
     }
 
+    /**
+     * Convenience method to create new nodes
+     * @returns 
+     */
     addNode(isFolder: boolean, caption: string, iconClass: string | undefined,
         externalElement: E,
-        externalReference: any,
-        parentExternalReference: any, renderImmediately: boolean = false): TreeviewNode<E> {
+        parentExternalReference: any): TreeviewNode<E> {
 
         let node = new TreeviewNode(this, isFolder, caption, iconClass,
-            externalElement, externalReference, parentExternalReference,);
-            if(this.nodes.indexOf(node) < 0) this.nodes.push(node);
-
-        if (renderImmediately) node.render();
+            externalElement, parentExternalReference);
 
         return node;
     }
 
     addNodeInternal(node: TreeviewNode<E>) {
-        if(this.nodes.indexOf(node) < 0) this.nodes.push(node);
+        if (this.nodes.indexOf(node) < 0) this.nodes.push(node);
     }
 
 
-    public initialRenderAll() {
-        let renderedExternalReferences: Map<any, boolean> = new Map();
+    // public initialRenderAll() {
+    //     let renderedExternalReferences: Map<any, boolean> = new Map();
 
-        // the following algorithm ensures that parents are rendered before their children:
-        let elementsToRender = this.nodes.slice();
-        let done: boolean = false;
+    //     // the following algorithm ensures that parents are rendered before their children:
+    //     let elementsToRender = this.nodes.slice();
+    //     let done: boolean = false;
 
-        while (!done) {
+    //     while (!done) {
 
-            done = true;
+    //         done = true;
 
-            for (let i = 0; i < elementsToRender.length; i++) {
-                let e = elementsToRender[i];
-                if (e.parentExternalReference == null || renderedExternalReferences.get(e.parentExternalReference) != null) {
-                    e.render();
-                    e.findAndCorrectParent();
-                    renderedExternalReferences.set(e.externalReference, true);
-                    elementsToRender.splice(i, 1);
-                    i--;
-                    done = false;
-                }
+    //         for (let i = 0; i < elementsToRender.length; i++) {
+    //             let e = elementsToRender[i];
+    //             if (e.parentExternalReference == null || renderedExternalReferences.get(e.parentExternalReference) != null) {
+    //                 e.render();
+    //                 e.findAndCorrectParent();
+    //                 renderedExternalReferences.set(e.externalReference, true);
+    //                 elementsToRender.splice(i, 1);
+    //                 i--;
+    //                 done = false;
+    //             }
+    //         }
+    //     }
+
+    //     this.nodes.forEach(node => node.adjustLeftMarginToDepth());
+
+    //     if (this.config.comparator) {
+    //         this.rootNode.sort(this.config.comparator);
+    //     }
+
+    // }
+
+    findParent(node: TreeviewNode<E>): TreeviewNode<E> | undefined {
+        let parent = node.parentExternalObject == null ? this.rootNode : <TreeviewNode<E> | undefined>this.nodes.find(e => e.externalObject == node.parentExternalObject);
+
+        // Don't accept cycles in parent-child-graph:
+        if(parent == node) parent = null;
+        if(parent != null){
+            if(parent.isRootNode()) return parent;
+            let p: TreeviewNode<E> | undefined = parent;
+            do {
+                p = this.nodes.find(e => e.externalObject == p.parentExternalObject);
+            } while(p != null && p != parent && p != node);           
+
+            if(p != null){
+                parent = undefined;     // cyclic reference found!
             }
         }
 
-        this.nodes.forEach(node => node.adjustLeftMarginToDepth());
-
-        if (this.config.comparator) {
-            this.rootNode.sort(this.config.comparator);
-        }
-
+        return parent;
     }
 
-    findParent(node: TreeviewNode<E>): TreeviewNode<E> | undefined {
-        return node.parentExternalReference == null ? this.rootNode : <TreeviewNode<E> | undefined>this.nodes.find(e => e.externalReference == node.parentExternalReference);
-    }
 
     unfocusAllNodes() {
         this.nodes.forEach(el => el.setFocus(false));
@@ -383,7 +412,7 @@ export class Treeview<E> {
 
     removeNode(node: TreeviewNode<E>) {
         let index = this.nodes.indexOf(node);
-        if(index >= 0) this.nodes.splice(index, 1);
+        if (index >= 0) this.nodes.splice(index, 1);
         node.destroy(false);
     }
 
@@ -433,9 +462,9 @@ export class Treeview<E> {
         this.rootNode.removeChildren();
     }
 
-    detachAllNodes(){
-        for(let node of this.nodes.slice()) {
-            if(node !== this.rootNode) node.detach();
+    detachAllNodes() {
+        for (let node of this.nodes.slice()) {
+            if (node !== this.rootNode) node.detach();
         }
     }
 

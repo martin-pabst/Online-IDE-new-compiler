@@ -1,8 +1,6 @@
 import { DOM } from "../DOM.ts";
 import '/assets/css/icons.css';
 
-export type IconButtonListener = () => void;
-
 export class IconButtonComponent {
 
     private divElement: HTMLDivElement;
@@ -13,7 +11,7 @@ export class IconButtonComponent {
 
     private currentIconClass?: string;
 
-    constructor(private _parent: HTMLElement, private iconClass: string, private listener: IconButtonListener, tooltip?: string){
+    constructor(private _parent: HTMLElement, private iconClass: string, private listener: () => void, tooltip?: string){
 
         this.divElement = DOM.makeDiv(undefined, 'jo_iconButton');
         _parent.prepend(this.divElement);
@@ -55,6 +53,10 @@ export class IconButtonComponent {
             this.divElement.classList.toggle("jo_iconButton_active");
             this.isActive = active;
         }
+    }
+
+    setVisible(visible: boolean){
+        this.divElement.style.display = visible ? "" : "none";
     }
 
 }

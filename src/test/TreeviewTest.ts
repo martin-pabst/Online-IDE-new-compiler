@@ -3,7 +3,9 @@ import { Treeview } from "../tools/components/treeview/Treeview";
 import '/assets/css/icons.css';
 
 class TVFile {
+    constructor(public name: string){
 
+    }
 }
 
 class TreeviewTest {
@@ -26,13 +28,22 @@ class TreeviewTest {
             buttonAddFolders: true,
             selectMultiple: false,
             withFolders: true,
-            defaultIconClass: "img_file-dark-text"
+            defaultIconClass: "img_file-dark-text",
+            comparator: (e1, e2) => {
+                return e1.name.localeCompare(e2.name);
+            }
         })
 
-        let file1 = new TVFile();
-        let node1 = tv.addNode(false, "Erster", "img_file-dark-java", file1, file1, undefined);
-        node1.render();
+        let file1 = new TVFile("Erster Erster Erster Erster Erster Erster ");
+        let node1 = tv.addNode(false, "Erster Erster Erster Erster Erster Erster ", 
+            "img_file-dark-java", file1, undefined);
+        node1.addIconButton('img_start-dark', undefined, undefined, true);
 
+        let file2 = new TVFile("AZweiter");
+        let node2 = tv.addNode(false, "Zweiter", "img_file-dark-text", file2, undefined);
+        node2.addIconButton('img_start-dark', undefined, undefined, true);
+
+        node1.setRightPartOfCaptionErrors("(10)");
     }
 }
 

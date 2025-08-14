@@ -54,7 +54,7 @@
         background-color: var(--backgroundDark);
         font-size: 13px;
         height: 100%;
-        width: inherit;
+        width: 100%;
     }
 
     /* Caption */
@@ -84,7 +84,7 @@
         display: flex;
         flex-direction: row;
         margin: 2px 4px 0 2px;
-
+        gap: 2px;
     }
 
     /* ExpandCollapseComponent */
@@ -99,6 +99,7 @@
 
     /* IconButton */
     .jo_iconButton {
+        display: block;
         cursor: pointer;
     }
 
@@ -202,15 +203,19 @@
     }
 
     .jo_treeviewNode_buttons {
-        visibility: hidden;
+        display: none;
         flex-direction: row;
-        display: flex;
         margin-top: 1px;
         margin-right: 2px;
+        gap: 2px;
     }
 
+    .jo_treeviewNode_buttons_always_visible {
+        display: flex;
+    }
+    
     .jo_treeviewNode:hover .jo_treeviewNode_buttons {
-        visibility: visible;
+        display: flex;
     }
 
     .jo_treeviewNode_marginLeft {

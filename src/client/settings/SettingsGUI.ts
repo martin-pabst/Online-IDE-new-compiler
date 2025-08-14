@@ -322,8 +322,8 @@ export class SettingsGUI {
     addSettingsToExplorer(settingsGroup: GroupOfSettingMetadata, parent: GroupOfSettingMetadata | null = null) {
 
 
-        this.settingsExplorer.addNode(settingsGroup.settings.find(s => s.settingType === 'group') != null, settingsGroup.name(), undefined, settingsGroup,
-            settingsGroup, parent, true);
+        this.settingsExplorer.addNode(settingsGroup.settings.find(s => s.settingType === 'group') != null, 
+        settingsGroup.name(), undefined, settingsGroup, parent);
 
         settingsGroup.settings.filter(s => s.settingType === 'group').forEach(childGroup => {
             this.addSettingsToExplorer(childGroup, settingsGroup);

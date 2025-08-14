@@ -42,10 +42,8 @@ export class DebuggerSymbolEntry {
 
         this.treeViewNode = new TreeviewNode(symbolTableSection.treeview,
             false, "", undefined,
-            this, this, parent, true
+            this, parent, true
         )
-
-        this.treeViewNode.render();
 
         if (identifier == "this") {
             this.treeViewNode.expandCollapseComponent.setState("expanded");
