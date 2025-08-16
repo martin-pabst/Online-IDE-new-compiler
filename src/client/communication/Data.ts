@@ -52,13 +52,16 @@ export type FileData = {
     forceUpdate: boolean,
     is_copy_of_id?: number,
     repository_file_version?: number,
-    identical_to_repository_version: boolean
+    identical_to_repository_version: boolean,
+    isFolder: boolean,
+    parent_folder_id: number | null
 }
 
 export type WorkspaceData = {
     name: string,
     path: string,
     isFolder: boolean,
+    parent_folder_id: number | null,
     id: number,
     owner_id: number,
     files: FileData[],

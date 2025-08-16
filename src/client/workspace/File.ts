@@ -23,6 +23,9 @@ export class GUIFile extends CompilerFile {
 
     remote_version: number = 1;             // is this field used anywhere in a meaningful manner?
 
+    isFolder: boolean = false;
+    parent_folder_id: number | null;
+
     // GUI references:
     panelElement?: AccordionElement;
     private monacoModel?: monaco.editor.ITextModel;
@@ -47,7 +50,9 @@ export class GUIFile extends CompilerFile {
             repository_file_version: this.repository_file_version,
             identical_to_repository_version: this.identical_to_repository_version,
             workspace_id: workspace.id,
-            forceUpdate: false
+            forceUpdate: false,
+            isFolder: this.isFolder,
+            parent_folder_id: this.parent_folder_id
         }
 
         return fd;

@@ -18,6 +18,7 @@ export class Workspace extends CompilerWorkspace {
 
     path: string;
     isFolder: boolean;
+    parent_folder_id: number | null;
     readonly: boolean;
     id: number;
     owner_id: number;
@@ -91,6 +92,7 @@ export class Workspace extends CompilerWorkspace {
             name: this.name,
             path: this.path,
             isFolder: this.isFolder,
+            parent_folder_id: this.parent_folder_id,
             id: this.id,
             owner_id: this.owner_id,
             current_file_id: this.currentlyOpenFile == null ? null : this.currentlyOpenFile.id,
