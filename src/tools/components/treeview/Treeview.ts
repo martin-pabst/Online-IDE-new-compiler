@@ -22,6 +22,7 @@ export type TreeviewConfig<E> = {
     withFolders?: boolean,
     withDeleteButtons?: boolean,
     withDragAndDrop?: boolean,
+    allowDragAndDropCopy?: boolean,
     comparator?: (externalElement1: E, externalElement2: E) => number,
     minHeight?: number,
     buttonAddFolders?: boolean,
@@ -43,9 +44,13 @@ export type TreeviewContextMenuItem<E> = {
     subMenu?: TreeviewContextMenuItem<E>[]
 }
 
+
+export type DragKind = "copy" | "move";
 // Callback functions return true if changes shall be executed on treeview, false if action should get cancelled
 
-export type TreeviewMoveNodesCallback<E> = (movedElements: E[], destinationFolder: E | null, position: { order: number, elementBefore: E | null, elementAfter: E | null }) => boolean;
+export type TreeviewMoveNodesCallback<E> = (movedElements: E[], destinationFolder: E | null,
+    position: { order: number, elementBefore: E | null, elementAfter: E | null },
+    dragKind: DragKind) => boolean;
 export type TreeviewRenameCallback<E> = (element: E, newName: string, node: TreeviewNode<E>) => boolean;
 export type TreeviewDeleteCallback<E> = (element: E | null) => void;
 export type TreeviewNewNodeCallback<E> = (name: string, node: TreeviewNode<E>) => E;
@@ -155,6 +160,7 @@ export class Treeview<E> {
             withFolders: true,
             withDeleteButtons: true,
             withDragAndDrop: true,
+            allowDragAndDropCopy: false,
             contextMenu: {
                 messageNewNode: "Neues Element anlegen...",
                 messageNewFolder: (parentFolder: string) => (
@@ -174,8 +180,8 @@ export class Treeview<E> {
 
         this._lastExpandedHeight = config?.minHeight ?? 100;
 
-        if(config){
-            if(config.contextMenu){  
+        if (config) {
+            if (config.contextMenu) {
                 config.contextMenu = Object.assign(standardConfig.contextMenu, config.contextMenu);
             }
             this.config = Object.assign(standardConfig, config);
@@ -204,8 +210,10 @@ export class Treeview<E> {
         }
     }
 
-    invokeMoveNodesCallback(movedElements: E[], destinationFolder: E | null, position: { order: number, elementBefore: E | null, elementAfter: E | null }): boolean {
-        if (this._moveNodesCallback) return this._moveNodesCallback(movedElements, destinationFolder, position);
+    invokeMoveNodesCallback(movedElements: E[], destinationFolder: E | null,
+        position: { order: number, elementBefore: E | null, elementAfter: E | null },
+        dragKind: DragKind): boolean {
+        if (this._moveNodesCallback) return this._moveNodesCallback(movedElements, destinationFolder, position, dragKind);
         return true;
     }
 
@@ -252,25 +260,25 @@ export class Treeview<E> {
 
         if (this.config.buttonAddFolders) {
             this.captionLineAddIconButton("img_add-folder-dark", () => {
-
+                this.addNewNode(true);
             }, "Ordner hinzufügen");
         }
 
         if (this.config.buttonAddElements) {
             this.captionLineAddIconButton("img_add-dark", () => {
-                this.addNewNode();
+                this.addNewNode(false);
             }, this.config.buttonAddElementsCaption);
         }
 
     }
 
-    addNewNode() {
+    addNewNode(isFolder: boolean) {
         let selectedNodes = this.getCurrentlySelectedNodes();
 
         let folder: TreeviewNode<E> | undefined;
         if (selectedNodes.length == 1 && selectedNodes[0].isFolder) folder = selectedNodes[0];
 
-        let node = this.addNode(false, "", this.config.defaultIconClass, {} as E, 
+        let node = this.addNode(isFolder, "", this.config.defaultIconClass, {} as E,
             folder?.externalObject);
         makeEditable(node.captionDiv, node.captionDiv, (newContent: string) => {
             node.caption = newContent;
@@ -349,15 +357,15 @@ export class Treeview<E> {
         let parent = node.parentExternalObject == null ? this.rootNode : <TreeviewNode<E> | undefined>this.nodes.find(e => e.externalObject == node.parentExternalObject);
 
         // Don't accept cycles in parent-child-graph:
-        if(parent == node) parent = null;
-        if(parent != null){
-            if(parent.isRootNode()) return parent;
+        if (parent == node) parent = null;
+        if (parent != null) {
+            if (parent.isRootNode()) return parent;
             let p: TreeviewNode<E> | undefined = parent;
             do {
-                p = this.nodes.find(e => e.externalObject == p.parentExternalObject);
-            } while(p != null && p != parent && p != node);           
+                p = p.getParent();
+            } while (p != null && p != parent && p != node && !p.isRootNode());
 
-            if(p != null){
+            if (p != null && !p.isRootNode()) {
                 parent = undefined;     // cyclic reference found!
             }
         }

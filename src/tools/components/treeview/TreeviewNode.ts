@@ -2,7 +2,7 @@ import { DOM } from "../../DOM.ts";
 import { ContextMenuItem, makeEditable, openContextMenu } from "../../HtmlTools.ts";
 import { ExpandCollapseComponent, ExpandCollapseListener, ExpandCollapseState } from "../ExpandCollapseComponent.ts";
 import { IconButtonComponent } from "../IconButtonComponent.ts";
-import { Treeview } from "./Treeview.ts";
+import { DragKind, Treeview } from "./Treeview.ts";
 
 export type TreeviewNodeOnClickHandler<E> = (element: E | undefined) => void;
 
@@ -115,6 +115,10 @@ export class TreeviewNode<E> {
         return this.nodeWithChildrenDiv;
     }
 
+    public getParent(){
+        return this.parent;
+    }
+
     private render() {
         if (!this.nodeWithChildrenDiv) {
             this.buildHtmlScaffolding();
@@ -163,14 +167,14 @@ export class TreeviewNode<E> {
     }
 
     public set iconClass(value: string) {
-        
+
         if (this._iconClass != value && this.iconDiv) {
             if (this._iconClass) {
                 this.iconDiv.classList.remove(this._iconClass);
             }
             this.iconDiv.classList.add(value);
         }
-        
+
         this._iconClass = value;
     }
     public get caption(): string {
@@ -461,7 +465,8 @@ export class TreeviewNode<E> {
 
 
             if (event.dataTransfer) {
-                event.dataTransfer.dropEffect = "move";
+                // event.dataTransfer.dropEffect = "move";
+                event.dataTransfer.effectAllowed = "copyMove";
                 event.dataTransfer.setDragImage(this.treeview.getDragGhost(), -10, 10);
             }
 
@@ -481,7 +486,8 @@ export class TreeviewNode<E> {
             this.dropzoneDiv.ondragover = (event) => {
 
                 if (event.dataTransfer) {
-                    event.dataTransfer.dropEffect = "move";
+                    event.dataTransfer.dropEffect = (event.ctrlKey && this.treeview.config.allowDragAndDropCopy)
+                        ? "copy" : "move";
                 }
 
                 let ddi = this.getDragAndDropIndex(event.pageX, event.pageY);
@@ -567,28 +573,39 @@ export class TreeviewNode<E> {
 
                 let elementAfter: E | null = ddi.index < this.children.length ? this.children[ddi.index].externalObject : null;
 
-                if (this.treeview.invokeMoveNodesCallback(movedElements, folder, { order: ddi.index, elementBefore: elementBefore, elementAfter: elementAfter })) {
+                let dragKind: DragKind = (event.ctrlKey && this.treeview.config.allowDragAndDropCopy) ? "copy" : "move";
 
-                    let nodesToInsert: TreeviewNode<E>[] = [];
-                    // iterate over selected nodes in order from top to bottom of tree:
-                    for (let node of this.treeview.getOrderedNodeListRecursively()) {
-                        if (this.treeview.getCurrentlySelectedNodes().indexOf(node) >= 0) {
-                            node.parent?.children.splice(node.parent.children.indexOf(node), 1);
-                            node.parent = this;
-                            nodesToInsert.push(node);
+                switch (dragKind) {
+                    case "move":
+                        if (this.treeview.invokeMoveNodesCallback(movedElements, folder,
+                            { order: ddi.index, elementBefore: elementBefore, elementAfter: elementAfter },
+                            dragKind)) {
+
+                            let nodesToInsert: TreeviewNode<E>[] = [];
+                            // iterate over selected nodes in order from top to bottom of tree:
+                            for (let node of this.treeview.getOrderedNodeListRecursively()) {
+                                if (this.treeview.getCurrentlySelectedNodes().indexOf(node) >= 0) {
+                                    node.parent?.children.splice(node.parent.children.indexOf(node), 1);
+                                    node.parent = this;
+                                    nodesToInsert.push(node);
+                                }
+                            }
+
+                            let insertIndex: number = nodeBefore == null ? 0 : this.children.indexOf(nodeBefore) + 1;
+                            this.children.splice(insertIndex, 0, ...nodesToInsert);
+
+                            DOM.clearAllButGivenClasses(this.childrenDiv, 'jo_treeviewChildrenLineDiv');
+
+                            this.children.forEach(c => {
+                                this.childrenDiv.appendChild(c.nodeWithChildrenDiv);
+                                c.adjustLeftMarginToDepth();
+                            });
                         }
-                    }
-
-                    let insertIndex: number = nodeBefore == null ? 0 : this.children.indexOf(nodeBefore) + 1;
-                    this.children.splice(insertIndex, 0, ...nodesToInsert);
-
-                    DOM.clearAllButGivenClasses(this.childrenDiv, 'jo_treeviewChildrenLineDiv');
-
-                    this.children.forEach(c => {
-                        this.childrenDiv.appendChild(c.nodeWithChildrenDiv);
-                        c.adjustLeftMarginToDepth();
-                    });
+                        break;
+                    case "copy":
+                        break;
                 }
+
 
             }
 

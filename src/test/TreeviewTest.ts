@@ -30,7 +30,10 @@ class TreeviewTest {
             withFolders: true,
             defaultIconClass: "img_file-dark-text",
             comparator: (e1, e2) => {
-                return e1.name.localeCompare(e2.name);
+                if(e1?.name && e2?.name){
+                    return e1.name.localeCompare(e2.name);
+                }
+                return 0;
             }
         })
 
