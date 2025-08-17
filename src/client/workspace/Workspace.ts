@@ -12,6 +12,9 @@ import { JavaLibraryManager } from '../../compiler/java/runtime/JavaLibraryManag
 
 import type * as monaco from 'monaco-editor'
 import { Module } from '../../compiler/common/module/Module.js';
+import { TreeviewNode } from '../../tools/components/treeview/TreeviewNode.js';
+import { IconButtonComponent } from '../../tools/components/IconButtonComponent.js';
+import { GuiMessages } from '../main/gui/language/GuiMessages.js';
 
 
 export class Workspace extends CompilerWorkspace {
@@ -120,34 +123,21 @@ export class Workspace extends CompilerWorkspace {
     }
 
 
-    renderSynchronizeButton(panelElement: AccordionElement) {
-        let $buttonDiv = panelElement?.$htmlFirstLine?.find('.jo_additionalButtonRepository');
-        if ($buttonDiv == null) return;
+    renderSynchronizeButton(node: TreeviewNode<Workspace>) {
 
-        let that = this;
+        let button = node.getIconButtonByTag("Synchronize");
+        if (!button) {
+            button = node.addIconButton("img_open-change", () => {
+                this.synchronizeWithRepository();
+            }, GuiMessages.SynchronizeWorkspace(),
+                false)
+            button.tag = "Synchronize";
+        }
+
         let myMain: Main = <Main><any>this.main;
 
-        if (this.repository_id != null && this.owner_id == myMain.user.id) {
-            let $button = jQuery('<div class="jo_startButton img_open-change jo_button jo_active" title="Workspace mit Repository synchronisieren"></div>');
-            $buttonDiv.append($button);
-            let that = this;
-            $button.on('pointerdown', (e) => e.stopPropagation());
-            $button.on('pointerup', (e) => {
-                e.stopPropagation();
+        button.setVisible(this.repository_id != null && this.owner_id == myMain.user.id);
 
-                that.synchronizeWithRepository();
-
-            });
-
-            $button[0].addEventListener("contextmenu", (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-            }, false);
-
-
-        } else {
-            $buttonDiv.find('.jo_startButton').remove();
-        }
     }
 
     synchronizeWithRepository() {
@@ -173,6 +163,7 @@ export class Workspace extends CompilerWorkspace {
         w.id = wd.id;
         w.path = wd.path;
         w.isFolder = wd.isFolder;
+        w.parent_folder_id = wd.parent_folder_id;
         w.owner_id = wd.owner_id;
         w.version = wd.version;
         w.repository_id = wd.repository_id;

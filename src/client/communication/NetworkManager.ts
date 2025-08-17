@@ -103,10 +103,10 @@ export class NetworkManager {
         })
     }
 
-    async sendUpdatesAsync(sendIfNothingIsDirty: boolean = false, sendBeacon: boolean = false, alertIfNewWorkspacesFound: boolean = false) {
+    async sendUpdatesAsync(sendIfNothingIsDirty: boolean = false, sendBeacon: boolean = false, alertIfNewWorkspacesFound: boolean = false): Promise<boolean> {
 
         if (this.main.user == null || this.main.user.is_testuser) {
-            return;
+            return true;
         }
 
         let classDiagram = this.main.rightDiv?.classDiagram;
@@ -116,7 +116,7 @@ export class NetworkManager {
 
             this.main.gui_state_dirty = false;
             userSettings.classDiagram = classDiagram?.serialize();
-            await this.sendUpdateGuiState(sendBeacon);
+            this.sendUpdateGuiState(sendBeacon);
             this.forcedUpdatesInARow = 0;
         }
 
@@ -172,13 +172,13 @@ export class NetworkManager {
                             that.updateFiles(response.filesToForceUpdate);
                         }
 
-                        return;
+                        return true;
 
                     } else {
                         let message: string = "Fehler beim Senden der Daten: ";
                         if (response["message"]) message += response["message"];
                         console.log(message);
-                        return;
+                        return false;
                     }
                 } catch (message) {
                     that.errorHappened = true;
@@ -187,6 +187,8 @@ export class NetworkManager {
                 }
             }
         }
+
+        return true;
     }
 
     async sendCreateWorkspace(w: Workspace, owner_id: number): Promise<string | null> {
@@ -242,11 +244,10 @@ export class NetworkManager {
         }
     }
 
-    sendDuplicateWorkspace(ws: Workspace, callback: (error: string, workspaceData?: WorkspaceData) => void) {
+    async sendDuplicateWorkspace(ws: Workspace): Promise <DuplicateWorkspaceResponse> {
 
         if (this.main.user.is_testuser) {
-            callback("Diese Aktion ist für den Testuser nicht möglich.", null);
-            return;
+            return {message: "Diese Aktion ist für den Testuser nicht möglich.", workspace: null};
         }
 
 
@@ -254,9 +255,7 @@ export class NetworkManager {
             workspace_id: ws.id
         }
 
-        ajax("duplicateWorkspace", request, (response: DuplicateWorkspaceResponse) => {
-            callback(response.message, response.workspace)
-        }, callback);
+        return await ajaxAsync("/servlet/duplicateWorkspace", request);
 
     }
 
@@ -323,13 +322,11 @@ export class NetworkManager {
 
     }
 
-    sendDeleteWorkspaceOrFile(type: "workspace" | "file", id: number, callback: (error: string) => void) {
+    async sendDeleteWorkspaceOrFileAsync(type: "workspace" | "file", id: number): Promise<boolean> {
 
         if (this.main.user.is_testuser) {
-            callback(null);
-            return;
+            return true;
         }
-
 
         let request: CreateOrDeleteFileOrWorkspaceRequest = {
             type: "delete",
@@ -338,14 +335,10 @@ export class NetworkManager {
             userId: this.main.user.id
         }
 
-        ajax("createOrDeleteFileOrWorkspace", request, (response: CRUDResponse) => {
-            if (response.success) {
-                callback(null);
-            } else {
-                callback("Netzwerkfehler!");
-            }
-        }, callback);
+        let response: CRUDResponse = 
+           await ajaxAsync("/servlet/createOrDeleteFileOrWorkspace", request);
 
+        return response.success;
     }
 
     async sendUpdateGuiState(sendBeacon: boolean = false): Promise<string> {
@@ -414,7 +407,7 @@ export class NetworkManager {
                     idToFileMap.set(fileId, file);
                     let remoteFileData = idToRemoteFileDataMap.get(fileId);
                     if (remoteFileData == null) {
-                        this.main.projectExplorer.fileListPanel.removeElement(file);
+                        this.main.projectExplorer.fileTreeview.removeElement(file);
                         this.main.getCurrentWorkspace()?.removeFile(file);
                     } else {
                         if (fileIdsSended.indexOf(fileId) < 0 && file.getText() != remoteFileData.text) {
@@ -441,8 +434,8 @@ export class NetworkManager {
             alert(message);
         }
 
-        this.main.projectExplorer.workspaceListPanel.sortElements();
-        this.main.projectExplorer.fileListPanel.sortElements();
+        this.main.projectExplorer.workspaceTreeview.sortElements();
+        this.main.projectExplorer.fileTreeview.sortElements();
 
     }
 
@@ -483,7 +476,7 @@ export class NetworkManager {
             isPruefungFolder: false
         };
 
-        this.main.projectExplorer.workspaceListPanel.addElement(panelElement, true);
+        this.main.projectExplorer.workspaceTreeview.addElement(panelElement, true);
         w.panelElement = panelElement;
 
         if (w.repository_id != null) {
@@ -491,7 +484,7 @@ export class NetworkManager {
         }
 
         if (withSort) {
-            this.main.projectExplorer.workspaceListPanel.sortElements();
+            this.main.projectExplorer.workspaceTreeview.sortElements();
         }
         return w;
     }
@@ -506,7 +499,7 @@ export class NetworkManager {
                 externalElement: null
             }
 
-            this.main.projectExplorer.fileListPanel.addElement(ae, true);
+            this.main.projectExplorer.fileTreeview.addElement(ae, true);
             f.panelElement = ae;
             ae.externalElement = f;
         }

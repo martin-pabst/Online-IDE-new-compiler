@@ -264,7 +264,7 @@ export class RepositoryCheckoutManager {
             if(workspace == null && response.new_workspace != null){
 
                 let newWorkspace = that.main.networkManager.createNewWorkspaceFromWorkspaceData(response.new_workspace);
-                that.main.projectExplorer.workspaceListPanel.sortElements();
+                that.main.projectExplorer.workspaceTreeview.sortElements();
                 setTimeout(() => {
                     that.main.projectExplorer.setWorkspaceActive(newWorkspace, true);
                 }, 400);
@@ -275,7 +275,7 @@ export class RepositoryCheckoutManager {
 
                 workspace.repository_id = repositoryId;
                 let explorer = that.main.projectExplorer;
-                explorer.workspaceListPanel.setElementClass(workspace.panelElement, "repository");
+                explorer.workspaceTreeview.setElementClass(workspace.panelElement, "repository");
                 alert(RepocheckoutManagerMessages.workspaceSuccessfullyConnectedToRepository(workspace.name));
 
             }

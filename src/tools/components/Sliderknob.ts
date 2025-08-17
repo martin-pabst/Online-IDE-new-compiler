@@ -90,7 +90,7 @@ export class Sliderknob {
             this.dragStart(md.clientX, md.clientY);
 
             this.transparentOverlay = DOM.makeDiv(document.body);
-            this.transparentOverlay.style.cursor = 'ns-resize';
+            this.transparentOverlay.style.cursor = 'nwse-resize';
             this.transparentOverlay.style.position = 'absolute';
             this.transparentOverlay.style.left = '0';
             this.transparentOverlay.style.top = '0';

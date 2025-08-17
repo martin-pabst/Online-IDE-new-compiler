@@ -65,6 +65,9 @@ export class TreeviewNode<E> {
     private rightPartOfCaptionDiv!: HTMLDivElement;
     private buttonsDiv!: HTMLDivElement;
     private alwaysVisibleButtonsDiv!: HTMLDivElement;
+
+    private buttons: IconButtonComponent[] = [];
+
     //@ts-ignore
     public expandCollapseComponent!: ExpandCollapseComponent;
     private childrenLineDiv!: HTMLDivElement;
@@ -115,7 +118,7 @@ export class TreeviewNode<E> {
         return this.nodeWithChildrenDiv;
     }
 
-    public getParent(){
+    public getParent() {
         return this.parent;
     }
 
@@ -306,13 +309,14 @@ export class TreeviewNode<E> {
 
     }
 
-    select() {
+    select(invokeCallback: boolean = true) {
         this.treeview.unselectAllNodes();
         this.setSelected(true);
         this.treeview.addToSelection(this);
-
-        if (this._onClickHandler) this._onClickHandler(this._externalObject!);
-        if (this.treeview.onNodeClickedHandler) this.treeview.onNodeClickedHandler(this._externalObject!);
+        if(invokeCallback){
+            if (this._onClickHandler) this._onClickHandler(this._externalObject!);
+            if (this.treeview.onNodeClickedHandler) this.treeview.onNodeClickedHandler(this._externalObject!);
+        }
     }
 
     initContextMenu() {
@@ -388,17 +392,28 @@ export class TreeviewNode<E> {
 
 
     renameNode() {
-        makeEditable(jQuery(this.captionDiv), undefined, (newText: string) => {
-            if (this.treeview.renameCallback && newText != this._caption) {
+        makeEditable(jQuery(this.captionDiv), undefined, async (newText: string) => {
 
-                if (this.treeview.renameCallback(this._externalObject!, newText, this)) {
-                    this.caption = newText;
-                    if (this.treeview.config.comparator) {
-                        this.parent?.sort(this.treeview.config.comparator);
+            if (newText != this._caption) {
+                if (this.treeview.renameCallback) {
+                    let callbackResponse = await this.treeview.renameCallback(this._externalObject!, newText, this);
+                    if (callbackResponse.success) {
+                        this.caption = callbackResponse.correctedName ?? newText;
+                        if (this.treeview.config.comparator) {
+                            this.parent?.sort(this.treeview.config.comparator);
+                        }
+                    } else {
+                        return;
                     }
                 }
 
+                this.caption = newText;
+                if (this.treeview.config.comparator) {
+                    this.parent?.sort(this.treeview.config.comparator);
+                }
+
             }
+
         }, { start: 0, end: this._caption.length });
     }
 
@@ -533,7 +548,7 @@ export class TreeviewNode<E> {
             this.dropzoneDiv.onclick = () => { this.stopDragAndDrop(); }
             this.nodeWithChildrenDiv.onclick = () => { this.stopDragAndDrop(); }
 
-            this.dropzoneDiv.ondrop = (event) => {
+            this.dropzoneDiv.ondrop = async (event) => {
                 this.dragAndDropDestinationDiv.style.display = "none";
 
                 this.nodeWithChildrenDiv.classList.toggle('jo_treeviewNode_highlightDragDropDestination', false);
@@ -577,7 +592,7 @@ export class TreeviewNode<E> {
 
                 switch (dragKind) {
                     case "move":
-                        if (this.treeview.invokeMoveNodesCallback(movedElements, folder,
+                        if (await this.treeview.invokeMoveNodesCallback(movedElements, folder,
                             { order: ddi.index, elementBefore: elementBefore, elementAfter: elementAfter },
                             dragKind)) {
 
@@ -670,7 +685,13 @@ export class TreeviewNode<E> {
                 listener(this._externalObject, this);
             }, tooltip);
 
+        this.buttons.push(button);
+
         return button;
+    }
+
+    getIconButtonByTag(tag: string){
+        return this.buttons.find(b => b.tag == tag);
     }
 
     destroy(removeFromTreeviewNodeList: boolean = true) {

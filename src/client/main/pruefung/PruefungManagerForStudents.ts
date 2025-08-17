@@ -34,7 +34,7 @@ export class PruefungManagerForStudents {
             if (this.timer != null) clearInterval(this.timer);
             this.main.networkManager.sendUpdatesAsync(true, false, false).then(() => {
                 let projectExplorer = this.main.projectExplorer;
-                projectExplorer.workspaceListPanel.show();
+                projectExplorer.workspaceTreeview.show();
                 projectExplorer.fetchAndRenderOwnWorkspaces();
             })
             this.pruefung = null;
@@ -60,10 +60,10 @@ export class PruefungManagerForStudents {
             this.main.workspaceList = [pruefungWorkspace];
             this.main.currentWorkspace = pruefungWorkspace;
             let projectExplorer = this.main.projectExplorer;
-            projectExplorer.workspaceListPanel.clear();
-            projectExplorer.fileListPanel.clear();
-            projectExplorer.workspaceListPanel.hide();
-            projectExplorer.fileListPanel.enableNewButton(true);
+            projectExplorer.workspaceTreeview.clear();
+            projectExplorer.fileTreeview.clear();
+            projectExplorer.workspaceTreeview.hide();
+            projectExplorer.fileTreeview.enableNewButton(true);
 
             projectExplorer.setWorkspaceActive(pruefungWorkspace);
             pruefungWorkspace.saved = false;
@@ -123,7 +123,7 @@ export class PruefungManagerForStudents {
 
         this.pruefung = null;
 
-        this.main.projectExplorer.workspaceListPanel.show();
+        this.main.projectExplorer.workspaceTreeview.show();
 
         if (renderWorkspaces) {
             await this.main.projectExplorer.fetchAndRenderOwnWorkspaces();

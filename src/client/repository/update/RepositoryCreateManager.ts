@@ -129,8 +129,8 @@ export class RepositoryCreateManager {
         this.main.networkManager.sendCreateRepository(this.workspace, publishedTo, repoName, repoDescription, (error: string, repository_id?: number) => {
             if (error == null) {
                 let projectExplorer = this.main.projectExplorer;
-                let element = projectExplorer.workspaceListPanel.findElement(this.workspace);
-                projectExplorer.workspaceListPanel.setElementClass(element, "repository");
+                let element = projectExplorer.workspaceTreeview.findElement(this.workspace);
+                projectExplorer.workspaceTreeview.setElementClass(element, "repository");
                 this.workspace.renderSynchronizeButton(element);
                 projectExplorer.showRepositoryButtonIfNeeded(this.workspace);
                 window.history.back(); // close modal window

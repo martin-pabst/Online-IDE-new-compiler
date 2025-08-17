@@ -11,21 +11,23 @@ export class IconButtonComponent {
 
     private currentIconClass?: string;
 
-    constructor(private _parent: HTMLElement, private iconClass: string, private listener: () => void, tooltip?: string){
+    public tag?: string;
+
+    private _iconClass: string;
+
+    constructor(private _parent: HTMLElement, iconClass: string, private listener: () => void, tooltip?: string){
 
         this.divElement = DOM.makeDiv(undefined, 'jo_iconButton');
         _parent.prepend(this.divElement);
 
         if(tooltip) this.divElement.title = tooltip;
 
-        if(this.iconClass.endsWith("-dark")) this.iconClass = this.iconClass.substring(0, this.iconClass.length - "-dark".length);
-
         this.divElement.onpointerup = (ev) => {
             ev.stopPropagation();
             if(this.listener) this.listener();
         }
 
-        this.render();
+        this.iconClass = iconClass;
 
     }
 
@@ -33,11 +35,21 @@ export class IconButtonComponent {
         return this._parent;
     }
 
+    set title(title: string){
+        this.divElement.title = title;
+    }
+
+    set iconClass(ic: string){
+        if(ic.endsWith("-dark")) ic = ic.substring(0, ic.length - "-dark".length);
+        this._iconClass = ic;
+        this.render();
+    }
+
     render(){
 
         if(this.currentIconClass) this.divElement.classList.remove(this.currentIconClass);
 
-        this.currentIconClass = this.iconClass;
+        this.currentIconClass = this._iconClass;
         if(this.darkLightState == "dark") this.currentIconClass += "-dark";
 
         this.divElement.classList.add(this.currentIconClass);

@@ -5,6 +5,7 @@ import { SpritesheetData } from "../spritemanager/SpritesheetData";
 import { GUIFile } from "./File";
 import { Workspace } from "./Workspace";
 import { AccordionPanel } from "../main/gui/Accordion";
+import { Treeview } from "../../tools/components/treeview/Treeview";
 
 export type ExportedWorkspace = {
     name: string;
@@ -30,7 +31,7 @@ export class WorkspaceImporterExporter {
 
     static async exportAllWorkspaces(main: Main): Promise<ExportedWorkspace[]> {
         let exportedWorkspaces: ExportedWorkspace[] = [];
-        for (let ws of main.projectExplorer.workspaceListPanel.elements.map(el => <Workspace>el.externalElement)) {
+        for (let ws of main.projectExplorer.workspaceTreeview.elements.map(el => <Workspace>el.externalElement)) {
             if (ws.isFolder) continue;
             let exportedWorkspace: ExportedWorkspace = await WorkspaceImporterExporter.exportWorkspace(ws);
             exportedWorkspaces.push(exportedWorkspace);
@@ -39,7 +40,7 @@ export class WorkspaceImporterExporter {
     }
 
 
-    static async exportFolder(workspace: Workspace, workspaceListPanel: AccordionPanel): Promise<ExportedWorkspace[]> {
+    static async exportFolder(workspace: Workspace, workspaceListPanel: Treeview<Workspace>): Promise<ExportedWorkspace[]> {
         let workspacesToExport: Workspace[] = [];
         let pathString = workspace.path || '';
         if (pathString.length > 0) pathString += '/';

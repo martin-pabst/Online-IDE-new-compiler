@@ -17,6 +17,20 @@ export class GuiMessages {
         "fr": "Espace de travail",
     })
 
+    static FilenameHasBeenTruncated = (newLength: number) => lm({
+        'de': `Der Dateiname wurde auf ${newLength} Zeichen gekürzt.`,
+        'en': `Filename has been truncated to ${newLength} characters.`,
+        'fr': `Le nom du fichier a été tronqué à ${newLength} caractères.`,
+    });
+
+    static SynchronizeWorkspace = () => lm({
+        'de': 'Workspace mit Repository synchronisieren',
+        'en': 'Synchronize workspace with repository',
+        'fr': 'Synchroniser workspace avec repository'
+    });
+    
+    
+
     /**
      * Main Menu
     */

@@ -315,20 +315,17 @@ export class SynchroWorkspace {
                 this.manager.main.getCompiler().setFileDirty(file);
                 file.name = synchroFile.name;
                 if (file.panelElement != null) {
-                    file.panelElement.$htmlFirstLine.find('.jo_filename');
+                    file.panelElement.caption = file.name;
                 }
             } else {
 
-                main.networkManager.sendDeleteWorkspaceOrFile("file", file.id, (error: string) => {
-                    if (error == null) {
-                    } else {
-                        alert(SynchroWorkspaceMessages.serverNotReachable());
-                    }
-                });
-
+                main.networkManager.sendDeleteWorkspaceOrFileAsync("file", file.id).then((success: boolean) => {
+                    if(!success) alert(SynchroWorkspaceMessages.serverNotReachable());
+                })
+                
                 this.files.splice(this.files.indexOf(synchroFile), 1);
                 workspace.removeFile(file);
-                main.projectExplorer.fileListPanel.removeElement(file);
+                main.projectExplorer.fileTreeview.removeElement(file);
                 if (main.currentWorkspace == workspace && main.getCurrentWorkspace()?.getCurrentlyEditedFile() == file) {
                     main.projectExplorer.setFileActive(null);
                 }
@@ -367,7 +364,7 @@ export class SynchroWorkspace {
                 // if module hadn't been deleted while synchronizing:
                 if (workspace.getFiles().indexOf(currentlyEditedFile) >= 0) {
                     main.projectExplorer.setFileActive(currentlyEditedFile);
-                    main.projectExplorer.fileListPanel.select(currentlyEditedFile, false);
+                    main.projectExplorer.fileTreeview.selectElement(currentlyEditedFile, false);
                 }
 
             }

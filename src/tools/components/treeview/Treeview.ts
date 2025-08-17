@@ -50,10 +50,11 @@ export type DragKind = "copy" | "move";
 
 export type TreeviewMoveNodesCallback<E> = (movedElements: E[], destinationFolder: E | null,
     position: { order: number, elementBefore: E | null, elementAfter: E | null },
-    dragKind: DragKind) => boolean;
-export type TreeviewRenameCallback<E> = (element: E, newName: string, node: TreeviewNode<E>) => boolean;
-export type TreeviewDeleteCallback<E> = (element: E | null) => void;
-export type TreeviewNewNodeCallback<E> = (name: string, node: TreeviewNode<E>) => E;
+    dragKind: DragKind) => Promise<boolean>;
+export type TreeviewRenameCallback<E> = (element: E, newName: string, node: TreeviewNode<E>) => 
+    Promise<{correctedName: string, success: boolean}> ;
+export type TreeviewDeleteCallback<E> = (element: E | null) => Promise<boolean>;
+export type TreeviewNewNodeCallback<E> = (name: string, node: TreeviewNode<E>) => Promise<E | null>;
 export type TreeviewContextMenuProvider<E> = (element: E, node: TreeviewNode<E>) => TreeviewContextMenuItem<E>[];
 
 
@@ -88,6 +89,9 @@ export class Treeview<E> {
     private captionLineExpandCollapseDiv!: HTMLDivElement;
     private captionLineTextDiv!: HTMLDivElement;
     private captionLineButtonsDiv!: HTMLDivElement;
+
+    public addElementsButton?: IconButtonComponent;
+    public addFolderButton?: IconButtonComponent;
 
     captionLineExpandCollapseComponent!: ExpandCollapseComponent;
 
@@ -210,9 +214,9 @@ export class Treeview<E> {
         }
     }
 
-    invokeMoveNodesCallback(movedElements: E[], destinationFolder: E | null,
+    async invokeMoveNodesCallback(movedElements: E[], destinationFolder: E | null,
         position: { order: number, elementBefore: E | null, elementAfter: E | null },
-        dragKind: DragKind): boolean {
+        dragKind: DragKind): Promise<boolean> {
         if (this._moveNodesCallback) return this._moveNodesCallback(movedElements, destinationFolder, position, dragKind);
         return true;
     }
@@ -259,12 +263,13 @@ export class Treeview<E> {
         }, "expanded")
 
         if (this.config.buttonAddFolders) {
-            this.captionLineAddIconButton("img_add-folder-dark", () => {
+            this.addFolderButton = this.captionLineAddIconButton("img_add-folder-dark", () => {
                 this.addNewNode(true);
             }, "Ordner hinzufügen");
         }
 
         if (this.config.buttonAddElements) {
+            this.addElementsButton =
             this.captionLineAddIconButton("img_add-dark", () => {
                 this.addNewNode(false);
             }, this.config.buttonAddElementsCaption);
@@ -280,15 +285,20 @@ export class Treeview<E> {
 
         let node = this.addNode(isFolder, "", this.config.defaultIconClass, {} as E,
             folder?.externalObject);
-        makeEditable(node.captionDiv, node.captionDiv, (newContent: string) => {
+        makeEditable(node.captionDiv, node.captionDiv, async (newContent: string) => {
             node.caption = newContent;
             if (this.newNodeCallback) {
-                node.externalObject = this.newNodeCallback(newContent, node);
+                let externalObject = await this.newNodeCallback(newContent, node);
+                if(externalObject == null){
+                    // cancel!
+                    this.removeNode(node);
+                } else {
+                    node.externalObject = externalObject;
+                }
             }
         })
 
     }
-
 
     captionLineAddIconButton(iconClass: string, callback: () => void, tooltip?: string): IconButtonComponent {
         return new IconButtonComponent(this.captionLineButtonsDiv, iconClass, callback, tooltip);
@@ -298,7 +308,7 @@ export class Treeview<E> {
         this.captionLineButtonsDiv.prepend(element);
     }
 
-    captionLineSetText(text: string) {
+    setCaption(text: string) {
         this.captionLineTextDiv.textContent = text;
     }
 
@@ -378,6 +388,11 @@ export class Treeview<E> {
         this.nodes.forEach(el => el.setFocus(false));
     }
 
+    selectElement(element: E, invokeCallback: boolean){
+        let node = this.findNodeByElement(element);
+        node?.select(invokeCallback);
+    }
+
     unselectAllNodes() {
         this.nodes.forEach(el => {
             el.setSelected(false);
@@ -422,6 +437,15 @@ export class Treeview<E> {
         let index = this.nodes.indexOf(node);
         if (index >= 0) this.nodes.splice(index, 1);
         node.destroy(false);
+    }
+
+    removeElement(element: E){
+        let node = this.findNodeByElement(element);
+        if(node) this.removeNode(node);
+    }
+
+    findNodeByElement(element: E){
+        return this.nodes.find(node => node.externalObject == element);
     }
 
     getCurrentlySelectedNodes(): TreeviewNode<E>[] {

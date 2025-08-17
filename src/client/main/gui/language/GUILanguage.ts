@@ -246,6 +246,13 @@ export class ProjectExplorerMessages {
         'en': 'Labeled as assignment'
     });
 
+    static assignmentIsCorrected = () => lm({
+        'de': 'Korrektur liegt vor',
+        'en': 'Assignment is corrected',    
+        'fr': 'Devoir corrigé'
+    });
+    
+
     static WORKSPACES = () => lm({
         'de': 'WORKSPACES',
         'en': 'WORKSPACES'

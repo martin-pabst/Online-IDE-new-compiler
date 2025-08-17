@@ -230,8 +230,8 @@ export class Login {
 
                 that.main.networkManager.initializeTimer();
 
-                that.main.projectExplorer.fileListPanel.setFixed(!user.is_teacher);
-                that.main.projectExplorer.workspaceListPanel.setFixed(!user.is_teacher);
+                that.main.projectExplorer.fileTreeview.setFixed(!user.is_teacher);
+                that.main.projectExplorer.workspaceTreeview.setFixed(!user.is_teacher);
 
                 that.main.rightDiv?.classDiagram?.clear();
 
@@ -242,7 +242,7 @@ export class Login {
                 that.main.viewModeController.initViewMode();
                 that.main.bottomDiv.hideHomeworkTab();
 
-                if (!this.main.user.gui_state.helperHistory.folderButtonDone && that.main.projectExplorer.workspaceListPanel.elements.length > 5) {
+                if (!this.main.user.gui_state.helperHistory.folderButtonDone && that.main.projectExplorer.workspaceTreeview.elements.length > 5) {
 
                     Helper.showHelper("folderButton", this.main, jQuery('.img_add-folder-dark'));
 
@@ -290,9 +290,9 @@ export class Login {
         jQuery('#login-message').empty();
         this.main.interpreter.setState(SchedulerState.not_initialized);
         this.main.getMainEditor().setModel(monaco.editor.createModel("", "myJava"));
-        this.main.projectExplorer.fileListPanel.clear();
-        this.main.projectExplorer.fileListPanel.setCaption('');
-        this.main.projectExplorer.workspaceListPanel.clear();
+        this.main.projectExplorer.fileTreeview.clear();
+        this.main.projectExplorer.fileTreeview.setCaption('');
+        this.main.projectExplorer.workspaceTreeview.clear();
         this.main.bottomDiv?.console?.clear();
         this.main.interpreter.printManager.clear();
 

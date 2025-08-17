@@ -1,6 +1,7 @@
 import { IMain } from "../../compiler/common/IMain";
 import { CompilerFile } from "../../compiler/common/module/CompilerFile";
 import { FileTypeManager } from "../../compiler/common/module/FileTypeManager";
+import { TreeviewNode } from "../../tools/components/treeview/TreeviewNode";
 import { FileData } from "../communication/Data";
 import { AccordionElement } from "../main/gui/Accordion";
 import { Main } from "../main/Main";
@@ -27,7 +28,7 @@ export class GUIFile extends CompilerFile {
     parent_folder_id: number | null;
 
     // GUI references:
-    panelElement?: AccordionElement;
+    panelElement?: TreeviewNode<GUIFile>;
     private monacoModel?: monaco.editor.ITextModel;
     private static uriMap: { [name: string]: number } = {};
 

@@ -37,6 +37,10 @@ class TreeviewTest {
             }
         })
 
+        // tv.newNodeCallback = (name, node) => {
+        //     return null;
+        // }
+
         let file1 = new TVFile("Erster Erster Erster Erster Erster Erster ");
         let node1 = tv.addNode(false, "Erster Erster Erster Erster Erster Erster ", 
             "img_file-dark-java", file1, undefined);

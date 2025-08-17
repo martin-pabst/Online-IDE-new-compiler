@@ -162,9 +162,9 @@ export class TeacherExplorer {
         if (p.state == "preparing" || p.state == "running") {
             alert(TeacherExplorerMessages.testIsInState(PruefungCaptions[p.state]));
 
-            projectExplorer.fileListPanel.clear();
-            projectExplorer.fileListPanel.setCaption("---");
-            projectExplorer.workspaceListPanel.clear();
+            projectExplorer.fileTreeview.clear();
+            projectExplorer.fileTreeview.setCaption("---");
+            projectExplorer.workspaceTreeview.clear();
             this.studentPanel.clear();
             this.main.getMainEditor().setModel(monaco.editor.createModel(TeacherExplorerMessages.noFile(), "text"));
 

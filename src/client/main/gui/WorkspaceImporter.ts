@@ -15,7 +15,7 @@ export class WorkspaceImporter {
 
     dialog: Dialog;
 
-    constructor(private main: Main, private path: string[] = []) {
+    constructor(private main: Main, private folder: Workspace = null) {
 
         this.dialog = new Dialog();
 
@@ -160,7 +160,7 @@ export class WorkspaceImporter {
                         for (let ws1 of ws) {
                             let error = await networkManager.sendCreateWorkspace(ws1, owner_id);
                             if (error == null) {
-                                projectExplorer.workspaceListPanel.addElement({
+                                projectExplorer.workspaceTreeview.addElement({
                                     name: ws1.name,
                                     externalElement: ws1,
                                     iconClass: "workspace",
@@ -197,7 +197,7 @@ export class WorkspaceImporter {
                     waitDiv.css("display", "none");
 
                     
-                    projectExplorer.workspaceListPanel.sortElements();
+                    projectExplorer.workspaceTreeview.sortElements();
                     this.dialog.close();
                     if (firstWorkspace != null) projectExplorer.setWorkspaceActive(firstWorkspace, true);
 
@@ -231,7 +231,7 @@ export class WorkspaceImporter {
         let workspaces: Workspace[] = [];
         for (let i = 0; i < path.length; i++) {
             let currentPath = path.slice(0, i + 1);
-            let ws = main.projectExplorer.workspaceListPanel.elements.find(el => {
+            let ws = main.projectExplorer.workspaceTreeview.elements.find(el => {
                 if (!el.isFolder) return false;
                 let pathString = el.name;
                 if (el.path && el.path.length > 0) {
