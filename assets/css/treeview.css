@@ -261,4 +261,9 @@
         width: fit-content;
         padding: 4px;
     }
+
+    .jo_treeview_dummy {
+        flex-shrink: 1;
+        flex-grow: 1;
+    }
 }

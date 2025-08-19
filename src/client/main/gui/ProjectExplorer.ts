@@ -49,6 +49,8 @@ export class ProjectExplorer {
 
         this.initWorkspacelistPanel();
 
+        this.accordion.onResize();
+
     }
 
     initFilelistPanel() {

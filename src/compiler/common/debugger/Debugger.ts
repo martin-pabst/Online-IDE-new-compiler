@@ -47,6 +47,9 @@ export class Debugger {
         this.initThreadsTreeview();
 
         this.watchSection = new DebuggerWatchSection(this.watchTreeview, this);
+
+        this.treeviewAccordion.onResize();
+
     }
 
     hide() {

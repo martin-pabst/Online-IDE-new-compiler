@@ -54,8 +54,8 @@ export type DragKind = "copy" | "move";
 export type TreeviewMoveNodesCallback<E> = (movedElements: E[], destinationFolder: E | null,
     position: { order: number, elementBefore: E | null, elementAfter: E | null },
     dragKind: DragKind) => Promise<boolean>;
-export type TreeviewRenameCallback<E, K> = (element: E, newName: string, node: TreeviewNode<E, K>) => 
-    Promise<{correctedName: string, success: boolean}> ;
+export type TreeviewRenameCallback<E, K> = (element: E, newName: string, node: TreeviewNode<E, K>) =>
+    Promise<{ correctedName: string, success: boolean }>;
 export type TreeviewDeleteCallback<E> = (element: E | null) => Promise<boolean>;
 export type TreeviewNewNodeCallback<E, K> = (name: string, node: TreeviewNode<E, K>) => Promise<E | null>;
 export type TreeviewContextMenuProvider<E, K> = (element: E, node: TreeviewNode<E, K>) => TreeviewContextMenuItem<E, K>[];
@@ -99,6 +99,19 @@ export class Treeview<E, K> {
     captionLineExpandCollapseComponent!: ExpandCollapseComponent;
 
     config: TreeviewConfig<E, K>;
+
+    public getFixedHeight(): number {
+        return this.captionLineDiv.getBoundingClientRect().height;
+    }
+
+    public getCurrentVariableHeight(): number {
+        if(this.isCollapsed) return 0;
+        return this._outerDiv.getBoundingClientRect().height - this.getFixedHeight();
+    }
+
+    public getTargetVariableHeight(): number {
+        return Math.max(this.config.minHeight, 100, this._lastExpandedHeight - this.getFixedHeight(), this.getCurrentVariableHeight());
+    }
 
     //callbacks
     private _moveNodesCallback?: TreeviewMoveNodesCallback<E>;
@@ -248,7 +261,7 @@ export class Treeview<E, K> {
         this.captionLineButtonsDiv = DOM.makeDiv(this.captionLineDiv, 'jo_treeview_caption_buttons')
         this.captionLineDiv.style.display = this.config.captionLine.enabled ? "flex" : "none";
         this.captionLineTextDiv.textContent = this.config.captionLine.text || "";
-        if(this.config.captionLine.element){
+        if (this.config.captionLine.element) {
             this.captionLineTextDiv.appendChild(this.config.captionLine.element);
         }
 
@@ -256,17 +269,11 @@ export class Treeview<E, K> {
         this.captionLineExpandCollapseComponent = new ExpandCollapseComponent(this.captionLineExpandCollapseDiv, (newState: ExpandCollapseState) => {
             if (this.isCollapsed()) {
                 this._lastExpandedHeight = this._outerDiv.getBoundingClientRect().height;
-                let deltaHeight: number = this._lastExpandedHeight - this.getCaptionHeight();
-                this._outerDiv.style.flexBasis = "";
-                this._outerDiv.style.flexGrow = "";
-                this._outerDiv.style.height = this.getCaptionHeight() + "px";
-                if (this.treeviewAccordion) this.treeviewAccordion.onExpandCollapseTreeview(this, newState, deltaHeight);
+                this.nodeDiv.style.display = 'none';
+                if (this.treeviewAccordion) this.treeviewAccordion.onResize();
             } else {
-                let deltaHeight: number = this.getCaptionHeight() - this._lastExpandedHeight;
-                if (this.treeviewAccordion) this.treeviewAccordion.onExpandCollapseTreeview(this, newState, deltaHeight);
-                this._outerDiv.style.flexBasis = "";
-                this._outerDiv.style.flexGrow = "";
-                this._outerDiv.style.height = this._lastExpandedHeight + "px";
+                this.nodeDiv.style.display = '';
+                if (this.treeviewAccordion) this.treeviewAccordion.onResize();
             }
 
         }, "expanded")
@@ -279,9 +286,9 @@ export class Treeview<E, K> {
 
         if (this.config.buttonAddElements) {
             this.addElementsButton =
-            this.captionLineAddIconButton("img_add-dark", () => {
-                this.addNewNode(false);
-            }, this.config.buttonAddElementsCaption);
+                this.captionLineAddIconButton("img_add-dark", () => {
+                    this.addNewNode(false);
+                }, this.config.buttonAddElementsCaption);
         }
 
     }
@@ -298,7 +305,7 @@ export class Treeview<E, K> {
             node.caption = newContent;
             if (this.newNodeCallback) {
                 let externalObject = await this.newNodeCallback(newContent, node);
-                if(externalObject == null){
+                if (externalObject == null) {
                     // cancel!
                     this.removeNode(node);
                 } else {
@@ -400,11 +407,11 @@ export class Treeview<E, K> {
         this.nodes.forEach(el => el.setFocus(false));
     }
 
-    selectElement(element: E, invokeCallback: boolean){
-        if(!element){
+    selectElement(element: E, invokeCallback: boolean) {
+        if (!element) {
             this.unselectAllNodes();
             return;
-        } 
+        }
         let node = this.findNodeByElement(element);
         node?.select(invokeCallback);
     }
@@ -455,18 +462,18 @@ export class Treeview<E, K> {
         node.destroy(false);
     }
 
-    removeElement(element: E){
+    removeElement(element: E) {
         let node = this.findNodeByElement(element);
-        if(node) this.removeNode(node);
+        if (node) this.removeNode(node);
     }
 
-    findNodeByElement(element: E){
+    findNodeByElement(element: E) {
         return this.nodes.find(node => node.externalObject == element);
     }
 
-    setIconClassForElement(element: E, iconClass: string){
+    setIconClassForElement(element: E, iconClass: string) {
         let node = this.findNodeByElement(element);
-        if(node) node.iconClass = iconClass;
+        if (node) node.iconClass = iconClass;
     }
 
     getCurrentlySelectedNodes(): TreeviewNode<E, K>[] {
@@ -525,15 +532,15 @@ export class Treeview<E, K> {
         this.rootNode?.sort(comparator);
     }
 
-    public adjustFoldersByExternalObjectRelations(){
+    public adjustFoldersByExternalObjectRelations() {
         let nodesWithIncorrectParentFolder = this.rootNode.getChildren().filter(node => node.parentKey != null);
-        if(nodesWithIncorrectParentFolder.length == 0) return;
+        if (nodesWithIncorrectParentFolder.length == 0) return;
 
         let ownKeyToNodeMap: Map<K, TreeviewNode<E, K>> = new Map();
 
         // register all correctly placed folders
-        for(let node of this.rootNode.getOrderedNodeListRecursively()){
-            if(node.isFolder && nodesWithIncorrectParentFolder.indexOf(node) < 0){
+        for (let node of this.rootNode.getOrderedNodeListRecursively()) {
+            if (node.isFolder && nodesWithIncorrectParentFolder.indexOf(node) < 0) {
                 ownKeyToNodeMap.set(node.ownKey, node);
             }
         }
@@ -541,28 +548,28 @@ export class Treeview<E, K> {
         let orderedObjects: TreeviewNode<E, K>[] = [];
 
         let oldSize: number = -1;
-        while(orderedObjects.length > oldSize){
+        while (orderedObjects.length > oldSize) {
             oldSize = orderedObjects.length;
-            for(let node of nodesWithIncorrectParentFolder.slice()){
-                if(ownKeyToNodeMap.get(node.parentKey) != null){
+            for (let node of nodesWithIncorrectParentFolder.slice()) {
+                if (ownKeyToNodeMap.get(node.parentKey) != null) {
                     orderedObjects.push(node);
-                    if(node.isFolder) ownKeyToNodeMap.set(node.ownKey, node);
+                    if (node.isFolder) ownKeyToNodeMap.set(node.ownKey, node);
                     nodesWithIncorrectParentFolder.splice(nodesWithIncorrectParentFolder.indexOf(node), 1);
-                }                
+                }
             }
         }
 
-        for(let node of orderedObjects){
+        for (let node of orderedObjects) {
             node.findAndCorrectParent();
         }
     }
 
-    setVisible(isVisible: boolean){
+    setVisible(isVisible: boolean) {
         this._outerDiv.style.display = isVisible ? "" : "none";
     }
 
     size(withFolders: boolean): number {
-        if(withFolders) return this.nodes.length;
+        if (withFolders) return this.nodes.length;
         return this.nodes.filter(n => !n.isFolder).length;
     }
 
