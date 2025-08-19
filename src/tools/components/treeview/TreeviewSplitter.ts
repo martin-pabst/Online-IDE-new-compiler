@@ -124,7 +124,7 @@ export class TreeviewSplitter {
             od.style.height = targetHeights[i] + "px";
             od.style.flexBasis = "";
             od.style.flexGrow = "";
-
+            treeviewList[i]._lastExpandedHeight = targetHeights[i];
         }
 
 

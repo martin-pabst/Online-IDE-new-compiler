@@ -1,6 +1,5 @@
 import jQuery from 'jquery';
 import { WorkspaceData, WorkspaceSettings } from "../communication/Data.js";
-import { AccordionElement } from "../main/gui/Accordion.js";
 import { Main } from "../main/Main.js";
 import { MainBase } from "../main/MainBase.js";
 import { GUIFile } from "./File.js";
@@ -13,7 +12,6 @@ import { JavaLibraryManager } from '../../compiler/java/runtime/JavaLibraryManag
 import type * as monaco from 'monaco-editor'
 import { Module } from '../../compiler/common/module/Module.js';
 import { TreeviewNode } from '../../tools/components/treeview/TreeviewNode.js';
-import { IconButtonComponent } from '../../tools/components/IconButtonComponent.js';
 import { GuiMessages } from '../main/gui/language/GuiMessages.js';
 
 
@@ -41,7 +39,6 @@ export class Workspace extends CompilerWorkspace {
 
     private files: GUIFile[] = [];
 
-    panelElement: AccordionElement;
     currentlyOpenFile: GUIFile;
     saved: boolean = true;
 
@@ -124,7 +121,7 @@ export class Workspace extends CompilerWorkspace {
 
         let button = node.getIconButtonByTag("Synchronize");
         if (!button) {
-            button = node.addIconButton("img_open-change", () => {
+            button = node.addIconButton("img_open-change-dark", () => {
                 this.synchronizeWithRepository();
             }, GuiMessages.SynchronizeWorkspace(),
                 false)

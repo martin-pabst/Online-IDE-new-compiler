@@ -94,7 +94,7 @@ export class EmbeddedFileExplorer {
 
     addFile(file: GUIFile): FileData {
         let that = this;
-        let cssClass = "jo_" + FileTypeManager.filenameToFileType(file.name).iconclass;
+        let cssClass = FileTypeManager.filenameToFileType(file.name).iconclass;
         let $fileDiv = jQuery(`<div class="jo_file ${cssClass}" >
         <div class="jo_fileimage"></div>
         <div class="jo_filename" style="line-height: 22px">${file.name}</div>

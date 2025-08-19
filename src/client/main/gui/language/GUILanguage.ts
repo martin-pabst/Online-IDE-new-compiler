@@ -377,6 +377,12 @@ export class AccordionMessages {
         'en': 'Create folder at topmost level'
     });
     
+    static cancel = () => lm({
+        'de': 'Abbrechen',
+        'en': 'Cancel'
+    });
+    
+
     static newFolder = () => lm({
         'de': 'Neuer Ordner',
         'en': 'New Folder'

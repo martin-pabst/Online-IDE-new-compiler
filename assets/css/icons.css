@@ -552,11 +552,11 @@
       background-image: url('../icons/my-arrow-right-dark.svg');
    }
 
-   .img_open-change {
+   .img_open-change-dark {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/open-change.svg');
+      background-image: url('../icons/open-change-dark.svg');
    }
 
    .img_open-file {

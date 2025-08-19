@@ -78,10 +78,10 @@ export class ExpandCollapseComponent {
     }
 
     hide(){
-        this.divElement.style.visibility = "hidden";
+        this.divElement.style.display = "none";
     }
 
     show(){
-        this.divElement.style.visibility = "visible";
+        this.divElement.style.display = "";
     }
 }

@@ -23,7 +23,10 @@ export type TreeviewConfig<E, K> = {
     },
     flexWeight?: string,
     withFolders?: boolean,
+    
     withDeleteButtons?: boolean,
+    confirmDelete?: boolean,
+
     withDragAndDrop?: boolean,
     allowDragAndDropCopy?: boolean,
     comparator?: (externalElement1: E, externalElement2: E) => number,
@@ -74,7 +77,7 @@ export class Treeview<E, K> {
 
     private lastSelectedElement?: TreeviewNode<E, K>;
 
-    private _lastExpandedHeight: number;
+    public _lastExpandedHeight: number;
 
     private _outerDiv!: HTMLDivElement;
     get outerDiv(): HTMLElement {
@@ -180,7 +183,10 @@ export class Treeview<E, K> {
                 text: "Überschrift"
             },
             withFolders: true,
+            
             withDeleteButtons: true,
+            confirmDelete: false,
+
             withDragAndDrop: true,
             allowDragAndDropCopy: false,
             contextMenu: {
@@ -218,10 +224,6 @@ export class Treeview<E, K> {
         this.rootNode = new TreeviewNode<E, K>(this, true, 'Root', undefined, null, null, null);
 
         if (this.treeviewAccordion) this.treeviewAccordion.addTreeview(this);
-
-        if (this.config.initialExpandCollapseState == "expanded") {
-            this._lastExpandedHeight = this.outerDiv.getBoundingClientRect().height;
-        }
 
     }
 
@@ -270,11 +272,10 @@ export class Treeview<E, K> {
             if (this.isCollapsed()) {
                 this._lastExpandedHeight = this._outerDiv.getBoundingClientRect().height;
                 this.nodeDiv.style.display = 'none';
-                if (this.treeviewAccordion) this.treeviewAccordion.onResize();
             } else {
                 this.nodeDiv.style.display = '';
-                if (this.treeviewAccordion) this.treeviewAccordion.onResize();
             }
+            if (this.treeviewAccordion) this.treeviewAccordion.onResize(false);
 
         }, "expanded")
 
@@ -299,7 +300,7 @@ export class Treeview<E, K> {
         let folder: TreeviewNode<E, K> | undefined;
         if (selectedNodes.length == 1 && selectedNodes[0].isFolder) folder = selectedNodes[0];
 
-        let node = this.addNode(isFolder, "", this.config.defaultIconClass, {} as E,
+        let node = this.addNode(isFolder, "", isFolder ? undefined : this.config.defaultIconClass, {} as E,
             folder?.externalObject);
         makeEditable(node.captionDiv, node.captionDiv, async (newContent: string) => {
             node.caption = newContent;
@@ -399,7 +400,7 @@ export class Treeview<E, K> {
             }
         }
 
-        return parent;
+        return parent == null ? this.rootNode : parent;
     }
 
 
@@ -533,7 +534,8 @@ export class Treeview<E, K> {
     }
 
     public adjustFoldersByExternalObjectRelations() {
-        let nodesWithIncorrectParentFolder = this.rootNode.getChildren().filter(node => node.parentKey != null);
+        let nodesWithIncorrectParentFolder = this.nodes.filter(node => 
+            !node.isRootNode() && node.parentKey != null && node.getParent() == this.rootNode);
         if (nodesWithIncorrectParentFolder.length == 0) return;
 
         let ownKeyToNodeMap: Map<K, TreeviewNode<E, K>> = new Map();
@@ -561,6 +563,10 @@ export class Treeview<E, K> {
 
         for (let node of orderedObjects) {
             node.findAndCorrectParent();
+        }
+
+        for(let node of this.nodes){
+            node.adjustLeftMarginToDepth();
         }
     }
 

@@ -242,12 +242,6 @@ export class Login {
                 that.main.viewModeController.initViewMode();
                 that.main.bottomDiv.hideHomeworkTab();
 
-                if (!this.main.user.gui_state.helperHistory.folderButtonDone && that.main.projectExplorer.workspaceTreeview.size(true) > 5) {
-
-                    Helper.showHelper("folderButton", this.main, jQuery('.img_add-folder-dark'));
-
-                }
-
                 that.main.networkManager.initializeSSE();
 
                 this.main.pruefungManagerForStudents?.close();

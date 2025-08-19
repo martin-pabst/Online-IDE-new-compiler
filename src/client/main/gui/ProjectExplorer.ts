@@ -49,7 +49,9 @@ export class ProjectExplorer {
 
         this.initWorkspacelistPanel();
 
-        this.accordion.onResize();
+        if(!this.main.user.is_teacher){
+            this.accordion.onResize(true);
+        }
 
     }
 
@@ -60,8 +62,11 @@ export class ProjectExplorer {
                 enabled: true
             },
             withSelection: true,
+            withFolders: false,
             buttonAddElements: true,
+            buttonAddFolders: false,
             withDeleteButtons: true,
+            confirmDelete: true,
             defaultIconClass: "img_file-dark-java",
             buttonAddElementsCaption: ProjectExplorerMessages.newFile(),
             comparator: (a, b) => {
@@ -72,7 +77,8 @@ export class ProjectExplorer {
                 messageRename: AccordionMessages.rename()
             },
             selectMultiple: false,
-            minHeight: 300,
+            minHeight: 150,
+            flexWeight: "1",
             keyExtractor: (file) => file.id,
             parentKeyExtractor: (file) => file.parent_folder_id
         })
@@ -204,7 +210,7 @@ export class ProjectExplorer {
                 this.setFileActive(file);
             }
 
-        this.synchronizedButton = this.fileTreeview.captionLineAddIconButton("img_open-change",
+        this.synchronizedButton = this.fileTreeview.captionLineAddIconButton("img_open-change-dark",
             () => {
                 this.main.getCurrentWorkspace().synchronizeWithRepository();
             },
@@ -260,9 +266,12 @@ export class ProjectExplorer {
             allowDragAndDropCopy: false,
             withDragAndDrop: true,
             withDeleteButtons: true,
+            confirmDelete: true,
             buttonAddElements: true,
             buttonAddElementsCaption: ProjectExplorerMessages.newWorkspace() + "...",
             buttonAddFolders: true,
+            minHeight: 150,
+            flexWeight: "1",
             defaultIconClass: "img_workspace-dark",
             comparator: (a, b) => {
                 return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
@@ -324,6 +333,7 @@ export class ProjectExplorer {
                 // TODO: necessary?
                 // this.main.networkManager.sendUpdatesAsync();
                 this.setWorkspaceActive(workspace);
+                this.fileTreeview.addElementsButton.setVisible(true);
             }
         }
 
@@ -558,6 +568,7 @@ export class ProjectExplorer {
 
         for (let ws of workspaceList) {
             let iconClass = ws.repository_id == null ? 'img_workspace-dark' : 'img_workspace-dark-repository';
+            if(ws.isFolder) iconClass = undefined;
             let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, iconClass, ws)
             ws.renderSynchronizeButton(node);
         }
@@ -808,11 +819,11 @@ export class ProjectExplorer {
         }
     }
 
-    show(){
+    show() {
         this.$projectexplorerDiv.css('display', '');
     }
 
-    hide(){
+    hide() {
         this.$projectexplorerDiv.css('display', 'none');
     }
 }

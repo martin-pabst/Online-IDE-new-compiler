@@ -15,16 +15,16 @@ export class IconButtonComponent {
 
     private _iconClass: string;
 
-    constructor(private _parent: HTMLElement, iconClass: string, private listener: () => void, tooltip?: string){
+    constructor(private _parent: HTMLElement, iconClass: string, private listener: (event) => void, tooltip?: string){
 
         this.divElement = DOM.makeDiv(undefined, 'jo_iconButton');
         _parent.prepend(this.divElement);
 
         if(tooltip) this.divElement.title = tooltip;
 
-        this.divElement.onpointerup = (ev) => {
+        this.divElement.onpointerup = (ev: PointerEvent) => {
             ev.stopPropagation();
-            if(this.listener) this.listener();
+            if(this.listener) this.listener(ev);
         }
 
         this.iconClass = iconClass;

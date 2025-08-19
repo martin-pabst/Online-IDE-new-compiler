@@ -1,3 +1,4 @@
+import { AccordionMessages } from "../../../client/main/gui/language/GUILanguage.ts";
 import { DOM } from "../../DOM.ts";
 import { ContextMenuItem, makeEditable, openContextMenu } from "../../HtmlTools.ts";
 import { ExpandCollapseComponent, ExpandCollapseListener, ExpandCollapseState } from "../ExpandCollapseComponent.ts";
@@ -6,7 +7,7 @@ import { DragKind, Treeview } from "./Treeview.ts";
 
 export type TreeviewNodeOnClickHandler<E> = (element: E | undefined) => void;
 
-export type IconButtonListener<E, K> = (object: E, treeviewNode: TreeviewNode<E, K>) => void;
+export type IconButtonListener<E, K> = (object: E, treeviewNode: TreeviewNode<E, K>, event: PointerEvent) => void;
 
 export class TreeviewNode<E, K> {
 
@@ -104,8 +105,8 @@ export class TreeviewNode<E, K> {
         private _renderCaptionAsHtml: boolean = false) {
 
         let parentKeyExtractor = this._treeview.config.parentKeyExtractor;
-        if (typeof _parentKey == "undefined" && parentKeyExtractor) {
-            _parentKey = parentKeyExtractor(_externalObject);
+        if (typeof this._parentKey == "undefined" && parentKeyExtractor) {
+            this._parentKey = parentKeyExtractor(_externalObject);
         }
 
         _treeview.addNodeInternal(this);
@@ -124,6 +125,7 @@ export class TreeviewNode<E, K> {
             this.parent?.remove(this);
             this.parent = parent;
             parent?.add(this);
+            this.adjustLeftMarginToDepth()
         }
     }
 
@@ -187,7 +189,7 @@ export class TreeviewNode<E, K> {
         this._iconClass = value;
     }
 
-    public set iconTooltip(tooltip: string){
+    public set iconTooltip(tooltip: string) {
         this.iconDiv.title = tooltip;
     }
 
@@ -305,11 +307,32 @@ export class TreeviewNode<E, K> {
         }
 
         if (this.treeview.config.withDeleteButtons && !this.isRootNode()) {
-            this.addIconButton("img_delete", () => {
-                this.treeview.removeNode(this);
-                if (this.treeview.deleteCallback) {
-                    this.treeview.deleteCallback(this.externalObject);
+            this.addIconButton("img_delete", (_object, _node, ev) => {
+
+                let deleteAction = () => {
+                    this.treeview.removeNode(this);
+                    if (this.treeview.deleteCallback) {
+                        this.treeview.deleteCallback(this.externalObject);
+                    }
                 }
+
+                if(this._treeview.config.confirmDelete){
+                    openContextMenu([{
+                        caption: AccordionMessages.cancel(),
+                        callback: () => {
+                            // nothing to do.
+                        }
+                    }, {
+                        caption: AccordionMessages.sureDelete(),
+                        color: "#ff6060",
+                        callback: () => {
+                            deleteAction();
+                        }
+                    }], ev.pageX + 2, ev.pageY + 2);
+                } else {
+                    deleteAction();
+                }
+
             }, "Löschen");
         }
 
@@ -672,10 +695,10 @@ export class TreeviewNode<E, K> {
         if (this.isRootNode()) {
             this.childrenLineDiv.style.marginLeft = "0";
         } else {
-            let depth = this.getDepth();
+            let depth = this.getDepth() + 1;
             this.childrenLineDiv.style.marginLeft = (5 + depth * 7) + "px";
 
-            this.marginLeftDiv.style.width = (depth * 7) + "px";
+            this.marginLeftDiv.style.width = (2 + depth * 7) + "px";
         }
     }
 
@@ -692,8 +715,8 @@ export class TreeviewNode<E, K> {
         let parent: HTMLDivElement = alwaysVisible ? this.alwaysVisibleButtonsDiv : this.buttonsDiv;
 
         let button = new IconButtonComponent(parent, iconClass,
-            () => {
-                listener(this._externalObject, this);
+            (event: PointerEvent) => {
+                listener(this._externalObject, this, event);
             }, tooltip);
 
         this.buttons.push(button);

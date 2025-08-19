@@ -9,12 +9,12 @@ type FileType = {
 
 export class FileTypeManager {
     static filetypes: FileType[] = [
-        { name: "Java-Quelltext", file_type: 0, iconclass: "java", language: "myJava", suffix: ".java" },
-        { name: "Textdatei", file_type: 1, iconclass: "text", language: "text", suffix: ".txt" },
-        { name: "JSON-Datei", file_type: 1, iconclass: "json", language: "json", suffix: ".json" },
-        { name: "XML-Datei", file_type: 1, iconclass: "xml", language: "xml", suffix: ".xml" },
-        { name: "CSV-Datei", file_type: 1, iconclass: "csv", language: "csv", suffix: ".csv" },
-        { name: "Markup", file_type: 1, iconclass: "md", language: "md", suffix: ".md"}
+        { name: "Java-Quelltext", file_type: 0, iconclass: "img_file-dark-java", language: "myJava", suffix: ".java" },
+        { name: "Textdatei", file_type: 1, iconclass: "img_file-dark-text", language: "text", suffix: ".txt" },
+        { name: "JSON-Datei", file_type: 1, iconclass: "img_file-dark-json", language: "json", suffix: ".json" },
+        { name: "XML-Datei", file_type: 1, iconclass: "img_file-dark-xml", language: "xml", suffix: ".xml" },
+        { name: "CSV-Datei", file_type: 1, iconclass: "img_file-dark-csv", language: "csv", suffix: ".csv" },
+        { name: "Markup", file_type: 1, iconclass: "img_file-dark-md", language: "md", suffix: ".md"}
     ];
 
     static fileTypeToIconClass(file_type: number): string {

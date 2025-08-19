@@ -20,10 +20,10 @@ export class TreeviewAccordion {
 
     constructor(public parentHtmlELement: HTMLElement) {
         this._mainDiv = DOM.makeDiv(parentHtmlELement, 'jo_treeviewAccordion_mainDiv');
-        window.addEventListener('resize', () => { this.onResize() });
+        window.addEventListener('resize', () => { this.onResize(false) });
     }
 
-    onResize() {
+    onResize(initial: boolean) {
         let overallHeight = this._mainDiv.getBoundingClientRect().height - (this.treeviewList.length * 1.0);
 
         let fixedHeight: number = 0;
@@ -36,14 +36,17 @@ export class TreeviewAccordion {
         }
 
         let factor = variableHeight == 0 ? 0 : (overallHeight - fixedHeight) / variableHeight;
+        
         for (let tv of this.treeviewList) {
             tv.outerDiv.style.flexBasis = "";
             tv.outerDiv.style.flexGrow = "";
+        }
+
+        for (let tv of this.treeviewList) {
 
             let height = (tv.isCollapsed() ? 0 : tv.getTargetVariableHeight()) * factor + tv.getFixedHeight();
-            console.log(height);
-
             tv.outerDiv.style.height = height + "px";
+            if(initial && !tv.isCollapsed()) tv._lastExpandedHeight = height;
         }
     }
 

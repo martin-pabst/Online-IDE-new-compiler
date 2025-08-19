@@ -1,4 +1,3 @@
-import { AccordionPanel, AccordionElement } from "./Accordion.js";
 import { Main } from "../Main.js";
 import { ClassData, UserData, Pruefung, PruefungCaptions, getUserDisplayName } from "../../communication/Data.js";
 import { ajaxAsync, csrfToken } from "../../communication/AjaxHelper.js";
@@ -41,6 +40,8 @@ export class TeacherExplorer {
         this.initStudentPanel();
 
         this.initClassPanel();
+
+        this.main.projectExplorer.accordion.onResize(true);
 
         this.renderClasses(this.classData);
 
@@ -128,7 +129,7 @@ export class TeacherExplorer {
 
         this.classPanel = new Treeview(this.main.projectExplorer.accordion, {
             captionLine: {
-                enabled: false,
+                enabled: true,
                 element: $buttonContainer[0]
             },
             withSelection: true,
@@ -228,7 +229,7 @@ export class TeacherExplorer {
         for (let i = 0; i < userDataList.length; i++) {
 
             let ud = userDataList[i];
-            this.studentPanel.addNode(false, getUserDisplayName(ud, true), undefined, ud);
+            this.studentPanel.addNode(false, getUserDisplayName(ud, true), "img_user-dark", ud);
 
         }
 
@@ -244,7 +245,7 @@ export class TeacherExplorer {
         })
 
         for (let cd of classDataList) {
-            this.classPanel.addNode(false, cd.name, undefined, cd);
+            this.classPanel.addNode(false, cd.name, "img_class-dark", cd);
         }
 
     }
@@ -271,7 +272,7 @@ export class TeacherExplorer {
             node.caption =  `<span class="joe_pruefung_klasse" style="margin: 0 4px">${klasse.name}</span>`;
         }
 
-        node.iconClass = "img_test-" + p.state;
+        node.iconClass = "img_test-state-" + p.state;
         node.iconTooltip = PruefungCaptions[p.state];
     }
 

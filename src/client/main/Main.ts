@@ -386,9 +386,16 @@ export class Main implements MainBase {
 
         }
 
-        if (Math.random() < 0.9) {
-            Helper.showHelper("spritesheetHelper", this);
-        }
+        if (!this.user.gui_state.helperHistory.folderButtonDone && this.projectExplorer.workspaceTreeview.size(true) > 5) {
+
+            Helper.showHelper("folderButton", this, jQuery(this.projectExplorer.workspaceTreeview.addFolderButton.parent));
+
+        } else
+            if (Math.random() < 0.9) {
+                Helper.showHelper("spritesheetHelper", this);
+            }
+
+
 
     }
 
