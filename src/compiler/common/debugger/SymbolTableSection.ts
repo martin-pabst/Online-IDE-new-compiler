@@ -4,13 +4,14 @@ import { BaseSymbol, BaseSymbolTable } from "../BaseSymbolTable";
 import { IPosition } from "../range/Position";
 import { Debugger } from "./Debugger";
 import { DebuggerSymbolEntry, StackElementDebuggerEntry, StaticFieldDebuggerEntry } from "./DebuggerSymbolEntry";
+import { DebuggerWatchEntry } from "./DebuggerWatchEntry";
 
 export class SymbolTableSection {
 
     children: StackElementDebuggerEntry[] = [];
     staticFieldChildren: StaticFieldDebuggerEntry[] = [];
 
-    constructor(public treeview: Treeview<DebuggerSymbolEntry>,
+    constructor(public treeview: Treeview<DebuggerSymbolEntry, DebuggerSymbolEntry>,
         public symbolTable: BaseSymbolTable, public debugger1: Debugger) {
 
         // divToRenderInto.prepend(this.treeview.outerDiv);

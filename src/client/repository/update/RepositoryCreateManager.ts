@@ -129,9 +129,11 @@ export class RepositoryCreateManager {
         this.main.networkManager.sendCreateRepository(this.workspace, publishedTo, repoName, repoDescription, (error: string, repository_id?: number) => {
             if (error == null) {
                 let projectExplorer = this.main.projectExplorer;
-                let element = projectExplorer.workspaceTreeview.findElement(this.workspace);
-                projectExplorer.workspaceTreeview.setElementClass(element, "repository");
-                this.workspace.renderSynchronizeButton(element);
+                let node = projectExplorer.workspaceTreeview.findNodeByElement(this.workspace);
+                if(node){
+                    node.iconClass = 'img_workspace-dark-repository';
+                    this.workspace.renderSynchronizeButton(node);
+                }
                 projectExplorer.showRepositoryButtonIfNeeded(this.workspace);
                 window.history.back(); // close modal window
             } else {

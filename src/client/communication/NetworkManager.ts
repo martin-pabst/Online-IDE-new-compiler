@@ -9,6 +9,7 @@ import { CheckIfPruefungIsRunningResponse, ClassData, CreateOrDeleteFileOrWorksp
 import { PushClientManager } from "./pushclient/PushClientManager.js";
 import { GUIFile } from '../workspace/File.js';
 import pako from 'pako'
+import { FileTypeManager } from '../../compiler/common/module/FileTypeManager.js';
 
 
 export class NetworkManager {
@@ -434,8 +435,8 @@ export class NetworkManager {
             alert(message);
         }
 
-        this.main.projectExplorer.workspaceTreeview.sortElements();
-        this.main.projectExplorer.fileTreeview.sortElements();
+        this.main.projectExplorer.workspaceTreeview.sort();
+        this.main.projectExplorer.fileTreeview.sort();
 
     }
 
@@ -463,28 +464,19 @@ export class NetworkManager {
         let w = this.main.restoreWorkspaceFromData(remoteWorkspace);
 
         this.main.workspaceList.push(w);
-        let path = remoteWorkspace.path.split("/");
-        if (path.length == 1 && path[0] == "") path = [];
 
-        let panelElement: AccordionElement = {
-            name: remoteWorkspace.name,
-            externalElement: w,
-            iconClass: remoteWorkspace.repository_id == null ? "workspace" : "repository",
-            isFolder: remoteWorkspace.isFolder,
-            path: path,
-            readonly: remoteWorkspace.readonly,
-            isPruefungFolder: false
-        };
-
-        this.main.projectExplorer.workspaceTreeview.addElement(panelElement, true);
-        w.panelElement = panelElement;
+        let iconClass = remoteWorkspace.repository_id == null ? "img_workspace-dark" : "img_workspace-dark-repository";
+        let node = this.main.projectExplorer.workspaceTreeview.addNode(w.isFolder,w.name,
+            iconClass, w
+         )
+         // TODO: node.readonly = w.readonly
 
         if (w.repository_id != null) {
-            w.renderSynchronizeButton(panelElement);
+            w.renderSynchronizeButton(node);
         }
 
         if (withSort) {
-            this.main.projectExplorer.workspaceTreeview.sortElements();
+            this.main.projectExplorer.workspaceTreeview.sort();
         }
         return w;
     }
@@ -494,14 +486,11 @@ export class NetworkManager {
 
         let ae: any = null; //AccordionElement
         if (workspace == this.main.getCurrentWorkspace()) {
-            ae = {
-                name: remoteFile.name,
-                externalElement: null
-            }
 
-            this.main.projectExplorer.fileTreeview.addElement(ae, true);
-            f.panelElement = ae;
-            ae.externalElement = f;
+            let iconClass = FileTypeManager.filenameToFileType(f.name).iconclass;
+            
+            this.main.projectExplorer.fileTreeview.addNode(false, f.name, iconClass, f)
+
         }
 
         workspace.addFile(f);

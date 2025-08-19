@@ -28,7 +28,7 @@ import { MainBase } from "../main/MainBase.js";
 import { SpritesheetData } from "../spritemanager/SpritesheetData.js";
 import { GUIFile } from "../workspace/File.js";
 import { Workspace } from "../workspace/Workspace.js";
-import { ExportedWorkspace, WorkspaceImporterExporter } from "../workspace/WorkspaceImporterExporter.js";
+import { ExportedWorkspace, WorkspaceExporter } from "../workspace/WorkspaceImporterExporter.js";
 import { EmbeddedFileExplorer } from "./EmbeddedFileExplorer.js";
 import { EmbeddedIndexedDB } from "./EmbeddedIndexedDB.js";
 import { Slider } from "../../tools/components/Slider.js";
@@ -780,7 +780,7 @@ export class MainEmbedded implements MainBase {
         }
         if (!filename.endsWith(".json")) filename = filename + ".json";
         let ws = this.currentWorkspace;
-        let exportedWorkspace = await WorkspaceImporterExporter.exportWorkspace(ws);
+        let exportedWorkspace = await WorkspaceExporter.exportWorkspace(ws);
         downloadFile(exportedWorkspace, filename)
     }
 

@@ -7,30 +7,32 @@ import { ClassData, DuplicateWorkspaceResponse, FileData, GetWorkspacesRequest, 
 import { SpritesheetData } from "../../spritemanager/SpritesheetData.js";
 import { Workspace } from "../../workspace/Workspace.js";
 import { Main } from "../Main.js";
-import { Accordion, AccordionContextMenuItem, AccordionElement, AccordionPanel } from "./Accordion.js";
 import { DistributeToStudentsDialog } from "./DistributeToStudentsDialog.js";
 import { FileTypeManager } from '../../../compiler/common/module/FileTypeManager.js';
 import { Helper } from "./Helper.js";
 import { TeacherExplorer } from './TeacherExplorer.js';
 import { WorkspaceSettingsDialog } from "./WorkspaceSettingsDialog.js";
 import { GUIFile } from '../../workspace/File.js';
-import { WorkspaceImporterExporter } from '../../workspace/WorkspaceImporterExporter.js';
+import { WorkspaceExporter } from '../../workspace/WorkspaceImporterExporter.js';
 import { SchedulerState } from "../../../compiler/common/interpreter/SchedulerState.js";
 import { GuiMessages } from './language/GuiMessages.js';
-import * as monaco from 'monaco-editor'
 import { WorkspaceImporter } from './WorkspaceImporter.js';
 import { AccordionMessages, ProjectExplorerMessages } from './language/GUILanguage.js';
 import { TreeviewAccordion } from '../../../tools/components/treeview/TreeviewAccordion.js';
 import { DragKind, Treeview, TreeviewContextMenuItem } from '../../../tools/components/treeview/Treeview.js';
 import { IconButtonComponent } from '../../../tools/components/IconButtonComponent.js';
 import { TreeviewNode } from '../../../tools/components/treeview/TreeviewNode.js';
+import * as monaco from 'monaco-editor'
+
+import '/assets/css/icons.css';
+import '/assets/css/projectexplorer.css';
 
 
 export class ProjectExplorer {
 
     accordion: TreeviewAccordion;
-    fileTreeview: Treeview<GUIFile>;
-    workspaceTreeview: Treeview<Workspace>;
+    fileTreeview: Treeview<GUIFile, number>;
+    workspaceTreeview: Treeview<Workspace, number>;
 
     homeButton: IconButtonComponent;
     synchronizedButton: IconButtonComponent;
@@ -68,10 +70,12 @@ export class ProjectExplorer {
                 messageRename: AccordionMessages.rename()
             },
             selectMultiple: false,
-            minHeight: 300
+            minHeight: 300,
+            keyExtractor: (file) => file.id,
+            parentKeyExtractor: (file) => file.parent_folder_id
         })
 
-        this.fileTreeview.newNodeCallback = async (name: string, node: TreeviewNode<GUIFile>) => {
+        this.fileTreeview.newNodeCallback = async (name: string, node: TreeviewNode<GUIFile, number>) => {
 
             if (this.main.currentWorkspace == null) {
                 alert(ProjectExplorerMessages.firstChooseWorkspace());
@@ -79,7 +83,6 @@ export class ProjectExplorer {
             }
 
             let file = new GUIFile(this.main, name);
-            file.panelElement = node;
             node.iconClass = FileTypeManager.filenameToFileType(name).iconclass;
 
             this.main.getCurrentWorkspace().addFile(file);
@@ -138,7 +141,7 @@ export class ProjectExplorer {
         }
 
         this.fileTreeview.contextMenuProvider = (file, node) => {
-            let cmiList: TreeviewContextMenuItem<GUIFile>[] = [];
+            let cmiList: TreeviewContextMenuItem<GUIFile, number>[] = [];
 
             cmiList.push({
                 caption: ProjectExplorerMessages.duplicate(),
@@ -155,7 +158,7 @@ export class ProjectExplorer {
 
                     if (error == null) {
                         let newNode = this.fileTreeview.addNode(false, newFile.name, FileTypeManager.filenameToFileType(newFile.name).iconclass,
-                            newFile, treeviewNode.parentExternalObject);
+                            newFile, treeviewNode.parentKey);
                         this.setFileActive(newFile);
                         newNode.renameNode();
                     }
@@ -258,7 +261,12 @@ export class ProjectExplorer {
             buttonAddElements: true,
             buttonAddElementsCaption: ProjectExplorerMessages.newWorkspace() + "...",
             buttonAddFolders: true,
-            defaultIconClass: "img_add-workspace-dark"
+            defaultIconClass: "img_workspace-dark",
+            comparator: (a, b) => {
+                return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
+            },
+            keyExtractor: workspace => workspace.id,
+            parentKeyExtractor: workspace => workspace.parent_folder_id
         })
 
         this.workspaceTreeview.newNodeCallback = async (name, node) => {
@@ -372,7 +380,7 @@ export class ProjectExplorer {
 
                 let mousePointer = window.PointerEvent ? "pointer" : "mouse";
 
-                let cmiList: TreeviewContextMenuItem<Workspace>[] = [];
+                let cmiList: TreeviewContextMenuItem<Workspace, number>[] = [];
                 if (node.isFolder) {
                     cmiList.push(
                         {
@@ -391,7 +399,7 @@ export class ProjectExplorer {
                             caption: ProjectExplorerMessages.exportFolder(),
                             callback: async () => {
                                 let name: string = workspace.name.replace(/\//g, "_");
-                                downloadFile(await WorkspaceImporterExporter.exportFolder(workspace, this.workspaceTreeview), name + ".json")
+                                downloadFile(await WorkspaceExporter.exportFolder(workspace, this.workspaceTreeview), name + ".json")
                             }
                         }
                     );
@@ -420,27 +428,27 @@ export class ProjectExplorer {
                             caption: ProjectExplorerMessages.exportToFile(),
                             callback: async () => {
                                 let name: string = workspace.name.replace(/\//g, "_");
-                                downloadFile(await WorkspaceImporterExporter.exportWorkspace(workspace), name + ".json")
+                                downloadFile(await WorkspaceExporter.exportWorkspace(workspace), name + ".json")
                             }
                         }
                     );
 
-                    if (this.main.user.is_teacher && this.main.teacherExplorer.classPanel.elements.length > 0) {
+                    if (this.main.user.is_teacher && this.main.teacherExplorer.classPanel.size(true) > 0) {
                         cmiList.push(
                             {
                                 caption: ProjectExplorerMessages.distributeToClass() + "...",
                                 callback: () => { },
-                                subMenu: this.main.teacherExplorer.classPanel.elements.map((ae) => {
+                                subMenu: this.main.teacherExplorer.classPanel.nodes.map((classNode) => {
+                                    let classData = <ClassData>classNode.externalObject;
                                     return {
-                                        caption: ae.name,
+                                        caption: classData.name,
                                         callback: () => {
-                                            let klasse = <any>ae.externalElement;
 
-                                            this.main.networkManager.sendDistributeWorkspace(workspace, klasse, null, (error: string) => {
+                                            this.main.networkManager.sendDistributeWorkspace(workspace, classData, null, (error: string) => {
                                                 if (error == null) {
                                                     let networkManager = this.main.networkManager;
                                                     let dt = networkManager.updateFrequencyInSeconds * networkManager.forcedUpdateEvery;
-                                                    alert(ProjectExplorerMessages.workspaceDistributed(workspace.name, klasse.name));
+                                                    alert(ProjectExplorerMessages.workspaceDistributed(workspace.name, classData.name));
                                                 } else {
                                                     alert(error);
                                                 }
@@ -453,7 +461,7 @@ export class ProjectExplorer {
                             {
                                 caption: ProjectExplorerMessages.distributeToStudents(),
                                 callback: () => {
-                                    let classes: ClassData[] = this.main.teacherExplorer.classPanel.elements.map(ae => ae.externalElement);
+                                    let classes: ClassData[] = this.main.teacherExplorer.classPanel.nodes.map(ae => <ClassData>ae.externalObject);
                                     new DistributeToStudentsDialog(classes, workspace, this.main);
                                 }
                             }
@@ -524,12 +532,6 @@ export class ProjectExplorer {
         this.fileTreeview.setCaption(name);
         this.fileTreeview.clear();
 
-        if (this.main.getCurrentWorkspace() != null) {
-            for (let file of this.main.getCurrentWorkspace().getFiles()) {
-                file.panelElement = null;
-            }
-        }
-
         if (workspace != null) {
             let files: GUIFile[] = workspace.getFiles().slice();
 
@@ -538,7 +540,7 @@ export class ProjectExplorer {
 
             for (let file of files) {
 
-                file.panelElement = this.fileTreeview.addNode(false, file.name,
+                this.fileTreeview.addNode(false, file.name,
                     FileTypeManager.filenameToFileType(file.name).iconclass, file, null);
 
                 this.renderHomeworkButton(file);
@@ -552,27 +554,11 @@ export class ProjectExplorer {
         this.fileTreeview.clear();
         this.workspaceTreeview.clear();
 
-        let workspacesTodo = workspaceList.slice();
-        let workspaceIdsDone = new Map<number, Workspace>();
-
-        let oldLength: number = 0;
-        while (workspacesTodo.length > oldLength) {
-            oldLength = workspacesTodo.length;
-            let workspacesLeft: Workspace[] = [];
-            for (let ws of workspacesTodo) {
-                if (ws.parent_folder_id == null || workspaceIdsDone.get(ws.parent_folder_id) != null) {
-                    let iconClass = ws.repository_id == null ? 'img_workspace-dark' : 'img_workspace-dark-repository';
-                    let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, iconClass, ws, workspaceList.find(w1 => w1.id = ws.parent_folder_id))
-                    ws.renderSynchronizeButton(node);
-                    workspaceIdsDone.set(ws.id, ws);
-                } else {
-                    workspacesLeft.push(ws);
-                }
-            }
-            workspacesTodo = workspacesLeft;
+        for (let ws of workspaceList) {
+            let iconClass = ws.repository_id == null ? 'img_workspace-dark' : 'img_workspace-dark-repository';
+            let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, iconClass, ws)
+            ws.renderSynchronizeButton(node);
         }
-
-        this.fileTreeview.addElementsButton.setVisible(workspaceList.length > 0);
 
     }
 
@@ -809,10 +795,10 @@ export class ProjectExplorer {
     }
 
     markFilesAsStartable(files: GUIFile[], active: boolean) {
-        for(let node of this.fileTreeview.nodes){
+        for (let node of this.fileTreeview.nodes.filter(node1 => !node1.isRootNode())) {
             let startButton = node.getIconButtonByTag("Start");
             let file = node.externalObject;
-            if(!startButton) startButton = node.addIconButton("img_start-dark", () => {
+            if (!startButton) startButton = node.addIconButton("img_start-dark", () => {
                 this.main.getInterpreter().start(file);
             }, "Starte das in dieser Datei enthaltene Hauptprogramm", true);
             startButton.tag = "Start";
@@ -820,5 +806,11 @@ export class ProjectExplorer {
         }
     }
 
+    show(){
+        this.$projectexplorerDiv.css('display', '');
+    }
 
+    hide(){
+        this.$projectexplorerDiv.css('display', 'none');
+    }
 }

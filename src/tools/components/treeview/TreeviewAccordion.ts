@@ -7,7 +7,7 @@ import { TreeviewSplitter } from './TreeviewSplitter.ts';
 
 export class TreeviewAccordion {
 
-    treeviewList: Treeview<any>[] = [];
+    treeviewList: Treeview<any, any>[] = [];
     splitterList: TreeviewSplitter[] = [];
 
     private _mainDiv: HTMLDivElement;
@@ -46,14 +46,14 @@ export class TreeviewAccordion {
         }
     }
 
-    addTreeview(treeview: Treeview<any>){
+    addTreeview(treeview: Treeview<any, any>){
         this.treeviewList.push(treeview);
         if(this.treeviewList.length > 1){
             this.splitterList.push(new TreeviewSplitter(this, this.treeviewList.length - 1));
         }
     }
 
-    onExpandCollapseTreeview(tv: Treeview<any>, newState: ExpandCollapseState, deltaHeight: number) {
+    onExpandCollapseTreeview(tv: Treeview<any, any>, newState: ExpandCollapseState, deltaHeight: number) {
         // if deltaHeight > 0 then newState == "collapsed" and there height to give out to the other treeviews
         // if deltaHeight < 0 then the other treeviews must give some of their height...
         let currentIndex = this.treeviewList.indexOf(tv);

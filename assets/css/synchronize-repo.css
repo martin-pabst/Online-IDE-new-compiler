@@ -413,7 +413,7 @@
         font-size: 70%;
     }
 
-    [draggable=true] {
+    #synchronize-div [draggable=true] {
         cursor: move;
     }
 

@@ -187,7 +187,7 @@ export class HomeworkManager {
             $div.on("click", () => {
                     that.main.projectExplorer.setWorkspaceActive(moduleWithWorkspace.workspace, true);
                     that.main.projectExplorer.setFileActive(moduleWithWorkspace.file);
-                    that.main.projectExplorer.fileTreeview.select(moduleWithWorkspace.file, false);
+                    that.main.projectExplorer.fileTreeview.selectElement(moduleWithWorkspace.file, false);
             });
         })
 

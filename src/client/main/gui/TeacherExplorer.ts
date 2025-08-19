@@ -7,13 +7,14 @@ import { GUIToggleButton } from "../../../tools/components/GUIToggleButton.js";
 import jQuery from "jquery";
 import { PushClientManager } from "../../communication/pushclient/PushClientManager.js";
 import * as monaco from 'monaco-editor'
-import { ProjectExplorerMessages, TeacherExplorerMessages } from "./language/GUILanguage.js";
+import { TeacherExplorerMessages } from "./language/GUILanguage.js";
+import { Treeview } from "../../../tools/components/treeview/Treeview.js";
 
 
 export class TeacherExplorer {
 
-    studentPanel: AccordionPanel;
-    classPanel: AccordionPanel;
+    studentPanel: Treeview<UserData, UserData>;
+    classPanel: Treeview<ClassData | Pruefung, ClassData | Pruefung>;
 
     // save them here when displaying pupils workspaces:
     ownWorkspaces: Workspace[];
@@ -31,8 +32,8 @@ export class TeacherExplorer {
     }
 
     removePanels() {
-        this.classPanel.remove();
-        this.studentPanel.remove();
+        this.classPanel.setVisible(false);
+        this.studentPanel.setVisible(false);
     }
 
     initGUI() {
@@ -54,15 +55,40 @@ export class TeacherExplorer {
 
     initStudentPanel() {
 
-        this.studentPanel = new AccordionPanel(this.main.projectExplorer.accordion,
-           TeacherExplorerMessages.students() , "3", null,
-            "", "student", false, false, "student", false, [], "", "");
+        this.studentPanel = new Treeview(this.main.projectExplorer.accordion,
+            {
+                captionLine: {
+                    enabled: true,
+                    text: TeacherExplorerMessages.students()
+                },
+                withSelection: true,
+                selectMultiple: false,
+                withDragAndDrop: false,
+                buttonAddElements: false,
+                withDeleteButtons: false,
+                buttonAddFolders: false,
+                defaultIconClass: "img_user-dark",
+                flexWeight: "1",
+                minHeight: 100,
+                withFolders: false,
+                comparator: (a, b) => {
+                    if (a.vidis_akronym && b.vidis_akronym) {
+                        return getUserDisplayName(a) > getUserDisplayName(b) ? 1 : -1;
+                    }
+                    if (a.familienname > b.familienname) return 1;
+                    if (b.familienname > a.familienname) return -1;
+                    if (a.rufname > b.rufname) return 1;
+                    if (b.rufname > a.rufname) return -1;
+                    return 0;
+                }
+            }
+        );
 
-        this.studentPanel.selectCallback = (ae: UserData) => {
+        this.studentPanel.onNodeClickedHandler = (student: UserData) => {
             if (this.classPanelMode == "classes") {
-                this.main.projectExplorer.fetchAndRenderWorkspaces(ae, this);
+                this.main.projectExplorer.fetchAndRenderWorkspaces(student, this);
             } else {
-                this.main.projectExplorer.fetchAndRenderWorkspaces(ae, this, this.currentPruefung);
+                this.main.projectExplorer.fetchAndRenderWorkspaces(student, this, this.currentPruefung);
             }
         }
 
@@ -88,7 +114,7 @@ export class TeacherExplorer {
             main.projectExplorer.setWorkspaceActive(main.currentWorkspace, true);
         }
 
-        this.studentPanel.select(null, false);
+        this.studentPanel.selectElement(null, false);
 
     }
 
@@ -100,35 +126,50 @@ export class TeacherExplorer {
         let toggleButtonTest = new GUIToggleButton(TeacherExplorerMessages.tests(), $buttonContainer, false);
         toggleButtonClass.linkTo(toggleButtonTest);
 
-        this.classPanel = new AccordionPanel(this.main.projectExplorer.accordion,
-            $buttonContainer, "2", "", "", "class", false, false, "class", false, [], "", "");
+        this.classPanel = new Treeview(this.main.projectExplorer.accordion, {
+            captionLine: {
+                enabled: false,
+                element: $buttonContainer[0]
+            },
+            withSelection: true,
+            selectMultiple: false,
+            withDragAndDrop: false,
+            buttonAddElements: false,
+            withDeleteButtons: false,
+            buttonAddFolders: false,
+            defaultIconClass: "img_class-dark",
+            flexWeight: "1",
+            minHeight: 100,
+            withFolders: false
 
-        let $buttonPruefungAdministration = jQuery(`<a href='administration_mc.html?csrfToken=${csrfToken}' target='_blank'><div class="jo_button jo_active img_gear-dark" style="margin-right: 6px" title="Prüfungen verwalten..."></d>`);
-        this.classPanel.$captionElement.find('.jo_actions').append($buttonPruefungAdministration);
+        })
 
+        let buttonPruefungAdministration = this.classPanel.captionLineAddIconButton("img_gear-dark", () => {
+            window.open(`administration_mc.html?csrfToken=${csrfToken}`, '_blank').focus();
+        }, TeacherExplorerMessages.createNewTest());
 
-        $buttonPruefungAdministration.attr("title", TeacherExplorerMessages.createNewTest()).hide();
+        buttonPruefungAdministration.setVisible(false);
 
-        this.classPanel.selectCallback = (ea) => {
+        this.classPanel.onNodeClickedHandler = (classOrPruefung) => {
 
             that.main.networkManager.sendUpdatesAsync().then(() => {
 
                 if (this.classPanelMode == "classes") {
 
-                    let classData = <ClassData>ea;
+                    let classData = <ClassData>classOrPruefung;
                     if (classData != null) {
                         this.renderStudents(classData.students);
                     }
 
                 } else {
-                    this.onSelectPruefung(<Pruefung>ea);
+                    this.onSelectPruefung(<Pruefung>classOrPruefung);
                 }
             });
 
         }
 
         toggleButtonTest.onChange(async (checked) => {
-            $buttonPruefungAdministration.toggle(200);
+            buttonPruefungAdministration.setVisible(true);
             that.classPanelMode = checked ? "tests" : "classes";
             that.main.networkManager.sendUpdatesAsync().then(() => {
                 if (checked) {
@@ -139,17 +180,13 @@ export class TeacherExplorer {
                     this.renderPruefungen();
                     let firstPruefung = this.pruefungen.find(p => ["preparing", "running"].indexOf(p.state) < 0);
                     if (firstPruefung != null) {
-                        this.classPanel.select(firstPruefung, true, true);
+                        this.classPanel.selectElement(firstPruefung, true);
                     }
                 } else {
                     this.renderClasses(this.classData);
                     this.main.projectExplorer.onHomeButtonClicked();
                 }
             })
-        })
-
-        $buttonPruefungAdministration.on('pointerdown', (e) => {
-            e.stopPropagation();
         })
 
     }
@@ -174,7 +211,7 @@ export class TeacherExplorer {
             if (klass != null) {
                 this.renderStudents(klass.students);
                 if (klass.students.length > 0) {
-                    this.studentPanel.select(klass.students[0], true, true);
+                    this.studentPanel.selectElement(klass.students[0], true);
                 }
             }
         }
@@ -186,29 +223,13 @@ export class TeacherExplorer {
 
         this.studentPanel.setCaption(userDataList.length + " " + TeacherExplorerMessages.students());
 
-        userDataList.sort((a, b) => {
-            if(a.vidis_akronym && b.vidis_akronym){
-                return getUserDisplayName(a) > getUserDisplayName(b) ? 1 : -1;
-            }
-            if (a.familienname > b.familienname) return 1;
-            if (b.familienname > a.familienname) return -1;
-            if (a.rufname > b.rufname) return 1;
-            if (b.rufname > a.rufname) return -1;
-            return 0;
-        })
+        userDataList.sort(this.studentPanel.config.comparator);
 
         for (let i = 0; i < userDataList.length; i++) {
+
             let ud = userDataList[i];
-            let ae: AccordionElement = {
-                name: getUserDisplayName(ud, true),
-                sortName: ud.vidis_akronym ? getUserDisplayName(ud) : ud.familienname + " " + ud.rufname,
-                externalElement: ud,
-                isFolder: false,
-                path: [],
-                readonly: false,
-                isPruefungFolder: false
-            }
-            this.studentPanel.addElement(ae, true);
+            this.studentPanel.addNode(false, getUserDisplayName(ud, true), undefined, ud);
+
         }
 
     }
@@ -223,15 +244,7 @@ export class TeacherExplorer {
         })
 
         for (let cd of classDataList) {
-            let ae: AccordionElement = {
-                name: cd.name,
-                externalElement: cd,
-                isFolder: false,
-                path: [],
-                readonly: false,
-                isPruefungFolder: false
-            }
-            this.classPanel.addElement(ae, true);
+            this.classPanel.addNode(false, cd.name, undefined, cd);
         }
 
     }
@@ -243,36 +256,23 @@ export class TeacherExplorer {
     }
 
     addPruefungToClassPanel(p: Pruefung) {
-        let ae: AccordionElement = {
-            name: p.name,
-            externalElement: p,
-            isFolder: false,
-            path: [],
-            iconClass: "test",
-            readonly: false,
-            isPruefungFolder: false
-        }
-        this.classPanel.addElement(ae, true);
+
+        this.classPanel.addNode(false, p.name, "img_test-state-preparing", p);
         this.updateClassNameAndState(p);
 
     }
 
     updateClassNameAndState(p: Pruefung) {
-        let ae: AccordionElement = this.classPanel.findElement(p);
-        if (ae != null) {
-            let klasse = this.classData.find(c => c.id == p.klasse_id);
-            if (klasse != null) {
-                let $text = ae.$htmlFirstLine.find(".joe_pruefung_klasse");
-                if ($text.length == 0) {
-                    $text = jQuery('<span class="joe_pruefung_klasse"></span>');
-                    $text.css('margin', '0 4px');
-                    ae.$htmlFirstLine.find(".jo_filename").append($text);
-                }
-                $text.text(`(${klasse.name})`);
-            }
-
-            this.classPanel.setElementClass(ae, "test-" + p.state, PruefungCaptions[p.state]);
+        let node = this.classPanel.findNodeByElement(p);
+        if (!node) return;
+        let klasse = this.classData.find(c => c.id == p.klasse_id);
+        if (klasse != null) {
+            node.renderCaptionAsHtml = true;
+            node.caption =  `<span class="joe_pruefung_klasse" style="margin: 0 4px">${klasse.name}</span>`;
         }
+
+        node.iconClass = "img_test-" + p.state;
+        node.iconTooltip = PruefungCaptions[p.state];
     }
 
     async fetchPruefungen() {

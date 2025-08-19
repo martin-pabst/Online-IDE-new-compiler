@@ -4,7 +4,6 @@ import { Main } from "../main/Main";
 import { SpritesheetData } from "../spritemanager/SpritesheetData";
 import { GUIFile } from "./File";
 import { Workspace } from "./Workspace";
-import { AccordionPanel } from "../main/gui/Accordion";
 import { Treeview } from "../../tools/components/treeview/Treeview";
 
 export type ExportedWorkspace = {
@@ -12,7 +11,8 @@ export type ExportedWorkspace = {
     modules: ExportedFile[];
     settings: WorkspaceSettings;
     spritesheetBase64?: string;
-    path?: string;
+    parent_folder_id?: number;
+    isFolder?: boolean;
     isSelected?: boolean;
 }
 
@@ -27,33 +27,31 @@ export type ExportedFile = {
 }
 
 
-export class WorkspaceImporterExporter {
+export class WorkspaceExporter {
 
     static async exportAllWorkspaces(main: Main): Promise<ExportedWorkspace[]> {
         let exportedWorkspaces: ExportedWorkspace[] = [];
-        for (let ws of main.projectExplorer.workspaceTreeview.elements.map(el => <Workspace>el.externalElement)) {
-            if (ws.isFolder) continue;
-            let exportedWorkspace: ExportedWorkspace = await WorkspaceImporterExporter.exportWorkspace(ws);
+        for (let ws of main.projectExplorer.workspaceTreeview.rootNode.getOrderedNodeListRecursively().map(node => <Workspace>node.externalObject)) {
+            let exportedWorkspace: ExportedWorkspace = await WorkspaceExporter.exportWorkspace(ws);
             exportedWorkspaces.push(exportedWorkspace);
         }
         return exportedWorkspaces;
     }
 
 
-    static async exportFolder(workspace: Workspace, workspaceListPanel: Treeview<Workspace>): Promise<ExportedWorkspace[]> {
-        let workspacesToExport: Workspace[] = [];
-        let pathString = workspace.path || '';
-        if (pathString.length > 0) pathString += '/';
-        pathString += workspace.name;
-        workspacesToExport = workspaceListPanel.elements.map(el => <Workspace>el.externalElement)
-            .filter(ws => ws.path && ws.path.startsWith(pathString));
+    static async exportFolder(workspace: Workspace, workspaceTreeview: Treeview<Workspace, number>): Promise<ExportedWorkspace[]> {
+        let node = workspaceTreeview.findNodeByElement(workspace);
+        if(!node) return [];
+
+        let workspacesToExport = node.getOrderedNodeListRecursively().map(node => node.externalObject);
+
         let exportedWorkspaces: ExportedWorkspace[] = [];
         for (let ws of workspacesToExport) {
-            if (ws.isFolder) continue;
-            let exportedWorkspace: ExportedWorkspace = await WorkspaceImporterExporter.exportWorkspace(ws);
+            let exportedWorkspace: ExportedWorkspace = await WorkspaceExporter.exportWorkspace(ws);
+            if(exportedWorkspace.parent_folder_id == workspace.id) exportedWorkspace.parent_folder_id = null;
             exportedWorkspaces.push(exportedWorkspace);
         }
-        
+
         return exportedWorkspaces;
 
     }
@@ -69,10 +67,11 @@ export class WorkspaceImporterExporter {
 
         return {
             name: workspace.name,
-            modules: workspace.getFiles().map(file => WorkspaceImporterExporter.exportFile(file)),
+            modules: workspace.getFiles().map(file => WorkspaceExporter.exportFile(file)),
             settings: workspace.settings,
             spritesheetBase64: spritesheetBase64,
-            path: workspace.path
+            parent_folder_id: workspace.parent_folder_id,
+            isFolder: workspace.isFolder
         }
     }
 

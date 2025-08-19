@@ -12,17 +12,17 @@ export class DebuggerWatchSection {
 
     private lastRepl?: JavaRepl;
 
-    constructor(private treeview: Treeview<DebuggerWatchEntry>, private debugger_: Debugger){
+    constructor(private treeview: Treeview<DebuggerWatchEntry, DebuggerWatchEntry>, private debugger_: Debugger){
 
-        treeview.newNodeCallback = (text: string, node: TreeviewNode<DebuggerWatchEntry>): DebuggerWatchEntry => {
+        treeview.newNodeCallback = async (text: string, node: TreeviewNode<DebuggerWatchEntry, DebuggerWatchEntry>) => {
             let dwe = new DebuggerWatchEntry(text);
             node.renderCaptionAsHtml = true;
             if(this.lastRepl) this.updateNode(node, dwe, this.lastRepl);
             return dwe;
         }
 
-        treeview.deleteCallback = (debuggerWatchEntry: DebuggerWatchEntry | null): void => {
-
+        treeview.deleteCallback = async (debuggerWatchEntry: DebuggerWatchEntry | null) => {
+            return true;
         }
 
     }
@@ -42,7 +42,7 @@ export class DebuggerWatchSection {
         }
     }
 
-    private updateNode(node: TreeviewNode<DebuggerWatchEntry>, debuggerWatchEntry: DebuggerWatchEntry, repl: JavaRepl){
+    private updateNode(node: TreeviewNode<DebuggerWatchEntry, DebuggerWatchEntry>, debuggerWatchEntry: DebuggerWatchEntry, repl: JavaRepl){
 
         let valueAsString: string = "---"
         let value = repl.executeSynchronously(debuggerWatchEntry.term);

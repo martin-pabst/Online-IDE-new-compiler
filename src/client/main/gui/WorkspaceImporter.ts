@@ -22,13 +22,12 @@ export class WorkspaceImporter {
     }
 
     show() {
-        let that = this;
         this.dialog.initAndOpen();
         this.dialog.heading(WorkspaceImporterMessages.importWorkspace());
         this.dialog.description(WorkspaceImporterMessages.importWorkspaceDescription())
         let pathDescription = WorkspaceImporterMessages.pathDescription1();
-        if (this.path.length > 0) {
-            pathDescription = WorkspaceImporterMessages.pathDescription2(this.path.join("/"));
+        if (this.folder) {
+            pathDescription = WorkspaceImporterMessages.pathDescription2(this.folder.name);
         }
         this.dialog.description(pathDescription);
 
@@ -65,14 +64,14 @@ export class WorkspaceImporter {
                         return;
                     }
                     
-                    for (let ew1 of ew) {
+                    for (let ew1 of ew.filter(ew => !ew.isFolder)) {
                         if (ew1.modules == null || ew1.name == null || ew1.settings == null) {
                             $errorDiv.append(jQuery(`<div>${WorkspaceImporterMessages.wrongFileFormat(f.name)}</div>`));
                         } else {
                             exportedWorkspaces.push(ew1);
                             let checkbox = jQuery(`<input type="checkbox" checked="checked" />`);
-                            let pathString = (ew1.path && ew1.path.length > 0) ? ew1.path + "\\" : "";
-                            let listItem = jQuery(`<li><span>${pathString}${ew1.name} ${WorkspaceImporterMessages.withFiles(ew1.modules.length)}<span></li>`);
+                            // let pathString = (ew1.path && ew1.path.length > 0) ? ew1.path + "\\" : "";
+                            let listItem = jQuery(`<li><span>${ew1.name} ${WorkspaceImporterMessages.withFiles(ew1.modules.length)}<span></li>`);
                             listItem.prepend(checkbox);
                             ew1.isSelected = true
                             $workspacePreviewList.append(listItem);
@@ -150,26 +149,12 @@ export class WorkspaceImporter {
                     for (let wse of workspacesToImport) {
                         waitProgressBarInner.css("width", (i++ / workspacesToImport.length * 100) + "%");
 
-                        let path = this.path.slice();
-                        if (wse.path != null) {
-                            path = path.concat(wse.path.split("/"));
-                        }
-
-                        let ws: Workspace[] = WorkspaceImporter.importWorkspaceWithoutSpritesheet(wse, path, this.main, owner_id);
+                        let ws: Workspace[] = WorkspaceImporter.importWorkspaceWithoutSpritesheet(wse, this.main, owner_id);
 
                         for (let ws1 of ws) {
                             let error = await networkManager.sendCreateWorkspace(ws1, owner_id);
                             if (error == null) {
-                                projectExplorer.workspaceTreeview.addElement({
-                                    name: ws1.name,
-                                    externalElement: ws1,
-                                    iconClass: "workspace",
-                                    isFolder: ws1.isFolder,
-                                    path: ws1.path == '' ? [] : ws1.path.split("/"),
-                                    readonly: false,
-                                    isPruefungFolder: false
-                                }, true);
-
+                                projectExplorer.workspaceTreeview.addNode(false, ws1.name, undefined, ws1, null);
 
                                 for (let f of ws1.getFiles()) {
                                     await networkManager.sendCreateFile(f, ws1, owner_id)
@@ -196,8 +181,6 @@ export class WorkspaceImporter {
                     waitProgressBar.remove();
                     waitDiv.css("display", "none");
 
-                    
-                    projectExplorer.workspaceTreeview.sortElements();
                     this.dialog.close();
                     if (firstWorkspace != null) projectExplorer.setWorkspaceActive(firstWorkspace, true);
 
@@ -206,49 +189,18 @@ export class WorkspaceImporter {
         ])
     }
 
-    static importWorkspaceWithoutSpritesheet(wse: ExportedWorkspace, path: string[], main: MainBase, owner_id: number): Workspace[] {
+    static importWorkspaceWithoutSpritesheet(wse: ExportedWorkspace, main: MainBase, owner_id: number): Workspace[] {
 
         let ws: Workspace = new Workspace(wse.name, main, owner_id);
 
         ws.isFolder = false;
-        ws.path = path.join("/");
         ws.settings = wse.settings;
         main.addWorkspace(ws);
         for (let exportedFile of wse.modules) {
             ws.addFile(WorkspaceImporter.importFile(main, exportedFile));
         }
 
-        let workspaces: Workspace[] = [];
-
-        if (main instanceof Main) {
-            workspaces = WorkspaceImporter.buildPath(path, main, owner_id);
-        }
-
-        return workspaces.concat(ws);
-    }
-
-    static buildPath(path: string[], main: Main, owner_id: number): Workspace[] {
-        let workspaces: Workspace[] = [];
-        for (let i = 0; i < path.length; i++) {
-            let currentPath = path.slice(0, i + 1);
-            let ws = main.projectExplorer.workspaceTreeview.elements.find(el => {
-                if (!el.isFolder) return false;
-                let pathString = el.name;
-                if (el.path && el.path.length > 0) {
-                    pathString = el.path.join("/") + "/" + pathString;
-                }
-                return pathString == currentPath.join("/");
-            });
-
-            if (!ws) {
-                let newWs = new Workspace(path[i], main, owner_id);
-                newWs.isFolder = true;
-                newWs.path = path.slice(0, i).join("/");
-                main.addWorkspace(newWs);
-                workspaces.push(newWs);
-            }
-        }
-        return workspaces;
+        return [ws];
     }
 
     private static importFile(main: IMain, ef: ExportedFile): GUIFile {

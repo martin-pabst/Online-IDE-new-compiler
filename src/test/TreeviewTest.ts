@@ -17,7 +17,7 @@ class TreeviewTest {
         let treeviewDiv = document.getElementById("treeviewdiv");
         new Slider(treeviewDiv, false, false, (newLength) => {})
 
-        let tv: Treeview<TVFile> = new Treeview(treeviewDiv, {
+        let tv: Treeview<TVFile, TVFile> = new Treeview(treeviewDiv, {
             captionLine: {
                 enabled: true,
                 text: "Treeview"

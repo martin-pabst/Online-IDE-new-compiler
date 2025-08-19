@@ -6,7 +6,7 @@ import { WorkspaceImporter } from "./WorkspaceImporter.js";
 import jQuery from 'jquery';
 import { Workspace } from "../../workspace/Workspace.js";
 import { downloadFile } from "../../../tools/HtmlTools.js";
-import { WorkspaceImporterExporter } from "../../workspace/WorkspaceImporterExporter.js";
+import { WorkspaceExporter } from "../../workspace/WorkspaceImporterExporter.js";
 import { IssueReporter } from "./IssueReporter.js";
 import * as monaco from 'monaco-editor'
 import { GuiMessages } from "./language/GuiMessages.js";
@@ -72,7 +72,7 @@ export class MainMenu {
                                     if (pruefung != null) {
                                         name = pruefung.name.replace(/\//g, "_") + " (" + user.familienname + " " + user.rufname + "; " + user.username + ")";
                                     }
-                                    downloadFile(await WorkspaceImporterExporter.exportWorkspace(ws), name + ".json");
+                                    downloadFile(await WorkspaceExporter.exportWorkspace(ws), name + ".json");
                                 }
                             },
                             {
@@ -80,7 +80,7 @@ export class MainMenu {
                                 action: async () => {
                                     let name: string = "all_workspaces";
                                     let user = this.main.user;
-                                    let workspaces = await WorkspaceImporterExporter.exportAllWorkspaces(this.main);
+                                    let workspaces = await WorkspaceExporter.exportAllWorkspaces(this.main);
                                     downloadFile(workspaces, name + ".json");
                                 }
                             }

@@ -27,7 +27,7 @@ type TestProgress = {
 export class JUnitTreeviewEntry {
 
     children: JUnitTreeviewEntry[] = [];
-    treeviewNode: TreeviewNode<JUnitTreeviewEntry>;
+    treeviewNode: TreeviewNode<JUnitTreeviewEntry, JUnitTreeviewEntry>;
 
     testProgress: TestProgress = { overall: 0, passed: 0, failed: 0 };
 
@@ -38,7 +38,7 @@ export class JUnitTreeviewEntry {
         public klass: JavaClass | undefined,
         public method: JavaMethod | undefined) {
 
-        this.treeviewNode = new TreeviewNode(testrunner.testTreeview, !this.method, "", "img_test-start", this, this, parent, true);
+        this.treeviewNode = new TreeviewNode(testrunner.testTreeview, !this.method, "", "img_test-start", this, parent);
         this.treeviewNode.onIconClicked = (element) => {
             testrunner.clearOutput();
             element?.runTests();

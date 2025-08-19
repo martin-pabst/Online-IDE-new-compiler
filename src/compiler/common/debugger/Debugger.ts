@@ -24,13 +24,13 @@ export class Debugger {
     treeviewAccordion: TreeviewAccordion;
 
     currentlyVisibleSymbolTableSections: SymbolTableSection[] = [];
-    showVariablesTreeview!: Treeview<DebuggerSymbolEntry>;
+    showVariablesTreeview!: Treeview<DebuggerSymbolEntry, DebuggerSymbolEntry>;
 
-    callstackTreeview!: Treeview<DebuggerCallstackEntry>;
+    callstackTreeview!: Treeview<DebuggerCallstackEntry, DebuggerCallstackEntry>;
 
-    threadsTreeview!: Treeview<Thread>;
+    threadsTreeview!: Treeview<Thread, Thread>;
 
-    watchTreeview!: Treeview<DebuggerWatchEntry>;
+    watchTreeview!: Treeview<DebuggerWatchEntry, DebuggerWatchEntry>;
 
     maxCallstackEntries: number = 15;
 

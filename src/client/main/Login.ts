@@ -230,8 +230,8 @@ export class Login {
 
                 that.main.networkManager.initializeTimer();
 
-                that.main.projectExplorer.fileTreeview.setFixed(!user.is_teacher);
-                that.main.projectExplorer.workspaceTreeview.setFixed(!user.is_teacher);
+                // that.main.projectExplorer.fileTreeview.setFixed(!user.is_teacher);
+                // that.main.projectExplorer.workspaceTreeview.setFixed(!user.is_teacher);
 
                 that.main.rightDiv?.classDiagram?.clear();
 
@@ -242,7 +242,7 @@ export class Login {
                 that.main.viewModeController.initViewMode();
                 that.main.bottomDiv.hideHomeworkTab();
 
-                if (!this.main.user.gui_state.helperHistory.folderButtonDone && that.main.projectExplorer.workspaceTreeview.elements.length > 5) {
+                if (!this.main.user.gui_state.helperHistory.folderButtonDone && that.main.projectExplorer.workspaceTreeview.size(true) > 5) {
 
                     Helper.showHelper("folderButton", this.main, jQuery('.img_add-folder-dark'));
 

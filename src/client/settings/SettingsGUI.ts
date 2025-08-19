@@ -27,7 +27,7 @@ export class SettingsGUI {
     $settingsLeftMenuDiv: JQuery<HTMLDivElement>; // left menu for settings tabs
     $settingsMainDiv: JQuery<HTMLDivElement>; // main div for settings content
 
-    settingsExplorer: Treeview<GroupOfSettingMetadata>;
+    settingsExplorer: Treeview<GroupOfSettingMetadata, GroupOfSettingMetadata>;
 
     constructor(private main: Main) {
         this.userSettings = main.settings.values.user || {};

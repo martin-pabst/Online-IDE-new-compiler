@@ -28,7 +28,6 @@ export class GUIFile extends CompilerFile {
     parent_folder_id: number | null;
 
     // GUI references:
-    panelElement?: TreeviewNode<GUIFile>;
     private monacoModel?: monaco.editor.ITextModel;
     private static uriMap: { [name: string]: number } = {};
 

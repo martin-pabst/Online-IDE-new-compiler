@@ -37,7 +37,7 @@ export class JUnitTestrunner {
     outputDiv!: HTMLDivElement;
     rightDiv!: HTMLDivElement;
 
-    testTreeview!: Treeview<JUnitTreeviewEntry>;
+    testTreeview!: Treeview<JUnitTreeviewEntry, JUnitTreeviewEntry>;
 
     executingTestDiv?: HTMLDivElement;
 
@@ -73,7 +73,7 @@ export class JUnitTestrunner {
             withSelection: true
         })
 
-        this.testTreeview.contextMenuProvider = (element: JUnitTreeviewEntry, node: TreeviewNode<JUnitTreeviewEntry>) => {
+        this.testTreeview.contextMenuProvider = (element: JUnitTreeviewEntry, node: TreeviewNode<JUnitTreeviewEntry, JUnitTreeviewEntry>) => {
             return [
                 {
                     caption: element.children.length > 0 ? "Tests starten" : "Test starten",

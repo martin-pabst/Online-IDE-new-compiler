@@ -1,6 +1,4 @@
-import { EnumType } from "typescript";
 import { JavaRepl } from "../../java/parser/repl/JavaRepl";
-import { SystemCollection } from "../../java/runtime/system/collections/SystemCollection";
 import { EnumClass } from "../../java/runtime/system/javalang/EnumClass";
 import { IJavaClass, JavaClass } from "../../java/types/JavaClass";
 import { JavaEnum } from "../../java/types/JavaEnum";

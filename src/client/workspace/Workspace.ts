@@ -19,7 +19,6 @@ import { GuiMessages } from '../main/gui/language/GuiMessages.js';
 
 export class Workspace extends CompilerWorkspace {
 
-    path: string;
     isFolder: boolean;
     parent_folder_id: number | null;
     readonly: boolean;
@@ -57,7 +56,6 @@ export class Workspace extends CompilerWorkspace {
     constructor(name: string, private main: MainBase, owner_id: number) {
         super(name);
         this.owner_id = owner_id;
-        this.path = "";
     }
 
     setLibraries(compiler: Compiler) {
@@ -93,7 +91,6 @@ export class Workspace extends CompilerWorkspace {
     getWorkspaceData(withFiles: boolean): WorkspaceData {
         let wd: WorkspaceData = {
             name: this.name,
-            path: this.path,
             isFolder: this.isFolder,
             parent_folder_id: this.parent_folder_id,
             id: this.id,
@@ -123,7 +120,7 @@ export class Workspace extends CompilerWorkspace {
     }
 
 
-    renderSynchronizeButton(node: TreeviewNode<Workspace>) {
+    renderSynchronizeButton(node: TreeviewNode<Workspace, number>) {
 
         let button = node.getIconButtonByTag("Synchronize");
         if (!button) {
@@ -161,7 +158,6 @@ export class Workspace extends CompilerWorkspace {
 
         let w = new Workspace(wd.name, main, wd.owner_id);
         w.id = wd.id;
-        w.path = wd.path;
         w.isFolder = wd.isFolder;
         w.parent_folder_id = wd.parent_folder_id;
         w.owner_id = wd.owner_id;

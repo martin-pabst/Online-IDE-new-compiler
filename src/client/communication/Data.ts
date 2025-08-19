@@ -59,7 +59,6 @@ export type FileData = {
 
 export type WorkspaceData = {
     name: string,
-    path: string,
     isFolder: boolean,
     parent_folder_id: number | null,
     id: number,

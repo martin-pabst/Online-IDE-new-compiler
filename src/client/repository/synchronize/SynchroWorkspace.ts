@@ -314,9 +314,6 @@ export class SynchroWorkspace {
                 file.setSaved(false);
                 this.manager.main.getCompiler().setFileDirty(file);
                 file.name = synchroFile.name;
-                if (file.panelElement != null) {
-                    file.panelElement.caption = file.name;
-                }
             } else {
 
                 main.networkManager.sendDeleteWorkspaceOrFileAsync("file", file.id).then((success: boolean) => {

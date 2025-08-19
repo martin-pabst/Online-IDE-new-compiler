@@ -382,7 +382,7 @@ export class Main implements MainBase {
 
         if (this.workspaceList.length == 0) {
 
-            Helper.showHelper("newWorkspaceHelper", this, this.projectExplorer.workspaceTreeview.$captionElement);
+            Helper.showHelper("newWorkspaceHelper", this, jQuery(this.projectExplorer.workspaceTreeview.addFolderButton.parent));
 
         }
 
@@ -427,10 +427,12 @@ export class Main implements MainBase {
 
     hideDebugger(): void {
         this.debugger.hide();
+        this.projectExplorer.show();
     }
 
     showDebugger(): void {
         this.debugger.show();
+        this.projectExplorer.hide();
     }
 
 }

@@ -6,9 +6,9 @@ import { DragKind, Treeview } from "./Treeview.ts";
 
 export type TreeviewNodeOnClickHandler<E> = (element: E | undefined) => void;
 
-export type IconButtonListener<E> = (object: E, treeviewNode: TreeviewNode<E>) => void;
+export type IconButtonListener<E, K> = (object: E, treeviewNode: TreeviewNode<E, K>) => void;
 
-export class TreeviewNode<E> {
+export class TreeviewNode<E, K> {
 
     private _hasFocus: boolean = false;
 
@@ -44,9 +44,9 @@ export class TreeviewNode<E> {
         this.getMainDiv().scrollIntoView();
     }
 
-    protected children: TreeviewNode<E>[] = [];
+    protected children: TreeviewNode<E, K>[] = [];
 
-    private parent?: TreeviewNode<E>;
+    private parent?: TreeviewNode<E, K>;
 
     protected childrenDiv!: HTMLDivElement;
 
@@ -75,6 +75,14 @@ export class TreeviewNode<E> {
     private tooltip: string;
     private _iconClass: string | undefined;
 
+    public get parentKey(): K {
+        return this._parentKey;
+    }
+
+    public get ownKey(): K {
+        return this._treeview.config.keyExtractor(this._externalObject);
+    }
+
     private _onClickHandler?: TreeviewNodeOnClickHandler<E>;
     set onClickHandler(och: TreeviewNodeOnClickHandler<E>) {
         this._onClickHandler = och;
@@ -88,12 +96,17 @@ export class TreeviewNode<E> {
 
     private _onExpandListener: { listener: ExpandCollapseListener, once: boolean }[] = [];
 
-    constructor(private _treeview: Treeview<E>,
+    constructor(private _treeview: Treeview<E, K>,
         private _isFolder: boolean, private _caption: string,
         _iconClass: string | undefined,
         private _externalObject: E | null,
-        private _parentExternalObject: any,
+        private _parentKey?: K,
         private _renderCaptionAsHtml: boolean = false) {
+
+        let parentKeyExtractor = this._treeview.config.parentKeyExtractor;
+        if (typeof _parentKey == "undefined" && parentKeyExtractor) {
+            _parentKey = parentKeyExtractor(_externalObject);
+        }
 
         _treeview.addNodeInternal(this);
 
@@ -150,13 +163,6 @@ export class TreeviewNode<E> {
 
     }
 
-    public get parentExternalObject(): any {
-        return this._parentExternalObject;
-    }
-    public set parentExternalObject(value: any) {
-        this._parentExternalObject = value;
-    }
-
     public get externalObject(): E | null {
         return this._externalObject;
     }
@@ -180,6 +186,11 @@ export class TreeviewNode<E> {
 
         this._iconClass = value;
     }
+
+    public set iconTooltip(tooltip: string){
+        this.iconDiv.title = tooltip;
+    }
+
     public get caption(): string {
         return this._caption;
     }
@@ -204,10 +215,10 @@ export class TreeviewNode<E> {
         }
 
     }
-    public get treeview(): Treeview<E> {
+    public get treeview(): Treeview<E, K> {
         return this._treeview;
     }
-    public set treeview(value: Treeview<E>) {
+    public set treeview(value: Treeview<E, K>) {
         this._treeview = value;
     }
 
@@ -313,7 +324,7 @@ export class TreeviewNode<E> {
         this.treeview.unselectAllNodes();
         this.setSelected(true);
         this.treeview.addToSelection(this);
-        if(invokeCallback){
+        if (invokeCallback) {
             if (this._onClickHandler) this._onClickHandler(this._externalObject!);
             if (this.treeview.onNodeClickedHandler) this.treeview.onNodeClickedHandler(this._externalObject!);
         }
@@ -438,7 +449,7 @@ export class TreeviewNode<E> {
         }
 
         for (let i = 0; i < this.children.length; i++) {
-            let tvn = <TreeviewNode<E>>this.children[i];
+            let tvn = <TreeviewNode<E, K>>this.children[i];
             let boundingRect = tvn.nodeLineDiv.getBoundingClientRect();
             if (mouseY < boundingRect.top + boundingRect.height / 2)
                 return { index: i, insertPosY: boundingRect.top - top };
@@ -450,7 +461,7 @@ export class TreeviewNode<E> {
         return { index: this.children.length, insertPosY: endPos }
     }
 
-    containsNode(node: TreeviewNode<E>): boolean {
+    containsNode(node: TreeviewNode<E, K>): boolean {
         if (this == node) return true;
         for (let c of this.children) {
             if (c.containsNode(node)) return true;
@@ -574,7 +585,7 @@ export class TreeviewNode<E> {
                 let movedElements: E[] = this.treeview.getCurrentlySelectedNodes().map(n => n.externalObject!);
                 let folder: E | null = this.externalObject;
 
-                let nodeBefore: TreeviewNode<E> | null = null;
+                let nodeBefore: TreeviewNode<E, K> | null = null;
                 let index = ddi.index;
                 while (nodeBefore == null && index > 0) {
                     nodeBefore = index > 0 ? this.children[ddi.index - 1] : null;
@@ -596,7 +607,7 @@ export class TreeviewNode<E> {
                             { order: ddi.index, elementBefore: elementBefore, elementAfter: elementAfter },
                             dragKind)) {
 
-                            let nodesToInsert: TreeviewNode<E>[] = [];
+                            let nodesToInsert: TreeviewNode<E, K>[] = [];
                             // iterate over selected nodes in order from top to bottom of tree:
                             for (let node of this.treeview.getOrderedNodeListRecursively()) {
                                 if (this.treeview.getCurrentlySelectedNodes().indexOf(node) >= 0) {
@@ -676,7 +687,7 @@ export class TreeviewNode<E> {
         this.rightPartOfCaptionDiv.innerHTML = html;
     }
 
-    addIconButton(iconClass: string, listener: IconButtonListener<E>, tooltip?: string, alwaysVisible: boolean = false): IconButtonComponent {
+    addIconButton(iconClass: string, listener: IconButtonListener<E, K>, tooltip?: string, alwaysVisible: boolean = false): IconButtonComponent {
 
         let parent: HTMLDivElement = alwaysVisible ? this.alwaysVisibleButtonsDiv : this.buttonsDiv;
 
@@ -690,7 +701,7 @@ export class TreeviewNode<E> {
         return button;
     }
 
-    getIconButtonByTag(tag: string){
+    getIconButtonByTag(tag: string) {
         return this.buttons.find(b => b.tag == tag);
     }
 
@@ -700,7 +711,7 @@ export class TreeviewNode<E> {
         if (removeFromTreeviewNodeList) this.treeview.removeNode(this);
     }
 
-    private add(child: TreeviewNode<E>) {
+    private add(child: TreeviewNode<E, K>) {
         let comparator = this.treeview.config.comparator;
 
         if (this.children.indexOf(child) < 0) {
@@ -727,13 +738,15 @@ export class TreeviewNode<E> {
 
     }
 
-    public remove(child: TreeviewNode<E>) {
+    public remove(child: TreeviewNode<E, K>) {
         let index = this.children.indexOf(child);
         if (index >= 0) this.children.splice(index, 1);
         child.getMainDiv().remove();
     }
 
-    public sort(comparator: (e1: E, e2: E) => number) {
+    public sort(comparator?: (e1: E, e2: E) => number) {
+        comparator = comparator || this.treeview.config.comparator;
+        if (!comparator) return;
         this.children = this.children.sort((node1, node2) => comparator(node1.externalObject!, node2.externalObject!));
 
         DOM.clearAllButGivenClasses(this.childrenDiv, 'jo_treeviewChildrenLineDiv');
@@ -750,9 +763,9 @@ export class TreeviewNode<E> {
         return 0;
     }
 
-    public getOrderedNodeListRecursively(): TreeviewNode<E>[] {
+    public getOrderedNodeListRecursively(): TreeviewNode<E, K>[] {
 
-        let list: TreeviewNode<E>[] = [];
+        let list: TreeviewNode<E, K>[] = [];
 
         this.children.forEach(c => {
             list.push(c);
@@ -798,6 +811,9 @@ export class TreeviewNode<E> {
         if (this.nodeLineDiv) this.nodeLineDiv.title = tooltip;
     }
 
+    getChildren(): TreeviewNode<E, K>[] {
+        return this.children;
+    }
 
 
 }

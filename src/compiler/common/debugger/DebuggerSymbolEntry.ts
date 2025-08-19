@@ -24,7 +24,7 @@ interface RuntimeObjectType {
 
 export class DebuggerSymbolEntry {
 
-    treeViewNode: TreeviewNode<DebuggerSymbolEntry>;
+    treeViewNode: TreeviewNode<DebuggerSymbolEntry, DebuggerSymbolEntry>;
     children: DebuggerSymbolEntry[] = [];
     oldValue?: any; // old value if value is primitive type
     oldLength?: number; // old length if value is array
