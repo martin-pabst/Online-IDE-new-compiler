@@ -157,8 +157,12 @@
         border-style: solid;
     }
 
-    .jo_treeviewNode:hover:not(.jo_treeview_focus) {
-        background-color: #5050508c;
+    .jo_treeviewNode:hover {
+        background-color: #50505057;
+    }
+
+    .jo_treeviewNode:hover.jo_treeview_focus, .jo_treeviewNode:hover.jo_treeview_selected {
+        background-color: #2a4658c0;
     }
 
     .jo_treeviewChildren {

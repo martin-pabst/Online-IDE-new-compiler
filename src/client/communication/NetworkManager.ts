@@ -1,5 +1,4 @@
 import jQuery from 'jquery';
-import { AccordionElement } from "../main/gui/Accordion.js";
 import { Main } from "../main/Main.js";
 import { SqlIdeUrlHolder } from "../main/SqlIdeUrlHolder.js";
 import { CacheManager } from "../../tools/database/CacheManager.js";

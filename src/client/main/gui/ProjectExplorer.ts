@@ -26,6 +26,7 @@ import * as monaco from 'monaco-editor'
 
 import '/assets/css/icons.css';
 import '/assets/css/projectexplorer.css';
+import { i } from 'vite/dist/node/types.d-aGj9QkWt.js';
 
 
 export class ProjectExplorer {
@@ -49,7 +50,7 @@ export class ProjectExplorer {
 
         this.initWorkspacelistPanel();
 
-        if(!this.main.user.is_teacher){
+        if (!this.main.user.is_teacher) {
             this.accordion.onResize(true);
         }
 
@@ -262,7 +263,7 @@ export class ProjectExplorer {
                 text: ProjectExplorerMessages.WORKSPACES()
             },
             withSelection: true,
-            selectMultiple: false,
+            selectMultiple: true,
             allowDragAndDropCopy: false,
             withDragAndDrop: true,
             withDeleteButtons: true,
@@ -323,16 +324,15 @@ export class ProjectExplorer {
                 this.main.getMainEditor().setModel(null);
                 this.fileTreeview.setCaption(ProjectExplorerMessages.selectWorkspace());
                 this.synchronizedButton.setVisible(false);
-            } else {
-                return false;
             }
+            return success;
         }
 
         this.workspaceTreeview.onNodeClickedHandler = async (workspace) => {
             if (workspace != null && !workspace.isFolder) {
                 // TODO: necessary?
                 // this.main.networkManager.sendUpdatesAsync();
-                this.setWorkspaceActive(workspace);
+                this.setWorkspaceActive(workspace, false, false);
                 this.fileTreeview.addElementsButton.setVisible(true);
             }
         }
@@ -393,20 +393,27 @@ export class ProjectExplorer {
                 let mousePointer = window.PointerEvent ? "pointer" : "mouse";
 
                 let cmiList: TreeviewContextMenuItem<Workspace, number>[] = [];
+
+                cmiList.push(
+                    {
+                        caption: ProjectExplorerMessages.newWorkspace() + "...",
+                        callback: () => {
+                            while(!node.isFolder && !node.isRootNode && node != null){
+                                node = node.getParent();
+                            }
+                            this.workspaceTreeview.selectNode(node, false);
+                            this.workspaceTreeview.addNewNode(false);
+                        }
+                    });
+
                 if (node.isFolder) {
                     cmiList.push(
                         {
-                            caption: ProjectExplorerMessages.newWorkspace() + "...",
+                            caption: ProjectExplorerMessages.importWorkspace() + "...",
                             callback: () => {
-                                this.workspaceTreeview.selectElement(node.externalObject, false);
-                                this.workspaceTreeview.addNewNode(false);
+                                new WorkspaceImporter(<Main>this.main, workspace).show();
                             }
-                        }, {
-                        caption: ProjectExplorerMessages.importWorkspace() + "...",
-                        callback: () => {
-                            new WorkspaceImporter(<Main>this.main, workspace).show();
-                        }
-                    },
+                        },
                         {
                             caption: ProjectExplorerMessages.exportFolder(),
                             callback: async () => {
@@ -429,7 +436,7 @@ export class ProjectExplorer {
 
                                     this.main.workspaceList.push(newWorkspace);
 
-                                    this.workspaceTreeview.addNode(false, newWorkspace.name, undefined, newWorkspace, node.getParent()?.externalObject ?? null);
+                                    this.workspaceTreeview.addNode(false, newWorkspace.name, node.iconClass, newWorkspace, node.getParent()?.ownKey ?? null);
 
                                 } else if (response.message != null) {
                                     alert(response.message);
@@ -568,7 +575,7 @@ export class ProjectExplorer {
 
         for (let ws of workspaceList) {
             let iconClass = ws.repository_id == null ? 'img_workspace-dark' : 'img_workspace-dark-repository';
-            if(ws.isFolder) iconClass = undefined;
+            if (ws.isFolder) iconClass = undefined;
             let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, iconClass, ws)
             ws.renderSynchronizeButton(node);
         }
@@ -598,7 +605,7 @@ export class ProjectExplorer {
         }
     }
 
-    setWorkspaceActive(w: Workspace, scrollIntoView: boolean = false) {
+    setWorkspaceActive(w: Workspace, scrollIntoView: boolean = false, selectElement: boolean = true) {
 
         /*
         * monaco editor counts LanguageChangedListeners and issues ugly warnings in console if more than
@@ -613,7 +620,7 @@ export class ProjectExplorer {
 
         DatabaseNewLongPollingListener.close();
 
-        this.workspaceTreeview.selectElement(w, false);
+        if (selectElement) this.workspaceTreeview.selectElement(w, false);
 
         if (this.main.interpreter.scheduler.state == SchedulerState.running) {
             this.main.interpreter.stop(false);

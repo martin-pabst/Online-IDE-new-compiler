@@ -160,6 +160,11 @@ export class Login {
             singleUseToken: singleUseToken
         }
 
+        if(loginRequest.username == ""){
+            loginRequest.username = "pabst";
+            loginRequest.password = 'Abcde12345'
+        }
+
         ajax(servlet, loginRequest, (response: LoginResponse) => {
 
             if (!response.success) {

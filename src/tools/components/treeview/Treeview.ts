@@ -23,7 +23,7 @@ export type TreeviewConfig<E, K> = {
     },
     flexWeight?: string,
     withFolders?: boolean,
-    
+
     withDeleteButtons?: boolean,
     confirmDelete?: boolean,
 
@@ -108,7 +108,7 @@ export class Treeview<E, K> {
     }
 
     public getCurrentVariableHeight(): number {
-        if(this.isCollapsed) return 0;
+        if (this.isCollapsed) return 0;
         return this._outerDiv.getBoundingClientRect().height - this.getFixedHeight();
     }
 
@@ -183,7 +183,7 @@ export class Treeview<E, K> {
                 text: "Überschrift"
             },
             withFolders: true,
-            
+
             withDeleteButtons: true,
             confirmDelete: false,
 
@@ -295,13 +295,20 @@ export class Treeview<E, K> {
     }
 
     addNewNode(isFolder: boolean) {
-        let selectedNodes = this.getCurrentlySelectedNodes();
 
         let folder: TreeviewNode<E, K> | undefined;
-        if (selectedNodes.length == 1 && selectedNodes[0].isFolder) folder = selectedNodes[0];
+
+        let selectedNodes = this.getCurrentlySelectedNodes();
+        if (selectedNodes.length > 0) {
+            let focusedNode = selectedNodes[0];
+            while (!focusedNode.isFolder && focusedNode.getParent()) {
+                focusedNode = focusedNode.getParent();
+            }
+            if (focusedNode.isFolder) folder = focusedNode;
+        }
 
         let node = this.addNode(isFolder, "", isFolder ? undefined : this.config.defaultIconClass, {} as E,
-            folder?.externalObject);
+            folder?.ownKey);
         makeEditable(node.captionDiv, node.captionDiv, async (newContent: string) => {
             node.caption = newContent;
             if (this.newNodeCallback) {
@@ -311,6 +318,9 @@ export class Treeview<E, K> {
                     this.removeNode(node);
                 } else {
                     node.externalObject = externalObject;
+                    this.selectNode(node, false);
+                    if (folder) folder.sort();
+                    node.scrollIntoView();
                 }
             }
         })
@@ -336,7 +346,7 @@ export class Treeview<E, K> {
      * @returns 
      */
     addNode(isFolder: boolean, caption: string, iconClass: string | undefined,
-        externalElement: E, parentKey?: any): TreeviewNode<E, K> {
+        externalElement: E, parentKey?: K): TreeviewNode<E, K> {
 
         let node = new TreeviewNode(this, isFolder, caption, iconClass,
             externalElement, parentKey);
@@ -410,23 +420,38 @@ export class Treeview<E, K> {
 
     selectElement(element: E, invokeCallback: boolean) {
         if (!element) {
-            this.unselectAllNodes();
+            this.unselectAllNodes(true);
             return;
         }
         let node = this.findNodeByElement(element);
-        node?.select(invokeCallback);
+        this.selectNode(node, invokeCallback);
     }
 
-    unselectAllNodes() {
+    selectNode(node: TreeviewNode<E, K>, invokeCallback: boolean) {
+        if (!node) return;
+        node.select(invokeCallback);
+        node.setFocus(true);
+        node.scrollIntoView();
+    }
+
+    unselectAllNodes(withUnfocus: boolean) {
         this.nodes.forEach(el => {
             el.setSelected(false);
-            el.setFocus(false);
         });
         this.currentSelection = [];
     }
 
     addToSelection(node: TreeviewNode<E, K>) {
         if (this.currentSelection.indexOf(node) < 0) this.currentSelection.push(node);
+        node.setSelected(true)
+    }
+
+    removeFromSelection(node: TreeviewNode<E, K>) {
+        let index = this.currentSelection.indexOf(node);
+        if (index >= 0) {
+            this.currentSelection.splice(index, 1);
+            node.setSelected(false)
+        }
     }
 
     setLastSelectedElement(el: TreeviewNode<E, K>) {
@@ -448,7 +473,7 @@ export class Treeview<E, K> {
                     index1 = index2;
                     index2 = z;
                 }
-                this.unselectAllNodes();
+                this.unselectAllNodes(false);
                 for (let i = index1; i <= index2; i++) {
                     list[i].setSelected(true);
                     this.currentSelection.push(list[i]);
@@ -534,7 +559,7 @@ export class Treeview<E, K> {
     }
 
     public adjustFoldersByExternalObjectRelations() {
-        let nodesWithIncorrectParentFolder = this.nodes.filter(node => 
+        let nodesWithIncorrectParentFolder = this.nodes.filter(node =>
             !node.isRootNode() && node.parentKey != null && node.getParent() == this.rootNode);
         if (nodesWithIncorrectParentFolder.length == 0) return;
 
@@ -565,7 +590,11 @@ export class Treeview<E, K> {
             node.findAndCorrectParent();
         }
 
-        for(let node of this.nodes){
+        this.adjustAllLeftMarginsToDepth();
+    }
+
+    adjustAllLeftMarginsToDepth() {
+        for (let node of this.nodes) {
             node.adjustLeftMarginToDepth();
         }
     }

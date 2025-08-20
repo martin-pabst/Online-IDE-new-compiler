@@ -9,21 +9,15 @@ export function makeEditable(elementWithText: JQuery<HTMLElement> | HTMLElement,
         elementWithText = jQuery(elementWithText);
     }
 
+    if(!elementToReplace) elementToReplace = elementWithText;
+
     if(elementToReplace instanceof HTMLElement){
         elementToReplace = jQuery(elementToReplace);
     }
 
     let etr: JQuery<HTMLElement> = <any>elementToReplace;
 
-    if(elementToReplace && elementToReplace instanceof HTMLElement){
-        elementToReplace = jQuery(elementToReplace);
-    }
-
     let mousePointer = window.PointerEvent ? "pointer" : "mouse";
-
-    if (elementToReplace == null) {
-        elementToReplace = elementWithText;
-    }
 
     let $input = jQuery('<input type="text" class="jo_inplaceeditor" spellcheck="false">');
     $input.css({

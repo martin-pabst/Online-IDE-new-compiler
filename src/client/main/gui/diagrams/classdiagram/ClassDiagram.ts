@@ -87,6 +87,7 @@ export class ClassDiagram extends Diagram {
 
     duplicateSerializedClassDiagram(oldWorkspaceId: number, newWorkspaceId: number){
         let classBoxesSrc: ClassBoxes = this.classBoxesRepository[oldWorkspaceId];
+        if(!classBoxesSrc) return;
 
         let classBoxesDest: ClassBoxes = {
             inactive: classBoxesSrc.active.map(cb => cb.copy()).concat(classBoxesSrc.inactive.map(cb => cb.copy())),

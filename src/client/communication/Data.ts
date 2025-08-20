@@ -888,7 +888,6 @@ export type KlassData = {
 
 export type WorkspaceShortData = {
     id: number,
-    path: string,
     name: string,
     text?: string,
     files: string[]

@@ -42,7 +42,10 @@ export class TreeviewNode<E, K> {
             parent.expandCollapseComponent.setState('expanded');
             parent = parent.parent;
         }
-        this.getMainDiv().scrollIntoView();
+        this.getMainDiv().scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
     }
 
     protected children: TreeviewNode<E, K>[] = [];
@@ -81,6 +84,10 @@ export class TreeviewNode<E, K> {
     }
 
     public get ownKey(): K {
+        if(!this._externalObject){
+            return undefined;
+        } 
+        
         return this._treeview.config.keyExtractor(this._externalObject);
     }
 
@@ -106,7 +113,9 @@ export class TreeviewNode<E, K> {
 
         let parentKeyExtractor = this._treeview.config.parentKeyExtractor;
         if (typeof this._parentKey == "undefined" && parentKeyExtractor) {
-            this._parentKey = parentKeyExtractor(_externalObject);
+            if(this._externalObject){
+                this._parentKey = parentKeyExtractor(_externalObject);
+            }
         }
 
         _treeview.addNodeInternal(this);
@@ -262,24 +271,31 @@ export class TreeviewNode<E, K> {
 
                 if (this.treeview.config.withSelection) {
                     ev.stopPropagation();
-                    if (!this.treeview.config.selectMultiple || (!ev.shiftKey && !ev.ctrlKey)) {
-                        this.treeview.unselectAllNodes();
-                    }
-
-                    if (ev.shiftKey && this.treeview.config.selectMultiple) {
-                        this.treeview.expandSelectionTo(this);
+                    
+                    if ((ev.shiftKey || ev.ctrlKey) && this.treeview.config.selectMultiple && this.treeview.getCurrentlySelectedNodes().length > 0) {
+                        if(ev.shiftKey){
+                            this.treeview.expandSelectionTo(this);
+                        } else {
+                            if(!this.hasFocus){
+                                if(this.isSelected){
+                                    this.treeview.removeFromSelection(this);
+                                } else {
+                                    this.treeview.addToSelection(this);
+                                }
+                            }
+                        }
                     } else {
+                        this.treeview.unselectAllNodes(true);
+                        this.setSelected(true);
+                        this.treeview.addToSelection(this);
+                        this.setFocus(true);
                         this.treeview.setLastSelectedElement(this);
+                        if (this._onClickHandler) this._onClickHandler(this._externalObject!);
+                        if (this.treeview.onNodeClickedHandler) this.treeview.onNodeClickedHandler(this._externalObject!);
                     }
 
-
-                    this.setSelected(true);
-                    this.treeview.addToSelection(this);
-                    this.setFocus(true);
                 }
 
-                if (this._onClickHandler) this._onClickHandler(this._externalObject!);
-                if (this.treeview.onNodeClickedHandler) this.treeview.onNodeClickedHandler(this._externalObject!);
             }
 
         }
@@ -309,10 +325,13 @@ export class TreeviewNode<E, K> {
         if (this.treeview.config.withDeleteButtons && !this.isRootNode()) {
             this.addIconButton("img_delete", (_object, _node, ev) => {
 
-                let deleteAction = () => {
-                    this.treeview.removeNode(this);
+                let deleteAction = async () => {
                     if (this.treeview.deleteCallback) {
-                        this.treeview.deleteCallback(this.externalObject);
+                        if(await this.treeview.deleteCallback(this.externalObject)){
+                            this.treeview.removeNode(this);
+                        }
+                    } else {
+                        this.treeview.removeNode(this);
                     }
                 }
 
@@ -344,7 +363,7 @@ export class TreeviewNode<E, K> {
     }
 
     select(invokeCallback: boolean = true) {
-        this.treeview.unselectAllNodes();
+        this.treeview.unselectAllNodes(true);
         this.setSelected(true);
         this.treeview.addToSelection(this);
         if (invokeCallback) {
@@ -377,18 +396,6 @@ export class TreeviewNode<E, K> {
                     }
                 ])
             }
-
-            if (this.treeview.config.buttonAddElements) {
-                contextMenuItems = contextMenuItems.concat([
-                    {
-                        caption: "Neuer Workspace...",
-                        callback: () => {
-                            // TODO
-                        }
-                    }
-                ])
-            }
-
 
             if (this.treeview.contextMenuProvider != null) {
 
@@ -426,7 +433,7 @@ export class TreeviewNode<E, K> {
 
 
     renameNode() {
-        makeEditable(jQuery(this.captionDiv), undefined, async (newText: string) => {
+        makeEditable(this.captionDiv, undefined, async (newText: string) => {
 
             if (newText != this._caption) {
                 if (this.treeview.renameCallback) {
@@ -437,8 +444,9 @@ export class TreeviewNode<E, K> {
                             this.parent?.sort(this.treeview.config.comparator);
                         }
                     } else {
-                        return;
+                        this.caption = this._caption;
                     }
+                    return;
                 }
 
                 this.caption = newText;
@@ -507,7 +515,7 @@ export class TreeviewNode<E, K> {
         this.nodeWithChildrenDiv.ondragstart = (event) => {
 
             if (!this.treeview.isSelected(this)) {
-                this.treeview.unselectAllNodes();
+                this.treeview.unselectAllNodes(true);
                 this.treeview.addToSelection(this);
                 this.setFocus(true);
             }
@@ -626,6 +634,7 @@ export class TreeviewNode<E, K> {
 
                 switch (dragKind) {
                     case "move":
+
                         if (await this.treeview.invokeMoveNodesCallback(movedElements, folder,
                             { order: ddi.index, elementBefore: elementBefore, elementAfter: elementAfter },
                             dragKind)) {
@@ -647,8 +656,10 @@ export class TreeviewNode<E, K> {
 
                             this.children.forEach(c => {
                                 this.childrenDiv.appendChild(c.nodeWithChildrenDiv);
-                                c.adjustLeftMarginToDepth();
                             });
+
+                            this._treeview.adjustAllLeftMarginsToDepth();
+
                         }
                         break;
                     case "copy":
