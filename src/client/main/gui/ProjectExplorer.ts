@@ -26,7 +26,6 @@ import * as monaco from 'monaco-editor'
 
 import '/assets/css/icons.css';
 import '/assets/css/projectexplorer.css';
-import { i } from 'vite/dist/node/types.d-aGj9QkWt.js';
 
 
 export class ProjectExplorer {
@@ -54,6 +53,9 @@ export class ProjectExplorer {
             this.accordion.onResize(true);
         }
 
+        this.workspaceTreeview.addDragDropSource({ treeview: this.workspaceTreeview, dropInsertKind: "asElement", defaultDragKind: "move" })
+        this.workspaceTreeview.addDragDropSource({ treeview: this.fileTreeview, dropInsertKind: "intoElement", defaultDragKind: "copy", dragKindWithShift: "move" });
+
     }
 
     initFilelistPanel() {
@@ -63,7 +65,9 @@ export class ProjectExplorer {
                 enabled: true
             },
             withSelection: true,
+            selectMultiple: true,
             withFolders: false,
+            isDragAndDropSource: true,
             buttonAddElements: true,
             buttonAddFolders: false,
             withDeleteButtons: true,
@@ -77,7 +81,6 @@ export class ProjectExplorer {
                 messageNewNode: ProjectExplorerMessages.newFile(),
                 messageRename: AccordionMessages.rename()
             },
-            selectMultiple: false,
             minHeight: 150,
             flexWeight: "1",
             keyExtractor: (file) => file.id,
@@ -102,15 +105,12 @@ export class ProjectExplorer {
             // that.fileTreeview.setCaption(that.main.currentWorkspace.name);
 
 
-            this.main.networkManager.sendCreateFile(file, this.main.currentWorkspace, this.main.workspacesOwnerId).then(
-                (error: string) => {
-                    if (error != null) {
-                        alert(ProjectExplorerMessages.serverNotReachable());
-                        this.fileTreeview.removeNode(node);
-                        this.setFileActive(null);
-                    }
-                });
-
+            let success = await this.main.networkManager.sendCreateFile(file, this.main.currentWorkspace, this.main.workspacesOwnerId);
+            if (!success) {
+                this.fileTreeview.removeNode(node);
+                this.setFileActive(null);
+                return null;
+            }
 
             return file;
         }
@@ -163,9 +163,9 @@ export class ProjectExplorer {
                     let workspace = this.main.getCurrentWorkspace();
                     workspace.addFile(newFile);
 
-                    let error: string = await this.main.networkManager.sendCreateFile(newFile, workspace, this.main.workspacesOwnerId);
+                    let success = await this.main.networkManager.sendCreateFile(newFile, workspace, this.main.workspacesOwnerId);
 
-                    if (error == null) {
+                    if (success) {
                         let newNode = this.fileTreeview.addNode(false, newFile.name, FileTypeManager.filenameToFileType(newFile.name).iconclass,
                             newFile, treeviewNode.parentKey);
                         this.setFileActive(newFile);
@@ -265,7 +265,7 @@ export class ProjectExplorer {
             withSelection: true,
             selectMultiple: true,
             allowDragAndDropCopy: false,
-            withDragAndDrop: true,
+            isDragAndDropSource: true,
             withDeleteButtons: true,
             confirmDelete: true,
             buttonAddElements: true,
@@ -337,47 +337,13 @@ export class ProjectExplorer {
             }
         }
 
-        this.workspaceTreeview.moveNodesCallback = async (movedWorkspaces: Workspace[],
-            destinationFolder: Workspace, position: {
-                order: number,
-                elementBefore: Workspace, elementAfter: Workspace
-            },
-            dragKind: DragKind): Promise<boolean> => {
-            for (let ws of movedWorkspaces) {
-                ws.parent_folder_id = destinationFolder?.id ?? null;
-                ws.saved = false;
+        this.workspaceTreeview.dropEventCallback = (sourceTreeview, destinationNode, destinationChildIndex, dragKind) => {
+            if (sourceTreeview == this.workspaceTreeview) {
+                this.moveOrCopyWorkspaces(this.workspaceTreeview.getOrderedListOfCurrentlySelectedNodes(), destinationNode, destinationChildIndex, dragKind);
+            } else if (sourceTreeview == this.fileTreeview) {
+                this.moveOrCopyFilesToOtherWorkspaces(this.fileTreeview.getOrderedListOfCurrentlySelectedNodes(), destinationNode, dragKind);
             }
-            return await this.main.networkManager.sendUpdatesAsync(true);
         }
-
-        // this.workspaceTreeview.dropElementCallback = (dest: AccordionElement, droppedElement: AccordionElement, dropEffekt: "copy" | "move") => {
-        //     let workspace: Workspace = dest.externalElement;
-        //     let file: GUIFile = droppedElement.externalElement;
-
-        //     if (workspace.getFiles().indexOf(file) >= 0) return; // module is already in destination workspace
-
-        //     let newFile: GUIFile = new GUIFile(this.main, file.name, file.getText());
-        //     newFile.remote_version = file.remote_version;
-
-        //     if (dropEffekt == "move") {
-        //         // move file
-        //         let oldWorkspace = that.main.currentWorkspace;
-        //         oldWorkspace.removeFile(file);
-        //         that.fileTreeview.removeElement(file);
-        //         that.main.networkManager.sendDeleteWorkspaceOrFileAsync("file", file.id, () => { });
-        //     }
-
-        //     workspace.addFile(newFile);
-        //     that.main.networkManager.sendCreateFile(newFile, workspace, that.main.workspacesOwnerId).then(
-        //         (error: string) => {
-        //             if (error == null) {
-        //             } else {
-        //                 alert(ProjectExplorerMessages.serverNotReachable());
-
-        //             }
-        //         });
-
-        // }
 
         this.homeButton = this.workspaceTreeview.captionLineAddIconButton(
             "img_home-dark", () => {
@@ -398,7 +364,7 @@ export class ProjectExplorer {
                     {
                         caption: ProjectExplorerMessages.newWorkspace() + "...",
                         callback: () => {
-                            while(!node.isFolder && !node.isRootNode && node != null){
+                            while (!node.isFolder && !node.isRootNode && node != null) {
                                 node = node.getParent();
                             }
                             this.workspaceTreeview.selectNode(node, false);
@@ -529,6 +495,73 @@ export class ProjectExplorer {
             }
 
     }
+
+    async moveOrCopyFilesToOtherWorkspaces(filesToMoveOrCopy: TreeviewNode<GUIFile, number>[], destinationWorkspaceNode: TreeviewNode<Workspace, number>, dragKind: DragKind) {
+        if (destinationWorkspaceNode.isFolder) {
+            alert("Dateien können nicht in einen Workspace-Ordner verschoben/kopiert werden.");
+            return;
+        }
+
+        let destinationWorkspace = destinationWorkspaceNode.externalObject;
+        let sourceWorkspace = this.main.getCurrentWorkspace();
+
+        switch (dragKind) {
+            case "move":
+                for (let fileNode of filesToMoveOrCopy) {
+                    let file = fileNode.externalObject;
+                    let success = await this.main.networkManager.moveFile(file.id, destinationWorkspace.id);
+                    if(success){
+                        sourceWorkspace.removeFile(file);
+                        destinationWorkspace.addFile(file);
+                        this.fileTreeview.removeNode(fileNode);
+                    }
+                }
+                break;
+            case "copy":
+                for (let fileNode of filesToMoveOrCopy) {
+                    let file = fileNode.externalObject;
+                    let newFile = new GUIFile(this.main, file.name, file.getText());
+                    let success = await this.main.networkManager.sendCreateFile(newFile, destinationWorkspace, destinationWorkspace.owner_id);
+                    if(success) destinationWorkspace.addFile(newFile);
+                }
+                break;
+        }
+
+    }
+
+    // this.workspaceTreeview.moveNodesCallback = async (movedWorkspaces: Workspace[],
+    //     destinationFolder: Workspace, position: {
+    //         order: number,
+    //         elementBefore: Workspace, elementAfter: Workspace
+    //     },
+    //     dragKind: DragKind): Promise<boolean> => {
+    //     for (let ws of movedWorkspaces) {
+    //         ws.parent_folder_id = destinationFolder?.id ?? null;
+    //         ws.saved = false;
+    //     }
+    //     return await this.main.networkManager.sendUpdatesAsync(true);
+    // }
+
+    async moveOrCopyWorkspaces(nodesToCopyOrMove: TreeviewNode<Workspace, number>[], destinationFolderNode: TreeviewNode<Workspace, number>, destinationChildIndex: number, dragKind: DragKind) {
+        switch (dragKind) {
+            case "move":
+                let new_parent_folder_id = destinationFolderNode.ownKey;
+                for (let node of nodesToCopyOrMove) {
+                    let ws = node.externalObject;
+                    if (ws) ws.parent_folder_id = new_parent_folder_id;
+                    ws.saved = false;
+                }
+                if (await this.main.networkManager.sendUpdatesAsync(true)) {
+                    destinationFolderNode.insertNodes(destinationChildIndex, nodesToCopyOrMove);
+                }
+                break;
+            case "copy":
+                // Not yet implemented!
+                break;
+        }
+
+    }
+
 
     onHomeButtonClicked() {
         this.main.networkManager.sendUpdatesAsync();

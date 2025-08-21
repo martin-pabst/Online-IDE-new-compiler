@@ -1,9 +1,7 @@
 import { IMain } from "../../compiler/common/IMain";
 import { CompilerFile } from "../../compiler/common/module/CompilerFile";
 import { FileTypeManager } from "../../compiler/common/module/FileTypeManager";
-import { TreeviewNode } from "../../tools/components/treeview/TreeviewNode";
 import { FileData } from "../communication/Data";
-import { AccordionElement } from "../main/gui/Accordion";
 import { Main } from "../main/Main";
 import { Patcher } from "./Patcher";
 import { Workspace } from "./Workspace";

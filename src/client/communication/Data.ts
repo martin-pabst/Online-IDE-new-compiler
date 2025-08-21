@@ -257,6 +257,11 @@ export type CreateOrDeleteFileOrWorkspaceRequest = {
     userId: number
 }
 
+export type MoveFileRequest = {
+    file_id: number,
+    destination_workspace_id: number
+}
+
 export type CRUDResponse = {
     success: boolean,
     id?: number, // in case of create

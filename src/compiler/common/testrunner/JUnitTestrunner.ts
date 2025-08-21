@@ -66,7 +66,7 @@ export class JUnitTestrunner {
             buttonAddFolders: false,
             buttonAddElements: false,
             withDeleteButtons: false,
-            withDragAndDrop: false,
+            isDragAndDropSource: false,
             contextMenu: {
 
             },

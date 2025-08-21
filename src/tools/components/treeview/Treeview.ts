@@ -27,7 +27,7 @@ export type TreeviewConfig<E, K> = {
     withDeleteButtons?: boolean,
     confirmDelete?: boolean,
 
-    withDragAndDrop?: boolean,
+    isDragAndDropSource?: boolean,
     allowDragAndDropCopy?: boolean,
     comparator?: (externalElement1: E, externalElement2: E) => number,
     minHeight?: number,
@@ -52,19 +52,21 @@ export type TreeviewContextMenuItem<E, K> = {
 
 
 export type DragKind = "copy" | "move";
-// Callback functions return true if changes shall be executed on treeview, false if action should get cancelled
+export type DropInsertKind = "asElement" | "intoElement";
 
-export type TreeviewMoveNodesCallback<E> = (movedElements: E[], destinationFolder: E | null,
-    position: { order: number, elementBefore: E | null, elementAfter: E | null },
-    dragKind: DragKind) => Promise<boolean>;
+export type DragAndDropSource = {treeview: Treeview<any, any>, dropInsertKind: DropInsertKind, defaultDragKind: DragKind, dragKindWithCtrl?: DragKind, dragKindWithShift?: DragKind};
+
+// Callback functions return true if changes shall be executed on treeview, false if action should get cancelled
 export type TreeviewRenameCallback<E, K> = (element: E, newName: string, node: TreeviewNode<E, K>) =>
     Promise<{ correctedName: string, success: boolean }>;
 export type TreeviewDeleteCallback<E> = (element: E | null) => Promise<boolean>;
 export type TreeviewNewNodeCallback<E, K> = (name: string, node: TreeviewNode<E, K>) => Promise<E | null>;
 export type TreeviewContextMenuProvider<E, K> = (element: E, node: TreeviewNode<E, K>) => TreeviewContextMenuItem<E, K>[];
-
+export type DropEventCallback<E, K> = (sourceTreeview: Treeview<any, any>, destinationNode: TreeviewNode<E, K>, destinationChildIndex: number, dragKind: DragKind) => void;
 
 export class Treeview<E, K> {
+
+    public static currentDragSource: Treeview<any, any> | null = null;
 
     private treeviewAccordion?: TreeviewAccordion;
     private parentElement: HTMLElement;
@@ -78,6 +80,9 @@ export class Treeview<E, K> {
     private lastSelectedElement?: TreeviewNode<E, K>;
 
     public _lastExpandedHeight: number;
+
+    private dragDropDestinations: Treeview<any, any>[] = [];
+    private dragDropSources: DragAndDropSource[] = [];
 
     private _outerDiv!: HTMLDivElement;
     get outerDiv(): HTMLElement {
@@ -117,14 +122,15 @@ export class Treeview<E, K> {
     }
 
     //callbacks
-    private _moveNodesCallback?: TreeviewMoveNodesCallback<E>;
-    public get moveNodesCallback(): TreeviewMoveNodesCallback<E> | undefined {
-        return this._moveNodesCallback;
-    }
-    public set moveNodesCallback(value: TreeviewMoveNodesCallback<E> | undefined) {
-        this._moveNodesCallback = value;
-    }
 
+    private _dropEventCallback?: DropEventCallback<E, K>;
+    public get dropEventCallback(): DropEventCallback<E, K> {
+        return this._dropEventCallback;
+    }
+    public set dropEventCallback(value: DropEventCallback<E, K>) {
+        this._dropEventCallback = value;
+    }
+    
     private _renameCallback?: TreeviewRenameCallback<E, K> | undefined;
     public get renameCallback(): TreeviewRenameCallback<E, K> | undefined {
         return this._renameCallback;
@@ -187,8 +193,8 @@ export class Treeview<E, K> {
             withDeleteButtons: true,
             confirmDelete: false,
 
-            withDragAndDrop: true,
-            allowDragAndDropCopy: false,
+            isDragAndDropSource: true,
+
             contextMenu: {
                 messageNewNode: "Neues Element anlegen...",
                 messageNewFolder: (parentFolder: string) => (
@@ -234,11 +240,9 @@ export class Treeview<E, K> {
         }
     }
 
-    async invokeMoveNodesCallback(movedElements: E[], destinationFolder: E | null,
-        position: { order: number, elementBefore: E | null, elementAfter: E | null },
-        dragKind: DragKind): Promise<boolean> {
-        if (this._moveNodesCallback) return this._moveNodesCallback(movedElements, destinationFolder, position, dragKind);
-        return true;
+    public addDragDropSource(source: DragAndDropSource) {
+        this.dragDropSources.push(source);
+        source.treeview.dragDropDestinations.push(this);
     }
 
     buildHtmlScaffolding() {
@@ -431,6 +435,7 @@ export class Treeview<E, K> {
         if (!node) return;
         node.select(invokeCallback);
         node.setFocus(true);
+        this.lastSelectedElement = node;
         node.scrollIntoView();
     }
 
@@ -506,8 +511,21 @@ export class Treeview<E, K> {
         return this.currentSelection;
     }
 
+    getOrderedListOfCurrentlySelectedNodes(): TreeviewNode<E, K>[]{
+        let list: TreeviewNode<E, K>[] = [];
+        for(let node of this.getOrderedNodeListRecursively()){
+            if(this.currentSelection.indexOf(node) >= 0){
+                list.push(node);
+            }
+        }
+        return list;
+    }
+
     startStopDragDrop(start: boolean) {
         this._outerDiv.classList.toggle("jo_dragdrop", start);
+        for (let dd of this.dragDropDestinations) {
+            dd._outerDiv.classList.toggle("jo_dragdrop", start);
+        }
     }
 
     getDragGhost(): HTMLElement {
@@ -606,6 +624,16 @@ export class Treeview<E, K> {
     size(withFolders: boolean): number {
         if (withFolders) return this.nodes.length;
         return this.nodes.filter(n => !n.isFolder).length;
+    }
+
+    notifyDropEvent(sourceTreeview: Treeview<any, any>, destinationNode: TreeviewNode<E, K>, destinationChildIndex: number, dragKind: DragKind) {
+        if(this.dropEventCallback){
+            this.dropEventCallback(sourceTreeview, destinationNode, destinationChildIndex, dragKind);
+        }
+    }
+
+    getCurrentDragAndDropSource(){
+        return this.dragDropSources.find(src => src.treeview == Treeview.currentDragSource);
     }
 
 }

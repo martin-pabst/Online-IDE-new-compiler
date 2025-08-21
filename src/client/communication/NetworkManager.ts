@@ -4,7 +4,7 @@ import { SqlIdeUrlHolder } from "../main/SqlIdeUrlHolder.js";
 import { CacheManager } from "../../tools/database/CacheManager.js";
 import { Workspace } from "../workspace/Workspace.js";
 import { ajax, ajaxAsync, csrfToken, PerformanceCollector } from "./AjaxHelper.js";
-import { CheckIfPruefungIsRunningResponse, ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateGuiStateRequest, UpdateGuiStateResponse, WorkspaceData } from "./Data.js";
+import { CheckIfPruefungIsRunningResponse, ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, MoveFileRequest, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateGuiStateRequest, UpdateGuiStateResponse, WorkspaceData } from "./Data.js";
 import { PushClientManager } from "./pushclient/PushClientManager.js";
 import { GUIFile } from '../workspace/File.js';
 import pako from 'pako'
@@ -217,11 +217,20 @@ export class NetworkManager {
 
     }
 
-    async sendCreateFile(f: GUIFile, ws: Workspace, owner_id: number): Promise<string | null> {
+    async moveFile(file_id: number, destination_workspace_id: number){
+        let request: MoveFileRequest = {
+            file_id: file_id,
+            destination_workspace_id: destination_workspace_id
+        }
+        let response = await ajaxAsync("servlet/moveFile", request);
+        return response.success;
+    }
+
+    async sendCreateFile(f: GUIFile, ws: Workspace, owner_id: number): Promise<boolean> {
 
         if (this.main.user.is_testuser) {
             f.id = Math.round(Math.random() * 10000000);
-            return null;
+            return false;
         }
 
 
@@ -238,10 +247,10 @@ export class NetworkManager {
         if(response.success) {
             f.id = response.id;
             f.setSaved(true);
-            return null;
-        } else {
-            return "Netzwerkfehler!";
-        }
+        } 
+        
+        return response.success;
+
     }
 
     async sendDuplicateWorkspace(ws: Workspace): Promise <DuplicateWorkspaceResponse> {
