@@ -2,3 +2,7 @@
     height: 100%;
     border-right: 1px solid var(--slider);
 }
+
+.jo_explorer_pruefungCaption {
+    color: rgba(97, 106, 215, 0.801);
+}

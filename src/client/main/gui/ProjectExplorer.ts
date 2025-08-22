@@ -278,7 +278,8 @@ export class ProjectExplorer {
                 return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
             },
             keyExtractor: workspace => workspace.id,
-            parentKeyExtractor: workspace => workspace.parent_folder_id
+            parentKeyExtractor: workspace => workspace.parent_folder_id,
+            readOnlyExtractor: (workspace) => workspace.readonly
         })
 
         this.workspaceTreeview.newNodeCallback = async (name, node) => {
@@ -359,6 +360,8 @@ export class ProjectExplorer {
                 let mousePointer = window.PointerEvent ? "pointer" : "mouse";
 
                 let cmiList: TreeviewContextMenuItem<Workspace, number>[] = [];
+
+                if(workspace.readonly) return cmiList;
 
                 cmiList.push(
                     {
@@ -610,6 +613,12 @@ export class ProjectExplorer {
             let iconClass = ws.repository_id == null ? 'img_workspace-dark' : 'img_workspace-dark-repository';
             if (ws.isFolder) iconClass = undefined;
             let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, iconClass, ws)
+
+            if(ws.name == '_Prüfungen' && ws.readonly){
+                node.renderCaptionAsHtml = true;
+                node.caption = '<span class="jo_explorer_pruefungCaption">Prüfungen</span>'
+            }
+
             ws.renderSynchronizeButton(node);
         }
 

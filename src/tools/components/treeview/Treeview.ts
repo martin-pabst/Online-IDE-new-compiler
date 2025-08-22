@@ -11,6 +11,7 @@ import { makeEditable } from '../../HtmlTools.ts';
 export type TreeviewConfig<E, K> = {
     keyExtractor?: (object: E) => K,
     parentKeyExtractor?: (object: E) => K | undefined,
+    readOnlyExtractor?: (object: E) => boolean,
     captionLine: {
         enabled: boolean,
         text?: string,

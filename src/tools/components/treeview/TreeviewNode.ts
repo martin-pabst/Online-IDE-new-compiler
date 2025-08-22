@@ -36,6 +36,23 @@ export class TreeviewNode<E, K> {
         }
     }
 
+    private _readOnly: boolean = false;
+
+    public get readOnly(): boolean {
+        if(this._treeview.config.readOnlyExtractor && this._externalObject){
+            return this._treeview.config.readOnlyExtractor(this._externalObject);
+        }
+        if(this._readOnly) return true;
+        if(this.isRootNode()) return false;
+        if(this.parent) return this.parent.readOnly;
+        return false;
+    }
+
+    public set readOnly(value: boolean) {
+        this._readOnly = value;
+    }
+
+
     public scrollIntoView() {
         let parent = this.parent;
         while (parent) {
@@ -322,7 +339,7 @@ export class TreeviewNode<E, K> {
             this.expandCollapseComponent.hide();
         }
 
-        if (this.treeview.config.withDeleteButtons && !this.isRootNode()) {
+        if (this.treeview.config.withDeleteButtons && !this.isRootNode() && !this.readOnly) {
             this.addIconButton("img_delete", (_object, _node, ev) => {
 
                 let deleteAction = async () => {
@@ -377,24 +394,26 @@ export class TreeviewNode<E, K> {
         let contextmenuHandler = (event: MouseEvent) => {
 
             let contextMenuItems: ContextMenuItem[] = [];
-            if (this.treeview.renameCallback != null) {
-                contextMenuItems.push({
-                    caption: "Umbenennen",
-                    callback: () => {
-                        this.renameNode();
-                    }
-                })
-            }
-
-            if (this.isFolder && this.treeview.config.buttonAddFolders) {
-                contextMenuItems = contextMenuItems.concat([
-                    {
-                        caption: "Neuen Unterordner anlegen (unterhalb '" + this.caption + "')...",
+            if(!this.readOnly){
+                if (this.treeview.renameCallback != null) {
+                    contextMenuItems.push({
+                        caption: "Umbenennen",
                         callback: () => {
-                            // TODO
+                            this.renameNode();
                         }
-                    }
-                ])
+                    })
+                }
+    
+                if (this.isFolder && this.treeview.config.buttonAddFolders) {
+                    contextMenuItems = contextMenuItems.concat([
+                        {
+                            caption: "Neuen Unterordner anlegen (unterhalb '" + this.caption + "')...",
+                            callback: () => {
+                                // TODO
+                            }
+                        }
+                    ])
+                }
             }
 
             if (this.treeview.contextMenuProvider != null) {
@@ -419,9 +438,9 @@ export class TreeviewNode<E, K> {
                 }
             }
 
+            event.preventDefault();
+            event.stopPropagation();
             if (contextMenuItems.length > 0) {
-                event.preventDefault();
-                event.stopPropagation();
                 openContextMenu(contextMenuItems, event.pageX, event.pageY);
             }
         };
