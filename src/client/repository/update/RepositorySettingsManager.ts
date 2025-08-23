@@ -187,10 +187,9 @@ export class RepositorySettingsManager {
             let workspaces = that.main.workspaceList.filter((ws) => {return ws.repository_id == repInfo.id});
             for(let ws of workspaces){
                 ws.repository_id = null;
-                ws.panelElement.iconClass = "workspace";
-                ws.panelElement.$htmlFirstLine.removeClass("jo_repository");
-                ws.panelElement.$htmlFirstLine.addClass("jo_workspace");
-                ws.panelElement.$htmlFirstLine.find(".jo_additionalButtonRepository").empty();
+                let node = this.main.projectExplorer.workspaceTreeview.findNodeByElement(ws);
+                node.iconClass = "img_workspace-dark";
+                ws.renderSynchronizeButton(node);
             }
         });
 

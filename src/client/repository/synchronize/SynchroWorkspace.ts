@@ -288,7 +288,7 @@ export class SynchroWorkspace {
 
     }
 
-    writeChangesToWorkspace() {
+    async writeChangesToWorkspace() {
         let workspace = this.copiedFromWorkspace;
         let oldIdToFileMap: { [id: number]: GUIFile } = {};
         let newIdToFileMap: { [id: number]: SynchroFile } = {};
@@ -317,9 +317,9 @@ export class SynchroWorkspace {
             } else {
 
                 main.networkManager.sendDeleteWorkspaceOrFileAsync("file", file.id).then((success: boolean) => {
-                    if(!success) alert(SynchroWorkspaceMessages.serverNotReachable());
+                    if (!success) alert(SynchroWorkspaceMessages.serverNotReachable());
                 })
-                
+
                 this.files.splice(this.files.indexOf(synchroFile), 1);
                 workspace.removeFile(file);
                 main.projectExplorer.fileTreeview.removeElement(file);
@@ -341,14 +341,11 @@ export class SynchroWorkspace {
 
                 workspace.addFile(f);
 
-                main.networkManager.sendCreateFile(f, workspace, main.user.id).then(
-                    (error: string) => {
-                        if (error == null) {
-                        } else {
-                            alert(SynchroWorkspaceMessages.serverNotReachable());
+                let success = await main.networkManager.sendCreateFile(f, workspace, main.user.id)
+                if (!success) {
+                    alert(SynchroWorkspaceMessages.serverNotReachable());
 
-                        }
-                    });
+                }
 
             }
         }

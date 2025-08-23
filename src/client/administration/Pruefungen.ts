@@ -84,21 +84,15 @@ export class Pruefungen extends AdminMenuItem {
         this.klassen = response.klassen;
         this.workspaces = response.workspaces;
         this.workspaces.forEach(ws => {
-            if (ws.path == null || ws.path.length == 0) {
-                ws.path = "";
-                ws.text = ws.name;
-            } else {
-                ws.text = ws.path + "/" + ws.name;
-            }
+            ws.text = ws.name;
         });
-        this.workspaces = this.workspaces.sort((wsa, wsb) => { return this.compareWithPath(wsa.name, wsa.path.split("/"), wsb.name, wsb.path.split("/")) });
+        this.workspaces = this.workspaces.sort((wsa, wsb) => { return wsa.name.localeCompare(wsb.name) });
 
         this.workspaces.unshift({
             name: AdminMessages.noTemplateWorkspace(),
             text: AdminMessages.noTemplateWorkspace(),
             id: -1,
             files: [],
-            path: ""
         })
 
         for (let p of this.pruefungen) {
@@ -256,7 +250,7 @@ export class Pruefungen extends AdminMenuItem {
                 let selected = this.pruefungTable.getSelection();
                 event.done((e) => { this.deletePruefung(<number>selected[0]) })
             },
-            onAdd: (event) => {  this.addPruefung() },
+            onAdd: (event) => { this.addPruefung() },
             onChange: (event) => { this.onUpdatePruefung(event) }
         })
 
@@ -619,7 +613,7 @@ export class Pruefungen extends AdminMenuItem {
     }
 
     async onSelectPruefung(recId: number) {
-        if(typeof recId == 'undefined') return;
+        if (typeof recId == 'undefined') return;
         let request: GetPruefungForPrintingRequest = { pruefungId: recId };
 
         let p: GetPruefungForPrintingResponse = await ajaxAsync("/servlet/getPruefungForPrinting", request);
