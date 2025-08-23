@@ -191,7 +191,7 @@ export class NetworkManager {
         return true;
     }
 
-    async sendCreateWorkspace(w: Workspace, owner_id: number): Promise<string | null> {
+    async sendCreateWorkspace(w: Workspace, owner_id: number): Promise<boolean> {
 
         if (this.main.user.is_testuser) {
             w.id = Math.round(Math.random() * 10000000);
@@ -210,9 +210,9 @@ export class NetworkManager {
         let response: CRUDResponse = await ajaxAsync("servlet/createOrDeleteFileOrWorkspace", request);
         if (response.success) {
             w.id = response.id;
-            return null;
+            return true;
         } else {
-            return "Netzwerkfehler!";
+            return false;
         }
 
     }

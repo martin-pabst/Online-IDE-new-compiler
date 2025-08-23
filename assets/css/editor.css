@@ -1089,13 +1089,6 @@
         background-color: rgb(214, 214, 214);
     }
 
-    .jo_workspaceimport_dropzone {
-        border: 2px dashed gray;
-        border-radius: 8px;
-        padding: 25px;
-        text-align: center;
-    }
-
     /* graphical controls */
     .graphical_controls {
         overflow: visible;
@@ -1224,25 +1217,4 @@
         margin-top: 0px !important;
     }
 
-    .jo_workspaceImportList {
-        color: var(--fontColorLight)
-    }
-
-    .jo_waitProgressBar {
-        margin-top: 10px;
-        position: relative;
-        width: 33vw;
-        left: 33vw;
-        height: 5px;
-        border: 2px solid gray;
-    }
-
-    .jo_waitProgressBarInner {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 10%;
-        height: 100%;
-        background-color: white;
-    }
 }

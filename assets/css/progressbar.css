@@ -1,0 +1,19 @@
+.joeCssFence {
+    .jo_progressBar {
+        margin-top: 10px;
+        position: relative;
+        width: 33vw;
+        left: 33vw;
+        height: 10px;
+        border: 2px solid gray;
+    }
+
+    .jo_progressBarInner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 10%;
+        height: 100%;
+        background-color: white;
+    }
+}

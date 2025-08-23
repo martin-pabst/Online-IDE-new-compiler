@@ -16,7 +16,7 @@ import { GUIFile } from '../../workspace/File.js';
 import { WorkspaceExporter } from '../../workspace/WorkspaceImporterExporter.js';
 import { SchedulerState } from "../../../compiler/common/interpreter/SchedulerState.js";
 import { GuiMessages } from './language/GuiMessages.js';
-import { WorkspaceImporter } from './WorkspaceImporter.js';
+import { ImportWorkspaceGUI } from './ImportWorkspaceGUI.js';
 import { AccordionMessages, ProjectExplorerMessages } from './language/GUILanguage.js';
 import { TreeviewAccordion } from '../../../tools/components/treeview/TreeviewAccordion.js';
 import { DragKind, Treeview, TreeviewContextMenuItem } from '../../../tools/components/treeview/Treeview.js';
@@ -264,7 +264,6 @@ export class ProjectExplorer {
             },
             withSelection: true,
             selectMultiple: true,
-            allowDragAndDropCopy: false,
             isDragAndDropSource: true,
             withDeleteButtons: true,
             confirmDelete: true,
@@ -293,8 +292,8 @@ export class ProjectExplorer {
             w.parent_folder_id = node.getParent().externalObject?.id ?? null;
             this.main.workspaceList.push(w);
 
-            let error = await this.main.networkManager.sendCreateWorkspace(w, this.main.workspacesOwnerId);
-            if (error == null) {
+            let success = await this.main.networkManager.sendCreateWorkspace(w, this.main.workspacesOwnerId);
+            if (success) {
                 if (!node.isFolder) {
                     this.fileTreeview.addElementsButton.setVisible(true);
                     this.setWorkspaceActive(w);
@@ -377,12 +376,12 @@ export class ProjectExplorer {
 
                 if (node.isFolder) {
                     cmiList.push(
-                        {
-                            caption: ProjectExplorerMessages.importWorkspace() + "...",
-                            callback: () => {
-                                new WorkspaceImporter(<Main>this.main, workspace).show();
-                            }
-                        },
+                        // {
+                        //     caption: ProjectExplorerMessages.importWorkspace() + "...",
+                        //     callback: () => {
+                        //         new ImportWorkspaceGUI(<Main>this.main).show();
+                        //     }
+                        // },
                         {
                             caption: ProjectExplorerMessages.exportFolder(),
                             callback: async () => {

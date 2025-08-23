@@ -156,7 +156,7 @@ export class MainEmbedded implements MainBase {
     }
 
     getSettings(): Settings {
-        if(!this.settings) {
+        if (!this.settings) {
             this.settings = new Settings(undefined, {}, {}, {});
         }
         return this.settings;
@@ -790,12 +790,20 @@ export class MainEmbedded implements MainBase {
         var reader = new FileReader();
         reader.onload = async (event) => {
             let text: string = <string>event.target.result;
-            if (!text.startsWith("{")) {
-                alert(`<div>Das Format der Datei ${file.name} passt nicht.</div>`);
-                return;
-            }
+            // if (!text.startsWith("{")) {
+            //     alert(`<div>Das Format der Datei ${file.name} passt nicht.</div>`);
+            //     return;
+            // }
 
             let ew: ExportedWorkspace = JSON.parse(text);
+
+            if (Array.isArray(ew)) {
+                if (ew.length == 0) {
+                    alert(`<div>Das Format der Datei ${file.name} passt nicht.</div>`);
+                    return;
+                }
+                ew = ew[0];
+            }
 
             if (ew.modules == null || ew.name == null || ew.settings == null) {
                 alert(`<div>Das Format der Datei ${file.name} passt nicht.</div>`);

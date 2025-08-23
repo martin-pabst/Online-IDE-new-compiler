@@ -12,6 +12,18 @@
     }
 }
 
+@keyframes jo_treenode_pulse_keyframes {
+    0% {
+    background-color: transparent;
+    }
+    50% {
+    background-color: #4fee41b9;
+    }
+    to {
+    background-color: transparent;
+    }
+}
+
 .joeCssFence {
 
     /* TreeviewAccordion */
@@ -80,6 +92,10 @@
         margin-left: 2px;
         overflow: hidden;
         flex: 1;
+    }
+
+    .jo_treeview_caption_bold {
+        font-weight: bold;
     }
 
     .jo_treeview_caption_buttons {
@@ -161,7 +177,8 @@
         background-color: #50505057;
     }
 
-    .jo_treeviewNode:hover.jo_treeview_focus, .jo_treeviewNode:hover.jo_treeview_selected {
+    .jo_treeviewNode:hover.jo_treeview_focus,
+    .jo_treeviewNode:hover.jo_treeview_selected {
         background-color: #2a4658c0;
     }
 
@@ -271,4 +288,10 @@
         flex-shrink: 1;
         flex-grow: 1;
     }
+
+    .jo_treeview_pulse {
+        animation: jo_treenode_pulse_keyframes 3000ms 1;
+    }
+
+
 }

@@ -11,7 +11,7 @@ import { Dialog } from "./Dialog.js";
 import jQuery from "jquery";
 import { WorkspaceImporterMessages } from "./language/GUILanguage.js";
 
-export class WorkspaceImporter {
+export class ImportWorkspaceGUIOld {
 
     dialog: Dialog;
 
@@ -149,7 +149,7 @@ export class WorkspaceImporter {
                     for (let wse of workspacesToImport) {
                         waitProgressBarInner.css("width", (i++ / workspacesToImport.length * 100) + "%");
 
-                        let ws: Workspace[] = WorkspaceImporter.importWorkspaceWithoutSpritesheet(wse, this.main, owner_id);
+                        let ws: Workspace[] = ImportWorkspaceGUIOld.importWorkspaceWithoutSpritesheet(wse, this.main, owner_id);
 
                         for (let ws1 of ws) {
                             let error = await networkManager.sendCreateWorkspace(ws1, owner_id);
@@ -197,7 +197,7 @@ export class WorkspaceImporter {
         ws.settings = wse.settings;
         main.addWorkspace(ws);
         for (let exportedFile of wse.modules) {
-            ws.addFile(WorkspaceImporter.importFile(main, exportedFile));
+            ws.addFile(ImportWorkspaceGUIOld.importFile(main, exportedFile));
         }
 
         return [ws];

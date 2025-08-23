@@ -1,0 +1,28 @@
+.joeCssFence {
+
+    .jo_workspaceimport_dropzone {
+        border: 2px dashed gray;
+        border-radius: 8px;
+        padding: 25px;
+        text-align: center;
+    }
+
+    .jo_importDragDropDiv {
+        display: flex;
+        flex-direction: row;
+        border: 1px solid gray;
+        gap: 10px;
+        /* height: 100%; */
+    }
+
+    .jo_importLeft,
+    .jo_importRight {
+        flex: 1;
+        height: 100%;
+    }
+
+    .jo_importLeft>.jo_treeview_outer, .jo_importRight>.jo_treeview_outer {
+        height: 100%;
+        box-sizing: border-box;
+    }
+}

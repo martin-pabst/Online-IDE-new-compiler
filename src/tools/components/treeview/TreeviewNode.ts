@@ -39,12 +39,12 @@ export class TreeviewNode<E, K> {
     private _readOnly: boolean = false;
 
     public get readOnly(): boolean {
-        if(this._treeview.config.readOnlyExtractor && this._externalObject){
+        if (this._treeview.config.readOnlyExtractor && this._externalObject) {
             return this._treeview.config.readOnlyExtractor(this._externalObject);
         }
-        if(this._readOnly) return true;
-        if(this.isRootNode()) return false;
-        if(this.parent) return this.parent.readOnly;
+        if (this._readOnly) return true;
+        if (this.isRootNode()) return false;
+        if (this.parent) return this.parent.readOnly;
         return false;
     }
 
@@ -60,8 +60,8 @@ export class TreeviewNode<E, K> {
             parent = parent.parent;
         }
         this.getMainDiv().scrollIntoView({
-            behavior: "smooth",
-            block: "nearest"
+            behavior: "instant",
+            block: "center"
         });
     }
 
@@ -183,8 +183,10 @@ export class TreeviewNode<E, K> {
 
         if (this._renderCaptionAsHtml) {
             this.captionDiv.innerHTML = this.caption;
+            this.captionDiv.classList.toggle('jo_treeview_caption_bold', false);
         } else {
             this.captionDiv.textContent = this.caption;
+            this.captionDiv.classList.toggle('jo_treeview_caption_bold', this.isFolder);
         }
 
         this.adjustLeftMarginToDepth();
@@ -307,6 +309,14 @@ export class TreeviewNode<E, K> {
                         this.treeview.addToSelection(this);
                         this.setFocus(true);
                         this.treeview.setLastSelectedElement(this);
+
+                        if (this.treeview.config.selectWholeFolders && this.isFolder) {
+                            for (let child of this.getOrderedNodeListRecursively()) {
+                                child.setSelected(true);
+                                this.treeview.addToSelection(child);
+                            }
+                        }
+
                         if (this._onClickHandler) this._onClickHandler(this._externalObject!);
                         if (this.treeview.onNodeClickedHandler) this.treeview.onNodeClickedHandler(this._externalObject!);
                     }
@@ -374,7 +384,7 @@ export class TreeviewNode<E, K> {
 
         this.adjustLeftMarginToDepth();
 
-        if (this.treeview.config.isDragAndDropSource) this.initDragAndDrop();
+        this.initDragAndDrop();
         this.initContextMenu();
 
     }
@@ -394,7 +404,7 @@ export class TreeviewNode<E, K> {
         let contextmenuHandler = (event: MouseEvent) => {
 
             let contextMenuItems: ContextMenuItem[] = [];
-            if(!this.readOnly){
+            if (!this.readOnly) {
                 if (this.treeview.renameCallback != null) {
                     contextMenuItems.push({
                         caption: "Umbenennen",
@@ -403,7 +413,7 @@ export class TreeviewNode<E, K> {
                         }
                     })
                 }
-    
+
                 if (this.isFolder && this.treeview.config.buttonAddFolders) {
                     contextMenuItems = contextMenuItems.concat([
                         {
@@ -506,7 +516,7 @@ export class TreeviewNode<E, K> {
 
         if (!this.isRootNode()) {
             let nodeLineRect = this.nodeLineDiv.getBoundingClientRect();
-            if (mouseY <= nodeLineRect.top + nodeLineRect.height / 2) {
+            if (!this.isFolder && mouseY <= nodeLineRect.top + nodeLineRect.height / 2) {
                 return { index: -1, insertPosY: nodeLineRect.top - top };
             }
         }
@@ -542,13 +552,23 @@ export class TreeviewNode<E, K> {
     }
 
     initDragAndDrop() {
-        this.nodeWithChildrenDiv.setAttribute("draggable", "true");
+        if (this.treeview.config.isDragAndDropSource) {
+            this.nodeWithChildrenDiv.setAttribute("draggable", "true");
+        }
 
         this.nodeWithChildrenDiv.ondragstart = (event) => {
 
             if (!this.treeview.isSelected(this)) {
                 this.treeview.unselectAllNodes(true);
                 this.treeview.addToSelection(this);
+
+                if (this.treeview.config.selectWholeFolders && this.isFolder) {
+                    for (let child of this.getOrderedNodeListRecursively()) {
+                        child.setSelected(true);
+                        this.treeview.addToSelection(child);
+                    }
+                }
+
                 this.setFocus(true);
             }
 
@@ -572,7 +592,7 @@ export class TreeviewNode<E, K> {
             this.treeview.removeDragGhost();
         }
 
-        if (this.isFolder) {
+        if (this.isFolder || this.isRootNode()) {
             this.dropzoneDiv.ondragover = (event) => {
 
                 let dragSourceTreeview = this._treeview.getCurrentDragAndDropSource();
@@ -605,6 +625,7 @@ export class TreeviewNode<E, K> {
 
                         let selectionContainsThisNode = this.selectionContainsThisNode();
                         if (selectionContainsThisNode && dragSourceTreeview.treeview == this.treeview) {
+                            this.dropzoneDiv.ondragleave(event);
                             return;
                         }
 
@@ -801,6 +822,8 @@ export class TreeviewNode<E, K> {
                     index--;
                 }
                 this.children.splice(index, 0, child);
+            } else {
+                this.children.push(child);
             }
 
             if (this.childrenDiv) {
@@ -896,5 +919,12 @@ export class TreeviewNode<E, K> {
         return this.children;
     }
 
+    pulse(): void {
+        this.nodeLineDiv.classList.toggle('jo_treeview_pulse', true);
+    }
+
+    setCaptionColor(color: string){
+        this.captionDiv.style.color = color;
+    }
 
 }

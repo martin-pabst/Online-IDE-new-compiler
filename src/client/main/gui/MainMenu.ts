@@ -2,7 +2,7 @@ import { Main } from "../Main.js";
 import { UserData } from "../../communication/Data.js";
 import { PasswordChanger } from "./UserMenu.js";
 import { ajax, csrfToken } from "../../communication/AjaxHelper.js";
-import { WorkspaceImporter } from "./WorkspaceImporter.js";
+import { ImportWorkspaceGUI } from "./ImportWorkspaceGUI.js";
 import jQuery from 'jquery';
 import { Workspace } from "../../workspace/Workspace.js";
 import { downloadFile } from "../../../tools/HtmlTools.js";
@@ -57,7 +57,7 @@ export class MainMenu {
                         items: [
                             {
                                 identifier: GuiMessages.ImportWorkspace(),
-                                action: () => { new WorkspaceImporter(this.main).show(); }
+                                action: () => { new ImportWorkspaceGUI(this.main).show(); }
                             },
                             {
                                 identifier: GuiMessages.ExportCurrentWorkspace(),
