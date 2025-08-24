@@ -407,6 +407,11 @@ export class JRC {
         "en": "Returns current World object.",
     })
 
+    static getAllShapesComment = () => lm({
+        "de": "Gibt ein Array zurück, das alle graphischen Objekte der Welt enthält.",
+        "en": "Returns an array containing all objects in this world.",
+    })
+
     static getWorld3dComment = () => lm({
         "de": "Gibt das aktuelle World3d-Objekt zurück.",
         "en": "Returns current World3d object.",

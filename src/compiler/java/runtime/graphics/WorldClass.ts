@@ -56,6 +56,8 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
 
         { type: "method", signature: "void addMouseListener(MouseListener mouseListener)", template: `§1.mouseManager.${MouseManager.prototype.addJavaMouseListener.name}(§2);`, comment: JRC.world3dAddMouseListenerComment },
 
+        { type: "method", signature: "Shape[] getAllShapes()", native: WorldClass.prototype._getAllShapes, comment: JRC.getAllShapesComment },
+
         { type: "method", signature: "static World getWorld()", java: WorldClass._getWorld, comment: JRC.getWorldComment },
 
 
@@ -504,6 +506,10 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
             throw new RuntimeExceptionClass(JRC.actorWorld2dDoesntexistException());
         }
         t.s.push(w);
+    }
+
+    _getAllShapes(){
+        return this.shapesWhichBelongToNoGroup.slice();
     }
 
 }
