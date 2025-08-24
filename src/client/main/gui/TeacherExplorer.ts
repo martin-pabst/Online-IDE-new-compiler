@@ -85,7 +85,7 @@ export class TeacherExplorer {
             }
         );
 
-        this.studentPanel.onNodeClickedHandler = (student: UserData) => {
+        this.studentPanel.nodeClickedCallback = (student: UserData) => {
             if (this.classPanelMode == "classes") {
                 this.main.projectExplorer.fetchAndRenderWorkspaces(student, this);
             } else {
@@ -151,7 +151,7 @@ export class TeacherExplorer {
 
         buttonPruefungAdministration.setVisible(false);
 
-        this.classPanel.onNodeClickedHandler = (classOrPruefung) => {
+        this.classPanel.nodeClickedCallback = (classOrPruefung) => {
 
             that.main.networkManager.sendUpdatesAsync().then(() => {
 

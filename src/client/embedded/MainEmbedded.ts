@@ -81,7 +81,8 @@ export class MainEmbedded implements MainBase {
     $alternativeDebuggerDiv: JQuery<HTMLElement>;
 
     bottomDiv: BottomDiv;
-    $filesListDiv: JQuery<HTMLElement>;
+    $filesDiv: JQuery<HTMLDivElement>
+    ListDiv: JQuery<HTMLElement>;
     disassembler?: Disassembler;
 
     $hintDiv: JQuery<HTMLElement>;
@@ -104,6 +105,8 @@ export class MainEmbedded implements MainBase {
     compileRunsAfterCodeReset: number = 0;
 
     settings: Settings;
+
+    lastActiveFile?: GUIFile;
 
     isEmbedded(): boolean { return true; }
 
@@ -207,7 +210,7 @@ export class MainEmbedded implements MainBase {
                     this.readScripts(async () => {
                         if (this.fileExplorer) {
                             this.getCompiler().setFiles(this.fileExplorer.getFiles());
-                            this.fileExplorer.setFirstFileActive();
+                            this.fileExplorer.selectFirstFileIfPresent();
                         }
                         if (this.fileExplorer == null) {
                             let files = this.currentWorkspace.getFiles();
@@ -239,13 +242,15 @@ export class MainEmbedded implements MainBase {
         this.initWorkspace(this.scriptList);
 
         if (this.config.withFileList) {
-            this.fileExplorer = new EmbeddedFileExplorer(this.currentWorkspace, this.$filesListDiv, this);
-            this.fileExplorer.setFirstFileActive();
-            this.scriptList.filter((script) => script.title.endsWith(".md")).forEach((script) => this.fileExplorer.addHint(script));
+            for (let file of this.currentWorkspace.getFiles()) {
+                this.fileExplorer.addFile(file);
+            }
+            this.fileExplorer.selectFirstFileIfPresent();
         } else {
             this.setFileActive(this.currentWorkspace.getFirstFile());
-            this.getCompiler().triggerCompile();
         }
+        
+        this.getCompiler().triggerCompile();
 
     }
 
@@ -291,11 +296,15 @@ export class MainEmbedded implements MainBase {
 
         if (!file) return;
 
-        if (this.config.withFileList) {
-            this.fileExplorer.currentFileData?.file?.saveViewState(this.getMainEditor());
-            this.fileExplorer.markFile(file);
+        if (this.lastActiveFile) {
+            this.lastActiveFile.saveViewState(this.getMainEditor());
         }
 
+        if (this.config.withFileList) {
+            this.fileExplorer.markAsSelectedButDontInvokeCallback(file);
+        }
+
+        this.lastActiveFile = file;
 
         /**
          * WICHTIG: Die Reihenfolge der beiden Operationen ist extrem wichtig.
@@ -531,9 +540,10 @@ export class MainEmbedded implements MainBase {
 
             $bottomDiv.append($bottomDivInner);
             if (this.config.withFileList) {
-                let $filesDiv = this.makeFilesDiv();
-                $bottomDiv.prepend($filesDiv);
-                new Slider($filesDiv[0], false, false, () => { });
+                this.$filesDiv = this.makeFilesDiv();
+                $bottomDiv.prepend(this.$filesDiv);
+                new Slider(this.$filesDiv[0], false, false, () => { });
+                this.fileExplorer = new EmbeddedFileExplorer(this.$filesDiv, this);
             }
             makeTabs($bottomDivInner);
 
@@ -740,20 +750,10 @@ export class MainEmbedded implements MainBase {
         return $window;
     }
 
-    makeFilesDiv(): JQuery<HTMLElement> {
+    makeFilesDiv(): JQuery<HTMLDivElement> {
 
 
-        let $filesDiv = jQuery('<div class="joe_bottomDivFiles jo_scrollable"></div>');
-
-        let $filesHeader = jQuery('<div class="joe_filesHeader jo_tabheading jo_active"  style="line-height: 24px">Programmdateien</div>');
-
-        this.$filesListDiv = jQuery('<div class="joe_filesList jo_scrollable"></div>');
-        // for (let index = 0; index < 20; index++) {
-        //     let $file = jQuery('<div class="jo_file jo_java"><div class="jo_fileimage"></div><div class="jo_filename"></div></div></div>');
-        //     $filesList.append($file);
-        // }
-
-        $filesDiv.append($filesHeader, this.$filesListDiv);
+        let $filesDiv: JQuery<HTMLDivElement> = jQuery('<div class="joe_bottomDivFiles"></div>');
 
         return $filesDiv;
     }
@@ -828,7 +828,7 @@ export class MainEmbedded implements MainBase {
             if (that.fileExplorer != null) {
                 that.fileExplorer.removeAllFiles();
                 ws.getFiles().forEach(file => that.fileExplorer.addFile(file));
-                that.fileExplorer.setFirstFileActive();
+                that.fileExplorer.selectFirstFileIfPresent();
             } else {
                 this.setFileActive(this.currentWorkspace.getFirstFile());
             }

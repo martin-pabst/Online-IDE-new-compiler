@@ -312,7 +312,7 @@ export class SettingsGUI {
             this.addSettingsToExplorer(settingsGroup);
         }
 
-        this.settingsExplorer.onNodeClickedHandler = (element: GroupOfSettingMetadata) => {
+        this.settingsExplorer.nodeClickedCallback = (element: GroupOfSettingMetadata) => {
             this.currentSettingsGroup = element;
             this.showSettingsData();
         }

@@ -13,6 +13,8 @@ export class TreeviewNode<E, K> {
 
     private _hasFocus: boolean = false;
 
+    private _isRootNode: boolean = false;
+
     public get hasFocus(): boolean {
         return this._hasFocus;
     }
@@ -126,8 +128,10 @@ export class TreeviewNode<E, K> {
         _iconClass: string | undefined,
         private _externalObject: E | null,
         private _parentKey?: K,
-        private _renderCaptionAsHtml: boolean = false) {
+        private _renderCaptionAsHtml: boolean = false,
+        isRootNode: boolean = false) {
 
+        this._isRootNode = isRootNode;
         let parentKeyExtractor = this._treeview.config.parentKeyExtractor;
         if (typeof this._parentKey == "undefined" && parentKeyExtractor) {
             if (this._externalObject) {
@@ -253,7 +257,7 @@ export class TreeviewNode<E, K> {
     }
 
     isRootNode(): boolean {
-        return this.externalObject == null;
+        return this._isRootNode;
     }
 
     private buildHtmlScaffolding() {
@@ -318,7 +322,7 @@ export class TreeviewNode<E, K> {
                         }
 
                         if (this._onClickHandler) this._onClickHandler(this._externalObject!);
-                        if (this.treeview.onNodeClickedHandler) this.treeview.onNodeClickedHandler(this._externalObject!);
+                        if (this.treeview.nodeClickedCallback) this.treeview.nodeClickedCallback(this._externalObject!);
                     }
 
                 }
@@ -395,7 +399,7 @@ export class TreeviewNode<E, K> {
         this.treeview.addToSelection(this);
         if (invokeCallback) {
             if (this._onClickHandler) this._onClickHandler(this._externalObject!);
-            if (this.treeview.onNodeClickedHandler) this.treeview.onNodeClickedHandler(this._externalObject!);
+            if (this.treeview.nodeClickedCallback) this.treeview.nodeClickedCallback(this._externalObject!);
         }
     }
 
@@ -817,7 +821,7 @@ export class TreeviewNode<E, K> {
 
         if (this.children.indexOf(child) < 0) {
             let index = this.children.length;
-            if (comparator) {
+            if (comparator && child.externalObject) {
                 while (index > 0 && comparator(child.externalObject, this.children[index - 1].externalObject) < 0) {
                     index--;
                 }

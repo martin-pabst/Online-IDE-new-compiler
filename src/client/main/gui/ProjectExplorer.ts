@@ -206,7 +206,7 @@ export class ProjectExplorer {
         }
 
 
-        this.fileTreeview.onNodeClickedHandler =
+        this.fileTreeview.nodeClickedCallback =
             (file: GUIFile) => {
                 this.setFileActive(file);
             }
@@ -328,7 +328,7 @@ export class ProjectExplorer {
             return success;
         }
 
-        this.workspaceTreeview.onNodeClickedHandler = async (workspace) => {
+        this.workspaceTreeview.nodeClickedCallback = async (workspace) => {
             if (workspace != null && !workspace.isFolder) {
                 // TODO: necessary?
                 // this.main.networkManager.sendUpdatesAsync();

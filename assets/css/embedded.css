@@ -212,6 +212,14 @@
         position: relative;
     }
 
+    .joe_bottomDivFiles>.jo_treeview_outer {
+        height: 100%;
+    }
+
+    .joe_bottomDivFiles .jo_treeviewNode_caption {
+        height: 18px;
+    }
+
     .jo_errorsTab {
         font-size: 12px;
         padding-left: 4px;

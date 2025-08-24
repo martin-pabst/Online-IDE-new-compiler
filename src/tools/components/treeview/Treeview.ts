@@ -164,12 +164,12 @@ export class Treeview<E, K> {
         this._contextMenuProvider = value;
     }
 
-    private _onNodeClickedHandler?: TreeviewNodeOnClickHandler<E>;
-    set onNodeClickedHandler(och: TreeviewNodeOnClickHandler<E>) {
-        this._onNodeClickedHandler = och;
+    private _nodeClickedCallback?: TreeviewNodeOnClickHandler<E>;
+    set nodeClickedCallback(och: TreeviewNodeOnClickHandler<E>) {
+        this._nodeClickedCallback = och;
     }
-    get onNodeClickedHandler(): TreeviewNodeOnClickHandler<E> | undefined {
-        return this._onNodeClickedHandler;
+    get nodeClickedCallback(): TreeviewNodeOnClickHandler<E> | undefined {
+        return this._nodeClickedCallback;
     }
 
 
@@ -229,7 +229,7 @@ export class Treeview<E, K> {
 
         if (config?.flexWeight) this.setFlexWeight(config.flexWeight);
 
-        this.rootNode = new TreeviewNode<E, K>(this, true, 'Root', undefined, null, null, null);
+        this.rootNode = new TreeviewNode<E, K>(this, true, 'Root', undefined, undefined, null, null, true);
 
         if (this.treeviewAccordion) this.treeviewAccordion.addTreeview(this);
 
@@ -362,7 +362,7 @@ export class Treeview<E, K> {
             if (focusedNode.isFolder) folder = focusedNode;
         }
 
-        let node = this.addNode(isFolder, "", isFolder ? undefined : this.config.defaultIconClass, {} as E,
+        let node = this.addNode(isFolder, "", isFolder ? undefined : this.config.defaultIconClass, null,
             folder?.ownKey);
         makeEditable(node.captionDiv, node.captionDiv, async (newContent: string) => {
             node.caption = newContent;
@@ -613,7 +613,7 @@ export class Treeview<E, K> {
     }
 
     clear() {
-        this.nodes = [];
+        this.nodes = [this.rootNode];
         this.rootNode.removeChildren();
     }
 

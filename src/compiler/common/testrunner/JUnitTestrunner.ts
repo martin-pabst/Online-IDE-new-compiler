@@ -61,7 +61,8 @@ export class JUnitTestrunner {
         this.outputDiv = DOM.makeDiv(this.rightDiv, "jo_junitTestrunnerOutput", "jo_scrollable");
 
         this.testTreeview = new Treeview(leftDiv, {
-            captionLine: { enabled: false },
+            captionLine: { enabled: false
+             },
             initialExpandCollapseState: 'expanded',
             buttonAddFolders: false,
             buttonAddElements: false,

@@ -95,6 +95,7 @@ export class JUnitTreeviewEntry {
             name = JUnitTestrunnerLanguage.allTests()
         }
 
+        this.treeviewNode.renderCaptionAsHtml = true;
         this.treeviewNode.caption = `<span class="jo_junitCaption">${name}</span>`;
 
         this.calculateTestProgress();
