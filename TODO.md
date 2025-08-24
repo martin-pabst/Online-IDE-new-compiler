@@ -1,12 +1,12 @@
 Treeview:
-  * WorkspaceImporter/WorkspaceExporter: export/import with folders...
 
 Done:
 Treeview:
   * sollte den Prüfungsfolder anders darstellen als die anderen 
   * Prüfungsfolder und Dateien darin sollten readonly sein.
   * does Treeview.selectElement scrollIntoView?
-
+  * WorkspaceImporter/WorkspaceExporter: export/import with folders...
+  * Embedded version should use new Treeview component
 
 ============================================================
 * nicht so sehr zustandsbehaftet
