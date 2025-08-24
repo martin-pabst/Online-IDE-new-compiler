@@ -236,6 +236,7 @@ export class EmbeddedFileExplorer {
             }, "Starte das in dieser Datei enthaltene Hauptprogramm", true);
             startButton.tag = "Start";
             startButton.setVisible(files.indexOf(file) >= 0);
+            startButton.setActive(active);
         }
     }
 
@@ -253,6 +254,7 @@ export class EmbeddedFileExplorer {
     markAsSelectedButDontInvokeCallback(file: GUIFile) {
         let node = this.treeview.findNodeByElement(file);
         if (node) {
+            this.treeview.unselectAllNodes(true);
             node.setSelected(true)
             node.setFocus(true);
         }
