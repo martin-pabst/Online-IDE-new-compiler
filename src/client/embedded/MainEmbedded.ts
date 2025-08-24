@@ -375,7 +375,7 @@ export class MainEmbedded implements MainBase {
 
                             that.fileExplorer?.addFile(file);
                             that.currentWorkspace.addFile(file);
-                            that.$resetButton.fadeIn(1000);
+                            that.showResetButton();
 
                             // console.log("Retrieving script " + scriptId);
                         }
@@ -837,9 +837,15 @@ export class MainEmbedded implements MainBase {
 
             that.saveScripts();
 
+            this.showResetButton();
+            
         };
         reader.readAsText(file);
-
+        
+    }
+    
+    showResetButton(){
+        this.$resetButton.fadeIn(1000);
     }
 
     makeRightDiv(): JQuery<HTMLElement> {

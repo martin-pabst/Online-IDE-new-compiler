@@ -60,7 +60,7 @@ export type DragAndDropSource = { treeview: Treeview<any, any>, dropInsertKind: 
 // Callback functions return true if changes shall be executed on treeview, false if action should get cancelled
 export type TreeviewRenameCallback<E, K> = (element: E, newName: string, node: TreeviewNode<E, K>) =>
     Promise<{ correctedName: string, success: boolean }>;
-export type TreeviewDeleteCallback<E> = (element: E | null) => Promise<boolean>;
+export type TreeviewDeleteCallback<E, K> = (element: E | null, node: TreeviewNode<E, K>) => Promise<boolean>;
 export type TreeviewNewNodeCallback<E, K> = (name: string, node: TreeviewNode<E, K>) => Promise<E | null>;
 export type TreeviewContextMenuProvider<E, K> = (element: E, node: TreeviewNode<E, K>) => TreeviewContextMenuItem<E, K>[];
 export type DropEventCallback<E, K> = (sourceTreeview: Treeview<any, any>, destinationNode: TreeviewNode<E, K>, destinationChildIndex: number, dragKind: DragKind) => void;
@@ -148,11 +148,11 @@ export class Treeview<E, K> {
         this._newNodeCallback = value;
     }
 
-    private _deleteCallback?: TreeviewDeleteCallback<E> | undefined;
-    public get deleteCallback(): TreeviewDeleteCallback<E> | undefined {
+    private _deleteCallback?: TreeviewDeleteCallback<E, K> | undefined;
+    public get deleteCallback(): TreeviewDeleteCallback<E, K> | undefined {
         return this._deleteCallback;
     }
-    public set deleteCallback(value: TreeviewDeleteCallback<E> | undefined) {
+    public set deleteCallback(value: TreeviewDeleteCallback<E, K> | undefined) {
         this._deleteCallback = value;
     }
 

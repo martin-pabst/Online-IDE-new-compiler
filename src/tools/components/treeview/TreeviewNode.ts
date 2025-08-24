@@ -358,7 +358,7 @@ export class TreeviewNode<E, K> {
 
                 let deleteAction = async () => {
                     if (this.treeview.deleteCallback) {
-                        if (await this.treeview.deleteCallback(this.externalObject)) {
+                        if (await this.treeview.deleteCallback(this.externalObject, this)) {
                             this.treeview.removeNode(this);
                         }
                     } else {
@@ -889,9 +889,12 @@ export class TreeviewNode<E, K> {
     }
 
     detach() {
-        if (this.parent == this.treeview.rootNode) {
+        if (this.parent == this.treeview.rootNode && this.nodeWithChildrenDiv.parentNode) {
             this.treeview.rootNode.childrenDiv.removeChild(this.nodeWithChildrenDiv);
         }
+
+        let index = this.parent.children.indexOf(this);
+        if(index >= 0) this.parent.children.splice(index, 1);
 
         this.treeview.nodes.splice(this.treeview.nodes.indexOf(this), 1);
     }

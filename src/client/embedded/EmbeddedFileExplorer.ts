@@ -52,15 +52,25 @@ export class EmbeddedFileExplorer {
             return file;
         }
 
-        this.treeview.deleteCallback = async (file) => {
+        this.treeview.renameCallback = async (file, newName, node): Promise<{ correctedName: string; success: boolean; }> => {
+            newName = newName.substring(0, 30);
+            file.name = newName;
+            file.setSaved(false);
+            return {correctedName: newName, success: true};
+        }
+
+        this.treeview.deleteCallback = async (file, node) => {
+            let files = this.treeview.nodes.filter(node => !node.isRootNode() && node.externalObject != file).map(node => node.externalObject);
             this.main.removeFile(file);
-            let node = this.treeview.findNodeByElement(file);
             if(node?.hasFocus){
-                setTimeout(() => {
+                if(files.length > 0){
+                    this.selectFile(files[0], true);
+                } else {
                     this.selectFirstFileIfPresent();
-                }, 100);                
+                }
             }
             this.treeview.nodes.forEach(node => node.externalObject?.setSaved(false));
+            this.main.showResetButton();
             return true;
         }
 

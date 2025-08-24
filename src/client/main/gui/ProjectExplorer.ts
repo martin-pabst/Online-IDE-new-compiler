@@ -134,14 +134,21 @@ export class ProjectExplorer {
             return { correctedName: newName, success: resp }
         }
 
-        this.fileTreeview.deleteCallback = async (file) => {
+        this.fileTreeview.deleteCallback = async (file, node) => {
             let success = await this.main.networkManager.sendDeleteWorkspaceOrFileAsync("file", file.id);
 
             if (success) {
                 this.main.getCurrentWorkspace().removeFile(file);
                 this.main.getCompiler()?.triggerCompile();
-                if (this.main.getCurrentWorkspace().getFiles().length == 0) {
-                    this.fileTreeview.setCaption(ProjectExplorerMessages.noFile());
+                
+                if(node.hasFocus){
+                    let files = this.main.getCurrentWorkspace().getFiles();
+                    if (files.length == 0) {
+                        this.fileTreeview.setCaption(ProjectExplorerMessages.noFile());
+                        this.setFileActive(null);
+                    } else {
+                        this.setFileActive(files[0]);
+                    }
                 }
             }
 
