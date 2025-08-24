@@ -269,8 +269,7 @@ export class ExportImportMI extends AdminMenuItem {
 
             this.schoolGrid.refresh();
         }, (error) => {
-            w2alert(AdminMessages.errorFetchingData() + error);
-            debugger;
+            alert(AdminMessages.errorFetchingData() + error);
         });
 
 

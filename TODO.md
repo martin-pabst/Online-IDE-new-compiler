@@ -1,4 +1,8 @@
-Treeview:
+TODO:
+  * files with folders
+  * better tablet integration
+  * 
+
 
 Done:
 Treeview:

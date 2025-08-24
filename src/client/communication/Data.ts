@@ -893,6 +893,8 @@ export type KlassData = {
 
 export type WorkspaceShortData = {
     id: number,
+    parent_folder_id?: number,
+    isFolder: boolean,
     name: string,
     text?: string,
     files: string[]

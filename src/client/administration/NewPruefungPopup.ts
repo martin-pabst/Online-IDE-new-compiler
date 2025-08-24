@@ -31,7 +31,7 @@ export class NewPruefungPopup {
                 },
                 {
                     field: 'template', type: 'list',
-                    html: { label: AdminMessages.templateWorkspace(), attr: 'style="width: 300px"' },
+                    html: { label: AdminMessages.templateWorkspace(), attr: 'style="width: 500px"' },
                     options: { items: workspaces }
                 },
             ],
@@ -68,7 +68,7 @@ export class NewPruefungPopup {
             title: AdminMessages.createNewTest(),
             body: '<div id="form" style="width: 100%; height: 100%;"></div>',
             style: 'padding: 15px 0px 0px 0px',
-            width: 500,
+            width: 700,
             height: 300,
             showMax: false
         }).then(() => {

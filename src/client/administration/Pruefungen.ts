@@ -83,14 +83,15 @@ export class Pruefungen extends AdminMenuItem {
         this.pruefungen = response.pruefungen;
         this.klassen = response.klassen;
         this.workspaces = response.workspaces;
-        this.workspaces.forEach(ws => {
-            ws.text = ws.name;
-        });
         this.workspaces = this.workspaces.sort((wsa, wsb) => { return wsa.name.localeCompare(wsb.name) });
+
+        this.workspaces.forEach(ws => ws.text = this.getWorkspaceNameWithFolder(ws));
 
         this.workspaces.unshift({
             name: AdminMessages.noTemplateWorkspace(),
             text: AdminMessages.noTemplateWorkspace(),
+            parent_folder_id: null,
+            isFolder: false,
             id: -1,
             files: [],
         })
@@ -225,12 +226,12 @@ export class Pruefungen extends AdminMenuItem {
                 {
                     field: 'template_workspace_id', text: AdminMessages.templateWorkspace(), size: '25%', sortable: true, resizable: true,
                     editable: {
-                        type: 'list', items: this.workspaces, showAll: true, openOnFocus: true, align: 'left',
+                        type: 'list', items: this.workspaces.filter(ws => !ws.isFolder), showAll: true, openOnFocus: true, align: 'left',
                         style: 'width: 400px'
                     },
                     render: (e) => {
                         let ws = this.workspaces.find(c => c.id == e.template_workspace_id);
-                        return ws == null ? AdminMessages.noTemplateWorkspace() : ws.name;
+                        return ws == null ? AdminMessages.noTemplateWorkspace() : ws.text;
                     }
                 },
                 {
@@ -401,6 +402,17 @@ export class Pruefungen extends AdminMenuItem {
 
 
 
+    }
+
+    getWorkspaceNameWithFolder(ws: WorkspaceShortData): string {
+        let s: string = ws.name;
+        if(ws.parent_folder_id){
+            let parent = this.workspaces.find(ws1 => ws1.id == ws.parent_folder_id);
+            if(parent){
+                s = this.getWorkspaceNameWithFolder(parent) + "/" + s;
+            }
+        }
+        return s;
     }
 
     updatePruefungTable() {
