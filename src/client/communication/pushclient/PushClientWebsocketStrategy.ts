@@ -76,9 +76,9 @@ export class PushClientWebsocketStrategy extends PushClientStrategy {
 
     doPing(){
         this.currentTimer = setTimeout(() => {
-            if(!this.isClosed){
-                this.websocket.send("ping");
+            if(!this.isClosed && this.websocket.readyState != WebSocket.CONNECTING){
                 this.doPing();
+                this.websocket.send("ping");
             } else {
                 this.currentTimer = null;
             }
