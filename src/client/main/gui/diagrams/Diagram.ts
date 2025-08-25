@@ -12,7 +12,7 @@ export class Diagram {
     zoomfactor: number = 1.0;
 
     $canvas: JQuery<HTMLElement>;
-    svgElement: Element;
+    svgElement: SVGElement;
 
     $menuButton: JQuery<HTMLElement>;
 
@@ -48,7 +48,7 @@ export class Diagram {
         });
 
         let ns = 'http://www.w3.org/2000/svg';
-        this.svgElement = document.createElementNS(ns, 'svg');
+        this.svgElement = <SVGElement>document.createElementNS(ns, 'svg');
         // jQuery(this.svgElement).css('pointer-events', 'none');
         jQuery(this.svgElement).addClass("jo_diagram-svg svg_all_pointer_events");
 

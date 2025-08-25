@@ -487,7 +487,7 @@ class Router {
 
     addPoint(x: number, y: number, arrow: RoutingArrow): RoutingArrow {
         if(!this.arrowPointField) this.arrowPointField = [];
-        if(x < this.arrowPointField.length && y < this.arrowPointField[x].length){
+        if(x < this.arrowPointField.length && y < this.arrowPointField[x]?.length){
             arrow.points.push({ x: x, y: y });
             let arrows: RoutingArrow[] = this.arrowPointField[x][y];
             if (arrows != null) {
