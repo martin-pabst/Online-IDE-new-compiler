@@ -1,5 +1,5 @@
-import { IMain } from "../../compiler/common/IMain";
 import { TranslatedText } from "../../tools/language/LanguageManager";
+import { Main } from "../main/Main";
 import { SettingsMessages } from "./SettingsMessages";
 import * as monaco from 'monaco-editor'
 
@@ -17,7 +17,7 @@ export type SettingValues = Partial<Record<SettingKey, SettingValue>>;
 
 export type SettingsMetadataType = 'setting' | 'group';
 
-export type SettingsAction = (main: IMain, value: SettingValue) => void;
+export type SettingsAction = (main: Main, value: SettingValue) => void;
 
 export type SettingMetadata = {
     key: SettingKey;
@@ -134,7 +134,10 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     SettingsMessages.ClassDiagramTypeConventionJava,
                     SettingsMessages.ClassDiagramTypeConventionPascal
                 ],
-                defaultValue: "java"
+                defaultValue: "java",
+                action: (main, value) => {
+                    main.drawClassDiagrams(false);  
+                }
             }
         ]
     }
