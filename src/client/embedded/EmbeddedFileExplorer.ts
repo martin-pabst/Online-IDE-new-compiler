@@ -48,7 +48,7 @@ export class EmbeddedFileExplorer {
             node.readOnly = fileType.suffix == ".md";
             node.externalObject = file;
 
-            this.treeview.selectNode(node, true);
+            this.treeview.selectNodeAndSetFocus(node, true);
             return file;
         }
 
@@ -82,7 +82,7 @@ export class EmbeddedFileExplorer {
 
     selectFirstFileIfPresent() {
         if (this.treeview.nodes.length > 1) {
-            this.treeview.selectNode(this.treeview.nodes[1], true);
+            this.treeview.selectNodeAndSetFocus(this.treeview.nodes[1], true);
         } else {
             let editor = this.main.getMainEditor();
             let model = monaco.editor.createModel("Keine Datei vorhanden.", "plaintext");

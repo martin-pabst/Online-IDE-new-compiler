@@ -1,4 +1,7 @@
 TODO:
+  * button to shrink all folders
+  * initial state: all folders closed; only folder open with current workspace
+  * method select: does it open all parent folders?
   * files with folders
   * better tablet integration
   * 

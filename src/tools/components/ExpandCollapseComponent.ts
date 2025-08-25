@@ -35,7 +35,8 @@ export class ExpandCollapseComponent {
 
         this.divElement = DOM.makeDiv(_parent, 'jo_exandCollapseComponent');
 
-        this.divElement.onpointerup = () => {
+        this.divElement.onpointerup = (ev) => {
+            ev.stopPropagation();
             this.toggleState();
         }
 

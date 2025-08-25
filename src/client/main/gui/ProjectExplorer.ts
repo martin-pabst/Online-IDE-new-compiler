@@ -270,6 +270,7 @@ export class ProjectExplorer {
                 text: ProjectExplorerMessages.WORKSPACES()
             },
             withSelection: true,
+            withFolders: true,
             selectMultiple: true,
             isDragAndDropSource: true,
             withDeleteButtons: true,
@@ -376,7 +377,7 @@ export class ProjectExplorer {
                             while (!node.isFolder && !node.isRootNode && node != null) {
                                 node = node.getParent();
                             }
-                            this.workspaceTreeview.selectNode(node, false);
+                            this.workspaceTreeview.selectNodeAndSetFocus(node, false);
                             this.workspaceTreeview.addNewNode(false);
                         }
                     });
@@ -628,6 +629,7 @@ export class ProjectExplorer {
             ws.renderSynchronizeButton(node);
         }
 
+        this.workspaceTreeview.collapseAllButRootnode();
     }
 
     renderErrorCount(workspace: Workspace, errorCountMap: Map<GUIFile, number>) {

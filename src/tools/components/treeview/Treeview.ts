@@ -6,6 +6,7 @@ import { ExpandCollapseComponent, ExpandCollapseState } from '../ExpandCollapseC
 import { IconButtonComponent } from '../IconButtonComponent.ts';
 import { TreeviewNode, TreeviewNodeOnClickHandler } from './TreeviewNode.ts';
 import { makeEditable } from '../../HtmlTools.ts';
+import { TreeviewMessages } from './TreeviewMessages.ts';
 
 
 export type TreeviewConfig<E, K> = {
@@ -32,6 +33,8 @@ export type TreeviewConfig<E, K> = {
     comparator?: (externalElement1: E, externalElement2: E) => number,
     minHeight?: number,
     buttonAddFolders?: boolean,
+
+    buttonCollapseAll?: boolean,
 
     buttonAddElements?: boolean,
     buttonAddElementsCaption?: string,
@@ -187,7 +190,7 @@ export class Treeview<E, K> {
             parentKeyExtractor: undefined,
             captionLine: {
                 enabled: true,
-                text: "Überschrift"
+                text: TreeviewMessages.caption()
             },
             withFolders: true,
 
@@ -197,18 +200,19 @@ export class Treeview<E, K> {
             isDragAndDropSource: true,
 
             contextMenu: {
-                messageNewNode: "Neues Element anlegen...",
+                messageNewNode: TreeviewMessages.newElement(),
                 messageNewFolder: (parentFolder: string) => (
-                    "Neuen Ordner anlegen (unterhalb " + parentFolder + ")"
+                    TreeviewMessages.newFolder(parentFolder)
                 ),
-                messageRename: "Umbenennen"
+                messageRename: TreeviewMessages.rename()
 
             },
             minHeight: 150,
             initialExpandCollapseState: "expanded",
             buttonAddFolders: true,
+            buttonCollapseAll: true,
             buttonAddElements: true,
-            buttonAddElementsCaption: "Elemente hinzufügen",
+            buttonAddElementsCaption: TreeviewMessages.addElements(),
             withSelection: true,
             selectMultiple: true,
             selectWholeFolders: false
@@ -337,7 +341,7 @@ export class Treeview<E, K> {
         if (this.config.buttonAddFolders) {
             this.addFolderButton = this.captionLineAddIconButton("img_add-folder-dark", () => {
                 this.addNewNode(true);
-            }, "Ordner hinzufügen");
+            }, TreeviewMessages.addFolder());
         }
 
         if (this.config.buttonAddElements) {
@@ -345,6 +349,12 @@ export class Treeview<E, K> {
                 this.captionLineAddIconButton("img_add-dark", () => {
                     this.addNewNode(false);
                 }, this.config.buttonAddElementsCaption);
+        }
+
+        if (this.config.buttonAddFolders && this.config.buttonCollapseAll) {
+            this.captionLineAddIconButton("img_collapse-all-dark", () => {
+                this.collapseAllButRootnode();
+            }, TreeviewMessages.collapseAll())
         }
 
     }
@@ -373,7 +383,7 @@ export class Treeview<E, K> {
                     this.removeNode(node);
                 } else {
                     node.externalObject = externalObject;
-                    this.selectNode(node, false);
+                    this.selectNodeAndSetFocus(node, false);
                     if (folder) folder.sort();
                     node.scrollIntoView();
                 }
@@ -479,14 +489,15 @@ export class Treeview<E, K> {
             return;
         }
         let node = this.findNodeByElement(element);
-        this.selectNode(node, invokeCallback);
+        this.selectNodeAndSetFocus(node, invokeCallback);
     }
 
-    selectNode(node: TreeviewNode<E, K>, invokeCallback: boolean) {
+    selectNodeAndSetFocus(node: TreeviewNode<E, K>, invokeCallback: boolean) {
         if (!node) return;
         node.select(invokeCallback);
         node.setFocus(true);
         this.lastSelectedElement = node;
+        node.expand();
         node.scrollIntoView();
     }
 
@@ -586,7 +597,7 @@ export class Treeview<E, K> {
         if (this.currentSelection.length == 1) {
             element.textContent = this.currentSelection[0].caption;
         } else {
-            element.textContent = this.currentSelection.length + " Dateien/Ordner";
+            element.textContent = this.currentSelection.length + " " + TreeviewMessages.elementsFolders();
         }
         document.body.appendChild(element);
         return element;
@@ -691,4 +702,9 @@ export class Treeview<E, K> {
         return this.dragDropSources.length > 0;
     }
 
+    collapseAllButRootnode() {
+        for (let node of this.nodes.filter(node => !node.isRootNode())) {
+            node.expandCollapseComponent.setState("collapsed");
+        }
+    }
 }

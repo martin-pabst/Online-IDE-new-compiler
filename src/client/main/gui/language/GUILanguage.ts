@@ -353,8 +353,8 @@ export class TeacherExplorerMessages {
     });
     
     static createNewTest = () => lm({
-        'de': 'Neue Prüfung erstellen',
-        'en': 'Create new Test'
+        'de': 'Prüfungen verwalten',
+        'en': 'Manage tests'
     });
     
     static testIsInState = (state: string) => lm({

@@ -162,7 +162,7 @@ export class Login {
 
         if(loginRequest.username == ""){
             loginRequest.username = "pabst";
-            loginRequest.password = 'Abcde12345'
+            loginRequest.password = 'Abcd1234'
         }
 
         ajax(servlet, loginRequest, (response: LoginResponse) => {

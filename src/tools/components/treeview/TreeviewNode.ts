@@ -4,6 +4,7 @@ import { ContextMenuItem, makeEditable, openContextMenu } from "../../HtmlTools.
 import { ExpandCollapseComponent, ExpandCollapseListener, ExpandCollapseState } from "../ExpandCollapseComponent.ts";
 import { IconButtonComponent } from "../IconButtonComponent.ts";
 import { DragKind, Treeview } from "./Treeview.ts";
+import { TreeviewMessages } from "./TreeviewMessages.ts";
 
 export type TreeviewNodeOnClickHandler<E> = (element: E | undefined) => void;
 
@@ -314,6 +315,10 @@ export class TreeviewNode<E, K> {
                         this.setFocus(true);
                         this.treeview.setLastSelectedElement(this);
 
+                        if(this.isFolder){
+                            this.expandCollapseComponent.toggleState();
+                        }
+
                         if (this.treeview.config.selectWholeFolders && this.isFolder) {
                             for (let child of this.getOrderedNodeListRecursively()) {
                                 child.setSelected(true);
@@ -411,7 +416,7 @@ export class TreeviewNode<E, K> {
             if (!this.readOnly) {
                 if (this.treeview.renameCallback != null) {
                     contextMenuItems.push({
-                        caption: "Umbenennen",
+                        caption: TreeviewMessages.rename(),
                         callback: () => {
                             this.renameNode();
                         }
@@ -421,7 +426,7 @@ export class TreeviewNode<E, K> {
                 if (this.isFolder && this.treeview.config.buttonAddFolders) {
                     contextMenuItems = contextMenuItems.concat([
                         {
-                            caption: "Neuen Unterordner anlegen (unterhalb '" + this.caption + "')...",
+                            caption: TreeviewMessages.newFolder(this.caption),
                             callback: () => {
                                 // TODO
                             }
@@ -616,6 +621,8 @@ export class TreeviewNode<E, K> {
 
                 switch (dragSourceTreeview.dropInsertKind) {
                     case "asElement":
+                        this.dragAndDropDestinationDiv.classList.toggle('jo_treeview_invald_dragdestination', false);
+                        
                         let ddi = this.getDragAndDropIndexForInsertKindAsElement(event.pageX, event.pageY);
                         if (ddi.index < 0) {
                             if (this.parent?.dropzoneDiv.ondragover) {
@@ -626,14 +633,14 @@ export class TreeviewNode<E, K> {
                         }
                         this.dragAndDropDestinationDiv.style.top = (ddi.insertPosY - 1) + "px";
                         this.dragAndDropDestinationDiv.style.display = "block";
-
+                        
                         let selectionContainsThisNode = this.selectionContainsThisNode();
                         if (selectionContainsThisNode && dragSourceTreeview.treeview == this.treeview) {
-                            this.dropzoneDiv.ondragleave(event);
+                            this.dragAndDropDestinationDiv.classList.toggle('jo_treeview_invald_dragdestination', true);
+                            // this.dropzoneDiv.ondragleave(event);
                             return;
                         }
-
-                        this.dragAndDropDestinationDiv.classList.toggle('jo_treeview_invald_dragdestination', true);
+                        
                         this.nodeWithChildrenDiv.classList.toggle('jo_treeviewNode_highlightDragDropDestination', true);
                         break;
                     case "intoElement":
@@ -932,6 +939,16 @@ export class TreeviewNode<E, K> {
 
     setCaptionColor(color: string){
         this.captionDiv.style.color = color;
+    }
+
+
+    expand(){
+        if(this.parent) this.parent.expand();
+        this.expandCollapseComponent.setState("expanded");
+    }
+
+    collapse(){
+        this.expandCollapseComponent.setState("collapsed");
     }
 
 }
