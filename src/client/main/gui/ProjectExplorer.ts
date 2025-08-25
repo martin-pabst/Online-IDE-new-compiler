@@ -140,8 +140,8 @@ export class ProjectExplorer {
             if (success) {
                 this.main.getCurrentWorkspace().removeFile(file);
                 this.main.getCompiler()?.triggerCompile();
-                
-                if(node.hasFocus){
+
+                if (node.hasFocus) {
                     let files = this.main.getCurrentWorkspace().getFiles();
                     if (files.length == 0) {
                         this.fileTreeview.setCaption(ProjectExplorerMessages.noFile());
@@ -286,7 +286,7 @@ export class ProjectExplorer {
             },
             keyExtractor: workspace => workspace.id,
             parentKeyExtractor: workspace => workspace.parent_folder_id,
-            readOnlyExtractor: (workspace) => workspace.readonly
+            readOnlyExtractor: (workspace) => workspace.readonly || workspace.pruefung_id != null
         })
 
         this.workspaceTreeview.newNodeCallback = async (name, node) => {
@@ -368,7 +368,7 @@ export class ProjectExplorer {
 
                 let cmiList: TreeviewContextMenuItem<Workspace, number>[] = [];
 
-                if(workspace.readonly) return cmiList;
+                if (workspace.readonly) return cmiList;
 
                 cmiList.push(
                     {
@@ -433,25 +433,26 @@ export class ProjectExplorer {
                             {
                                 caption: ProjectExplorerMessages.distributeToClass() + "...",
                                 callback: () => { },
-                                subMenu: this.main.teacherExplorer.classPanel.nodes.map((classNode) => {
-                                    let classData = <ClassData>classNode.externalObject;
-                                    return {
-                                        caption: classData.name,
-                                        callback: () => {
+                                subMenu: this.main.teacherExplorer.classPanel.nodes
+                                    .filter(node => !node.isRootNode()).map((classNode) => {
+                                        let classData = <ClassData>classNode.externalObject;
+                                        return {
+                                            caption: classData.name,
+                                            callback: () => {
 
-                                            this.main.networkManager.sendDistributeWorkspace(workspace, classData, null, (error: string) => {
-                                                if (error == null) {
-                                                    let networkManager = this.main.networkManager;
-                                                    let dt = networkManager.updateFrequencyInSeconds * networkManager.forcedUpdateEvery;
-                                                    alert(ProjectExplorerMessages.workspaceDistributed(workspace.name, classData.name));
-                                                } else {
-                                                    alert(error);
-                                                }
-                                            });
+                                                this.main.networkManager.sendDistributeWorkspace(workspace, classData, null, (error: string) => {
+                                                    if (error == null) {
+                                                        let networkManager = this.main.networkManager;
+                                                        let dt = networkManager.updateFrequencyInSeconds * networkManager.forcedUpdateEvery;
+                                                        alert(ProjectExplorerMessages.workspaceDistributed(workspace.name, classData.name));
+                                                    } else {
+                                                        alert(error);
+                                                    }
+                                                });
 
+                                            }
                                         }
-                                    }
-                                })
+                                    })
                             },
                             {
                                 caption: ProjectExplorerMessages.distributeToStudents(),
@@ -520,7 +521,7 @@ export class ProjectExplorer {
                 for (let fileNode of filesToMoveOrCopy) {
                     let file = fileNode.externalObject;
                     let success = await this.main.networkManager.moveFile(file.id, destinationWorkspace.id);
-                    if(success){
+                    if (success) {
                         sourceWorkspace.removeFile(file);
                         destinationWorkspace.addFile(file);
                         this.fileTreeview.removeNode(fileNode);
@@ -532,7 +533,7 @@ export class ProjectExplorer {
                     let file = fileNode.externalObject;
                     let newFile = new GUIFile(this.main, file.name, file.getText());
                     let success = await this.main.networkManager.sendCreateFile(newFile, destinationWorkspace, destinationWorkspace.owner_id);
-                    if(success) destinationWorkspace.addFile(newFile);
+                    if (success) destinationWorkspace.addFile(newFile);
                 }
                 break;
         }
@@ -621,9 +622,14 @@ export class ProjectExplorer {
             if (ws.isFolder) iconClass = undefined;
             let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, iconClass, ws)
 
-            if(ws.name == '_Prüfungen' && ws.readonly){
+            if (ws.name == '_Prüfungen' && ws.readonly) {
                 node.renderCaptionAsHtml = true;
                 node.caption = '<span class="jo_explorer_pruefungCaption">Prüfungen</span>'
+                node.readOnly = true;
+            }
+
+            if (ws.pruefung_id) {
+                node.readOnly = true;
             }
 
             ws.renderSynchronizeButton(node);
