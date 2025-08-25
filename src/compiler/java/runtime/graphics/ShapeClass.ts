@@ -27,39 +27,39 @@ export class ShapeClass extends ActorClass {
         { type: "field", signature: "private double scaleFactor", nativeIdentifier: "_scaleFactor", comment: JRC.shapeScaleFactorComment },
 
         { type: "method", signature: "Shape()", java: ShapeClass.prototype._cj$_constructor_$Shape$ },
-        { type: "method", signature: "final void move(double dx, double dy)", native: ShapeClass.prototype._move, comment: JRC.shapeMoveComment },
-        { type: "method", signature: "final void rotate(double angleInDeg, double centerX, double centerY)", native: ShapeClass.prototype._rotate, comment: JRC.shapeRotateComment1 },
-        { type: "method", signature: "final void rotate(double angleInDeg)", native: ShapeClass.prototype._rotate, comment: JRC.shapeRotateComment2 },
-        { type: "method", signature: "final void scale(double factor, double centerX, double centerY)", native: ShapeClass.prototype._scale, comment: JRC.shapeScaleComment1 },
-        { type: "method", signature: "final void setScale(double newScale)", native: ShapeClass.prototype._setScale, comment: JRC.shapeSetScaleComment },
-        { type: "method", signature: "final void scale(double factor)", native: ShapeClass.prototype._scale, comment: JRC.shapeScaleComment2 },
-        { type: "method", signature: "final void mirrorX()", template: "§1._mirrorXY(-1, 1)", comment: JRC.shapeMirrorXComment },
-        { type: "method", signature: "final void mirrorY()", template: "§1._mirrorXY(1, -1)", comment: JRC.shapeMirrorYComment },
-        { type: "method", signature: "final void defineDirection(double angleInDeg)", native: ShapeClass.prototype._defineDirection, comment: JRC.shapeDefineDirectionComment },
-        { type: "method", signature: "final void forward(double distance)", native: ShapeClass.prototype._forward, comment: JRC.shapeForwardComment },
+        { type: "method", signature: "final Shape move(double dx, double dy)", native: ShapeClass.prototype._move, comment: JRC.shapeMoveComment },
+        { type: "method", signature: "final Shape rotate(double angleInDeg, double centerX, double centerY)", native: ShapeClass.prototype._rotate, comment: JRC.shapeRotateComment1 },
+        { type: "method", signature: "final Shape rotate(double angleInDeg)", native: ShapeClass.prototype._rotate, comment: JRC.shapeRotateComment2 },
+        { type: "method", signature: "final Shape scale(double factor, double centerX, double centerY)", native: ShapeClass.prototype._scale, comment: JRC.shapeScaleComment1 },
+        { type: "method", signature: "final Shape setScale(double newScale)", native: ShapeClass.prototype._setScale, comment: JRC.shapeSetScaleComment },
+        { type: "method", signature: "final Shape scale(double factor)", native: ShapeClass.prototype._scale, comment: JRC.shapeScaleComment2 },
+        { type: "method", signature: "final Shape mirrorX()", native: ShapeClass.prototype._mirrorX, comment: JRC.shapeMirrorXComment },
+        { type: "method", signature: "final Shape mirrorY()", native: ShapeClass.prototype._mirrorY, comment: JRC.shapeMirrorYComment },
+        { type: "method", signature: "final Shape defineDirection(double angleInDeg)", native: ShapeClass.prototype._defineDirection, comment: JRC.shapeDefineDirectionComment },
+        { type: "method", signature: "final Shape forward(double distance)", native: ShapeClass.prototype._forward, comment: JRC.shapeForwardComment },
         { type: "method", signature: "final boolean isOutsideView()", native: ShapeClass.prototype._isOutsideView, comment: JRC.shapeOutsideViewComment },
         { type: "method", signature: "final double getCenterX()", native: ShapeClass.prototype._getCenterX, comment: JRC.shapeCenterXComment },
         { type: "method", signature: "final double getCenterY()", native: ShapeClass.prototype._getCenterY, comment: JRC.shapeCenterYComment },
         { type: "method", signature: "final double getAngle()", template: '(§1.angle)', comment: JRC.shapeAngleComment },
-        { type: "method", signature: "final void setAngle(double newAngle)", native: ShapeClass.prototype._setAngle, comment: JRC.shapeSetAngleComment },
+        { type: "method", signature: "final Shape setAngle(double newAngle)", native: ShapeClass.prototype._setAngle, comment: JRC.shapeSetAngleComment },
         { type: "method", signature: "final boolean containsPoint(double x, double y)", native: ShapeClass.prototype._containsPoint, comment: JRC.shapeContainsPointComment },
-        { type: "method", signature: "final void moveTo(double x, double y)", native: ShapeClass.prototype._moveTo, comment: JRC.shapeMoveToComment },
-        { type: "method", signature: "final void defineCenter(double x, double y)", native: ShapeClass.prototype._defineCenter, comment: JRC.shapeDefineCenterComment },
-        { type: "method", signature: "final void defineCenterRelative(double x, double y)", native: ShapeClass.prototype._defineCenterRelative, comment: JRC.shapeDefineCenterRelativeComment },
+        { type: "method", signature: "final Shape moveTo(double x, double y)", native: ShapeClass.prototype._moveTo, comment: JRC.shapeMoveToComment },
+        { type: "method", signature: "final Shape defineCenter(double x, double y)", native: ShapeClass.prototype._defineCenter, comment: JRC.shapeDefineCenterComment },
+        { type: "method", signature: "final Shape defineCenterRelative(double x, double y)", native: ShapeClass.prototype._defineCenterRelative, comment: JRC.shapeDefineCenterRelativeComment },
 
-        { type: "method", signature: "final void tint(int color)", native: ShapeClass.prototype._setTintInt, comment: JRC.shapeTintComment },
-        { type: "method", signature: "final void tint(string color)", native: ShapeClass.prototype._setTintString, comment: JRC.shapeTintComment },
-        { type: "method", signature: "final void tint(Color color)", native: ShapeClass.prototype._setTintColor, comment: JRC.shapeTintComment },
+        { type: "method", signature: "final Shape tint(int color)", native: ShapeClass.prototype._setTintInt, comment: JRC.shapeTintComment },
+        { type: "method", signature: "final Shape tint(string color)", native: ShapeClass.prototype._setTintString, comment: JRC.shapeTintComment },
+        { type: "method", signature: "final Shape tint(Color color)", native: ShapeClass.prototype._setTintColor, comment: JRC.shapeTintComment },
 
         { type: "method", signature: "final Direction directionRelativeTo(Shape otherShape)", native: ShapeClass.prototype._directionRelativeTo, comment: JRC.shapeDirectionRelativeToComment },
-        { type: "method", signature: "final void moveBackFrom(Shape otherShape, boolean keepColliding)", native: ShapeClass.prototype._moveBackFrom, comment: JRC.shapeMoveBackFromComment },
+        { type: "method", signature: "final Shape moveBackFrom(Shape otherShape, boolean keepColliding)", native: ShapeClass.prototype._moveBackFrom, comment: JRC.shapeMoveBackFromComment },
 
         { type: "method", signature: "static void setDefaultVisibility(boolean isVisible)", native: ShapeClass._setDefaultVisibility, comment: JRC.shapeSetDefaultVisibilityComment },
-        { type: "method", signature: "final void setVisible(boolean isVisible)", native: ShapeClass.prototype._setVisible, comment: JRC.shapeSetVisibleComment },
+        { type: "method", signature: "final Shape setVisible(boolean isVisible)", native: ShapeClass.prototype._setVisible, comment: JRC.shapeSetVisibleComment },
         { type: "method", signature: "final boolean isVisible()", template: '§1.container.visible', comment: JRC.shapeSetVisibleComment },
-        { type: "method", signature: "final void setStatic(boolean isStatic)", native: ShapeClass.prototype._setStatic, comment: JRC.shapeSetStaticComment },
-        { type: "method", signature: "final void bringToFront()", native: ShapeClass.prototype._bringToFront, comment: JRC.shapeBringToFrontComment },
-        { type: "method", signature: "final void sendToBack()", native: ShapeClass.prototype._sendToBack, comment: JRC.shapeSendToBackComment },
+        { type: "method", signature: "final Shape setStatic(boolean isStatic)", native: ShapeClass.prototype._setStatic, comment: JRC.shapeSetStaticComment },
+        { type: "method", signature: "final Shape bringToFront()", native: ShapeClass.prototype._bringToFront, comment: JRC.shapeBringToFrontComment },
+        { type: "method", signature: "final Shape sendToBack()", native: ShapeClass.prototype._sendToBack, comment: JRC.shapeSendToBackComment },
 
 
         { type: "method", signature: "final boolean collidesWith(Shape otherShape)", native: ShapeClass.prototype._collidesWith, comment: JRC.shapeCollidesWithComment },
@@ -269,6 +269,8 @@ export class ShapeClass extends ActorClass {
 
         this.setWorldTransformAndHitPolygonDirty();
 
+        return this;
+
     }
 
     _rotate(angleInDeg: number, cX?: number, cY?: number) {
@@ -300,10 +302,13 @@ export class ShapeClass extends ActorClass {
         this.angle += angleInDeg;
         this.directionRad += angleInDeg / 180 * Math.PI;
 
+        return this;
+
     }
 
     _setScale(factor: number){
         this._scale(factor/this.scaleFactor);
+        return this;
     }
 
     _scale(factor: number, cX?: number, cY?: number) {
@@ -335,6 +340,17 @@ export class ShapeClass extends ActorClass {
 
         this.scaleFactor *= factor;
 
+        return this;
+    }
+
+    _mirrorX(){
+        this._mirrorXY(-1, 1);
+        return this;
+    }
+
+    _mirrorY(){
+        this._mirrorXY(1, -1);
+        return this;
     }
 
     _mirrorXY(scaleX: number, scaleY: number) {
@@ -363,10 +379,12 @@ export class ShapeClass extends ActorClass {
         let dx = distance * Math.cos(this.directionRad);
         let dy = -distance * Math.sin(this.directionRad);
         this._move(dx, dy);
+        return this;
     }
 
     _defineDirection(angleInDeg: number) {
         this.directionRad = angleInDeg / 180 * Math.PI;
+        return this;
     }
 
     /**
@@ -511,6 +529,7 @@ export class ShapeClass extends ActorClass {
 
     _moveTo(x: number, y: number) {
         this._move(x - this._getCenterX(), y - this._getCenterY())
+        return this;
     }
 
     _defineCenter(x: number, y: number) {
@@ -518,6 +537,7 @@ export class ShapeClass extends ActorClass {
         this.getWorldTransform().applyInverse(p, p);
         this.centerXInitial = p.x;
         this.centerYInitial = p.y;
+        return this;
     }
 
     _defineCenterRelative(x: number, y: number) {
@@ -528,17 +548,19 @@ export class ShapeClass extends ActorClass {
         bottomRight = this.world.app.stage.localTransform.applyInverse(bottomRight);
 
         this._defineCenter(topLeft.x + (bottomRight.x - topLeft.x) * x, topLeft.y + (bottomRight.y - topLeft.y) * y);
+        return this;
     }
 
     static _setDefaultVisibility(isVisible: boolean) {
         FilledShapeDefaults.setDefaultVisibility(isVisible);
     }
 
-    _setVisible(isVisible: boolean) {
+    _setVisible(isVisible: boolean): ShapeClass {
         this.container.visible = isVisible;
+        return this;
     }
 
-    _setStatic(isStatic: boolean) {
+    _setStatic(isStatic: boolean): ShapeClass {
         let list = this.world.shapesNotAffectedByWorldTransforms;
         if (isStatic) {
             list.push(this);
@@ -548,6 +570,8 @@ export class ShapeClass extends ActorClass {
                 list.splice(index, 1);
             }
         }
+
+        return this;
     }
 
     _mj$onMouseUp$void$double$double$int(t: Thread, callback: CallbackParameter, x: number, y: number, button: number) { }
@@ -786,32 +810,33 @@ export class ShapeClass extends ActorClass {
 
     _setAngle(angle: number) {
         this._rotate(angle - this.angle);
+        return this;
     }
 
-    _bringToFront() {
+    _bringToFront(): ShapeClass {
 
         if (this.belongsToGroup) {
             this.belongsToGroup.setChildIndex(this, this.belongsToGroup.shapes.length - 1);
-            return;
+            return this;
         }
 
         let parentContainer = this.world.app.stage;
         let highestIndex = parentContainer.children.length - 1;
         parentContainer.setChildIndex(this.container, highestIndex);
-        return;
+        return this;
 
     }
 
-    _sendToBack() {
+    _sendToBack(): ShapeClass {
 
         if (this.belongsToGroup) {
             this.belongsToGroup.setChildIndex(this, 0);
-            return;
+            return this;
         }
 
         let parentContainer = this.world.app.stage;
         parentContainer.setChildIndex(this.container, 0);
-        return;
+        return this;
 
     }
 
@@ -819,6 +844,7 @@ export class ShapeClass extends ActorClass {
         if (typeof this.container.tint !== 'undefined') {
             this.container.tint = color % 0x1000000;
         }
+        return this;
     }
 
     _setTintString(color: string) {
@@ -826,6 +852,7 @@ export class ShapeClass extends ActorClass {
         if (typeof this.container.tint !== 'undefined') {
             this.container.tint = c.color!;
         }
+        return this;
     }
 
     _setTintColor(color: ColorClass) {
@@ -834,6 +861,7 @@ export class ShapeClass extends ActorClass {
         } else {
             this.container.tint = color._toInt();
         }
+        return this;
     }
 
     _startTrackingEveryMouseMovement() {
@@ -893,7 +921,7 @@ export class ShapeClass extends ActorClass {
         return ei;
     }
 
-    _moveBackFrom(sh1: ShapeClass, keepColliding: boolean) {
+    _moveBackFrom(sh1: ShapeClass, keepColliding: boolean): ShapeClass {
         if (sh1 == null) throw new RuntimeExceptionClass(JRC.shapeNullError());
         if (sh1.isDestroyed) throw new RuntimeExceptionClass(JRC.shapeAlreadyDestroyedError());
 
@@ -944,6 +972,7 @@ export class ShapeClass extends ActorClass {
 
         this.lastMoveDx = lmdx;
         this.lastMoveDy = lmdy;
+        return this;
     }
 
     _mj$getWorld$World(t: Thread, callback: CallbackParameter) {
