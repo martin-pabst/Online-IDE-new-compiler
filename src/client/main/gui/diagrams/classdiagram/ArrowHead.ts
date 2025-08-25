@@ -23,12 +23,12 @@ export class ArrowHead {
         "realization": {
             steps: [{r: 150, f: 0.4}, {r: 120, f: 0.4}, {r: 120, f: 0.4}],
             stroke: "#000000",
-            fill: "#8080ff",
+            fill: "#ffffff",
             "stroke-dasharray": "4"
         },
         "composition": {
-            steps: [{r: 90 + ArrowHead.rauteAlpha, f: 0.3}, {r: 180 - 2*ArrowHead.rauteAlpha, f: 0.3},
-                 {r: 2*ArrowHead.rauteAlpha, f: 0.3}, {r: 180 - 2*ArrowHead.rauteAlpha, f: 0.3}],
+            steps: [{r: 90 + ArrowHead.rauteAlpha, f: 0.28}, {r: 180 - 2*ArrowHead.rauteAlpha, f: 0.28},
+                 {r: 2*ArrowHead.rauteAlpha, f: 0.28}, {r: 180 - 2*ArrowHead.rauteAlpha, f: 0.28}],
             stroke: "#000000",
             fill: "#ffffff",
             "stroke-dasharray": undefined
@@ -50,6 +50,9 @@ export class ArrowHead {
 
         let ex = dx/d;
         let ey = dy/d;
+
+        position2Cm.x -= ex * 0.2;
+        position2Cm.y -= ey * 0.2;
 
         let path: string = "M " + position2Cm.x * DiagramUnitCm / DiagramArrow.cmPerPx
             + " " + position2Cm.y * DiagramUnitCm / DiagramArrow.cmPerPx;

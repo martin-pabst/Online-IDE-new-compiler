@@ -20,7 +20,7 @@ export class Diagram {
     style: Element;
 
     inlineStyles: { [selector: string]: { [key: string]: string } } = {};
-    marginCm = 1.6;
+    marginCm = 1;
     minDistance = 2.0;
     minWidthHeightCm = 10;
     widthCm = this.minWidthHeightCm;
