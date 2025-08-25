@@ -32,6 +32,7 @@ import { LabelCodeSnippet } from "./LabelManager.ts";
 import { MissingStatementManager } from "./MissingStatementsManager.ts";
 import { OuterClassFieldAccessTracker } from "./OuterClassFieldAccessTracker.ts";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
+import { ThisType } from "../types/ThisType.ts";
 
 export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
@@ -1276,7 +1277,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         parameterValueSnippets = this.castParameterValuesAndPackEllipsis(parameterValueSnippets, method);
-        let returnParameterType = method.returnParameterType || this.voidType;
+        let returnParameterType = method.returnParameterType;
+        if(returnParameterType == ThisType.this()){
+            returnParameterType = objectSnippet.type;
+        }
 
         if (method instanceof GenericMethod) {
             method.checkCatches(node.range);
@@ -1287,8 +1291,6 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         // if(node.identifier == "addBlockSquareWithTiles") debugger;
         // cast parameter values
-
-
 
         if (method.constantFoldingFunction) {
             let allParametersConstant: boolean = !parameterValueSnippets.some(v => !v!.isConstant())

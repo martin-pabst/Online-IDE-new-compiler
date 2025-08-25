@@ -20,6 +20,7 @@ import { LibraryAttributeDeclaration, LibraryMethodDeclaration, LibraryMethodOrA
 import { LibraryKlassType, JavaTypeMap, JavaLibraryModule } from "./JavaLibraryModule";
 import { LdToken, LibraryDeclarationLexer } from "./LibraryDeclarationLexer";
 import { SystemModule } from "../../runtime/system/SystemModule.ts";
+import { ThisType } from "../../types/ThisType.ts";
 
 type ModifiersAndType = {
     visibility: Visibility,
@@ -294,6 +295,9 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
      */
     parseType(module: JavaBaseModule): JavaType {
         let id = this.expectIdentifier();
+
+        if(id == ThisType.identifier) return ThisType.this();
+
         while(this.comesToken(TokenType.dot, true)){
             id += "." + this.expectIdentifier();
         }

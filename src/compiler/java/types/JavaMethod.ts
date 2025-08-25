@@ -17,6 +17,7 @@ import { JavaParameter } from "./JavaParameter";
 import { Visibility } from "./Visibility";
 import { JavaAnnotation } from "./JavaAnnotation.ts";
 import { JavaCompilerStringConstants } from "../JavaCompilerStringConstants.ts";
+import { ThisType } from "./ThisType.ts";
 
 export class JavaMethod extends BaseSymbol {
 
@@ -167,7 +168,11 @@ export class JavaMethod extends BaseSymbol {
         if (this.isConstructor) {
             return this.identifier + "(" + this.parameters.map(p => p.type.identifier).join(", ") + ")";
         } else {
-            return this.returnParameterType?.identifier + " " + this.identifier + "(" + this.parameters.map(p => p.type.identifier).join(", ") + ")";
+            let returnParameterTypeIdentifier = this.returnParameterType?.identifier;
+            if (this.returnParameterType == ThisType.this()) {
+                returnParameterTypeIdentifier = this.classEnumInterface.identifier;
+            }
+            return returnParameterTypeIdentifier + " " + this.identifier + "(" + this.parameters.map(p => p.type.identifier).join(", ") + ")";
         }
     }
 
@@ -183,8 +188,13 @@ export class JavaMethod extends BaseSymbol {
         let decl: string = TokenTypeReadable[this.visibility] + " ";
         if (this.isStatic) decl += "static ";
         if (this.isFinal) decl += "final ";
-        if(!this.isConstructor){
-            decl += this.returnParameterType?.toString() + " ";
+        if (!this.isConstructor) {
+            let returnParameterTypeIdentifier = this.returnParameterType?.toString();
+            if (this.returnParameterType == ThisType.this()) {
+                returnParameterTypeIdentifier = this.classEnumInterface.identifier;
+            }
+
+            decl += returnParameterTypeIdentifier + " ";
         }
         decl += this.identifier;
         return decl + "(" + this.parameters.map(p => p.getDeclaration()).join(", ") + ")";
@@ -235,7 +245,8 @@ export class JavaMethod extends BaseSymbol {
         snippet += this.identifier + "(";
 
         let isVoidReturn = this.returnParameterType == null || this.returnParameterType.identifier == "void";
-        let isVoidReturnDelta = isVoidReturn ? 1 : 0;
+        // let isVoidReturnDelta = isVoidReturn ? 1 : 0;
+        let isVoidReturnDelta = 1;
 
         let parameters = this.parameters;
         for (let i = 0; i < parameters.length; i++) {
@@ -252,7 +263,9 @@ export class JavaMethod extends BaseSymbol {
         snippet += ")";
 
         if (this.returnParameterType == null || this.returnParameterType.identifier == "void") {
-            snippet += ";$0";
+            snippet += ";\n\t$0";
+        } else {
+            snippet += "$0";
         }
 
         return snippet;
