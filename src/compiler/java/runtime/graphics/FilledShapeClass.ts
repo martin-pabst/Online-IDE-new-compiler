@@ -8,7 +8,6 @@ import { FilledShapeDefaults } from './FilledShapeDefaults';
 import { ColorClass } from './ColorClass';
 import { ColorHelper } from '../../lexer/ColorHelper';
 import { JRC } from '../../language/JavaRuntimeLibraryComments';
-import { NullPointerExceptionClass } from '../system/javalang/NullPointerExceptionClass';
 import { polygonzugEnthältPunkt } from '../../../../tools/MatheTools.ts';
 
 export class FilledShapeClass extends ShapeClass {
