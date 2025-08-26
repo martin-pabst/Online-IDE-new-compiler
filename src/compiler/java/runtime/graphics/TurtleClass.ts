@@ -27,7 +27,7 @@ export class TurtleClass extends FilledShapeClass {
         { type: "method", signature: "Turtle()", java: TurtleClass.prototype._cj$_constructor_$Turtle$, comment: JRC.TurtleEmptyConstructorComment },
         { type: "method", signature: "Turtle(double x, double y)", java: TurtleClass.prototype._cj$_constructor_$Turtle$double$double, comment: JRC.TurtleConstructorComment1 },
         { type: "method", signature: "Turtle(double x, double y, boolean showTurtle)", java: TurtleClass.prototype._cj$_constructor_$Turtle$double$double, comment: JRC.TurtleConstructorComment2 },
-        { type: "method", signature: "final void forward(double length)", native: TurtleClass.prototype._forward, comment: JRC.TurtleForwardComment },
+        { type: "method", signature: "final Turtle forward(double length)", native: TurtleClass.prototype._forward, comment: JRC.TurtleForwardComment },
         { type: "method", signature: "final void turn(double angleInDeg)", native: TurtleClass.prototype._turn, comment: JRC.TurtleTurnComment },
         { type: "method", signature: "final void penUp()", template: `§1.penIsDown = false;`, comment: JRC.TurtlePenUpComment },
         { type: "method", signature: "final void penDown()", template: `§1.penIsDown = true;`, comment: JRC.TurtlePenDownComment },
@@ -40,7 +40,7 @@ export class TurtleClass extends FilledShapeClass {
         { type: "method", signature: "final double getLastSegmentLength()", native: TurtleClass.prototype._getLastSegmentLength, comment: JRC.TurtleGetLastSegmentLengthComment },
         { type: "method", signature: "final double getX()", template: `§1.getPosition().x`, comment: JRC.TurtleGetXComment },
         { type: "method", signature: "final double getY()", template: `§1.getPosition().y`, comment: JRC.TurtleGetYComment },
-        { type: "method", signature: "final void moveTo(double x, double y)", native: TurtleClass.prototype._moveTo, comment: JRC.TurtleMoveToComment },
+        { type: "method", signature: "final Turtle moveTo(double x, double y)", native: TurtleClass.prototype._moveTo, comment: JRC.TurtleMoveToComment },
         
         { type: "method", signature: "final double getTurtleAngle()", native: TurtleClass.prototype._getTurtleAngleDeg, comment: JRC.TurtleGetTurtleAngleComment },
 
@@ -162,6 +162,7 @@ export class TurtleClass extends FilledShapeClass {
 
     _setAngle(angleDeg: number) {
         this._turn(angleDeg + this.turtleAngleDeg)
+        return this;
     }
 
     newTurtleX!: number;
@@ -219,7 +220,7 @@ export class TurtleClass extends FilledShapeClass {
                 this.moveTurtleTo(this.newTurtleX, this.newTurtleY, this.turtleAngleDeg);
             }, 100);
         }
-
+        return this;
     }
 
     _moveTo(x: number, y: number) {
@@ -237,6 +238,7 @@ export class TurtleClass extends FilledShapeClass {
         this.initialHitPolygonDirty = true;
         this.calculateCenter();
         this.moveTurtleTo(newLineElement.x, newLineElement.y, this.turtleAngleDeg);
+        return this;
     }
 
 

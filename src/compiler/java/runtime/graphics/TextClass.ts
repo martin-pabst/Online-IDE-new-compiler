@@ -31,7 +31,7 @@ export class TextClass extends FilledShapeClass {
         { type: "method", signature: "double getWidth()", native: TextClass.prototype._getWidth, comment: JRC.TextGetWidthComment },
         { type: "method", signature: "double getHeight()", native: TextClass.prototype._getHeight, comment: JRC.TextGetHeightComment },
 
-        { type: "method", signature: "final void moveTo(double x, double y)", native: TextClass.prototype._moveTo, comment: JRC.TextMoveToComment },
+        { type: "method", signature: "final Text moveTo(double x, double y)", native: TextClass.prototype._moveTo, comment: JRC.TextMoveToComment },
 
 
         { type: "method", signature: "final Text copy()", java: TextClass.prototype._mj$copy$Text$, comment: JRC.TextCopyComment },
@@ -203,6 +203,7 @@ export class TextClass extends FilledShapeClass {
         this.getWorldTransform();
         this.container.localTransform.apply(p, p);
         this._move(newX - p.x, newY - p.y);
+        return this;
     }
 
     _setFontsize(fontsize: number) {

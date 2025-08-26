@@ -24,7 +24,7 @@ export class RoundedRectangleClass extends FilledShapeClass {
         { type: "method", signature: "final double getWidth()", template: '(§1.width*§1.scaleFactor)', comment: JRC.RoundedRectangleGetWidthComment },
         { type: "method", signature: "final double getHeight()", template: '(§1.height*§1.scaleFactor)', comment: JRC.RoundedRectangleGetHeightComment },
         { type: "method", signature: "final RoundedRectangle copy()", java: RoundedRectangleClass.prototype._mj$copy$RoundedRectangle$, comment: JRC.RoundedRectangleCopyComment },
-        { type: "method", signature: "final void moveTo(double x, double y)", native: RoundedRectangleClass.prototype._moveTo, comment: JRC.RoundedRectangleMoveToComment },
+        { type: "method", signature: "final RoundedRectangle moveTo(double x, double y)", native: RoundedRectangleClass.prototype._moveTo, comment: JRC.RoundedRectangleMoveToComment },
 
         { type: "method", signature: "String toString()", java: RoundedRectangleClass.prototype._mj$toString$String$ , comment: JRC.objectToStringComment},
 
@@ -157,6 +157,7 @@ export class RoundedRectangleClass extends FilledShapeClass {
 
         this._move(x - this.hitPolygonTransformed[0].x, y - this.hitPolygonTransformed[0].y);
 
+        return this;
     }
 
     _mj$toString$String$(t: Thread, callback: CallbackParameter) {

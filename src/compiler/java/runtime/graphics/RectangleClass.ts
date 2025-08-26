@@ -22,7 +22,7 @@ export class RectangleClass extends FilledShapeClass {
         { type: "method", signature: "final double getWidth()", template: '(§1.width*§1.scaleFactor)', comment: JRC.rectangleGetWidthComment },
         { type: "method", signature: "final double getHeight()", template: '(§1.height*§1.scaleFactor)', comment: JRC.rectangleGetHeightComment },
         { type: "method", signature: "final Rectangle copy()", java: RectangleClass.prototype._mj$copy$Rectangle$, comment: JRC.rectangleCopyComment },
-        { type: "method", signature: "final void moveTo(double x, double y)", native: RectangleClass.prototype._moveTo, comment: JRC.rectangleMoveToComment },
+        { type: "method", signature: "final Rectangle moveTo(double x, double y)", native: RectangleClass.prototype._moveTo, comment: JRC.rectangleMoveToComment },
 
         { type: "method", signature: "String toString()", java: RectangleClass.prototype._mj$toString$String$ , comment: JRC.objectToStringComment},
 
@@ -149,7 +149,7 @@ export class RectangleClass extends FilledShapeClass {
         this.transformHitPolygon();
 
         this._move(x - this.hitPolygonTransformed[0].x, y - this.hitPolygonTransformed[0].y);
-
+        return this;
     }
 
     _mj$toString$String$(t: Thread, callback: CallbackParameter) {
