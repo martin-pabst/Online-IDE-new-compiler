@@ -349,7 +349,7 @@ export class TeacherExplorerMessages {
     
     static tests = () => lm({
         'de': 'Prüfungen',
-        'en': 'Tests'
+        'en': 'tests'
     });
     
     static createNewTest = () => lm({

@@ -113,7 +113,7 @@ export class Login {
         jQuery('#bitteWarten').css('display', 'flex');
         
         if (this.main.workspacesOwnerId != this.main.user.id) {
-            this.main.projectExplorer.onHomeButtonClicked();
+            this.main.teacherExplorer.onHomeButtonClicked();
         }
         
         this.main.networkManager.sendUpdatesAsync().then(() => {

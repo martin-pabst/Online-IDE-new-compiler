@@ -103,7 +103,8 @@ export class Treeview<E, K> {
     private captionLineDiv!: HTMLDivElement;
     private captionLineExpandCollapseDiv!: HTMLDivElement;
     private captionLineTextDiv!: HTMLDivElement;
-    private captionLineButtonsDiv!: HTMLDivElement;
+    private captionLineButtonsLeftDiv!: HTMLDivElement;
+    private captionLineButtonsRightDiv!: HTMLDivElement;
 
     public addElementsButton?: IconButtonComponent;
     public addFolderButton?: IconButtonComponent;
@@ -318,8 +319,9 @@ export class Treeview<E, K> {
     buildCaption() {
         this.captionLineDiv = DOM.makeDiv(this._outerDiv, 'jo_treeview_caption');
         this.captionLineExpandCollapseDiv = DOM.makeDiv(this.captionLineDiv, 'jo_treevew_caption_expandcollapse')
+        this.captionLineButtonsLeftDiv = DOM.makeDiv(this.captionLineDiv, 'jo_treeview_caption_buttons')
         this.captionLineTextDiv = DOM.makeDiv(this.captionLineDiv, 'jo_treeview_caption_text')
-        this.captionLineButtonsDiv = DOM.makeDiv(this.captionLineDiv, 'jo_treeview_caption_buttons')
+        this.captionLineButtonsRightDiv = DOM.makeDiv(this.captionLineDiv, 'jo_treeview_caption_buttons')
         this.captionLineDiv.style.display = this.config.captionLine.enabled ? "flex" : "none";
         this.captionLineTextDiv.textContent = this.config.captionLine.text || "";
         if (this.config.captionLine.element) {
@@ -339,20 +341,20 @@ export class Treeview<E, K> {
         }, "expanded")
 
         if (this.config.buttonAddFolders) {
-            this.addFolderButton = this.captionLineAddIconButton("img_add-folder-dark", () => {
+            this.addFolderButton = this.captionLineAddIconButton("img_add-folder-dark", "right", () => {
                 this.addNewNode(true);
             }, TreeviewMessages.addFolder());
         }
 
         if (this.config.buttonAddElements) {
             this.addElementsButton =
-                this.captionLineAddIconButton("img_add-dark", () => {
+                this.captionLineAddIconButton("img_add-dark", "right", () => {
                     this.addNewNode(false);
                 }, this.config.buttonAddElementsCaption);
         }
 
         if (this.config.buttonAddFolders && this.config.buttonCollapseAll) {
-            this.captionLineAddIconButton("img_collapse-all-dark", () => {
+            this.captionLineAddIconButton("img_collapse-all-dark", "left", () => {
                 this.collapseAllButRootnode();
             }, TreeviewMessages.collapseAll())
         }
@@ -392,12 +394,24 @@ export class Treeview<E, K> {
 
     }
 
-    captionLineAddIconButton(iconClass: string, callback: () => void, tooltip?: string): IconButtonComponent {
-        return new IconButtonComponent(this.captionLineButtonsDiv, iconClass, callback, tooltip);
+    captionLineAddIconButton(iconClass: string, where: "left" | "right", callback: () => void, tooltip?: string): IconButtonComponent {
+        switch (where) {
+            case "left":
+                return new IconButtonComponent(this.captionLineButtonsLeftDiv, iconClass, callback, tooltip);
+            case "right":
+                return new IconButtonComponent(this.captionLineButtonsRightDiv, iconClass, callback, tooltip);
+        }
     }
 
-    captionLineAddElementToButtonDiv(element: HTMLElement) {
-        this.captionLineButtonsDiv.prepend(element);
+    captionLineAddElementToButtonDiv(element: HTMLElement, where: "left" | "right") {
+        switch (where) {
+            case "left":
+                this.captionLineButtonsLeftDiv.prepend(element);
+                break;
+            case "right":
+                this.captionLineButtonsRightDiv.prepend(element);
+                break;
+        }
     }
 
     setCaption(text: string) {

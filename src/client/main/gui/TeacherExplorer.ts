@@ -6,8 +6,9 @@ import { GUIToggleButton } from "../../../tools/components/GUIToggleButton.js";
 import jQuery from "jquery";
 import { PushClientManager } from "../../communication/pushclient/PushClientManager.js";
 import * as monaco from 'monaco-editor'
-import { TeacherExplorerMessages } from "./language/GUILanguage.js";
+import { ProjectExplorerMessages, TeacherExplorerMessages } from "./language/GUILanguage.js";
 import { Treeview } from "../../../tools/components/treeview/Treeview.js";
+import { IconButtonComponent } from "../../../tools/components/IconButtonComponent.js";
 
 
 export class TeacherExplorer {
@@ -24,6 +25,9 @@ export class TeacherExplorer {
     classPanelMode: "classes" | "tests" = "classes";
 
     currentPruefung: Pruefung = null;
+
+    homeButton: IconButtonComponent;
+
 
 
     constructor(private main: Main, public classData: ClassData[]) {
@@ -51,6 +55,14 @@ export class TeacherExplorer {
                 this.renderPruefungen();
             }
         });
+
+        this.homeButton = this.studentPanel.captionLineAddIconButton(
+            "img_home-dark", "right", () => {
+                this.onHomeButtonClicked();
+            }, ProjectExplorerMessages.displayOwnWorkspaces()
+        )
+
+        this.homeButton.setVisible(false);
 
     }
 
@@ -145,9 +157,10 @@ export class TeacherExplorer {
 
         })
 
-        let buttonPruefungAdministration = this.classPanel.captionLineAddIconButton("img_gear-dark", () => {
-            window.open(`administration_mc.html?csrfToken=${csrfToken}`, '_blank').focus();
-        }, TeacherExplorerMessages.createNewTest());
+        let buttonPruefungAdministration = this.classPanel.captionLineAddIconButton("img_gear-dark", "right",
+            () => {
+                window.open(`administration_mc.html?csrfToken=${csrfToken}`, '_blank').focus();
+            }, TeacherExplorerMessages.createNewTest());
 
         buttonPruefungAdministration.setVisible(false);
 
@@ -185,7 +198,7 @@ export class TeacherExplorer {
                     }
                 } else {
                     this.renderClasses(this.classData);
-                    this.main.projectExplorer.onHomeButtonClicked();
+                    this.onHomeButtonClicked();
                 }
             })
         })
@@ -269,7 +282,7 @@ export class TeacherExplorer {
         let klasse = this.classData.find(c => c.id == p.klasse_id);
         if (klasse != null) {
             node.renderCaptionAsHtml = true;
-            node.caption =  `<span class="joe_pruefung_klasse" style="margin: 0 4px">${klasse.name}</span>`;
+            node.caption = `<span class="joe_pruefung_klasse" style="margin: 0 4px">${klasse.name}</span>`;
         }
 
         node.iconClass = "img_test-state-" + p.state;
@@ -281,6 +294,21 @@ export class TeacherExplorer {
         let response = await ajaxAsync("/servlet/getPruefungenForLehrkraft", {})
         this.pruefungen = response.pruefungen;
 
+    }
+
+    onHomeButtonClicked() {
+        let projectExplorer = this.main.projectExplorer;
+        this.main.networkManager.sendUpdatesAsync();
+
+        this.main.bottomDiv.hideHomeworkTab();
+
+        projectExplorer.workspaceTreeview.addElementsButton.setVisible(true);
+        projectExplorer.workspaceTreeview.addFolderButton.setVisible(true);
+        this.homeButton.setVisible(false);
+        projectExplorer.fileTreeview.addElementsButton.setVisible(this.main.workspaceList.length > 0);
+
+        this.main.teacherExplorer.restoreOwnWorkspaces();
+        this.main.networkManager.updateFrequencyInSeconds = this.main.networkManager.ownUpdateFrequencyInSeconds;
     }
 
 

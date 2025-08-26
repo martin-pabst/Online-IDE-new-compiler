@@ -34,7 +34,6 @@ export class ProjectExplorer {
     fileTreeview: Treeview<GUIFile, number>;
     workspaceTreeview: Treeview<Workspace, number>;
 
-    homeButton: IconButtonComponent;
     synchronizedButton: IconButtonComponent;
 
     constructor(private main: Main, private $projectexplorerDiv: JQuery<HTMLElement>) {
@@ -218,7 +217,7 @@ export class ProjectExplorer {
                 this.setFileActive(file);
             }
 
-        this.synchronizedButton = this.fileTreeview.captionLineAddIconButton("img_open-change-dark",
+        this.synchronizedButton = this.fileTreeview.captionLineAddIconButton("img_open-change-dark", "right",
             () => {
                 this.main.getCurrentWorkspace().synchronizeWithRepository();
             },
@@ -352,14 +351,6 @@ export class ProjectExplorer {
                 this.moveOrCopyFilesToOtherWorkspaces(this.fileTreeview.getOrderedListOfCurrentlySelectedNodes(), destinationNode, dragKind);
             }
         }
-
-        this.homeButton = this.workspaceTreeview.captionLineAddIconButton(
-            "img_home-dark", () => {
-                this.onHomeButtonClicked();
-            }, ProjectExplorerMessages.displayOwnWorkspaces()
-        )
-
-        this.homeButton.setVisible(false);
 
         this.workspaceTreeview.contextMenuProvider =
             (workspace, node) => {
@@ -574,19 +565,6 @@ export class ProjectExplorer {
     }
 
 
-    onHomeButtonClicked() {
-        this.main.networkManager.sendUpdatesAsync();
-
-        this.main.bottomDiv.hideHomeworkTab();
-
-        this.workspaceTreeview.addElementsButton.setVisible(true);
-        this.workspaceTreeview.addFolderButton.setVisible(true);
-        this.homeButton.setVisible(false);
-        this.fileTreeview.addElementsButton.setVisible(this.main.workspaceList.length > 0);
-
-        this.main.teacherExplorer.restoreOwnWorkspaces();
-        this.main.networkManager.updateFrequencyInSeconds = this.main.networkManager.ownUpdateFrequencyInSeconds;
-    }
 
     renderFiles(workspace: Workspace) {
 
@@ -846,7 +824,7 @@ export class ProjectExplorer {
 
             if (ae.id != this.main.user.id) {
                 this.main.projectExplorer.setExplorerColor("rgba(255, 0, 0, 0.2", ae.familienname + ", " + ae.rufname);
-                this.main.projectExplorer.homeButton.setVisible(true);
+                this.main.teacherExplorer.homeButton.setVisible(true);
                 Helper.showHelper("homeButtonHelper", this.main);
                 this.main.networkManager.updateFrequencyInSeconds = this.main.networkManager.teacherUpdateFrequencyInSeconds;
                 this.main.networkManager.secondsTillNextUpdate = this.main.networkManager.teacherUpdateFrequencyInSeconds;

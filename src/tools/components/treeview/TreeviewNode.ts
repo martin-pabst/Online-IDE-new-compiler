@@ -784,10 +784,10 @@ export class TreeviewNode<E, K> {
         if (this.isRootNode()) {
             this.childrenLineDiv.style.marginLeft = "0";
         } else {
-            let depth = this.getDepth() + 1;
-            this.childrenLineDiv.style.marginLeft = (5 + depth * 7) + "px";
+            let depth = this.getDepth();
+            this.childrenLineDiv.style.marginLeft = (2 + depth * 7) + "px";
 
-            this.marginLeftDiv.style.width = (2 + depth * 7) + "px";
+            this.marginLeftDiv.style.width = (-1 + depth * 7) + "px";
         }
     }
 
