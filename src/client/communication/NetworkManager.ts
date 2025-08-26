@@ -331,7 +331,7 @@ export class NetworkManager {
 
     }
 
-    async sendDeleteWorkspaceOrFileAsync(type: "workspace" | "file", id: number): Promise<boolean> {
+    async sendDeleteWorkspaceOrFileAsync(type: "workspace" | "file", ids: number[]): Promise<boolean> {
 
         if (this.main.user.is_testuser) {
             return true;
@@ -340,7 +340,7 @@ export class NetworkManager {
         let request: CreateOrDeleteFileOrWorkspaceRequest = {
             type: "delete",
             entity: type,
-            id: id,
+            ids: ids,
             userId: this.main.user.id
         }
 
@@ -416,7 +416,7 @@ export class NetworkManager {
                     idToFileMap.set(fileId, file);
                     let remoteFileData = idToRemoteFileDataMap.get(fileId);
                     if (remoteFileData == null) {
-                        this.main.projectExplorer.fileTreeview.removeElement(file);
+                        this.main.projectExplorer.fileTreeview.removeElementAndItsFolderContents(file);
                         this.main.getCurrentWorkspace()?.removeFile(file);
                     } else {
                         if (fileIdsSended.indexOf(fileId) < 0 && file.getText() != remoteFileData.text) {

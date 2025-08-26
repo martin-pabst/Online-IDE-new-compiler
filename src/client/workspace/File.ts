@@ -177,4 +177,14 @@ export class GUIFile extends CompilerFile {
         return typeof this.monacoModel !== "undefined";
     }
 
+    getFolderContentsRecursively(allFiles: GUIFile[]): GUIFile[] {
+        let ret: GUIFile[] = allFiles.filter(f => f.parent_folder_id == this.id);
+        for(let file of ret.slice()){
+            if(file.isFolder){
+                ret = ret.concat(file.getFolderContentsRecursively(allFiles));
+            }
+        }
+        return ret;
+    }
+
 }

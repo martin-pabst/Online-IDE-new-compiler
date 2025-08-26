@@ -252,7 +252,7 @@ export type CreateOrDeleteFileOrWorkspaceRequest = {
     entity: "workspace" | "file",
     type: "create" | "delete",
     data?: WorkspaceData | FileData, // in case of create
-    id?: number, // in case of delete
+    ids?: number[], // in case of delete
     owner_id?: number, // in case of create
     userId: number
 }

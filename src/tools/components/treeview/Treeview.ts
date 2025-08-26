@@ -382,7 +382,7 @@ export class Treeview<E, K> {
                 let externalObject = await this.newNodeCallback(newContent, node);
                 if (externalObject == null) {
                     // cancel!
-                    this.removeNode(node);
+                    this.removeNodeAndItsFolderContents(node);
                 } else {
                     node.externalObject = externalObject;
                     this.selectNodeAndSetFocus(node, false);
@@ -563,15 +563,22 @@ export class Treeview<E, K> {
         }
     }
 
-    removeNode(node: TreeviewNode<E, K>) {
+    removeNodeAndItsFolderContents(node: TreeviewNode<E, K>) {
+
+        if(node.isFolder){
+            for(let childNode of node.getChildren()){
+                this.removeNodeAndItsFolderContents(childNode);
+            }
+        }
+
         let index = this.nodes.indexOf(node);
         if (index >= 0) this.nodes.splice(index, 1);
         node.destroy(false);
     }
 
-    removeElement(element: E) {
+    removeElementAndItsFolderContents(element: E) {
         let node = this.findNodeByElement(element);
-        if (node) this.removeNode(node);
+        if (node) this.removeNodeAndItsFolderContents(node);
     }
 
     findNodeByElement(element: E) {
@@ -720,5 +727,9 @@ export class Treeview<E, K> {
         for (let node of this.nodes.filter(node => !node.isRootNode())) {
             node.expandCollapseComponent.setState("collapsed");
         }
+    }
+
+    getAllExternalObjects(): E[]{
+        return this.nodes.filter(node => !node.isRootNode() && node.externalObject).map(node => node.externalObject);
     }
 }

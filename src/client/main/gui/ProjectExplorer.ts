@@ -106,7 +106,7 @@ export class ProjectExplorer {
 
             let success = await this.main.networkManager.sendCreateFile(file, this.main.currentWorkspace, this.main.workspacesOwnerId);
             if (!success) {
-                this.fileTreeview.removeNode(node);
+                this.fileTreeview.removeNodeAndItsFolderContents(node);
                 this.setFileActive(null);
                 return null;
             }
@@ -134,10 +134,24 @@ export class ProjectExplorer {
         }
 
         this.fileTreeview.deleteCallback = async (file, node) => {
-            let success = await this.main.networkManager.sendDeleteWorkspaceOrFileAsync("file", file.id);
+
+            let filesToDelete: GUIFile[] = [file];
+            if(file.isFolder){
+                filesToDelete = filesToDelete.concat(file.getFolderContentsRecursively(this.fileTreeview.getAllExternalObjects()));
+                if(filesToDelete.length > 1){
+                    if(!confirm(ProjectExplorerMessages.confirmDeleteFileFolderRecursively(filesToDelete.length)))
+                    return false;
+                }        
+            }
+
+
+            let success = await this.main.networkManager.sendDeleteWorkspaceOrFileAsync("file", filesToDelete.map(f => f.id));
 
             if (success) {
-                this.main.getCurrentWorkspace().removeFile(file);
+                for(let f of filesToDelete){
+                    this.main.getCurrentWorkspace().removeFile(f);
+                }
+
                 this.main.getCompiler()?.triggerCompile();
 
                 if (node.hasFocus) {
@@ -322,11 +336,24 @@ export class ProjectExplorer {
         }
 
         this.workspaceTreeview.deleteCallback = async (workspace) => {
+
+            let workspacesToDelete: Workspace[] = [workspace];
+            if(workspace.isFolder){
+                workspacesToDelete = workspacesToDelete.concat(workspace.getFolderContentsRecursively(this.workspaceTreeview.getAllExternalObjects()));
+                if(workspacesToDelete.length > 1){
+                    if(!confirm(ProjectExplorerMessages.confirmDeleteWorkspaceFolderRecursively(workspacesToDelete.length)))
+                    return false;
+                }        
+            }
+
             let success = await this.main.networkManager
-                .sendDeleteWorkspaceOrFileAsync("workspace", workspace.id);
+                .sendDeleteWorkspaceOrFileAsync("workspace", workspacesToDelete.map(w => w.id));
             if (success) {
+                for(let ws of workspacesToDelete){
+                    this.main.removeWorkspace(ws);
+                }
+
                 this.fileTreeview.addElementsButton.setVisible(false);
-                this.main.removeWorkspace(workspace);
                 this.fileTreeview.clear();
                 this.main.getMainEditor().setModel(null);
                 this.fileTreeview.setCaption(ProjectExplorerMessages.selectWorkspace());
@@ -515,7 +542,7 @@ export class ProjectExplorer {
                     if (success) {
                         sourceWorkspace.removeFile(file);
                         destinationWorkspace.addFile(file);
-                        this.fileTreeview.removeNode(fileNode);
+                        this.fileTreeview.removeNodeAndItsFolderContents(fileNode);
                     }
                 }
                 break;

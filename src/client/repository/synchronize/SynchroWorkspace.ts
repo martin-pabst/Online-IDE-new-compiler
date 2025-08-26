@@ -316,13 +316,13 @@ export class SynchroWorkspace {
                 file.name = synchroFile.name;
             } else {
 
-                main.networkManager.sendDeleteWorkspaceOrFileAsync("file", file.id).then((success: boolean) => {
+                main.networkManager.sendDeleteWorkspaceOrFileAsync("file", [file.id]).then((success: boolean) => {
                     if (!success) alert(SynchroWorkspaceMessages.serverNotReachable());
                 })
 
                 this.files.splice(this.files.indexOf(synchroFile), 1);
                 workspace.removeFile(file);
-                main.projectExplorer.fileTreeview.removeElement(file);
+                main.projectExplorer.fileTreeview.removeElementAndItsFolderContents(file);
                 if (main.currentWorkspace == workspace && main.getCurrentWorkspace()?.getCurrentlyEditedFile() == file) {
                     main.projectExplorer.setFileActive(null);
                 }

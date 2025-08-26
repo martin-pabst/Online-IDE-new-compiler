@@ -121,7 +121,7 @@ export class EmbeddedFileExplorer {
     }
 
     removeFile(file: GUIFile, focusFirstFileSubsequently: boolean = true) {
-        this.treeview.removeElement(file);
+        this.treeview.removeElementAndItsFolderContents(file);
         this.selectFirstFileIfPresent();
         this.treeview.nodes.forEach(node => node.externalObject?.setSaved(false));
     }

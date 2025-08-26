@@ -273,6 +273,15 @@ export class Workspace extends CompilerWorkspace {
         this.getFiles().forEach(file => file.getMonacoModel());
     }
 
+    getFolderContentsRecursively(allWorkspaces: Workspace[]): Workspace[] {
+        let ret: Workspace[] = allWorkspaces.filter(w => w.parent_folder_id == this.id);
+        for (let workspace of ret.slice()) {
+            if (workspace.isFolder) {
+                ret = ret.concat(workspace.getFolderContentsRecursively(allWorkspaces));
+            }
+        }
+        return ret;
+    }
 
 }
 
