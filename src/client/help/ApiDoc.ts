@@ -184,6 +184,7 @@ export class ApiDoc {
         }
 
         methods.sort((a, b) => a.identifier.localeCompare(b.identifier));
+        methods = methods.slice();
 
         if(methods.length == 0){
             $mainBody.append(jQuery(`<div class="jo_method">${HelpMessages.apiDocNone()}</div>`));
@@ -191,7 +192,7 @@ export class ApiDoc {
             for(let method of methods){
                 let $caption = jQuery(jQuery('<div class="jo_method"></div>'));
                 $mainBody.append($caption);
-                monaco.editor.colorize(method.getDeclaration(), "myJava", {}).then(
+                monaco.editor.colorize(method.getDeclaration(t.identifier), "myJava", {}).then(
                     (html) => {$caption.append(jQuery(html))}
                 );
 

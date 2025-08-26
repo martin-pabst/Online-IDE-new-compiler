@@ -184,14 +184,14 @@ export class JavaMethod extends BaseSymbol {
         }
     }
 
-    getDeclaration(): string {
+    getDeclaration(thisClass?: string): string {
         let decl: string = TokenTypeReadable[this.visibility] + " ";
         if (this.isStatic) decl += "static ";
         if (this.isFinal) decl += "final ";
         if (!this.isConstructor) {
             let returnParameterTypeIdentifier = this.returnParameterType?.toString();
             if (this.returnParameterType == ThisType.this()) {
-                returnParameterTypeIdentifier = this.classEnumInterface.identifier;
+                returnParameterTypeIdentifier = thisClass || this.classEnumInterface.identifier;
             }
 
             decl += returnParameterTypeIdentifier + " ";
