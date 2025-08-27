@@ -112,7 +112,7 @@ export class ClassDiagram extends Diagram {
                         this.svgElement.style.transformOrigin = "top left";
                         this.svgElement.style.transform="scale(" + (factor * 100) + "%)";
                         var serializer = new XMLSerializer();
-                        var head = '<svg title="graph" version="1.1" xmlns="http://www.w3.org/2000/svg">';
+                        var head = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n<svg title="graph" version="1.1" xmlns="http://www.w3.org/2000/svg">';
                         var source = head + serializer.serializeToString(this.svgElement) + "</svg>";
                         
                         this.currentClassBoxes.active.forEach(cb => cb.$dropdownTriangle.hide());
