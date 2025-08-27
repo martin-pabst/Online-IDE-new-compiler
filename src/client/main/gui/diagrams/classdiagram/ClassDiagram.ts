@@ -15,6 +15,7 @@ import RouterWorker from './Router?worker';
 
 import "/assets/css/diagram.css";
 import { ajaxAsync, csrfToken } from '../../../../communication/AjaxHelper.js';
+import { Settings } from '../../../../settings/Settings.js';
 
 
 type ClassBoxes = {
@@ -108,13 +109,13 @@ export class ClassDiagram extends Diagram {
                         let factor = 5;
 
                         this.currentClassBoxes.active.forEach(cb => cb.$dropdownTriangle.hide());
-                        
+
                         this.svgElement.style.transformOrigin = "top left";
-                        this.svgElement.style.transform="scale(" + (factor * 100) + "%)";
+                        this.svgElement.style.transform = "scale(" + (factor * 100) + "%)";
                         var serializer = new XMLSerializer();
                         var head = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n<svg title="graph" version="1.1" xmlns="http://www.w3.org/2000/svg">';
                         var source = head + serializer.serializeToString(this.svgElement) + "</svg>";
-                        
+
                         this.currentClassBoxes.active.forEach(cb => cb.$dropdownTriangle.hide());
 
                         this.svgElement.style.transformOrigin = "";
@@ -123,16 +124,23 @@ export class ClassDiagram extends Diagram {
                         await ajaxAsync('servlet/svgPost', { svg: source });
                         var image = new Image();
                         let that = this;
-                        image.onload = function(){
+                        image.onload = function () {
                             let canvas = document.createElement("canvas");
                             let rect = that.svgElement.parentElement.getBoundingClientRect();
-                            let width = rect.width/that.zoomfactor*factor;
-                            let height = rect.height/that.zoomfactor*factor;
+                            let width = rect.width / that.zoomfactor * factor;
+                            let height = rect.height / that.zoomfactor * factor;
                             canvas.width = width;
                             canvas.height = height;
                             let context = canvas.getContext("2d");
-                            context.fillStyle = "#ffffff";
-                            context.fillRect(0, 0, width, height);
+                            switch (main.getSettings().getValue("classDiagram.background")) {
+                                case "transparent":
+                                    context.clearRect(0, 0, width, height);
+                                    break;
+                                case "white":
+                                    context.fillStyle = "#ffffff";
+                                    context.fillRect(0, 0, width, height);
+                                    break;
+                            }
                             context.drawImage(image, 0, 0, width, height);
 
                             //Create blob and save if with FileSaver.js

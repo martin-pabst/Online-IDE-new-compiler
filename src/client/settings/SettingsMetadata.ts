@@ -10,7 +10,7 @@ export type SettingKey = "editor.hoverVerbosity.showHelpOnKeywordsAndOperators" 
     "editor.hoverVerbosity.showMethodDeclaration" |
     "editor.hoverVerbosity.showClassDeclaration" |
     "editor.autoClosingBrackets" |
-    "classDiagram.typeConvention";
+    "classDiagram.typeConvention" | "classDiagram.background";
 
 export type SettingValue = string | number | boolean | undefined;
 export type SettingValues = Partial<Record<SettingKey, SettingValue>>;
@@ -138,7 +138,20 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                 action: (main, value) => {
                     main.drawClassDiagrams(false);  
                 }
-            }
+            },
+            {
+                key: "classDiagram.background",
+                settingType: 'setting',
+                name: SettingsMessages.ClassDiagramBackground,
+                description: SettingsMessages.ClassDiagramBackgroundDescription,
+                type: 'enumeration',
+                optionValues: ["transparent", "white"],
+                optionTexts: [
+                    SettingsMessages.ClassDiagramBackgroundTransparent,
+                    SettingsMessages.ClassDiagramBackgroundWhite
+                ],
+                defaultValue: "transparent"
+            },
         ]
     }
 

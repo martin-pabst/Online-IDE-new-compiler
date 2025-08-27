@@ -26,7 +26,7 @@ export class Diagram {
     widthCm = this.minWidthHeightCm;
     heightCm = this.minWidthHeightCm;
 
-    $centerRectangle: JQuery<SVGElement>;
+    // $centerRectangle: JQuery<SVGElement>;
 
     constructor($htmlElement: JQuery<HTMLElement>, public main: MainBase){
 
@@ -56,10 +56,10 @@ export class Diagram {
 
         this.$canvas[0].appendChild(this.svgElement);
 
-        this.$centerRectangle = <any>jQuery(this.createElement("rect", this.svgElement));
-        this.$centerRectangle.addClass('centerRectangle');
+        // this.$centerRectangle = <any>jQuery(this.createElement("rect", this.svgElement));
+        // this.$centerRectangle.addClass('centerRectangle');
 
-        this.$centerRectangle.css({fill: "#ffffff", "stroke": "none"});
+        // this.$centerRectangle.css({fill: "#ffffff", "stroke": "none"});
 
         this.adjustCenterRectangle();
 
@@ -93,12 +93,12 @@ export class Diagram {
     }
 
     adjustCenterRectangle(){
-        this.$centerRectangle.attr({
-            x: this.marginCm + "cm",
-            y: this.marginCm + "cm",
-            width: (this.widthCm - 2*this.marginCm) + "cm",
-            height: (this.heightCm - 2*this.marginCm) + "cm"
-        });
+        // this.$centerRectangle.attr({
+        //     x: this.marginCm + "cm",
+        //     y: this.marginCm + "cm",
+        //     width: (this.widthCm - 2*this.marginCm) + "cm",
+        //     height: (this.heightCm - 2*this.marginCm) + "cm"
+        // });
     }
 
     setSize(widthCm: number, heightCm: number){

@@ -202,6 +202,19 @@ export class SettingsMessages {
         'fr': 'Représentation des types'
     });
     
+    static ClassDiagramBackground = () => lm({
+        'de': 'Hintergrund beim Exportieren als png-Datei',
+        'en': 'Background when exporting as png file',
+        'fr': 'Arrière-plan lors de l\'exportation en fichier png'
+    });
+
+    static ClassDiagramBackgroundDescription = () => lm({
+        'de': `Legt fest, ob der Hintergrund des Klassendiagramms beim Exportieren als png-Datei transparent oder weiß sein soll.`,
+        'en': `Determines whether the background of the class diagram should be transparent or white when exporting as a png file.`,
+        'fr': `Détermine si l'arrière-plan du diagramme de classes doit`
+    });
+    
+
     static ClassDiagramTypeConventionDescription = () => lm({
         'de': 'Wenn Datentypen im Klassendiagramm angezeigt werden, kann dies entweder in der Art von Java (z.B. String name) erfolgen oder in der Art von Pascal (name: String).',
         'en': 'If data types are displayed in the class diagram, they can be shown in either Java style (e.g., String name) or Pascal style (name: String).',
@@ -220,7 +233,18 @@ export class SettingsMessages {
         'fr': 'Style Pascal (name: String)'
     });
     
-    
+    static ClassDiagramBackgroundTransparent = () => lm({
+        'de': `durchsichtig`,
+        'en': `transparent`,
+        'fr': `transparent`
+    });
+
+    static ClassDiagramBackgroundWhite = () => lm({
+        'de': `weiß`,
+        'en': `white`,
+        'fr': `blanc`
+    });
+        
     
 
 }
