@@ -1,3 +1,5 @@
+import { ClassDiagram } from "../main/gui/diagrams/classdiagram/ClassDiagram";
+
 export class EmbeddedIndexedDB {
 
     private db: IDBDatabase;

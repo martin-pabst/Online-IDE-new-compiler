@@ -219,6 +219,9 @@ export class MainEmbedded implements MainBase {
                                 this.setFileActive(files[0]);
                             }
                         }
+
+                        this.readClassDiagram();
+
                         this.getCompiler().triggerCompile();
 
                     });
@@ -235,6 +238,28 @@ export class MainEmbedded implements MainBase {
 
     }
 
+    readClassDiagram() {
+        if (!this.config.withClassDiagram) return;
+
+        let f = () => {
+            if (this.rightDiv?.classDiagram) {
+                this.indexedDB.getScript(this.config.id + "-classDiagram", (serializedClassDiagram) => {
+                    if (serializedClassDiagram != null) {
+                        this.rightDiv.classDiagram.clear();
+                        this.rightDiv.classDiagram.deserialize(JSON.parse(serializedClassDiagram));
+                        this.drawClassDiagrams(false);
+                    }
+                })
+            } else {
+                setTimeout(() => {
+                    f();
+                }, 300);
+            }
+        }
+
+        f();
+    }
+
     initScripts() {
 
         this.fileExplorer?.removeAllFiles();
@@ -249,7 +274,7 @@ export class MainEmbedded implements MainBase {
         } else {
             this.setFileActive(this.currentWorkspace.getFirstFile());
         }
-        
+
         this.getCompiler().triggerCompile();
 
     }
@@ -395,7 +420,6 @@ export class MainEmbedded implements MainBase {
 
         });
 
-
     }
 
     saveScripts() {
@@ -421,6 +445,12 @@ export class MainEmbedded implements MainBase {
 
         }
 
+        let classDiagram = this.rightDiv?.classDiagram;
+        if (classDiagram && classDiagram.dirty) {
+            this.indexedDB.writeScript(this.config.id + "-classDiagram", JSON.stringify(classDiagram.serialize()));
+            classDiagram.dirty = false;
+        }
+
     }
 
     deleteScriptsInDB() {
@@ -444,11 +474,14 @@ export class MainEmbedded implements MainBase {
 
         });
 
+        this.indexedDB.removeScript(this.config.id + "-classDiagram");
+
     }
 
     initWorkspace(scriptList: JOScript[]) {
         this.currentWorkspace = new Workspace("Embedded-Workspace", this, 0);
         this.currentWorkspace.settings.libraries = this.config.libraries;
+        this.currentWorkspace.id = 0; // class diagram needs this
 
         let i = 0;
         for (let script of scriptList) {
@@ -812,6 +845,7 @@ export class MainEmbedded implements MainBase {
 
             let ws: Workspace = new Workspace(ew.name, this, 0);
             ws.settings = ew.settings;
+            ws.id = 0; // class diagram needs this
 
             for (let mo of ew.modules) {
                 let f = new GUIFile(this, mo.name, mo.text);
@@ -838,13 +872,13 @@ export class MainEmbedded implements MainBase {
             that.saveScripts();
 
             this.showResetButton();
-            
+
         };
         reader.readAsText(file);
-        
+
     }
-    
-    showResetButton(){
+
+    showResetButton() {
         this.$resetButton.fadeIn(1000);
     }
 
