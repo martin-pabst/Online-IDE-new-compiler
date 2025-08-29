@@ -1,6 +1,6 @@
 import { AccordionMessages } from "../../../client/main/gui/language/GUILanguage.ts";
 import { DOM } from "../../DOM.ts";
-import { ContextMenuItem, makeEditable, openContextMenu } from "../../HtmlTools.ts";
+import { ContextMenuItem, isIPad, makeEditable, openContextMenu } from "../../HtmlTools.ts";
 import { ExpandCollapseComponent, ExpandCollapseListener, ExpandCollapseState } from "../ExpandCollapseComponent.ts";
 import { IconButtonComponent } from "../IconButtonComponent.ts";
 import { DragKind, Treeview } from "./Treeview.ts";
@@ -15,6 +15,8 @@ export class TreeviewNode<E, K> {
     private _hasFocus: boolean = false;
 
     private _isRootNode: boolean = false;
+
+    contextmenuHandler: (event: MouseEvent) => void;
 
     public get hasFocus(): boolean {
         return this._hasFocus;
@@ -315,7 +317,7 @@ export class TreeviewNode<E, K> {
                         this.setFocus(true);
                         this.treeview.setLastSelectedElement(this);
 
-                        if(this.isFolder){
+                        if (this.isFolder) {
                             this.expandCollapseComponent.toggleState();
                         }
 
@@ -396,6 +398,12 @@ export class TreeviewNode<E, K> {
         this.initDragAndDrop();
         this.initContextMenu();
 
+        if (isIPad() && !this.isRootNode()) {
+            this.addIconButton("img_ellipsis-dark", (object, node, event) => {
+                this.contextmenuHandler(event);
+            }, "Kontextmenü aufrufen", true)
+        }
+
     }
 
     select(invokeCallback: boolean = true) {
@@ -410,7 +418,7 @@ export class TreeviewNode<E, K> {
 
     initContextMenu() {
         if (this.isRootNode()) return;
-        let contextmenuHandler = (event: MouseEvent) => {
+        this.contextmenuHandler = (event: MouseEvent) => {
 
             let contextMenuItems: ContextMenuItem[] = [];
             if (!this.readOnly) {
@@ -419,6 +427,21 @@ export class TreeviewNode<E, K> {
                         caption: TreeviewMessages.rename(),
                         callback: () => {
                             this.renameNode();
+                        }
+                    })
+                }
+
+                if(isIPad()){
+                    contextMenuItems.push({
+                        caption: TreeviewMessages.delete(),
+                        callback: () => {
+                            if(this.treeview.config.confirmDelete){
+                                if(confirm(TreeviewMessages.confirmDelete())){
+                                    this.treeview.removeNodeAndItsFolderContents(this);
+                                }
+                            } else {
+                                this.treeview.removeNodeAndItsFolderContents(this);
+                            }
                         }
                     })
                 }
@@ -433,6 +456,7 @@ export class TreeviewNode<E, K> {
                         }
                     ])
                 }
+
             }
 
             if (this.treeview.contextMenuProvider != null) {
@@ -465,7 +489,7 @@ export class TreeviewNode<E, K> {
         };
 
         this.nodeLineDiv.addEventListener("contextmenu", (event) => {
-            contextmenuHandler(event);
+            this.contextmenuHandler(event);
         }, false);
     }
 
@@ -561,11 +585,18 @@ export class TreeviewNode<E, K> {
     }
 
     initDragAndDrop() {
+
+        if (isIPad()) {
+            return;
+        }
+
         if (this.treeview.config.isDragAndDropSource) {
             this.nodeWithChildrenDiv.setAttribute("draggable", "true");
         }
 
         this.nodeWithChildrenDiv.ondragstart = (event) => {
+
+            event.stopPropagation();
 
             if (!this.treeview.isSelected(this)) {
                 this.treeview.unselectAllNodes(true);
@@ -589,7 +620,7 @@ export class TreeviewNode<E, K> {
                 event.dataTransfer.setDragImage(this.treeview.getDragGhost(), -10, 10);
             }
 
-            event.stopPropagation();
+            // event.stopPropagation();
             setTimeout(() => {
                 this.treeview.startStopDragDrop(true);
             }, 100);
@@ -622,7 +653,7 @@ export class TreeviewNode<E, K> {
                 switch (dragSourceTreeview.dropInsertKind) {
                     case "asElement":
                         this.dragAndDropDestinationDiv.classList.toggle('jo_treeview_invald_dragdestination', false);
-                        
+
                         let ddi = this.getDragAndDropIndexForInsertKindAsElement(event.pageX, event.pageY);
                         if (ddi.index < 0) {
                             if (this.parent?.dropzoneDiv.ondragover) {
@@ -633,14 +664,14 @@ export class TreeviewNode<E, K> {
                         }
                         this.dragAndDropDestinationDiv.style.top = (ddi.insertPosY - 1) + "px";
                         this.dragAndDropDestinationDiv.style.display = "block";
-                        
+
                         let selectionContainsThisNode = this.selectionContainsThisNode();
                         if (selectionContainsThisNode && dragSourceTreeview.treeview == this.treeview) {
                             this.dragAndDropDestinationDiv.classList.toggle('jo_treeview_invald_dragdestination', true);
                             // this.dropzoneDiv.ondragleave(event);
                             return;
                         }
-                        
+
                         this.nodeWithChildrenDiv.classList.toggle('jo_treeviewNode_highlightDragDropDestination', true);
                         break;
                     case "intoElement":
@@ -657,9 +688,9 @@ export class TreeviewNode<E, K> {
                 event.stopPropagation();
                 event.preventDefault();
 
-                if (this.parent?.dropzoneDiv.ondragleave) {
-                    this.parent.dropzoneDiv.ondragleave(event);
-                }
+                // if (this.parent?.dropzoneDiv.ondragleave) {
+                //     this.parent.dropzoneDiv.ondragleave(event);
+                // }
 
 
             }
@@ -901,7 +932,7 @@ export class TreeviewNode<E, K> {
         }
 
         let index = this.parent.children.indexOf(this);
-        if(index >= 0) this.parent.children.splice(index, 1);
+        if (index >= 0) this.parent.children.splice(index, 1);
 
         this.treeview.nodes.splice(this.treeview.nodes.indexOf(this), 1);
     }
@@ -937,17 +968,17 @@ export class TreeviewNode<E, K> {
         this.nodeLineDiv.classList.toggle('jo_treeview_pulse', true);
     }
 
-    setCaptionColor(color: string){
+    setCaptionColor(color: string) {
         this.captionDiv.style.color = color;
     }
 
 
-    expand(){
-        if(this.parent) this.parent.expand();
+    expand() {
+        if (this.parent) this.parent.expand();
         this.expandCollapseComponent.setState("expanded");
     }
 
-    collapse(){
+    collapse() {
         this.expandCollapseComponent.setState("collapsed");
     }
 

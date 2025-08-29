@@ -475,7 +475,7 @@ export class ProjectExplorer {
                             {
                                 caption: ProjectExplorerMessages.distributeToStudents(),
                                 callback: () => {
-                                    let classes: ClassData[] = this.main.teacherExplorer.classPanel.nodes.map(ae => <ClassData>ae.externalObject);
+                                    let classes: ClassData[] = <any>this.main.teacherExplorer.classPanel.getAllExternalObjects();
                                     new DistributeToStudentsDialog(classes, workspace, this.main);
                                 }
                             }

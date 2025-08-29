@@ -16,7 +16,7 @@ export class DistributeToStudentsDialog {
 
     private init() {
         this.$dialog = jQuery('#dialog');
-        jQuery('#main').css('visibility', 'hidden');
+        jQuery('#main').css('display', 'none');
         this.$dialog.append(jQuery(
             `<div class="jo_ds_heading">${DistributeToStudentsDialogMessages.distributeWorkspaceToIndividualStudents()}</div>
              <div class="jo_ds_settings">
@@ -133,7 +133,7 @@ export class DistributeToStudentsDialog {
     close() {
         this.$dialog.css('visibility', 'hidden');
         this.$dialog.empty();
-        jQuery('#main').css('visibility', 'visible');
+        jQuery('#main').css('display', '');
     }
 
 

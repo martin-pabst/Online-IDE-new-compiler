@@ -110,11 +110,15 @@ export function openContextMenu(items: ContextMenuItem[], x: number, y: number, 
         if (mi.link == null) {
             $item.on(mousePointer + 'up.contextmenu', (ev) => {
                 ev.stopPropagation();
-                jQuery('.jo_contextmenu').remove();
-                jQuery(document).off(mousePointer + "up.contextmenu");
-                jQuery(document).off(mousePointer + "down.contextmenu");
-                jQuery(document).off("keydown.contextmenu");
-                mi.callback();
+                if(mi.subMenu){
+                    $item.trigger("move.contextmenu");
+                } else {
+                    jQuery('.jo_contextmenu').remove();
+                    jQuery(document).off(mousePointer + "up.contextmenu");
+                    jQuery(document).off(mousePointer + "down.contextmenu");
+                    jQuery(document).off("keydown.contextmenu");
+                    mi.callback();
+                }
             });
             $item.on(mousePointer + 'down.contextmenu', (ev) => {
                 ev.stopPropagation();
@@ -383,4 +387,12 @@ export function transferElements(sourceParent: HTMLElement, destParent: HTMLElem
         let child = sourceParent.children[0];
         destParent.append(child);
     }
+}
+
+export function isIPad() {
+    if (navigator.userAgent.match(/Mac/) && navigator.maxTouchPoints) {
+        // if the device is an iPad
+        return true
+    }
+    return false;
 }

@@ -20,6 +20,17 @@ export class TreeviewMessages {
         'de': 'Umbenennen',
         'en': 'Rename'
     });
+
+    static delete = () => lm({
+        'de': `Löschen`,
+        'en': `Delete`
+    });
+    
+    static confirmDelete = () => lm({
+        'de': `Wirklich löschen?`,
+        'en': `Are you sure to delete this elements/folders?`
+    });
+    
     
     static addElements = () => lm({
         'de': 'Elemente hinzufügen',
