@@ -6,7 +6,11 @@ import { Tab, TabManager } from '../../../tools/TabManager.js';
 import { DOM } from '../../../tools/DOM.js';
 import { RightDivMessages } from './language/GUILanguage.js';
 import ballTriangleSVG from '/assets/graphics/ball-triangle.svg';
+import { IconButtonComponent } from '../../../tools/components/IconButtonComponent.js';
 
+import '/assets/css/wholewindow.css';
+import { transferElements } from '../../../tools/HtmlTools.js';
+import { MainEmbedded } from '../../embedded/MainEmbedded.js';
 
 
 export class RightDiv {
@@ -15,48 +19,78 @@ export class RightDiv {
     isWholePage: boolean = false;
 
     coordinatesDiv: HTMLDivElement;
-    controlContainer: HTMLDivElement;
+    newControlsContainer: HTMLDivElement;
 
     tabManager: TabManager;
 
     outputTab: Tab;
     classDiagramTab: Tab;
 
-    constructor(private main: MainBase, private rightDivInner: HTMLElement, private withClassDiagram: boolean) {
+    rightDivElement: HTMLElement;
+    originalControlsContainer: HTMLElement;
+    rightDivInner: HTMLElement;
 
+    wholeWindowElement: HTMLElement;
+
+    wholeWindowButton: IconButtonComponent;
+
+    rightdiv_width: string = "100%";
+
+    constructor(private main: MainBase, private mainElement: HTMLElement, private withClassDiagram: boolean) {
+        if (main.isEmbedded()) {
+            this.findElementsEmbedded();
+        } else {
+            this.findElementsFullVersion();
+        }
     }
 
-    private initWholeWindowButton(wholeWindowButton: HTMLDivElement) {
-        let rightdiv_width: string = "100%";
+    findElementsEmbedded() {
+        this.rightDivElement = <HTMLElement>this.mainElement.getElementsByClassName('joe_rightDiv')[0];
+        this.originalControlsContainer = <HTMLElement>this.mainElement.getElementsByClassName('joe_controlsDiv')[0];
+        this.rightDivInner = <HTMLElement>this.mainElement.getElementsByClassName('joe_rightDivInner')[0];
+    }
 
-        jQuery(wholeWindowButton).on("click", () => {
+    findElementsFullVersion() {
+        this.rightDivElement = document.getElementById('rightdiv');
+        this.originalControlsContainer = document.getElementById('controls');
+        this.rightDivInner = document.getElementById('rightdiv-inner');
+    }
 
-            this.isWholePage = !this.isWholePage;
+    private onWholeWindowButtonClicked(state: number) {
 
-            let $wholeWindow = jQuery(wholeWindowButton);
+        if(this.main.isEmbedded()){
+            this.findElementsEmbedded();
+        } else {
+            let helperBox = document.body.getElementsByClassName('jo_helperBox');
+            if(helperBox.length > 0) (<HTMLElement>helperBox[0]).style.display = 'none';
+        }
 
-            if (!this.isWholePage) {
-                jQuery('#code').css('display', 'flex');
-                jQuery('#rightdiv').css('width', rightdiv_width);
-                // jQuery('#run').css('width', '');
-                $wholeWindow.removeClass('img_whole-window-back');
-                $wholeWindow.addClass('img_whole-window');
-                jQuery('#controls').insertAfter(jQuery('#view-mode'));
-                $wholeWindow.attr('title', RightDivMessages.wholeWindow());
-                jQuery('.jo_graphics').trigger('sizeChanged');
-            } else {
-                jQuery('#code').css('display', 'none');
-                rightdiv_width = jQuery('#rightdiv').css('width');
-                jQuery('#rightdiv').css('width', '100%');
-                $wholeWindow.removeClass('img_whole-window');
-                $wholeWindow.addClass('img_whole-window-back');
-                // that.adjustWidthToWorld();
-                jQuery('.jo_control-container').append(jQuery('#controls'));
-                $wholeWindow.attr('title', RightDivMessages.backToNormalSize());
-                jQuery('.jo_graphics').trigger('sizeChanged');
+        this.isWholePage = state == 1;
+
+        if (this.isWholePage) {
+            if(this.main.isEmbedded()){
+                document.body.classList.add('joeCssFence');
+            (<MainEmbedded>this.main).embeddedFullpageController.primaryButton.setVisible(false);
             }
-        });
-        return rightdiv_width;
+            this.wholeWindowElement = DOM.makeDiv(document.body, 'jo_wholeWindow');
+            
+            transferElements(this.rightDivElement, this.wholeWindowElement);
+            transferElements(this.originalControlsContainer, this.newControlsContainer);
+            
+            jQuery('.jo_graphics').trigger('sizeChanged');
+        } else {
+            if(this.main.isEmbedded()){
+                document.body.classList.remove('joeCssFence');
+            (<MainEmbedded>this.main).embeddedFullpageController.primaryButton.setVisible(true);
+            }
+            transferElements(this.wholeWindowElement, this.rightDivElement);
+            transferElements(this.newControlsContainer, this.originalControlsContainer);
+
+            this.wholeWindowElement.remove();
+
+            jQuery('.jo_graphics').trigger('sizeChanged');
+        }
+
     }
 
     adjustWidthToWorld() {
@@ -77,7 +111,7 @@ export class RightDiv {
             }
         }
 
-    }   
+    }
 
     initGUI() {
 
@@ -86,13 +120,8 @@ export class RightDiv {
         this.coordinatesDiv = DOM.makeDiv(undefined, 'jo_coordinates');
         this.tabManager.insertIntoRightDiv(this.coordinatesDiv);
 
-        let wholeWindowButton = DOM.makeDiv(undefined, 'img_whole-window', 'jo_button', 'jo_whole-window', 'jo_active');
-        wholeWindowButton.style.marginRight = '8px';
-        wholeWindowButton.title = RightDivMessages.wholeWindow();
-        this.tabManager.insertIntoRightDiv(wholeWindowButton);
-
-        this.controlContainer = DOM.makeDiv(undefined, 'jo_control-container');
-        this.tabManager.insertIntoRightDiv(this.controlContainer);
+        this.newControlsContainer = DOM.makeDiv(undefined, 'jo_control-container');
+        this.tabManager.insertIntoRightDiv(this.newControlsContainer);
 
         this.tabManager.addTab(this.outputTab = new Tab(RightDivMessages.output(), ['jo_run']));
         DOM.makeDiv(this.outputTab.bodyDiv, 'jo_run-programend').textContent = RightDivMessages.programEnd();
@@ -135,14 +164,20 @@ export class RightDiv {
             }, 100);
         }
 
-        this.initWholeWindowButton(wholeWindowButton);
-
         this.outputTab.show();
+
+        this.wholeWindowButton = new IconButtonComponent(this.tabManager.tabheadingRightDiv,
+            ['img_whole-window', 'img_whole-window-back'], (event, state) => {
+                this.onWholeWindowButtonClicked(state);
+            },
+            [RightDivMessages.wholeWindow(), RightDivMessages.backToNormalSize()],
+            true, "append"
+        )
 
     }
 
     isClassDiagramActive(): boolean {
-        if(this.classDiagramTab){
+        if (this.classDiagramTab) {
             return this.classDiagramTab.isActive();
         }
         return false;

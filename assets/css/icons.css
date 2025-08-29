@@ -839,14 +839,14 @@
       background-image: url('../icons/user.svg');
    }
 
-   .img_whole-window-back {
+   .img_whole-window-back-dark {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
       background-image: url('../icons/whole-window-back.svg');
    }
 
-   .img_whole-window {
+   .img_whole-window-dark {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;

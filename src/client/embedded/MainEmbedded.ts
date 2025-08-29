@@ -43,6 +43,7 @@ import { OnlineIDEAccessImpl } from "./EmbeddedInterface.js";
 import { Tab } from "../../tools/TabManager.js";
 import { base64ToBytes } from "../../tools/Base64.js";
 import { Settings } from "../settings/Settings.js";
+import { EmbeddedFullpageController } from "./EmbeddedFullpageController.js";
 
 
 type JavaOnlineConfig = {
@@ -107,6 +108,11 @@ export class MainEmbedded implements MainBase {
     settings: Settings;
 
     lastActiveFile?: GUIFile;
+
+    horizontalSlider: Slider;
+    verticalSlider: Slider;
+    
+    embeddedFullpageController: EmbeddedFullpageController;
 
     isEmbedded(): boolean { return true; }
 
@@ -594,7 +600,7 @@ export class MainEmbedded implements MainBase {
 
 
             $centerDiv.append($editorDiv, $bottomDiv);
-            new Slider($bottomDiv[0], true, true, () => { this.editor.editor.layout(); });
+            this.verticalSlider = new Slider($bottomDiv[0], true, true, () => { this.editor.editor.layout(); });
         } else {
             $centerDiv.prepend($editorDiv);
         }
@@ -619,7 +625,7 @@ export class MainEmbedded implements MainBase {
         $div.append($centerDiv, $rightDiv);
 
         if (!this.config.hideEditor) {
-            new Slider($rightDiv[0], true, false, () => {
+            this.horizontalSlider = new Slider($rightDiv[0], true, false, () => {
                 this.editor.editor.layout();
             });
         }
@@ -682,6 +688,7 @@ export class MainEmbedded implements MainBase {
         new EditorOpenerProvider(this);
 
         let $infoButton = jQuery('<div class="jo_button jo_active img_ellipsis-dark" style="margin-left: 16px"></div>');
+        $infoButton[0].title = 'Über die Online-IDE...';
         $controlsDiv.append($infoButton);
 
         $infoButton.on('mousedown', (ev) => {
@@ -695,6 +702,8 @@ export class MainEmbedded implements MainBase {
                 }
             }], ev.pageX + 2, ev.pageY + 2);
         });
+
+        this.embeddedFullpageController = new EmbeddedFullpageController(this, this.$outerDiv[0], $controlsDiv[0]);
 
         setTimeout(() => {
             this.editor.editor.layout();
@@ -899,8 +908,9 @@ export class MainEmbedded implements MainBase {
         let $rightDiv = jQuery('<div class="joe_rightDiv"></div>');
         this.$rightDivInner = jQuery('<div class="joe_rightDivInner"></div>');
         $rightDiv.append(this.$rightDivInner);
+        this.$outerDiv.append($rightDiv);
 
-        this.rightDiv = new RightDiv(this, this.$rightDivInner[0], this.config.withClassDiagram);
+        this.rightDiv = new RightDiv(this, this.$outerDiv[0], this.config.withClassDiagram);
         this.rightDiv.initGUI();
 
         if (!this.config.hideEditor) {

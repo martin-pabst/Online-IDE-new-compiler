@@ -4,6 +4,8 @@ import { DOM } from '../DOM';
 export type SliderBeginEndCallback = () => void;
 export type SliderMovedCallback = (newLength: number) => void;
 
+type SliderPosition = { own: number, other: number };
+
 export class Slider {
 
     sliderDiv!: HTMLElement;
@@ -13,6 +15,8 @@ export class Slider {
 
     sliderBeginCallback?: SliderBeginEndCallback;
     sliderEndCallback?: SliderBeginEndCallback;
+
+    savedPosition: SliderPosition;
 
     /**
      * A div contains container and another div. Between the latter two
@@ -71,7 +75,7 @@ export class Slider {
 
         let mousePointer = window.PointerEvent ? "pointer" : "mouse";
 
-        this.sliderDiv.addEventListener("mousedown", (md) => {md.stopPropagation(); md.preventDefault();})
+        this.sliderDiv.addEventListener("mousedown", (md) => { md.stopPropagation(); md.preventDefault(); })
 
         //@ts-ignore
         this.sliderDiv.addEventListener("pointerdown", (md: PointerEvent) => {
@@ -93,14 +97,14 @@ export class Slider {
 
             this.transparentOverlay = DOM.makeDiv(document.body);
             this.transparentOverlay.style.cursor = this.vertHor ? 'ns-resize' : 'ew-resize';
-            this.transparentOverlay.style.position = 'absolute';
+            this.transparentOverlay.style.position = 'fixed';
             this.transparentOverlay.style.left = '0';
             this.transparentOverlay.style.top = '0';
-            this.transparentOverlay.style.bottom = '0';
-            this.transparentOverlay.style.right = '0';
-            this.transparentOverlay.style.zIndex = '1000';
+            this.transparentOverlay.style.width = '100%';
+            this.transparentOverlay.style.height = '100%';
+            this.transparentOverlay.style.zIndex = '200';
 
-            if(this.sliderBeginCallback) this.sliderBeginCallback();
+            if (this.sliderBeginCallback) this.sliderBeginCallback();
 
 
             //@ts-ignore
@@ -132,13 +136,13 @@ export class Slider {
 
             });
 
-            this.transparentOverlay!.onmousemove = (ev) => {ev.stopPropagation()};
+            this.transparentOverlay!.onmousemove = (ev) => { ev.stopPropagation() };
 
             let upListener: EventListener;
             //@ts-ignore
             this.transparentOverlay.addEventListener("pointerup", upListener = () => {
                 this.transparentOverlay!.remove();
-                if(this.sliderEndCallback) this.sliderEndCallback();
+                if (this.sliderEndCallback) this.sliderEndCallback();
             });
 
 
@@ -150,5 +154,26 @@ export class Slider {
         this.sliderDiv.style.backgroundColor = color;
     }
 
+    savePosition() {
 
+        let ownRectangle = this.container.getBoundingClientRect();
+        let otherRectangle = this.otherDiv.getBoundingClientRect();
+
+        if (this.vertHor) {
+            this.savedPosition = {own: ownRectangle.height, other: otherRectangle.height}
+        } else {
+            this.savedPosition = {own: ownRectangle.width, other: otherRectangle.width}
+        }
+
+    }
+
+    restorePosition(){
+        if(this.vertHor){
+            this.container.style.height = this.savedPosition.own + "px";
+            this.otherDiv.style.height = this.savedPosition.other + "px";
+        } else {
+            this.container.style.width = this.savedPosition.own + "px";
+            this.otherDiv.style.width = this.savedPosition.other + "px";
+        }
+    }
 }

@@ -5,13 +5,13 @@ export function makeEditable(elementWithText: JQuery<HTMLElement> | HTMLElement,
     elementToReplace: JQuery<HTMLElement> | HTMLElement | undefined,
     renameDoneCallback: (newContent: string) => void, selectionRange?: { start: number, end: number }) {
 
-    if(elementWithText instanceof HTMLElement){
+    if (elementWithText instanceof HTMLElement) {
         elementWithText = jQuery(elementWithText);
     }
 
-    if(!elementToReplace) elementToReplace = elementWithText;
+    if (!elementToReplace) elementToReplace = elementWithText;
 
-    if(elementToReplace instanceof HTMLElement){
+    if (elementToReplace instanceof HTMLElement) {
         elementToReplace = jQuery(elementToReplace);
     }
 
@@ -32,8 +32,8 @@ export function makeEditable(elementWithText: JQuery<HTMLElement> | HTMLElement,
     });
     $input.val(elementWithText.text());
     $input.on(mousePointer + "down", (e) => { e.stopPropagation(); })
-    $input.on("click", (e) => { 
-        e.stopPropagation(); 
+    $input.on("click", (e) => {
+        e.stopPropagation();
     })
 
     if (selectionRange != null) {
@@ -83,7 +83,7 @@ export function openContextMenu(items: ContextMenuItem[], x: number, y: number, 
 
     let mousePointer = window.PointerEvent ? "pointer" : "mouse";
 
-    if(!isSubMenu) jQuery('.jo_contextmenu').remove();
+    if (!isSubMenu) jQuery('.jo_contextmenu').remove();
 
     let $contextMenu = jQuery('<div class="jo_contextmenu"></div>');
     let rootElement = <HTMLDivElement>jQuery('.joeCssFence')[0];
@@ -166,7 +166,7 @@ export function openContextMenu(items: ContextMenuItem[], x: number, y: number, 
     let topBottom = y > window.innerHeight * 0.8 ? "bottom" : "top";
     let yp = y > window.innerHeight * 0.8 ? window.innerHeight - y : y;
 
-    let css: {[key: string]: any} = {};
+    let css: { [key: string]: any } = {};
     css[leftRight] = xp + "px";
     css[topBottom] = yp + "px";
 
@@ -220,7 +220,7 @@ export function makeDiv(id: string, klass: string = "", text: string = "", css?:
         div.text(text);
     }
 
-    if($parentDiv != null){
+    if ($parentDiv != null) {
         $parentDiv.append(div);
     }
 
@@ -344,9 +344,9 @@ export function lightenDarkenHexColor(col: string, amount: number) {
     var b = (num & 0x0000FF) + amount;
     var newColor = b | (g << 8) | (r << 16);
     return newColor.toString(16);
-  }
+}
 
-  export function lightenDarkenIntColor(color: number, amount: number) {
+export function lightenDarkenIntColor(color: number, amount: number) {
     var r = (color >> 16);
     var g = ((color >> 8) & 0x00FF);
     var b = (color & 0x0000FF);
@@ -355,26 +355,32 @@ export function lightenDarkenHexColor(col: string, amount: number) {
     b = (Math.round((0xff - b) * amount) + b) & 0xff;
     var newColor = b | (g << 8) | (r << 16);
     return newColor;
-  }
+}
 
-  export function getCookieValue(name: string): string | undefined
-  {
+export function getCookieValue(name: string): string | undefined {
     const regex = new RegExp(`(^| )${name}=([^;]+)`)
     const match = document.cookie.match(regex)
     if (match) {
-      return match[2]
+        return match[2]
     }
- }
+}
 
- export function findGetParameter(parameterName: string) {
+export function findGetParameter(parameterName: string) {
     var result: string | null = null,
         tmp: string[] = [];
     location.search
         .substring(1)
         .split("&")
         .forEach(function (item) {
-          tmp = item.split("=");
-          if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+            tmp = item.split("=");
+            if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
         });
     return result;
+}
+
+export function transferElements(sourceParent: HTMLElement, destParent: HTMLElement) {
+    while (sourceParent.children.length > 0) {
+        let child = sourceParent.children[0];
+        destParent.append(child);
+    }
 }
