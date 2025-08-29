@@ -69,6 +69,8 @@ export class GUIFile extends CompilerFile {
         file.is_copy_of_id = f.is_copy_of_id;
         file.repository_file_version = f.repository_file_version;
         file.identical_to_repository_version = f.identical_to_repository_version;
+        file.isFolder = f.isFolder;
+        file.parent_folder_id = f.parent_folder_id;
 
         return file;
     }

@@ -732,4 +732,17 @@ export class Treeview<E, K> {
     getAllExternalObjects(): E[]{
         return this.nodes.filter(node => !node.isRootNode() && node.externalObject).map(node => node.externalObject);
     }
+
+    reduceNodesToMove(nodes: TreeviewNode<E, K>[]): TreeviewNode<E, K>[] {
+        let reducedNodes = nodes.slice();
+        for(let node of nodes){
+            if(node.isFolder){
+                reducedNodes = reducedNodes.filter(n => n.getParent() != node);
+            }
+        }
+        return reducedNodes;
+    }
+
+
+
 }

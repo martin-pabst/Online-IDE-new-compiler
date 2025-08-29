@@ -76,7 +76,9 @@ export class JavaCompiler implements Compiler {
             const currentWorkspace = this.main?.getCurrentWorkspace();
             if (!currentWorkspace) return;
             this.moduleManager.workspace = currentWorkspace;
-            this.#files = currentWorkspace.getFiles().filter(file => FileTypeManager.filenameToFileType(file.name).language == 'myJava');
+            this.#files = currentWorkspace.getFiles()
+            .filter(file => FileTypeManager.filenameToFileType(file.name).language == 'myJava' 
+                && !file.isFolder);
         }
 
         this.moduleManager.setupModulesBeforeCompiliation(this.#files);

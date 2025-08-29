@@ -54,6 +54,7 @@ export class ProjectExplorer {
 
         this.workspaceTreeview.addDragDropSource({ treeview: this.workspaceTreeview, dropInsertKind: "asElement", defaultDragKind: "move" })
         this.workspaceTreeview.addDragDropSource({ treeview: this.fileTreeview, dropInsertKind: "intoElement", defaultDragKind: "copy", dragKindWithShift: "move" });
+        this.fileTreeview.addDragDropSource({ treeview: this.fileTreeview, dropInsertKind: "asElement", defaultDragKind: "move" })
 
     }
 
@@ -65,10 +66,11 @@ export class ProjectExplorer {
             },
             withSelection: true,
             selectMultiple: true,
-            withFolders: false,
+            selectWholeFolders: true,
+            withFolders: true,
             isDragAndDropSource: true,
             buttonAddElements: true,
-            buttonAddFolders: false,
+            buttonAddFolders: true,
             withDeleteButtons: true,
             confirmDelete: true,
             defaultIconClass: "img_file-dark-java",
@@ -94,14 +96,17 @@ export class ProjectExplorer {
             }
 
             let file = new GUIFile(this.main, name);
-            node.iconClass = FileTypeManager.filenameToFileType(name).iconclass;
+            file.isFolder = node.isFolder;
+            let parentNode = node.getParent();
+            if (!parentNode.isRootNode()) {
+                file.parent_folder_id = parentNode.externalObject.id;
+            }
+
+            if (!node.isFolder) node.iconClass = FileTypeManager.filenameToFileType(name).iconclass;
 
             this.main.getCurrentWorkspace().addFile(file);
 
-            this.setFileActive(file);
-
-            // TODO: necessary?
-            // that.fileTreeview.setCaption(that.main.currentWorkspace.name);
+            if (!file.isFolder) this.setFileActive(file);
 
 
             let success = await this.main.networkManager.sendCreateFile(file, this.main.currentWorkspace, this.main.workspacesOwnerId);
@@ -136,19 +141,19 @@ export class ProjectExplorer {
         this.fileTreeview.deleteCallback = async (file, node) => {
 
             let filesToDelete: GUIFile[] = [file];
-            if(file.isFolder){
+            if (file.isFolder) {
                 filesToDelete = filesToDelete.concat(file.getFolderContentsRecursively(this.fileTreeview.getAllExternalObjects()));
-                if(filesToDelete.length > 1){
-                    if(!confirm(ProjectExplorerMessages.confirmDeleteFileFolderRecursively(filesToDelete.length)))
-                    return false;
-                }        
+                if (filesToDelete.length > 1) {
+                    if (!confirm(ProjectExplorerMessages.confirmDeleteFileFolderRecursively(filesToDelete.length)))
+                        return false;
+                }
             }
 
 
             let success = await this.main.networkManager.sendDeleteWorkspaceOrFileAsync("file", filesToDelete.map(f => f.id));
 
             if (success) {
-                for(let f of filesToDelete){
+                for (let f of filesToDelete) {
                     this.main.getCurrentWorkspace().removeFile(f);
                 }
 
@@ -230,6 +235,32 @@ export class ProjectExplorer {
             (file: GUIFile) => {
                 this.setFileActive(file);
             }
+
+
+        this.fileTreeview.dropEventCallback =
+            async (sourceTreeview, destinationNode, destinationChildIndex, dragKind) => {
+                if (sourceTreeview != this.fileTreeview || !destinationNode.isFolder) return;
+                let sourceNodes = sourceTreeview.getCurrentlySelectedNodes();
+                switch (dragKind) {
+                    case "move":
+                        let new_parent_folder_id = destinationNode.ownKey;
+                        sourceNodes = this.fileTreeview.reduceNodesToMove(sourceNodes);
+                        for (let node of sourceNodes) {
+                            let file = node.externalObject;
+                            if (file) file.parent_folder_id = new_parent_folder_id;
+                            file.setSaved(false);
+                        }
+                        if (await this.main.networkManager.sendUpdatesAsync(true)) {
+                            destinationNode.insertNodes(destinationChildIndex, sourceNodes);
+                        }
+                        break;
+                    case "copy":
+                        // Not yet implemented!
+                        break;
+                }
+
+            }
+
 
         this.synchronizedButton = this.fileTreeview.captionLineAddIconButton("img_open-change-dark", "right",
             () => {
@@ -338,18 +369,18 @@ export class ProjectExplorer {
         this.workspaceTreeview.deleteCallback = async (workspace) => {
 
             let workspacesToDelete: Workspace[] = [workspace];
-            if(workspace.isFolder){
+            if (workspace.isFolder) {
                 workspacesToDelete = workspacesToDelete.concat(workspace.getFolderContentsRecursively(this.workspaceTreeview.getAllExternalObjects()));
-                if(workspacesToDelete.length > 1){
-                    if(!confirm(ProjectExplorerMessages.confirmDeleteWorkspaceFolderRecursively(workspacesToDelete.length)))
-                    return false;
-                }        
+                if (workspacesToDelete.length > 1) {
+                    if (!confirm(ProjectExplorerMessages.confirmDeleteWorkspaceFolderRecursively(workspacesToDelete.length)))
+                        return false;
+                }
             }
 
             let success = await this.main.networkManager
                 .sendDeleteWorkspaceOrFileAsync("workspace", workspacesToDelete.map(w => w.id));
             if (success) {
-                for(let ws of workspacesToDelete){
+                for (let ws of workspacesToDelete) {
                     this.main.removeWorkspace(ws);
                 }
 
@@ -534,10 +565,19 @@ export class ProjectExplorer {
         let destinationWorkspace = destinationWorkspaceNode.externalObject;
         let sourceWorkspace = this.main.getCurrentWorkspace();
 
+        if(sourceWorkspace == destinationWorkspace) return;
+
         switch (dragKind) {
             case "move":
+                let fileIds = filesToMoveOrCopy.map(node => node.externalObject.id);
+
                 for (let fileNode of filesToMoveOrCopy) {
                     let file = fileNode.externalObject;
+
+                    if (fileIds.indexOf(file.parent_folder_id) < 0) {
+                        file.parent_folder_id = null;
+                    }
+
                     let success = await this.main.networkManager.moveFile(file.id, destinationWorkspace.id);
                     if (success) {
                         sourceWorkspace.removeFile(file);
@@ -547,11 +587,22 @@ export class ProjectExplorer {
                 }
                 break;
             case "copy":
+                // filesToMoveOrCopy are already ordered "parents first"
+                let oldIdToNewIdMap: Map<number, number> = new Map();
+
                 for (let fileNode of filesToMoveOrCopy) {
                     let file = fileNode.externalObject;
+                    let oldFileId = file.id;
+                    
+                    let newParentId = oldIdToNewIdMap.get(file.parent_folder_id) || null;
                     let newFile = new GUIFile(this.main, file.name, file.getText());
+                    newFile.parent_folder_id = newParentId;
+                    newFile.isFolder = file.isFolder;
+
                     let success = await this.main.networkManager.sendCreateFile(newFile, destinationWorkspace, destinationWorkspace.owner_id);
                     if (success) destinationWorkspace.addFile(newFile);
+                    
+                    oldIdToNewIdMap.set(oldFileId, newFile.id);
                 }
                 break;
         }
@@ -575,6 +626,7 @@ export class ProjectExplorer {
         switch (dragKind) {
             case "move":
                 let new_parent_folder_id = destinationFolderNode.ownKey;
+                nodesToCopyOrMove = this.workspaceTreeview.reduceNodesToMove(nodesToCopyOrMove);
                 for (let node of nodesToCopyOrMove) {
                     let ws = node.externalObject;
                     if (ws) ws.parent_folder_id = new_parent_folder_id;
@@ -608,8 +660,8 @@ export class ProjectExplorer {
 
             for (let file of files) {
 
-                this.fileTreeview.addNode(false, file.name,
-                    FileTypeManager.filenameToFileType(file.name).iconclass, file, null);
+                this.fileTreeview.addNode(file.isFolder, file.name,
+                  file.isFolder ? undefined : FileTypeManager.filenameToFileType(file.name).iconclass, file);
 
                 this.renderHomeworkButton(file);
             }

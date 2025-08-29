@@ -601,15 +601,15 @@ export class TreeviewNode<E, K> {
             if (!this.treeview.isSelected(this)) {
                 this.treeview.unselectAllNodes(true);
                 this.treeview.addToSelection(this);
-
-                if (this.treeview.config.selectWholeFolders && this.isFolder) {
-                    for (let child of this.getOrderedNodeListRecursively()) {
-                        child.setSelected(true);
-                        this.treeview.addToSelection(child);
-                    }
-                }
-
+                
                 this.setFocus(true);
+            }
+
+            if (this.treeview.config.selectWholeFolders && this.isFolder) {
+                for (let child of this.getOrderedNodeListRecursively()) {
+                    child.setSelected(true);
+                    this.treeview.addToSelection(child);
+                }
             }
 
             Treeview.currentDragSource = this._treeview;
