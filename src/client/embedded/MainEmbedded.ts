@@ -913,25 +913,26 @@ export class MainEmbedded implements MainBase {
         this.rightDiv = new RightDiv(this, this.$outerDiv[0], this.config.withClassDiagram);
         this.rightDiv.initGUI();
 
+        this.$debuggerDiv = jQuery(`<div class="joe_debuggerDiv"></div>`);
+        this.$alternativeDebuggerDiv = jQuery(`
+        <div class="jo_alternativeText jo_scrollable">
+        <div style="font-weight: bold">Tipp:</div>
+        Die Variablen sind nur dann sichtbar, wenn das Programm
+        <ul>
+        <li>im Einzelschrittmodus ausgeführt wird(Klick auf <span class="img_step-over-dark jo_inline-image"></span>),</li>
+        <li>an einem Breakpoint hält (Setzen eines Breakpoints mit Mausklick links neben den Zeilennummern und anschließendes Starten des Programms mit
+            <span class="img_start-dark jo_inline-image"></span>) oder </li>
+            <li>in sehr niedriger Geschwindigkeit ausgeführt wird (weniger als 10 Schritte/s).
+            </ul>
+            </div>
+            `);
+
         if (!this.config.hideEditor) {
             let debuggerTab = new Tab('Debugger', ['jo_scrollable', 'jo_editorFontSize', 'jo_variablesTab']);
             this.rightDiv.tabManager.addTab(debuggerTab);
 
             let $vd = jQuery(debuggerTab.bodyDiv);
 
-            this.$debuggerDiv = jQuery(`<div class="joe_debuggerDiv"></div>`);
-            this.$alternativeDebuggerDiv = jQuery(`
-            <div class="jo_alternativeText jo_scrollable">
-            <div style="font-weight: bold">Tipp:</div>
-            Die Variablen sind nur dann sichtbar, wenn das Programm
-            <ul>
-            <li>im Einzelschrittmodus ausgeführt wird(Klick auf <span class="img_step-over-dark jo_inline-image"></span>),</li>
-            <li>an einem Breakpoint hält (Setzen eines Breakpoints mit Mausklick links neben den Zeilennummern und anschließendes Starten des Programms mit
-                <span class="img_start-dark jo_inline-image"></span>) oder </li>
-                <li>in sehr niedriger Geschwindigkeit ausgeführt wird (weniger als 10 Schritte/s).
-                </ul>
-                </div>
-                `);
 
             this.$debuggerDiv.hide();
             $vd.append(this.$debuggerDiv, this.$alternativeDebuggerDiv);

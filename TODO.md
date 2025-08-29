@@ -1,10 +1,13 @@
 TODO:
-  * button to shrink all folders
-  * initial state: all folders closed; only folder open with current workspace
-  * method select: does it open all parent folders?
   * files with folders
+    * remove filters...
+    * Treeview-configuration
+    * handler for "new folder"
+    * handler for file moving
+    * compiler: filter-out folders
+    * repository: create needed folders
+    * if file inside repository is in other folder than file in workspace: offer to correct this
   * better tablet integration
-  * 
 
 
 Done:
@@ -14,6 +17,9 @@ Treeview:
   * does Treeview.selectElement scrollIntoView?
   * WorkspaceImporter/WorkspaceExporter: export/import with folders...
   * Embedded version should use new Treeview component
+  * button to shrink all folders
+  * initial state: all folders closed; only folder open with current workspace
+  * method select: does it open all parent folders?
 
 ============================================================
 * nicht so sehr zustandsbehaftet

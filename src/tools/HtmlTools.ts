@@ -383,9 +383,11 @@ export function findGetParameter(parameterName: string) {
 }
 
 export function transferElements(sourceParent: HTMLElement, destParent: HTMLElement) {
-    while (sourceParent.children.length > 0) {
-        let child = sourceParent.children[0];
-        destParent.append(child);
+    if(sourceParent && destParent){
+        while (sourceParent.children.length > 0) {
+            let child = sourceParent.children[0];
+            destParent.append(child);
+        }
     }
 }
 
