@@ -141,7 +141,7 @@ export class RightDiv {
 
     }
 
-    isClassDiagramEnabled(): boolean {
+    isClassDiagramActive(): boolean {
         if(this.classDiagramTab){
             return this.classDiagramTab.isActive();
         }

@@ -322,7 +322,7 @@ export class Main implements MainBase {
         this.interpreter.setExecutable(executable);
         let errors = this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
         this.projectExplorer.renderErrorCount(this.currentWorkspace, errors);
-        this.drawClassDiagrams(!this.rightDiv.isClassDiagramEnabled());
+        this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());
 
         for (let module of this.getCompiler().getAllModules()) {
             if (!(module.file instanceof GUIFile)) return;

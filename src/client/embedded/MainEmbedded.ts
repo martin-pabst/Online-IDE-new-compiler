@@ -173,7 +173,7 @@ export class MainEmbedded implements MainBase {
             this.fileExplorer.renderErrorCount(this.currentWorkspace, errors);
         }
 
-        this.drawClassDiagrams(!this.rightDiv.isClassDiagramEnabled());
+        this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());
 
         for (let module of this.getCompiler().getAllModules()) {
             if (!(module.file instanceof GUIFile)) return;
@@ -240,6 +240,18 @@ export class MainEmbedded implements MainBase {
 
     readClassDiagram() {
         if (!this.config.withClassDiagram) return;
+
+        /*
+         * In MainEmbedded.initGUI the classDiagram-Object is instantiated asynchroneously to wait for
+         * DOM-Construction first:
+         * setTimeout(() => {
+         *       this.classDiagram = new ClassDiagram(jQuery(this.classDiagramTab.bodyDiv), this.main);
+         *   }, 100);
+         * Therefore it can't be guaranteed that this object exists yet. The dirty solution is to wait for
+         * it (see below).
+         * 
+         * TODO: Find a better way to create the classDiagram-object!
+         */
 
         let f = () => {
             if (this.rightDiv?.classDiagram) {
