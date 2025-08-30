@@ -32,9 +32,16 @@ export function makeEditable(elementWithText: JQuery<HTMLElement> | HTMLElement,
     });
     $input.val(elementWithText.text());
     $input.on(mousePointer + "down", (e) => { e.stopPropagation(); })
+    $input.on(mousePointer + "up", (e) => { e.stopPropagation(); })
+    $input[0].addEventListener("touchstart", (event) => {
+        event.stopPropagation();
+        $input[0].focus();
+    })
     $input.on("click", (e) => {
         e.stopPropagation();
+        $input[0].focus();
     })
+
 
     if (selectionRange != null) {
         (<HTMLInputElement>$input[0]).setSelectionRange(selectionRange.start, selectionRange.end);
@@ -43,7 +50,9 @@ export function makeEditable(elementWithText: JQuery<HTMLElement> | HTMLElement,
     elementToReplace.after($input);
     elementToReplace.hide();
     setTimeout(() => {
-        $input.focus();
+        $input[0].focus();
+        let event = new KeyboardEvent('touchstart', { 'bubbles': true });
+        $input[0].dispatchEvent(event);
     }, 300);
 
     $input.on("keydown.me", (ev) => {
@@ -110,7 +119,7 @@ export function openContextMenu(items: ContextMenuItem[], x: number, y: number, 
         if (mi.link == null) {
             $item.on(mousePointer + 'up.contextmenu', (ev) => {
                 ev.stopPropagation();
-                if(mi.subMenu){
+                if (mi.subMenu) {
                     $item.trigger("move.contextmenu");
                 } else {
                     jQuery('.jo_contextmenu').remove();
@@ -383,7 +392,7 @@ export function findGetParameter(parameterName: string) {
 }
 
 export function transferElements(sourceParent: HTMLElement, destParent: HTMLElement) {
-    if(sourceParent && destParent){
+    if (sourceParent && destParent) {
         while (sourceParent.children.length > 0) {
             let child = sourceParent.children[0];
             destParent.append(child);
@@ -397,4 +406,17 @@ export function isIPad() {
         return true
     }
     return false;
+}
+
+export function preventTouchDefault(element: HTMLElement) {
+    const touchHandler = (ev: TouchEvent) => {
+        if(ev.touches.length == 1){
+            ev.preventDefault() // Prevent text selection
+        }
+    }
+    element.addEventListener('touchstart', touchHandler, { passive: false })
+    element.addEventListener('touchmove', touchHandler, { passive: false })
+    element.addEventListener('touchend', touchHandler, { passive: false })
+    element.addEventListener('touchcancel', touchHandler, { passive: false })
+
 }

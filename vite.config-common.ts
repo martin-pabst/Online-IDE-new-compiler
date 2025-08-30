@@ -30,7 +30,8 @@ export default {
         logOverride: {
             'unsupported-css-nesting': 'silent',
             'unsupported-@namespace': 'silent',
-        }
+        },
+        dropLabels: ['DEBUG']
     },
     build: {
         sourcemap: true,

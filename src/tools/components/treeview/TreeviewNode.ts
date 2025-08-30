@@ -1,6 +1,7 @@
 import { AccordionMessages } from "../../../client/main/gui/language/GUILanguage.ts";
 import { DOM } from "../../DOM.ts";
-import { ContextMenuItem, isIPad, makeEditable, openContextMenu } from "../../HtmlTools.ts";
+import { ContextMenuItem, isIPad, makeEditable, openContextMenu, preventTouchDefault } from "../../HtmlTools.ts";
+import { TabletConsoleLog } from "../../TabletConsoleLog.ts";
 import { ExpandCollapseComponent, ExpandCollapseListener, ExpandCollapseState } from "../ExpandCollapseComponent.ts";
 import { IconButtonComponent } from "../IconButtonComponent.ts";
 import { DragKind, Treeview } from "./Treeview.ts";
@@ -293,6 +294,9 @@ export class TreeviewNode<E, K> {
             this.alwaysVisibleButtonsDiv = DOM.makeDiv(this.nodeLineDiv, 'jo_treeviewNode_buttons', 'jo_treeviewNode_buttons_always_visible');
 
             this.nodeLineDiv.onpointerup = (ev) => {
+                this.treeview.startStopDragDrop(false);
+                this.treeview.removeDragGhost();
+
                 if (ev.button == 2) return;
 
                 if (this.treeview.config.withSelection) {
@@ -419,7 +423,6 @@ export class TreeviewNode<E, K> {
     initContextMenu() {
         if (this.isRootNode()) return;
         this.contextmenuHandler = (event: MouseEvent) => {
-
             let contextMenuItems: ContextMenuItem[] = [];
             if (!this.readOnly) {
                 if (this.treeview.renameCallback != null) {
@@ -431,12 +434,12 @@ export class TreeviewNode<E, K> {
                     })
                 }
 
-                if(isIPad()){
+                if (isIPad()) {
                     contextMenuItems.push({
                         caption: TreeviewMessages.delete(),
                         callback: () => {
-                            if(this.treeview.config.confirmDelete){
-                                if(confirm(TreeviewMessages.confirmDelete())){
+                            if (this.treeview.config.confirmDelete) {
+                                if (confirm(TreeviewMessages.confirmDelete())) {
                                     this.treeview.removeNodeAndItsFolderContents(this);
                                 }
                             } else {
@@ -484,13 +487,48 @@ export class TreeviewNode<E, K> {
             event.preventDefault();
             event.stopPropagation();
             if (contextMenuItems.length > 0) {
-                openContextMenu(contextMenuItems, event.pageX, event.pageY);
+                this._treeview.contextMenu = openContextMenu(contextMenuItems, event.pageX, event.pageY);
             }
         };
 
         this.nodeLineDiv.addEventListener("contextmenu", (event) => {
             this.contextmenuHandler(event);
         }, false);
+
+
+        let posXStart: number = 0;
+        let posYStart: number = 0;
+        if (isIPad()) {
+            this.nodeLineDiv.addEventListener("touchstart", (event) => {
+                if (this._treeview.contextMenuTimer) clearTimeout(this._treeview.contextMenuTimer);
+                this._treeview.contextMenuTimer = undefined;
+
+                if (event.touches.length > 1) return;
+                let touch = event.touches[0];
+                posXStart = touch.clientX;
+                posYStart = touch.clientY;
+
+                this._treeview.contextMenuTimer = setTimeout(() => {
+                    let event1 = {
+                        pageX: touch.pageX,
+                        pageY: touch.pageY,
+                        preventDefault: () => { },
+                        stopPropagation: () => { }
+                    }
+                    this.contextmenuHandler(<any>event1);
+                }, 900);
+            })
+            this.nodeLineDiv.addEventListener("touchend", (event) => {
+                if (this._treeview.contextMenuTimer) clearTimeout(this._treeview.contextMenuTimer);
+                this._treeview.contextMenuTimer = undefined;
+            })
+            this.nodeLineDiv.addEventListener("touchmove", (event) => {
+                let touch = event.touches[0];
+                if (Math.abs(touch.clientX - posXStart) > 10 || Math.abs(touch.clientY - posYStart) > 10) {
+                    if (this._treeview.contextMenuTimer) clearTimeout(this._treeview.contextMenuTimer);
+                }
+            })
+        }
     }
 
 
@@ -587,7 +625,7 @@ export class TreeviewNode<E, K> {
     initDragAndDrop() {
 
         if (isIPad()) {
-            return;
+            // return;
         }
 
         if (this.treeview.config.isDragAndDropSource) {
@@ -597,11 +635,12 @@ export class TreeviewNode<E, K> {
         this.nodeWithChildrenDiv.ondragstart = (event) => {
 
             event.stopPropagation();
+            this._treeview.contextMenu?.hide();
 
             if (!this.treeview.isSelected(this)) {
                 this.treeview.unselectAllNodes(true);
                 this.treeview.addToSelection(this);
-                
+
                 this.setFocus(true);
             }
 
@@ -634,6 +673,7 @@ export class TreeviewNode<E, K> {
 
         if (this.isFolder || this.isRootNode()) {
             this.dropzoneDiv.ondragover = (event) => {
+                this._treeview.contextMenu?.hide();
 
                 let dragSourceTreeview = this._treeview.getCurrentDragAndDropSource();
 

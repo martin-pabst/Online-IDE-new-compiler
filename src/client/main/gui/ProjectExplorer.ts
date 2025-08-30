@@ -26,6 +26,7 @@ import * as monaco from 'monaco-editor'
 
 import '/assets/css/icons.css';
 import '/assets/css/projectexplorer.css';
+import { TabletConsoleLog } from '../../../tools/TabletConsoleLog.js';
 
 
 export class ProjectExplorer {

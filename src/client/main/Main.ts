@@ -53,6 +53,7 @@ import { IPosition } from '../../compiler/common/range/Position.js';
 import * as monaco from 'monaco-editor'
 import { LanguageManager } from '../../tools/language/LanguageManager.js';
 import { Settings } from '../settings/Settings.js';
+import { TabletConsoleLog } from '../../tools/TabletConsoleLog.js';
 
 
 export class Main implements MainBase {
@@ -305,6 +306,9 @@ export class Main implements MainBase {
             }
 
         });
+
+
+        TabletConsoleLog.registerProvider((message) => { printManager.print(message, false, '#5050ff')});
 
 
     }

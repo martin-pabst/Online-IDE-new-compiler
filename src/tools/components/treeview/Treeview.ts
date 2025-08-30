@@ -5,9 +5,9 @@ import '/assets/css/icons.css';
 import { ExpandCollapseComponent, ExpandCollapseState } from '../ExpandCollapseComponent.ts';
 import { IconButtonComponent } from '../IconButtonComponent.ts';
 import { TreeviewNode, TreeviewNodeOnClickHandler } from './TreeviewNode.ts';
-import { makeEditable } from '../../HtmlTools.ts';
+import { makeEditable, preventTouchDefault } from '../../HtmlTools.ts';
 import { TreeviewMessages } from './TreeviewMessages.ts';
-
+import { enableDragDropTouch } from "@dragdroptouch/drag-drop-touch";
 
 export type TreeviewConfig<E, K> = {
     keyExtractor?: (object: E) => K,
@@ -74,6 +74,9 @@ export class Treeview<E, K> {
 
     private treeviewAccordion?: TreeviewAccordion;
     private parentElement: HTMLElement;
+
+    public contextMenuTimer: any;
+    public contextMenu: JQuery<HTMLElement>;
 
     public nodes: TreeviewNode<E, K>[] = [];
 
@@ -185,6 +188,13 @@ export class Treeview<E, K> {
         } else {
             this.parentElement = parent;
         }
+
+        // see https://github.com/drag-drop-touch-js/dragdroptouch
+        enableDragDropTouch(this.parentElement, this.parentElement, {
+            forceListen: false,
+            dragThresholdPixels: 15,
+            isPressHoldMode: true
+        });
 
         let standardConfig: TreeviewConfig<E, K> = {
             keyExtractor: (externalObject: E) => <K><any>externalObject,
@@ -565,8 +575,8 @@ export class Treeview<E, K> {
 
     removeNodeAndItsFolderContents(node: TreeviewNode<E, K>) {
 
-        if(node.isFolder){
-            for(let childNode of node.getChildren()){
+        if (node.isFolder) {
+            for (let childNode of node.getChildren()) {
                 this.removeNodeAndItsFolderContents(childNode);
             }
         }
@@ -608,6 +618,9 @@ export class Treeview<E, K> {
         this._outerDiv.classList.toggle("jo_dragdrop", start);
         for (let dd of this.dragDropDestinations) {
             dd._outerDiv.classList.toggle("jo_dragdrop", start);
+        }
+        if (!start) {
+            this.nodes.forEach(node => node.stopDragAndDrop());
         }
     }
 
@@ -729,14 +742,14 @@ export class Treeview<E, K> {
         }
     }
 
-    getAllExternalObjects(): E[]{
+    getAllExternalObjects(): E[] {
         return this.nodes.filter(node => !node.isRootNode() && node.externalObject).map(node => node.externalObject);
     }
 
     reduceNodesToMove(nodes: TreeviewNode<E, K>[]): TreeviewNode<E, K>[] {
         let reducedNodes = nodes.slice();
-        for(let node of nodes){
-            if(node.isFolder){
+        for (let node of nodes) {
+            if (node.isFolder) {
                 reducedNodes = reducedNodes.filter(n => n.getParent() != node);
             }
         }

@@ -3,6 +3,7 @@ import { ZoomControl } from "./ZoomControl.js";
 import { Point } from "./classdiagram/Router.js";
 import { DiagramElement } from "./DiagramElement.js";
 import { MainBase } from "../../MainBase.js";
+import { preventTouchDefault } from '../../../../tools/HtmlTools.js';
 
 export var DiagramUnitCm = 0.2; // in cm
 

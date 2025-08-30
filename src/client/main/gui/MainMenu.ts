@@ -12,6 +12,7 @@ import * as monaco from 'monaco-editor'
 import { GuiMessages } from "./language/GuiMessages.js";
 import { Settings } from "../../settings/Settings.js";
 import { SettingsGUI } from "../../settings/SettingsGUI.js";
+import { TabletConsoleLog } from "../../../tools/TabletConsoleLog.js";
 
 
 declare var BUILD_DATE: string;
@@ -428,6 +429,7 @@ export class MainMenu {
 
 
             mi.$element.on('pointerup', (ev) => {
+
                 ev.stopPropagation();
                 mi.action(mi.identifier);
                 for (let i = 0; i < 5; i++) {
@@ -441,7 +443,7 @@ export class MainMenu {
         }
 
         if (mi.subMenu != null) {
-            mi.$element.on('mousedown', (ev) => {
+            mi.$element.on('pointerdown', (ev) => {
                 that.opensubmenu(mi);
                 that.openSubmenusOnMousemove = true;
                 ev.stopPropagation();
