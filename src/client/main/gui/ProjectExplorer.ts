@@ -129,10 +129,11 @@ export class ProjectExplorer {
 
             file.name = newName;
             file.setSaved(false);
-            let fileType = FileTypeManager.filenameToFileType(newName);
-            node.iconClass = fileType.iconclass;
-
-            monaco.editor.setModelLanguage(file.getMonacoModel(), fileType.language);
+            if(!file.isFolder){
+                let fileType = file.isFolder ? undefined : FileTypeManager.filenameToFileType(newName);
+                node.iconClass = fileType.iconclass;
+                monaco.editor.setModelLanguage(file.getMonacoModel(), fileType.language);
+            }
 
             let resp: boolean = await this.main.networkManager.sendUpdatesAsync(true);
 

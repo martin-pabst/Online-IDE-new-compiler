@@ -219,7 +219,7 @@ export class RepositoryCheckoutManager {
     }
 
     checkoutButtonClicked() {
-
+        
         let repositoryId: number = -1;
         let secret: string = null;
 
@@ -243,16 +243,16 @@ export class RepositoryCheckoutManager {
             let repoData: RepositoryInfo = <any>selectedItem.data('repoInfo');
             repositoryId = repoData.id;
         }
-
+        
         let workspace: Workspace = getSelectedObject(this.$workspaceDropdown);
-
+        
         let request: AttachWorkspaceToRepositoryRequest = {
             repository_id: repositoryId,
             createNewWorkspace: workspace == null,
             workspace_id: workspace == null ? null : workspace.id,
             secret: secret
         }
-
+        
         let that = this;
         ajax('attachWorkspaceToRepository', request, (response: AttachWorkspaceToRepositoryResponse) => {
 

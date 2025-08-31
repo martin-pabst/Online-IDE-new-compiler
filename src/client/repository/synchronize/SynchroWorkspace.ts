@@ -324,7 +324,7 @@ export class SynchroWorkspace {
                 file.setSaved(false);
                 this.manager.main.getCompiler().setFileDirty(file);
                 file.name = synchroFile.name;
-                if(!Workspace.pathsEqual(workspace.getPath(file), synchroFile.path)){
+                if (!Workspace.pathsEqual(workspace.getPath(file), synchroFile.path)) {
                     file.parent_folder_id = await this.createPathAndReturnParentFolderId(workspace, synchroFile.path);
                 }
             } else {
@@ -364,39 +364,37 @@ export class SynchroWorkspace {
             }
         }
 
-        main.networkManager.sendUpdatesAsync(true).then(() => {
-            if (main.currentWorkspace == workspace) {
-                let currentlyEditedFile = main.getCurrentWorkspace()?.getCurrentlyEditedFile();
-                main.projectExplorer.setWorkspaceActive(workspace, true);
+        await main.networkManager.sendUpdatesAsync(true);
+        if (main.currentWorkspace == workspace) {
+            let currentlyEditedFile = main.getCurrentWorkspace()?.getCurrentlyEditedFile();
+            main.projectExplorer.setWorkspaceActive(workspace, true);
 
-                // if module hadn't been deleted while synchronizing:
-                if (workspace.getFiles().indexOf(currentlyEditedFile) >= 0) {
-                    main.projectExplorer.setFileActive(currentlyEditedFile);
-                    main.projectExplorer.fileTreeview.selectElement(currentlyEditedFile, false);
-                }
-
+            // if module hadn't been deleted while synchronizing:
+            if (workspace.getFiles().indexOf(currentlyEditedFile) >= 0) {
+                main.projectExplorer.setFileActive(currentlyEditedFile);
+                main.projectExplorer.fileTreeview.selectElement(currentlyEditedFile, false);
             }
 
-            workspace.getFiles().forEach(f => main.getCompiler().setFileDirty(f));
-        })
+        }
 
+        workspace.getFiles().forEach(f => main.getCompiler().setFileDirty(f));
 
     }
 
     async createPathAndReturnParentFolderId(workspace: Workspace, path: string[]): Promise<number | null> {
 
         let currentFolder: GUIFile = undefined;
-        for(let i = 0; i < path.length; i++){
+        for (let i = 0; i < path.length; i++) {
             let parent_folder_id = (currentFolder?.id || null);
             currentFolder = workspace.getFiles().find(file => file.name == path[i] && file.isFolder && file.parent_folder_id == parent_folder_id);
-            if(currentFolder == null){
+            if (currentFolder == null) {
                 currentFolder = new GUIFile(this.manager.main, path[i]);
                 currentFolder.isFolder = true;
                 currentFolder.parent_folder_id = parent_folder_id;
                 await this.manager.main.networkManager.sendCreateFile(currentFolder, workspace, workspace.owner_id);
             }
         }
-        
+
         return currentFolder?.id || null;
 
     }

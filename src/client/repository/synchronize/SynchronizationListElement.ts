@@ -122,14 +122,16 @@ export class SynchronizationListElement {
                 this.compareFilesAndAdaptGUI();
             }, false));
 
-            this.manager.$pathButtonCommitDiv.append(SynchronizationListElement.makeButton("commit", "right", () => {
-                this.rightSynchroFile.path = this.leftSynchroFile.path;
-                this.rightSynchroFile.pathChanged = true;
-                this.rightSynchroFile.state = "changed";
-                this.manager.onContentChanged("right");
-                this.displayPaths();
-                this.compareFilesAndAdaptGUI();
-            }, false));
+            if(this.manager.repositoryIsWritable){
+                this.manager.$pathButtonCommitDiv.append(SynchronizationListElement.makeButton("commit", "right", () => {
+                    this.rightSynchroFile.path = this.leftSynchroFile.path;
+                    this.rightSynchroFile.pathChanged = true;
+                    this.rightSynchroFile.state = "changed";
+                    this.manager.onContentChanged("right");
+                    this.displayPaths();
+                    this.compareFilesAndAdaptGUI();
+                }, false));
+            }
         }
     }
 

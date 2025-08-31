@@ -12,6 +12,7 @@ import { LeftRight, SynchronizationListElement } from "./SynchronizationListElem
 import { SynchroFile, SynchroWorkspace } from "./SynchroWorkspace.js";
 import * as monaco from 'monaco-editor'
 import { RepoSMessages } from '../language/RepositoryMessages.js';
+import { enableDragDropTouch } from "@dragdroptouch/drag-drop-touch";
 
 
 type FileElement = {
@@ -41,12 +42,12 @@ export class SynchronizationManager {
 
     $leftUpperDiv: JQuery<HTMLDivElement>; // contains file list header, file list and file list footer
     $pathDiv: JQuery<HTMLDivElement>; // contains left path, right path and buttons to update/commit
-    $pathLeftOuterDiv: JQuery<HTMLElement>; 
-    $pathLeftDiv: JQuery<HTMLElement>; 
-    $pathButtonUpdateDiv: JQuery<HTMLElement>; 
-    $pathButtonCommitDiv: JQuery<HTMLElement>; 
-    $pathRightOuterDiv: JQuery<HTMLElement>; 
-    $pathRightDiv: JQuery<HTMLElement>; 
+    $pathLeftOuterDiv: JQuery<HTMLElement>;
+    $pathLeftDiv: JQuery<HTMLElement>;
+    $pathButtonUpdateDiv: JQuery<HTMLElement>;
+    $pathButtonCommitDiv: JQuery<HTMLElement>;
+    $pathRightOuterDiv: JQuery<HTMLElement>;
+    $pathRightDiv: JQuery<HTMLElement>;
 
     $fileListHeaderOuterDiv: JQuery<HTMLDivElement>;
     $fileListHeaderDivs: JQuery<HTMLDivElement>[] = [];
@@ -440,6 +441,15 @@ export class SynchronizationManager {
         this.makeDroppable("right", this.$fileListDivs[3]);
 
         this.initEditor();
+
+        // see https://github.com/drag-drop-touch-js/dragdroptouch
+        enableDragDropTouch($synchroDiv[0], $synchroDiv[0], {
+            forceListen: false,
+            dragThresholdPixels: 5,
+            isPressHoldMode: true,
+            pressHoldDelayMS: 100
+        });
+
     }
 
     backToWorkspace() {
@@ -524,7 +534,7 @@ export class SynchronizationManager {
 
                     if (errorMessage != null) {
                         alert(errorMessage);
-                        this.attachToWorkspaceAndRepository(this.currentRepositorySynchroWorkspace.copiedFromWorkspace);
+                        this.attachToWorkspaceAndRepository(this.currentUserSynchroWorkspace.copiedFromWorkspace);
                     } else {
                         this.attachToRepository(repository);
                         this.$writeRepositoryChangesButton.hide();
