@@ -19,6 +19,8 @@ export type SynchroFile = {
     workspaceFile: GUIFile,
     committedFromFile?: SynchroFile,
     name: string,
+    path?: string[],
+    pathChanged?: boolean,
     repository_file_version: number,
     identical_to_repository_version: boolean,
     text: string,
@@ -59,10 +61,11 @@ export class SynchroWorkspace {
     copyFromWorkspace(workspace: Workspace): SynchroWorkspace {
 
         this.files = [];
-        workspace.getFiles().forEach(file => {
+        workspace.getFiles().filter(file => !file.isFolder).forEach(file => {
 
             this.files.push({
                 name: file.name,
+                path: workspace.getPath(file),
                 repository_file_version: file.repository_file_version,
                 identical_to_repository_version: file.identical_to_repository_version,
                 idInsideRepository: file.is_copy_of_id,
@@ -91,6 +94,7 @@ export class SynchroWorkspace {
         repository.fileEntries.forEach((fileEntry) => {
             this.files.push({
                 name: fileEntry.filename,
+                path: fileEntry.path.slice(),
                 idInsideRepository: fileEntry.id,
                 idInsideWorkspace: null,
                 workspaceFile: null,
@@ -164,7 +168,8 @@ export class SynchroWorkspace {
                     type: "create",
                     version: 1,
                     content: file.text,
-                    filename: file.name
+                    filename: file.name,
+                    path: file.path
                 });
             } else if (oldFile.text != file.text) {
                 oldFile.version++;
@@ -175,7 +180,8 @@ export class SynchroWorkspace {
                         type: "intermediate",
                         version: oldFile.version,
                         content: file.text,
-                        filename: file.name
+                        filename: file.name,
+                        path: file.path
                     });
                 } else {
                     repositoryHistoryEntry.historyFiles.push({
@@ -183,7 +189,8 @@ export class SynchroWorkspace {
                         type: "change",
                         version: oldFile.version,
                         content: patch,
-                        filename: (oldFile.filename == file.name) ? undefined : file.name
+                        filename: (oldFile.filename == file.name) ? undefined : file.name,
+                        path: Workspace.pathsEqual(oldFile.path, file.path) ? undefined : file.path.slice()
                     });
                 }
 
@@ -194,12 +201,13 @@ export class SynchroWorkspace {
                     cff.workspaceFile.setSaved(false);
                 }
 
-            } else if (oldFile.filename != file.name) {
+            } else if (oldFile.filename != file.name || !Workspace.pathsEqual(oldFile.path, file.path)) {
                 repositoryHistoryEntry.historyFiles.push({
                     id: oldFile.id,
                     type: "intermediate",
                     version: oldFile.version,
-                    filename: file.name
+                    filename: (oldFile.filename == file.name) ? undefined : file.name,
+                    path: Workspace.pathsEqual(oldFile.path, file.path) ? undefined : file.path.slice()
                 });
             }
         }
@@ -218,6 +226,7 @@ export class SynchroWorkspace {
         let newFileEntries: RepositoryFileEntry[] = this.files.filter(file => file.state != "deleted").map((synchroFile) => {
             return {
                 filename: synchroFile.name,
+                path: synchroFile.path.slice(),
                 id: synchroFile.idInsideRepository,
                 text: synchroFile.text,
                 version: synchroFile.repository_file_version
@@ -261,9 +270,10 @@ export class SynchroWorkspace {
             that.manager.main.networkManager.sendUpdatesAsync(true).then(() => {
                 callback(cfr.repository, null);
             });
-        }, (error: string) => { callback(null, error) })
+        }, (error: string) => { callback(oldRepository, error) })
 
     }
+
 
     getPatch(contentOld: string, contentNew: string): string {
         //@ts-ignore
@@ -293,7 +303,7 @@ export class SynchroWorkspace {
         let oldIdToFileMap: { [id: number]: GUIFile } = {};
         let newIdToFileMap: { [id: number]: SynchroFile } = {};
 
-        workspace.getFiles().forEach(file => {
+        workspace.getFiles().filter(f => !f.isFolder).forEach(file => {
             if (file.is_copy_of_id != null) oldIdToFileMap[file.is_copy_of_id] = file;
         });
 
@@ -302,7 +312,7 @@ export class SynchroWorkspace {
         });
 
         let main = this.manager.main;
-        for (let file of workspace.getFiles()) {
+        for (let file of workspace.getFiles().filter(f => !f.isFolder)) {
 
             let synchroFile = newIdToFileMap[file.id];
             if (synchroFile != null && synchroFile.state != 'deleted') {
@@ -314,6 +324,9 @@ export class SynchroWorkspace {
                 file.setSaved(false);
                 this.manager.main.getCompiler().setFileDirty(file);
                 file.name = synchroFile.name;
+                if(!Workspace.pathsEqual(workspace.getPath(file), synchroFile.path)){
+                    file.parent_folder_id = await this.createPathAndReturnParentFolderId(workspace, synchroFile.path);
+                }
             } else {
 
                 main.networkManager.sendDeleteWorkspaceOrFileAsync("file", [file.id]).then((success: boolean) => {
@@ -338,6 +351,7 @@ export class SynchroWorkspace {
                 f.is_copy_of_id = synchroFile.idInsideRepository;
                 f.repository_file_version = synchroFile.repository_file_version;
                 f.identical_to_repository_version = synchroFile.identical_to_repository_version;
+                f.parent_folder_id = await this.createPathAndReturnParentFolderId(workspace, synchroFile.path);
 
                 workspace.addFile(f);
 
@@ -366,6 +380,24 @@ export class SynchroWorkspace {
             workspace.getFiles().forEach(f => main.getCompiler().setFileDirty(f));
         })
 
+
+    }
+
+    async createPathAndReturnParentFolderId(workspace: Workspace, path: string[]): Promise<number | null> {
+
+        let currentFolder: GUIFile = undefined;
+        for(let i = 0; i < path.length; i++){
+            let parent_folder_id = (currentFolder?.id || null);
+            currentFolder = workspace.getFiles().find(file => file.name == path[i] && file.isFolder && file.parent_folder_id == parent_folder_id);
+            if(currentFolder == null){
+                currentFolder = new GUIFile(this.manager.main, path[i]);
+                currentFolder.isFolder = true;
+                currentFolder.parent_folder_id = parent_folder_id;
+                await this.manager.main.networkManager.sendCreateFile(currentFolder, workspace, workspace.owner_id);
+            }
+        }
+        
+        return currentFolder?.id || null;
 
     }
 

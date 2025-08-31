@@ -40,6 +40,13 @@ export class SynchronizationManager {
     $historyScrollDiv: JQuery<HTMLDivElement>;
 
     $leftUpperDiv: JQuery<HTMLDivElement>; // contains file list header, file list and file list footer
+    $pathDiv: JQuery<HTMLDivElement>; // contains left path, right path and buttons to update/commit
+    $pathLeftOuterDiv: JQuery<HTMLElement>; 
+    $pathLeftDiv: JQuery<HTMLElement>; 
+    $pathButtonUpdateDiv: JQuery<HTMLElement>; 
+    $pathButtonCommitDiv: JQuery<HTMLElement>; 
+    $pathRightOuterDiv: JQuery<HTMLElement>; 
+    $pathRightDiv: JQuery<HTMLElement>; 
 
     $fileListHeaderOuterDiv: JQuery<HTMLDivElement>;
     $fileListHeaderDivs: JQuery<HTMLDivElement>[] = [];
@@ -188,7 +195,7 @@ export class SynchronizationManager {
         let synchroFileMap: { [id: string]: FileElement } = {};
 
         this.leftSynchroWorkspace.files.forEach(sfile => {
-            let fileElement = {
+            let fileElement: FileElement = {
                 id: sfile.idInsideRepository,
                 name: sfile.name,
                 leftSynchroFile: sfile,
@@ -355,6 +362,7 @@ export class SynchronizationManager {
 
         this.$leftDiv.append(
             this.$leftUpperDiv = makeDiv("jo_synchro_leftUpper"),
+            this.$pathDiv = makeDiv("jo_synchro_pathDiv", "jo_scrollable"),
             this.$editorDiv = makeDiv("jo_synchro_editor")
         );
 
@@ -409,7 +417,20 @@ export class SynchronizationManager {
         });
         this.$writeRepositoryChangesButton.hide();
 
+        this.$pathDiv.append(
+            this.$pathLeftOuterDiv = jQuery(`<div id="jo_synchro_pathLeftOuterDiv" class="jo_synchro_fileList"></div>`),
+            this.$pathButtonUpdateDiv = jQuery(`<div id="jo_synchro_pathButtonsDiv" class="jo_synchro_fileListButtonsLeft"></div>`),
+            this.$pathButtonCommitDiv = jQuery(`<div id="jo_synchro_pathButtonsDiv" class="jo_synchro_fileListButtonsRight"></div>`),
+            this.$pathRightOuterDiv = jQuery(`<div id="jo_synchro_pathRightOuterDiv" class="jo_synchro_fileList"></div>`)
+        )
 
+        this.$pathLeftOuterDiv.append(
+            this.$pathLeftDiv = jQuery(`<div class="jo_synchro_path"></div>`)
+        )
+
+        this.$pathRightOuterDiv.append(
+            this.$pathRightDiv = jQuery(`<div class="jo_synchro_path"></div>`)
+        )
 
 
         let horizontalSlider = new Slider(this.$editorDiv[0], true, true, () => { this.diffEditor.layout(); });
@@ -443,7 +464,7 @@ export class SynchronizationManager {
             $dropZoneDiv.removeClass('jo_synchro_dragZone');
         });
         $dropZoneDiv.on("drop", (e) => {
-            if(HistoryElement.currentlyDragged){
+            if (HistoryElement.currentlyDragged) {
                 let sw = new SynchroWorkspace(that).copyFromHistoryElement(HistoryElement.currentlyDragged);
                 switch (leftRight) {
                     case "left":
@@ -517,8 +538,8 @@ export class SynchronizationManager {
 
     }
 
-    writeWorkspaceChanges() {
-        this.currentUserSynchroWorkspace.writeChangesToWorkspace();
+    async writeWorkspaceChanges() {
+        await this.currentUserSynchroWorkspace.writeChangesToWorkspace();
         this.currentUserSynchroWorkspace = new SynchroWorkspace(this).copyFromWorkspace(this.currentUserSynchroWorkspace.copiedFromWorkspace);
         this.leftSynchroWorkspace = this.currentUserSynchroWorkspace;
         this.setupSynchronizationListElements();

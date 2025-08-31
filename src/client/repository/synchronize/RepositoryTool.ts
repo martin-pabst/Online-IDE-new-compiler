@@ -10,7 +10,10 @@ export class RepositoryTool {
             repo.fileEntries = [];
         }
 
-        repo.fileEntries.forEach(fe => fe.text = fe.text.replace(/\r\n/g, "\n"));
+        repo.fileEntries.forEach(fe => {
+            fe.text = fe.text.replace(/\r\n/g, "\n");
+            fe.path = fe.path ?? [];
+        });
 
         if (!repo.history.endsWith("]")) repo.history += "]";
         repo.historyEntries = JSON.parse(repo.history);

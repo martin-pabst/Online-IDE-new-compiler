@@ -412,7 +412,8 @@ export type RepositoryFileEntry = {
     id: number,
     version: number,
     filename: string,
-    text: string
+    text: string,
+    path?: string[]
 }
 
 export type RepositoryHistoryFileEntry = {
@@ -420,8 +421,8 @@ export type RepositoryHistoryFileEntry = {
     version: number,
     type: "change" | "create" | "delete" | "intermediate",
     filename?: string, // if type == "create" || type == "intermediate" || type == "change" and filename has changed
+    path?: string[], // if type == "create" || type == "intermediate" || type == "change" and path has changed
     content?: string, // if type == "create" || type == "intermediate"
-    changeSet?: string // if "change" and not only filename has changed
 }
 
 export type RepositoryHistoryEntry = {

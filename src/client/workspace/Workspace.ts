@@ -68,6 +68,28 @@ export class Workspace extends CompilerWorkspace {
         return this.files;
     }
 
+    getPath(file: GUIFile): string[] {
+
+        let path: string[] = [];
+        let parent: GUIFile | undefined;
+        while (parent = file.parent_folder_id ? this.files.find(f => f.id == file.parent_folder_id) : undefined) {
+            path.unshift(parent.name);
+            file = parent;
+        }
+
+        return path;
+
+    }
+
+    static pathsEqual(path1: string[], path2: string[]) {
+        if (path1.length != path2.length) return false;
+        for (let i = 0; i < path1.length; i++) {
+            if (path1[i] != path2[i]) return false;
+        }
+        return true;
+    }
+
+
     removeAllFiles() {
         for (let file of this.files.filter(f => f.hasMonacoModel())) {
             file.getMonacoModel().dispose();

@@ -856,7 +856,7 @@ export class TreeviewNode<E, K> {
             this.childrenLineDiv.style.marginLeft = "0";
         } else {
             let depth = this.getDepth();
-            this.childrenLineDiv.style.marginLeft = (2 + depth * 7) + "px";
+            this.childrenLineDiv.style.marginLeft = (6 + depth * 7) + "px";
 
             this.marginLeftDiv.style.width = (-1 + depth * 7) + "px";
         }

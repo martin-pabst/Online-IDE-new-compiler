@@ -108,7 +108,6 @@
     /* ExpandCollapseComponent */
     .jo_exandCollapseComponent {
         cursor: pointer;
-        margin-left: -2px;
     }
 
     .jo_exandCollapseComponent:hover {
@@ -149,7 +148,6 @@
 
     .jo_treeviewNode_expandCollapse {
         position: relative;
-        left: -2px;
     }
 
     .jo_treeviewNode {

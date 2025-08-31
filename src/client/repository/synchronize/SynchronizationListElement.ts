@@ -4,6 +4,7 @@ import { SynchronizationManager } from "./RepositorySynchronizationManager.js";
 import { SynchroFile, SynchroWorkspace } from "./SynchroWorkspace.js";
 import * as monaco from 'monaco-editor'
 import { SynchroListElementMessages } from '../language/RepositoryMessages.js';
+import { Workspace } from '../../workspace/Workspace.js';
 
 
 type ButtonKind = "create" | "delete" | "update" | "commit" | "updateAll" | "commitAll";
@@ -90,6 +91,46 @@ export class SynchronizationListElement {
             originalEditable: this.leftSynchroFile?.originalText != null
         })
 
+        this.displayPaths();
+    }
+
+    displayPaths() {
+        this.manager.$pathLeftDiv.text(this.leftSynchroFile ? 'Pfad: /' + this.leftSynchroFile.path.join("/") : "");
+        this.manager.$pathRightDiv.text(this.rightSynchroFile ? 'Pfad: /' + this.rightSynchroFile.path.join("/") : "");
+
+        this.manager.$pathLeftDiv[0].classList.remove('jo_synchro_path_changed');
+        this.manager.$pathRightDiv[0].classList.remove('jo_synchro_path_changed');
+        if(this.leftSynchroFile?.pathChanged){
+            this.manager.$pathLeftDiv[0].classList.add('jo_synchro_path_changed');
+        }
+        if(this.rightSynchroFile?.pathChanged){
+            this.manager.$pathRightDiv[0].classList.add('jo_synchro_path_changed');
+        }
+
+
+        this.manager.$pathButtonCommitDiv.empty();
+        this.manager.$pathButtonUpdateDiv.empty();
+
+        if (this.leftSynchroFile && this.rightSynchroFile &&
+            !Workspace.pathsEqual(this.leftSynchroFile.path, this.rightSynchroFile.path)) {
+            this.manager.$pathButtonUpdateDiv.append(SynchronizationListElement.makeButton("update", "left", () => {
+                this.leftSynchroFile.path = this.rightSynchroFile.path;
+                this.leftSynchroFile.pathChanged = true;
+                this.leftSynchroFile.state = "changed";
+                this.manager.onContentChanged("left");
+                this.displayPaths();
+                this.compareFilesAndAdaptGUI();
+            }, false));
+
+            this.manager.$pathButtonCommitDiv.append(SynchronizationListElement.makeButton("commit", "right", () => {
+                this.rightSynchroFile.path = this.leftSynchroFile.path;
+                this.rightSynchroFile.pathChanged = true;
+                this.rightSynchroFile.state = "changed";
+                this.manager.onContentChanged("right");
+                this.displayPaths();
+                this.compareFilesAndAdaptGUI();
+            }, false));
+        }
     }
 
     createRightFileModel() {
@@ -183,7 +224,10 @@ export class SynchronizationListElement {
 
         let needsMerge = false;
 
+
+
         if (this.leftSynchroFile != null) {
+            let isPathEqual: boolean = this.rightSynchroFile == null ? true : Workspace.pathsEqual(this.leftSynchroFile.path, this.rightSynchroFile.path);
             leftCaption = this.leftSynchroFile.name;
             if (this.leftSynchroFile.repository_file_version == null) {
                 leftVersionCaption = SynchroListElementMessages.withoutVersion();
@@ -197,7 +241,12 @@ export class SynchronizationListElement {
                         needsMerge = !this.leftSynchroFile.markedAsMerged;
                     }
                 }
-
+                if (!isPathEqual) {
+                    leftVersionCaption += `, <span class="jo_synchro_otherPath">anderer Pfad</span>`;
+                }
+                if (this.leftSynchroFile.pathChanged) {
+                    leftVersionCaption += `, <span class="jo_synchro_otherPath">neuer Pfad</span>`;
+                }
                 leftVersionCaption += ")";
             }
 
@@ -208,7 +257,9 @@ export class SynchronizationListElement {
         }
 
         let rightCaption = this.rightSynchroFile == null ? "---" : this.rightSynchroFile.name;
-        let rightVersionCaption = this.rightSynchroFile == null ? "" : "(V " + this.rightSynchroFile.repository_file_version + ")";
+        let rightVersionCaption = this.rightSynchroFile == null ? "" : ("(V " + this.rightSynchroFile.repository_file_version 
+            + (this.rightSynchroFile?.pathChanged ? `, <span class="jo_synchro_otherPath">neuer Pfad</span>` : "")
+            + ")");
         if (this.rightSynchroFile?.state == "deleted") {
             rightCaption += SynchroListElementMessages.DELETED();
             rightVersionCaption = "";
@@ -224,6 +275,7 @@ export class SynchronizationListElement {
                 this.$buttonLeftDiv.append(SynchronizationListElement.makeButton("create", "left", () => {
                     that.leftSynchroFile = {
                         name: that.rightSynchroFile.name,
+                        path: that.rightSynchroFile.path.slice(),
                         idInsideRepository: that.rightSynchroFile.idInsideRepository,
                         repository_file_version: that.rightSynchroFile.repository_file_version,
                         identical_to_repository_version: true,
@@ -251,6 +303,7 @@ export class SynchronizationListElement {
                 this.$buttonRightDiv.append(SynchronizationListElement.makeButton("create", "right", () => {
                     that.rightSynchroFile = {
                         name: that.leftSynchroFile.name,
+                        path: that.leftSynchroFile.path.slice(),
                         committedFromFile: that.leftSynchroWorkspace.isWritable() ? that.leftSynchroFile : null,
                         idInsideRepository: that.leftSynchroFile.idInsideRepository,
                         repository_file_version: that.leftSynchroFile.repository_file_version == null ? 1 : that.leftSynchroFile.repository_file_version,
@@ -274,7 +327,7 @@ export class SynchronizationListElement {
                 this.$buttonLeftDiv.append(SynchronizationListElement.makeButton("delete", "left", () => {
                     that.leftSynchroFile.state = "deleted";
                     that.onFileChanged("left");
-                },false));
+                }, false));
             }
         } else {
             // Both SynchroFiles != null

@@ -125,6 +125,37 @@
         /* background-color: gray; */
     }
 
+    #jo_synchro_pathDiv {
+        display: flex;
+        flex-direction: row;
+        border-top: 2px dotted var(--slider);
+        padding-right: 14px;
+        height: 30px;
+        align-items: center;
+    }
+
+    #jo_synchro_pathLeftOuterDiv, #jo_synchro_pathRightOuterDiv {
+        overflow: hidden;
+    }
+
+    .jo_synchro_otherPath {
+        color: var(--fileDirtyColor);
+    }
+
+    .jo_synchro_path {
+        padding: 2px 5px;
+    }
+
+    .jo_synchro_path_changed {
+        color: var(--fileDirtyColor);
+    }
+
+    #jo_synchro_pathButtonsDiv {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
     #jo_synchro_editor {
         flex: 4;
         position: relative;
@@ -207,7 +238,7 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        padding: 3px 10px;
+        padding: 0px 10px;
         /* border-bottom: 2px solid var(--slider); */
     }
 

@@ -117,6 +117,8 @@ export class HistoryElement {
         if (file != null) {
             file.text = fileEntry.content;
             file.version = fileEntry.version;
+            if (fileEntry.filename) file.filename = fileEntry.filename;
+            if (fileEntry.path) file.path = fileEntry.path.slice();
         }
     }
 
@@ -133,6 +135,8 @@ export class HistoryElement {
                 file.text = newText[0];
                 file.version = fileEntry.version;
             }
+            if (fileEntry.filename) file.filename = fileEntry.filename;
+            if (fileEntry.path) file.path = fileEntry.path.slice();
         }
     }
 
@@ -148,6 +152,7 @@ export class HistoryElement {
             id: fileEntry.id,
             text: fileEntry.content,
             filename: fileEntry.filename,
+            path: fileEntry.path ? fileEntry.path.slice() : [],
             version: fileEntry.version
         }
         files.push(file);
