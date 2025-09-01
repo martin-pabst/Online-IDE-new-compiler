@@ -269,7 +269,7 @@ export class TreeviewNode<E, K> {
         this.nodeWithChildrenDiv = DOM.makeDiv(undefined, 'jo_treeviewNodeWithChildren');
 
         if (this.isFolder) {
-            this.dropzoneDiv = DOM.makeDiv(this.nodeWithChildrenDiv, this._isFolder ? 'jo_treeviewNode_dropzone' : 'jo');
+            this.dropzoneDiv = DOM.makeDiv(this.nodeWithChildrenDiv, this._isFolder ? 'jo_treeviewNode_dropzone' : '');
         }
 
         this.dragAndDropDestinationDiv = DOM.makeDiv(this.nodeWithChildrenDiv, 'jo_treeviewNode_dragAndDropDestinationLine');
@@ -753,8 +753,9 @@ export class TreeviewNode<E, K> {
 
             }
 
-            this.dropzoneDiv.onclick = () => { this.stopDragAndDrop(); }
-            this.nodeWithChildrenDiv.onclick = () => { this.stopDragAndDrop(); }
+            this.dropzoneDiv.onpointerdown = () => {this._treeview.startStopDragDrop(false)};
+
+            // this.nodeWithChildrenDiv.onclick = () => { this.stopDragAndDrop(); }
 
             this.dropzoneDiv.ondrop = async (event) => {
                 this.dragAndDropDestinationDiv.style.display = "none";
@@ -828,7 +829,6 @@ export class TreeviewNode<E, K> {
         this.dragAndDropDestinationDiv.style.display = "none";
 
         this.nodeWithChildrenDiv.classList.toggle('jo_treeviewNode_highlightDragDropDestination', false);
-        this.dragAndDropDestinationDiv.style.display = "none";
 
     }
 
@@ -856,9 +856,9 @@ export class TreeviewNode<E, K> {
             this.childrenLineDiv.style.marginLeft = "0";
         } else {
             let depth = this.getDepth();
-            this.childrenLineDiv.style.marginLeft = (6 + depth * 7) + "px";
+            this.childrenLineDiv.style.marginLeft = (6 + depth * 10) + "px";
 
-            this.marginLeftDiv.style.width = (-1 + depth * 7) + "px";
+            this.marginLeftDiv.style.width = (-1 + depth * 10) + "px";
         }
     }
 

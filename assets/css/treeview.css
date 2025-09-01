@@ -153,8 +153,8 @@
     .jo_treeviewNode {
         display: flex;
         flex-direction: row;
-        /* height: 20px; */
-        line-height: 18px;
+        line-height: 22px;
+        align-items: center;
         cursor: pointer;
         z-index: 2;
         border: 1px solid transparent;
