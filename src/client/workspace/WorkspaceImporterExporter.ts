@@ -54,11 +54,12 @@ export class WorkspaceExporter {
         if (!node) return [];
 
         let workspacesToExport = node.getOrderedNodeListRecursively().map(node => node.externalObject);
+        workspacesToExport.unshift(workspace);
 
         let exportedWorkspaces: ExportedWorkspace[] = [];
         for (let ws of workspacesToExport) {
             let exportedWorkspace: ExportedWorkspace = await WorkspaceExporter.exportWorkspace(ws);
-            if (exportedWorkspace.parent_folder_id == workspace.id) exportedWorkspace.parent_folder_id = null;
+            if (ws == workspace) exportedWorkspace.parent_folder_id = null;
             exportedWorkspaces.push(exportedWorkspace);
         }
 
@@ -70,9 +71,13 @@ export class WorkspaceExporter {
 
         let spritesheetBase64: string = undefined;
         if (workspace.spritesheetId) {
-            let sd: SpritesheetData = new SpritesheetData();
-            await sd.load(workspace.spritesheetId);
-            spritesheetBase64 = bytesToBase64(sd.zipFile);
+            try {
+                let sd: SpritesheetData = new SpritesheetData();
+                await sd.load(workspace.spritesheetId);
+                if(sd.zipFile != null) spritesheetBase64 = bytesToBase64(sd.zipFile);
+            } catch (ex){
+                console.log("Hier!");
+            }
         }
 
         return {

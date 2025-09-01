@@ -107,7 +107,11 @@ export class ImportWorkspaceGUI {
             {
                 caption: WorkspaceImportMessages.ok(),
                 color: "#18a000ff",
-                callback: () => { this.dialog.close() }
+                callback: () => { 
+                    this.main.workspaceList = rightTreeview.getOrderedNodeListRecursively().map(node => node.externalObject);
+                    this.main.projectExplorer.renderWorkspaces(this.main.workspaceList);
+                    this.dialog.close() 
+                }
             }
         ])
     }

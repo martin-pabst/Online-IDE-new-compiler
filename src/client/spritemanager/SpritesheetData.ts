@@ -88,8 +88,7 @@ export class SpritesheetData {
             //     cacheManager.store(spritesheetIdOrURL, this.zipFile);
             // }
         // }
-
-        await this.unpackZip(this.zipFile)
+        if(this.zipFile != null) await this.unpackZip(this.zipFile)
 
         return;
     }
@@ -123,6 +122,7 @@ export class SpritesheetData {
                 },
                 error: (jqXHR, message) => {
                     alert(SpritesheetDataMessages.couldntLoadSpritesheet() + message);
+                    reject();
                 }
             });
 

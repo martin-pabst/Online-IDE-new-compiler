@@ -256,7 +256,7 @@ export class JUnitTestrunner {
     }
 
     async executeAllTests() {
-        let treeviewEntry = this.findTreeviewEntry(undefined, undefined) || undefined;
+        let treeviewEntry = this.testTreeview.nodes.find(entry => entry.getParent()?.isRootNode())?.externalObject;
         await this.executeTests(treeviewEntry);
     }
 
