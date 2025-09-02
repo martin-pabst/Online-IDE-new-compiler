@@ -305,7 +305,8 @@ export class SettingsGUI {
             buttonAddFolders: false,
             withFolders: true,
             withDeleteButtons: false,
-            isDragAndDropSource: false
+            isDragAndDropSource: false,
+            orderBy: "comparator"
         })
 
         for (let settingsGroup of AllSettingsMetadata.filter(sg => sg.settingType === 'group')) {

@@ -71,7 +71,8 @@ export class JUnitTestrunner {
             contextMenu: {
 
             },
-            withSelection: true
+            withSelection: true,
+            orderBy: "comparator"
         })
 
         this.testTreeview.contextMenuProvider = (element: JUnitTreeviewEntry, node: TreeviewNode<JUnitTreeviewEntry, JUnitTreeviewEntry>) => {

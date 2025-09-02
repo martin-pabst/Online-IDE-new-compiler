@@ -93,7 +93,8 @@ export class TeacherExplorer {
                     if (a.rufname > b.rufname) return 1;
                     if (b.rufname > a.rufname) return -1;
                     return 0;
-                }
+                },
+                orderBy: "comparator"
             }
         );
 
@@ -153,7 +154,8 @@ export class TeacherExplorer {
             defaultIconClass: "img_class-dark",
             flexWeight: "1",
             minHeight: 100,
-            withFolders: false
+            withFolders: false,
+            orderBy: "comparator"
 
         })
 

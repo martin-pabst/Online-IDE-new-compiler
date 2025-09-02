@@ -37,7 +37,8 @@ export class EmbeddedFileExplorer {
             keyExtractor: (file) => file.id,
             parentKeyExtractor: (file) => file.parent_folder_id,
             withDeleteButtons: true,
-            confirmDelete: true
+            confirmDelete: true,
+            orderBy: "comparator"
         });
 
         this.treeview.newNodeCallback = async (name, node) => {

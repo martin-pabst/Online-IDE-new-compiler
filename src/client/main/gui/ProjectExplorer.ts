@@ -86,7 +86,8 @@ export class ProjectExplorer {
             minHeight: 150,
             flexWeight: "1",
             keyExtractor: (file) => file.id,
-            parentKeyExtractor: (file) => file.parent_folder_id
+            parentKeyExtractor: (file) => file.parent_folder_id,
+            orderBy: "comparator"
         })
 
         this.fileTreeview.newNodeCallback = async (name: string, node: TreeviewNode<GUIFile, number>) => {
@@ -235,7 +236,7 @@ export class ProjectExplorer {
 
         this.fileTreeview.nodeClickedCallback =
             (file: GUIFile) => {
-                this.setFileActive(file);
+                if(!file.isFolder) this.setFileActive(file);
             }
 
 
@@ -332,7 +333,8 @@ export class ProjectExplorer {
             },
             keyExtractor: workspace => workspace.id,
             parentKeyExtractor: workspace => workspace.parent_folder_id,
-            readOnlyExtractor: (workspace) => workspace.readonly || workspace.pruefung_id != null
+            readOnlyExtractor: (workspace) => workspace.readonly || workspace.pruefung_id != null,
+            orderBy: "comparator"
         })
 
         this.workspaceTreeview.newNodeCallback = async (name, node) => {
@@ -454,6 +456,7 @@ export class ProjectExplorer {
                         {
                             caption: ProjectExplorerMessages.duplicate(),
                             callback: async () => {
+                                await this.main.networkManager.sendUpdatesAsync();
                                 let response: DuplicateWorkspaceResponse = await this.main.networkManager.sendDuplicateWorkspace(workspace);
 
                                 if (response.message == null && response.workspace != null) {
@@ -784,6 +787,8 @@ export class ProjectExplorer {
 
     lastOpenFile: GUIFile = null;
     setFileActive(file: GUIFile) {
+
+        if(file.isFolder) file = null;
 
         this.main.bottomDiv.homeworkManager.hideRevision();
 

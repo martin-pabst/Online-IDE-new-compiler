@@ -48,7 +48,8 @@ export class ImportWorkspaceGUI {
             withDeleteButtons: false,
             withFolders: true,
             keyExtractor: (ews => ews.id),
-            parentKeyExtractor: (ews => ews.parent_folder_id)
+            parentKeyExtractor: (ews => ews.parent_folder_id),
+            orderBy: "comparator"
         });
 
         let rightTreeview = new Treeview<Workspace, number>(treeviewRightDiv, {
@@ -67,7 +68,8 @@ export class ImportWorkspaceGUI {
                 return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
             },
             keyExtractor: (ews => ews.id),
-            parentKeyExtractor: (ews => ews.parent_folder_id)
+            parentKeyExtractor: (ews => ews.parent_folder_id),
+            orderBy: "comparator"
         });
 
         rightTreeview.addDragDropSource({ treeview: leftTreeview, defaultDragKind: "copy", dropInsertKind: "asElement" });

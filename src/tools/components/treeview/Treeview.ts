@@ -5,7 +5,7 @@ import '/assets/css/icons.css';
 import { ExpandCollapseComponent, ExpandCollapseState } from '../ExpandCollapseComponent.ts';
 import { IconButtonComponent } from '../IconButtonComponent.ts';
 import { TreeviewNode, TreeviewNodeOnClickHandler } from './TreeviewNode.ts';
-import { makeEditable, preventTouchDefault } from '../../HtmlTools.ts';
+import { makeEditable } from '../../HtmlTools.ts';
 import { TreeviewMessages } from './TreeviewMessages.ts';
 import { enableDragDropTouch } from "@dragdroptouch/drag-drop-touch";
 
@@ -13,6 +13,13 @@ export type TreeviewConfig<E, K> = {
     keyExtractor?: (object: E) => K,
     parentKeyExtractor?: (object: E) => K | undefined,
     readOnlyExtractor?: (object: E) => boolean,
+    
+    orderExtractor?: (object: E) => number,
+    orderSetter?: (object: E, order: number) => void,
+    comparator?: (externalElement1: E, externalElement2: E) => number,
+
+    orderBy: "comparator" | "user-defined",
+
     captionLine: {
         enabled: boolean,
         text?: string,
@@ -30,7 +37,6 @@ export type TreeviewConfig<E, K> = {
     confirmDelete?: boolean,
 
     isDragAndDropSource?: boolean,
-    comparator?: (externalElement1: E, externalElement2: E) => number,
     minHeight?: number,
     buttonAddFolders?: boolean,
 
@@ -67,6 +73,7 @@ export type TreeviewDeleteCallback<E, K> = (element: E | null, node: TreeviewNod
 export type TreeviewNewNodeCallback<E, K> = (name: string, node: TreeviewNode<E, K>) => Promise<E | null>;
 export type TreeviewContextMenuProvider<E, K> = (element: E, node: TreeviewNode<E, K>) => TreeviewContextMenuItem<E, K>[];
 export type DropEventCallback<E, K> = (sourceTreeview: Treeview<any, any>, destinationNode: TreeviewNode<E, K>, destinationChildIndex: number, dragKind: DragKind) => void;
+export type OrderChangedCallback<E, K> = (nodesWithNewOrder: TreeviewNode<E, K>) => Promise<boolean>;
 
 export class Treeview<E, K> {
 
@@ -199,6 +206,9 @@ export class Treeview<E, K> {
         let standardConfig: TreeviewConfig<E, K> = {
             keyExtractor: (externalObject: E) => <K><any>externalObject,
             parentKeyExtractor: undefined,
+
+            orderBy: "comparator",
+
             captionLine: {
                 enabled: true,
                 text: TreeviewMessages.caption()
@@ -668,8 +678,8 @@ export class Treeview<E, K> {
         }
     }
 
-    public sort(comparator?: (e1: E, e2: E) => number) {
-        this.rootNode?.sort(comparator);
+    public sort() {
+        this.rootNode?.sort();
     }
 
     public adjustFoldersByExternalObjectRelations() {

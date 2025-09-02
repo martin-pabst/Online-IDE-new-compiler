@@ -21,15 +21,27 @@ export function makeEditable(elementWithText: JQuery<HTMLElement> | HTMLElement,
 
     let $input = jQuery('<input type="text" class="jo_inplaceeditor" spellcheck="false">');
     $input.css({
-        width: elementToReplace.css('width'),
-        height: elementToReplace.css('height'),
         color: elementToReplace.css('color'),
         position: elementToReplace.css('position'),
         "background-color": elementToReplace.css('background-color'),
         "font-size": elementToReplace.css('font-size'),
         "font-weight": elementToReplace.css('font-weight'),
+        "line-height": elementToReplace.css('line-height'),
+        "flex": elementToReplace.css('flex'),
         "box-sizing": "border-box"
     });
+
+    let oldHeight = elementToReplace.css('height');
+    if(oldHeight != null && oldHeight != '0px'){
+        $input.css('height', oldHeight);
+    }
+
+    let oldWidth = elementToReplace.css('width');
+    if(oldWidth != null && oldWidth != '0px'){
+        $input.css('width', oldWidth);
+    }
+
+
     $input.val(elementWithText.text());
     $input.on(mousePointer + "down", (e) => { e.stopPropagation(); })
     $input.on(mousePointer + "up", (e) => { e.stopPropagation(); })

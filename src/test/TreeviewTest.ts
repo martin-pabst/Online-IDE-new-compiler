@@ -34,7 +34,8 @@ class TreeviewTest {
                     return e1.name.localeCompare(e2.name);
                 }
                 return 0;
-            }
+            },
+            orderBy: "comparator"
         })
 
         // tv.newNodeCallback = (name, node) => {

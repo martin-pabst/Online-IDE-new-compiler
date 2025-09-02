@@ -540,8 +540,8 @@ export class TreeviewNode<E, K> {
                     let callbackResponse = await this.treeview.renameCallback(this._externalObject!, newText, this);
                     if (callbackResponse.success) {
                         this.caption = callbackResponse.correctedName ?? newText;
-                        if (this.treeview.config.comparator) {
-                            this.parent?.sort(this.treeview.config.comparator);
+                        if (this.treeview.config.comparator && this.treeview.config.orderBy == "comparator") {
+                            this.parent?.sort();
                         }
                     } else {
                         this.caption = this._caption;
@@ -550,8 +550,8 @@ export class TreeviewNode<E, K> {
                 }
 
                 this.caption = newText;
-                if (this.treeview.config.comparator) {
-                    this.parent?.sort(this.treeview.config.comparator);
+                if (this.treeview.config.comparator && this.treeview.config.orderBy == "comparator") {
+                    this.parent?.sort();
                 }
 
             }
@@ -753,7 +753,7 @@ export class TreeviewNode<E, K> {
 
             }
 
-            this.dropzoneDiv.onpointerdown = () => {this._treeview.startStopDragDrop(false)};
+            this.dropzoneDiv.onpointerdown = () => { this._treeview.startStopDragDrop(false) };
 
             // this.nodeWithChildrenDiv.onclick = () => { this.stopDragAndDrop(); }
 
@@ -896,6 +896,13 @@ export class TreeviewNode<E, K> {
 
     private add(child: TreeviewNode<E, K>) {
         let comparator = this.treeview.config.comparator;
+        let orderExtractor = this._treeview.config.orderExtractor;
+
+        if (this._treeview.config.orderBy == "user-defined" && orderExtractor) {
+            comparator = (e1, e2) => {
+                return Math.sign(orderExtractor(e1) - orderExtractor(e2))
+            }
+        }
 
         if (this.children.indexOf(child) < 0) {
             let index = this.children.length;
@@ -929,8 +936,18 @@ export class TreeviewNode<E, K> {
         child.getMainDiv().remove();
     }
 
-    public sort(comparator?: (e1: E, e2: E) => number) {
-        comparator = comparator || this.treeview.config.comparator;
+    public sort(comparator?: (object1: E, object2: E) => number) {
+        if(!comparator){
+            comparator = this.treeview.config.comparator;
+            let orderExtractor = this._treeview.config.orderExtractor;
+    
+            if (this._treeview.config.orderBy == "user-defined" && orderExtractor) {
+                comparator = (e1, e2) => {
+                    return Math.sign(orderExtractor(e1) - orderExtractor(e2))
+                }
+            }
+        }
+
         if (!comparator) return;
         this.children = this.children.sort((node1, node2) => comparator(node1.externalObject!, node2.externalObject!));
 

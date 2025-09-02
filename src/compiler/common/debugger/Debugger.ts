@@ -71,7 +71,8 @@ export class Debugger {
             isDragAndDropSource: false,
             buttonAddFolders: false,
             withSelection: false,
-            minHeight: 50
+            minHeight: 50,
+            orderBy: "comparator"
         });
 
 
@@ -89,7 +90,8 @@ export class Debugger {
             buttonAddFolders: false,
             buttonAddElements: false,
             withSelection: true,
-            minHeight: 50
+            minHeight: 50,
+            orderBy: "comparator"
         });
 
     }
@@ -106,7 +108,8 @@ export class Debugger {
             buttonAddFolders: false,
             buttonAddElements: false,
             withSelection: true,
-            minHeight: 50
+            minHeight: 50,
+            orderBy: "comparator"
         });
 
     }
@@ -123,7 +126,8 @@ export class Debugger {
             buttonAddFolders: false,
             buttonAddElements: false,
             withSelection: false,
-            minHeight: 200
+            minHeight: 200,
+            orderBy: "comparator"
         });
 
     }
@@ -151,7 +155,7 @@ export class Debugger {
                 this.showCallstack(t);
                 this.showVariablesOfProgramState(t);
                 let topCallstackEntry = this.callstackTreeview.nodes[0];
-                if(topCallstackEntry){
+                if (topCallstackEntry) {
                     topCallstackEntry.select();
                 }
             }
