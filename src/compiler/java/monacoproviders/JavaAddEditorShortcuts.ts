@@ -65,12 +65,12 @@ export class JavaAddEditorShortcuts {
         });
 
         if(main) editor.addAction({
-            id: 'Debugger Goto',
-            label: 'Gehe zur Zeile',
+            id: 'Debugger Goto Cursor',
+            label: 'Führe Programm aus bis zu dieser Zeile',
 
-            // An optional array of keybindings for the action.
-            keybindings: [
-                monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK],
+            // // An optional array of keybindings for the action.
+            // keybindings: [
+            //     monaco.KeyMod.Shift | monaco.KeyCode.F10],
 
             // A precondition for this action.
             precondition: "Scheduler_running || Scheduler_paused",
@@ -85,7 +85,7 @@ export class JavaAddEditorShortcuts {
             // Method that will be executed when the action is triggered.
             // @param editor The editor instance is passed in as a convenience
             run: (ed) => {
-                main.getActionManager().trigger("interpreter.goto")
+                main.getActionManager().trigger("interpreter.gotoCursor")
             }
         });
 

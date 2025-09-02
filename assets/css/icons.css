@@ -664,6 +664,13 @@
       background-image: url('../icons/step-over-dark.svg');
    }
 
+   .img_goto-cursor-dark {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/goto-cursor-dark.svg');
+   }
+
    .img_stop-dark {
       width: 16px;
       height: 16px;

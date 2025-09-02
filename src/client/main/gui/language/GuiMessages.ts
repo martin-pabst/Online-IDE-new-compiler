@@ -440,6 +440,12 @@ export class GuiMessages {
         "fr": "Pas à pas (sortir)",
     })
 
+    static ProgramGotoCursor = () => lm({
+        "de": "Goto cursor",
+        "en": "Goto cursor",
+        "fr": "Aller au curseur",
+    })
+
     static ProgramRestart = () => lm({
         "de": "Restart",
         "en": "Restart",

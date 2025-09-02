@@ -17,18 +17,6 @@ export class ProgramControlButtons {
 
     speedControl: SpeedControl;
 
-
-    buttonActiveMatrix: { [buttonName: string]: boolean[] } = {
-        "start": [false, false, true, true, true, false],
-        "pause": [false, true, false, false, false, false],
-        "stop": [false, true, true, false, false, true],
-        "stepOver": [false, false, true, true, true, false],
-        "stepInto": [false, false, true, true, true, false],
-        "stepOut": [false, false, true, false, false, false],
-        "restart": [false, true, true, true, true, true],
-        "startTests": [false, true, true, true, true, true]
-    }
-
     buttonData: ButtonData[] = [
         { actionIdentifier: "interpreter.start", title: GuiMessages.ProgramRun(), iconClass: "img_start-dark jo_button" },
         { actionIdentifier: "interpreter.pause", title: GuiMessages.ProgramPause(), iconClass: "img_pause-dark jo_button" },
@@ -36,6 +24,7 @@ export class ProgramControlButtons {
         { actionIdentifier: "interpreter.stepOver", title: GuiMessages.ProgramStepOver(), iconClass: "img_step-over-dark jo_button" },
         { actionIdentifier: "interpreter.stepInto", title: GuiMessages.ProgramStepInto(), iconClass: "img_step-into-dark jo_button" },
         { actionIdentifier: "interpreter.stepOut", title: GuiMessages.ProgramStepOut(), iconClass: "img_step-out-dark jo_button" },
+        { actionIdentifier: "interpreter.gotoCursor", title: GuiMessages.ProgramStepOut(), iconClass: "img_goto-cursor-dark jo_button" },
         { actionIdentifier: "interpreter.restart", title: GuiMessages.ProgramRestart(), iconClass: "img_restart-dark jo_button" },
         { actionIdentifier: "interpreter.startTests", title: GuiMessages.ProgramExecuteAllTests(), iconClass: "img_test-start jo_button jo_start-test-button" },
     ]

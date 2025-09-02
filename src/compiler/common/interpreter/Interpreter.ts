@@ -70,6 +70,7 @@ export class Interpreter {
         "stop": [false, true, true, false, false],
         "stepOver": [false, false, true, true, true],
         "stepInto": [false, false, true, true, true],
+        "gotoCursor": [false, false, true, true, true],
         "stepOut": [false, false, true, false, false],
         "restart": [false, true, true, false, false]
     }
@@ -247,6 +248,11 @@ export class Interpreter {
         this._debugger?.showCurrentThreadState();
     }
 
+    /**
+     * Variante von Franz-Josef Färber
+     * @param lineNo 
+     * @returns 
+     */
     #goto(lineNo: number) {
         const thread = this.scheduler.getCurrentThread()
         const programState = thread.currentProgramState
@@ -265,6 +271,34 @@ export class Interpreter {
         programState.stepIndex = stepNo
 
         this.showProgramPointer(this.scheduler.getNextStepPosition(thread));
+    }
+
+    #gotoCursor() {
+
+        let module = this.main.getCurrentWorkspace().getCurrentlyEditedModule()
+        let lineNo = this.main.getMainEditor().getSelection().startLineNumber
+
+        let step = module.findStep(lineNo);
+        if (!step) {
+            alert('Es gibt keinen ausführbaren Code an der Zeile des Cursors.')
+            return;
+        }
+
+        if (this.scheduler.state != SchedulerState.paused) {
+            if (this.scheduler.state == SchedulerState.not_initialized) {
+                return;
+            }
+            this.printManager.clear();
+            this.#init(this.executable!);
+            this.resetRuntime();
+        }
+
+        step.setBreakpoint(true);
+
+
+        this.start(undefined, false);
+
+
     }
 
     stop(restart: boolean) {
@@ -293,14 +327,14 @@ export class Interpreter {
 
     }
 
-    start(fileToStart?: GUIFile) {
+    start(fileToStart?: GUIFile, resetRuntime: boolean = true) {
         // this.main.getBottomDiv()?.console?.clearErrors();
 
         this.main?.getBottomDiv()?.errorManager?.hideAllErrorDecorations();
         this.keyboardManager?.clearPressedKeys();
         this.graphicsManager?.shrinkGraphicsDiv();
 
-        if (this.scheduler.state != SchedulerState.paused && this.executable) {
+        if (this.scheduler.state != SchedulerState.paused && this.executable && resetRuntime) {
             this.printManager.clear();
             this.#init(this.executable, fileToStart);
             this.resetRuntime();
@@ -404,6 +438,11 @@ export class Interpreter {
             () => {
                 this.#goto(this.main.getMainEditor().getSelection().startLineNumber)
             });
+
+        this.actionManager.registerAction("interpreter.gotoCursor", [], InterpreterMessages.goto(),
+            () => {
+                this.#gotoCursor()
+            });
     }
 
     #executableHasTests(): boolean {
@@ -452,7 +491,7 @@ export class Interpreter {
         }
 
         if (runningStates.indexOf(this.scheduler.state) < 0 && runningStates.indexOf(state) >= 0) {
-            this.main?.showDebugger();  
+            this.main?.showDebugger();
         }
 
         this.eventManager.fire("stateChanged", this.scheduler.state, state);
@@ -486,12 +525,16 @@ export class Interpreter {
             let buttonStepIntoActive = this.#buttonActiveMatrix['stepInto'][state];
             buttonStepIntoActive = buttonStepIntoActive && mainModuleExistsOrTestIsRunning;
 
+            let buttonGotoCursorActive = this.#buttonActiveMatrix['gotoCursor'][state];
+            buttonGotoCursorActive = buttonGotoCursorActive && mainModuleExistsOrTestIsRunning;
+
             this.actionManager.showHideButtons("interpreter.start", buttonStartActive);
             this.actionManager.showHideButtons("interpreter.pause", !buttonStartActive);
 
             this.actionManager.setActive("interpreter.restart", buttonRestartActive);
             this.actionManager.setActive("interpreter.stepOver", buttonStepOverActive);
             this.actionManager.setActive("interpreter.stepInto", buttonStepIntoActive);
+            this.actionManager.setActive("interpreter.gotoCursor", buttonGotoCursorActive);
             this.actionManager.setActive("interpreter.startTests", this.#executableHasTests() && state == SchedulerState.stopped);
 
             Object.values(SchedulerState).filter(v => typeof v == 'string').forEach((key) => {
@@ -571,7 +614,7 @@ export class Interpreter {
         if (this.retrieveObject("PAppletClass")) return true;
 
         let world: IWorld = this.retrieveObject("WorldClass");
-        if(this.actorManager.hasActors() || world?.hasActors()) return true;
+        if (this.actorManager.hasActors() || world?.hasActors()) return true;
 
         let timerCount: number = this.retrieveObject(Interpreter.TimerCountIndentifier) || 0;
         return timerCount > 0;

@@ -21,6 +21,7 @@ export class EmbeddedFullpageController {
         )
 
         this.primaryButton.divElement.style.marginLeft = '10px';
+        this.primaryButton.divElement.style.marginRight = '10px';
         
 
     }

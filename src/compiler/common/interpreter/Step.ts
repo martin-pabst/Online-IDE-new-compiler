@@ -28,18 +28,21 @@ export class Step {
 
     getValidRangeOrUndefined(): IRange | undefined {
         const r = this.range;
-        if(!r) return undefined;
+        if (!r) return undefined;
         if (typeof r.startLineNumber != "undefined" && r.startLineNumber >= 0) {
             return <any>r;
         }
         return undefined;
     }
 
-    setBreakpoint() {
+    setBreakpoint(clearBreakpointAfterReached: boolean = false) {
         const breakpointRunFunction = (thread: Thread, stack: any[], stackBase: number): number => {
             if (thread.haltAtNextBreakpoint) {
                 thread.state = ThreadState.stoppedAtBreakpoint;
                 thread.haltAtNextBreakpoint = false;
+                if(clearBreakpointAfterReached){
+                    this.clearBreakpoint();
+                }
                 return this.index;
             } else {
                 thread.haltAtNextBreakpoint = true;
