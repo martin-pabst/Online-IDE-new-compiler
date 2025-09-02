@@ -10,7 +10,8 @@ export type SettingKey = "editor.hoverVerbosity.showHelpOnKeywordsAndOperators" 
     "editor.hoverVerbosity.showMethodDeclaration" |
     "editor.hoverVerbosity.showClassDeclaration" |
     "editor.autoClosingBrackets" |
-    "classDiagram.typeConvention" | "classDiagram.background";
+    "classDiagram.typeConvention" | "classDiagram.background" |
+    "explorer.fileOrder" | "explorer.workspaceOrder";
 
 export type SettingValue = string | number | boolean | undefined;
 export type SettingValues = Partial<Record<SettingKey, SettingValue>>;
@@ -151,6 +152,49 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     SettingsMessages.ClassDiagramBackgroundWhite
                 ],
                 defaultValue: "transparent"
+            },
+        ]
+    },
+    {
+        settingType: 'group',
+        name: SettingsMessages.ExplorerSettingsName,
+        description: SettingsMessages.ExplorerSettingsDescription,
+        settings: [
+            {
+                key: "explorer.fileOrder",
+                settingType: 'setting',
+                name: SettingsMessages.ExplorerFileOrderName,
+                description: SettingsMessages.ExplorerFileOrderDescription,
+                type: 'enumeration',
+                optionValues: ["comparator", "user-defined"],
+                optionTexts: [
+                    SettingsMessages.ExplorerOrderComparator,
+                    SettingsMessages.ExplorerOrderUserDefined
+                ],
+                defaultValue: "user-defined",
+                action: (main, value) => {
+                    let treeview = main.projectExplorer.fileTreeview;
+                    treeview.config.orderBy = value as 'comparator' | 'user-defined';
+                    treeview.sort();
+                }
+            },
+            {
+                key: "explorer.workspaceOrder",
+                settingType: 'setting',
+                name: SettingsMessages.ExplorerWorkspaceOrderName,
+                description: SettingsMessages.ExplorerWorkspaceOrderDescription,
+                type: 'enumeration',
+                optionValues: ["comparator", "user-defined"],
+                optionTexts: [
+                    SettingsMessages.ExplorerOrderComparator,
+                    SettingsMessages.ExplorerOrderUserDefined
+                ],
+                defaultValue: "user-defined",
+                action: (main, value) => {
+                    let treeview = main.projectExplorer.workspaceTreeview;
+                    treeview.config.orderBy = value as 'comparator' | 'user-defined';
+                    treeview.sort();
+                }
             },
         ]
     }

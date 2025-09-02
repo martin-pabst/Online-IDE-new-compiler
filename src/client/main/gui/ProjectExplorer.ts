@@ -87,7 +87,12 @@ export class ProjectExplorer {
             flexWeight: "1",
             keyExtractor: (file) => file.id,
             parentKeyExtractor: (file) => file.parent_folder_id,
-            orderBy: "comparator"
+
+            orderExtractor: (file) => file?.sorting_order || 0,
+            orderSetter(file, order) {
+                file.sorting_order = order;
+            },
+            orderBy: "user-defined"
         })
 
         this.fileTreeview.newNodeCallback = async (name: string, node: TreeviewNode<GUIFile, number>) => {
@@ -255,6 +260,7 @@ export class ProjectExplorer {
                         }
                         if (await this.main.networkManager.sendUpdatesAsync(true)) {
                             destinationNode.insertNodes(destinationChildIndex, sourceNodes);
+                            destinationNode.reorder();
                         }
                         break;
                     case "copy":
@@ -263,6 +269,13 @@ export class ProjectExplorer {
                 }
 
             }
+
+        this.fileTreeview.orderChangedCallback = async (nodesWithNewOrder) => {
+            // we don't await response to increase gui repsonsiveness
+            // damage due to failed request would be low
+            this.main.networkManager.sendUpdateFileOrder(nodesWithNewOrder.map(node => node.externalObject));
+            return true;
+        }
 
 
         this.synchronizedButton = this.fileTreeview.captionLineAddIconButton("img_open-change-dark", "right",
@@ -334,7 +347,10 @@ export class ProjectExplorer {
             keyExtractor: workspace => workspace.id,
             parentKeyExtractor: workspace => workspace.parent_folder_id,
             readOnlyExtractor: (workspace) => workspace.readonly || workspace.pruefung_id != null,
-            orderBy: "comparator"
+
+            orderBy: "user-defined",
+            orderExtractor: workspace => workspace.sorting_order,
+            orderSetter: (workspace, order) => workspace.sorting_order = order
         })
 
         this.workspaceTreeview.newNodeCallback = async (name, node) => {
@@ -559,6 +575,13 @@ export class ProjectExplorer {
                 return cmiList;
             }
 
+            this.workspaceTreeview.orderChangedCallback = async (nodesWithNewOrder) => {
+                // we don't await response to increase gui responsiveness
+                // damage due tu failed request would be low.
+                this.main.networkManager.sendUpdateWorkspaceOrder(nodesWithNewOrder.map(node => node.externalObject));
+                return true;
+            }
+
     }
 
     async moveOrCopyFilesToOtherWorkspaces(filesToMoveOrCopy: TreeviewNode<GUIFile, number>[], destinationWorkspaceNode: TreeviewNode<Workspace, number>, dragKind: DragKind) {
@@ -583,6 +606,8 @@ export class ProjectExplorer {
                         file.parent_folder_id = null;
                     }
 
+                    file.sorting_order = 10000;
+
                     let success = await this.main.networkManager.moveFile(file.id, destinationWorkspace.id);
                     if (success) {
                         sourceWorkspace.removeFile(file);
@@ -603,6 +628,7 @@ export class ProjectExplorer {
                     let newFile = new GUIFile(this.main, file.name, file.getText());
                     newFile.parent_folder_id = newParentId;
                     newFile.isFolder = file.isFolder;
+                    newFile.sorting_order = 10000;
 
                     let success = await this.main.networkManager.sendCreateFile(newFile, destinationWorkspace, destinationWorkspace.owner_id);
                     if (success) destinationWorkspace.addFile(newFile);
@@ -637,8 +663,10 @@ export class ProjectExplorer {
                     if (ws) ws.parent_folder_id = new_parent_folder_id;
                     ws.saved = false;
                 }
+
                 if (await this.main.networkManager.sendUpdatesAsync(true)) {
                     destinationFolderNode.insertNodes(destinationChildIndex, nodesToCopyOrMove);
+                    destinationFolderNode.reorder();
                 }
                 break;
             case "copy":
@@ -671,6 +699,7 @@ export class ProjectExplorer {
                 this.renderHomeworkButton(file);
             }
 
+            this.fileTreeview.sort();
         }
     }
 
@@ -696,7 +725,8 @@ export class ProjectExplorer {
 
             ws.renderSynchronizeButton(node);
         }
-
+        
+        this.workspaceTreeview.sort();
         this.workspaceTreeview.collapseAllButRootnode();
     }
 

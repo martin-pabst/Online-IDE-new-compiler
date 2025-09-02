@@ -4,7 +4,7 @@ import { SqlIdeUrlHolder } from "../main/SqlIdeUrlHolder.js";
 import { CacheManager } from "../../tools/database/CacheManager.js";
 import { Workspace } from "../workspace/Workspace.js";
 import { ajax, ajaxAsync, csrfToken, PerformanceCollector } from "./AjaxHelper.js";
-import { CheckIfPruefungIsRunningResponse, ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, MoveFileRequest, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateGuiStateRequest, UpdateGuiStateResponse, WorkspaceData } from "./Data.js";
+import { BaseResponse, CheckIfPruefungIsRunningResponse, ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, MoveFileRequest, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateFileOrderRequest, UpdateGuiStateRequest, UpdateGuiStateResponse, UpdateWorkspaceOrderRequest, WorkspaceData } from "./Data.js";
 import { PushClientManager } from "./pushclient/PushClientManager.js";
 import { GUIFile } from '../workspace/File.js';
 import pako from 'pako'
@@ -373,6 +373,26 @@ export class NetworkManager {
 
         }
 
+    }
+
+    async sendUpdateFileOrder(files: GUIFile[]): Promise<boolean> {
+        let request: UpdateFileOrderRequest = {
+            fileOrderList: files.map(f => ({fileId: f.id, order: f.sorting_order}))
+        }
+
+        let response: BaseResponse = await ajaxAsync('servlet/updateFileOrder', request);
+        
+        return response.success;
+    }
+
+    async sendUpdateWorkspaceOrder(workspaces: Workspace[]): Promise<boolean> {
+        let request: UpdateWorkspaceOrderRequest = {
+            workspaceOrderList: workspaces.map(ws => ({workspaceId: ws.id, order: ws.sorting_order}))
+        }
+
+        let response: BaseResponse = await ajaxAsync('servlet/updateWorkspaceOrder', request);
+        
+        return response.success;
     }
 
 

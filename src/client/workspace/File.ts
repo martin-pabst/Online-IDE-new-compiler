@@ -25,6 +25,8 @@ export class GUIFile extends CompilerFile {
     isFolder: boolean = false;
     parent_folder_id: number | null;
 
+    sorting_order: number;
+
     // GUI references:
     private monacoModel?: monaco.editor.ITextModel;
     private static uriMap: { [name: string]: number } = {};
@@ -50,7 +52,8 @@ export class GUIFile extends CompilerFile {
             workspace_id: workspace.id,
             forceUpdate: false,
             isFolder: this.isFolder,
-            parent_folder_id: this.parent_folder_id
+            parent_folder_id: this.parent_folder_id,
+            sorting_order: this.sorting_order
         }
 
         return fd;
@@ -71,6 +74,7 @@ export class GUIFile extends CompilerFile {
         file.identical_to_repository_version = f.identical_to_repository_version;
         file.isFolder = f.isFolder;
         file.parent_folder_id = f.parent_folder_id;
+        file.sorting_order = f.sorting_order;
 
         return file;
     }

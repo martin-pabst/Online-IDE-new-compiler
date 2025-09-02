@@ -823,6 +823,20 @@ export class TreeviewNode<E, K> {
         });
 
         this._treeview.adjustAllLeftMarginsToDepth();
+
+        if(this._treeview.config.orderBy == "comparator"){
+            this.sort();
+        }
+    }
+
+    async reorder(){
+        let orderSetter = this._treeview.config.orderSetter;
+        if(!orderSetter) return;
+        for(let j = 0; j < this.children.length; j++){
+            orderSetter(this.children[j].externalObject, j);
+        }
+        
+        if(this._treeview.orderChangedCallback) await this._treeview.orderChangedCallback(this.children);
     }
 
     stopDragAndDrop() {
@@ -938,12 +952,17 @@ export class TreeviewNode<E, K> {
 
     public sort(comparator?: (object1: E, object2: E) => number) {
         if(!comparator){
-            comparator = this.treeview.config.comparator;
+            let treeviewComparator = this._treeview.config.comparator;
+            comparator = treeviewComparator;
             let orderExtractor = this._treeview.config.orderExtractor;
     
             if (this._treeview.config.orderBy == "user-defined" && orderExtractor) {
                 comparator = (e1, e2) => {
-                    return Math.sign(orderExtractor(e1) - orderExtractor(e2))
+                    let ret = Math.sign(orderExtractor(e1) - orderExtractor(e2))
+                    if(ret == 0 && this._treeview.config.comparator){
+                        ret = treeviewComparator(e1, e2);
+                    }
+                    return ret;
                 }
             }
         }

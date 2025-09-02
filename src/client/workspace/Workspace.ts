@@ -19,6 +19,7 @@ export class Workspace extends CompilerWorkspace {
 
     isFolder: boolean;
     parent_folder_id: number | null;
+    sorting_order: number;
     readonly: boolean;
     id: number;
     owner_id: number;
@@ -112,6 +113,7 @@ export class Workspace extends CompilerWorkspace {
             name: this.name,
             isFolder: this.isFolder,
             parent_folder_id: this.parent_folder_id,
+            sorting_order: this.sorting_order,
             id: this.id,
             owner_id: this.owner_id,
             current_file_id: this.currentlyOpenFile == null ? null : this.currentlyOpenFile.id,
@@ -179,6 +181,7 @@ export class Workspace extends CompilerWorkspace {
         w.id = wd.id;
         w.isFolder = wd.isFolder;
         w.parent_folder_id = wd.parent_folder_id;
+        w.sorting_order = wd.sorting_order;
         w.owner_id = wd.owner_id;
         w.version = wd.version;
         w.repository_id = wd.repository_id;

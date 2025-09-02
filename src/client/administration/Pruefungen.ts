@@ -94,6 +94,7 @@ export class Pruefungen extends AdminMenuItem {
             isFolder: false,
             id: -1,
             files: [],
+            sorting_order: -1
         })
 
         for (let p of this.pruefungen) {

@@ -54,13 +54,15 @@ export type FileData = {
     repository_file_version?: number,
     identical_to_repository_version: boolean,
     isFolder: boolean,
-    parent_folder_id: number | null
+    parent_folder_id: number | null,
+    sorting_order: number
 }
 
 export type WorkspaceData = {
     name: string,
     isFolder: boolean,
     parent_folder_id: number | null,
+    sorting_order: number,
     id: number,
     owner_id: number,
     files: FileData[],
@@ -895,6 +897,7 @@ export type KlassData = {
 export type WorkspaceShortData = {
     id: number,
     parent_folder_id?: number,
+    sorting_order: number,
     isFolder: boolean,
     name: string,
     text?: string,
@@ -957,3 +960,20 @@ export type UpdateSettingsDataResponse = {
     message: string
 }
 
+export type FileOrder = {
+    fileId: number,
+    order: number
+}
+
+export type UpdateFileOrderRequest = {
+    fileOrderList: FileOrder[]
+}
+
+export type WorkspaceOrder = {
+    workspaceId: number,
+    order: number
+}
+
+export type UpdateWorkspaceOrderRequest = {
+    workspaceOrderList: WorkspaceOrder[]
+}

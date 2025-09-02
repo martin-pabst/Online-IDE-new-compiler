@@ -73,7 +73,7 @@ export type TreeviewDeleteCallback<E, K> = (element: E | null, node: TreeviewNod
 export type TreeviewNewNodeCallback<E, K> = (name: string, node: TreeviewNode<E, K>) => Promise<E | null>;
 export type TreeviewContextMenuProvider<E, K> = (element: E, node: TreeviewNode<E, K>) => TreeviewContextMenuItem<E, K>[];
 export type DropEventCallback<E, K> = (sourceTreeview: Treeview<any, any>, destinationNode: TreeviewNode<E, K>, destinationChildIndex: number, dragKind: DragKind) => void;
-export type OrderChangedCallback<E, K> = (nodesWithNewOrder: TreeviewNode<E, K>) => Promise<boolean>;
+export type OrderChangedCallback<E, K> = (nodesWithNewOrder: TreeviewNode<E, K>[]) => Promise<boolean>;
 
 export class Treeview<E, K> {
 
@@ -186,6 +186,14 @@ export class Treeview<E, K> {
         return this._nodeClickedCallback;
     }
 
+    private _orderChangedCallback?: OrderChangedCallback<E, K>;
+    public get orderChangedCallback(): OrderChangedCallback<E, K> {
+        return this._orderChangedCallback;
+    }
+    public set orderChangedCallback(value: OrderChangedCallback<E, K>) {
+        this._orderChangedCallback = value;
+    }
+    
 
     constructor(parent: HTMLElement | TreeviewAccordion, config?: TreeviewConfig<E, K>) {
 

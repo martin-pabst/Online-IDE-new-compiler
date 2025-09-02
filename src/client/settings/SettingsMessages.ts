@@ -245,6 +245,47 @@ export class SettingsMessages {
         'fr': `blanc`
     });
         
+    static ExplorerSettingsName = () => lm({
+        'de': `Explorer-Einstellungen`,
+        'en': `Explorer settings`
+    });
+
+    static ExplorerSettingsDescription = () => lm({
+        'de': `Einstellungen für den Datei- und Workspaceexplorer (im Hauptfenster links).`,
+        'en': `Settings for file- and workspace explorer (in the main window on the left).`
+    });
+    
+    static ExplorerFileOrderName = () => lm({
+        'de': `Sortierung des Dateibaums`,
+        'en': `Order of file treeview`
+    });
+
+    static ExplorerFileOrderDescription = () => lm({
+        'de': `Hier können Sie einstellen, ob der Dateibaum grundsätzlich alphabetisch sortiert werden soll oder der Nutzer durch drag and drop eine davon abweichende Sortierung festlegen kann.`,
+        'en': `You can set here whether the file tree should be sorted alphabetically by default or whether the user can define a different sorting by drag and drop.`
+    });
+    
+    static ExplorerWorkspaceOrderName = () => lm({
+        'de': `Sortierung des Workspacebaums`,
+        'en': `Order of workspace treeview`
+    });
+
+    static ExplorerWorkspaceOrderDescription = () => lm({
+        'de': `Hier können Sie einstellen, ob der Workspacebaum grundsätzlich alphabetisch sortiert werden soll oder der Nutzer durch drag and drop eine davon abweichende Sortierung festlegen kann.`,
+        'en': `You can set here whether the workspace tree should be sorted alphabetically by default or whether the user can define a different sorting by drag and drop.`
+    });
+    
+    static ExplorerOrderComparator = () => lm({
+        'de': `Immer alphabetisch`,
+        'en': `Always alphabetical`,
+        'fr': `Toujours alphabétique`
+    });
+
+    static ExplorerOrderUserDefined = () => lm({
+        'de': `Nutzerdefinierte Sortierung`,
+        'en': `User-defined order`,
+        'fr': `Ordre défini par l'utilisateur`
+    });
     
 
 }
