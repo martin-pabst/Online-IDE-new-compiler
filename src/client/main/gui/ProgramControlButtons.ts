@@ -24,7 +24,7 @@ export class ProgramControlButtons {
         { actionIdentifier: "interpreter.stepOver", title: GuiMessages.ProgramStepOver(), iconClass: "img_step-over-dark jo_button" },
         { actionIdentifier: "interpreter.stepInto", title: GuiMessages.ProgramStepInto(), iconClass: "img_step-into-dark jo_button" },
         { actionIdentifier: "interpreter.stepOut", title: GuiMessages.ProgramStepOut(), iconClass: "img_step-out-dark jo_button" },
-        { actionIdentifier: "interpreter.gotoCursor", title: GuiMessages.ProgramStepOut(), iconClass: "img_goto-cursor-dark jo_button" },
+        { actionIdentifier: "interpreter.gotoCursor", title: GuiMessages.ProgramGotoCursor(), iconClass: "img_goto-cursor-dark jo_button" },
         { actionIdentifier: "interpreter.restart", title: GuiMessages.ProgramRestart(), iconClass: "img_restart-dark jo_button" },
         { actionIdentifier: "interpreter.startTests", title: GuiMessages.ProgramExecuteAllTests(), iconClass: "img_test-start jo_button jo_start-test-button" },
     ]

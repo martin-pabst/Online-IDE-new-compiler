@@ -24,6 +24,7 @@ import { Thread } from "./Thread.ts";
 import { ThreadState } from "./ThreadState.ts";
 import { InterpreterMessages } from './InterpreterMessages.ts';
 import { GUIFile } from "../../../client/workspace/File.ts";
+import { GuiMessages } from "../../../client/main/gui/language/GuiMessages.ts";
 
 
 type InterpreterEvents = "stop" | "done" | "resetRuntime" | "stateChanged" |
@@ -439,7 +440,7 @@ export class Interpreter {
                 this.#goto(this.main.getMainEditor().getSelection().startLineNumber)
             });
 
-        this.actionManager.registerAction("interpreter.gotoCursor", [], InterpreterMessages.goto(),
+        this.actionManager.registerAction("interpreter.gotoCursor", [], GuiMessages.ProgramGotoCursor(),
             () => {
                 this.#gotoCursor()
             });
