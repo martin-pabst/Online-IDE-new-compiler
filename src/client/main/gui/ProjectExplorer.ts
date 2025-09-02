@@ -135,7 +135,7 @@ export class ProjectExplorer {
 
             file.name = newName;
             file.setSaved(false);
-            if(!file.isFolder){
+            if (!file.isFolder) {
                 let fileType = file.isFolder ? undefined : FileTypeManager.filenameToFileType(newName);
                 node.iconClass = fileType.iconclass;
                 monaco.editor.setModelLanguage(file.getMonacoModel(), fileType.language);
@@ -241,7 +241,7 @@ export class ProjectExplorer {
 
         this.fileTreeview.nodeClickedCallback =
             (file: GUIFile) => {
-                if(!file.isFolder) this.setFileActive(file);
+                if (!file.isFolder) this.setFileActive(file);
             }
 
 
@@ -404,11 +404,10 @@ export class ProjectExplorer {
                     this.main.removeWorkspace(ws);
                 }
 
-                this.fileTreeview.addElementsButton.setVisible(false);
-                this.fileTreeview.clear();
-                this.main.getMainEditor().setModel(null);
-                this.fileTreeview.setCaption(ProjectExplorerMessages.selectWorkspace());
-                this.synchronizedButton.setVisible(false);
+                if (this.main.workspaceList.indexOf(this.main.currentWorkspace) < 0) {
+                    this.setWorkspaceActive(null);
+                }
+
             }
             return success;
         }
@@ -575,12 +574,12 @@ export class ProjectExplorer {
                 return cmiList;
             }
 
-            this.workspaceTreeview.orderChangedCallback = async (nodesWithNewOrder) => {
-                // we don't await response to increase gui responsiveness
-                // damage due tu failed request would be low.
-                this.main.networkManager.sendUpdateWorkspaceOrder(nodesWithNewOrder.map(node => node.externalObject));
-                return true;
-            }
+        this.workspaceTreeview.orderChangedCallback = async (nodesWithNewOrder) => {
+            // we don't await response to increase gui responsiveness
+            // damage due tu failed request would be low.
+            this.main.networkManager.sendUpdateWorkspaceOrder(nodesWithNewOrder.map(node => node.externalObject));
+            return true;
+        }
 
     }
 
@@ -593,7 +592,7 @@ export class ProjectExplorer {
         let destinationWorkspace = destinationWorkspaceNode.externalObject;
         let sourceWorkspace = this.main.getCurrentWorkspace();
 
-        if(sourceWorkspace == destinationWorkspace) return;
+        if (sourceWorkspace == destinationWorkspace) return;
 
         switch (dragKind) {
             case "move":
@@ -623,7 +622,7 @@ export class ProjectExplorer {
                 for (let fileNode of filesToMoveOrCopy) {
                     let file = fileNode.externalObject;
                     let oldFileId = file.id;
-                    
+
                     let newParentId = oldIdToNewIdMap.get(file.parent_folder_id) || null;
                     let newFile = new GUIFile(this.main, file.name, file.getText());
                     newFile.parent_folder_id = newParentId;
@@ -632,7 +631,7 @@ export class ProjectExplorer {
 
                     let success = await this.main.networkManager.sendCreateFile(newFile, destinationWorkspace, destinationWorkspace.owner_id);
                     if (success) destinationWorkspace.addFile(newFile);
-                    
+
                     oldIdToNewIdMap.set(oldFileId, newFile.id);
                 }
                 break;
@@ -694,7 +693,7 @@ export class ProjectExplorer {
             for (let file of files) {
 
                 this.fileTreeview.addNode(file.isFolder, file.name,
-                  file.isFolder ? undefined : FileTypeManager.filenameToFileType(file.name).iconclass, file);
+                    file.isFolder ? undefined : FileTypeManager.filenameToFileType(file.name).iconclass, file);
 
                 this.renderHomeworkButton(file);
             }
@@ -725,7 +724,7 @@ export class ProjectExplorer {
 
             ws.renderSynchronizeButton(node);
         }
-        
+
         this.workspaceTreeview.sort();
         this.workspaceTreeview.collapseAllButRootnode();
     }
@@ -761,14 +760,10 @@ export class ProjectExplorer {
         * To keep monaco.editor.ITextModel instance count low we instantiate it only when needed and dispose of it
         * when switching to another workspace.
         */
-        if (w == null) return;
         this.main.editor.editor.setModel(null); // detach current model from editor
         this.main.getCurrentWorkspace()?.disposeMonacoModels();
-        w.createMonacoModels();
 
         DatabaseNewLongPollingListener.close();
-
-        if (selectElement) this.workspaceTreeview.selectElement(w, false);
 
         if (this.main.interpreter.scheduler.state == SchedulerState.running) {
             this.main.interpreter.stop(false);
@@ -776,11 +771,24 @@ export class ProjectExplorer {
 
         this.main.currentWorkspace = w;
 
-        w.setLibraries(this.main.getCompiler());
 
         this.renderFiles(w);
 
-        if (w != null) {
+        if (w == null) {
+            this.fileTreeview.addElementsButton.setVisible(false);
+            this.main.getMainEditor().setModel(null);
+            this.fileTreeview.setCaption(ProjectExplorerMessages.selectWorkspace());
+            this.synchronizedButton.setVisible(false);
+            this.setFileActive(null);
+            return;
+        } else {
+
+            if (selectElement) this.workspaceTreeview.selectElement(w, false);
+
+            w.createMonacoModels();
+
+            w.setLibraries(this.main.getCompiler());
+
             let files = w.getFiles();
 
             if (w.currentlyOpenFile != null) {
@@ -808,9 +816,7 @@ export class ProjectExplorer {
                 this.main.getCompiler().triggerCompile();
             });
 
-        } else {
-            this.setFileActive(null);
-        }
+        } 
 
 
     }
@@ -818,7 +824,7 @@ export class ProjectExplorer {
     lastOpenFile: GUIFile = null;
     setFileActive(file: GUIFile) {
 
-        if(file.isFolder) file = null;
+        if (file?.isFolder) return;
 
         this.main.bottomDiv.homeworkManager.hideRevision();
 
