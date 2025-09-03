@@ -4,6 +4,7 @@ import { PushClientManager } from "../../communication/pushclient/PushClientMana
 import { Main } from "../Main.js";
 import jQuery from "jquery";
 import { PruefungManagerForStudentsMessages } from "./PruefungManagerForStudentsMessages.js";
+import { Workspace } from "../../workspace/Workspace.js";
 
 type MessagePruefungStart = { pruefung: Pruefung }
 
@@ -19,7 +20,7 @@ export class PruefungManagerForStudents {
         this.$pruefungLaeuft = jQuery(`<div id="pruefunglaeuft"> <span class="img_test-state-running"></span> ${PruefungManagerForStudentsMessages.pruefungLaeuft()}</div>`);
         jQuery('.jo_projectexplorer').prepend(this.$pruefungLaeuft);
 
-        PushClientManager.subscribe("startPruefung", (message: MessagePruefungStart) => {
+        PushClientManager.subscribe("startPruefung", async (message: MessagePruefungStart) => {
             this.startPruefung(message.pruefung);
         })
         PushClientManager.subscribe("stopPruefung", (message: MessagePruefungStart) => {
@@ -42,57 +43,60 @@ export class PruefungManagerForStudents {
 
     }
 
-    startPruefung(pruefung: Pruefung) {
+    async startPruefung(pruefung: Pruefung) {
 
         if (this.pruefung != null) return;
 
         this.pruefung = pruefung;
 
-        this.main.networkManager.sendUpdatesAsync(true, false, false).then(() => {
+        let wss: Workspace[] = [];
 
-            let wss = this.main.workspaceList.filter(ws => ws.pruefung_id == pruefung.id);
+        while (wss.length == 0) {
+            await this.main.networkManager.sendUpdatesAsync(true, false, false);
+
+            wss = this.main.workspaceList.filter(ws => ws.pruefung_id == pruefung.id);
             if (wss.length == 0) {
-                alert('Workspace missing.');
-                return;
+                console.log("Workspace for Puefung not found, retrying...");
+                await new Promise(resolve => setTimeout(resolve, 2000)); // wait 2 seconds before retrying
             }
+        }
 
-            let pruefungWorkspace = wss[0];
-            this.main.workspaceList = [pruefungWorkspace];
-            this.main.currentWorkspace = pruefungWorkspace;
-            let projectExplorer = this.main.projectExplorer;
-            projectExplorer.workspaceTreeview.clear();
-            projectExplorer.fileTreeview.clear();
-            projectExplorer.workspaceTreeview.setVisible(false);
-            projectExplorer.fileTreeview.addElementsButton.setVisible(true);
+        let pruefungWorkspace = wss[0];
+        this.main.workspaceList = [pruefungWorkspace];
+        this.main.currentWorkspace = pruefungWorkspace;
+        let projectExplorer = this.main.projectExplorer;
+        projectExplorer.workspaceTreeview.clear();
+        projectExplorer.fileTreeview.clear();
+        projectExplorer.workspaceTreeview.setVisible(false);
+        projectExplorer.fileTreeview.addElementsButton.setVisible(true);
 
-            projectExplorer.setWorkspaceActive(pruefungWorkspace);
-            pruefungWorkspace.saved = false;
+        projectExplorer.setWorkspaceActive(pruefungWorkspace);
+        pruefungWorkspace.saved = false;
 
-            this.main.getInterpreter().resetRuntime();
+        this.main.getInterpreter().resetRuntime();
 
-            // this.pruefung = pruefung;
+        // this.pruefung = pruefung;
 
-            jQuery('#pruefunglaeuft').css('display', 'block');
-            if (this.timer != null) {
-                clearInterval(this.timer);
-                this.timer = null;
-            }
+        jQuery('#pruefunglaeuft').css('display', 'block');
+        if (this.timer != null) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
 
-            let sendPruefungState = () => {
-                let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, clientState: "", running: true }
-                ajaxAsync('/servlet/reportPruefungState', request).then(
-                    (response: ReportPruefungStudentStateResponse) => {
-                        if (response.pruefungState != "running") {
-                            this.stopPruefung(true);
-                        }
+        let sendPruefungState = () => {
+            let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, clientState: "", running: true }
+            ajaxAsync('/servlet/reportPruefungState', request).then(
+                (response: ReportPruefungStudentStateResponse) => {
+                    if (response.pruefungState != "running") {
+                        this.stopPruefung(true);
                     }
-                )
-            }
+                }
+            )
+        }
 
-            sendPruefungState();
-            this.timer = setInterval(sendPruefungState, 5000)
+        sendPruefungState();
+        this.timer = setInterval(sendPruefungState, 5000)
 
-        });
 
     }
 

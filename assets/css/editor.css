@@ -1167,6 +1167,10 @@
         color: rgb(211, 137, 53);
     }
 
+    .joe_pruefung_name {
+        color: var(--fontColorNormal);
+    }
+
     .joe_pruefung_preview_img {
         display: inline-block;
         position: relative;

@@ -284,7 +284,8 @@ export class TeacherExplorer {
         let klasse = this.classData.find(c => c.id == p.klasse_id);
         if (klasse != null) {
             node.renderCaptionAsHtml = true;
-            node.caption = `<span class="joe_pruefung_klasse" style="margin: 0 4px">${klasse.name}</span>`;
+            node.caption = `<span class="joe_pruefung_name">${p.name} </span>` +
+             `<span class="joe_pruefung_klasse" style="margin: 0 4px">(${klasse.name})</span>`;
         }
 
         node.iconClass = "img_test-state-" + p.state;

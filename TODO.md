@@ -1,12 +1,7 @@
 TODO:
   * files with folders
-    * remove filters... -> OK!
-    * Treeview-configuration -> OK!
-    * handler for "new folder" -> OK!
-    * handler for file moving -> OK!
-    * compiler: filter-out folders -> OK!
-    * repository: create needed folders
-    * if file inside repository is in other folder than file in workspace: offer to correct this
+    * test Prüfung functionality
+    * test if user delete also delete published databases in sql-ide and answer to bug report in github
   * better tablet integration
 
 

@@ -53,7 +53,7 @@ export class GradingManager {
         $markColumn.append($l1, $l2, $l3);
 
 
-        this.$gradingCommentMarkdown = jQuery(`<textarea class="jo_grading_commentmarkdown" placeholder="${GradingManagerMessages.remark} ..."></textarea>`);
+        this.$gradingCommentMarkdown = jQuery(`<textarea class="jo_grading_commentmarkdown" placeholder="${GradingManagerMessages.remark()} ..."></textarea>`);
         this.$gradingCommentMarkdown.on('input', () => {that.onChange()})
 
         if(!that.main.user.is_teacher){

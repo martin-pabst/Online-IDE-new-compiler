@@ -429,7 +429,7 @@ export class Pruefungen extends AdminMenuItem {
     }
 
     addPruefung() {
-        NewPruefungPopup.open(this.klassen, this.workspaces, () => { },
+        NewPruefungPopup.open(this.klassen, this.workspaces.filter(ws => !ws.isFolder), () => { },
             async (pruefung: Pruefung) => {
                 let request: CRUDPruefungRequest = { requestType: "create", pruefung: pruefung }
                 let response: CRUDPruefungResponse = await ajaxAsync('/servlet/crudPruefung', request);
