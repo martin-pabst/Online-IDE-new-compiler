@@ -92,7 +92,7 @@ export class ProjectExplorer {
             orderSetter(file, order) {
                 file.sorting_order = order;
             },
-            orderBy: "user-defined"
+            orderBy: this.main.settings.getValue("explorer.fileOrder") as ("user-defined" | "comparator")
         })
 
         this.fileTreeview.newNodeCallback = async (name: string, node: TreeviewNode<GUIFile, number>) => {
@@ -348,7 +348,7 @@ export class ProjectExplorer {
             parentKeyExtractor: workspace => workspace.parent_folder_id,
             readOnlyExtractor: (workspace) => workspace.readonly || workspace.pruefung_id != null,
 
-            orderBy: "user-defined",
+            orderBy: this.main.settings.getValue("explorer.workspaceOrder") as ("user-defined" | "comparator"),
             orderExtractor: workspace => workspace.sorting_order,
             orderSetter: (workspace, order) => workspace.sorting_order = order
         })

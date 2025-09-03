@@ -9,7 +9,7 @@ export type SettingsScope = 'user' | 'class' | 'school' | 'default';
 export type SettingKey = "editor.hoverVerbosity.showHelpOnKeywordsAndOperators" |
     "editor.hoverVerbosity.showMethodDeclaration" |
     "editor.hoverVerbosity.showClassDeclaration" |
-    "editor.autoClosingBrackets" |
+    "editor.autoClosingBrackets" | "editor.autoClosingQuotes"|
     "classDiagram.typeConvention" | "classDiagram.background" |
     "explorer.fileOrder" | "explorer.workspaceOrder";
 
@@ -110,6 +110,23 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
                                 autoClosingBrackets:  value as monaco.editor.EditorAutoClosingStrategy
+                            })
+                        }
+                    },
+                    {
+                        key: "editor.autoClosingQuotes",
+                        settingType: 'setting',
+                        name: SettingsMessages.AutoClosingQuotesName,
+                        description: SettingsMessages.AutoClosingQuotesDescription,
+                        type: 'enumeration',
+                        optionValues: ["always", "beforeWhitespace", "never"],
+                        optionTexts: [SettingsMessages.AutoClosingBracketsAlways,
+                            SettingsMessages.AutoClosingBracketsBeforeWhitespace,
+                            SettingsMessages.AutoClosingBracketsNever],
+                        defaultValue: "always",
+                        action: (main, value) => {
+                            main.getMainEditor().updateOptions({
+                                autoClosingQuotes:  value as monaco.editor.EditorAutoClosingStrategy
                             })
                         }
                     },

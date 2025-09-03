@@ -79,6 +79,12 @@ export class Editor {
                 insertMode: "replace"
                 // snippetsPreventQuickSuggestions: false
             },
+            bracketPairColorization: {
+                enabled: true,
+                independentColorPoolPerBracketType: false
+            },
+            autoClosingBrackets: this.main.getSettings().getValue("editor.autoClosingBrackets") as monaco.editor.EditorAutoClosingStrategy,
+            autoClosingQuotes: this.main.getSettings().getValue("editor.autoClosingQuotes") as monaco.editor.EditorAutoClosingStrategy,
             autoClosingDelete: "auto",
             autoClosingOvertype: "auto",
             parameterHints: { enabled: true, cycle: true },

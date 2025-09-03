@@ -126,7 +126,7 @@ export class JavaLanguage extends Language {
                 { open: '{', close: '}' },
                 { open: '[', close: ']' },
                 { open: '(', close: ')' },
-                // { open: '"', close: '"' },
+                { open: '"', close: '"' },
                 { open: '\'', close: '\'' },
             ],
             surroundingPairs: [

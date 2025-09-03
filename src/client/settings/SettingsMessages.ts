@@ -160,10 +160,22 @@ export class SettingsMessages {
         'fr': 'Fermeture automatique des parenthèses'
     });
 
+    static AutoClosingQuotesName = () => lm({
+        'de': 'Automatisches Schließen von Anführungszeichen',
+        'en': 'Auto Closing Quotes',
+        'fr': 'Fermeture automatique des guillemets'
+    });
+
     static AutoClosingBracketsDescription = () => lm({
         'de': 'Bei Eingabe von öffnenden Klammern wird automatisch die schließende Klammer hinzugefügt.',
         'en': 'Automatically add closing brackets when typing opening brackets.',
         'fr': 'Ajoute automatiquement les parenthèses fermantes lors de la saisie des parenthèses ouvrantes.'
+    });
+    
+    static AutoClosingQuotesDescription = () => lm({
+        'de': 'Bei Eingabe eines Anführungszeichens wird automatisch ein zweites hinter dem Cursor hinzugefügt.',
+        'en': 'Automatically add a second quote behind the cursor when typing a quote.',
+        'fr': 'Ajoute automatiquement un deuxième guillemet derrière le curseur lors de la saisie d\'un guillemet.'
     });
     
     static AutoClosingBracketsAlways = () => lm({
