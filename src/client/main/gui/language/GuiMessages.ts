@@ -29,6 +29,17 @@ export class GuiMessages {
         'fr': 'Synchroniser workspace avec repository'
     });
     
+    static cantMoveFilesToWorkspaceFolder = () => lm({
+        'de': `Dateien können nicht in einen Workspace-Ordner verschoben/kopiert werden.`,
+        'en': `Cannot move/copy files to workspace folder.`,
+        'fr': `Impossible de déplacer/copier des fichiers vers le dossier de l'espace de travail.`,
+    });
+    
+    static startMainProgram = () => lm({
+        'de': `Starte das in dieser Datei enthaltene Hauptprogramm`,
+        'en': `Start main program contained in this file`,
+        'fr': `Démarrer le programme principal contenu dans ce fichier`,
+    });
     
 
     /**

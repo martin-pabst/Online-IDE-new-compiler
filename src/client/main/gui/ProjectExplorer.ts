@@ -16,7 +16,6 @@ import { GUIFile } from '../../workspace/File.js';
 import { WorkspaceExporter } from '../../workspace/WorkspaceImporterExporter.js';
 import { SchedulerState } from "../../../compiler/common/interpreter/SchedulerState.js";
 import { GuiMessages } from './language/GuiMessages.js';
-import { ImportWorkspaceGUI } from './ImportWorkspaceGUI.js';
 import { AccordionMessages, ProjectExplorerMessages } from './language/GUILanguage.js';
 import { TreeviewAccordion } from '../../../tools/components/treeview/TreeviewAccordion.js';
 import { DragKind, Treeview, TreeviewContextMenuItem } from '../../../tools/components/treeview/Treeview.js';
@@ -589,7 +588,7 @@ export class ProjectExplorer {
 
     async moveOrCopyFilesToOtherWorkspaces(filesToMoveOrCopy: TreeviewNode<GUIFile, number>[], destinationWorkspaceNode: TreeviewNode<Workspace, number>, dragKind: DragKind) {
         if (destinationWorkspaceNode.isFolder) {
-            alert("Dateien können nicht in einen Workspace-Ordner verschoben/kopiert werden.");
+            alert(GuiMessages.cantMoveFilesToWorkspaceFolder());
             return;
         }
 
@@ -980,7 +979,7 @@ export class ProjectExplorer {
             let file = node.externalObject;
             if (!startButton) startButton = node.addIconButton("img_start-dark", () => {
                 this.main.getInterpreter().start(file);
-            }, "Starte das in dieser Datei enthaltene Hauptprogramm", true);
+            }, GuiMessages.startMainProgram(), true);
             startButton.tag = "Start";
             startButton.setVisible(files.indexOf(file) >= 0);
             startButton.setActive(active);
