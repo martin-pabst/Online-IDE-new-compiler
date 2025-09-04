@@ -26,7 +26,6 @@ import * as monaco from 'monaco-editor'
 
 import '/assets/css/icons.css';
 import '/assets/css/projectexplorer.css';
-import { TabletConsoleLog } from '../../../tools/TabletConsoleLog.js';
 
 
 export class ProjectExplorer {
@@ -116,7 +115,7 @@ export class ProjectExplorer {
             if (!file.isFolder) this.setFileActive(file);
 
 
-            let success = await this.main.networkManager.sendCreateFile(file, this.main.currentWorkspace, this.main.workspacesOwnerId);
+            let success = this.main.user.is_testuser || await this.main.networkManager.sendCreateFile(file, this.main.currentWorkspace, this.main.workspacesOwnerId);
             if (!success) {
                 this.fileTreeview.removeNodeAndItsFolderContents(node);
                 this.setFileActive(null);
@@ -141,6 +140,8 @@ export class ProjectExplorer {
                 monaco.editor.setModelLanguage(file.getMonacoModel(), fileType.language);
             }
 
+            if(this.main.user.is_testuser) return { correctedName: newName, success: true };
+
             let resp: boolean = await this.main.networkManager.sendUpdatesAsync(true);
 
             return { correctedName: newName, success: resp }
@@ -158,7 +159,7 @@ export class ProjectExplorer {
             }
 
 
-            let success = await this.main.networkManager.sendDeleteWorkspaceOrFileAsync("file", filesToDelete.map(f => f.id));
+            let success = this.main.user.is_testuser || await this.main.networkManager.sendDeleteWorkspaceOrFileAsync("file", filesToDelete.map(f => f.id));
 
             if (success) {
                 for (let f of filesToDelete) {
@@ -364,7 +365,7 @@ export class ProjectExplorer {
             w.parent_folder_id = node.getParent().externalObject?.id ?? null;
             this.main.workspaceList.push(w);
 
-            let success = await this.main.networkManager.sendCreateWorkspace(w, this.main.workspacesOwnerId);
+            let success = this.main.user.is_testuser || await this.main.networkManager.sendCreateWorkspace(w, this.main.workspacesOwnerId);
             if (success) {
                 if (!node.isFolder) {
                     this.fileTreeview.addElementsButton.setVisible(true);
@@ -382,6 +383,9 @@ export class ProjectExplorer {
             newName = newName.substring(0, 80);
             workspace.name = newName;
             workspace.saved = false;
+            
+            if(this.main.user.is_testuser) return { correctedName: newName, success: true };
+
             let success = await this.main.networkManager.sendUpdatesAsync();
             return { correctedName: newName, success: success }
         }
@@ -397,7 +401,7 @@ export class ProjectExplorer {
                 }
             }
 
-            let success = await this.main.networkManager
+            let success = this.main.user.is_testuser || await this.main.networkManager
                 .sendDeleteWorkspaceOrFileAsync("workspace", workspacesToDelete.map(w => w.id));
             if (success) {
                 for (let ws of workspacesToDelete) {
@@ -607,7 +611,7 @@ export class ProjectExplorer {
 
                     file.sorting_order = 10000;
 
-                    let success = await this.main.networkManager.moveFile(file.id, destinationWorkspace.id);
+                    let success = this.main.user.is_testuser || await this.main.networkManager.moveFile(file.id, destinationWorkspace.id);
                     if (success) {
                         sourceWorkspace.removeFile(file);
                         destinationWorkspace.addFile(file);
@@ -629,7 +633,7 @@ export class ProjectExplorer {
                     newFile.isFolder = file.isFolder;
                     newFile.sorting_order = 10000;
 
-                    let success = await this.main.networkManager.sendCreateFile(newFile, destinationWorkspace, destinationWorkspace.owner_id);
+                    let success = this.main.user.is_testuser || await this.main.networkManager.sendCreateFile(newFile, destinationWorkspace, destinationWorkspace.owner_id);
                     if (success) destinationWorkspace.addFile(newFile);
 
                     oldIdToNewIdMap.set(oldFileId, newFile.id);
@@ -663,7 +667,7 @@ export class ProjectExplorer {
                     ws.saved = false;
                 }
 
-                if (await this.main.networkManager.sendUpdatesAsync(true)) {
+                if (this.main.user.is_testuser || await this.main.networkManager.sendUpdatesAsync(true)) {
                     destinationFolderNode.insertNodes(destinationChildIndex, nodesToCopyOrMove);
                     destinationFolderNode.reorder();
                 }
