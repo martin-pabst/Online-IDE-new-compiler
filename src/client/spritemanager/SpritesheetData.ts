@@ -33,9 +33,13 @@ export class SpritesheetData {
                 workspace.spritesheetId = response.spritesheet_id;
             }
 
+            try {
             await this.load(workspace.spritesheetId != null ? workspace.spritesheetId : <string>spritesheetURLOrBlob);
             newSpritesheetLoaded = true;
-            
+            } catch(e) {
+                console.log("Fehler beim Laden des Spritesheets vom Server!");
+                return;
+            }
         }
 
         if(spritesheetURLOrBlob != null && (typeof spritesheetURLOrBlob != "string")){

@@ -227,11 +227,6 @@ export class TokenIterator {
             return true;
         }
         else {
-            // if (this.tt == TokenType.endofSourcecode) {
-            //     return true;
-            // }
-
-            let quickFix: QuickFix | undefined = undefined;
             let range: IRange = this.cct.range;
             if (this.lastToken != null) {
 
@@ -261,11 +256,7 @@ export class TokenIterator {
                     }
 
                 }
-
-
             }
-
-
 
             this.pushError(JCM.semicolonExpected(TokenTypeReadable[this.tt]), "error",
                 range);

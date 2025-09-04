@@ -84,7 +84,8 @@ class GenerateGetterAndSetterQuickfix extends Quickfix {
 
 export class GenerateGetterAndSetterQuickfixHelper {
     static start(module: JavaCompiledModule) {
-        for (let klassNode of module.ast.innerTypes.filter(ast => ast.kind == TokenType.keywordClass)) {
+        for (let klassNode of module.ast.innerTypes.filter(ast => ast.kind == TokenType.keywordClass && !ast.isMainClass)) {
+            klassNode = klassNode as ASTClassDefinitionNode;
             let klass = klassNode.resolvedType;
             if (!klass) continue;
             let methodMap: Map<string, ASTMethodDeclarationNode> = new Map();
