@@ -6,6 +6,8 @@ import { JavaCompiledModule } from "../../module/JavaCompiledModule";
 export class SemicolonInserter {
 
     static start(module: JavaCompiledModule, main: IMain){
+        if(!main.getSettings().getValue("editor.autoSemicolons")) return;
+
         if(module.errors.length > 5) return;
         let cursorLine = main.getMainEditor().getPosition().lineNumber;
         let semicolonErrors = module.errors.filter(error => error.message == JCM.insertSemicolonHere());

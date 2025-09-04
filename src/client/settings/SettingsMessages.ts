@@ -160,6 +160,31 @@ export class SettingsMessages {
         'fr': 'Fermeture automatique des parenthèses'
     });
 
+    static AutoSemicolonsName = () => lm({
+        'de': `Automatisches Ergänzen von Strichpunkten`,
+        'en': `Auto Semicolons`,
+        'fr': `Point-virgules automatiques`
+    });
+
+    static AutoSemicolonsDescription = () => lm({
+        'de': `Fehlende Strichpunkte am Ende der Zeile werden in den meisten Fällen automatisch ergänzt.`,
+        'en': `Missing semicolons at the end of the line are automatically added in most cases.`,
+        'fr': `Les points-virgules manquants à la fin de la ligne sont automatiquement ajoutés dans la plupart des cas.`
+    });
+    
+    static On = () => lm({
+        'de': `Ein`,
+        'en': `On`,
+        'fr': `Activé`
+    });
+
+    static Off = () => lm({
+        'de': `Aus`,
+        'en': `Off`,
+        'fr': `Désactivé`
+    });
+    
+
     static AutoClosingQuotesName = () => lm({
         'de': 'Automatisches Schließen von Anführungszeichen',
         'en': 'Auto Closing Quotes',

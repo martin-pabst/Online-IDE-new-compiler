@@ -9,7 +9,7 @@ export type SettingsScope = 'user' | 'class' | 'school' | 'default';
 export type SettingKey = "editor.hoverVerbosity.showHelpOnKeywordsAndOperators" |
     "editor.hoverVerbosity.showMethodDeclaration" |
     "editor.hoverVerbosity.showClassDeclaration" |
-    "editor.autoClosingBrackets" | "editor.autoClosingQuotes"|
+    "editor.autoClosingBrackets" | "editor.autoClosingQuotes"| "editor.autoSemicolons" |
     "classDiagram.typeConvention" | "classDiagram.background" |
     "explorer.fileOrder" | "explorer.workspaceOrder";
 
@@ -129,6 +129,15 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                                 autoClosingQuotes:  value as monaco.editor.EditorAutoClosingStrategy
                             })
                         }
+                    },
+                    {
+                        key: "editor.autoSemicolons",
+                        settingType: 'setting',
+                        name: SettingsMessages.AutoSemicolonsName,
+                        description: SettingsMessages.AutoSemicolonsDescription,
+                        type: 'boolean',
+                        optionTexts: [SettingsMessages.On, SettingsMessages.Off],
+                        defaultValue: true
                     },
 
                 ]
