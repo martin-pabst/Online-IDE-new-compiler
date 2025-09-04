@@ -8,16 +8,16 @@ export class ErrorMarker {
     monacoModelToDeltaDecorationsMap: Map<monaco.editor.IModel, any[]> = new Map();
 
     markErrors(errors: Error[], monacoModel: monaco.editor.IModel) {
-        let markers: monaco.editor.IMarkerData[] = errors.map((error) => {
-            return {
-                startLineNumber: error.range.startLineNumber,
-                startColumn: error.range.startColumn,
-                endLineNumber: error.range.endLineNumber,
-                endColumn: error.range.endColumn,
-                message: error.message,
-                severity: this.errorLevelToMarkerSeverity(error.level)
-            }
+        let markers: monaco.editor.IMarkerData[] = errors.map((error) => ({
+            startLineNumber: error.range.startLineNumber,
+            startColumn: error.range.startColumn,
+            endLineNumber: error.range.endLineNumber,
+            endColumn: error.range.endColumn,
+            message: error.message,
+            severity: this.errorLevelToMarkerSeverity(error.level)
+
         })
+        );
 
         monaco.editor.setModelMarkers(monacoModel, "martin", markers);
 
@@ -36,12 +36,12 @@ export class ErrorMarker {
         });
 
         let oldDecorations = this.monacoModelToDeltaDecorationsMap.get(monacoModel) || [];
-        this.monacoModelToDeltaDecorationsMap.set(monacoModel,  monacoModel.deltaDecorations(oldDecorations, decorations));
+        this.monacoModelToDeltaDecorationsMap.set(monacoModel, monacoModel.deltaDecorations(oldDecorations, decorations));
 
     }
 
     markErrorsOfModule(module: Module) {
-        if(module.file instanceof GUIFile){
+        if (module.file instanceof GUIFile) {
             this.markErrors(module.errors, module.file.getMonacoModel()!);
         }
 

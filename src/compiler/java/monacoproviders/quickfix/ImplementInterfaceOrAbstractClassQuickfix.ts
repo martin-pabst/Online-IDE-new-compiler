@@ -4,26 +4,26 @@ import * as monaco from 'monaco-editor';
 import { IJavaClass, JavaClass } from "../../types/JavaClass.ts";
 import { JavaMethod } from "../../types/JavaMethod.ts";
 import { IJavaInterface } from "../../types/JavaInterface.ts";
+import { Error } from "../../../common/Error.ts";
 
 
 export class ImplementInterfaceOrAbstractClassQuickfix extends Quickfix {
 
-    constructor(private klass: JavaClass, private notImplementedMethods: JavaMethod[], private javaInterfaceOrAbstractClass: IJavaInterface | IJavaClass) {
-        super(klass.identifierRange);
-        if(javaInterfaceOrAbstractClass instanceof IJavaInterface){
-            this.message = "Nicht-implementierte Methoden des Interfaces " + this.javaInterfaceOrAbstractClass.identifier + " ergänzen";
-        } else {
-            this.message = "Nicht-implementierte Methoden der abstrakten Klasse " + this.javaInterfaceOrAbstractClass.identifier + " ergänzen";
-        }
+    constructor(private klass: JavaClass, private notImplementedMethods: JavaMethod[], private javaInterfaceOrAbstractClass: IJavaInterface | IJavaClass, error: Error) {
+        super(klass.identifierRange, error);
     }
-
+    
     provideCodeAction(model: editor.ITextModel): monaco.languages.CodeAction | undefined {
+        let message = this.javaInterfaceOrAbstractClass instanceof IJavaInterface ?
+            "Nicht-implementierte Methoden des Interfaces " + this.javaInterfaceOrAbstractClass.identifier + " ergänzen" :
+            "Nicht-implementierte Methoden der abstrakten Klasse " + this.javaInterfaceOrAbstractClass.identifier + " ergänzen";
+
         let klassRange = this.klass.range;
         if(!klassRange) return;
 
         return {
-            title: this.message,
-            diagnostics: [this],
+            title: message,
+            diagnostics: [],
             kind: 'quickfix',
             edit: {
                 edits: [

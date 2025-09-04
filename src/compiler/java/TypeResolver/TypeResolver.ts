@@ -812,6 +812,7 @@ export class TypeResolver {
                                 f._isFinal = field.isFinal;
                                 f.classEnum = javaClass;
                                 javaClass.fields.push(f);
+                                field.resolvedField = f;
                             }
                         }
                         javaClass.fields.push(javaClass.createClassField(<any>this.libraryModuleManager.typestore.getType("Class")));
@@ -820,10 +821,6 @@ export class TypeResolver {
                     }
                 }
             }
-        }
-
-        for (let classNode of this.classDeclarationNodes) {
-           GenerateGetterAndSetterQuickfixHelper.start(classNode.resolvedType.fields, classNode);
         }
 
     }

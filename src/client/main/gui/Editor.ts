@@ -57,6 +57,10 @@ export class Editor {
             fixedOverflowWidgets: true,
             quickSuggestions: true,
             quickSuggestionsDelay: 10,
+            // TODO: https://stackoverflow.com/questions/68263285/how-to-trigger-inline-suggestion-in-vscode
+            // inlineSuggest: {
+            //     enabled: true
+            // },
             fontSize: 14,
             //@ts-ignore
             fontFamily: window.javaOnlineFont == null ? "Consolas, Roboto Mono" : window.javaOnlineFont,

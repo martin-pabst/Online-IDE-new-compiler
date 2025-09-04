@@ -122,9 +122,9 @@ export abstract class StatementParser extends TermParser {
                 if (statement && statement.kind == TokenType.binaryOp) {
                     let binaryNode = statement as ASTBinaryNode;
                     if (binaryNode.operator == TokenType.equal) {
-                        this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "warning", binaryNode.operatorRange);
+                        let error = this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "warning", binaryNode.operatorRange);
                         this.module.quickfixes.push(new ReplaceTokenQuickfix(binaryNode.operatorRange, "=",
-                            JCM.ReplaceTokenQuickfixDefaultMessage("==", "="), monaco.MarkerSeverity.Warning));
+                            JCM.ReplaceTokenQuickfixDefaultMessage("==", "="), monaco.MarkerSeverity.Warning, error));
                     }
                 }
                 break;
@@ -183,8 +183,8 @@ export abstract class StatementParser extends TermParser {
 
             let assignmentOperatorRange = this.cct.range;
             if (this.tt == TokenType.equal) {
-                this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "error", this.cct.range);
-                this.module.quickfixes.push(new ReplaceTokenQuickfix(this.cct.range, "=", JCM.ReplaceTokenQuickfixDefaultMessage("==", "=")));
+                let error = this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "error", this.cct.range);
+                this.module.quickfixes.push(new ReplaceTokenQuickfix(this.cct.range, "=", JCM.ReplaceTokenQuickfixDefaultMessage("==", "="), error));
             }
             let initialization = this.comesToken([TokenType.assignment, TokenType.equal], true) ? this.parseTerm() : undefined;
 
@@ -234,8 +234,8 @@ export abstract class StatementParser extends TermParser {
             type = this.increaseArrayDimensionIfLeftRightSquareBracketsToCome(type);
 
             if (this.tt == TokenType.equal) {
-                this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "error", this.cct.range);
-                this.module.quickfixes.push(new ReplaceTokenQuickfix(this.cct.range, "=", JCM.ReplaceTokenQuickfixDefaultMessage("==", "=")));
+                let error = this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "error", this.cct.range);
+                this.module.quickfixes.push(new ReplaceTokenQuickfix(this.cct.range, "=", JCM.ReplaceTokenQuickfixDefaultMessage("==", "="), error));
             }
 
             let initialization: ASTTermNode | undefined = undefined;

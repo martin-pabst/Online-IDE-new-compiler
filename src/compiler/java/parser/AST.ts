@@ -12,6 +12,7 @@ import { JavaMethod } from "../types/JavaMethod.ts";
 import { Visibility } from "../types/Visibility.ts";
 import type * as monaco from 'monaco-editor'
 import { JavaLocalVariable } from "../codegenerator/JavaLocalVariable.ts";
+import { JavaField } from "../types/JavaField.ts";
 
 
 export type ASTNodes = ASTNode[];
@@ -193,6 +194,7 @@ export interface ASTFieldDeclarationNode extends ASTNodeWithModifiers, ASTNode,
     kind: TokenType.fieldDeclaration;
     type: ASTTypeNode;
     initialization: ASTTermNode | undefined;
+    resolvedField: JavaField;
 }
 
 export interface ASTInstanceInitializerNode extends ASTStatementNode {

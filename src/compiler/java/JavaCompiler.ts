@@ -21,6 +21,7 @@ import { JavaLibraryModuleManager } from "./module/libraries/JavaLibraryModuleMa
 import { Parser } from "./parser/Parser";
 import { CompilingProgressManager, CompilingProgressManagerException } from "./CompilingProgressManager.ts";
 import { JavaLibraryModule } from "./module/libraries/JavaLibraryModule.ts";
+import { GenerateGetterAndSetterQuickfixHelper } from "./monacoproviders/quickfix/GenerateGetterAndSetterQuickfix.ts";
 
 
 
@@ -173,9 +174,13 @@ export class JavaCompiler implements Compiler {
 
         this.eventManager.fire("compilationFinishedWithNewExecutable", this.#lastCompiledExecutable);
 
-        for (const module of this.#lastCompiledExecutable.moduleManager.modules) {
-            this.errorMarker?.markErrorsOfModule(module);
-        }
+        setTimeout(() => {
+            // this doesn't hurry, so give browser's main thread time to do its chores            
+            for (const module of this.#lastCompiledExecutable.moduleManager.modules) {
+                this.errorMarker?.markErrorsOfModule(module);
+                GenerateGetterAndSetterQuickfixHelper.start(module);
+            }
+        }, 10);
 
         return executable;
     }

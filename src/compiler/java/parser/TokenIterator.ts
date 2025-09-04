@@ -182,13 +182,12 @@ export class TokenIterator {
     }
 
 
-    pushError(messageWithId: ErrormessageWithId, errorLevel: ErrorLevel = "error", range?: IRange, quickFix?: QuickFix) {
+    pushError(messageWithId: ErrormessageWithId, errorLevel: ErrorLevel = "error", range?: IRange) {
         if (range == null) range = Object.assign({}, this.cct.range);
         this.module.errors.push({
             message: messageWithId.message,
             id: messageWithId.id,
             range: range,
-            quickFix: quickFix,
             level: errorLevel
         });
     }

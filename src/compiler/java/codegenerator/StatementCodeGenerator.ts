@@ -593,8 +593,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if (!type) return;
         if (type.identifier != "boolean") {
             if (node.kind == TokenType.binaryOp && (<ASTBinaryNode>node).operator == TokenType.assignment) {
-                this.pushError(JCM.assignmentInsteadOfComparisonOperator(), "error", (<ASTBinaryNode>node).operatorRange);
-                this.module.quickfixes.push(new ReplaceTokenQuickfix((<ASTBinaryNode>node).operatorRange, "==", JCM.ReplaceTokenQuickfixDefaultMessage("=", "==")))
+                let error = this.pushError(JCM.assignmentInsteadOfComparisonOperator(), "error", (<ASTBinaryNode>node).operatorRange);
+                this.module.quickfixes.push(new ReplaceTokenQuickfix((<ASTBinaryNode>node).operatorRange, "==", JCM.ReplaceTokenQuickfixDefaultMessage("=", "=="), error))
             } else {
                 this.pushError(JCM.booleanTermExpected(type.identifier), "error", node);
             }

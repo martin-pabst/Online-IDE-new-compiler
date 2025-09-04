@@ -1,3 +1,4 @@
+import { Error } from "../../common/Error.ts";
 import { Klass } from "../../common/interpreter/StepFunction.ts";
 import { IRange } from "../../common/range/Range";
 import { JavaCompilerStringConstants } from "../JavaCompilerStringConstants.ts";
@@ -298,15 +299,17 @@ export class JavaClass extends IJavaClass {
             let abstractMethodsNotYetImplemented: JavaMethod[] = this.getAbstractMethodsNotYetImplemented();
             if (abstractMethodsNotYetImplemented.length > 0) {
                 let jc = JCM.abstractMethodsNotImplemented(this.identifier, abstractMethodsNotYetImplemented.map(m => m.getSignature()).join(", "));
-                this.module.errors.push({
+                let error: Error = {
                     message: jc.message,
                     id: jc.id,
                     level: "error",
                     range: this.identifierRange,
-                })
+                }
+
+                this.module.errors.push(error);
 
                 if (this.module instanceof JavaCompiledModule) {
-                    this.module.quickfixes.push(new ImplementInterfaceOrAbstractClassQuickfix(this, abstractMethodsNotYetImplemented, this.extends))
+                    this.module.quickfixes.push(new ImplementInterfaceOrAbstractClassQuickfix(this, abstractMethodsNotYetImplemented, this.extends, error))
                 }
 
             }
@@ -392,15 +395,17 @@ export class JavaClass extends IJavaClass {
 
             if (notImplementedMethods.length > 0) {
                 let jc = JCM.interfaceMethodsNotImplemented(this.identifier, javaInterface.identifier, notImplementedMethods.map(m => m.getSignature()).join(", "));
-                this.module.errors.push({
+                let error: Error = {
                     message: jc.message,
                     id: jc.id,
                     level: "error",
                     range: this.identifierRange
-                });
+                };
+
+                this.module.errors.push(error);
 
                 if (this.module instanceof JavaCompiledModule) {
-                    this.module.quickfixes.push(new ImplementInterfaceOrAbstractClassQuickfix(this, notImplementedMethods, javaInterface))
+                    this.module.quickfixes.push(new ImplementInterfaceOrAbstractClassQuickfix(this, notImplementedMethods, javaInterface, error))
                 }
             }
         }

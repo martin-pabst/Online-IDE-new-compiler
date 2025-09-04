@@ -7,12 +7,13 @@ import { JavaCompiler } from '../../JavaCompiler.ts';
 import { GUIFile } from '../../../../client/workspace/File.ts';
 import { JavaCompiledModule } from '../../module/JavaCompiledModule.ts';
 import { Range } from '../../../common/range/Range.ts';
+import { IPosition } from '../../../common/range/Position.ts';
 
 
 
 export class JavaCodeActionProvider extends BaseMonacoProvider implements monaco.languages.CodeActionProvider {
-    
-    constructor(language: Language){
+
+    constructor(language: Language) {
         super(language);
     }
 
@@ -20,51 +21,50 @@ export class JavaCodeActionProvider extends BaseMonacoProvider implements monaco
         let codeActions: monaco.languages.CodeAction[] = [];
 
         let compiler = (<JavaCompiler>this.findMainForModel(model)?.getCompiler());
-        if(!compiler) return undefined;
-        
+        if (!compiler) return undefined;
+
 
 
         let _module: JavaCompiledModule | undefined;
-        for(let m of compiler.moduleManager?.modules){
-            if(!(m.file instanceof GUIFile)) continue;
-            if(m.file.getMonacoModel() == model){
+        for (let m of compiler.moduleManager?.modules) {
+            if (!(m.file instanceof GUIFile)) continue;
+            if (m.file.getMonacoModel() == model) {
                 _module = m;
                 break;
             }
 
         }
-        if(typeof _module == 'undefined') return {
+        if (typeof _module == 'undefined') return {
             actions: [],
-            dispose: () => {}
+            dispose: () => { }
         };
 
-        if(range.startLineNumber == range.endLineNumber && range.startColumn == range.endColumn){
+        for (let marker of context.markers) {
+            let quickfixes = _module.quickfixes.filter(qf => {
+                if(!qf.error) return false;
+                return qf.error.message == marker.message;
+            }); 
+            codeActions = quickfixes.map(qf => qf.provideCodeAction(model))
+        }
+
+
+        if (codeActions.length == 0 && range.startLineNumber == range.endLineNumber && range.startColumn == range.endColumn) {
+            let position: IPosition = { lineNumber: range.startLineNumber, column: range.startColumn };
             let quickfixes = _module.quickfixes.filter(
-                    
-                    qf => (qf.startLineNumber < range.startLineNumber || qf.startLineNumber == range.startLineNumber && qf.startColumn <= range.startColumn)
-                    && (qf.endLineNumber > range.startLineNumber || range.endLineNumber == qf.startLineNumber && qf.endColumn >= range.startColumn)
+                qf => Range.containsPosition(qf.range, position)
             )
 
             codeActions = quickfixes.map(qf => qf.provideCodeAction(model))
 
-        } else {
-            for(let marker of context.markers){
-                let javaMarkerData: Quickfix = _module.quickfixes.find(
-                    qf => qf.startLineNumber == marker.startLineNumber && qf.endLineNumber == marker.endLineNumber && qf.startColumn == marker.startColumn && qf.endColumn == marker.endColumn && qf.message == marker.message);
-                if(!javaMarkerData) continue;
-                let ca = javaMarkerData.provideCodeAction(model);
-                if(ca) codeActions.push(ca);
-            }
-        }
-        
+        } 
 
 
         return {
             actions: codeActions,
-            dispose: () => {}
+            dispose: () => { }
         }
     }
-    
+
     // resolveCodeAction?(codeAction: monaco.languages.CodeAction, token: monaco.CancellationToken): monaco.languages.ProviderResult<monaco.languages.CodeAction> {
     //     throw new Error('Method not implemented.');
     // }

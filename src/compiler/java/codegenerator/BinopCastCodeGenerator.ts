@@ -1,6 +1,6 @@
 import { ErrormessageWithId } from "../../../tools/language/LanguageManager";
 import { BaseSymbol } from "../../common/BaseSymbolTable.ts";
-import { ErrorLevel, QuickFix } from "../../common/Error";
+import { Error, ErrorLevel, QuickFix } from "../../common/Error";
 import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
 import { EmptyRange, IRange } from "../../common/range/Range";
 import { CompilingProgressManager } from "../CompilingProgressManager";
@@ -720,18 +720,21 @@ export abstract class BinopCastCodeGenerator {
         return false;
     }
 
-    pushError(messageWithId: ErrormessageWithId, errorLevel: ErrorLevel = "error", nodeOrRange: ASTNode | IRange, quickFix?: QuickFix) {
+    pushError(messageWithId: ErrormessageWithId, errorLevel: ErrorLevel = "error", nodeOrRange: ASTNode | IRange): Error {
 
         //@ts-ignore
         let range: IRange = nodeOrRange["kind"] ? nodeOrRange.range : nodeOrRange;
 
-        this.module.errors.push({
+        const error: Error = {
             message: messageWithId.message,
             id: messageWithId.id,
             range: range,
-            quickFix: quickFix,
             level: errorLevel
-        });
+        };
+
+        this.module.errors.push(error);
+
+        return error;
     }
 
 
