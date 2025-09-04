@@ -194,7 +194,7 @@ export interface ASTFieldDeclarationNode extends ASTNodeWithModifiers, ASTNode,
     kind: TokenType.fieldDeclaration;
     type: ASTTypeNode;
     initialization: ASTTermNode | undefined;
-    resolvedField: JavaField;
+    resolvedField?: JavaField;
 }
 
 export interface ASTInstanceInitializerNode extends ASTStatementNode {

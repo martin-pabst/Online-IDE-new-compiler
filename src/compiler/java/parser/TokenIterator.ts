@@ -1,9 +1,11 @@
 import { ErrormessageWithId } from "../../../tools/language/LanguageManager";
-import { ErrorLevel, QuickFix } from "../../common/Error";
+import { Error, ErrorLevel, QuickFix } from "../../common/Error";
 import { EmptyRange, IRange } from "../../common/range/Range";
+import { JavaCompiledModuleMessages } from "../language/JavaCompiledModuleMessages.ts";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { Token, TokenList } from "../lexer/Token";
 import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
+import { ReplaceTokenQuickfix } from "../monacoproviders/quickfix/ReplaceTokenQuickfix.ts";
 import { TokenType, TokenTypeReadable } from "../TokenType";
 import { ASTNode } from "./AST";
 import * as monaco from 'monaco-editor'
@@ -59,7 +61,7 @@ export class TokenIterator {
 
 
     constructor(private tokenList: TokenList, protected module: JavaCompiledModule) {
-        if(tokenList.length == 0){
+        if (tokenList.length == 0) {
             tokenList.push({
                 tt: TokenType.endofSourcecode,
                 value: "",
@@ -68,7 +70,7 @@ export class TokenIterator {
         }
         this.endToken = tokenList[tokenList.length - 1];
         this.pos = -1;
-        if(tokenList.length > 0) this.nextToken(); // fetch first non-space token
+        if (tokenList.length > 0) this.nextToken(); // fetch first non-space token
     }
 
     getAndSkipToken(): Token {
@@ -124,7 +126,7 @@ export class TokenIterator {
 
     }
 
-    exchangeShiftRightForTwoClosingGreater(){
+    exchangeShiftRightForTwoClosingGreater() {
         this.cct.tt = TokenType.greater;
         this.tt = TokenType.greater;
         this.cct.value = '>';
@@ -184,12 +186,14 @@ export class TokenIterator {
 
     pushError(messageWithId: ErrormessageWithId, errorLevel: ErrorLevel = "error", range?: IRange) {
         if (range == null) range = Object.assign({}, this.cct.range);
-        this.module.errors.push({
+        const error = {
             message: messageWithId.message,
             id: messageWithId.id,
             range: range,
             level: errorLevel
-        });
+        };
+        this.module.errors.push(error);
+        return error;
     }
 
     expect(tt: TokenType | TokenType[], skipIfTrue: boolean = true): boolean {
@@ -239,32 +243,26 @@ export class TokenIterator {
                         endColumn: this.lastToken.range.endColumn
                     }
 
-                    if (!this.isOperatorOrDot(this.lastToken.tt)
-                    ) {
-                        quickFix = {
-                            title: JCM.insertSemicolonHere(),
-                            editsProvider: (uri) => {
-                                return [{
-                                    resource: uri,
-                                    textEdit: {
-                                        range: {
-                                            startLineNumber: range.startLineNumber, startColumn: range.startColumn,
-                                            endLineNumber: range.endLineNumber, endColumn: range.endColumn,
-                                            message: "",
-                                            severity: monaco.MarkerSeverity.Error
-                                        },
-                                        text: ";"
-                                    },
-                                    versionId: 1
-                                }
-                                ];
-                            }
+                    if (!this.isOperatorOrDot(this.lastToken.tt)) {
+                        let error: Error = {
+                            message: JCM.insertSemicolonHere(),
+                            id: "1",
+                            level: "error",
+                            range: this.cct.range
                         }
-
-                        if (invokeSemicolonAngel && this.module.errors.length < 3) {
-                            //this.module.main.getSemicolonAngel().register(range, this.module);
-                        }
+                        this.module.errors.push(error);
+                        this.module.quickfixes.push(new ReplaceTokenQuickfix(range, ";", JCM.insertSemicolonHere(), error,
+                            {
+                                startLineNumber: range.startLineNumber,
+                                startColumn: 0,
+                                endLineNumber: range.endLineNumber,
+                                endColumn: range.endColumn
+                            }))
                     }
+
+                    // if (invokeSemicolonAngel && this.module.errors.length < 3) {
+                    //     this.module.main.getSemicolonAngel().register(range, this.module);
+                    // }
 
                 }
 
@@ -274,7 +272,7 @@ export class TokenIterator {
 
 
             this.pushError(JCM.semicolonExpected(TokenTypeReadable[this.tt]), "error",
-                range, quickFix);
+                range);
             return false;
         }
 
@@ -415,7 +413,7 @@ export class TokenIterator {
         while (pos1 < this.tokenList.length) {
             let tt = this.tokenList[pos1].tt;
             if (tokensToLookFor.indexOf(tt) >= 0) return tt;
-            if(tillToken.indexOf(tt) >= 0) break;
+            if (tillToken.indexOf(tt) >= 0) break;
             pos1++;
         }
 
@@ -425,8 +423,8 @@ export class TokenIterator {
 
     analyzeIfVariableDeclarationOrMethodDeclarationAhead(isCodeOutsideClassdeclarations: boolean): "variabledeclaration" | "methoddeclaration" | "statement" {
 
-        if(this.tt == TokenType.keywordFinal) return "variabledeclaration";
-        if([TokenType.keywordPrivate, TokenType.keywordProtected, TokenType.keywordPublic, TokenType.keywordStatic, TokenType.keywordVoid].indexOf(this.tt) >= 0) return "methoddeclaration";
+        if (this.tt == TokenType.keywordFinal) return "variabledeclaration";
+        if ([TokenType.keywordPrivate, TokenType.keywordProtected, TokenType.keywordPublic, TokenType.keywordStatic, TokenType.keywordVoid].indexOf(this.tt) >= 0) return "methoddeclaration";
 
         let pos = this.pos;
         let nonSpaceTokenTypesFound: TokenType[] = [];
@@ -435,27 +433,27 @@ export class TokenIterator {
             let token = this.tokenList[pos];
             let tt = token.tt;
             if (tt == TokenType.semicolon || tt == TokenType.assignment) break;
-            if(tt == TokenType.newline){
-                if(nonSpaceTokenTypesFound.length == 1 || nonSpaceTokenTypesFound.length == 2 && nonSpaceTokenTypesFound[1] == TokenType.dot){
+            if (tt == TokenType.newline) {
+                if (nonSpaceTokenTypesFound.length == 1 || nonSpaceTokenTypesFound.length == 2 && nonSpaceTokenTypesFound[1] == TokenType.dot) {
                     return "statement";
                 }
             }
-            if(tt == TokenType.leftBracket){
-                if(isCodeOutsideClassdeclarations){
+            if (tt == TokenType.leftBracket) {
+                if (isCodeOutsideClassdeclarations) {
                     nonSpaceTokenTypesFound.push(tt);
                     break;
                 }
                 return "statement";
             }
-            if (TokenIterator.possibleTokensInsideVariableDeclaration.indexOf(tt) < 0){
-                if(tt == TokenType.equal && !nonSpaceTokenTypesFound.find(tt => tt != TokenType.identifier) && nonSpaceTokenTypesFound.length >= 2){
+            if (TokenIterator.possibleTokensInsideVariableDeclaration.indexOf(tt) < 0) {
+                if (tt == TokenType.equal && !nonSpaceTokenTypesFound.find(tt => tt != TokenType.identifier) && nonSpaceTokenTypesFound.length >= 2) {
                     // this is for cases like "int a == 10;"
                     // strategy: assume variable declaration and then print helping error message.
                     // this is better than assuming "statement" and then giving unhelpful error message.
                     return "variabledeclaration";
                 }
                 return "statement";
-            } 
+            }
             if (TokenIterator.spaceTokenTypes.indexOf(tt) < 0) nonSpaceTokenTypesFound.push(tt);
             pos++;
         }
@@ -467,12 +465,12 @@ export class TokenIterator {
         let lastToken2 = nonSpaceTokenTypesFound[length - 2];
         let lastToken3 = length < 3 ? TokenType.endofSourcecode : nonSpaceTokenTypesFound[length - 3];
 
-        if(isCodeOutsideClassdeclarations){
-            if(lastToken1 == TokenType.leftBracket && lastToken2 == TokenType.identifier
+        if (isCodeOutsideClassdeclarations) {
+            if (lastToken1 == TokenType.leftBracket && lastToken2 == TokenType.identifier
                 && [TokenType.greater, TokenType.identifier, TokenType.leftRightSquareBracket,
-                TokenType.keywordVoid].indexOf(lastToken3) >= 0){
-                    return "methoddeclaration"
-                }
+                TokenType.keywordVoid].indexOf(lastToken3) >= 0) {
+                return "methoddeclaration"
+            }
         }
 
 
@@ -486,4 +484,4 @@ export class TokenIterator {
 
     }
 
- }
+}

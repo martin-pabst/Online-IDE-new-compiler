@@ -9,7 +9,12 @@ import { TokenType } from "../../TokenType";
 class GenerateGetterAndSetterQuickfix extends Quickfix {
 
     constructor(private fieldNode: ASTFieldDeclarationNode, private field: JavaField, private lineToInsert: number, private type: "getter" | "setter" | "both") {
-        super(field.identifierRange);
+        super({
+            startLineNumber: field.identifierRange.startLineNumber,
+            startColumn: 0,
+            endLineNumber: field.identifierRange.endLineNumber,
+            endColumn: field.identifierRange.endColumn
+        });
     }
 
     provideCodeAction(model: editor.ITextModel): languages.CodeAction | undefined {

@@ -5,8 +5,8 @@ import { Error } from "../../../common/Error.ts";
 
 export class ReplaceTokenQuickfix extends Quickfix {
 
-    constructor(private rangeToReplace: monaco.IRange, private replaceBy: string, private message: string, error?: Error) {
-        super(rangeToReplace, error);
+    constructor(private rangeToReplace: monaco.IRange, private replaceBy: string, private message: string, error?: Error, public displayRange?: monaco.IRange) {
+        super(displayRange ?? rangeToReplace, error);
     }
 
     provideCodeAction(model: editor.ITextModel): monaco.languages.CodeAction | undefined {

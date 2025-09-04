@@ -181,13 +181,6 @@ export class MainEmbedded implements MainBase {
 
         this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());
 
-        for (let module of this.getCompiler().getAllModules()) {
-            if (!(module.file instanceof GUIFile)) return;
-            let model = module.file.getMonacoModel();
-            if (!model) return;
-            monaco.editor.setModelMarkers(model, "myJava", module.quickfixes);
-        }
-
     }
 
     adjustWidthToWorld(): void {

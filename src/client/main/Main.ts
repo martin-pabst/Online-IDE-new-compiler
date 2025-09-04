@@ -330,14 +330,7 @@ export class Main implements MainBase {
         setTimeout(() => {            
             let errors = this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
             this.projectExplorer.renderErrorCount(this.currentWorkspace, errors);
-            this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());
-    
-            for (let module of this.getCompiler().getAllModules()) {
-                if (!(module.file instanceof GUIFile)) return;
-                let model = module.file.getMonacoModel();
-                if (!model) return;
-                monaco.editor.setModelMarkers(model, "myJava", module.quickfixes);
-            }
+            this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());    
         }, 20);
 
     }

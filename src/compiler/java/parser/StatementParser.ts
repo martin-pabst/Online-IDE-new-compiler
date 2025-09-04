@@ -124,7 +124,7 @@ export abstract class StatementParser extends TermParser {
                     if (binaryNode.operator == TokenType.equal) {
                         let error = this.pushError(JCM.comparisonOperatorInsteadOfAssignment(), "warning", binaryNode.operatorRange);
                         this.module.quickfixes.push(new ReplaceTokenQuickfix(binaryNode.operatorRange, "=",
-                            JCM.ReplaceTokenQuickfixDefaultMessage("==", "="), monaco.MarkerSeverity.Warning, error));
+                            JCM.ReplaceTokenQuickfixDefaultMessage("==", "="), error));
                     }
                 }
                 break;
