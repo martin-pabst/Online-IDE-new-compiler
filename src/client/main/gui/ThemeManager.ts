@@ -131,7 +131,6 @@ export class ThemeManager {
                 "--defaultOutputColor": "#ffffff",
                 "--runInputColor": "#ffffff",
                 "--runBackgroundColor": "rgba(255, 255, 255, 0.2)",
-
             }
         });
 
@@ -234,7 +233,7 @@ export class ThemeManager {
 
     }
 
-    initEditorThemes(){
+    initEditorThemes() {
         monaco.editor.defineTheme('myCustomThemeDark', {
             base: 'vs-dark', // can also be vs-dark or hc-black
             inherit: true, // can also be false to completely replace the builtin rules
@@ -252,11 +251,13 @@ export class ThemeManager {
                 // { token: 'comment.js', foreground: '008800', fontStyle: 'bold italic underline' },
 
                 // semantic tokens:
-                {token: 'property', foreground: 'ffffff' ,fontStyle: 'bold'},
+                { token: 'property', foreground: 'ffffff', fontStyle: 'bold' },
             ],
             colors: {
                 "editor.background": "#1e1e1e",
-                "jo_highlightMethod": "#2b2b7d"
+                "jo_highlightMethod": "#2b2b7d",
+                // "editorInlayHint.foreground": "#ffffffff",
+                // "editorInlayHint.background": "#b3b3b3ba",
             }
         });
 

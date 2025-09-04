@@ -248,7 +248,7 @@ export class TokenIterator {
                             message: JCM.insertSemicolonHere(),
                             id: "1",
                             level: "error",
-                            range: this.cct.range
+                            range: range
                         }
                         this.module.errors.push(error);
                         this.module.quickfixes.push(new ReplaceTokenQuickfix(range, ";", JCM.insertSemicolonHere(), error,
@@ -259,10 +259,6 @@ export class TokenIterator {
                                 endColumn: range.endColumn
                             }))
                     }
-
-                    // if (invokeSemicolonAngel && this.module.errors.length < 3) {
-                    //     this.module.main.getSemicolonAngel().register(range, this.module);
-                    // }
 
                 }
 

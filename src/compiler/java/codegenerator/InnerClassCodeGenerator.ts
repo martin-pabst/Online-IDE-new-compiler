@@ -133,6 +133,10 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                     this.pushError(JCM.lambdaFunctionWrongParameterType(lambdaParameter.identifier, fiParameterType.toString()), "error", lambdaParameter.range);
                 }
             }
+            if(!lambdaParameter.type){
+                this.module.addInlayHint(1, lambdaParameter.range, fiParameterType.toString(),
+                 false, true, fiParameterType.toString() + " " + methodToImplement.parameters[i].identifier);
+            }
         }
 
         let method = methodToImplement.getCopy();

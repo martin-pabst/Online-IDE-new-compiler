@@ -62,6 +62,9 @@ export class Editor {
             //     enabled: true
             // },
             fontSize: 14,
+            inlayHints: {
+                enabled: "on"
+            },
             //@ts-ignore
             fontFamily: window.javaOnlineFont == null ? "Consolas, Roboto Mono" : window.javaOnlineFont,
             fontWeight: "500",

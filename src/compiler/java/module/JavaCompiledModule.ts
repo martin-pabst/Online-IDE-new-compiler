@@ -56,6 +56,8 @@ export class JavaCompiledModule extends JavaBaseModule {
 
     methodDeclarationRanges: IRange[] = [];
 
+    inlayHints: monaco.languages.InlayHint[] = [];
+
     constructor(file: CompilerFile, public moduleManager?: JavaModuleManager) {
         super(file, false);
     }
@@ -192,6 +194,7 @@ export class JavaCompiledModule extends JavaBaseModule {
         this.symbolTables = [];
         this.methodDeclarationRanges = [];
         this.quickfixes = [];
+        this.inlayHints = [];
     }
 
     hasMainProgram(): boolean {
@@ -302,6 +305,31 @@ export class JavaCompiledModule extends JavaBaseModule {
             }
             mcpList.push(mcp);
         }
+
+    }
+
+    addInlayHint(kind: monaco.languages.InlayHintKind, positionOrRange: monaco.IPosition|monaco.IRange, label: string, 
+        paddingLeft: boolean, paddingRight: boolean, tooltip: string
+    ){
+        let position1: monaco.IPosition = <any>positionOrRange;
+        if(positionOrRange["startLineNumber"]){
+            position1 = {
+                lineNumber: (<monaco.IRange>positionOrRange).startLineNumber,
+                column: (<monaco.IRange>positionOrRange).startColumn
+            }
+        }
+
+        this.inlayHints.push({
+            kind: kind,
+            position: position1,
+            label: label,
+            paddingLeft: paddingLeft,
+            paddingRight: paddingRight,
+            tooltip: {
+                value: "```myJava\n" + tooltip + "\n```"
+            }
+        })
+
 
     }
 

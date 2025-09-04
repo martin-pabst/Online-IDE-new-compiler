@@ -22,6 +22,7 @@ import { Parser } from "./parser/Parser";
 import { CompilingProgressManager, CompilingProgressManagerException } from "./CompilingProgressManager.ts";
 import { JavaLibraryModule } from "./module/libraries/JavaLibraryModule.ts";
 import { GenerateGetterAndSetterQuickfixHelper } from "./monacoproviders/quickfix/GenerateGetterAndSetterQuickfix.ts";
+import { SemicolonInserter } from "./monacoproviders/quickfix/SemicolonInserter.ts";
 
 
 
@@ -179,6 +180,7 @@ export class JavaCompiler implements Compiler {
             for (const module of this.#lastCompiledExecutable.moduleManager.modules) {
                 this.errorMarker?.markErrorsOfModule(module);
                 GenerateGetterAndSetterQuickfixHelper.start(module);
+                SemicolonInserter.start(module, this.main);
             }
         }, 10);
 

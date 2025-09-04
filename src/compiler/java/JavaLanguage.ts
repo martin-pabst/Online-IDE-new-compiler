@@ -8,6 +8,7 @@ import { JavaCompletionItemProvider } from "./monacoproviders/JavaCompletionItem
 import { JavaDefinitionProvider } from "./monacoproviders/JavaDefinitionProvider";
 import { JavaFormatter } from "./monacoproviders/JavaFormatter";
 import { JavaHoverProvider } from "./monacoproviders/JavaHoverProvider";
+import { JavaInlayHintsProvider } from "./monacoproviders/JavaInlayHintsProvider.ts";
 import { JavaOnDidTypeProvider } from "./monacoproviders/JavaOnDidTypeProvider";
 import { JavaReferenceProvider } from "./monacoproviders/JavaReferenceProvider";
 import { JavaRenameProvider } from "./monacoproviders/JavaRenameProvider";
@@ -59,6 +60,7 @@ export class JavaLanguage extends Language {
         new JavaDefinitionProvider(this);
         new JavaReferenceProvider(this);
         new JavaSignatureHelpProvider(this);
+        new JavaInlayHintsProvider(this);
 
         new JavaColorProvider(this);
 
