@@ -15,7 +15,7 @@ import RouterWorker from './Router?worker';
 
 import "/assets/css/diagram.css";
 import { ajaxAsync, csrfToken } from '../../../../communication/AjaxHelper.js';
-import { Settings } from '../../../../settings/Settings.js';
+import { ClassDiagramMessages } from './ClassDiagramMessages.js';
 
 
 type ClassBoxes = {
@@ -77,14 +77,14 @@ export class ClassDiagram extends Diagram {
             let allArrowsBlack = that.currentClassBoxes.allArrowsBlack || false;
             openContextMenu([
                 {
-                    caption: displaysSystemClasses ? "Systemklassen ausblenden" : "Systemklassen einblenden",
+                    caption: displaysSystemClasses ? ClassDiagramMessages.hideSystemClasses() : ClassDiagramMessages.showSystemClasses(),
                     callback: () => {
                         that.currentClassBoxes.displaySystemClasses = !displaysSystemClasses;
                         that.drawDiagram(that.currentWorkspace, false);
                     }
                 },
                 {
-                    caption: parametersWithTypes ? "Parameter ausblenden" : "Parameter einblenden",
+                    caption: parametersWithTypes ? ClassDiagramMessages.hideParameters() : ClassDiagramMessages.showParameters(),
                     callback: () => {
                         that.currentClassBoxes.parametersWithTypes = !parametersWithTypes;
                         that.currentClassBoxes.active.forEach((cb) => { cb.hashedSignature = -1 });
@@ -92,7 +92,7 @@ export class ClassDiagram extends Diagram {
                     }
                 },
                 {
-                    caption: allArrowsBlack ? "Verbindungen farbig" : "Verbindungen schwarz",
+                    caption: allArrowsBlack ? ClassDiagramMessages.connectionsColored() : ClassDiagramMessages.connectionsBlack(),
                     callback: () => {
                         that.currentClassBoxes.allArrowsBlack = !allArrowsBlack;
                         if (that.currentClassBoxes.allArrowsBlack) {
@@ -104,7 +104,7 @@ export class ClassDiagram extends Diagram {
                     }
                 },
                 {
-                    caption: "Klassendiagramm als png-Grafik herunterladen",
+                    caption: ClassDiagramMessages.downloadAsPng(),
                     callback: async () => {
                         let factor = 5;
 
@@ -145,7 +145,7 @@ export class ClassDiagram extends Diagram {
 
                             //Create blob and save if with FileSaver.js
                             canvas.toBlob((blob) => {
-                                downloadFile(blob, "Klassendiagramm.png", true);
+                                downloadFile(blob, ClassDiagramMessages.classDiagram() + ".png", true);
                             });
                             canvas.remove();
                         };
