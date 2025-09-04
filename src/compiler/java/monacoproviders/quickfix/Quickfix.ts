@@ -1,9 +1,9 @@
-import type * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor';
 
 
 export abstract class Quickfix implements monaco.editor.IMarkerData {
     code?: string | { value: string; target: monaco.Uri; };
-    severity: monaco.MarkerSeverity = 8; // monaco.MarkerSeverity.Error;
+    severity: monaco.MarkerSeverity = monaco.MarkerSeverity.Error;
     message: string;
     source?: string;
     startLineNumber: number;

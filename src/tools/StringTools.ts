@@ -164,3 +164,7 @@ export function generateSecret(length: number): string {
   return secret;
 }
 
+export function firstLetterUppercase(s: string): string {
+  if(s == null || s.length == 0) return;
+  return s[0].toLocaleUpperCase() + s.substring(1);
+}

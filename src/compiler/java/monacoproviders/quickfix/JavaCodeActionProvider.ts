@@ -6,6 +6,7 @@ import { Quickfix } from './Quickfix.ts';
 import { JavaCompiler } from '../../JavaCompiler.ts';
 import { GUIFile } from '../../../../client/workspace/File.ts';
 import { JavaCompiledModule } from '../../module/JavaCompiledModule.ts';
+import { Range } from '../../../common/range/Range.ts';
 
 
 
@@ -37,13 +38,26 @@ export class JavaCodeActionProvider extends BaseMonacoProvider implements monaco
             dispose: () => {}
         };
 
-        for(let marker of context.markers){
-            let javaMarkerData: Quickfix = _module.quickfixes.find(
-                qf => qf.startLineNumber == marker.startLineNumber && qf.endLineNumber == marker.endLineNumber && qf.startColumn == marker.startColumn && qf.endColumn == marker.endColumn && qf.message == marker.message);
-            if(!javaMarkerData) continue;
-            let ca = javaMarkerData.provideCodeAction(model);
-            if(ca) codeActions.push(ca);
+        if(range.startLineNumber == range.endLineNumber && range.startColumn == range.endColumn){
+            let quickfixes = _module.quickfixes.filter(
+                    
+                    qf => (qf.startLineNumber < range.startLineNumber || qf.startLineNumber == range.startLineNumber && qf.startColumn <= range.startColumn)
+                    && (qf.endLineNumber > range.startLineNumber || range.endLineNumber == qf.startLineNumber && qf.endColumn >= range.startColumn)
+            )
+
+            codeActions = quickfixes.map(qf => qf.provideCodeAction(model))
+
+        } else {
+            for(let marker of context.markers){
+                let javaMarkerData: Quickfix = _module.quickfixes.find(
+                    qf => qf.startLineNumber == marker.startLineNumber && qf.endLineNumber == marker.endLineNumber && qf.startColumn == marker.startColumn && qf.endColumn == marker.endColumn && qf.message == marker.message);
+                if(!javaMarkerData) continue;
+                let ca = javaMarkerData.provideCodeAction(model);
+                if(ca) codeActions.push(ca);
+            }
         }
+        
+
 
         return {
             actions: codeActions,

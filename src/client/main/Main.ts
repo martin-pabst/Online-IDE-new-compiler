@@ -323,17 +323,22 @@ export class Main implements MainBase {
 
     onCompilationFinished(executable: Executable | undefined): void {
 
+        // this is the only time-critical task:
         this.interpreter.setExecutable(executable);
-        let errors = this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
-        this.projectExplorer.renderErrorCount(this.currentWorkspace, errors);
-        this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());
 
-        for (let module of this.getCompiler().getAllModules()) {
-            if (!(module.file instanceof GUIFile)) return;
-            let model = module.file.getMonacoModel();
-            if (!model) return;
-            monaco.editor.setModelMarkers(model, "myJava", module.quickfixes);
-        }
+        // this can wait => give the main thread time to do its chores:
+        setTimeout(() => {            
+            let errors = this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
+            this.projectExplorer.renderErrorCount(this.currentWorkspace, errors);
+            this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());
+    
+            for (let module of this.getCompiler().getAllModules()) {
+                if (!(module.file instanceof GUIFile)) return;
+                let model = module.file.getMonacoModel();
+                if (!model) return;
+                monaco.editor.setModelMarkers(model, "myJava", module.quickfixes);
+            }
+        }, 20);
 
     }
 

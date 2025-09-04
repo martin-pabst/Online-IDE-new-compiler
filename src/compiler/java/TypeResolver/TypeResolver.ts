@@ -23,6 +23,7 @@ import { JavaParameter } from "../types/JavaParameter";
 import { CycleFinder } from "./CycleFinder";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { JavaCompilerStringConstants } from "../JavaCompilerStringConstants.ts";
+import { GenerateGetterAndSetterQuickfixHelper } from "../monacoproviders/quickfix/GenerateGetterAndSetterQuickfix.ts";
 
 
 export class TypeResolver {
@@ -790,7 +791,6 @@ export class TypeResolver {
 
                         for (let field of classNode.fieldsOrInstanceInitializers) {
                             if (field.kind == TokenType.fieldDeclaration) {
-
                                 if(field.isStatic){
                                     const otherField = staticFieldIdentifiers.get(field.identifier);
                                     if(otherField){
@@ -820,6 +820,10 @@ export class TypeResolver {
                     }
                 }
             }
+        }
+
+        for (let classNode of this.classDeclarationNodes) {
+           GenerateGetterAndSetterQuickfixHelper.start(classNode.resolvedType.fields, classNode);
         }
 
     }

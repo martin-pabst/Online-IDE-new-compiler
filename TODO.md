@@ -1,11 +1,12 @@
 TODO:
   * files with folders
-    * test Prüfung functionality
-    * test if user delete also delete published databases in sql-ide and answer to bug report in github
+    * test Prüfung functionality -> seems to work
   * better tablet integration
 
 
 Done:
+  * test if user delete also delete published databases in sql-ide and answer to bug report in github
+  
 Treeview:
   * sollte den Prüfungsfolder anders darstellen als die anderen 
   * Prüfungsfolder und Dateien darin sollten readonly sein.
