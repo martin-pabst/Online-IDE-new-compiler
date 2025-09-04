@@ -181,14 +181,6 @@ export class Editor {
             });
         }
 
-        // this.editor.onDidChangeConfiguration((event) => {
-        //     if (event.hasChanged(monaco.editor.EditorOption.fontInfo) && this.isEmbedded) {
-
-        //         this.main.getBottomDiv().errorManager.registerLightbulbOnClickFunctions();
-
-        //     }
-        // });
-
         this.editor.onDidChangeCursorPosition((event) => {
 
             let currentModelId = (<GUIFile | undefined>this.main.getCurrentWorkspace()?.getCurrentlyEditedFile())?.id;
@@ -445,17 +437,17 @@ export class Editor {
             let text = model.getValueInRange(that.editor.getSelection());
             if (text != null && text.length > 0) {
                 let repl = this.main.getRepl();
-                let result = repl.executeAsync(text, true);
+                let result = await repl.executeAsync(text, true);
                 if (typeof result != "undefined") {
 
-                    monaco.editor.colorize(text + ": ", 'myJava', { tabSize: 3 }).then((text) => {
+                    monaco.editor.colorize(text + ": " + result.text, 'myJava', { tabSize: 3 }).then((text) => {
                         if (text.endsWith("<br/>")) text = text.substr(0, text.length - 5);
                         that.cw = {
                             getId: function () {
                                 return 'my.content.widget';
                             },
                             getDomNode: function () {
-                                let dn = jQuery('<div class="jo_editorTooltip jo_codeFont">' + text + ": " + result + '</div>');
+                                let dn = jQuery('<div class="jo_editorTooltip jo_codeFont">' + text + '</div>');
                                 return dn[0];
                             },
                             getPosition: function () {
