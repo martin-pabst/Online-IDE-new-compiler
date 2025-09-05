@@ -38,8 +38,8 @@ export class TreeviewMessages {
     });
     
     static addFolder = () => lm({
-        'de': 'Ordner hinzufügen',
-        'en': 'Add folder'
+        'de': 'Ordner hinzufügen (auf oberster Ebene)',
+        'en': 'Add folder (at root level)',
     });
     
     static collapseAll = () => lm({

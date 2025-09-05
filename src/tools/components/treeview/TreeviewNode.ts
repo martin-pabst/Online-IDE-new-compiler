@@ -454,7 +454,7 @@ export class TreeviewNode<E, K> {
                         {
                             caption: TreeviewMessages.newFolder(this.caption),
                             callback: () => {
-                                // TODO
+                                this._treeview.addNewNode(true, this);
                             }
                         }
                     ])

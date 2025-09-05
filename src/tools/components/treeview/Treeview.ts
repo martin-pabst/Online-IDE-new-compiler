@@ -389,21 +389,21 @@ export class Treeview<E, K> {
 
     }
 
-    addNewNode(isFolder: boolean) {
+    addNewNode(isFolder: boolean, parentFolder?: TreeviewNode<E, K>) {
 
-        let folder: TreeviewNode<E, K> | undefined;
-
-        let selectedNodes = this.getCurrentlySelectedNodes();
-        if (selectedNodes.length > 0) {
-            let focusedNode = selectedNodes[0];
-            while (!focusedNode.isFolder && focusedNode.getParent()) {
-                focusedNode = focusedNode.getParent();
-            }
-            if (focusedNode.isFolder) folder = focusedNode;
+        if(!parentFolder && !isFolder){
+            let selectedNodes = this.getCurrentlySelectedNodes();
+            if (selectedNodes.length > 0) {
+                let focusedNode = selectedNodes[0];
+                while (!focusedNode.isFolder && focusedNode.getParent()) {
+                    focusedNode = focusedNode.getParent();
+                }
+                if (focusedNode.isFolder) parentFolder = focusedNode;
+            }    
         }
 
         let node = this.addNode(isFolder, "", isFolder ? undefined : this.config.defaultIconClass, null,
-            folder?.ownKey);
+            parentFolder?.ownKey);
         makeEditable(node.captionDiv, node.captionDiv, async (newContent: string) => {
             node.caption = newContent;
             if (this.newNodeCallback) {
@@ -414,7 +414,7 @@ export class Treeview<E, K> {
                 } else {
                     node.externalObject = externalObject;
                     this.selectNodeAndSetFocus(node, false);
-                    if (folder) folder.sort();
+                    if (parentFolder) parentFolder.sort();
                     node.scrollIntoView();
                 }
             }
