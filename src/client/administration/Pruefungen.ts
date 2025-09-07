@@ -1,5 +1,5 @@
 import { ajax, ajaxAsync } from "../communication/AjaxHelper";
-import { BaseResponse, CRUDPruefungRequest, CRUDPruefungResponse, GetPruefungStudentStatesRequest, GetPruefungStudentStatesResponse, GetPruefungenForLehrkraftResponse, KlassData, Pruefung, PruefungCaptions, PruefungState, StudentPruefungStateInfo, UpdatePruefungSchuelerDataRequest, UserData, WorkspaceData, WorkspaceShortData } from "../communication/Data";
+import { BaseResponse, CRUDPruefungRequest, CRUDPruefungResponse, GetPruefungStudentStatesRequest, GetPruefungStudentStatesResponse, GetPruefungStudentTableDataRequest, GetPruefungStudentTableDataResponse, GetPruefungenForLehrkraftResponse, KlassData, Pruefung, PruefungCaptions, PruefungState, StudentPruefungStateInfo, UpdatePruefungSchuelerDataRequest, UserData, WorkspaceData, WorkspaceShortData } from "../communication/Data";
 import { PushClientManager } from "../communication/pushclient/PushClientManager";
 import { w2grid, w2ui, w2utils } from 'w2ui'
 import { GUIButton } from "../../tools/components/GUIButton";
@@ -283,8 +283,7 @@ export class Pruefungen extends AdminMenuItem {
             recid: "id",
             columns: [
                 { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
-                { field: 'familienname', text: AdminMessages.lastName(), size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
-                { field: 'rufname', text: AdminMessages.firstName(), size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
+                { field: 'name', text: AdminMessages.name(), size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
                 { field: 'username', text: AdminMessages.username(), size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
                 { field: 'grade', text: AdminMessages.mark(), size: '13%', sortable: true, resizable: true, editable: { type: "text" } },
                 { field: 'points', text: AdminMessages.points(), size: '13%', sortable: true, resizable: true, editable: { type: "text" } },
@@ -627,13 +626,13 @@ export class Pruefungen extends AdminMenuItem {
 
     async onSelectPruefung(recId: number) {
         if (typeof recId == 'undefined') return;
-        let request: GetPruefungForPrintingRequest = { pruefungId: recId };
+        let request: GetPruefungStudentTableDataRequest = { pruefung_id: recId };
 
-        let p: GetPruefungForPrintingResponse = await ajaxAsync("/servlet/getPruefungForPrinting", request);
+        let p: GetPruefungStudentTableDataResponse = await ajaxAsync("/servlet/getPruefungStudentTableData", request);
 
         this.studentTable.unlock();
         this.studentTable.clear();
-        this.studentTable.add(p.pSchuelerDataList);
+        this.studentTable.add(p.studentDataList);
         // this.studentTable.refresh();
 
         this.currentPruefung = <any>this.pruefungTable.records.find(p => p["recid"] == recId);

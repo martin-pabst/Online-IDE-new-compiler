@@ -61,6 +61,11 @@ export class AdminMessages {
         'en': 'First name'
     });
     
+    static name = () => lm({
+        'de': 'Name',
+        'en': 'Name'
+    });
+    
     static lastName = () => lm({
         'de': 'Familienname',
         'en': 'Last name'

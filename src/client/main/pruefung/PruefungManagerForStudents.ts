@@ -7,6 +7,7 @@ import { PruefungManagerForStudentsMessages } from "./PruefungManagerForStudents
 import { Workspace } from "../../workspace/Workspace.js";
 
 type MessagePruefungStart = { pruefung: Pruefung }
+type MessagePruefungStop = { pruefung: Pruefung }
 
 export class PruefungManagerForStudents {
 
@@ -23,7 +24,7 @@ export class PruefungManagerForStudents {
         PushClientManager.subscribe("startPruefung", async (message: MessagePruefungStart) => {
             this.startPruefung(message.pruefung);
         })
-        PushClientManager.subscribe("stopPruefung", (message: MessagePruefungStart) => {
+        PushClientManager.subscribe("stopPruefung", (message: MessagePruefungStop) => {
             this.stopPruefung(true);
         })
     }

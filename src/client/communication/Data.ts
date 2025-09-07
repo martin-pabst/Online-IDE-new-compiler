@@ -977,3 +977,37 @@ export type WorkspaceOrder = {
 export type UpdateWorkspaceOrderRequest = {
     workspaceOrderList: WorkspaceOrder[]
 }
+
+export type GetPruefungStudentModeRequest = {
+    pruefung_id: number
+}
+
+export type PruefungStudentMode = "automatic" | "manualOn" | "manualOff";
+
+export type PruefungTableStudentData = {
+    id: number,
+    name: string,
+    username: string,
+    grade: string,
+    points: string,
+    comment: string,
+    attended_exam: boolean,
+    manual: boolean,
+    mode: PruefungStudentMode
+}
+
+export type GetPruefungStudentTableDataRequest = {
+    pruefung_id: number
+}
+
+export type GetPruefungStudentTableDataResponse = {
+    success: boolean,
+    message: string,
+    studentDataList: PruefungTableStudentData[]
+}
+
+export type SetPruefungStudentModeRequest = {
+    pruefung_id: number,
+    student_id: number,
+    mode: PruefungStudentMode
+}
