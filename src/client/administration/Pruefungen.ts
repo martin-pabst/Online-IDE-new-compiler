@@ -1,5 +1,5 @@
 import { ajax, ajaxAsync } from "../communication/AjaxHelper";
-import { BaseResponse, CRUDPruefungRequest, CRUDPruefungResponse, GetPruefungStudentStatesRequest, GetPruefungStudentStatesResponse, GetPruefungStudentTableDataRequest, GetPruefungStudentTableDataResponse, GetPruefungenForLehrkraftResponse, KlassData, Pruefung, PruefungCaptions, PruefungState, StudentPruefungStateInfo, UpdatePruefungSchuelerDataRequest, UserData, WorkspaceData, WorkspaceShortData } from "../communication/Data";
+import { BaseResponse, CRUDPruefungRequest, CRUDPruefungResponse, GetPruefungStudentStatesRequest, GetPruefungStudentStatesResponse, GetPruefungStudentTableDataRequest, GetPruefungStudentTableDataResponse, GetPruefungenForLehrkraftResponse, KlassData, Pruefung, PruefungCaptions, PruefungState, PruefungStudentMode, StudentPruefungStateInfo, UpdatePruefungSchuelerDataRequest, UserData, WorkspaceData, WorkspaceShortData } from "../communication/Data";
 import { PushClientManager } from "../communication/pushclient/PushClientManager";
 import { w2grid, w2ui, w2utils } from 'w2ui'
 import { GUIButton } from "../../tools/components/GUIButton";
@@ -100,6 +100,9 @@ export class Pruefungen extends AdminMenuItem {
         for (let p of this.pruefungen) {
             p["klasse"] = this.klassen.find((c) => c.id == p.klasse_id)?.text;
         }
+
+        $tableLeft.css('flex', '3');
+        $tableRight.css('flex', '4');
 
         this.setupGUI($tableLeft, $tableRight);
 
@@ -281,19 +284,40 @@ export class Pruefungen extends AdminMenuItem {
                 header: true
             },
             recid: "id",
+            columnGroups: [
+                { span: 3, text: "Name" },
+                { span: 2, text: "Leistung" },
+                { span: 1, text: "Modus" },
+                { span: 1, text: "Zustand" }
+            ],
             columns: [
                 { field: 'id', text: 'ID', size: '20px', sortable: true, hidden: true },
-                { field: 'name', text: AdminMessages.name(), size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
+                { field: 'name', text: AdminMessages.sname(), size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
                 { field: 'username', text: AdminMessages.username(), size: '20%', sortable: true, resizable: true, sortMode: 'i18n' },
-                { field: 'grade', text: AdminMessages.mark(), size: '13%', sortable: true, resizable: true, editable: { type: "text" } },
-                { field: 'points', text: AdminMessages.points(), size: '13%', sortable: true, resizable: true, editable: { type: "text" } },
+                { field: 'grade', text: AdminMessages.markShort(), tooltip: AdminMessages.mark(), size: '5%', sortable: true, resizable: true, editable: { type: "text" } },
+                { field: 'points', text: AdminMessages.pointsShort(), tooltip: AdminMessages.points(), size: '5%', sortable: true, resizable: true, editable: { type: "text" } },
+                // {
+                //     field: 'manual', text: AdminMessages.manual(), size: '13%', sortable: true, resizable: true,
+                //     editable: { type: 'checkbox', style: 'text-align: center' }
+                // },
                 {
-                    field: 'attended_exam', text: AdminMessages.attendance(), size: '13%', sortable: true, resizable: true,
-                    editable: { type: 'checkbox', style: 'text-align: center' }
+                    field: 'mode', text: AdminMessages.modeShort(), size: '13%', sortable: true, resizable: true,
+                    editable: {
+                        type: 'list', items: [
+                            { id: 'normal', text: "Normal" }, { id: 'manualOff', text: "Abwesend" }, { id: 'manualOn', text: "Verlängert" }
+                        ], showAll: true, openOnFocus: true, align: 'left'
+                    },
+                    render(record, extra) {
+                        return extra.value?.text || '';
+                    }
                 },
+                // {
+                //     field: 'attended_exam', text: AdminMessages.attendanceShort(), tooltip: AdminMessages.attendance(), size: '10%', sortable: true, resizable: true,
+                //     editable: { type: 'checkbox', style: 'text-align: center' }
+                // },
                 // see https://w2ui.com/web/docs/2.0/w2grid.columns
                 {
-                    field: 'state', text: AdminMessages.state(), size: '20%', sortable: true, resizable: true,
+                    field: 'state', text: AdminMessages.state(), size: '15%', sortable: true, resizable: true,
                     render: (record: PSchuelerData) => {
                         let state = record.state;
                         if (state == null) state = "---";
@@ -307,10 +331,9 @@ export class Pruefungen extends AdminMenuItem {
                 },
 
             ],
-            sortData: [{ field: 'familienname', direction: 'ASC' }, { field: 'rufname', direction: 'ASC' }],
+            sortData: [{ field: 'name', direction: 'ASC' }, { field: 'username', direction: 'ASC' }],
             onSelect: (event) => { event.done((e) => { }) },
             onChange: (event) => { this.onUpdateStudent(event) }
-
         })
 
         this.studentTable.render(jQuery('#studentTable')[0]);
@@ -406,9 +429,9 @@ export class Pruefungen extends AdminMenuItem {
 
     getWorkspaceNameWithFolder(ws: WorkspaceShortData): string {
         let s: string = ws.name;
-        if(ws.parent_folder_id){
+        if (ws.parent_folder_id) {
             let parent = this.workspaces.find(ws1 => ws1.id == ws.parent_folder_id);
-            if(parent){
+            if (parent) {
                 s = this.getWorkspaceNameWithFolder(parent) + "/" + s;
             }
         }
@@ -624,11 +647,24 @@ export class Pruefungen extends AdminMenuItem {
         this.pruefungTable.refresh();
     }
 
+    modeToText(mode: string): string {
+        switch (mode) {
+            case "automatic": return "Normal";
+            case "manualOff": return "Abwesend";
+            case "manualOn": return "Verlängert";
+            default: return "---";
+        }   
+    }
+
     async onSelectPruefung(recId: number) {
         if (typeof recId == 'undefined') return;
         let request: GetPruefungStudentTableDataRequest = { pruefung_id: recId };
 
         let p: GetPruefungStudentTableDataResponse = await ajaxAsync("/servlet/getPruefungStudentTableData", request);
+
+        for(let sd of p.studentDataList) {
+            sd.mode = {id: <PruefungStudentMode>sd.mode, text: this.modeToText(<string>sd.mode)}
+        }
 
         this.studentTable.unlock();
         this.studentTable.clear();

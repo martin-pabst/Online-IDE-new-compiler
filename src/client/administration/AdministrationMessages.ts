@@ -2,7 +2,7 @@ import { lm } from "../../tools/language/LanguageManager";
 
 export class AdminMessages {
     static schoolsWithAdmins = () => lm({
-        'de': 'Schulen mit Administratoren',
+        'de': 'Schulen mit Admins',
         'en': 'Schools with admins'
     });
 
@@ -242,7 +242,7 @@ export class AdminMessages {
     });
     
     static exportImportSchools = () => lm({
-        'de': 'Schulen exportieren/importieren',
+        'de': 'Schulen exp./imp.',
         'en': 'Export/import schools'
     });
     
@@ -341,11 +341,41 @@ export class AdminMessages {
         'en': 'Points'
     });
     
+    static markShort = () => lm({
+        'de': 'N',
+        'en': 'M'
+    });
+    
+    static pointsShort = () => lm({
+        'de': 'P',
+        'en': 'P'
+    });
+    
+    static attendanceShort = () => lm({
+        'de': 'anw.',
+        'en': 'att.'
+    });
+ 
     static attendance = () => lm({
         'de': 'anwesend',
         'en': 'attendance'
     });
  
+    static manual = () => lm({
+        'de': 'händisch',
+        'en': 'manual'
+    });
+ 
+    static modeShort = () => lm({
+        'de': 'abw./verl.',
+        'en': 'abs./ext.'
+    });
+
+    static modeLong = () => lm({
+        'de': `Abwesend/verlängert`,
+        'en': `Absent/extended`
+    });
+
     static stateOfSelectedTest = () => lm({
         'de': 'Zustand der ausgewählten Prüfung:',
         'en': 'State of selected test:'
@@ -469,7 +499,7 @@ export class AdminMessages {
         'en': 'Print...'
     });
     
-    static name = () => lm({
+    static sname = () => lm({
         'de': 'Name',
         'en': 'Name'
     });

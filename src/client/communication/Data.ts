@@ -993,7 +993,7 @@ export type PruefungTableStudentData = {
     comment: string,
     attended_exam: boolean,
     manual: boolean,
-    mode: PruefungStudentMode
+    mode: PruefungStudentMode | {id: PruefungStudentMode, text: string}
 }
 
 export type GetPruefungStudentTableDataRequest = {
