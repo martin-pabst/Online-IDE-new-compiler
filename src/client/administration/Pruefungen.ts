@@ -8,6 +8,7 @@ import { AdminMenuItem } from "./AdminMenuItem";
 import { NewPruefungPopup } from "./NewPruefungPopup";
 import jQuery from 'jquery'
 import { AdminMessages } from "./AdministrationMessages";
+import { group } from "console";
 
 
 type GetPruefungForPrintingRequest = {
@@ -29,7 +30,8 @@ type PSchuelerData = {
     grade?: string;
     points?: string;
     comment?: string;
-    attended_exam?: boolean;
+    mode: PruefungStudentMode | {id: PruefungStudentMode, text: string};
+    group?: string;
     files: PFileData[];
 
     state?: string;
@@ -117,7 +119,6 @@ export class Pruefungen extends AdminMenuItem {
             if (record == null) return;
             record.grade = data.grade;
             record.points = data.points;
-            record.attended_exam = data.attended_exam;
             this.studentTable.refreshRow(record["recid"]);
         })
 
@@ -173,11 +174,6 @@ export class Pruefungen extends AdminMenuItem {
             let isOnline = pruefungStates.pruefungStudentStates[record.id]?.running;
             record.state = isOnline ? "online" : "offline";
             this.studentTable.refreshCell(record["recid"], "state");
-
-            if (isOnline) {
-                record.attended_exam = true;
-                this.studentTable.refreshCell(record["recid"], "attended_exam");
-            }
         }
 
     }
@@ -287,7 +283,7 @@ export class Pruefungen extends AdminMenuItem {
             columnGroups: [
                 { span: 3, text: "Name" },
                 { span: 2, text: "Leistung" },
-                { span: 1, text: "Modus" },
+                { span: 2, text: "Modus" },
                 { span: 1, text: "Zustand" }
             ],
             columns: [
@@ -311,6 +307,13 @@ export class Pruefungen extends AdminMenuItem {
                         return extra.value?.text || '';
                     }
                 },
+                {field: 'group', text: AdminMessages.groupShort(),
+                    tooltip: AdminMessages.groupLong(), size: '5%', sortable: true, resizable: true, 
+                    editable1: { 
+                        type: 'list', items: [
+                            { id: 'A', text: "A" }, { id: 'B', text: "B" }
+                        ], showAll: true, openOnFocus: true, align: 'left'
+                 }},
                 // {
                 //     field: 'attended_exam', text: AdminMessages.attendanceShort(), tooltip: AdminMessages.attendance(), size: '10%', sortable: true, resizable: true,
                 //     editable: { type: 'checkbox', style: 'text-align: center' }
@@ -595,8 +598,9 @@ export class Pruefungen extends AdminMenuItem {
             schuelerId: data.id,
             grade: data.grade,
             points: data.points,
-            attended_exam: data.attended_exam,
-            attributesToUpdate: field
+            attributesToUpdate: field,
+            mode: (typeof data.mode == 'string' ? data.mode : data.mode.id) as PruefungStudentMode,
+            group: data.group
         }
 
         ajax('/updatePruefungSchuelerData', request, (response: BaseResponse) => {
@@ -627,6 +631,19 @@ export class Pruefungen extends AdminMenuItem {
 
         this.buttonForward.setActive(this.isTransitionAllowed(this.selectedStateIndex + 1));
         this.buttonBack.setActive(this.isTransitionAllowed(this.selectedStateIndex - 1));
+
+        let groupCol = this.studentTable.columns.find(c => c.field == 'group');
+        if (this.currentPruefung.state == 'preparing') {
+            groupCol.editable = groupCol.editable1;
+            groupCol.style = 'color: inherit;'
+        } else {
+            groupCol.editable = false;
+            groupCol.style = 'color: #a0a0a0;'
+        }
+
+        this.studentTable.refresh();
+
+        console.log(this.studentTable.columns);
 
     }
 

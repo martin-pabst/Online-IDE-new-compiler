@@ -371,6 +371,16 @@ export class AdminMessages {
         'en': 'abs./ext.'
     });
 
+    static groupShort = () => lm({
+        'de': 'Gr.',
+        'en': 'Gr.'
+    });
+
+    static groupLong = () => lm({
+        'de': 'Gruppe (A oder B)',
+        'en': 'Group (A or B)'
+    });
+
     static modeLong = () => lm({
         'de': `Abwesend/verlängert`,
         'en': `Absent/extended`

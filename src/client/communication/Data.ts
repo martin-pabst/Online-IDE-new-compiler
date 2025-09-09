@@ -915,7 +915,8 @@ export type UpdatePruefungSchuelerDataRequest = {
     pruefungId: number;
     grade: string;
     points: string;
-    attended_exam: boolean;
+    mode: PruefungStudentMode;
+    group: string;
     attributesToUpdate: string;
 }
 
@@ -991,9 +992,8 @@ export type PruefungTableStudentData = {
     grade: string,
     points: string,
     comment: string,
-    attended_exam: boolean,
-    manual: boolean,
     mode: PruefungStudentMode | {id: PruefungStudentMode, text: string}
+    group: string,
 }
 
 export type GetPruefungStudentTableDataRequest = {
