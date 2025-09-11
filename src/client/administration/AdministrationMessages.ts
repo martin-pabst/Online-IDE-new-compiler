@@ -391,6 +391,22 @@ export class AdminMessages {
         'en': 'State of selected test:'
     });
     
+    static templateWorkspacesCaption = () => lm({
+        'de': 'Vorlage-Workspaces der selektierten Prüfung:',
+        'en': 'Template workspaces of selected test:'
+    });
+
+    static groupA = () => lm({
+        'de': `Gruppe A:`,
+        'en': `Group A:`
+    });
+    
+    static groupB = () => lm({
+        'de': `Gruppe B:`,
+        'en': `Group B:`
+    });
+    
+    
     static preparation = () => lm({
         'de': 'Vorbereitung',
         'en': 'Preparation'

@@ -1,7 +1,7 @@
 import { ajax, ajaxAsync } from "../communication/AjaxHelper";
 import { BaseResponse, CRUDPruefungRequest, CRUDPruefungResponse, GetPruefungStudentStatesRequest, GetPruefungStudentStatesResponse, GetPruefungStudentTableDataRequest, GetPruefungStudentTableDataResponse, GetPruefungenForLehrkraftResponse, KlassData, Pruefung, PruefungCaptions, PruefungState, PruefungStudentMode, StudentPruefungStateInfo, UpdatePruefungSchuelerDataRequest, UserData, WorkspaceData, WorkspaceShortData } from "../communication/Data";
 import { PushClientManager } from "../communication/pushclient/PushClientManager";
-import { w2grid, w2ui, w2utils } from 'w2ui'
+import { w2grid, w2ui, w2utils, w2field } from 'w2ui'
 import { GUIButton } from "../../tools/components/GUIButton";
 import { makeDiv } from "../../tools/HtmlTools";
 import { AdminMenuItem } from "./AdminMenuItem";
@@ -30,7 +30,7 @@ type PSchuelerData = {
     grade?: string;
     points?: string;
     comment?: string;
-    mode: PruefungStudentMode | {id: PruefungStudentMode, text: string};
+    mode: PruefungStudentMode | { id: PruefungStudentMode, text: string };
     group?: string;
     files: PFileData[];
 
@@ -68,6 +68,9 @@ export class Pruefungen extends AdminMenuItem {
     counter: number = 0;
 
     timerActive: boolean = false;
+
+    fieldGroupA: w2field;
+    fieldGroupB: w2field;
 
     getButtonIdentifier(): string {
         return AdminMessages.manageTests();
@@ -223,17 +226,17 @@ export class Pruefungen extends AdminMenuItem {
                         return e.datum == null ? '----' : e.datum;
                     }
                 },
-                {
-                    field: 'template_workspace_id', text: AdminMessages.templateWorkspace(), size: '25%', sortable: true, resizable: true,
-                    editable: {
-                        type: 'list', items: this.workspaces.filter(ws => !ws.isFolder), showAll: true, openOnFocus: true, align: 'left',
-                        style: 'width: 400px'
-                    },
-                    render: (e) => {
-                        let ws = this.workspaces.find(c => c.id == e.template_workspace_id);
-                        return ws == null ? AdminMessages.noTemplateWorkspace() : ws.text;
-                    }
-                },
+                // {
+                //     field: 'template_workspace_id', text: AdminMessages.templateWorkspace(), size: '25%', sortable: true, resizable: true,
+                //     editable: {
+                //         type: 'list', items: this.workspaces.filter(ws => !ws.isFolder), showAll: true, openOnFocus: true, align: 'left',
+                //         style: 'width: 400px'
+                //     },
+                //     render: (e) => {
+                //         let ws = this.workspaces.find(c => c.id == e.template_workspace_id);
+                //         return ws == null ? AdminMessages.noTemplateWorkspace() : ws.text;
+                //     }
+                // },
                 {
                     field: 'state', caption: AdminMessages.state(), size: '15%', sortable: true, resizable: true,
                     render: (e, extra) => `<div class="jo_pruefung_state_cell">
@@ -307,13 +310,15 @@ export class Pruefungen extends AdminMenuItem {
                         return extra.value?.text || '';
                     }
                 },
-                {field: 'group', text: AdminMessages.groupShort(),
-                    tooltip: AdminMessages.groupLong(), size: '5%', sortable: true, resizable: true, 
-                    editable1: { 
+                {
+                    field: 'group', text: AdminMessages.groupShort(),
+                    tooltip: AdminMessages.groupLong(), size: '5%', sortable: true, resizable: true,
+                    editable1: {
                         type: 'list', items: [
                             { id: 'A', text: "A" }, { id: 'B', text: "B" }
                         ], showAll: true, openOnFocus: true, align: 'left'
-                 }},
+                    }
+                },
                 // {
                 //     field: 'attended_exam', text: AdminMessages.attendanceShort(), tooltip: AdminMessages.attendance(), size: '10%', sortable: true, resizable: true,
                 //     editable: { type: 'checkbox', style: 'text-align: center' }
@@ -343,6 +348,46 @@ export class Pruefungen extends AdminMenuItem {
 
         // Actions
         let $actionsDiv = jQuery('#pruefungActions');
+
+
+
+        makeDiv(null, 'jo_action_caption', AdminMessages.templateWorkspacesCaption(), null, $actionsDiv);
+
+        let $detailsDiv = makeDiv(null, "jo_pruefung_details_div", "", null, $actionsDiv);
+        let $firstLine = jQuery(`<div class="w2ui-field">
+            <label>${AdminMessages.groupA()}</label>
+            <div>
+            <input type="list" placeholder="Type to search" style="width: 300px">
+            </div>
+            </div>`);
+        let $secondLine = jQuery(`<div class="w2ui-field">
+            <label>${AdminMessages.groupB()}</label>
+            <div>
+            <input type="list" placeholder="Type to search" style="width: 300px">
+            </div>
+            </div>`);
+        $detailsDiv.append($firstLine, $secondLine);
+
+        this.fieldGroupA = new w2field('list', {
+            el: $firstLine.find('input[type=list]')[0],
+            items: this.workspaces.filter(ws => !ws.isFolder),
+            match: 'contains',
+            markSearch: true,
+            onSelect(event) {
+                console.log('Selected:', event.detail.item)
+            }
+        })
+
+        this.fieldGroupB = new w2field('list', {
+            el: $secondLine.find('input[type=list]')[0],
+            items: this.workspaces.filter(ws => !ws.isFolder),
+            match: 'contains',
+            markSearch: true,
+            onSelect(event) {
+                console.log('Selected:', event.detail.item)
+            }
+        })
+
 
         makeDiv(null, 'jo_action_caption', AdminMessages.stateOfSelectedTest(), null, $actionsDiv);
 
@@ -584,7 +629,7 @@ export class Pruefungen extends AdminMenuItem {
 
     }
 
-    onUpdateStudent(event: any) {
+    async onUpdateStudent(event: any) {
 
         let data = <PSchuelerData>this.studentTable.records[event.detail.index];
 
@@ -603,21 +648,21 @@ export class Pruefungen extends AdminMenuItem {
             group: data.group
         }
 
-        ajax('/updatePruefungSchuelerData', request, (response: BaseResponse) => {
-            if (response.success == true) {
-                if (data["w2ui"] && data["w2ui"]["changes"]) {
-                    delete data["w2ui"]["changes"][field];
-                }
-                this.studentTable.refreshCell(data["recid"], field);
+        let response: BaseResponse = await ajaxAsync('/servlet/updatePruefungSchuelerData', request);
 
-            } else {
-                data[field] = event.detail.value.original;
-                if (data["w2ui"] && data["w2ui"]["changes"]) {
-                    delete data["w2ui"]["changes"][field];
-                }
-                this.studentTable.refreshCell(data["recid"], field);
+        if (response.success == true) {
+            if (data["w2ui"] && data["w2ui"]["changes"]) {
+                delete data["w2ui"]["changes"][field];
             }
-        });
+            this.studentTable.refreshCell(data["recid"], field);
+
+        } else {
+            data[field] = event.detail.value.original;
+            if (data["w2ui"] && data["w2ui"]["changes"]) {
+                delete data["w2ui"]["changes"][field];
+            }
+            this.studentTable.refreshCell(data["recid"], field);
+        }
 
     }
 
@@ -642,8 +687,6 @@ export class Pruefungen extends AdminMenuItem {
         }
 
         this.studentTable.refresh();
-
-        console.log(this.studentTable.columns);
 
     }
 
@@ -670,7 +713,7 @@ export class Pruefungen extends AdminMenuItem {
             case "manualOff": return "Abwesend";
             case "manualOn": return "Verlängert";
             default: return "---";
-        }   
+        }
     }
 
     async onSelectPruefung(recId: number) {
@@ -679,8 +722,8 @@ export class Pruefungen extends AdminMenuItem {
 
         let p: GetPruefungStudentTableDataResponse = await ajaxAsync("/servlet/getPruefungStudentTableData", request);
 
-        for(let sd of p.studentDataList) {
-            sd.mode = {id: <PruefungStudentMode>sd.mode, text: this.modeToText(<string>sd.mode)}
+        for (let sd of p.studentDataList) {
+            sd.mode = { id: <PruefungStudentMode>sd.mode, text: this.modeToText(<string>sd.mode) }
         }
 
         this.studentTable.unlock();
@@ -689,6 +732,10 @@ export class Pruefungen extends AdminMenuItem {
         // this.studentTable.refresh();
 
         this.currentPruefung = <any>this.pruefungTable.records.find(p => p["recid"] == recId);
+
+        this.fieldGroupA.set(this.workspaces.find(ws => ws.id == (this.currentPruefung.template_workspace_id || -1)));
+
+
         this.selectedStateIndex = this.states.indexOf(this.currentPruefung.state);
         this.renderState();
         jQuery('#pruefungActions').removeClass('jo_inactive');

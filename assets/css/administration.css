@@ -252,6 +252,13 @@ body.joeCssFence {
         margin-bottom: 3px;
     }
 
+    .jo_pruefung_details_div {
+        margin-bottom: 5px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+
     .jo_inactive {
         pointer-events: none;
         filter: grayscale() contrast(50%);
