@@ -30,8 +30,13 @@ export class NewPruefungPopup {
                     options: { items: classList.sort((a, b) => a.text.localeCompare(b.text)) }
                 },
                 {
-                    field: 'template', type: 'list',
-                    html: { label: AdminMessages.templateWorkspace(), attr: 'style="width: 500px"' },
+                    field: 'templateA', type: 'list',
+                    html: { label: AdminMessages.templateWorkspace() + " A", attr: 'style="width: 450px"' },
+                    options: { items: workspaces }
+                },
+                {
+                    field: 'templateB', type: 'list',
+                    html: { label: AdminMessages.templateWorkspace() + " B", attr: 'style="width: 450px"' },
                     options: { items: workspaces }
                 },
             ],
@@ -53,7 +58,8 @@ export class NewPruefungPopup {
                             id: -1,
                             klasse_id: this.record["klasse"].id,
                             state: "preparing",
-                            template_workspace_id: this.record["template"]?.id,
+                            template_workspace_a_id: this.record["templateA"]?.id,
+                            template_workspace_b_id: this.record["templateB"]?.id,
                             name: this.record["name"]
                         }
                     );
@@ -68,7 +74,7 @@ export class NewPruefungPopup {
             title: AdminMessages.createNewTest(),
             body: '<div id="form" style="width: 100%; height: 100%;"></div>',
             style: 'padding: 15px 0px 0px 0px',
-            width: 700,
+            width: 750,
             height: 300,
             showMax: false
         }).then(() => {

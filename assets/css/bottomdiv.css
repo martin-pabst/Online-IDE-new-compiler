@@ -299,34 +299,42 @@
     }
 
     /* Grading */
-    .jo_gradingTab.jo_active {
-        display: flex !important;
+    .jo_gradingTab {
+        display: flex;
         position: relative;
-        flex-direction: row;
+        flex-direction: column;
         height: 100%;
         width: 100%;
         overflow: auto;
         margin: 0;
         align-items: stretch;
+        padding: 5px;
+        box-sizing: border-box;
     }
 
-    .jo_grading_markcolumn {
+    .jo_grading_upperRow {
         display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        margin-left: 2px;
+        flex-direction: row;
+        margin-bottom: 5px;
+        gap: 15px;
     }
 
     .jo_grading_mark, .jo_grading_points {
-        margin-right: 2px;
+        margin-left: 2px;
         width: 60px;
     }
 
     .jo_grading_commentmarkdown{
         flex: 1;
-        margin-left: 5px;
         overflow: auto;
         font-family: monospace;
-        margin: 3px;
     }
+
+    .jo_grading_markdiv {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 3px;
+    }
+
 }

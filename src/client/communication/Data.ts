@@ -834,12 +834,25 @@ export var PruefungCaptions: { [index: string]: string } = {
     "opening": "Herausgabe"
 }
 
+export type PruefungStudentModeWithId = {
+    student_id: number,
+    mode: PruefungStudentMode
+}
+
+export type PruefungStudentGroupWithId = {
+    student_id: number,
+    group: string
+}
+
 export type Pruefung = {
     id: number,
     name: string,
     datum?: string,
     klasse_id: number,
-    template_workspace_id: number,
+    template_workspace_a_id: number,
+    template_workspace_b_id: number,
+    pruefungStudentGroups?: {studentGroups: PruefungStudentGroupWithId[]},
+    pruefungStudentModes?: {studentModes: PruefungStudentModeWithId[]},
     state: PruefungState;
 }
 
@@ -857,6 +870,7 @@ export type CRUDPruefungResponse = {
 
 
 export type StudentPruefungStateInfo = {
+    studentId: number,
     timestamp: number,
     state: string,
     running: boolean
@@ -869,7 +883,7 @@ export type GetPruefungStudentStatesRequest = {
 export type GetPruefungStudentStatesResponse = {
     success: boolean,
     pruefungState: string,
-    pruefungStudentStates: { [id: number]: StudentPruefungStateInfo },
+    pruefungStudentStates: StudentPruefungStateInfo[],
     message: string
 }
 
@@ -879,7 +893,6 @@ export type GetPruefungStudentStatesResponse = {
 
 export type ReportPruefungStudentStateRequest = {
     pruefungId: number,
-    clientState: String,
     running: Boolean
 }
 
@@ -915,7 +928,8 @@ export type UpdatePruefungSchuelerDataRequest = {
     pruefungId: number;
     grade: string;
     points: string;
-    attended_exam: boolean;
+    mode: PruefungStudentMode;
+    group: string;
     attributesToUpdate: string;
 }
 
@@ -976,4 +990,37 @@ export type WorkspaceOrder = {
 
 export type UpdateWorkspaceOrderRequest = {
     workspaceOrderList: WorkspaceOrder[]
+}
+
+export type GetPruefungStudentModeRequest = {
+    pruefung_id: number
+}
+
+export type PruefungStudentMode = "automatic" | "manualOn" | "manualOff";
+
+export type PruefungTableStudentData = {
+    id: number,
+    name: string,
+    username: string,
+    grade: string,
+    points: string,
+    comment: string,
+    mode: PruefungStudentMode | {id: PruefungStudentMode, text: string}
+    group: string | {id: string, text: string},
+}
+
+export type GetPruefungStudentTableDataRequest = {
+    pruefung_id: number
+}
+
+export type GetPruefungStudentTableDataResponse = {
+    success: boolean,
+    message: string,
+    studentDataList: PruefungTableStudentData[]
+}
+
+export type SetPruefungStudentModeRequest = {
+    pruefung_id: number,
+    student_id: number,
+    mode: PruefungStudentMode
 }

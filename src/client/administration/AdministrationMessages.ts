@@ -2,7 +2,7 @@ import { lm } from "../../tools/language/LanguageManager";
 
 export class AdminMessages {
     static schoolsWithAdmins = () => lm({
-        'de': 'Schulen mit Administratoren',
+        'de': 'Schulen mit Admins',
         'en': 'Schools with admins'
     });
 
@@ -59,6 +59,11 @@ export class AdminMessages {
     static firstName = () => lm({
         'de': 'Rufname',
         'en': 'First name'
+    });
+    
+    static name = () => lm({
+        'de': 'Name',
+        'en': 'Name'
     });
     
     static lastName = () => lm({
@@ -237,7 +242,7 @@ export class AdminMessages {
     });
     
     static exportImportSchools = () => lm({
-        'de': 'Schulen exportieren/importieren',
+        'de': 'Schulen exp./imp.',
         'en': 'Export/import schools'
     });
     
@@ -282,8 +287,8 @@ export class AdminMessages {
     });
 
     static templateWorkspace = () => lm({
-        'de': 'Vorlage-Workspace',
-        'en': 'Template workspace'
+        'de': 'Vorlage-Worksp.',
+        'en': 'Template worksp.'
     });
     
     static createNewTest = () => lm({
@@ -336,15 +341,71 @@ export class AdminMessages {
         'en': 'Points'
     });
     
-    static attendance = () => lm({
-        'de': 'anwesend',
-        'en': 'attendance'
+    static markShort = () => lm({
+        'de': 'N',
+        'en': 'M'
+    });
+    
+    static pointsShort = () => lm({
+        'de': 'P',
+        'en': 'P'
+    });
+    
+    static attendanceShort = () => lm({
+        'de': 'anw.',
+        'en': 'att.'
     });
  
+    static attendance = () => lm({
+        'de': 'Anwesend',
+        'en': 'Attendance'
+    });
+ 
+    static manual = () => lm({
+        'de': 'händisch',
+        'en': 'manual'
+    });
+ 
+    static modeShort = () => lm({
+        'de': 'abw./verl.',
+        'en': 'abs./ext.'
+    });
+
+    static groupShort = () => lm({
+        'de': 'Gr.',
+        'en': 'Gr.'
+    });
+
+    static groupLong = () => lm({
+        'de': 'Gruppe (A oder B)',
+        'en': 'Group (A or B)'
+    });
+
+    static modeLong = () => lm({
+        'de': `Abwesend/verlängert`,
+        'en': `Absent/extended`
+    });
+
     static stateOfSelectedTest = () => lm({
         'de': 'Zustand der ausgewählten Prüfung:',
         'en': 'State of selected test:'
     });
+    
+    static templateWorkspacesCaption = () => lm({
+        'de': 'Vorlage-Workspaces der selektierten Prüfung:',
+        'en': 'Template workspaces of selected test:'
+    });
+
+    static groupA = () => lm({
+        'de': `Gruppe A:`,
+        'en': `Group A:`
+    });
+    
+    static groupB = () => lm({
+        'de': `Gruppe B:`,
+        'en': `Group B:`
+    });
+    
     
     static preparation = () => lm({
         'de': 'Vorbereitung',
@@ -464,7 +525,7 @@ export class AdminMessages {
         'en': 'Print...'
     });
     
-    static name = () => lm({
+    static sname = () => lm({
         'de': 'Name',
         'en': 'Name'
     });
@@ -545,6 +606,43 @@ export class AdminMessages {
         'en': 'These usernames are already in use and are therefore not possible:'
     });
     
+    static testCantBeDeleted = () => lm({
+        'de': `Die Prüfung läuft noch, sie kann daher nicht gelöscht werden.`,
+        'en': `Test is still running, therefore it can't be deleted.`
+    });
     
+    static running = () => lm({
+        'de': `läuft`,
+        'en': `running`
+    });
+
+    static stopped = () => lm({
+        'de': `angehalten`,
+        'en': `stopped`
+    });
+    
+    static modeNormal = () => lm({
+        'de': `Normal`,
+        'en': `regular`
+    });
+
+    static modeManualOff = () => lm({
+        'de': `Abwesend`,
+        'en': `absent`
+    });
+
+    static modeManualOn = () => lm({
+        'de': `Verlängert`,
+        'en': `extended`
+    });
+    
+    static modeToText = (mode: string) => {
+        switch(mode){
+            case "normal": return AdminMessages.modeNormal();
+            case "manualOff": return AdminMessages.modeManualOff();
+            case "manualOn": return AdminMessages.modeManualOn();
+            default: return AdminMessages.modeNormal();
+        }
+    }    
     
 }

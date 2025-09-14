@@ -36,7 +36,6 @@ export class Workspace extends CompilerWorkspace {
     grade?: string;
     points?: string;
     comment?: string;
-    attended_exam?: boolean;
 
     private files: GUIFile[] = [];
 
@@ -128,7 +127,6 @@ export class Workspace extends CompilerWorkspace {
             grade: this.grade,
             points: this.points,
             comment: this.comment,
-            attended_exam: this.attended_exam
         }
 
         if (withFiles) {
@@ -195,7 +193,6 @@ export class Workspace extends CompilerWorkspace {
         w.grade = wd.grade;
         w.points = wd.points;
         w.comment = wd.comment;
-        w.attended_exam = wd.attended_exam;
 
         if (w.settings.libraries == null) {
             w.settings.libraries = [];

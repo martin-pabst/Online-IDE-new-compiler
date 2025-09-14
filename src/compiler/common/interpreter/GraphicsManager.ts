@@ -11,7 +11,7 @@ export interface GraphicSystem {
 export class GraphicsManager {
 
     pixiSpritesheetData: PixiSpritesheetData;
-    pngImageData: Uint8Array;
+    pngImageData: Uint8Array<ArrayBuffer>;
 
     // if 2d world is used then this is defined:
     public pixiUserSpritesheet?: PIXI.Spritesheet;
@@ -42,7 +42,7 @@ export class GraphicsManager {
         });
     }
 
-    setUserData(pixiSpritesheetData: PixiSpritesheetData, pngImageData: Uint8Array){
+    setUserData(pixiSpritesheetData: PixiSpritesheetData, pngImageData: Uint8Array<ArrayBuffer>) {
         this.pixiSpritesheetData = pixiSpritesheetData;
         this.pngImageData = pngImageData;
         if(this.pixiUserSpritesheet){

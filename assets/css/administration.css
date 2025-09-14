@@ -78,7 +78,7 @@ body.joeCssFence {
         flex: 1;
         display: flex;
         flex-direction: column;
-        margin-right: 10px;
+        margin-right: 5px;
         min-width: 0;
         width: min-content;
         position: relative;
@@ -251,6 +251,13 @@ body.joeCssFence {
         margin-top: 5px;
         margin-bottom: 3px;
     }
+
+    .jo_pruefung_details_div {
+        margin-bottom: 5px;
+        display: flex;
+        flex-direction: column;
+    }
+    
 
     .jo_inactive {
         pointer-events: none;
