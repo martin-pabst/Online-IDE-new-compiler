@@ -36,6 +36,7 @@ export class GradingManager {
         let that = this;
 
         this.$gradingTab.empty();
+        this.$gradingTab.css('display','none');
 
         let upperRow = makeDiv(null, "jo_grading_upperRow");
 

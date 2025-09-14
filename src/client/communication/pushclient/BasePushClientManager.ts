@@ -3,7 +3,8 @@ import { PushClientStrategy } from "./PushClientStrategy";
 import { PushClientWebsocketStrategy } from "./PushClientWebsocketStrategy";
 
 export type PushEventType = "startPruefung" | "stopPruefung" | "doFileUpdate" | "broadcastDatabaseChange" | "checkIfAlive" | "close" | "onPruefungChanged"
-                     | "onGradeChangedInPruefungAdministration"| "onGradeChangedInMainWindow" | "onOpen" | "keepAlive";
+                     | "onGradeChangedInPruefungAdministration"| "onGradeChangedInMainWindow" | "onOpen" | "keepAlive"
+                     | "onClassesChanged";
 
 export type ServerSentMessage = {eventType: PushEventType, data?: any};
 

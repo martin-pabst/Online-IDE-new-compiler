@@ -47,7 +47,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
     async fetchClassesFromServer(){
         let request: GetClassesDataRequest = {
-            school_id: this.administration.userData.schule_id
+            wholeSchool: true
         }
 
         const response: GetClassesDataResponse = await ajaxAsync('servlet/getClassesData', request);

@@ -1,5 +1,5 @@
 import { Main } from "../Main.js";
-import { ClassData, UserData, Pruefung, PruefungCaptions, getUserDisplayName } from "../../communication/Data.js";
+import { ClassData, UserData, Pruefung, PruefungCaptions, getUserDisplayName, GetClassesDataResponse } from "../../communication/Data.js";
 import { ajaxAsync, csrfToken } from "../../communication/AjaxHelper.js";
 import { Workspace } from "../../workspace/Workspace.js";
 import { GUIToggleButton } from "../../../tools/components/GUIToggleButton.js";
@@ -50,9 +50,32 @@ export class TeacherExplorer {
         this.renderClasses(this.classData);
 
         PushClientManager.subscribe("onPruefungChanged", async () => {
+            await this.fetchPruefungen()
             if (this.classPanelMode == "tests") {
-                await this.fetchPruefungen()
                 this.renderPruefungen();
+            }
+        });
+
+        PushClientManager.subscribe("onClassesChanged", async () => {
+            let response: GetClassesDataResponse = await ajaxAsync("/servlet/getClassesData", {wholeSchool: false})
+            this.classData = response.classDataList;  
+            if (this.classPanelMode == "classes") {
+                let currentClass: ClassData = null;
+                let selectedNodes = this.classPanel.getCurrentlySelectedNodes();
+                if(selectedNodes?.length > 0){
+                    currentClass = selectedNodes[0].externalObject as ClassData;
+                }
+                this.renderClasses(this.classData);
+                if(currentClass != null){
+                    let newCurrentClass = this.classData.find(c => c.id == currentClass.id);
+                    if(newCurrentClass != null){
+                        this.classPanel.selectElement(newCurrentClass, false);
+                        this.renderStudents(newCurrentClass.students);
+                    }
+                }
+                if(this.main.currentWorkspace.owner_id != this.main.user.id){
+                    this.onHomeButtonClicked();
+                }
             }
         });
 
@@ -299,9 +322,9 @@ export class TeacherExplorer {
 
     }
 
-    onHomeButtonClicked() {
+    async onHomeButtonClicked() {
         let projectExplorer = this.main.projectExplorer;
-        this.main.networkManager.sendUpdatesAsync();
+        await this.main.networkManager.sendUpdatesAsync();
 
         this.main.bottomDiv.hideHomeworkTab();
 

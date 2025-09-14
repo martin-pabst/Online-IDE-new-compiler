@@ -146,7 +146,7 @@ export type GetSchoolDataResponse = {
 }
 
 export type GetClassesDataRequest = {
-    school_id: number
+    wholeSchool: boolean // if true, get all classes of school, else only classes of teacher
 }
 
 export type GetClassesDataResponse = {

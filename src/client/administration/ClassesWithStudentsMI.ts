@@ -544,7 +544,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
     loadClassDataList(callback: () => void) {
 
         let request: GetClassesDataRequest = {
-            school_id: this.administration.userData.schule_id
+            wholeSchool: true
         }
 
         ajax('getClassesData', request, (response: GetClassesDataResponse) => {
