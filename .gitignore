@@ -18,7 +18,6 @@ dist-ssr
 !/.vscode/launch.json
 
 /intern/
-/assets/graphics/textures/celestial
 
 upload*.cmd
 /package-lock.json
