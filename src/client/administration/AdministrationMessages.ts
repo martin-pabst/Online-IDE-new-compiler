@@ -287,8 +287,8 @@ export class AdminMessages {
     });
 
     static templateWorkspace = () => lm({
-        'de': 'Vorlage-Workspace',
-        'en': 'Template workspace'
+        'de': 'Vorlage-Worksp.',
+        'en': 'Template worksp.'
     });
     
     static createNewTest = () => lm({
@@ -606,6 +606,43 @@ export class AdminMessages {
         'en': 'These usernames are already in use and are therefore not possible:'
     });
     
+    static testCantBeDeleted = () => lm({
+        'de': `Die Prüfung läuft noch, sie kann daher nicht gelöscht werden.`,
+        'en': `Test is still running, therefore it can't be deleted.`
+    });
     
+    static running = () => lm({
+        'de': `läuft`,
+        'en': `running`
+    });
+
+    static stopped = () => lm({
+        'de': `angehalten`,
+        'en': `stopped`
+    });
+    
+    static modeNormal = () => lm({
+        'de': `Normal`,
+        'en': `regular`
+    });
+
+    static modeManualOff = () => lm({
+        'de': `Abwesend`,
+        'en': `absent`
+    });
+
+    static modeManualOn = () => lm({
+        'de': `Verlängert`,
+        'en': `extended`
+    });
+    
+    static modeToText = (mode: string) => {
+        switch(mode){
+            case "normal": return AdminMessages.modeNormal();
+            case "manualOff": return AdminMessages.modeManualOff();
+            case "manualOn": return AdminMessages.modeManualOn();
+            default: return AdminMessages.modeNormal();
+        }
+    }    
     
 }

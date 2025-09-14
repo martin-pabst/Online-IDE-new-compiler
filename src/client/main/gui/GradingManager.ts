@@ -5,6 +5,7 @@ import { Workspace } from "../../workspace/Workspace.js";
 import { Main } from "../Main.js";
 import { Tab, TabManager } from '../../../tools/TabManager.js';
 import { GradingManagerMessages } from './language/GUILanguage.js';
+import { AdminMessages } from '../../administration/AdministrationMessages.js';
 
 export class GradingManager {
 
@@ -12,7 +13,7 @@ export class GradingManager {
     $gradingMark: JQuery<HTMLElement>;
     $gradingPoints: JQuery<HTMLElement>;
     $gradingCommentMarkdown: JQuery<HTMLElement>;
-    $attendedExam: JQuery<HTMLInputElement>;
+    $group: JQuery<HTMLInputElement>;
 
     dontFireOnChange: boolean = false;
 
@@ -36,11 +37,10 @@ export class GradingManager {
 
         this.$gradingMark = jQuery('<input type="text" class="jo_grading_mark"></input>');
         this.$gradingPoints = jQuery('<input type="text" class="jo_grading_points"></input>');
-        this.$attendedExam = jQuery('<input type="checkbox" class="jo_grading_attended_exam"></input>');
+        this.$group = jQuery('<div></div>');
 
         this.$gradingMark.on('input', () => {that.onChange()})
         this.$gradingPoints.on('input', () => {that.onChange()})
-        this.$attendedExam.on('input', () => {that.onChange()})
 
         let $l1 = makeDiv(null, "jo_grading_markdiv");
         let $l2 = makeDiv(null, "jo_grading_markdiv");
@@ -48,7 +48,7 @@ export class GradingManager {
 
         $l1.append(makeDiv(null, null, GradingManagerMessages.points() + ":"), this.$gradingPoints);
         $l2.append(makeDiv(null, null, GradingManagerMessages.grade() + ":", {"margin-top": "3px"}), this.$gradingMark);
-        $l3.append(makeDiv(null, null, GradingManagerMessages.attendance() + ":", {"margin-top": "3px"}), this.$attendedExam);
+        $l3.append(makeDiv(null, null, AdminMessages.groupLong() + ":", {"margin-top": "3px"}), this.$group);
 
         $markColumn.append($l1, $l2, $l3);
 
@@ -75,12 +75,13 @@ export class GradingManager {
     setValues(ws: Workspace){
 
         if(ws == null) return;
+        
 
         let hideGrading: boolean = false;
 
         if(!this.main.user.is_teacher){
             hideGrading = this.isEmptyOrNull(ws.grade) &&
-                this.isEmptyOrNull(ws.points) && this.isEmptyOrNull(ws.comment) && ws.attended_exam != true;
+                this.isEmptyOrNull(ws.points) && this.isEmptyOrNull(ws.comment);
         }  else {
             hideGrading = this.main.workspacesOwnerId == this.main.user.id;
         }
@@ -94,7 +95,18 @@ export class GradingManager {
         this.$gradingMark.val(ws.grade == null ? "" : ws.grade);
         this.$gradingPoints.val(ws.points == null ? "" : ws.points);
         this.$gradingCommentMarkdown.val(ws.comment == null ? "" : ws.comment);
-        this.$attendedExam.prop('checked', ws.attended_exam == true);
+
+        let group: string = "A";
+        let pruefung = this.main.teacherExplorer.pruefungen?.find(p => p.id == ws.pruefung_id);
+        if(pruefung != null){
+            if(pruefung.pruefungStudentGroups != null){
+                let sm = pruefung.pruefungStudentGroups.studentGroups.find(m => m.student_id == ws.owner_id);
+                if(sm != null){
+                    group = sm.group;
+                }
+            } 
+        }
+        this.$group.text(group);
 
         this.dontFireOnChange = false;
     }
@@ -106,7 +118,7 @@ export class GradingManager {
             ws.grade = (<string>this.$gradingMark.val())?.trim();
             ws.points = (<string>this.$gradingPoints.val())?.trim();
             ws.comment = (<string>this.$gradingCommentMarkdown.val())?.trim();
-            ws.attended_exam = this.$attendedExam.is(":checked");
+            // ws.attended_exam = this.$attendedExam.is(":checked");
             ws.saved = false;
         }
     }

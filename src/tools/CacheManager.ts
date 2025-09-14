@@ -35,6 +35,7 @@ export class CacheManager {
         if (!this.cacheAvailable()) return;
         let that = this;
         let cache = await this.getCache();
+            //@ts-ignore
             cache.put(path, new Response(data));
     }
 

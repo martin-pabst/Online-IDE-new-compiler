@@ -193,6 +193,7 @@ export class SpriteManager {
 
         await this.userSpritesheet.generateAndZipSpritesheet(filename);
 
+        //@ts-ignore
         downloadFile(new Blob([this.userSpritesheet.spritesheet.zipFile]), filename + ".zip", true);
     }
 

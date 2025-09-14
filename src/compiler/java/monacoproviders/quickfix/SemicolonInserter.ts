@@ -9,7 +9,9 @@ export class SemicolonInserter {
         if(!main.getSettings().getValue("editor.autoSemicolons")) return;
 
         if(module.errors.length > 5) return;
-        let cursorLine = main.getMainEditor().getPosition().lineNumber;
+        let cursorLine = main.getMainEditor()?.getPosition()?.lineNumber;
+        if(typeof cursorLine === "undefined") return;
+        
         let semicolonErrors = module.errors.filter(error => error.message == JCM.insertSemicolonHere());
         for(let error of semicolonErrors){
             if(module.file instanceof GUIFile && Math.abs(error.range.startLineNumber - cursorLine) > 0){

@@ -299,7 +299,7 @@
     }
 
     /* Grading */
-    .jo_gradingTab.jo_active {
+    .jo_gradingTab {
         display: flex !important;
         position: relative;
         flex-direction: row;
@@ -308,6 +308,8 @@
         overflow: auto;
         margin: 0;
         align-items: stretch;
+        padding: 5px;
+        box-sizing: border-box;
     }
 
     .jo_grading_markcolumn {
@@ -329,4 +331,6 @@
         font-family: monospace;
         margin: 3px;
     }
+
+
 }

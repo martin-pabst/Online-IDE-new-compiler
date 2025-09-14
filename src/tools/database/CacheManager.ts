@@ -17,6 +17,7 @@ export class CacheManager {
         if(!this.cacheAvailable()) return;
         let that = this;
         this.getCache((cache) => {
+            //@ts-ignore
             cache.put(that.databaseIdToCacheIdentifier(databaseId), new Response(templateDump));
         })
     }

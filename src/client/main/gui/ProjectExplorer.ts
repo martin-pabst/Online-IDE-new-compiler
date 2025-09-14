@@ -139,7 +139,7 @@ export class ProjectExplorer {
                 monaco.editor.setModelLanguage(file.getMonacoModel(), fileType.language);
             }
 
-            if(this.main.user.is_testuser) return { correctedName: newName, success: true };
+            if (this.main.user.is_testuser) return { correctedName: newName, success: true };
 
             let resp: boolean = await this.main.networkManager.sendUpdatesAsync(true);
 
@@ -382,8 +382,8 @@ export class ProjectExplorer {
             newName = newName.substring(0, 80);
             workspace.name = newName;
             workspace.saved = false;
-            
-            if(this.main.user.is_testuser) return { correctedName: newName, success: true };
+
+            if (this.main.user.is_testuser) return { correctedName: newName, success: true };
 
             let success = await this.main.networkManager.sendUpdatesAsync();
             return { correctedName: newName, success: success }
@@ -784,43 +784,42 @@ export class ProjectExplorer {
             this.synchronizedButton.setVisible(false);
             this.setFileActive(null);
             return;
+        }
+
+        if (selectElement) this.workspaceTreeview.selectElement(w, false);
+
+        w.createMonacoModels();
+
+        w.setLibraries(this.main.getCompiler());
+
+        let files = w.getFiles();
+
+        if (w.currentlyOpenFile != null) {
+            this.setFileActive(w.currentlyOpenFile);
+        } else if (files.length > 0) {
+            this.setFileActive(files[0]);
         } else {
+            this.setFileActive(null);
+        }
 
-            if (selectElement) this.workspaceTreeview.selectElement(w, false);
+        if (files.length == 0 && !this.main.user.gui_state.helperHistory.newFileHelperDone) {
 
-            w.createMonacoModels();
+            Helper.showHelper("newFileHelper", this.main, jQuery(this.fileTreeview.addElementsButton.parent));
 
-            w.setLibraries(this.main.getCompiler());
+        }
 
-            let files = w.getFiles();
+        this.showRepositoryButtonIfNeeded(w);
 
-            if (w.currentlyOpenFile != null) {
-                this.setFileActive(w.currentlyOpenFile);
-            } else if (files.length > 0) {
-                this.setFileActive(files[0]);
-            } else {
-                this.setFileActive(null);
+        let spritesheet = new SpritesheetData();
+        spritesheet.initializeSpritesheetForWorkspace(w, this.main).then(() => {
+            for (let file of files) {
+                this.main.getCompiler().setFileDirty(file);
             }
+            this.main.bottomDiv.gradingManager?.setValues(w);
+            this.main.getCompiler().triggerCompile();
+        });
 
-            if (files.length == 0 && !this.main.user.gui_state.helperHistory.newFileHelperDone) {
-
-                Helper.showHelper("newFileHelper", this.main, jQuery(this.fileTreeview.addElementsButton.parent));
-
-            }
-
-            this.showRepositoryButtonIfNeeded(w);
-
-            let spritesheet = new SpritesheetData();
-            spritesheet.initializeSpritesheetForWorkspace(w, this.main).then(() => {
-                for (let file of files) {
-                    this.main.getCompiler().setFileDirty(file);
-                }
-                this.main.bottomDiv.gradingManager?.setValues(w);
-                this.main.getCompiler().triggerCompile();
-            });
-
-        } 
-
+        
 
     }
 

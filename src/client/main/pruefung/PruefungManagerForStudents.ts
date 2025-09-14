@@ -48,19 +48,25 @@ export class PruefungManagerForStudents {
 
         if (this.pruefung != null) return;
 
-        this.pruefung = pruefung;
-
+        
         let wss: Workspace[] = [];
-
-        while (wss.length == 0) {
+        
+        if (wss.length == 0) {
             await this.main.networkManager.sendUpdatesAsync(true, false, false);
-
+            
             wss = this.main.workspaceList.filter(ws => ws.pruefung_id == pruefung.id);
             if (wss.length == 0) {
                 console.log("Workspace for Puefung not found, retrying...");
-                await new Promise(resolve => setTimeout(resolve, 2000)); // wait 2 seconds before retrying
+                return;
+                // await new Promise(resolve => setTimeout(resolve, 2000)); // wait 2 seconds before retrying
             }
         }
+
+        if(this.pruefung != null) {
+            return;
+        }
+
+        this.pruefung = pruefung;
 
         let pruefungWorkspace = wss[0];
         this.main.workspaceList = [pruefungWorkspace];
@@ -85,7 +91,7 @@ export class PruefungManagerForStudents {
         }
 
         let sendPruefungState = () => {
-            let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, clientState: "", running: true }
+            let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, running: true }
             ajaxAsync('/servlet/reportPruefungState', request).then(
                 (response: ReportPruefungStudentStateResponse) => {
                     if (response.pruefungState != "running") {
@@ -120,21 +126,23 @@ export class PruefungManagerForStudents {
 
         this.main.getInterpreter().resetRuntime();
 
-        if (!renderWorkspaces) {
-            let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, clientState: "", running: false }
+        // if (!renderWorkspaces) {
+            let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, running: false }
             ajaxAsync('/servlet/reportPruefungState', request)
-        }
+        // }
 
-
+        
         this.pruefung = null;
 
         this.main.projectExplorer.workspaceTreeview.setVisible(true);
+        jQuery('#pruefunglaeuft').css('display', 'none');
 
         if (renderWorkspaces) {
+            this.main.workspaceList = [];
+            this.main.projectExplorer.renderWorkspaces(this.main.workspaceList);
             await this.main.projectExplorer.fetchAndRenderOwnWorkspaces();
         }
 
-        jQuery('#pruefunglaeuft').css('display', 'none');
     }
 
 

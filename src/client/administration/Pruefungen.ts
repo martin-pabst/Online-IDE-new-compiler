@@ -31,7 +31,7 @@ type PSchuelerData = {
     points?: string;
     comment?: string;
     mode: PruefungStudentMode | { id: PruefungStudentMode, text: string };
-    group?: string;
+    group?: string | { id: string, text: string };
     files: PFileData[];
 
     state?: string;
@@ -148,7 +148,7 @@ export class Pruefungen extends AdminMenuItem {
             if (!this.timerActive) return;
 
             setTimeout(timer, 1000);
-            if (this.currentPruefung?.state == "running") {
+            if (["running", "correcting"].indexOf(this.currentPruefung?.state) >= 0) {
                 $timerBar.empty();
                 for (let i = 0; i < 5 - this.counter % 5; i++) {
                     $timerBar.append(`<span class="joe_pruefung_timerspan"></span>`)
@@ -158,8 +158,9 @@ export class Pruefungen extends AdminMenuItem {
                     let request: GetPruefungStudentStatesRequest = { pruefungId: this.currentPruefung.id }
 
                     let pruefungStates: GetPruefungStudentStatesResponse = await ajaxAsync("/servlet/getPruefungStates", request);
-
-                    this.displayStudentStates(pruefungStates);
+                    if (pruefungStates != null) {
+                        this.displayStudentStates(pruefungStates);
+                    }
                 }
                 this.counter++;
 
@@ -174,8 +175,8 @@ export class Pruefungen extends AdminMenuItem {
     displayStudentStates(pruefungStates: GetPruefungStudentStatesResponse) {
 
         for (let record of this.studentTable.records as PSchuelerData[]) {
-            let isOnline = pruefungStates.pruefungStudentStates[record.id]?.running;
-            record.state = isOnline ? "online" : "offline";
+            let isOnline = pruefungStates.pruefungStudentStates.find(state => state.studentId == record.id)?.running;
+            record.state = isOnline ? AdminMessages.running() : AdminMessages.stopped();
             this.studentTable.refreshCell(record["recid"], "state");
         }
 
@@ -247,12 +248,20 @@ export class Pruefungen extends AdminMenuItem {
             sortData: [{ field: 'klasse', direction: 'ASC' }, { field: 'name', direction: 'ASC' }],
             onSelect: (event) => {
                 setTimeout(() => {
-                    this.onSelectPruefung(event.detail.clicked.recid)
+                    this.onSelectPruefung(event.detail.recid || event.detail.clicked.recid)
                 }, 100);
             },
             onDelete: (event) => {
                 let selected = this.pruefungTable.getSelection();
-                event.done((e) => { this.deletePruefung(<number>selected[0]) })
+                let pruefung = this.pruefungen.find(p => p.id == selected[0]);
+                if(pruefung.state == "running"){
+                    event.isCancelled = true;
+                    alert(AdminMessages.testCantBeDeleted());
+                    return;
+                }
+                event.done(async (e) => {
+                    this.deletePruefung(<number>selected[0])
+                })
             },
             onAdd: (event) => { this.addPruefung() },
             onChange: (event) => { this.onUpdatePruefung(event) }
@@ -303,7 +312,7 @@ export class Pruefungen extends AdminMenuItem {
                     field: 'mode', text: AdminMessages.modeShort(), size: '13%', sortable: true, resizable: true,
                     editable: {
                         type: 'list', items: [
-                            { id: 'normal', text: "Normal" }, { id: 'manualOff', text: "Abwesend" }, { id: 'manualOn', text: "Verlängert" }
+                            { id: 'automatic', text: "Normal" }, { id: 'manualOff', text: "Abwesend" }, { id: 'manualOn', text: "Verlängert" }
                         ], showAll: true, openOnFocus: true, align: 'left'
                     },
                     render(record, extra) {
@@ -317,7 +326,11 @@ export class Pruefungen extends AdminMenuItem {
                         type: 'list', items: [
                             { id: 'A', text: "A" }, { id: 'B', text: "B" }
                         ], showAll: true, openOnFocus: true, align: 'left'
+                    },
+                    render(record, extra) {
+                        return extra.value?.text || '';
                     }
+
                 },
                 // {
                 //     field: 'attended_exam', text: AdminMessages.attendanceShort(), tooltip: AdminMessages.attendance(), size: '10%', sortable: true, resizable: true,
@@ -330,8 +343,8 @@ export class Pruefungen extends AdminMenuItem {
                         let state = record.state;
                         if (state == null) state = "---";
                         switch (state) {
-                            case "online": return "<div class='jo_stateOnline'>online</div>";
-                            case "offline": return "<div class='jo_stateOffline'>offline</div>";
+                            case AdminMessages.running(): return `<div class='jo_stateOnline'>${AdminMessages.running()}</div>`;
+                            case AdminMessages.stopped(): return `<div class='jo_stateOffline'>${AdminMessages.stopped()}</div>`;
                             case "---": return "---"
                         }
 
@@ -374,7 +387,8 @@ export class Pruefungen extends AdminMenuItem {
             match: 'contains',
             markSearch: true,
             onSelect(event) {
-                console.log('Selected:', event.detail.item)
+                that.currentPruefung.template_workspace_a_id = event.detail.item.id;
+                that.savePruefung();
             }
         })
 
@@ -384,7 +398,8 @@ export class Pruefungen extends AdminMenuItem {
             match: 'contains',
             markSearch: true,
             onSelect(event) {
-                console.log('Selected:', event.detail.item)
+                that.currentPruefung.template_workspace_b_id = event.detail.item.id;
+                that.savePruefung();
             }
         })
 
@@ -493,9 +508,10 @@ export class Pruefungen extends AdminMenuItem {
     async deletePruefung(pruefungId: number) {
         let request: CRUDPruefungRequest = { requestType: "delete", pruefung: this.pruefungen.find(p => p.id = pruefungId) }
         let response: CRUDPruefungResponse = await ajaxAsync('/servlet/crudPruefung', request);
-
-        this.onUnselectPruefung();
-        this.pruefungen.splice(this.pruefungen.findIndex(p => p.id == pruefungId), 1);
+        if (response.success) {
+            this.onUnselectPruefung();
+            this.pruefungen.splice(this.pruefungen.findIndex(p => p.id == pruefungId), 1);
+        }
     }
 
     addPruefung() {
@@ -506,6 +522,7 @@ export class Pruefungen extends AdminMenuItem {
                 if (response.success) {
                     this.pruefungTable.add(response.newPruefungWithIds);
                     this.pruefungen.push(response.newPruefungWithIds);
+                    this.pruefungTable.select(response.newPruefungWithIds.id);
                 }
             })
     }
@@ -645,7 +662,7 @@ export class Pruefungen extends AdminMenuItem {
             points: data.points,
             attributesToUpdate: field,
             mode: (typeof data.mode == 'string' ? data.mode : data.mode.id) as PruefungStudentMode,
-            group: data.group
+            group: (typeof data.group == 'string' ? data.group : data.group.id)
         }
 
         let response: BaseResponse = await ajaxAsync('/servlet/updatePruefungSchuelerData', request);
@@ -688,6 +705,9 @@ export class Pruefungen extends AdminMenuItem {
 
         this.studentTable.refresh();
 
+        this.fieldGroupA.el.disabled = this.currentPruefung.state != 'preparing';
+        this.fieldGroupB.el.disabled = this.currentPruefung.state != 'preparing';
+
     }
 
     /* only transitions preparing -> running <-> correcting <-> opening possible
@@ -707,23 +727,17 @@ export class Pruefungen extends AdminMenuItem {
         this.pruefungTable.refresh();
     }
 
-    modeToText(mode: string): string {
-        switch (mode) {
-            case "automatic": return "Normal";
-            case "manualOff": return "Abwesend";
-            case "manualOn": return "Verlängert";
-            default: return "---";
-        }
-    }
-
     async onSelectPruefung(recId: number) {
         if (typeof recId == 'undefined') return;
+        this.currentPruefung = <any>this.pruefungTable.records.find(p => p["recid"] == recId);
+
         let request: GetPruefungStudentTableDataRequest = { pruefung_id: recId };
 
         let p: GetPruefungStudentTableDataResponse = await ajaxAsync("/servlet/getPruefungStudentTableData", request);
 
         for (let sd of p.studentDataList) {
-            sd.mode = { id: <PruefungStudentMode>sd.mode, text: this.modeToText(<string>sd.mode) }
+            sd.mode = { id: <PruefungStudentMode>sd.mode, text: AdminMessages.modeToText(<string>sd.mode) };
+            sd.group = sd.group == null ? { id: "A", text: "A" } : { id: <string>sd.group, text: <string>sd.group };
         }
 
         this.studentTable.unlock();
@@ -731,9 +745,9 @@ export class Pruefungen extends AdminMenuItem {
         this.studentTable.add(p.studentDataList);
         // this.studentTable.refresh();
 
-        this.currentPruefung = <any>this.pruefungTable.records.find(p => p["recid"] == recId);
 
-        this.fieldGroupA.set(this.workspaces.find(ws => ws.id == (this.currentPruefung.template_workspace_id || -1)));
+        this.fieldGroupA.set(this.workspaces.find(ws => ws.id == (this.currentPruefung.template_workspace_a_id || -1)));
+        this.fieldGroupB.set(this.workspaces.find(ws => ws.id == (this.currentPruefung.template_workspace_b_id || -1)));
 
 
         this.selectedStateIndex = this.states.indexOf(this.currentPruefung.state);
