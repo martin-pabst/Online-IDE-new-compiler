@@ -38,7 +38,6 @@ export class TextureManager3d {
         let graphicsManager = interpreter.graphicsManager;
         if (graphicsManager && graphicsManager.pixiSpritesheetData) {
             this.userSpritesheetData = graphicsManager.pixiSpritesheetData;
-            //@ts-ignore
             this.userTexture = new THREE.DataTexture(graphicsManager.pngImageData, this.userSpritesheetData.meta.size.w, this.userSpritesheetData.meta.size.h,
                 THREE.RGBAFormat, THREE.UnsignedByteType, undefined, undefined, undefined, THREE.NearestFilter, THREE.NearestFilter, undefined, THREE.SRGBColorSpace,
             )

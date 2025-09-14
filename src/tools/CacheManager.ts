@@ -31,11 +31,10 @@ export class CacheManager {
 
     }
 
-    async store(path: string, data: Uint8Array|string) {
+    async store(path: string, data: Uint8Array<ArrayBuffer>|string) {
         if (!this.cacheAvailable()) return;
         let that = this;
         let cache = await this.getCache();
-            //@ts-ignore
             cache.put(path, new Response(data));
     }
 
