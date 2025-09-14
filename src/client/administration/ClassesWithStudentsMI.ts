@@ -25,6 +25,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
 
     constructor(administration: Administration) {
         super(administration);
+        this.identifier = "classesWithStudents";
         this.initChooseClassPopup();
     }
 

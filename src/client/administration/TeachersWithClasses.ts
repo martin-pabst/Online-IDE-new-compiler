@@ -5,9 +5,25 @@ import { PasswordPopup } from "./PasswordPopup.js";
 import { SelectTeacherPopup } from "./SelectTeacherPopup.js";
 import { w2alert, w2grid, w2utils } from 'w2ui'
 import jQuery from 'jquery'
+import { Administration } from "./Administration.js";
 
 
 export class TeachersWithClassesMI extends AdminMenuItem {
+
+    
+    classesGrid: w2grid;
+    teachersGrid: w2grid;
+    classesWithoutTeachersGrid: w2grid;
+    
+    teacherData: TeacherData[] = [];
+    classesWithoutTeacher: ClassData[];
+    
+    $tableRight: JQuery<HTMLElement>;
+
+    constructor(administration: Administration) {   
+        super(administration);
+        this.identifier = "teachersWithClasses";
+    }
 
     destroy() {
         this.classesGrid.destroy();
@@ -15,15 +31,6 @@ export class TeachersWithClassesMI extends AdminMenuItem {
         this.classesWithoutTeachersGrid.destroy();
         this.$tableRight.removeClass('jo_twc_right');
     }
-
-    classesGrid: w2grid;
-    teachersGrid: w2grid;
-    classesWithoutTeachersGrid: w2grid;
-
-    teacherData: TeacherData[] = [];
-    classesWithoutTeacher: ClassData[];
-
-    $tableRight: JQuery<HTMLElement>;
 
     checkPermission(user: UserData): boolean {
         return user.is_schooladmin;

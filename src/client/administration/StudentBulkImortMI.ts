@@ -35,6 +35,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
     constructor(administration: Administration) {
         super(administration);
+        this.identifier = "studentBulkImport";
     }
 
     checkPermission(user: UserData): boolean {

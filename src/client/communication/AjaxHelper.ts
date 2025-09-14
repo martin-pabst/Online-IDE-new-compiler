@@ -120,7 +120,7 @@ export function showNetworkBusy(busy: boolean) {
 
 export async function extractCsrfTokenFromGetRequest(retrieveNewCsrfToken: boolean = false) {
     let url = window.location.href;
-    let token = fetchGetParameterValue(url, "csrfToken");
+    let token = fetchGetParameterValueIntern(url, "csrfToken");
     if (token != null && token.length > 0) {
         csrfToken = token;
     }
@@ -130,7 +130,12 @@ export async function extractCsrfTokenFromGetRequest(retrieveNewCsrfToken: boole
     }
 }
 
-function fetchGetParameterValue(url: string, parameterIdentifier: string): string | null {
+export function fetchGetParameterValue(parameterIdentifier: string): string | null {
+    let url = window.location.href;
+    return fetchGetParameterValueIntern(url, parameterIdentifier);
+}
+
+function fetchGetParameterValueIntern(url: string, parameterIdentifier: string): string | null {
     let index = url.indexOf(parameterIdentifier + "=");
     if (index >= 0) {
         let endIndex = url.indexOf('&', index);
@@ -142,7 +147,7 @@ function fetchGetParameterValue(url: string, parameterIdentifier: string): strin
 
 export async function extractLanguageFromGetRequest(retrieveNewCsrfToken: boolean = false) {
     let url = window.location.href;
-    let lang = fetchGetParameterValue(url, 'lang');
+    let lang = fetchGetParameterValueIntern(url, 'lang');
     if(lang != null){
         setLanguageId(lang);
     }

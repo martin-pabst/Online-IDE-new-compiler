@@ -9,6 +9,7 @@ import { NewPruefungPopup } from "./NewPruefungPopup";
 import jQuery from 'jquery'
 import { AdminMessages } from "./AdministrationMessages";
 import { group } from "console";
+import { Administration } from "./Administration";
 
 
 type GetPruefungForPrintingRequest = {
@@ -71,6 +72,11 @@ export class Pruefungen extends AdminMenuItem {
 
     fieldGroupA: w2field;
     fieldGroupB: w2field;
+
+    constructor(administration: Administration) {   
+        super(administration);
+        this.identifier = "manageTests";
+    }
 
     getButtonIdentifier(): string {
         return AdminMessages.manageTests();

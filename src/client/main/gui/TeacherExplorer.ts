@@ -184,7 +184,7 @@ export class TeacherExplorer {
 
         let buttonPruefungAdministration = this.classPanel.captionLineAddIconButton("img_gear-dark", "right",
             () => {
-                window.open(`administration_mc.html?csrfToken=${csrfToken}`, '_blank').focus();
+                window.open(`administration_mc.html?csrfToken=${csrfToken}&menuItem=manageTests`, '_blank').focus();
             }, TeacherExplorerMessages.createNewTest());
 
         buttonPruefungAdministration.setVisible(false);

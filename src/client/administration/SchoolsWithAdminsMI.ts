@@ -7,6 +7,7 @@ import { w2grid, w2utils, w2alert } from 'w2ui'
 import { StudentBulkImportMI } from "./StudentBulkImortMI.js";
 import jQuery from 'jquery'
 import { AdminMessages } from "./AdministrationMessages.js";
+import { Administration } from "./Administration.js";
 
 
 // declare var w2prompt: any;
@@ -21,6 +22,11 @@ export class SchoolsWithAdminsMI extends AdminMenuItem {
     teacherGrid: w2grid;
 
     schoolDataList: SchoolData[] = [];
+
+    constructor(administration: Administration) {
+        super(administration);
+        this.identifier = "schoolsWithAdmins";
+    }
 
     checkPermission(user: UserData): boolean {
         return user.is_admin;

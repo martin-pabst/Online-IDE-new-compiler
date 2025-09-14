@@ -1,6 +1,6 @@
 import { AdminMenuItem } from "./AdminMenuItem.js";
 import { SchoolsWithAdminsMI } from "./SchoolsWithAdminsMI.js";
-import { ajax, extractCsrfTokenFromGetRequest, extractLanguageFromGetRequest } from "../communication/AjaxHelper.js";
+import { ajax, extractCsrfTokenFromGetRequest, extractLanguageFromGetRequest, fetchGetParameterValue } from "../communication/AjaxHelper.js";
 import { GetUserDataResponse, UserData, ClassData } from "../communication/Data.js";
 import { TeachersWithClassesMI } from "./TeachersWithClasses.js";
 import { ClassesWithStudentsMI } from "./ClassesWithStudentsMI.js";
@@ -67,9 +67,9 @@ export class Administration {
 
         for (let mi of this.menuItems) {
             if (mi.checkPermission(this.userData)) {
-                let $button = jQuery('<div class="jo_menuitem">' + mi.getButtonIdentifier() + '</div>');
-                jQuery('#menuitems').append($button);
-                $button.on('click', () => {
+                mi.$button = jQuery('<div class="jo_menuitem">' + mi.getButtonIdentifier() + '</div>');
+                jQuery('#menuitems').append(mi.$button);
+                mi.$button.on('click', () => {
 
                     jQuery('#main-heading').empty();
 
@@ -87,12 +87,22 @@ export class Administration {
                         jQuery('#main-footer'));
 
                     jQuery('#menuitems .jo_menuitem').removeClass('jo_active');
-                    $button.addClass('jo_active');
+                    mi.$button.addClass('jo_active');
                 });
             }
         }
 
-        jQuery('#menuitems .jo_menuitem').first().click();
+        let menuItemToSelect = fetchGetParameterValue('menuItem');
+        if (menuItemToSelect == null) {
+            jQuery('#menuitems .jo_menuitem').first().trigger("click");
+        } else {
+            let itemToStart = this.menuItems.find(mi => mi.identifier === menuItemToSelect);
+            if (itemToStart != null) {
+                itemToStart.$button.trigger("click");
+            } else {
+                jQuery('#menuitems .jo_menuitem').first().trigger("click");
+            }
+        }
     }
 
     removeGrid($element: JQuery<HTMLElement>) {

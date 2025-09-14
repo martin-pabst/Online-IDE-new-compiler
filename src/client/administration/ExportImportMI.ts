@@ -4,11 +4,18 @@ import { ajax, csrfToken } from "../communication/AjaxHelper.js";
 import { w2grid } from 'w2ui'
 import jQuery from 'jquery'
 import { AdminMessages } from "./AdministrationMessages.js";
+import { Administration } from "./Administration.js";
 
 
 declare var w2alert: any;
 
 export class ExportImportMI extends AdminMenuItem {
+
+    constructor(administration: Administration) {
+        super(administration);
+        this.identifier = "exportImportSchools";
+    }
+
     destroy() {
         this.schoolGrid.destroy();
     }

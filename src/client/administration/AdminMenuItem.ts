@@ -3,6 +3,9 @@ import { UserData } from "../communication/Data.js";
 
 export abstract class AdminMenuItem {
 
+    $button: JQuery<HTMLElement>;
+    identifier: string;
+
     constructor(public administration: Administration){
 
     }

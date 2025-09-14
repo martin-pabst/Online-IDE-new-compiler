@@ -23,6 +23,7 @@ export class SchoolSettings extends AdminMenuItem {
 
     constructor(administration: Administration) {
         super(administration);
+        this.identifier = "schoolSettings";
     }
 
 
