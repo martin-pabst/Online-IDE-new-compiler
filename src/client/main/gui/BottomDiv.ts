@@ -102,8 +102,7 @@ export class BottomDiv {
     }
 
     showHomeworkTab() {
-        this.homeworkManager.tab.headingDiv.style.display = "block";
-        this.homeworkManager.tab.show();
+        this.homeworkManager.tab.setVisible(true);
     }
 
     showJunitTab() {
@@ -111,8 +110,7 @@ export class BottomDiv {
     }
 
     hideHomeworkTab() {
-        this.errorManager.tab.show();
-        this.homeworkManager.tab.headingDiv.style.display = "none";
+        this.homeworkManager.tab.setVisible(false);
     }
 
     showHideDBBusyIcon(visible: boolean) {

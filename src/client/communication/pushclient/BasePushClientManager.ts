@@ -32,7 +32,7 @@ export class BasePushClientManager {
 
     protected constructor(public baseURL: string){
         this.strategies = [
-            new PushClientWebsocketStrategy(this),
+            // new PushClientWebsocketStrategy(this),
             new PushClientLongPollingStrategy(this),
         ]
 

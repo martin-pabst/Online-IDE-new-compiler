@@ -53,12 +53,24 @@ export class TabManager {
 
     }
 
+    setTabVisible(tab: Tab, visibility: boolean) {
+        tab.headingDiv.style.display = visibility ? 'block' : 'none'; 
+        tab.visible = visibility;
+        if(!visibility && tab.isActive()){
+            let firstVisibleTab = this.tabs.find(t => t.visible);
+            if(firstVisibleTab) this.setActive(firstVisibleTab);
+        }
+    }
+
 }
 
 export class Tab {
     headingDiv: HTMLDivElement;
     bodyDiv: HTMLDivElement;
     tabManager: TabManager;
+
+    visible: boolean = true;
+
     onShow: () => void;
 
     constructor(caption: string, cssClasses: string[] = [], withoutBody: boolean = false) {
@@ -87,4 +99,7 @@ export class Tab {
         return this.headingDiv.classList.contains('jo_active');
     }
 
+    setVisible(visibility: boolean){
+        this.tabManager.setTabVisible(this, visibility);
+    }
 }

@@ -14,9 +14,9 @@ import { GetSpritesheetIdForWorkspaceRequest, GetSpritesheetIdForWorkspaceRespon
 export class SpritesheetData {
 
     pixiSpritesheetData: PixiSpritesheetData;
-    pngImageData: Uint8Array;
+    pngImageData: Uint8Array<ArrayBuffer>;
     pngFile: Uint8Array;
-    zipFile: Uint8Array;
+    zipFile: Uint8Array<ArrayBuffer>;
 
     async initializeSpritesheetForWorkspace(workspace: Workspace, main: MainBase, spritesheetURLOrBlob?: string | Uint8Array) {
 
@@ -185,7 +185,7 @@ export class SpritesheetData {
             compressionOptions: { level: 9 }
         })
 
-        this.zipFile = await zip.generateAsync({ type: "uint8array" });
+        this.zipFile = <Uint8Array<ArrayBuffer>>await zip.generateAsync({ type: "uint8array" });
     }
 
 

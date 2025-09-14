@@ -357,8 +357,8 @@ export class AdminMessages {
     });
  
     static attendance = () => lm({
-        'de': 'anwesend',
-        'en': 'attendance'
+        'de': 'Anwesend',
+        'en': 'Attendance'
     });
  
     static manual = () => lm({
