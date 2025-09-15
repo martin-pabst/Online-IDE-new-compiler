@@ -53,7 +53,7 @@ body.joeCssFence {
         height: 100%;
     }
 
-    #versionDiv {
+    .versionDiv {
         margin-left: auto;
         margin-right: auto;
     }
