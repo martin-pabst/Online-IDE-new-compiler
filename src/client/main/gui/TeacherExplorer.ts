@@ -87,6 +87,8 @@ export class TeacherExplorer {
 
         this.homeButton.setVisible(false);
 
+        
+
     }
 
     initStudentPanel() {

@@ -64,7 +64,9 @@ export class Helper {
     }
 
 
-    static showHelper(id: string, mainBase: MainBase, $element?: JQuery<HTMLElement>) {
+    static showHelper(id: string, mainBase: MainBase, $element?: JQuery<HTMLElement> | HTMLElement) {
+
+        $element = ($element instanceof jQuery ? $element : jQuery($element)) as JQuery<HTMLElement>;
 
         let main: Main;
         if (mainBase instanceof Main) {
@@ -114,10 +116,9 @@ export class Helper {
                     text = GuiMessages.HelperNewWorkspace();
                     direction = "left";
                     break;
-                case "homeButtonHelper":
+                case "homeButtonHelperNew":
                     text = GuiMessages.HelperHome();
                     direction = "top";
-                    $element = jQuery('.img_home-dark');
                     break;
                 case "stepButtonHelper":
                     text = GuiMessages.HelperStepButtons();

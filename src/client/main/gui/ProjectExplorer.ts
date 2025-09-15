@@ -949,7 +949,7 @@ export class ProjectExplorer {
             if (ae.id != this.main.user.id) {
                 this.main.projectExplorer.setExplorerColor("rgba(255, 0, 0, 0.2", ae.familienname + ", " + ae.rufname);
                 this.main.teacherExplorer.homeButton.setVisible(true);
-                Helper.showHelper("homeButtonHelper", this.main);
+                Helper.showHelper("homeButtonHelperNew", this.main, this.main.teacherExplorer.homeButton.divElement);
                 this.main.networkManager.updateFrequencyInSeconds = this.main.networkManager.teacherUpdateFrequencyInSeconds;
                 this.main.networkManager.secondsTillNextUpdate = this.main.networkManager.teacherUpdateFrequencyInSeconds;
 
