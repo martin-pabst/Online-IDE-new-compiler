@@ -1,8 +1,6 @@
 TODO:
-  * files with folders
-    * test Prüfung functionality -> seems to work
-  * better tablet integration
-
+  * Eigene Spritesheets in Embedded-IDE werden erst nach dem ersten Compilerlauf erkannt (siehe https://learnj.de/doku.php?id=onlineide:integration:start unten auf der Seite)
+  
 
 Done:
   * test if user delete also delete published databases in sql-ide and answer to bug report in github
