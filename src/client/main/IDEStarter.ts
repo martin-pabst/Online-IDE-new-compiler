@@ -88,6 +88,13 @@ function initMonacoEditor(): void {
 
 window.onload = () => {
 
+    if(window.location.href.indexOf('silent') < 0){
+        let silentElements = document.getElementsByClassName('silent');
+        for (let i = 0; i < silentElements.length; i++) {
+            (silentElements[i] as HTMLElement).style.display = '';
+        }
+    }
+
     setTimeout(() => {
         let vidisDiv = jQuery('vidis-login')[0];
         if(!vidisDiv) return;

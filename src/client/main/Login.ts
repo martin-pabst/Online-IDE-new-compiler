@@ -102,8 +102,9 @@ export class Login {
     }
 
     logout() {
+        let isSilent = window.location.href.indexOf('silent') >= 0;
         if (!this.main.user || this.main.user.is_testuser) {
-            window.location.assign("/");
+            window.location.assign("/" + (isSilent ? "?silent=true" : ""));
             return;
         }
 
@@ -136,7 +137,7 @@ export class Login {
                     
                 } else {
                     jQuery('#bitteWartenText').html(LoginMessages.done());
-                    window.location.assign("/");
+                    window.location.assign("/" + (isSilent ? "?silent=true" : ""));
                     // that.showLoginForm();
                 }
 
