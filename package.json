@@ -35,7 +35,7 @@
     "node-ssh": "^13.2.1",
     "postcss-prefix-selector": "^2.1.0",
     "spritesmith": "^3.4.1",
-    "typescript": "^5.5.4",
+    "typescript": "^5.9.2",
     "typescript-eslint": "^8.13.0",
     "vite": "^5.4.10",
     "vitest": "^2.0.5"
