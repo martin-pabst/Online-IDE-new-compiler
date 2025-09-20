@@ -1,5 +1,4 @@
 import { MainBase } from "../main/MainBase.js";
-import { CacheManager } from "../../tools/CacheManager.js";
 import { Workspace } from "../workspace/Workspace.js";
 import { PixiSpritesheetData } from "./PixiSpritesheetData.js";
 import jQuery from 'jquery';

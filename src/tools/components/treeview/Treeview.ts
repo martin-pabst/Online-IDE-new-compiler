@@ -49,7 +49,8 @@ export type TreeviewConfig<E, K> = {
     initialExpandCollapseState?: ExpandCollapseState,
     withSelection: boolean,
     selectMultiple?: boolean,
-    selectWholeFolders?: boolean
+    selectWholeFolders?: boolean,
+    scrollToSelectedElement?:boolean
 }
 
 
@@ -540,7 +541,9 @@ export class Treeview<E, K> {
         node.setFocus(true);
         this.lastSelectedElement = node;
         node.expand();
-        node.scrollIntoView();
+        if(typeof this.config.scrollToSelectedElement === undefined || this.config.scrollToSelectedElement){
+            node.scrollIntoView();
+        }
     }
 
     unselectAllNodes(withUnfocus: boolean) {

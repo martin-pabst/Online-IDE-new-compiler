@@ -128,7 +128,7 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                         toolbarDelete: !this.isVidisSchool(),
                         footer: true,
                         selectColumn: true,
-                        toolbarSearch: false
+                        toolbarSearch: true
                     },
                     toolbar: {
                         items: [
@@ -169,11 +169,11 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
                             }
                         }
                     ],
-                    // searches: [
-                    //     { field: 'username', label: this.isVidisSchool()?AdminMessages.nickname() : AdminMessages.username(), type: 'text' },
-                    //     { field: 'rufname', label: AdminMessages.firstName(), type: 'text' },
-                    //     { field: 'familienname', label: AdminMessages.lastName(), type: 'text' }
-                    // ],
+                    searches: [
+                        { field: 'username', label: this.isVidisSchool()?AdminMessages.nickname() : AdminMessages.username(), type: 'text' },
+                        { field: 'rufname', label: AdminMessages.firstName(), type: 'text' },
+                        { field: 'familienname', label: AdminMessages.lastName(), type: 'text' }
+                    ],
                     sortData: this.isVidisSchool() ?
                     [{ field: 'username', direction: 'asc' }, { field: 'vidis_akronym', direction: 'asc' }]
                     :
