@@ -102,7 +102,7 @@ export class Slider {
             this.transparentOverlay.style.top = '0';
             this.transparentOverlay.style.width = '100%';
             this.transparentOverlay.style.height = '100%';
-            this.transparentOverlay.style.zIndex = '200';
+            this.transparentOverlay.style.zIndex = '10001';
 
             if (this.sliderBeginCallback) this.sliderBeginCallback();
 
