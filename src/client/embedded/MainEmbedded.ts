@@ -111,7 +111,7 @@ export class MainEmbedded implements MainBase {
 
     horizontalSlider: Slider;
     verticalSlider: Slider;
-    
+
     embeddedFullpageController: EmbeddedFullpageController;
 
     isEmbedded(): boolean { return true; }
@@ -201,38 +201,41 @@ export class MainEmbedded implements MainBase {
 
         this.currentWorkspace.setLibraries(this.getCompiler());
 
-        if (!this.config.hideStartPanel) {
-            this.indexedDB = new EmbeddedIndexedDB();
-            this.indexedDB.open(() => {
+        this.loadUserSpritesheet().then(() => {
+            if (!this.config.hideStartPanel) {
+                this.indexedDB = new EmbeddedIndexedDB();
+                this.indexedDB.open(() => {
 
-                if (this.config.id != null) {
-                    this.readScripts(async () => {
-                        if (this.fileExplorer) {
-                            this.getCompiler().setFiles(this.fileExplorer.getFiles());
-                            this.fileExplorer.selectFirstFileIfPresent();
-                        }
-                        if (this.fileExplorer == null) {
-                            let files = this.currentWorkspace.getFiles();
-                            this.getCompiler().setFiles(files);
-                            if (files.length > 0) {
-                                this.setFileActive(files[0]);
+                    if (this.config.id != null) {
+                        this.readScripts(async () => {
+                            if (this.fileExplorer) {
+                                this.getCompiler().setFiles(this.fileExplorer.getFiles());
+                                this.fileExplorer.selectFirstFileIfPresent();
                             }
-                        }
+                            if (this.fileExplorer == null) {
+                                let files = this.currentWorkspace.getFiles();
+                                this.getCompiler().setFiles(files);
+                                if (files.length > 0) {
+                                    this.setFileActive(files[0]);
+                                }
+                            }
 
-                        this.readClassDiagram();
+                            this.readClassDiagram();
 
-                        this.getCompiler().triggerCompile();
+                            this.getCompiler().triggerCompile();
 
-                    });
-                }
+                        });
+                    }
 
-                if (this.config.enableFileAccess) {
-                    //@ts-ignore
-                    window.online_ide_access = new OnlineIDEAccessImpl();
-                    OnlineIDEAccessImpl.registerIDE(this);
-                }
-            });
-        }
+                    if (this.config.enableFileAccess) {
+                        //@ts-ignore
+                        window.online_ide_access = new OnlineIDEAccessImpl();
+                        OnlineIDEAccessImpl.registerIDE(this);
+                    }
+                });
+            }
+        });
+
 
 
     }
@@ -700,9 +703,7 @@ export class MainEmbedded implements MainBase {
 
         setTimeout(() => {
             this.editor.editor.layout();
-            this.loadUserSpritesheet().then(() => {
-                this.programControlButtons.speedControl.setSpeedInStepsPerSecond(this.config.speed);
-            });
+            this.programControlButtons.speedControl.setSpeedInStepsPerSecond(this.config.speed);
         }, 200);
 
         if (this.config.hideEditor) {
