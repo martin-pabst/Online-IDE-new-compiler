@@ -1,10 +1,5 @@
 import jQuery from 'jquery';
 import { Main } from "./Main.js";
-import { SynchronizationManager } from "../repository/synchronize/RepositorySynchronizationManager.js";
-import { RepositoryCreateManager } from "../repository/update/RepositoryCreateManager.js";
-import { RepositorySettingsManager } from "../repository/update/RepositorySettingsManager.js";
-import { RepositoryCheckoutManager } from "../repository/update/RepositoryCheckoutManager.js";
-import { SpriteManager } from "../spritemanager/SpriteManager.js";
 import * as PIXI from 'pixi.js';
 
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
