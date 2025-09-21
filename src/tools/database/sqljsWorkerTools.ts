@@ -7,7 +7,7 @@ export function createDb(SQL, buffer) {
 
     db.create_function("isDate", function (inputText) {
 
-        if(inputText == null) return true;
+        if (inputText == null) return true;
         if (typeof inputText != 'string') return false;
 
         // var dateformat = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
@@ -60,7 +60,7 @@ export function createDb(SQL, buffer) {
     });
 
     db.create_function("isDateTime", function (inputText) {
-        if(inputText == null) return true;
+        if (inputText == null) return true;
 
         if (typeof inputText != 'string') return false;
 
@@ -77,10 +77,10 @@ export function createDb(SQL, buffer) {
             // var mm = parseInt(dateStr[1]);
             // var yy = parseInt(dateStr[0]);
             if (dateStr.length != 10) return false;
-            var dd = parseInt(dateStr.substring(8,10));
+            var dd = parseInt(dateStr.substring(8, 10));
             var mm = parseInt(dateStr.substring(5, 7));
             var yy = parseInt(dateStr.substring(0, 4));
-              // Create list of days of a month [assume there is no leap year by default]
+            // Create list of days of a month [assume there is no leap year by default]
             var ListofDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
             if (mm == 1 || mm > 2) {
                 if (dd > ListofDays[mm - 1]) {
@@ -108,6 +108,55 @@ export function createDb(SQL, buffer) {
             return false;
         }
     });
+
+    db.create_function("month", function (inputText) {
+        var dateformat = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/;
+        let match = inputText.match(dateformat);
+        if (match) {
+            return Number(match[1]);
+        }
+        return -1;
+    })
+
+    db.create_function("day", function (inputText) {
+        var dateformat = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/;
+        let match = inputText.match(dateformat);
+        if (match) {
+            return Number(match[2]);
+        }
+        return -1;
+    })
+
+    db.create_function("year", function (inputText) {
+        var dateformat = /^(\d{4})[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/;
+        let match = inputText.match(dateformat);
+        if (match) {
+            return Number(match[1]);
+        }
+        return -1;
+    })
+
+    db.create_function("isTime", function (inputText) {
+        if (inputText == null) return true;
+
+        if (typeof inputText != 'string') return false;
+
+        var timeformat = /^([01][0-9]|2[0123]):([0-5][0-9]):([0-5][0-9])$/;
+        // Match the date format through regular expression
+        return inputText.match(timeformat) != null;
+    });
+
+    db.create_function("concat", function (arg) {
+        if (arguments == null) return "";
+        let erg = "";
+        for (let i = 0; i < arguments.length; i++) {
+            erg += ("" + arguments[i]);
+        }
+        return erg;
+    })
+
+
+
     return db;
 }
 
