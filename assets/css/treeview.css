@@ -68,6 +68,8 @@
         /* height: 100%; */
         width: 100%;
 
+        flex-grow: 1;
+
         border-bottom-style: solid;
         border-color: #474747;
         border-width: 1px;

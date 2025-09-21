@@ -30,7 +30,7 @@ export class DebuggerSymbolEntry {
     oldLength?: number; // old length if value is array
     isLocalVariable: boolean = true;
 
-    static MAXCHILDREN: number = 20;
+    static MAXCHILDREN: number = 100;
     static MAXARRAYSECTIONLENGTH: number = 100;
 
     static quickArrayOutputMaxLength = 100;

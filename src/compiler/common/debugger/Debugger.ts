@@ -48,7 +48,9 @@ export class Debugger {
 
         this.watchSection = new DebuggerWatchSection(this.watchTreeview, this);
 
-        this.treeviewAccordion.onResize(true);
+        setTimeout(() => {
+            this.treeviewAccordion.onResize(true);
+        }, 100);
 
     }
 
