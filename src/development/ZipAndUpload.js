@@ -2,7 +2,7 @@ import AdmZip from 'adm-zip';
 import {NodeSSH} from 'node-ssh';
 import { exit } from 'process';
 import  chalk  from 'chalk'
-import { mkdir } from 'fs';
+import { mkdir, promises } from 'fs';
 
 const ssh = new NodeSSH()
 const time = performance.now();
@@ -27,9 +27,7 @@ const zipDirectory = async (sourceDir, outputFilePath) => {
 };
 
 console.log(chalk.blue('Zipping the dist directory...'));
-mkdir('intern/tmp', { recursive: true }, (err) => {
-  if (err) throw err;
-});
+await promises.mkdir('intern/tmp', { recursive: true });
 await zipDirectory('dist', 'intern/tmp/dist.zip');
 
 await ssh.connect({
@@ -52,15 +50,16 @@ await ssh.execCommand('mv htdocs /home/martin/backup/program_files/online-ide/ht
 await ssh.execCommand('mv ./htdocs-new htdocs', {cwd: '/var/www/online-ide'});
 
 ssh.dispose();
+
+rmSync('intern/tmp', { recursive: true, force: true });
+
 console.log(chalk.green('Done deploying to www.online-ide.de!'));
 
 
 /* Embedded-Version */
 
 console.log(chalk.blue('Zipping the dist-embedded/assets directory...'));
-mkdir('intern/tmp', { recursive: true }, (err) => {
-  if (err) throw err;
-});
+await promises.mkdir('intern/tmp', { recursive: true });
 await zipDirectory('dist-embedded/assets', 'intern/tmp/assets.zip');
 
 
@@ -91,7 +90,11 @@ await ssh.execCommand('mv assets-new assets', {cwd: '/var/www/learnj.de/htdocs/j
 
 await ssh.execCommand('/var/www/embed1.learnj.de/makeArchive.sh', {cwd: '/var/www/learnj.de/htdocs/javaonline'});
 
+rmSync('intern/tmp', { recursive: true, force: true });
+
 console.log(chalk.green('Done deploying to www.learnj.de in ' + Math.round(performance.now() - time) + ' ms!'));
+
+
 
 exit();
 
