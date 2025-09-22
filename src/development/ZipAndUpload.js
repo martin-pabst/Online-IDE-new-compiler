@@ -2,7 +2,7 @@ import AdmZip from 'adm-zip';
 import {NodeSSH} from 'node-ssh';
 import { exit } from 'process';
 import  chalk  from 'chalk'
-import { mkdir, promises } from 'fs';
+import { mkdir, promises, rmSync } from 'fs';
 
 const ssh = new NodeSSH()
 const time = performance.now();
@@ -54,6 +54,7 @@ ssh.dispose();
 rmSync('intern/tmp', { recursive: true, force: true });
 
 console.log(chalk.green('Done deploying to www.online-ide.de!'));
+console.log('');
 
 
 /* Embedded-Version */
