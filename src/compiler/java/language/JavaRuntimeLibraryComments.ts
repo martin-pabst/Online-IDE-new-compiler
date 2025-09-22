@@ -1675,6 +1675,16 @@ export class JRC {
         "en": "Sets color of given point on Bitmap.",
     })
 
+    static BitmapGetResolutionXComment = () => lm({
+        "de": "Gibt die Auflösung ( = Anzahl an Punkten) der Bitmap in X-Richtung zurück.",
+        "en": "Returns resolution ( = number of pixels) in x-direction.",
+    })
+
+    static BitmapGetResolutionYComment = () => lm({
+        "de": "Gibt die Auflösung ( = Anzahl an Punkten) der Bitmap in y-Richtung zurück.",
+        "en": "Returns resolution ( = number of pixels) in y-direction.",
+    })
+
 
     static BitmapGetColorComment = () => lm({
         "de": "Gibt die Farbe des angegebenen Punktes als Color-Objekt zurück.",
