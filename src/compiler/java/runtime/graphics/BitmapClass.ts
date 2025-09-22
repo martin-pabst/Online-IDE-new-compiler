@@ -17,9 +17,11 @@ export class BitmapClass extends ShapeClass {
         { type: "declaration", signature: "class Bitmap extends Shape", comment: JRC.BitmapClassComment },
 
         {
-            type: "method", signature: "Bitmap(int pointsX, int pointsY, double left, double top, double displayWidth, double displayHeight)",
+            type: "method", signature: "Bitmap(int resolutionX, int resolutionY, double left, double top, double displayWidth, double displayHeight)",
             java: BitmapClass.prototype._cj$_constructor_$Bitmap$int$int$double$double$double$double, comment: JRC.BitmapConstructorComment
         },
+        { type: "method", signature: "final int getResolutionX()", native: BitmapClass.prototype._getResolutionX, comment: JRC.BitmapGetResolutionXComment },
+        { type: "method", signature: "final int getResolutionY()", native: BitmapClass.prototype._getResolutionY, comment: JRC.BitmapGetResolutionYComment },
         { type: "method", signature: "final void setColor(int x, int y, int color, double alpha)", native: BitmapClass.prototype._setColor, comment: JRC.BitmapSetColorComment },
         { type: "method", signature: "final void setColor(int x, int y, string color, double alpha)", native: BitmapClass.prototype._setColor, comment: JRC.BitmapSetColorComment },
         { type: "method", signature: "final void setColor(int x, int y, int color)", native: BitmapClass.prototype._setColor, comment: JRC.BitmapSetColorComment },
@@ -313,5 +315,12 @@ export class BitmapClass extends ShapeClass {
         return new PositionClass(xb, yb);
     }
 
+    _getResolutionX(){
+        return this.anzahlX;
+    }
+
+    _getResolutionY(){
+        return this.anzahlY;
+    }
 
 }
