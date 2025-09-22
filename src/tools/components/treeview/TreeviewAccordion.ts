@@ -23,8 +23,11 @@ export class TreeviewAccordion {
         window.addEventListener('resize', () => { this.onResize(false) });
     }
 
-    onResize(initial: boolean) {
-        let overallHeight = this._mainDiv.getBoundingClientRect().height - (this.treeviewList.length * 1.0);
+    onResize(initial: boolean, parentElementWithCorrectSize?: HTMLElement) {
+        if(!parentElementWithCorrectSize){
+            parentElementWithCorrectSize = this._mainDiv;
+        }
+        let overallHeight = parentElementWithCorrectSize.getBoundingClientRect().height - (this.treeviewList.length * 1.0);
 
         let fixedHeight: number = 0;
         let variableHeight: number = 0;

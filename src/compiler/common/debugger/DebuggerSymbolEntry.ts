@@ -10,6 +10,7 @@ import jQuery from 'jquery';
 import { JavaField } from "../../java/types/JavaField.ts";
 import { Interpreter } from "../interpreter/Interpreter.ts";
 import { StringClass } from "../../java/runtime/system/javalang/ObjectClassStringClass.ts";
+import { min } from "moment";
 
 export type RuntimeObject = {
     getType(): RuntimeObjectType & BaseType;
@@ -30,7 +31,7 @@ export class DebuggerSymbolEntry {
     oldLength?: number; // old length if value is array
     isLocalVariable: boolean = true;
 
-    static MAXCHILDREN: number = 100;
+    static MAXCHILDREN: number = 30;
     static MAXARRAYSECTIONLENGTH: number = 100;
 
     static quickArrayOutputMaxLength = 100;
@@ -334,7 +335,7 @@ export class DebuggerSymbolEntry {
                     }
 
                 } else {
-                    for (let i = this.oldLength || 0; i < Math.min(a.length, DebuggerSymbolEntry.MAXCHILDREN); i++) {
+                    for (let i = this.oldLength || 0; i < a.length; i++) {
                         this.children.push(new ArrayElementDebuggerEntry(
                             this.symbolTableSection, this, i,
                             elementtype
@@ -365,7 +366,8 @@ export class DebuggerSymbolEntry {
 
     getSubintervalLength(intervalLength: number) {
         let digits = Math.trunc(Math.log10(intervalLength));
-        return Math.trunc(Math.pow(10, Math.max(digits - 2, 2)));
+        let minSubintervalLength = DebuggerSymbolEntry.MAXARRAYSECTIONLENGTH < 100 ? 10 : 100;
+        return Math.max(Math.trunc(Math.pow(10, digits - 2)), minSubintervalLength);
     }
 
 }
