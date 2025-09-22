@@ -8,17 +8,28 @@ let scripts = [
 includeJsAndCss(scripts, () => {
     window.onload = function () {
         if (window.jo_doc.startsWith("http")) {
-            $.ajax({
-                url: window.jo_doc,
-                type: "get",
-                dataType: 'text',
-                success: function (data) {
+
+            fetch(window.jo_doc, {
+                method: "GET"
+            }).then((response) => {
+                response.json().then((data) => {
                     initScripts(data);
-                },
-                error: function () {
-                    alert("Fehler beim Laden von " + jo_doc);
-                }
-            });
+                })
+            }).catch(() => {
+                alert("Fehler beim Laden von " + jo_doc)
+            })
+
+            // $.ajax({
+            //     url: window.jo_doc,
+            //     type: "get",
+            //     dataType: 'text',
+            //     success: function (data) {
+            //         initScripts(data);
+            //     },
+            //     error: function () {
+            //         alert("Fehler beim Laden von " + jo_doc);
+            //     }
+            // });
         } else {
             initScripts(window.jo_doc);
         }
@@ -90,11 +101,11 @@ function includeCss(src) {
 }
 
 
-function includeJsAndCss(urlList, callback){
+function includeJsAndCss(urlList, callback) {
 
-    if(urlList.length > 0){
+    if (urlList.length > 0) {
         let url = urlList.shift();
-        if(url.endsWith('.js')){
+        if (url.endsWith('.js')) {
             includeJs(url, () => {
                 includeJsAndCss(urlList, callback);
             })
