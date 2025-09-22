@@ -26,8 +26,23 @@ export class Editor {
 
     lastPosition: HistoryEntry;
     dontPushNextCursorMove: number = 0;
+    debounceTimer: any = null;
 
     constructor(public main: MainBase, private showMinimap: boolean, private isEmbedded: boolean) {
+        if (!isEmbedded) {
+
+            const resizeObserver = new ResizeObserver(() => {
+
+                clearTimeout(this.debounceTimer);
+                this.debounceTimer = setTimeout(() => {
+                    (<HTMLElement>this.editor?.getDomNode()).parentElement.style.width = '100%';
+                    this.editor?.layout();
+                }, 200);
+
+
+            });
+            resizeObserver.observe(document.body);
+        }
     }
 
     currentlyEditedModuleIsJava(): boolean {
@@ -277,13 +292,13 @@ export class Editor {
             if (firstMethodCallPosition) {
                 if (firstMethodCallPosition != this.lastMethodCallPosition) {
                     let maxParameterCount: number = 0;
-                    if(Array.isArray(firstMethodCallPosition.possibleMethods)){
+                    if (Array.isArray(firstMethodCallPosition.possibleMethods)) {
                         for (let m of firstMethodCallPosition.possibleMethods) {
                             if (m instanceof JavaMethod) {
                                 if (m.parameters.length > maxParameterCount) {
                                     maxParameterCount = m.parameters.length;
                                 }
-                            } 
+                            }
                         }
                     }
 
