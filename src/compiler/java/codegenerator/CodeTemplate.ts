@@ -301,7 +301,13 @@ export class BinaryOperatorTemplate extends CodeTemplate {
             snippetContainer.addParts(snippets[1].allButLastPart());
             let lastPart0 = snippets[0].lastPartOrPop();
             let lastPart1 = snippets[1].lastPartOrPop();
-            snippetContainer.addStringPart(`${lastPart0.emit()} ${this.operator} ${lastPart1.emit()}`, _range, _resultType, [lastPart0, lastPart1]);
+
+            if(this.operator == '/' && snippets[0].type instanceof PrimitiveType && snippets[0].type.isByteShortIntLong() && snippets[1].type instanceof PrimitiveType && snippets[1].type.isByteShortIntLong() ){
+                snippetContainer.addStringPart(`Math.trunc(${lastPart0.emit()} ${this.operator} ${lastPart1.emit()})`, _range, _resultType, [lastPart0, lastPart1]);
+            } else {
+                snippetContainer.addStringPart(`${lastPart0.emit()} ${this.operator} ${lastPart1.emit()}`, _range, _resultType, [lastPart0, lastPart1]);
+            }
+
             snippetContainer.finalValueIsOnStack = false;
             snippetContainer.type = _resultType;
             return snippetContainer;
