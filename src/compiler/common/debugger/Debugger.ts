@@ -40,7 +40,7 @@ export class Debugger {
 
     constructor(private debuggerDiv: HTMLDivElement, public main: IMain) {
 
-        this.treeviewAccordion = new TreeviewAccordion(debuggerDiv);
+        this.treeviewAccordion = new TreeviewAccordion(debuggerDiv, debuggerDiv.parentElement.parentElement);
         this.initShowVariablesTreeview();
         this.initWatchTreeview();
         this.initCallstackTreeview();
@@ -49,7 +49,7 @@ export class Debugger {
         this.watchSection = new DebuggerWatchSection(this.watchTreeview, this);
 
         setTimeout(() => {
-            this.treeviewAccordion.onResize(true, debuggerDiv.parentElement.parentElement);
+            this.treeviewAccordion.onResize(true);
         }, 100);
 
     }

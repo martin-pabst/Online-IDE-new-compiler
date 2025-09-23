@@ -76,6 +76,7 @@ export class PruefungManagerForStudents {
         projectExplorer.fileTreeview.clear();
         projectExplorer.workspaceTreeview.setVisible(false);
         projectExplorer.fileTreeview.addElementsButton.setVisible(true);
+        projectExplorer.fileTreeview.addFolderButton.setVisible(true);
 
         projectExplorer.setWorkspaceActive(pruefungWorkspace);
         pruefungWorkspace.saved = false;

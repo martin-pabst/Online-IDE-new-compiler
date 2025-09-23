@@ -400,18 +400,21 @@
     }
 
     #code {
-        flex-grow: 1;
-        flex-shrink: 1;
-        height: 100%;
+        /* flex-grow: 1;
+        flex-shrink: 1; */
+        flex: 1;
+        /* height: 100%; */
         display: flex;
         flex-direction: column;
         background-color: var(--backgroundDark);
     }
 
     #belowmainmenu {
-        flex-grow: 1;
+        flex: 1;
+        /* flex-grow: 1; */
         background-color: var(--backgroundDark);
         display: flex;
+        height: calc(100% - 30px);
     }
 
     #leftpanel {

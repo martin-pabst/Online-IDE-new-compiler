@@ -368,6 +368,7 @@ export class ProjectExplorer {
             if (success) {
                 if (!node.isFolder) {
                     this.fileTreeview.addElementsButton.setVisible(true);
+                    this.fileTreeview.addFolderButton.setVisible(true);
                     this.setWorkspaceActive(w);
                     w.renderSynchronizeButton(node);
                 }
@@ -421,6 +422,7 @@ export class ProjectExplorer {
                 // this.main.networkManager.sendUpdatesAsync();
                 this.setWorkspaceActive(workspace, false, false);
                 this.fileTreeview.addElementsButton.setVisible(true);
+                this.fileTreeview.addFolderButton.setVisible(true);
             }
         }
 
@@ -779,6 +781,7 @@ export class ProjectExplorer {
 
         if (w == null) {
             this.fileTreeview.addElementsButton.setVisible(false);
+            this.fileTreeview.addFolderButton.setVisible(false);
             this.main.getMainEditor().setModel(null);
             this.fileTreeview.setCaption(ProjectExplorerMessages.selectWorkspace());
             this.synchronizedButton.setVisible(false);
@@ -819,7 +822,7 @@ export class ProjectExplorer {
             this.main.getCompiler().triggerCompile();
         });
 
-        
+
 
     }
 

@@ -334,6 +334,7 @@ export class TeacherExplorer {
         projectExplorer.workspaceTreeview.addFolderButton.setVisible(true);
         this.homeButton.setVisible(false);
         projectExplorer.fileTreeview.addElementsButton.setVisible(this.main.workspaceList.length > 0);
+        projectExplorer.fileTreeview.addFolderButton.setVisible(this.main.workspaceList.length > 0);
 
         this.main.teacherExplorer.restoreOwnWorkspaces();
         this.main.networkManager.updateFrequencyInSeconds = this.main.networkManager.ownUpdateFrequencyInSeconds;
