@@ -13,7 +13,7 @@ export class EmbeddedFullpageController {
 
     constructor(private mainEmbedded: MainEmbedded, private mainDiv: HTMLElement, controlsDiv: HTMLElement) {
         this.primaryButton = new IconButtonComponent(controlsDiv,
-            ['img_whole-window', 'img_whole-window-back'], (event, state) => {
+            ['img_whole-window-dark', 'img_whole-window-back-dark'], (event, state) => {
                 this.onWholeWindowButtonClicked(state);
             },
             ["IDE im Vollbild darstellen", "IDE in Normalgröße darstellen"],

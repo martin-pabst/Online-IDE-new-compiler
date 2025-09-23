@@ -19,7 +19,7 @@ export class ViewModeController {
 
     constructor(private $buttonsContainer: JQuery<HTMLElement>, private main: Main) {
 
-        this.$buttonEditorFullscreen = jQuery(`<div title="${ViewModeControllerMessages.fullWidth()}" class="img_whole-window jo_button jo_active" style="padding: 1px; margin-right: 8px"></div>`);
+        this.$buttonEditorFullscreen = jQuery(`<div title="${ViewModeControllerMessages.fullWidth()}" class="img_whole-window-dark jo_button jo_active" style="padding: 1px; margin-right: 8px"></div>`);
         this.$buttonPresentationMode = jQuery(`<div title="${ViewModeControllerMessages.presentation()}" class="img_presentation-mode jo_button jo_active" syle="padding: 1px"></div>`);
         this.$buttonMonitorMode = jQuery(`<div title="${ViewModeControllerMessages.monitor()}" class="img_monitor-mode jo_button jo_active" style="margin-left: 5px; padding: 1px"></div>`);
         $buttonsContainer.append(this.$buttonEditorFullscreen, this.$buttonPresentationMode, this.$buttonMonitorMode);
@@ -53,8 +53,8 @@ export class ViewModeController {
 
     toggleEditorFullwidth() {
         if (this.editorHasFullWidth) {
-            this.$buttonEditorFullscreen.removeClass('img_whole-window-back');
-            this.$buttonEditorFullscreen.addClass('img_whole-window');
+            this.$buttonEditorFullscreen.removeClass('img_whole-window-back-dark');
+            this.$buttonEditorFullscreen.addClass('img_whole-window-dark');
             this.$buttonEditorFullscreen.attr('title', ViewModeControllerMessages.fullWidth());
             jQuery('#rightdiv').css('width', this.rightDivWidth + "px");
             jQuery('#editor>.monaco-editor').css('width', this.editorWidth + 'px');
@@ -64,8 +64,8 @@ export class ViewModeController {
             jQuery('#controls').show();
 
         } else {
-            this.$buttonEditorFullscreen.removeClass('img_whole-window');
-            this.$buttonEditorFullscreen.addClass('img_whole-window-back');
+            this.$buttonEditorFullscreen.removeClass('img_whole-window-dark');
+            this.$buttonEditorFullscreen.addClass('img_whole-window-back-dark');
             this.$buttonEditorFullscreen.attr('title', ViewModeControllerMessages.defaultWidth());
 
             this.rightDivWidth = Number.parseInt(jQuery('#rightdiv').css('width').replace('px', ''));
