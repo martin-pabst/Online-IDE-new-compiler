@@ -6,6 +6,8 @@ import { JavaCompiledModule } from "../../module/JavaCompiledModule";
 export class SemicolonInserter {
 
     static start(module: JavaCompiledModule, main: IMain){
+        if(!main) return; // in npm run test modeq
+
         if(!main.getSettings().getValue("editor.autoSemicolons")) return;
 
         if(module.errors.length > 5) return;
