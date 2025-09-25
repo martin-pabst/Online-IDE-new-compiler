@@ -52,6 +52,8 @@ export class Editor {
 
     initGUI($element: JQuery<HTMLElement>) {
 
+        let settings = this.main.getSettings();
+
         this.editor = monaco.editor.create($element[0], {
             // value: [
             //     'function x() {',
@@ -67,6 +69,11 @@ export class Editor {
             // gotoLocation: {
             //     multipleReferences: "gotoAndPeek"
             // },
+            guides: {
+                bracketPairs: settings.getValue("editor.bracketPairLines") !== 'off',
+                highlightActiveBracketPair: settings.getValue("editor.bracketPairLines") !== 'off',
+                bracketPairsHorizontal: settings.getValue("editor.bracketPairLines") === 'verticalAndUnderlined'
+            },
             lineDecorationsWidth: 0,
             peekWidgetDefaultFocus: "tree",
             fixedOverflowWidgets: true,
@@ -105,8 +112,8 @@ export class Editor {
                 enabled: true,
                 independentColorPoolPerBracketType: false
             },
-            autoClosingBrackets: this.main.getSettings().getValue("editor.autoClosingBrackets") as monaco.editor.EditorAutoClosingStrategy,
-            autoClosingQuotes: this.main.getSettings().getValue("editor.autoClosingQuotes") as monaco.editor.EditorAutoClosingStrategy,
+            autoClosingBrackets: settings.getValue("editor.autoClosingBrackets") as monaco.editor.EditorAutoClosingStrategy,
+            autoClosingQuotes: settings.getValue("editor.autoClosingQuotes") as monaco.editor.EditorAutoClosingStrategy,
             autoClosingDelete: "auto",
             autoClosingOvertype: "auto",
             parameterHints: { enabled: true, cycle: true },

@@ -10,8 +10,9 @@ export type SettingKey = "editor.hoverVerbosity.showHelpOnKeywordsAndOperators" 
     "editor.hoverVerbosity.showMethodDeclaration" |
     "editor.hoverVerbosity.showClassDeclaration" |
     "editor.autoClosingBrackets" | "editor.autoClosingQuotes"| "editor.autoSemicolons" |
+    "editor.bracketPairLines" |
     "classDiagram.typeConvention" | "classDiagram.background" |
-    "explorer.fileOrder" | "explorer.workspaceOrder";
+    "explorer.fileOrder" | "explorer.workspaceOrder" 
 
 export type SettingValue = string | number | boolean | undefined;
 export type SettingValues = Partial<Record<SettingKey, SettingValue>>;
@@ -138,6 +139,35 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         type: 'boolean',
                         optionTexts: [SettingsMessages.On, SettingsMessages.Off],
                         defaultValue: true
+                    },
+
+                ]
+            },
+            {
+                settingType: 'group',
+                name: SettingsMessages.EditorViewSettings,
+                description: SettingsMessages.EditorViewSettingsDescription,
+                settings: [
+                    {
+                        key: "editor.bracketPairLines",
+                        settingType: 'setting',
+                        name: SettingsMessages.BracketPairLines,
+                        description: SettingsMessages.BracketPairLinesDescription,
+                        type: 'enumeration',
+                        optionValues: ["off", "vertical", "verticalAndUnderlined"],
+                        optionTexts: [SettingsMessages.BracketPairLinesOff,
+                            SettingsMessages.BracketPairLinesVertical,
+                            SettingsMessages.BracketPairLinesVerticalAndUnderlined],
+                        defaultValue: "vertical",
+                        action: (main, value) => {
+                            main.getMainEditor().updateOptions({
+                                guides:  {
+                                    bracketPairs: value !== 'off',
+                                    highlightActiveBracketPair: value !== 'off',
+                                    bracketPairsHorizontal: (value === 'verticalAndUnderlined')
+                                } as monaco.editor.IGuidesOptions
+                            } )
+                        }
                     },
 
                 ]

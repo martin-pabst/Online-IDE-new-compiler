@@ -148,6 +148,18 @@ export class SettingsMessages {
         'fr': 'Assistance à la saisie de code'
     });
 
+    static EditorViewSettings = () => lm({
+        'de': `Anzeigeeinstellungen des Editors`,
+        'en': `Editor View Settings`,
+        'fr': `Paramètres d'affichage de l'éditeur`
+    });
+
+    static EditorViewSettingsDescription = () => lm({
+        'de': `Hier können Sie die Anzeigeeinstellungen des Editors anpassen.`,
+        'en': `You can adjust the editor view settings here.`,
+        'fr': `Vous pouvez ajuster les paramètres d'affichage de l'éditeur ici.`
+    });    
+
     static TypingAssistanceDescription = () => lm({
         'de': 'Hier können Sie die Eingabeunterstützung des Editors anpassen.',
         'en': 'Here you can adjust the typing assistance of the editor.',
@@ -160,6 +172,36 @@ export class SettingsMessages {
         'fr': 'Fermeture automatique des parenthèses'
     });
 
+    static BracketPairLines = () => lm({
+        'de': `Linien zwischen Klammerpaaren anzeigen`,
+        'en': `Display lines between bracket pairs`,
+        'fr': `Afficher les lignes entre les paires de parenthèses`
+    });
+
+    static BracketPairLinesDescription = () => lm({
+        'de': `Vertikale Linien zwischen passenden Klammerpaaren anzeigen, gegebenfalls um Unterstreichung des Scope-Beginns.`,
+        'en': `Display vertical lines between matching bracket pairs, possibly with underlined scope-start.`,
+        'fr': `Afficher des lignes verticales entre les paires de parenthèses correspondantes, éventuellement avec le début du scope souligné.`
+    });
+
+    static BracketPairLinesOff = () => lm({
+        'de': `Keine Linien anzeigen`,
+        'en': `Do not display lines`,
+        'fr': `Ne pas afficher de lignes`
+    });
+
+    static BracketPairLinesVertical = () => lm({
+        'de': `Vertikale Linien anzeigen (entspricht Scope)`,
+        'en': `Display vertical lines (according to scope)`,
+        'fr': `Afficher des lignes verticales (selon le scope)`
+    });
+
+    static BracketPairLinesVerticalAndUnderlined = () => lm({
+        'de': `Vertikale Linien und Unterstreichung anzeigen`,
+        'en': `Display vertical lines and underline`,
+        'fr': `Afficher des lignes verticales et souligner`
+    });
+    
     static AutoSemicolonsName = () => lm({
         'de': `Automatisches Ergänzen von Strichpunkten`,
         'en': `Auto Semicolons`,

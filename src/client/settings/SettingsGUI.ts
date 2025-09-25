@@ -67,7 +67,7 @@ export class SettingsGUI {
         tabManager.addTab(userSettingsTab);
         tabManager.setActive(userSettingsTab);
 
-        if (this.classSettings && this.classSettings.length > 0) {
+        if (this.main.user.is_teacher && this.classSettings && this.classSettings.length > 0) {
             let classSettingsTab = new Tab(SettingsMessages.ClassSettingsTabHeading(), []);
             classSettingsTab.onShow = () => {
                 this.showSettingsData("class");
@@ -95,7 +95,7 @@ export class SettingsGUI {
 
         }
 
-        if (this.schoolSettings) {
+        if (this.main.user.is_schooladmin && this.schoolSettings) {
             let schoolSettingsTab = new Tab(SettingsMessages.SchoolSettingsTabHeading(), []);
             schoolSettingsTab.onShow = () => { this.showSettingsData("school"); };
             tabManager.addTab(schoolSettingsTab);

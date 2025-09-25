@@ -124,6 +124,11 @@ export class JavaLanguage extends Language {
                 ['[', ']'],
                 ['(', ')'],
             ],
+            colorizedBracketPairs: [
+                ['{', '}'],
+                ['[', ']'],
+                ['(', ')'],
+            ],
             autoClosingPairs: [
                 { open: '{', close: '}' },
                 { open: '[', close: ']' },
