@@ -126,6 +126,12 @@ export class SettingsGUI {
 
         if (!this.currentSettingsGroup) return;
 
+        if (this.currentSettingsGroup.image) {
+            let $img = jQuery(`<img class="jo_settingImage" src="${this.currentSettingsGroup.image}">`);
+            this.$settingsMainDiv.append($img);
+        }
+
+
         this.$settingsMainDiv.append(jQuery(`<div class="jo_settingsGroupCaption">${this.currentSettingsGroup.name()}</div>`));
         if (this.currentSettingsGroup.description) this.$settingsMainDiv.append(jQuery(`<div class="jo_settingsGroupDescription">${this.currentSettingsGroup.description()}</div>`));
 
@@ -137,6 +143,11 @@ export class SettingsGUI {
     }
 
     renderSetting(setting: SettingMetadata, $settingDiv: JQuery<HTMLElement>) {
+        if (setting.image) {
+            $settingDiv.append(jQuery('<div class="jo_settingClearBoth"></div>'));
+            let $img = jQuery(`<img class="jo_settingImage" src="${setting.image}">`);
+            $settingDiv.append($img);
+        }
         $settingDiv.append(jQuery(`<div class="jo_settingCaption">${setting.name()}</div>`));
         if (setting.description) $settingDiv.append(jQuery(`<div class="jo_settingDescription">${setting.description()}</div>`));
 
@@ -173,6 +184,10 @@ export class SettingsGUI {
                         await this.storeAndSave(setting, setting.key, selectedValue, $savingMessage);
                     })
                 break;
+        }
+
+        if(setting.image){
+            $settingDiv.append(jQuery('<div class="jo_settingClearBoth"></div>'));
         }
 
     }
@@ -323,8 +338,8 @@ export class SettingsGUI {
     addSettingsToExplorer(settingsGroup: GroupOfSettingMetadata, parent: GroupOfSettingMetadata | null = null) {
 
 
-        this.settingsExplorer.addNode(settingsGroup.settings.find(s => s.settingType === 'group') != null, 
-        settingsGroup.name(), undefined, settingsGroup, parent);
+        this.settingsExplorer.addNode(settingsGroup.settings.find(s => s.settingType === 'group') != null,
+            settingsGroup.name(), undefined, settingsGroup, parent);
 
         settingsGroup.settings.filter(s => s.settingType === 'group').forEach(childGroup => {
             this.addSettingsToExplorer(childGroup, settingsGroup);

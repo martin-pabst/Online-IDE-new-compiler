@@ -1,6 +1,12 @@
 import { TranslatedText } from "../../tools/language/LanguageManager";
 import { Main } from "../main/Main";
 import { SettingsMessages } from "./SettingsMessages";
+import hoverOverOperator from '/assets/graphics/settings/hover_over_operator.png';
+import hoverOverMethod from '/assets/graphics/settings/hover_over_method.png';
+import hoverOverClass from '/assets/graphics/settings/hover_over_class.png';
+import scopeLines from '/assets/graphics/settings/scope_lines.png';
+import classDiagram from '/assets/graphics/settings/class_diagram.png';
+import explorer from '/assets/graphics/settings/explorer.png';
 import * as monaco from 'monaco-editor'
 
 
@@ -32,6 +38,7 @@ export type SettingMetadata = {
     optionValues?: SettingValue[]; // For string settings with predefined options
     optionTexts?: TranslatedText[]; // For string settings with translated options
     action?: SettingsAction; // Optional action to perform when the setting is changed
+    image?: string;
 }
 
 export type GroupOfSettingMetadata = {
@@ -40,6 +47,7 @@ export type GroupOfSettingMetadata = {
     name: TranslatedText;
     description: TranslatedText | undefined;
     settings: (SettingMetadata | GroupOfSettingMetadata)[];
+    image?: string;
 }
 
 export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
@@ -59,7 +67,8 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         name: SettingsMessages.ShowHelpOnKeywordsAndOperators,
                         description: undefined,
                         type: 'boolean',
-                        defaultValue: true
+                        defaultValue: true,
+                        image: hoverOverOperator,
                     },
                     {
                         key: "editor.hoverVerbosity.showMethodDeclaration",
@@ -73,7 +82,8 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                             SettingsMessages.Declarations,
                             SettingsMessages.DeclarationsAndComments
                         ],
-                        defaultValue: 'declarationsAndComments'
+                        defaultValue: 'declarationsAndComments',
+                        image: hoverOverMethod,
                     },
                     {
                         key: "editor.hoverVerbosity.showClassDeclaration",
@@ -87,7 +97,8 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                             SettingsMessages.Declarations,
                             SettingsMessages.DeclarationsAndComments
                         ],
-                        defaultValue: 'declarationsAndComments'
+                        defaultValue: 'declarationsAndComments',
+                        image: hoverOverClass
                     },
 
                 ]
@@ -167,7 +178,8 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                                     bracketPairsHorizontal: (value === 'verticalAndUnderlined')
                                 } as monaco.editor.IGuidesOptions
                             } )
-                        }
+                        },
+                        image: scopeLines
                     },
 
                 ]
@@ -179,6 +191,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
         settingType: 'group',
         name: SettingsMessages.ClassDiagramSettingsName,
         description: SettingsMessages.ClassDiagramSettingsDescription,
+        image: classDiagram,
         settings: [
             {
                 key: "classDiagram.typeConvention",
@@ -215,6 +228,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
         settingType: 'group',
         name: SettingsMessages.ExplorerSettingsName,
         description: SettingsMessages.ExplorerSettingsDescription,
+        image: explorer,
         settings: [
             {
                 key: "explorer.fileOrder",
