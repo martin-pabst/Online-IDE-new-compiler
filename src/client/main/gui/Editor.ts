@@ -307,9 +307,12 @@ export class Editor {
                                 }
                             }
                         }
+                    } else {
+                        if(typeof firstMethodCallPosition.possibleMethods == 'string'){
+                            if(firstMethodCallPosition.possibleMethods.indexOf("print") >= 0) maxParameterCount = 2;
+                            if(firstMethodCallPosition.possibleMethods.indexOf("for") >= 0) maxParameterCount = 2;
+                        }
                     }
-
-                    // if(firstMethodCallPosition.possibleMethods.toString().indexOf("print") >= 0) maxParameterCount = 2;
 
                     if (maxParameterCount > 1) {
                         this.lastMethodCallPosition = firstMethodCallPosition;

@@ -43,6 +43,21 @@ export function lm(map: Record<string, string>): string {
     return template;
 }
 
+export function lInterval(map: Record<string, [number, number]>): [number, number] {
+    let interval = map[currentLanguageId];
+    if(!interval){
+        for(let lang of languages){
+            interval = map[lang.id];
+            if(interval) break;
+        }
+        if(!interval){
+            return [0, 0];
+        }
+    }
+
+    return interval;
+}
+
 export function le(map: Record<string, string>): ErrormessageWithId {
     let template = map[currentLanguageId];
     if(!template){

@@ -1,5 +1,6 @@
 import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import { JavaLanguage } from "../JavaLanguage.ts";
+import { SignatureHelpMessages } from "../language/SignatureHelpMessages.ts";
 import { JavaCompiledModule, JavaMethodCallPosition } from "../module/JavaCompiledModule.ts";
 import { JavaArrayType } from "../types/JavaArrayType.ts";
 import { JavaMethod } from "../types/JavaMethod.ts";
@@ -43,9 +44,9 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
 
         return new Promise(async (resolve, reject) => {
 
-                await main.getCurrentWorkspace()?.ensureModuleIsCompiled(module);
+            await main.getCurrentWorkspace()?.ensureModuleIsCompiled(module);
 
-                resolve(JavaSignatureHelpProvider.provideSignatureHelpLater(module, model, position, token, context));
+            resolve(JavaSignatureHelpProvider.provideSignatureHelpLater(module, model, position, token, context));
 
         });
 
@@ -100,13 +101,13 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
 
         if (typeof methodCallPosition.possibleMethods == "string") {
             let keywordInfo: monaco.languages.SignatureInformation[] = JavaSignatureHelpProvider.makeIntrinsicSignatureInformation(<string>methodCallPosition.possibleMethods, parameterIndex);
-            for(let kwi of keywordInfo) {
-                if(!kwi.label.startsWith("print")) kwi[JavaSignatureHelpProvider.ISINTRINSIC] = true;
+            for (let kwi of keywordInfo) {
+                if (!kwi.label.startsWith("print")) kwi[JavaSignatureHelpProvider.ISINTRINSIC] = true;
             }
             signatureInformationList = signatureInformationList.concat(keywordInfo);
         } else {
             let i = 0;
-            for (let method of methodCallPosition.possibleMethods.sort((m1, m2) => { return Math.sign(m2.parameters.length - m1.parameters.length)})) {
+            for (let method of methodCallPosition.possibleMethods.sort((m1, m2) => { return Math.sign(m2.parameters.length - m1.parameters.length) })) {
                 let m = <JavaMethod>method;
                 if (parameterIndex == 0 || m.parameters.length > parameterIndex) {
 
@@ -135,93 +136,93 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
             case "while":
                 return [
                     {
-                        label: "while(Bedingung){ Anweisungen }",
-                        documentation: "Wiederholung mit Anfangsbedingung (while-loop)",
+                        label: SignatureHelpMessages.whileLabel(),
+                        documentation: SignatureHelpMessages.whileDocumentation(),
                         parameters: [
-                            { label: "Bedingung der while-loop", documentation: "Die Bedingung wird vor jeder Wiederholung ausgewertet. Ist sie erfüllt ist (d.h. hat sie den Wert true), so werden die Anweisungen in {} erneut ausgeführt, ansonsten wird mit der nächsten Anweisung nach { } fortgefahren." },
+                            { label: SignatureHelpMessages.whileParameter1(), documentation: SignatureHelpMessages.whileParameter1Documentation() },
                         ]
                     }];
             case "if":
                 return [
                     {
-                        label: "if(Bedingung){ Anweisungen1 } else { Anweisungen2 }",
-                        documentation: "Bedingung (else... ist optional)",
+                        label: SignatureHelpMessages.ifLabel(),
+                        documentation: SignatureHelpMessages.ifDocumentation(),
                         parameters: [
-                            { label: "Bedingung im if-statement", documentation: "Ist die Bedingung erfüllt (d.h. hat sie den Wert true), so werden die Anweisungen1 ausgeführt. Trifft die Bedingung nicht zu (d.h. hat sie den Wert false), so werden die Anweisungen2 ausgeführt." },
+                            { label: SignatureHelpMessages.ifParameter1(), documentation: SignatureHelpMessages.ifParameter1Documentation() },
                         ]
                     }];
             case "switch":
                 return [
                     {
-                        label: "switch(Selektor){case Wert_1: Anweisungen1; break; case Wert_2 Anweisungen2; break; default: Defaultanweisungen; break;}",
-                        documentation: "Bedingung (else... ist optional)",
+                        label: SignatureHelpMessages.switchLabel(),
+                        documentation: SignatureHelpMessages.switchDocumentation(),
                         parameters: [
-                            { label: "Selektor des switch-statements", documentation: "Der Wert des Selektor-Terms wird ausgewertet. Hat er den Wert Wert_1, so werden die Anweisungen1 ausgeführt. Hat er den Wert Wert_2, so werden die Anweisungen2 ausgeführt usw. Hat er keinen der bei case... aufgeführten Werte, so werden die Defaultanweisungen ausgeführt." },
+                            { label: SignatureHelpMessages.switchParameter1(), documentation: SignatureHelpMessages.switchParameter1Documentation() },
                         ]
                     }];
             case "for":
                 return [
                     {
-                        label: "for(Startanweisung; Bedingung; Anweisung am Ende jeder Wiederholung){ Anweisungen }",
-                        documentation: "Wiederholung mit for (for-loop)",
+                        label: SignatureHelpMessages.forLabel(),
+                        documentation: "",
                         parameters: [
-                            { label: [4, 18], documentation: "Startanweisung der for-loop: Anweisung wird vor der ersten Wiederholung einmal ausgeführt." },
-                            { label: [20, 29], documentation: "Die Bedingung der for-loop wird vor jeder Wiederholung ausgewertet. Ist sie erfüllt ist (d.h. hat sie den Wert true), so werden die Anweisungen in {} erneut ausgeführt, ansonsten wird mit der nächsten Anweisung nach { } fortgefahren." },
-                            { label: [31, 67], documentation: "Diese Anweisung wird stets am Ende jeder Wiederholung der for-loop ausgeführt." },
+                            { label: SignatureHelpMessages.forParameter1Interval(), documentation: SignatureHelpMessages.forParameter1Documentation() },
+                            { label: SignatureHelpMessages.forParameter2Interval(), documentation: SignatureHelpMessages.forParameter2Documentation() },
+                            { label: SignatureHelpMessages.forParameter3Interval(), documentation: SignatureHelpMessages.forParameter3Documentation() },
                         ]
                     }];
             case "print":
                 let methods: monaco.languages.SignatureInformation[] =
                     [
                         {
-                            label: "print(text: String, color: String)",
-                            documentation: "Gibt Text farbig in der Ausgabe aus",
+                            label: SignatureHelpMessages.printALabel(),
+                            documentation: SignatureHelpMessages.printADocumentation(),
                             parameters: [
-                                { label: "text: String", documentation: "text: Text, der ausgegeben werden soll" },
-                                { label: "color: String", documentation: "Farbe (englischer Name oder #ffffff oder rgb(255,255,255)) oder statisches Attribut der Klasse Color, z.B. Color.red" }
+                                { label: SignatureHelpMessages.printAParameter1Label(), documentation: SignatureHelpMessages.printAParameter1Documentation() },
+                                { label: SignatureHelpMessages.printAParameter2Label(), documentation: SignatureHelpMessages.printAParameter2Documentation() },
                             ]
                         },
                         {
-                            label: "print(text: String, color: int)",
-                            documentation: "Gibt Text farbig in der Ausgabe aus",
+                            label: SignatureHelpMessages.printBLabel(),
+                            documentation: SignatureHelpMessages.printBDocumentation(),
                             parameters: [
-                                { label: "text: String", documentation: "text: Text, der ausgegeben werden soll" },
-                                { label: "color: String", documentation: "Farbe als int-Wert kodiert, z.B. 0xff00ff" },
+                                { label: SignatureHelpMessages.printBParameter1Label(), documentation: SignatureHelpMessages.printBParameter1Documentation() },
+                                { label: SignatureHelpMessages.printBParameter2Label(), documentation: SignatureHelpMessages.printBParameter2Documentation() },
                             ]
                         },
                         {
-                            label: "print(text: String)",
-                            documentation: "Gibt Text in der Ausgabe aus",
+                            label: SignatureHelpMessages.printBLabel(),
+                            documentation: SignatureHelpMessages.printBDocumentation(),
                             parameters: [
-                                { label: "text: String", documentation: "text: Text, der ausgegeben werden soll" }
+                                { label: SignatureHelpMessages.printBParameter1Label(), documentation: SignatureHelpMessages.printBParameter1Documentation() },
                             ]
-                        }
+                        },
                     ];
                 return methods;
             case "println":
 
                 return [
                     {
-                        label: "println(text: String, color: String)",
-                        documentation: "Gibt Text farbig in der Ausgabe aus. Der nächste Text landet eine Zeile tiefer.",
+                        label: SignatureHelpMessages.printlnALabel(),
+                        documentation: SignatureHelpMessages.printlnADocumentation(),
                         parameters: [
-                            { label: "text: String", documentation: "text: Text, der ausgegeben werden soll" },
-                            { label: "color: String", documentation: "Farbe (englischer Name oder #ffffff oder rgb(255,255,255) oder statisches Attribut der Klasse Color, z.B. Color.red)" }
+                            { label: SignatureHelpMessages.printlnAParameter1Label(), documentation: SignatureHelpMessages.printlnAParameter1Documentation() },
+                            { label: SignatureHelpMessages.printlnAParameter2Label(), documentation: SignatureHelpMessages.printlnAParameter2Documentation() },
                         ]
                     },
                     {
-                        label: "println(text: String, color: int)",
-                        documentation: "Gibt Text farbig in der Ausgabe aus. Der nächste Text landet eine Zeile tiefer.",
+                        label: SignatureHelpMessages.printlnBLabel(),
+                        documentation: SignatureHelpMessages.printlnBDocumentation(),
                         parameters: [
-                            { label: "text: String", documentation: "text: Text, der ausgegeben werden soll" },
-                            { label: "color: int", documentation: "Farbe als int-kodierter Wert, z.B. 0xffffff" }
+                            { label: SignatureHelpMessages.printlnBParameter1Label(), documentation: SignatureHelpMessages.printlnBParameter1Documentation() },
+                            { label: SignatureHelpMessages.printlnBParameter2Label(), documentation: SignatureHelpMessages.printlnBParameter2Documentation() },
                         ]
                     },
                     {
-                        label: "println(text: String)",
-                        documentation: "Gibt Text farbig in der Ausgabe aus. Der nächste Text landet eine Zeile tiefer.",
+                        label: SignatureHelpMessages.printlnBLabel(),
+                        documentation: SignatureHelpMessages.printlnBDocumentation(),
                         parameters: [
-                            { label: "text: String", documentation: "text: Text, der ausgegeben werden soll" }
+                            { label: SignatureHelpMessages.printlnBParameter1Label(), documentation: SignatureHelpMessages.printlnBParameter1Documentation() },
                         ]
                     },
                 ];
