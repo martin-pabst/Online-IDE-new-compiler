@@ -100,6 +100,7 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
         this.isPrimitive = false;
         this.pathAndIdentifier = pathAndIdentifier || identifier;
         this.extendsImplements[this.pathAndIdentifier] = true;
+        this.extendsImplements["Object"] = true;
         this.staticType = new StaticNonPrimitiveType(this);
     }
 

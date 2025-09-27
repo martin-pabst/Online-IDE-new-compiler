@@ -32,7 +32,7 @@ export class GenericTypeParameter extends NonPrimitiveType {
      * @param lowerBound : ? super B: the given type has B as its subtype
      */
     constructor(identifier: string, module: JavaBaseModule, identifierRange: IRange,
-        public upperBounds: (IJavaClass | IJavaInterface)[] = [], public lowerBound?: IJavaClass){
+        public upperBounds: (IJavaClass | IJavaInterface)[] = [], public lowerBound?: IJavaClass) {
         super(identifier, identifierRange, identifier + "@" + GenericTypeParameter.uniqueID++, module);
         this.isWildcard = (this.identifier == '?');
     }
@@ -51,10 +51,10 @@ export class GenericTypeParameter extends NonPrimitiveType {
 
     getDefinition(): string {
         return this.identifier +
-        (this.lowerBound ? " super " + this.lowerBound?.identifier : "") +
-        // (this.lowerBound ? " super " + this.lowerBound?.toString() : "") +
-        // (this.upperBounds.length > 0 ? " extends " + this.upperBounds.map(ub => ub.toString()).join(" & ") : "");
-        (this.upperBounds.length > 0 ? " extends " + this.upperBounds.filter(ub => ub.identifier != 'Object').map(ub => ub.toString()).join(" & ") : "");
+            (this.lowerBound ? " super " + this.lowerBound?.identifier : "") +
+            // (this.lowerBound ? " super " + this.lowerBound?.toString() : "") +
+            // (this.upperBounds.length > 0 ? " extends " + this.upperBounds.map(ub => ub.toString()).join(" & ") : "");
+            ((this.upperBounds.length > 0 && this.upperBounds[0].identifier != 'Object') ? " extends " + this.upperBounds.filter(ub => ub.identifier != 'Object').map(ub => ub.toString()).join(" & ") : "");
     }
 
     toString(): string {
@@ -63,10 +63,10 @@ export class GenericTypeParameter extends NonPrimitiveType {
 
     getAbsoluteName(): string {
         return this.pathAndIdentifier +
-        (this.lowerBound ? " super " + this.lowerBound?.pathAndIdentifier : "") +
-        // (this.lowerBound ? " super " + this.lowerBound?.toString() : "") +
-        // (this.upperBounds.length > 0 ? " extends " + this.upperBounds.map(ub => ub.toString()).join(" & ") : "");
-        (this.upperBounds.length > 0 ? " extends " + this.upperBounds.map(ub => ub.pathAndIdentifier).join(" & ") : "");
+            (this.lowerBound ? " super " + this.lowerBound?.pathAndIdentifier : "") +
+            // (this.lowerBound ? " super " + this.lowerBound?.toString() : "") +
+            // (this.upperBounds.length > 0 ? " extends " + this.upperBounds.map(ub => ub.toString()).join(" & ") : "");
+            (this.upperBounds.length > 0 ? " extends " + this.upperBounds.map(ub => ub.pathAndIdentifier).join(" & ") : "");
     }
 
     isGenericVariant(): boolean {
@@ -81,9 +81,9 @@ export class GenericTypeParameter extends NonPrimitiveType {
         return this.module.file;
     }
 
-    getFields(): JavaField[]{
-        if(!this.fieldCache){
-            if(this.upperBounds.length == 0){
+    getFields(): JavaField[] {
+        if (!this.fieldCache) {
+            if (this.upperBounds.length == 0) {
                 this.fieldCache = [];     // TODO: fields of Object class!
             } else {
                 this.fieldCache = this.upperBounds[0].getFields();
@@ -92,17 +92,17 @@ export class GenericTypeParameter extends NonPrimitiveType {
         return this.fieldCache;
     }
 
-    getOwnMethods(): JavaMethod[]{
-        if(!this.methodCache){
+    getOwnMethods(): JavaMethod[] {
+        if (!this.methodCache) {
             this.methodCache = [];
-            for(let ub of this.upperBounds){
+            for (let ub of this.upperBounds) {
                 this.methodCache = this.methodCache.concat(ub.getAllMethods());
             }
         }
         return this.methodCache;
     }
 
-    getAllMethods(): JavaMethod[]{
+    getAllMethods(): JavaMethod[] {
         return this.getOwnMethods();
     }
 
@@ -112,18 +112,18 @@ export class GenericTypeParameter extends NonPrimitiveType {
 
     getCopyWithConcreteType(typeMap: Map<GenericTypeParameter, JavaType>): JavaType {
         let ownMappedType = typeMap.get(this);
-        if(ownMappedType) return ownMappedType;
+        if (ownMappedType) return ownMappedType;
 
         let copy = new GenericTypeParameter(this.identifier, this.module, this.identifierRange);
         typeMap.set(this, copy);
-        
+
         copy.catches = this.catches;
 
-        if(this.lowerBound){
+        if (this.lowerBound) {
             copy.lowerBound = this.lowerBound.getCopyWithConcreteType(typeMap) as IJavaClass;
         }
 
-        for(let ub of this.upperBounds){
+        for (let ub of this.upperBounds) {
             copy.upperBounds.push(ub.getCopyWithConcreteType(typeMap) as IJavaClass | IJavaInterface);
         }
 
@@ -133,61 +133,61 @@ export class GenericTypeParameter extends NonPrimitiveType {
     }
 
     canBeReplacedByConcreteType(gpType: JavaType): boolean {
-        if(!(gpType instanceof NonPrimitiveType)) return false;
-        for(let ub of this.upperBounds){
-            if(!gpType.fastExtendsImplements(ub.identifier)) return false;
+        if (!(gpType instanceof NonPrimitiveType)) return false;
+        for (let ub of this.upperBounds) {
+            if (!gpType.fastExtendsImplements(ub.identifier)) return false;
         }
 
-        if(this.lowerBound && !this.lowerBound.fastExtendsImplements(gpType.identifier)) return false;
+        if (this.lowerBound && !this.lowerBound.fastExtendsImplements(gpType.identifier)) return false;
 
         return true;
     }
 
 
     canImplicitlyCastTo(otherType: JavaType): boolean {
-        if(otherType.isPrimitive) return false;
-        if(otherType == this) return true;
+        if (otherType.isPrimitive) return false;
+        if (otherType == this) return true;
 
-        if(otherType instanceof GenericTypeParameter){
-            if(!otherType.lowerBound) return false;
-            for(let ub of this.upperBounds){
-                if(ub.canImplicitlyCastTo(otherType.lowerBound)) return true;
+        if (otherType instanceof GenericTypeParameter) {
+            if (!otherType.lowerBound) return false;
+            for (let ub of this.upperBounds) {
+                if (ub.canImplicitlyCastTo(otherType.lowerBound)) return true;
             }
             return false;
         }
 
-        for(let ub of this.upperBounds){
-            if(ub.canImplicitlyCastTo(otherType)) return true;
+        for (let ub of this.upperBounds) {
+            if (ub.canImplicitlyCastTo(otherType)) return true;
         }
 
         return false;
     }
 
     canExplicitlyCastTo(otherType: JavaType): boolean {
-        if(otherType.isPrimitive) return false;
-        if(otherType == this) return true;
+        if (otherType.isPrimitive) return false;
+        if (otherType == this) return true;
 
-        if(otherType instanceof GenericTypeParameter){
-            if(!otherType.lowerBound) return false;
-            for(let ub of this.upperBounds){
-                if(ub.canExplicitlyCastTo(otherType.lowerBound)) return true;
+        if (otherType instanceof GenericTypeParameter) {
+            if (!otherType.lowerBound) return false;
+            for (let ub of this.upperBounds) {
+                if (ub.canExplicitlyCastTo(otherType.lowerBound)) return true;
             }
             return false;
         }
 
-        for(let ub of this.upperBounds){
-            if(ub.canExplicitlyCastTo(otherType)) return true;
+        for (let ub of this.upperBounds) {
+            if (ub.canExplicitlyCastTo(otherType)) return true;
         }
 
         return false;
     }
 
-    initCatches(){
+    initCatches() {
         this.catches = [];
     }
 
     checkCatches(errors: Error[], methodCallPosition: IRange) {
-        if(!this.catches || this.catches.length == 0){
+        if (!this.catches || this.catches.length == 0) {
             let error = JCM.parameterNotDefined(this.identifier);
             errors.push({
                 message: error.message,
@@ -200,15 +200,15 @@ export class GenericTypeParameter extends NonPrimitiveType {
 
         let catchesAsString = this.catches.map(c => c.toString());
         let allEqual = true;
-        for(let i = 0; i < catchesAsString.length && allEqual; i++){
-            for(let j = i + 1; j < catchesAsString.length && allEqual; j++){
-                if(catchesAsString[i] != catchesAsString[j]){
+        for (let i = 0; i < catchesAsString.length && allEqual; i++) {
+            for (let j = i + 1; j < catchesAsString.length && allEqual; j++) {
+                if (catchesAsString[i] != catchesAsString[j]) {
                     allEqual = false;
                 }
             }
         }
 
-        if(!allEqual){
+        if (!allEqual) {
             let error = JCM.parameterContradictoryBound(this.identifier, catchesAsString.join(", "));
             errors.push({
                 message: error.message,
@@ -222,7 +222,7 @@ export class GenericTypeParameter extends NonPrimitiveType {
 
     getCompletionItems(visibilityUpTo: Visibility, leftBracketAlreadyThere: boolean, identifierAndBracketAfterCursor: string, rangeToReplace: monaco.IRange, methodContext: JavaMethod | undefined, onlyStatic?: boolean | undefined): monaco.languages.CompletionItem[] {
         let items = [];
-        for(let ub of this.upperBounds){
+        for (let ub of this.upperBounds) {
             items = items.concat(ub.getCompletionItems(visibilityUpTo, leftBracketAlreadyThere, identifierAndBracketAfterCursor, rangeToReplace, methodContext, false));
         }
         return items;
@@ -232,7 +232,14 @@ export class GenericTypeParameter extends NonPrimitiveType {
         return "";
     }
 
+    fastExtendsImplements(identifier: string) {
+        for(let ub of this.upperBounds) {
+            if(ub.fastExtendsImplements(identifier)) return true;
+        }
+        return super.fastExtendsImplements(identifier);
+    }
+
 
 }
 
-export type GenericTypeParameters  = GenericTypeParameter[];
+export type GenericTypeParameters = GenericTypeParameter[];
