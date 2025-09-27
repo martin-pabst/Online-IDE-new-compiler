@@ -1,7 +1,5 @@
 import { expect, test } from 'vitest'
 
-import { Scheduler } from '../compiler/common/interpreter/Scheduler'
-import { Thread } from '../compiler/common/interpreter/Thread';
 import { getLineNumber } from '../tools/StringTools';
 
 test('Test function getLineNumber', () => {

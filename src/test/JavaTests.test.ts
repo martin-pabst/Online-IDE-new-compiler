@@ -6,7 +6,6 @@ import { JavaCompiler } from "../compiler/java/JavaCompiler";
 import { getLine, getLineNumber, threeDez } from "../tools/StringTools";
 import { IPrintManager } from "../compiler/common/interpreter/IPrintManager";
 import { ViteTestAssertions } from "./ViteTestAssertions";
-import { CompilerFileMockup } from "./CompilerFileMockup";
 import { JavaLibraryManager } from "../compiler/java/runtime/JavaLibraryManager";
 import { CompilerFile } from "../compiler/common/module/CompilerFile";
 
@@ -38,7 +37,6 @@ class StoreOutputPrintManager implements IPrintManager {
 }
 
 try {
-
     let javaDir: string = __dirname + "/java";
 
     let files = fs.readdirSync(javaDir);

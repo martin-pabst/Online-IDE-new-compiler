@@ -24,7 +24,12 @@ import "/assets/css/run.css";
 import spritesheetjson from '/assets/graphics/spritesheet.json.txt';
 import spritesheetpng from '/assets/graphics/spritesheet.png';
 import { PixiSpritesheetData } from "../spritemanager/PixiSpritesheetData.js";
+import * as monaco from 'monaco-editor'
 
+declare global {
+    // Note the capital "W"
+    interface Window { MonacoEnvironment: monaco.Environment; }
+}
 
 declare var APP_VERSION: string;
 declare var BUILD_DATE: string;

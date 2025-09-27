@@ -3,6 +3,7 @@ import { Error } from "../../common/Error";
 import { UsagePosition } from "../../common/UsagePosition.ts";
 import { CodeFragment } from "../../common/disassembler/CodeFragment.ts";
 import { Step } from "../../common/interpreter/Step.ts";
+import { Klass } from "../../common/interpreter/StepFunction.ts";
 import { Thread } from "../../common/interpreter/Thread.ts";
 import { CompilerFile } from "../../common/module/CompilerFile";
 import { Module } from "../../common/module/Module.ts";
@@ -223,10 +224,10 @@ export class JavaCompiledModule extends JavaBaseModule {
         return undefined;
     }
 
-    startMainProgram(thread: Thread): boolean {
+    startMainProgram(thread: Thread, setOneTimeBreakpointAtFirstVisibleLine: boolean): boolean {
         let startableMainClass = this.getClassWithStartableMainMethod();
         if(!startableMainClass) return false;
-        let mainRuntimeClass = startableMainClass.runtimeClass;
+        let mainRuntimeClass: Klass = startableMainClass.runtimeClass;
         if (!mainRuntimeClass) return false;
 
         let mainMethod = startableMainClass.getMainMethod();
@@ -239,6 +240,15 @@ export class JavaCompiledModule extends JavaBaseModule {
         let THIS = mainRuntimeClass;
 
         methodStub.call(THIS, thread, thread.s);
+        if(setOneTimeBreakpointAtFirstVisibleLine){
+            let programState = thread.programStack[thread.programStack.length - 1];
+            if(programState){
+                let firstVisibleStep = programState.currentStepList.find(s => s.range.startLineNumber >= 0);
+                if(firstVisibleStep){
+                    firstVisibleStep.setBreakpoint(true);
+                }
+            }
+        }
 
         return true;
 

@@ -20,7 +20,7 @@ export abstract class JavaBaseModule extends Module {
         return false;
     }
 
-    startMainProgram(thread: Thread): boolean {
+    startMainProgram(thread: Thread, setOneTimeBreakpointAtFirstVisibleLine: boolean): boolean {
         return false;
     }
 

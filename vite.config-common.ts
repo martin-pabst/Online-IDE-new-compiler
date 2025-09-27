@@ -14,10 +14,10 @@ const curr_date = d.getDate();
 const curr_month = d.getMonth() + 1; //Months are zero based
 const curr_year = d.getFullYear();
 let hour = "" + d.getHours();
-while(hour.length  < 2) hour = "0" + hour;
+while (hour.length < 2) hour = "0" + hour;
 
 let minute = "" + d.getMinutes();
-while(minute.length < 2) minute = "0" + minute;
+while (minute.length < 2) minute = "0" + minute;
 
 const buildDate = curr_date + "." + curr_month + "." + curr_year + ", " + hour + ":" + minute + " Uhr";
 
@@ -37,10 +37,10 @@ export default {
         sourcemap: true,
         emptyOutDir: true,
         chunkSizeWarningLimit: 4912,
-        assetsInlineLimit: 10*1024
+        assetsInlineLimit: 10 * 1024
     },
     define: {
         'APP_VERSION': JSON.stringify(pkg.version),
         'BUILD_DATE': JSON.stringify(buildDate)
-      }
+    }
 } satisfies UserConfig

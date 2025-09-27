@@ -27,6 +27,12 @@ import { JavaSyntaxAPIPrinter } from './JavaSyntaxAPIPrinter.js';
 import { DatabaseModule } from '../libraries/java/database/DatabaseModule.js';
 
 
+declare global {
+    // Note the capital "W"
+    interface Window { MonacoEnvironment: monaco.Environment; }
+}
+
+
 export class ApiDoc {
     async start() {
 

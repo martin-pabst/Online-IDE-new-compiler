@@ -14,6 +14,8 @@ import { Thread, ThreadStateInfoAfterRun } from "./Thread";
 import { ThreadState } from "./ThreadState.ts";
 import { Module } from "../module/Module.ts";
 
+export type SetOneTimeBreakpointAtFirstVisibleLineMode = "stepInto" | "stepOver" | "run";
+
 
 export class Scheduler {
     runningThreads: Thread[] = [];
@@ -405,7 +407,7 @@ export class Scheduler {
         this.keepThread = false;
     }
 
-    init(executable: Executable, mainModule: Module): Thread | undefined {
+    init(executable: Executable, mainModule: Module, setOneTimeBreakpointAtFirstVisibleLineMode: SetOneTimeBreakpointAtFirstVisibleLineMode): Thread | undefined {
 
         this.#initIntern(executable);
         executable.initializeClassObjects();
@@ -413,7 +415,7 @@ export class Scheduler {
         const mainThread = this.createThread("main thread");
 
         if (mainModule) {
-            if (!mainModule?.startMainProgram(mainThread)) {
+            if (!mainModule?.startMainProgram(mainThread, setOneTimeBreakpointAtFirstVisibleLineMode == "stepOver")) {
                 // TODO: Error "Main program not startable"
                 return undefined
             }
@@ -421,6 +423,19 @@ export class Scheduler {
 
         for (const staticInitStep of executable.staticInitializationSequence) {
             mainThread.pushProgram(staticInitStep.program);
+        }
+
+        if(setOneTimeBreakpointAtFirstVisibleLineMode == "stepInto"){
+            for(let i = mainThread.programStack.length - 1; i >= 0; i--){
+                let ps = mainThread.programStack[i]!;
+                for( let step of ps.currentStepList){
+                    if(step.range?.startLineNumber >= 0){
+                        step.setBreakpoint(true);
+                        i = -1; // break outer loop
+                        break;
+                    }
+                }
+            }
         }
 
         return mainThread;

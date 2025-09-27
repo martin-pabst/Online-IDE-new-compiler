@@ -41,7 +41,7 @@ export abstract class Module {
 
     abstract hasMainProgram(): boolean;
 
-    abstract startMainProgram(thread: Thread): boolean;
+    abstract startMainProgram(thread: Thread, setOneTimeBreakpointAtFirstVisibleLine: boolean): boolean;
 
     abstract isReplModule(): boolean;
 

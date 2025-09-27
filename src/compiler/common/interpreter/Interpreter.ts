@@ -17,7 +17,7 @@ import { IInputManager } from "./IInputManager.ts";
 import { DummyPrintManager, IPrintManager } from "./IPrintManager.ts";
 import { KeyboardManager } from "./KeyboardManager.ts";
 import { LoadController } from "./LoadController";
-import { Scheduler } from "./Scheduler";
+import { Scheduler, SetOneTimeBreakpointAtFirstVisibleLineMode } from "./Scheduler";
 import { SchedulerExitState } from "./SchedulerExitState.ts";
 import { SchedulerState } from "./SchedulerState.ts";
 import { Thread } from "./Thread.ts";
@@ -170,21 +170,26 @@ export class Interpreter {
                 return;
             }
             this.printManager.clear();
-            this.#init(this.executable!);
             this.resetRuntime();
 
-            // for java (and maybe other languages) the first step pushes the main object
-            // onto the stack. We want to execute it immediately...
-            if (this.scheduler.getNextStepPosition()?.range?.startLineNumber !== -1) {
-                // don't execute first step immediately:
-                this.showProgramPointer(this.scheduler.getNextStepPosition());
-                this.updateDebugger();
-                this.setState(SchedulerState.paused);
-                return;
-            } else {
-                // execute first step immediately...
-                stepInto = false;
-            }
+            // init program stack and thereby set one-time breakpoint at first visible line:
+            this.#init(this.executable!, undefined, stepInto ? "stepInto" : "stepOver");
+
+            this.start(undefined, false);
+            return;
+
+            // // for java (and maybe other languages) the first step pushes the main object
+            // // onto the stack. We want to execute it immediately...
+            // if (this.scheduler.getNextStepPosition()?.range?.startLineNumber == -1) {
+            //     // execute first step immediately...
+            //     stepInto = false;
+            // } else {
+            //     // don't execute first step immediately:
+            //     this.showProgramPointer(this.scheduler.getNextStepPosition());
+            //     this.updateDebugger();
+            //     this.setState(SchedulerState.paused);
+            //     return;
+            // }
         }
         // this.setState(SchedulerState.running);    // MaPa 26.03.2025: This broke step into...
         this.scheduler.runSingleStepKeepingThread(stepInto, () => {
@@ -566,7 +571,7 @@ export class Interpreter {
         // this.gngEreignisbehandlungHelper = null;
     }
 
-    #init(executable: Executable, fileToStart?: GUIFile) {
+    #init(executable: Executable, fileToStart?: GUIFile, setOneTimeBreakpointAtFirstVisibleLine: SetOneTimeBreakpointAtFirstVisibleLineMode = "run") {
         // this.main.getBottomDiv()?.console?.clearErrors();
         // this.main.getBottomDiv()?.console?.clearExceptions();
 
@@ -587,7 +592,7 @@ export class Interpreter {
         }
 
         this.setState(SchedulerState.stopped);
-        this.#mainThread = this.scheduler.init(executable, mainModule);
+        this.#mainThread = this.scheduler.init(executable, mainModule, setOneTimeBreakpointAtFirstVisibleLine);
 
         if (this.#mainThread) {
             this.codeReachedAssertions.init(executable.moduleManager);
