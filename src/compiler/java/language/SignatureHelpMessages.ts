@@ -183,9 +183,23 @@ export class SignatureHelpMessages {
         'en': ``
     });
     
+    static printDLabel = () => lm({
+        'de': `print(text: String, color: Color)`,
+        'en': ``
+    });
+        
+    static printDParameter2Label = () => lm({
+        'de': `color: Color`,
+        'en': ``
+    });
+
+    static printDParameter2Documentation = () => lm({
+        'de': `Farbe als Color-Objekt, z.B. Color.red`,
+        'en': `Color encoded as a color object, e.g. Color.red`
+    });
 
     static printlnALabel = () => lm({
-        'de': `print(text: String, color: String)`,
+        'de': `println(text: String, color: String)`,
         'en': ``
     });
     
@@ -216,7 +230,7 @@ export class SignatureHelpMessages {
 
 
     static printlnBLabel = () => lm({
-        'de': `print(text: String, color: int)`,
+        'de': `println(text: String, color: int)`,
         'en': ``
     });
     
@@ -245,8 +259,23 @@ export class SignatureHelpMessages {
         'en': `Color encoded as an int value, e.g. 0xff00ff`
     });
 
+    static printlnDLabel = () => lm({
+        'de': `println(text: String, color: Color)`,
+        'en': ``
+    });
+        
+    static printlnDParameter2Label = () => lm({
+        'de': `color: Color`,
+        'en': ``
+    });
+
+    static printlnDParameter2Documentation = () => lm({
+        'de': `Farbe als Color-Objekt, z.B. Color.red`,
+        'en': `Color encoded as a color object, e.g. Color.red`
+    });
+
     static printlnCLabel = () => lm({
-        'de': `print(text: String)`,
+        'de': `println(text: String)`,
         'en': ``
     });
     

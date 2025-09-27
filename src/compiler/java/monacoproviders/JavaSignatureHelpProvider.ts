@@ -191,10 +191,18 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
                             ]
                         },
                         {
-                            label: SignatureHelpMessages.printBLabel(),
+                            label: SignatureHelpMessages.printDLabel(),
                             documentation: SignatureHelpMessages.printBDocumentation(),
                             parameters: [
                                 { label: SignatureHelpMessages.printBParameter1Label(), documentation: SignatureHelpMessages.printBParameter1Documentation() },
+                                { label: SignatureHelpMessages.printDParameter2Label(), documentation: SignatureHelpMessages.printDParameter2Documentation() },
+                            ]
+                        },
+                        {
+                            label: SignatureHelpMessages.printCLabel(),
+                            documentation: SignatureHelpMessages.printCDocumentation(),
+                            parameters: [
+                                { label: SignatureHelpMessages.printCParameter1Label(), documentation: SignatureHelpMessages.printCParameter1Documentation() },
                             ]
                         },
                     ];
@@ -219,10 +227,18 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
                         ]
                     },
                     {
-                        label: SignatureHelpMessages.printlnBLabel(),
+                        label: SignatureHelpMessages.printlnDLabel(),
                         documentation: SignatureHelpMessages.printlnBDocumentation(),
                         parameters: [
                             { label: SignatureHelpMessages.printlnBParameter1Label(), documentation: SignatureHelpMessages.printlnBParameter1Documentation() },
+                            { label: SignatureHelpMessages.printlnDParameter2Label(), documentation: SignatureHelpMessages.printlnDParameter2Documentation() },
+                        ]
+                    },
+                    {
+                        label: SignatureHelpMessages.printlnCLabel(),
+                        documentation: SignatureHelpMessages.printlnCDocumentation(),
+                        parameters: [
+                            { label: SignatureHelpMessages.printlnCParameter1Label(), documentation: SignatureHelpMessages.printlnCParameter1Documentation() },
                         ]
                     },
                 ];
