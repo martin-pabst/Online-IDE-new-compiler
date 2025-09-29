@@ -34,6 +34,12 @@ export class AggregatingAssertionObserver implements IAssertionObserver {
         }
     }
 
+    notifyOnAssertEqualsBoolean(thread: Thread, step: Step, expected: boolean, actual: boolean, message: string): void {
+        if (actual !== expected) {
+            this.addFailedResult(thread, step, "notifyOnAssertEquals", "" + expected, "" + actual, message);
+        }
+    }
+
     notifyOnAssertEqualsNumber(thread: Thread, step: Step, expected: number, actual: number, message: string): void {
         if (Math.abs(actual - expected) > 1e-14) {
             this.addFailedResult(thread, step, "notifyOnAssertEquals", "" + expected, "" + actual, message);

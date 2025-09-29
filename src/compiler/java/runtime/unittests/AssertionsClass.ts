@@ -34,6 +34,10 @@ export class AssertionsClass extends ObjectClass {
             template: `let _y_ = §2; let _x_ = §1; for(__ao of ${Helpers.assertionObservers}){__ao.${DummyAssertionObserver.prototype.notifyOnAssertFalse.name}(${StepParams.thread}, this, _x_, _y_);}`
         },
         {
+            type: "method", signature: "public static void assertEquals(boolean expected, boolean actual, string message)",
+            template: `let _z_ = §3; let _y_ = §2; let _x_ = §1; for(__ao of ${Helpers.assertionObservers}){__ao.${DummyAssertionObserver.prototype.notifyOnAssertEqualsBoolean.name}(${StepParams.thread}, this, _x_, _y_, _z_);}`
+        },
+        {
             type: "method", signature: "public static void assertEquals(byte expected, byte actual, string message)",
             template: `let _z_ = §3; let _y_ = §2; let _x_ = §1; for(__ao of ${Helpers.assertionObservers}){__ao.${DummyAssertionObserver.prototype.notifyOnAssertEqualsNumber.name}(${StepParams.thread}, this, _x_, _y_, _z_);}`
         },
