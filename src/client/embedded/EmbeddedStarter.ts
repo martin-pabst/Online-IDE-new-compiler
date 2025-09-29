@@ -28,7 +28,7 @@ import * as monaco from 'monaco-editor'
 
 declare global {
     // Note the capital "W"
-    interface Window { MonacoEnvironment: monaco.Environment; }
+    interface Window { MonacoEnvironment?: monaco.Environment | undefined; }
 }
 
 declare var APP_VERSION: string;
