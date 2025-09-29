@@ -27,6 +27,13 @@ export class ViteTestAssertions implements DummyAssertionObserver {
         // expect(condition).to.equal(true, message);
     }
 
+    notifyOnAssertEqualsBoolean(thread: Thread, step: Step, expected: boolean, actual: boolean, message: string): void {
+        if (expected !== actual) {
+            this.logFailedTest(thread, step, message, "Expected: " + chalk.green(expected) + ", actual: " + chalk.yellow(actual));
+        }
+        // expect(actual).to.approximately(expected, 1e-20, message);
+    }
+
     notifyOnAssertEqualsNumber(thread: Thread, step: Step, expected: number, actual: number, message: string): void {
         if (Math.abs(expected - actual) > 1e-20) {
             this.logFailedTest(thread, step, message, "Expected: " + chalk.green(expected) + ", actual: " + chalk.yellow(actual));
