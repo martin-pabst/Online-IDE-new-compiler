@@ -17,13 +17,13 @@ export class JUnitTestrunnerLanguage {
     })
 
     static expectedValue = () => lm({
-    "de": "Erwarteter Wert: &nbsp;&nbsp;",
-    "en": "Expected Value: ",
+    "de": "Erwarteter Wert:&nbsp;",
+    "en": "Expected Value:&nbsp;",
     })
 
     static actualValue = () => lm({
-    "de": "Erhaltener Wert: ",
-    "en": "Actual value: &nbsp;",
+    "de": "Erhaltener Wert:&nbsp;",
+    "en": "Actual value:&nbsp;",
     })
 
     static runningAllTestsOfClass = (classIdentifier: string) => lm({
