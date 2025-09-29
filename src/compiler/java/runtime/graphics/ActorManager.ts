@@ -9,6 +9,10 @@ import { ShapeClass } from './ShapeClass';
 import { ContainerProxy } from './ContainerProxy';
 
 export class ActorManager {
+    
+    is30HzFrequency: boolean = true;
+    #timerId: any = null;
+    timerFrequency: number = 30;
 
     actors: Record<ActorType, IActor[]> = {
         "act": [],
@@ -35,6 +39,9 @@ export class ActorManager {
     constructor(private interpreter: Interpreter) {
         this.clear();
         this.registerKeyboardListeners(interpreter);
+        interpreter.eventManager.on("stop", () => {
+            this.setTimerFrequency(30);
+        })
     }
 
     registerKeyboardListeners(interpreter: Interpreter){
@@ -58,9 +65,34 @@ export class ActorManager {
         list.push(actor);
     }
 
+    callActMethods(dt: number) {
+        if (this.is30HzFrequency) {
+            this.#callActMethodsIntern(dt);
+        }
+    }
+
+    setTimerFrequency(frequencyHz: number) {
+        if (this.#timerId) {
+            clearInterval(this.#timerId);
+            this.#timerId = null;
+        }
+        
+        this.timerFrequency = frequencyHz;
+
+        if(frequencyHz == 30){
+            this.is30HzFrequency = true;
+            return;
+        }
+
+        this.is30HzFrequency = false;
+        this.#timerId = setInterval(() => {
+            this.#callActMethodsIntern(1000/frequencyHz);
+        }, 1000/frequencyHz);
+    }
+
     runningactThread?: Thread;
     tickHappenedWhenThreadNotEmpty: boolean = false;
-    callActMethods(dt: number) {
+    #callActMethodsIntern(dt: number) {
         if (this.runningactThread && [ThreadState.running, ThreadState.waiting].indexOf(this.runningactThread.state) >= 0 ) {
             this.tickHappenedWhenThreadNotEmpty = true;
             return;
@@ -95,10 +127,6 @@ export class ActorManager {
             this.interpreter.scheduler.removeThread(this.runningactThread);
             this.runningactThread = undefined;
         }
-
-    }
-
-    startActMethods(){
 
     }
 

@@ -39,7 +39,7 @@ export class ActorClass extends ObjectClass implements IActor {
         { type: "method", signature: "final boolean isGamepadConnected(int gamepadIndex)", native: ActorClass.prototype._isGamepadConnected, comment: JRC.actorIsGamepadConnectedComment },
         { type: "method", signature: "final double getGamepadAxisValue(int gamepadIndex, int axisIndex)", native: ActorClass.prototype._getGamepadAxisValue, comment: JRC.actorGetGamepadAxisValueComment },
 
-
+        {type: "method", signature: "static void setActFrequency(int frequencyInHz)", java: ActorClass._mj$setCallActMethodFrequency$void$int$, comment: JRC.SystemToolsSetCallActMethodFrequency},
 
     ]
 
@@ -86,34 +86,36 @@ export class ActorClass extends ObjectClass implements IActor {
 
     }
 
+    
+    
     _cj$_constructor_$Actor$(t: Thread, callback: CallbackParameter) {
         t.s.push(this);
         if(callback) callback();
     }
-
+    
     _mj$act$void$(t: Thread, callback: () => {}): void {
-
+        
     }
-
+    
     _mj$act$void$double(t: Thread, callback: () => {}, dt: number): void {
-
+        
     }
-
+    
     _mj$onKeyTyped$void$String(t: Thread, callback: CallbackParameter, key: StringClass): void {
-
+        
     }
-
+    
     _mj$onKeyUp$void$String(t: Thread, callback: CallbackParameter, key: StringClass): void {
-
+        
     }
-
+    
     _mj$onKeyDown$void$String(t: Thread, callback: CallbackParameter, key: StringClass): void {
     }
-
+    
     _mj$destroy$void$(t: Thread) {
         this.destroy();
     }
-
+    
     _mj$isKeyUp$boolean$string(t: Thread, callback: CallbackParameter, key: string) {
         let keyboardManager = t.scheduler.interpreter.keyboardManager;
         if (!keyboardManager) {
@@ -122,7 +124,7 @@ export class ActorClass extends ObjectClass implements IActor {
         }
         t.s.push(!keyboardManager.isPressed(key));
     }
-
+    
     _mj$isKeyDown$boolean$string(t: Thread, callback: CallbackParameter, key: string) {
         let keyboardManager = t.scheduler.interpreter.keyboardManager;
         if (!keyboardManager) {
@@ -131,41 +133,46 @@ export class ActorClass extends ObjectClass implements IActor {
         }
         t.s.push(keyboardManager.isPressed(key));
     }
-
-
+    
+    
     _isDestroyed(): boolean {
         return this.isDestroyed;
     }
-
+    
     _isActing(): boolean {
         return this.isActing;
     }
-
+    
     _stopActing(): void {
         this.isActing = false;
     }
-
+    
     _restartActing(): void {
         this.isActing = true;
     }
-
+    
     destroy() {
         this.actorManager?.unregisterActor(this);
         this.isDestroyed = true;
     }
-
+    
     _isGamepadButtonDown(gamepadIndex: number, buttonIndex: number){
         if(!ActorClass.gamepadTool) return false;
         return ActorClass.gamepadTool.isGamepadButtonPressed(gamepadIndex, buttonIndex);
     }
-
+    
     _isGamepadConnected(gamepadIndex: number): boolean {
         if(!ActorClass.gamepadTool) return false;
         return ActorClass.gamepadTool.isGamepadConnected(gamepadIndex);
     }
-
+    
     _getGamepadAxisValue(gamepadIndex: number, axisIndex: number): number {
         if(!ActorClass.gamepadTool) return 0.0;
         return ActorClass.gamepadTool.getGamepadAxisValue(gamepadIndex, axisIndex);
     }
+
+    static _mj$setCallActMethodFrequency$void$int$(t: Thread, frequency: number){
+        t.scheduler.interpreter.actorManager.setTimerFrequency(frequency);
+    };
+
 }
