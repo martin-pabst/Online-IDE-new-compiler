@@ -81,7 +81,7 @@ export class SettingsGUI {
                 value: cs.classId,
                 object: cs,
                 caption: cs.className
-            })));
+            })).sort((a, b) => a.caption.localeCompare(b.caption)));
 
             this.currentClassId = this.classSettings[0].classId;
 

@@ -4202,6 +4202,11 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "en": "Returns the number of logical processors available to run threads on the user's computer.",
     })
 
+    static SystemToolsSetCallActMethodFrequency = () => lm({
+        "de": "Legt fest, wie oft pro Sekunde die Methode act() von Actor-Objekten aufgerufen wird. Der Parameter frequency wird in Aufrufen pro Sekunde angegeben. Die Frequenz ist für alle Actor-Objekte gleich.",
+        "en": "Sets how often per second the method act() of Actor-objects is called. Parameter frequency is given in calls/second. Frequency is the same for all Actor-objects.",
+    })
+
     static SystemToolsPauseComment = () => lm({
         "de": "Pausiert das Programm für die angegebene Zeit in ms.",
         "en": "Makes current thread pause execution for given time in ms.",

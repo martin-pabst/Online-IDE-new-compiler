@@ -408,7 +408,10 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
             // console.log(data);
             if(data["w2ui"]){
                 delete data["w2ui"]["changes"][field];
-                this.classesGrid.refreshCell(data["recid"], field);
+                try {
+                    this.classesGrid.refreshCell(data["recid"], field);
+                } catch (e) {
+                }
             }
 
             let classData = this.allClassesList.find(c => "" + c.id == data["recid"]);
@@ -744,6 +747,11 @@ export class ClassesWithStudentsMI extends AdminMenuItem {
 
         w2ui["chooseClassForm"].myCallback = callback;
         w2ui["chooseClassForm"].fields[0].options.items = classList.sort((a, b) => a.name.localeCompare(b.name));
+
+        if(w2ui["chooseClassForm"].fields[0].w2field){
+            w2ui["chooseClassForm"].fields[0].w2field.options.items = classList.sort((a, b) => a.name.localeCompare(b.name));
+            w2ui["chooseClassForm"].refresh();
+        }
 
         //@ts-ignore
         w2popup.open({
