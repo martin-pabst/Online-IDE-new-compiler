@@ -1,7 +1,6 @@
-import { Helpers } from "../../../../common/interpreter/StepFunction";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
-import { ObjectClass, StringClass } from "./ObjectClassStringClass";
+import { ObjectClass } from "./ObjectClassStringClass";
 
 export class PrimitiveStringClass extends ObjectClass {
 

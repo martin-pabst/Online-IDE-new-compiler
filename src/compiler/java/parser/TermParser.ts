@@ -3,6 +3,7 @@ import { TokenType, TokenTypeReadable } from "../TokenType.ts";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { Token } from "../lexer/Token.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
+import { ReplaceTokenQuickfix } from "../monacoproviders/quickfix/ReplaceTokenQuickfix.ts";
 import { ASTBinaryNode, ASTCastNode, ASTClassDefinitionNode, ASTInterfaceDefinitionNode, ASTLambdaFunctionDeclarationNode, ASTNewObjectNode, ASTSelectArrayElementNode, ASTStatementNode, ASTTermNode, ASTTypeNode, ASTSymbolNode, BinaryOperator, ASTAnonymousClassNode, ASTReturnNode, ASTMethodDeclarationNode, ASTWildcardTypeNode, ASTGenericTypeInstantiationNode, ASTArrayTypeNode, ASTArrayLiteralNode, ASTMethodCallNode, ASTBaseTypeNode } from "./AST.ts";
 import { ASTNodeFactory } from "./ASTNodeFactory.ts";
 import { TokenIterator } from "./TokenIterator.ts";
@@ -457,6 +458,11 @@ export abstract class TermParser extends TokenIterator {
             case TokenType.identifier:
                 let range: IRange = this.cct.range;
                 let identifier = this.expectAndSkipIdentifierAsString();
+
+                if(identifier == "string"){
+                    let error = this.pushError(JCM.useOfStringWithSmallLetterAsIdentifier(), "error", range);
+                    this.module.quickfixes.push(new ReplaceTokenQuickfix(range, "String", JCM.upperCaseStringQuickfixMessage(), error));
+                }
 
                 if (this.comesToken(TokenType.ellipsis, false)) replaceStringByPrimitiveString = true;
 

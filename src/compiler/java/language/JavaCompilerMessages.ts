@@ -660,7 +660,23 @@ export class JCM {
         "fr": `Vous ne pouvez pas avoir de méthodes abstraites dans des classes non abstraites.`,
     })
 
+    /**
+     * 
+     * class TermParser
+     */
 
+    static useOfStringWithSmallLetterAsIdentifier = () => le({
+        "de": "Der Bezeichner String mit kleinem Anfangsbuchstaben ist nicht zulässig. Vermutlich wolltest du die Klasse \"String\" verwenden.",
+        "en": `Identifier String with small letter is not allowed. Probably you wanted to use String-class "String".`,
+        "fr": `L'identifiant String avec une petite lettre n'est pas autorisé. Vous vouliez probablement utiliser la classe String "String".`,
+    })
+
+    static upperCaseStringQuickfixMessage = () => lm({
+        'de': `Ersetze string durch String`,
+        'en': `Replace string with String`,
+        'fr': `Remplacer string par String`,
+    });
+    
 
     /**
      * class StatementParser

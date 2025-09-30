@@ -186,7 +186,7 @@ export class TokenIterator {
 
     pushError(messageWithId: ErrormessageWithId, errorLevel: ErrorLevel = "error", range?: IRange) {
         if (range == null) range = Object.assign({}, this.cct.range);
-        const error = {
+        const error: Error = {
             message: messageWithId.message,
             id: messageWithId.id,
             range: range,
