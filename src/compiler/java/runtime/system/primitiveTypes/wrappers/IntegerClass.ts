@@ -30,6 +30,11 @@ export class IntegerClass extends NumberClass {
         {type: "method", signature: "public static Integer valueOf(int i)", native: IntegerClass.valueOf},
         {type: "method", signature: "public static Integer valueOf(string s)", native: IntegerClass.valueOfString},
         {type: "method", signature: "public static Integer valueOf(string s, int radix)", native: IntegerClass.valueOfString},
+        {type: "method", signature: "public static string toBinary(int number)", native: IntegerClass.toBinary},
+        {type: "method", signature: "public static string toHex(int number)", native: IntegerClass.toHex},
+        {type: "method", signature: "public static string toOctal(int number)", native: IntegerClass.toOctal},
+        {type: "method", signature: "public static string toString(int number, int radix)", native: IntegerClass.toStringRadix},
+        {type: "method", signature: "public static string toString(int number)", native: IntegerClass.toString},
     ]
 
     static type: NonPrimitiveType;
@@ -85,5 +90,25 @@ export class IntegerClass extends NumberClass {
     static valueOfString(s: string, radix: number): IntegerClass {
         return new IntegerClass((Number.parseInt(s, radix) + 0x80000000) % 0x100000000 - 0x80000000);
     }
+
+    static toBinary(number: number): string {
+        return (number >>> 0).toString(2);
+    }
+
+    static toHex(number: number): string {
+        return (number >>> 0).toString(16);
+    }
+
+    static toOctal(number: number): string {
+        return (number >>> 0).toString(8);
+    }   
+
+    static toStringRadix(number: number, radix: number): string {
+        return (number >>> 0).toString(radix);
+    }
+       
+    static toString(number: number): string {
+        return (number >>> 0).toString(10);
+    }   
 
 }
