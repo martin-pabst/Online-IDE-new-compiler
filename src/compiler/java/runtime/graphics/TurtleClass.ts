@@ -41,7 +41,7 @@ export class TurtleClass extends FilledShapeClass {
         { type: "method", signature: "final double getX()", template: `§1.getPosition().x`, comment: JRC.TurtleGetXComment },
         { type: "method", signature: "final double getY()", template: `§1.getPosition().y`, comment: JRC.TurtleGetYComment },
         { type: "method", signature: "final Turtle moveTo(double x, double y)", native: TurtleClass.prototype._moveTo, comment: JRC.TurtleMoveToComment },
-        
+
         { type: "method", signature: "final double getTurtleAngle()", native: TurtleClass.prototype._getTurtleAngleDeg, comment: JRC.TurtleGetTurtleAngleComment },
 
         { type: "method", signature: "final Turtle copy()", java: TurtleClass.prototype._mj$copy$Turtle$, comment: JRC.TurtleCopyComment },
@@ -462,7 +462,7 @@ export class TurtleClass extends FilledShapeClass {
     }
 
 
-    _collidesWithBorderColor(borderColor: number|ColorClass|string): boolean {
+    _collidesWithBorderColor(borderColor: number | ColorClass | string): boolean {
         let lastLineElement = this.lineElements[this.lineElements.length - 1];
         let x = lastLineElement.x;
         let y = lastLineElement.y;
@@ -527,7 +527,7 @@ export class TurtleClass extends FilledShapeClass {
 
         for (let i = 1; i < this.lineElements.length; i++) {
             let le: LineElement = this.lineElements[i];
-            if(this.lastColor != null){
+            if (this.lastColor != null) {
                 if (!this.isFilled && i > 1) {
                     if (le.lineWidth != this.lastLineWidth || le.color != this.lastColor || le.alpha != this.lastAlpha) {
                         g.stroke({
@@ -536,8 +536,6 @@ export class TurtleClass extends FilledShapeClass {
                             alpha: this.lastAlpha,
                             alignment: 0.5
                         })
-                        this.lastLineWidth = le.lineWidth;
-                        this.lastAlpha = le.alpha;
                     }
                 }
             }
@@ -549,6 +547,8 @@ export class TurtleClass extends FilledShapeClass {
                 // console.log("MoveTo: " + le.x + ", " + le.y);
             }
             this.lastColor = le.color;
+            this.lastLineWidth = le.lineWidth;
+            this.lastAlpha = le.alpha;
         }
 
         if (this.isFilled) {
