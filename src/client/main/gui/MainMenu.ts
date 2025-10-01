@@ -13,6 +13,7 @@ import { GuiMessages } from "./language/GuiMessages.js";
 import { Settings } from "../../settings/Settings.js";
 import { SettingsGUI } from "../../settings/SettingsGUI.js";
 import { TabletConsoleLog } from "../../../tools/TabletConsoleLog.js";
+import { ImportRepositoryGUI } from "./ImportRepositoryGUI.js";
 
 
 declare var BUILD_DATE: string;
@@ -187,6 +188,10 @@ export class MainMenu {
                             {
                                 identifier: GuiMessages.Checkout(),
                                 action: () => { this.main.repositoryCheckoutManager.show(null) }
+                            },
+                            {
+                                identifier: GuiMessages.importRepository(),
+                                action: () => { new ImportRepositoryGUI(this.main).show(); }
                             },
                         ]
                     }

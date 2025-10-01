@@ -324,9 +324,15 @@ Are you sure?`
         'en': 'Export folder'
     });
 
+    static exportRepository = () => lm({
+        'de': `Repository als Datei exportieren`,
+        'en': `Export repository to file`
+    });
+    
+
     static exportToFile = () => lm({
-        'de': 'Als Datei exportieren',
-        'en': 'Export to file'
+        'de': 'Workspace als Datei exportieren',
+        'en': 'Export workspace to file'
     });
 
     static distributeToClass = () => lm({

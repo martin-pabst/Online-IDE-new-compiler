@@ -25,6 +25,7 @@ import * as monaco from 'monaco-editor'
 
 import '/assets/css/icons.css';
 import '/assets/css/projectexplorer.css';
+import { RepositoryExporter } from '../../workspace/RepositoryImporterExporter.js';
 
 
 export class ProjectExplorer {
@@ -454,6 +455,19 @@ export class ProjectExplorer {
                             this.workspaceTreeview.addNewNode(false);
                         }
                     });
+
+                if (workspace.repository_id != null) {
+                    cmiList.push(
+                        {
+                            caption: ProjectExplorerMessages.exportRepository(),
+                            callback: async () => {
+                                let name: string = "Respository " + workspace.name.replace(/\//g, "_");
+                                downloadFile(await RepositoryExporter.exportRepository(workspace.repository_id, workspace.id), name + ".json")
+                            }
+                        }
+                    );
+
+                }
 
                 if (node.isFolder) {
                     cmiList.push(

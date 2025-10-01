@@ -273,6 +273,12 @@ export class GuiMessages {
         "fr": "Connecter l'espace de travail au dépôt (checkout) ...",
     })
 
+    static importRepository = () => lm({
+        'de': `Repository aus Datei importieren ...`,
+        'en': `Import repository from file ...`,
+    });
+    
+
     static Sprites = () => lm({
         "de": "Sprites",
         "en": "Sprites",
