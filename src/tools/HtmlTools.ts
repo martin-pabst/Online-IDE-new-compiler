@@ -117,6 +117,11 @@ export function openContextMenu(items: ContextMenuItem[], x: number, y: number, 
     let parentMenuItem: ContextMenuItem | undefined = undefined;
 
     for (let mi of items) {
+        if(mi.caption.trim() == '-') {
+           $contextMenu.append(jQuery('<div class="jo_menuitemdivider"></div>'));
+           continue;
+        }
+
         let iconString = mi.iconClass ? `<span class="${mi.iconClass} jo_contextmenu_icon"></span>` : '';
         let caption: string = mi.caption;
         if (mi.link != null) {

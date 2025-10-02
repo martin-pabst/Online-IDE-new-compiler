@@ -48,7 +48,7 @@ export class RepositorySettingsManager {
         let $updateDiv = jQuery('#updateRepo-div');
 
         $updateDiv.append(this.$mainHeading = makeDiv('updateRepo-mainHeading', "createUpdateRepo-mainHeading", ""));
-        this.$mainHeading.append(makeDiv("", "", "Repositories verwalten"));
+        this.$mainHeading.append(makeDiv("", "", RepositorySettingsMessages.caption()));
         this.$mainHeading.append(this.$exitButton = makeDiv("", "jo_synchro_button", RepositorySettingsMessages.backToCoding(), { "background-color": "var(--speedcontrol-grip)", "color": "var(--fontColorLight)", "font-size": "10pt" }));
         this.$exitButton.on("click", () => { that.exitButtonClicked() })
 
@@ -217,7 +217,7 @@ export class RepositorySettingsManager {
             response.repositories.forEach(repInfo => {
                 let $div = makeDiv('', 'updateRepo-repoListItem');
                 let $namediv = makeDiv('', '', repInfo.name);
-                let $deleteDiv = jQuery(`<div class="img_delete jo_button jo_active" title=${RepositorySettingsMessages.deleteRepository()}></div>`);
+                let $deleteDiv = jQuery(`<div class="img_delete jo_button jo_active" title="${RepositorySettingsMessages.deleteRepository()}"></div>`);
                 $div.append($namediv, $deleteDiv);
                 this.$repoListDiv.append($div);
                 $div.on('click', (e) => {

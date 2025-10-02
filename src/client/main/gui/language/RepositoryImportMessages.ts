@@ -7,13 +7,23 @@ export class RepositoryImportMessages {
     });
 
     static importRepositoryDescription = () => lm({
-        'de': `Wählen Sie eine Datei aus, die das exportierte Repository enthält, das Sie importieren möchten.`,
-        'en': `Select a file that contains the exported repository you want to import.`
+        'de': `1. Wählen Sie eine Datei aus, die das exportierte Repository enthält, das Sie importieren möchten, oder ziehen Sie sie in das gestrichelte Rechteck.`,
+        'en': `1. Select a file that contains the exported repository you want to import or drag them into the dashed rectangle.`
+    });
+
+    static renameDescription = () => lm({
+        'de': `2. Optional: Geben Sie einen neuen Namen für das Repository ein. Wenn Sie keinen Namen angeben, wird der Name aus der Exportdatei verwendet.`,
+        'en': `2. Optional: Enter a new name for the repository. If you do not provide a name, the name from the export file will be used.`
+    });
+
+    static newName = () => lm({
+        'de': `Neuer Name`,
+        'en': `New name`
     });
     
-    static ok = () => lm({
-        'de': `OK`,
-        'en': `OK`
+    static import = () => lm({
+        'de': `Importieren`,
+        'en': `Import`
     });
 
     static cancel = () => lm({

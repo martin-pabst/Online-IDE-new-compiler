@@ -275,6 +275,11 @@ export class RepositoryCreateManagerMessages {
 }
 
 export class RepositorySettingsMessages {
+    static caption = () => lm({
+        'de': 'Repository-Verwaltung',
+        'en': 'Repository Management'
+    });
+    
     static backToCoding = () => lm({
         'de': 'Zurück zum Programmieren',
         'en': 'Back to coding'

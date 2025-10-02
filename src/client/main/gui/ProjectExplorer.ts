@@ -456,19 +456,6 @@ export class ProjectExplorer {
                         }
                     });
 
-                if (workspace.repository_id != null) {
-                    cmiList.push(
-                        {
-                            caption: ProjectExplorerMessages.exportRepository(),
-                            callback: async () => {
-                                let name: string = "Respository " + workspace.name.replace(/\//g, "_");
-                                downloadFile(await RepositoryExporter.exportRepository(workspace.repository_id, workspace.id), name + ".json")
-                            }
-                        }
-                    );
-
-                }
-
                 if (node.isFolder) {
                     cmiList.push(
                         // {
@@ -517,6 +504,8 @@ export class ProjectExplorer {
                     );
 
                     if (this.main.user.is_teacher && this.main.teacherExplorer.classPanel.size(true) > 0) {
+                        cmiList.push({ caption: '-', callback: () => { } });
+
                         cmiList.push(
                             {
                                 caption: ProjectExplorerMessages.distributeToClass() + "...",
@@ -553,6 +542,7 @@ export class ProjectExplorer {
                     }
 
                     if (this.main.repositoryOn && this.main.workspacesOwnerId == this.main.user.id) {
+                        cmiList.push({ caption: '-', callback: () => { } });
                         if (workspace.repository_id == null) {
                             cmiList.push({
                                 caption: ProjectExplorerMessages.createRepository(),
@@ -566,20 +556,29 @@ export class ProjectExplorer {
                                 callback: () => {
                                     workspace.synchronizeWithRepository();
                                 }
-                            });
-                            cmiList.push({
-                                caption: ProjectExplorerMessages.detachFromRepository(),
-                                color: "#ff8080",
-                                callback: async () => {
-                                    workspace.repository_id = null;
-                                    workspace.saved = false;
-                                    await this.main.networkManager.sendUpdatesAsync(true);
-                                    node.iconClass = "img_workspace-dark";
-                                    workspace.renderSynchronizeButton(node);
-                                }
-                            });
+                            },
+                                {
+                                    caption: ProjectExplorerMessages.exportRepository(),
+                                    callback: async () => {
+                                        let name: string = "Respository " + workspace.name.replace(/\//g, "_");
+                                        downloadFile(await RepositoryExporter.exportRepository(workspace.repository_id, workspace.id), name + ".json")
+                                    }
+                                },
+                                {
+                                    caption: ProjectExplorerMessages.detachFromRepository(),
+                                    color: "#ff8080",
+                                    callback: async () => {
+                                        workspace.repository_id = null;
+                                        workspace.saved = false;
+                                        await this.main.networkManager.sendUpdatesAsync(true);
+                                        node.iconClass = "img_workspace-dark";
+                                        workspace.renderSynchronizeButton(node);
+                                    }
+                                });
                         }
                     }
+
+                    cmiList.push({ caption: '-', callback: () => { } });
 
                     cmiList.push({
                         caption: ProjectExplorerMessages.settings() + "...",
