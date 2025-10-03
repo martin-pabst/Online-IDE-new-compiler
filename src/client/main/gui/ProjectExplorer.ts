@@ -560,7 +560,7 @@ export class ProjectExplorer {
                                 {
                                     caption: ProjectExplorerMessages.exportRepository(),
                                     callback: async () => {
-                                        let name: string = "Respository " + workspace.name.replace(/\//g, "_");
+                                        let name: string = "Repository " + workspace.name.replace(/\//g, "_");
                                         downloadFile(await RepositoryExporter.exportRepository(workspace.repository_id, workspace.id), name + ".json")
                                     }
                                 },

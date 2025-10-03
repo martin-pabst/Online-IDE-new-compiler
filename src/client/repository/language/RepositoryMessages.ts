@@ -287,7 +287,7 @@ export class RepositorySettingsMessages {
     
     static repositories = () => lm({
         'de': 'Repositories:',
-        'en': 'Respositories:'
+        'en': 'Repositories:'
     });
     
     static owner = () => lm({
