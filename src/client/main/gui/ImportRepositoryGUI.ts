@@ -5,7 +5,7 @@ import { WorkspaceImportMessages } from "./language/WorkspaceImportMessages.js";
 import '/assets/css/workspaceimport.css';
 import { RepositoryImportMessages } from "./language/RepositoryImportMessages.js";
 import { ExportedRepository, RepositoryImporter } from "../../workspace/RepositoryImporterExporter.js";
-
+import lightbulb from '/assets/graphics/lightbulb.png';
 
 export class ImportRepositoryGUI {
 
@@ -33,8 +33,10 @@ export class ImportRepositoryGUI {
             this.files = event.originalEvent.target.files;
         })
 
-        let $dropZone = jQuery(`<div class="jo_workspaceimport_dropzone">${WorkspaceImportMessages.dragFilesHere()}</div>`);
+        let $dropZone = jQuery(`<div class="jo_workspaceimport_dropzone"><div>${WorkspaceImportMessages.dragFilesHere()}</div></div>`);
         this.dialog.addDiv($dropZone);
+        let $dropZoneInner = jQuery(`<div class="jo_workspaceimport_dropzone_inner"></div>`);
+        $dropZone.append($dropZoneInner);
         this.dialog.description('').text(RepositoryImportMessages.renameDescription());
 
         this.$newNameInput = this.dialog.input('text', RepositoryImportMessages.newName());
@@ -49,9 +51,10 @@ export class ImportRepositoryGUI {
             evt.preventDefault();
 
             this.files = evt.originalEvent.dataTransfer.files;
+            $dropZoneInner.text(this.files.length + ' ' + RepositoryImportMessages.filesSelected());
         })
 
-
+        
         this.dialog.buttons([
             {
                 caption: RepositoryImportMessages.import(),
@@ -68,8 +71,11 @@ export class ImportRepositoryGUI {
                 }
             },
         ])
+        this.dialog.addDiv(jQuery('<div style="height:20px"></div>'));
+        this.dialog.addDiv(jQuery(``));
+        this.dialog.description(`<img src="${lightbulb}" style="width:32px; margin-right: 5px;">` + RepositoryImportMessages.exportTipp());
     }
-
+    
     async importFiles() {
         if (!this.files || this.files.length === 0) {
             alert(RepositoryImportMessages.noFilesSelected());
