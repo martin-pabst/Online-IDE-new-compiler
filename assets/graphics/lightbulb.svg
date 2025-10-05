@@ -51,9 +51,9 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="334.08249"
-     inkscape:cx="-244.09196"
-     inkscape:zoom="0.85008945"
+     inkscape:cy="620.10898"
+     inkscape:cx="288.73955"
+     inkscape:zoom="4.8088321"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1.0"
@@ -109,7 +109,7 @@
        id="path8"
        sodipodi:nodetypes="ccszzsscc" />
     <ellipse
-       style="fill:#7b7b7b;fill-opacity:1;stroke:none;stroke-width:1.026;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#565656;fill-opacity:1;stroke:none;stroke-width:1.026;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        id="path13"
        cx="103.76826"
        cy="163.7747"
@@ -167,6 +167,9 @@
        y="167.69026"
        ry="2.6898036"
        rx="2.6927102"
-       transform="matrix(0.98915816,-0.14685413,0.20389053,0.97899369,0,0)" />
+       transform="matrix(0.98915816,-0.14685413,0.20389053,0.97899369,0,0)"
+       inkscape:export-filename="lightbulb.png"
+       inkscape:export-xdpi="92"
+       inkscape:export-ydpi="92" />
   </g>
 </svg>
