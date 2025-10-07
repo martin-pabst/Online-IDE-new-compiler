@@ -2,7 +2,7 @@ import { lm } from "../../../tools/language/LanguageManager";
 
 export class JUnitTestrunnerLanguage {
     static ExecuteAllTestsInWorkspace = () => lm({
-    "de": "Führt alle im aktuellen Workspace enthaltenen JUnit-Test aus.",
+    "de": "Führt alle im aktuellen Workspace enthaltenen JUnit-Tests aus.",
     "en": "Executes all JUnit-tests in current workspace.",
     })
 
@@ -95,7 +95,7 @@ class MyFirstTestClass {
    void testSquareRoot() {
       double squareRootOfFour = Math.sqrt(4);
       assertEquals(2.0, squareRootOfFour,
-         "There semms to be something wrong with Math.sqrt!");
+         "There seems to be something wrong with Math.sqrt!");
    }
 
    @Test
