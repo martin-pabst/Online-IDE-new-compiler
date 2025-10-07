@@ -162,10 +162,10 @@ export class MainMenu {
                             { identifier: "-" },
                             { identifier: GuiMessages.HighContrastOnOff(), action: () => { editor.getAction("editor.action.toggleHighContrast").run(); } },
 
-                            { identifier: "-" },
-                            { identifier: GuiMessages.ZoomOut(), action: () => { this.main.editor.changeEditorFontSize(-4); } },
-                            { identifier: GuiMessages.ZoomNormal(), action: () => { this.main.editor.setFontSize(14); } },
-                            { identifier: GuiMessages.ZoomIn(), action: () => { this.main.editor.changeEditorFontSize(4); } },
+                            // { identifier: "-" },
+                            // { identifier: GuiMessages.ZoomOut(), action: () => { this.main.editor.changeEditorFontSize(-4); } },
+                            // { identifier: GuiMessages.ZoomNormal(), action: () => { this.main.editor.setFontSize(14); } },
+                            // { identifier: GuiMessages.ZoomIn(), action: () => { this.main.editor.changeEditorFontSize(4); } },
                             { identifier: "-" },
                             {
                                 identifier: GuiMessages.LinebreakOnOff(), action: () => {

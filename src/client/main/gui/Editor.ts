@@ -122,7 +122,7 @@ export class Editor {
             //     suggestSelection: 'recentlyUsedByPrefix',
             // },
 
-            mouseWheelZoom: this.isEmbedded,
+            mouseWheelZoom: true, // this.isEmbedded,
             tabSize: 3,
             insertSpaces: true,
             detectIndentation: false,
@@ -165,14 +165,12 @@ export class Editor {
 
         let that: Editor = this;
 
-        let mouseWheelListener = (event: WheelEvent) => {
-            if (event.ctrlKey === true) {
-
-                that.changeEditorFontSize(Math.sign(-event.deltaY), true);
-
-                event.preventDefault();
+        this.editor.onDidChangeConfiguration((e) => {
+            if (e.hasChanged(monaco.editor.EditorOption.fontSize)) {
+                let newFontSize = this.editor.getOption(monaco.editor.EditorOption.fontSize);
+                this.setFontSize(newFontSize)
             }
-        };
+        });
 
         if (!this.isEmbedded) {
 
@@ -232,12 +230,6 @@ export class Editor {
 
         // We need this to set our model after user uses Strg+click on identifier
         this.editor.onDidChangeModel((event) => {
-
-            let element: HTMLDivElement = <any>$element.find('.monaco-editor')[0];
-            if (element != null) {
-                element.removeEventListener("wheel", mouseWheelListener);
-                element.addEventListener("wheel", mouseWheelListener, { passive: false });
-            }
 
             if (this.main.getCurrentWorkspace() == null) return;
 
@@ -308,9 +300,9 @@ export class Editor {
                             }
                         }
                     } else {
-                        if(typeof firstMethodCallPosition.possibleMethods == 'string'){
-                            if(firstMethodCallPosition.possibleMethods.indexOf("print") >= 0) maxParameterCount = firstMethodCallPosition.commaPositions.length + 1;
-                            if(firstMethodCallPosition.possibleMethods.indexOf("for") >= 0) maxParameterCount = 2;
+                        if (typeof firstMethodCallPosition.possibleMethods == 'string') {
+                            if (firstMethodCallPosition.possibleMethods.indexOf("print") >= 0) maxParameterCount = firstMethodCallPosition.commaPositions.length + 1;
+                            if (firstMethodCallPosition.possibleMethods.indexOf("for") >= 0) maxParameterCount = 2;
                         }
                     }
 
@@ -371,13 +363,7 @@ export class Editor {
         this.lastPosition = historyEntry;
     }
 
-    lastTime: number = 0;
     setFontSize(fontSizePx: number) {
-
-        // console.log("Set font size: " + fontSizePx);
-        let time = new Date().getTime();
-        if (time - this.lastTime < 150) return;
-        this.lastTime = time;
 
         let editorfs = this.editor.getOptions().get(monaco.editor.EditorOption.fontSize);
 
@@ -390,25 +376,13 @@ export class Editor {
                 fontSize: fontSizePx
             });
 
-            // editor does not set fontSizePx, but fontSizePx * zoomfactor with unknown zoom factor, so
-            // we have to do this dirty workaround:
-            let newEditorfs = this.editor.getOptions().get(monaco.editor.EditorOption.fontSize);
-            let factor = newEditorfs / fontSizePx;
-            this.editor.updateOptions({
-                fontSize: fontSizePx / factor
-            });
-
-            let bottomDiv1 = this.main.getBottomDiv();
-            if (bottomDiv1 != null && bottomDiv1.console != null) {
-                bottomDiv1.console.editor.updateOptions({
-                    fontSize: fontSizePx / factor
-                });
-            }
-
         }
 
         let bottomDiv = this.main.getBottomDiv();
         if (bottomDiv != null && bottomDiv.console != null) {
+            bottomDiv.console.editor.updateOptions({
+                fontSize: fontSizePx
+            });
             let $commandLine = bottomDiv.$bottomDiv.find('.jo_commandline');
             $commandLine.css({
                 height: (fontSizePx * 1.1 + 4) + "px",
@@ -416,12 +390,6 @@ export class Editor {
             })
             bottomDiv.console.editor.layout();
         }
-
-
-        // let newEditorfs = this.editor.getOptions().get(monaco.editor.EditorOption.fontSize);
-
-        // console.log({editorFS: editorfs, newFs: fontSizePx, newEditorFs: newEditorfs});
-
 
         jQuery('.jo_editorFontSize').css('font-size', fontSizePx + "px");
         jQuery('.jo_editorFontSize').css('line-height', (fontSizePx + 2) + "px");
@@ -431,24 +399,7 @@ export class Editor {
 
     }
 
-    changeEditorFontSize(delta: number, dynamic: boolean = true) {
-        let editorfs = this.editor.getOptions().get(monaco.editor.EditorOption.fontSize);
 
-        if (dynamic) {
-            if (editorfs < 10) {
-                delta *= 1;
-            } else if (editorfs < 20) {
-                delta *= 2;
-            } else {
-                delta *= 4;
-            }
-        }
-
-        let newEditorFs = editorfs + delta;
-        if (newEditorFs >= 6 && newEditorFs <= 80) {
-            this.setFontSize(newEditorFs);
-        }
-    }
 
     async onEvaluateSelectedText(event: monaco.editor.ICursorPositionChangedEvent) {
 
