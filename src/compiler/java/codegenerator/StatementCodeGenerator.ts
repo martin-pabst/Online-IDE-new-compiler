@@ -451,7 +451,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         conditionNode = negationResult?.newNode;
 
         let condition = this.compileTerm(conditionNode);
-        this.printErrorifValueNotBoolean(condition?.type, node.condition);
+        condition = this.convertToBooleanPrimitiveAndPrintErrorIfNotPossible(condition, node.condition);
         // if (!condition) condition = new StringCodeSnippet('true', node.range, this.booleanType);
 
         let labelBeforeCheckingCondition = new LabelCodeSnippet();
@@ -518,7 +518,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
     compileDoStatement(node: ASTDoWhileNode): CodeSnippetContainer | undefined {
         let condition = this.compileTerm(node.condition);
 
-        this.printErrorifValueNotBoolean(condition?.type, node.condition);
+        condition = this.convertToBooleanPrimitiveAndPrintErrorIfNotPossible(condition, node.condition);
 
         let labelBeforeEvaluatingCondition = new LabelCodeSnippet();
         this.continueStack.push(labelBeforeEvaluatingCondition);
@@ -589,16 +589,22 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         return snippet;
     }
 
-    printErrorifValueNotBoolean(type: JavaType | undefined, node: ASTNode) {
-        if (!type) return;
+    convertToBooleanPrimitiveAndPrintErrorIfNotPossible(snippet: CodeSnippet, node: ASTNode): CodeSnippet {
+        let type = snippet?.type
+        if (!type) return snippet;
+
         if (type.identifier != "boolean") {
-            if (node.kind == TokenType.binaryOp && (<ASTBinaryNode>node).operator == TokenType.assignment) {
+            if(type.identifier == "Boolean"){
+                return this.unbox(snippet);
+            } else if (node.kind == TokenType.binaryOp && (<ASTBinaryNode>node).operator == TokenType.assignment) {
                 let error = this.pushError(JCM.assignmentInsteadOfComparisonOperator(), "error", (<ASTBinaryNode>node).operatorRange);
                 this.module.quickfixes.push(new ReplaceTokenQuickfix((<ASTBinaryNode>node).operatorRange, "==", JCM.ReplaceTokenQuickfixDefaultMessage("=", "=="), error))
             } else {
                 this.pushError(JCM.booleanTermExpected(type.identifier), "error", node);
             }
         }
+
+        return snippet;
     }
 
     compileWhileStatement(node: ASTWhileNode): CodeSnippetContainer | undefined {
@@ -611,7 +617,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         let condition = this.compileTerm(conditionNode);
 
-        this.printErrorifValueNotBoolean(condition?.type, node.condition);
+        condition = this.convertToBooleanPrimitiveAndPrintErrorIfNotPossible(condition, node.condition);
 
         let labelAtBeginOfWhileBlock = new LabelCodeSnippet();
         this.continueStack.push(labelAtBeginOfWhileBlock);
@@ -876,7 +882,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         let condition = this.compileTerm(conditionNode);
 
-        this.printErrorifValueNotBoolean(condition?.type, node.condition);
+        condition = this.convertToBooleanPrimitiveAndPrintErrorIfNotPossible(condition, node.condition);
 
         let instanceOfVariables = negationResult.negationHappened ? conditionNode.negatedInstanceofVariables : conditionNode.instanceofVariables;
         let negatedInstanceofVariables = negationResult.negationHappened ? conditionNode.instanceofVariables : conditionNode.negatedInstanceofVariables;
