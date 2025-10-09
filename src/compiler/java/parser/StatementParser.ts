@@ -485,15 +485,22 @@ export abstract class StatementParser extends TermParser {
             let isCase = this.tt == TokenType.keywordCase;
             let caseDefaultToken = this.cct;
             this.nextToken(); // skip case or default
-            let constant = isCase ? this.parseTermUnary() : undefined;
 
-            if (typeof constant == "undefined" && isCase) {
-                this.pushError(JCM.constantMissingInCaseStatement(), "error", caseDefaultToken.range)
+            let constants: ASTTermNode[] = [];
+            let caseNode = this.nodeFactory.buildCaseNode(caseDefaultToken, constants);
+        
+            if(isCase){
+                do {
+                    let constant = this.parseTermUnary();
+                    if (constant) constants.push(constant);
+                } while (this.comesToken(TokenType.comma, true));
+                if(constants.length == 0){
+                    this.pushError(JCM.constantMissingInCaseStatement(), "error", caseDefaultToken.range)
+                }
             }
-
+        
             this.expect(TokenType.colon, true);
 
-            let caseNode = this.nodeFactory.buildCaseNode(caseDefaultToken, constant);
             while (!this.isEnd() && !this.comesToken([TokenType.keywordCase, TokenType.keywordDefault, TokenType.rightCurlyBracket], false)) {
                 let statement = this.parseStatementOrExpression();
                 if (statement) caseNode.statements.push(statement);

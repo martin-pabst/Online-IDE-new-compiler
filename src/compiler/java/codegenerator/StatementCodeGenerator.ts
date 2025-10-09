@@ -7,7 +7,6 @@ import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { ReplaceTokenQuickfix } from "../monacoproviders/quickfix/ReplaceTokenQuickfix.ts";
 import { ASTArrayLiteralNode, ASTAttributeDereferencingNode, ASTBinaryNode, ASTBlockNode, ASTBracketNode, ASTBreakNode, ASTCaseNode, ASTContinueNode, ASTDoWhileNode, ASTEnhancedForLoopNode, ASTFirstMainMethodStatementNode, ASTForLoopNode, ASTIfNode, ASTInitialFieldAssignmentInMainProgramNodes, ASTLambdaFunctionDeclarationNode, ASTLocalVariableDeclaration, ASTLocalVariableDeclarations, ASTNode, ASTPrintStatementNode, ASTReturnNode, ASTStatementNode, ASTSwitchCaseNode, ASTSymbolNode, ASTSynchronizedBlockNode, ASTTermNode, ASTThrowNode, ASTTryCatchNode, ASTUnaryPrefixNode, ASTWhileNode } from "../parser/AST";
-import { SystemCollection } from "../runtime/system/collections/SystemCollection.ts";
 import { ObjectClass } from "../runtime/system/javalang/ObjectClassStringClass.ts";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
@@ -594,7 +593,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if (!type) return snippet;
 
         if (type.identifier != "boolean") {
-            if(type.identifier == "Boolean"){
+            if (type.identifier == "Boolean") {
                 return this.unbox(snippet);
             } else if (node.kind == TokenType.binaryOp && (<ASTBinaryNode>node).operator == TokenType.assignment) {
                 let error = this.pushError(JCM.assignmentInsteadOfComparisonOperator(), "error", (<ASTBinaryNode>node).operatorRange);
@@ -692,62 +691,69 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
     compileCaseStatement(node: ASTCaseNode, index: number, labelArray: Array<LabelCodeSnippet>,
         typeId: string | undefined, enumType: JavaEnum | undefined): [CodeSnippet, CodeSnippet] | undefined {
-        if (!node.constant) return undefined;
+        if (!node.constants) return undefined;
 
-        let constant: CodeSnippet | undefined;
+        let constants: CodeSnippet[] = [];
 
-        if (enumType) {
-            let enumIdentifier = "";
-            let enumIdentifierRange: IRange = EmptyRange.instance;
-            switch (node.constant.kind) {
-                case TokenType.dereferenceAttribute:
-                    enumIdentifier = (<ASTAttributeDereferencingNode>node.constant).attributeIdentifier;
-                    enumIdentifierRange = (<ASTAttributeDereferencingNode>node.constant).range;
-                    break;
-                case TokenType.symbol:
-                    enumIdentifier = (<ASTSymbolNode>node.constant).identifier;
-                    enumIdentifierRange = node.constant.range;
-                    break;
+        for (let constantNode of node.constants) {
+            let constant: CodeSnippet | undefined;
+
+            if (enumType) {
+                let enumIdentifier = "";
+                let enumIdentifierRange: IRange = EmptyRange.instance;
+                switch (constantNode.kind) {
+                    case TokenType.dereferenceAttribute:
+                        enumIdentifier = (<ASTAttributeDereferencingNode>constantNode).attributeIdentifier;
+                        enumIdentifierRange = (<ASTAttributeDereferencingNode>constantNode).range;
+                        break;
+                    case TokenType.symbol:
+                        enumIdentifier = (<ASTSymbolNode>constantNode).identifier;
+                        enumIdentifierRange = constantNode.range;
+                        break;
+                }
+                let enumIndex = enumType.fields.findIndex(field => field.identifier == enumIdentifier);
+                if (enumIndex < 0) {
+                    this.pushError(JCM.enumIdentifierUnknown(enumType.identifier, enumIdentifier), "error", constantNode.range);
+                    return undefined;
+                }
+                this.registerUsagePosition(enumType.fields[enumIndex], enumIdentifierRange);
+                constant = new StringCodeSnippet(enumIndex + "", enumIdentifierRange, this.intType, enumIndex);
+            } else {
+                constant = this.compileTerm(constantNode);
             }
-            let enumIndex = enumType.fields.findIndex(field => field.identifier == enumIdentifier);
-            if (enumIndex < 0) {
-                this.pushError(JCM.enumIdentifierUnknown(enumType.identifier, enumIdentifier), "error", node.constant.range);
-                return undefined;
+
+            if(constant){
+                if (!constant.isConstant()) {
+                    this.pushError(JCM.constantValueExpectedAfterCase(), "error", constantNode.range);
+                } else if (!constant.type || constant.type.identifier.toLowerCase() != typeId?.toLowerCase()) {
+                    this.pushError(JCM.caseValueDoesntFitToSwitchValue(typeId || "---", constant.type!.identifier), "error", constantNode.range);
+                }
+                constants.push(constant);
+            } else {
+                this.pushError(JCM.valueNotComputable(), "error", constantNode);
             }
-            this.registerUsagePosition(enumType.fields[enumIndex], enumIdentifierRange);
-            constant = new StringCodeSnippet(enumIndex + "", enumIdentifierRange, this.intType, enumIndex);
-        } else {
-            constant = this.compileTerm(node.constant);
         }
 
+        if (constants.length == 0) {
+            return undefined;
+        }
 
         let caseSnippet = new CodeSnippetContainer([], node.range);
         let caseStatementSnippet = new CodeSnippetContainer([], node.range);
 
-        if (!constant) {
-            this.pushError(JCM.valueNotComputable(), "error", node.constant);
-            return undefined;
-        }
-        if (!constant.isConstant()) {
-            this.pushError(JCM.constantValueExpectedAfterCase(), "error", node.constant.range);
+        for(let constant of constants){
+            let constantValue = constant.getConstantValue();
+    
+            switch (typeId) {
+                case 'String':
+                case 'string':
+                case 'char':
+                    caseSnippet.addStringPart(`case ${JSON.stringify(constantValue)}: \n`, node.range); break;
+                default:
+                    caseSnippet.addStringPart(`case ${constantValue}: \n`, node.range);
+            }
         }
 
-
-        if (!constant.type || constant.type.identifier.toLowerCase() != typeId?.toLowerCase()) {
-            this.pushError(JCM.caseValueDoesntFitToSwitchValue(typeId || "---", constant.type!.identifier), "error", node.constant.range);
-            return undefined;
-        }
-
-        let constantValue = constant.getConstantValue();
-
-        switch (typeId) {
-            case 'String':
-            case 'string':
-            case 'char':
-                caseSnippet.addStringPart(`case ${JSON.stringify(constantValue)}: \n`, node.range); break;
-            default:
-                caseSnippet.addStringPart(`case ${constantValue}: \n`, node.range);
-        }
 
         caseSnippet.addParts(new JumpToLabelCodeSnippet(labelArray[index]));
 

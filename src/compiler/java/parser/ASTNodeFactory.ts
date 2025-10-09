@@ -645,11 +645,11 @@ export class ASTNodeFactory {
         }
     }
 
-    buildCaseNode(caseToken: Token, constant: ASTTermNode | undefined): ASTCaseNode {
+    buildCaseNode(caseToken: Token, constants: ASTTermNode[] | undefined): ASTCaseNode {
         return {
             kind: TokenType.keywordCase,
             range: caseToken.range,
-            constant: constant,
+            constants: constants,
             statements: []
         }
     }

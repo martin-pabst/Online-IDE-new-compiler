@@ -488,7 +488,7 @@ export interface ASTEnhancedForLoopNode extends ASTStatementNode {
 
 export interface ASTCaseNode extends ASTNode {
     kind: TokenType.keywordCase;
-    constant: ASTTermNode | undefined;  // undefined in case of default:
+    constants: ASTTermNode[] | undefined;  // undefined in case of default:
     statements: ASTStatementNode[];
 }
 
