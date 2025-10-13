@@ -11,5 +11,6 @@ export enum ThreadState {
     timedWaiting,
     terminated,// A thread that has exited is in this state.
     terminatedWithException,
-    immediatelyAfterReplStatement
+    immediatelyAfterReplStatement,
+    changeSpeedRequested // for SystemTools.setSpeed
 }

@@ -5,6 +5,7 @@ import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
 import { ObjectClass, StringClass } from "../javalang/ObjectClassStringClass";
 import { RuntimeExceptionClass } from "../javalang/RuntimeException";
 import { KeyListenerInterface } from "./KeyListenerInterface";
+import { SchedulerState } from "../../../../common/interpreter/SchedulerState";
 
 export class SystemToolsClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -25,7 +26,11 @@ export class SystemToolsClass extends ObjectClass {
     }
 
     static _mj$setSpeed$void$int(t: Thread, stepsPerSecond: number){
-        t.scheduler.interpreter.setStepsPerSecond(stepsPerSecond, stepsPerSecond < 0);
+        let interpreter = t.scheduler.interpreter;
+        if(interpreter.scheduler.state == SchedulerState.running){
+            t.scheduler.interpreter.setStepsPerSecond(stepsPerSecond, stepsPerSecond < 0);
+        }
+        t.state = ThreadState.changeSpeedRequested;
     }
 
     static _mj$getSpeed$int$(t: Thread) {
