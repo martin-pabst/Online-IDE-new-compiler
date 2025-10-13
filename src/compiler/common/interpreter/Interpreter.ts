@@ -83,6 +83,11 @@ export class Interpreter {
     public stepsPerSecondGoal: number | undefined = 1e8;
     public isMaxSpeed: boolean = true;
 
+    private speedBeforeProgramStart:{
+        stepsPerSecond: number | undefined,
+        isMaxSpeed: boolean
+    } | undefined = undefined
+
 
     constructor(
         printManager?: IPrintManager,
@@ -346,6 +351,11 @@ export class Interpreter {
             this.resetRuntime();
         }
 
+        this.speedBeforeProgramStart = {    
+            stepsPerSecond: this.stepsPerSecondGoal,
+            isMaxSpeed: this.isMaxSpeed
+        };
+
         this.hideProgrampointerPosition();
 
         this.scheduler.keepThread = false;
@@ -561,6 +571,11 @@ export class Interpreter {
     resetRuntime() {
         this.eventManager.fire("resetRuntime");
 
+        if(typeof this.speedBeforeProgramStart !== 'undefined'){
+            this.setStepsPerSecond(this.speedBeforeProgramStart.stepsPerSecond, this.speedBeforeProgramStart.isMaxSpeed);
+            this.speedBeforeProgramStart = undefined;
+        }
+
         this.main?.getBottomDiv()?.console?.detachValues();
         this.printManager?.clear();
 
@@ -624,6 +639,11 @@ export class Interpreter {
 
         let timerCount: number = this.retrieveObject(Interpreter.TimerCountIndentifier) || 0;
         return timerCount > 0;
+    }
+
+    setStepsPerSecondPerSpeedControl(value: number, isMaxSpeed: boolean) {
+        this.speedBeforeProgramStart = undefined;
+        this.setStepsPerSecond(value, isMaxSpeed);
     }
 
     setStepsPerSecond(value: number, isMaxSpeed: boolean) {

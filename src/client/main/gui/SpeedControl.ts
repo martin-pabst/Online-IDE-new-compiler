@@ -179,7 +179,7 @@ export class SpeedControl {
 
         this.$display.html(speedString + (isMaxSpeed ? "" : (" " + SpeedControlMessages.stepsPerSecond())));
 
-        this.interpreter.setStepsPerSecond(stepsPerSecond, isMaxSpeed);
+        this.interpreter.setStepsPerSecondPerSpeedControl(stepsPerSecond, isMaxSpeed);
 
         this.interpreter.hideProgrampointerPosition();
     }
