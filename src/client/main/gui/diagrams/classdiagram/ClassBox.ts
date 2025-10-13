@@ -148,7 +148,7 @@ export class ClassBox extends DiagramElement {
                 type: "line",
                 thicknessCm: 0.05
             });
-            for (let field of this.klass.getFields().filter(field => field.type.identifier != 'Class')) {
+            for (let field of this.klass.getFields().filter(field => field.type?.identifier != 'Class')) {
 
                 let text: string = this.getVisibilityText(field.visibility);
 
