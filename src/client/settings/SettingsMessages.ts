@@ -141,7 +141,14 @@ export class SettingsMessages {
         'en': 'Show class declaration',
         'fr': 'Afficher la déclarations de la classes'
     });
+
+    static ShowStructureStatementHelp = () => lm({
+        'de': `Hilfe für Strukturanweisungen anzeigen`,
+        'en': `Show help for structure statements`,
+        'fr': `Afficher l'aide pour les instructions de structure`
+    });
     
+
     static TypingAssistanceName = () => lm({
         'de': 'Unterstützung bei der Eingabe von Code',
         'en': 'Typing Assistance',

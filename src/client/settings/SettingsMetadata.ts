@@ -7,6 +7,7 @@ import hoverOverClass from '/assets/graphics/settings/hover_over_class.png';
 import scopeLines from '/assets/graphics/settings/scope_lines.png';
 import classDiagram from '/assets/graphics/settings/class_diagram.png';
 import explorer from '/assets/graphics/settings/explorer.png';
+import structureStatement from '/assets/graphics/settings/structure_statement_help.png';
 import * as monaco from 'monaco-editor'
 
 
@@ -15,6 +16,7 @@ export type SettingsScope = 'user' | 'class' | 'school' | 'default';
 export type SettingKey = "editor.hoverVerbosity.showHelpOnKeywordsAndOperators" |
     "editor.hoverVerbosity.showMethodDeclaration" |
     "editor.hoverVerbosity.showClassDeclaration" |
+    "editor.hoverVerbosity.showStructureStatementHelp" |
     "editor.autoClosingBrackets" | "editor.autoClosingQuotes"| "editor.autoSemicolons" |
     "editor.bracketPairLines" |
     "classDiagram.typeConvention" | "classDiagram.background" |
@@ -99,6 +101,20 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         ],
                         defaultValue: 'declarationsAndComments',
                         image: hoverOverClass
+                    },
+                    {
+                        key: "editor.hoverVerbosity.showStructureStatementHelp",
+                        settingType: 'setting',
+                        name: SettingsMessages.ShowStructureStatementHelp,
+                        description: undefined,
+                        type: 'enumeration',
+                        optionValues: ['false', 'true'],
+                        optionTexts: [
+                            SettingsMessages.OptionFalse,
+                            SettingsMessages.OptionTrue,
+                        ],
+                        defaultValue: 'true',
+                        image: structureStatement
                     },
 
                 ]

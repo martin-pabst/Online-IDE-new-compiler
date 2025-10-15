@@ -201,7 +201,10 @@ export class JavaHoverProvider extends BaseMonacoProvider {
 
         if (contents.length < 2) {
 
-            let signatureHelp = JavaSignatureHelpProvider.provideSignatureHelpLater(<JavaCompiledModule>module, model, position, null, null);
+            let structureHelpEnabled = main.getSettings().getValue("editor.hoverVerbosity.showStructureStatementHelp") === 'true';
+
+
+            let signatureHelp = JavaSignatureHelpProvider.provideSignatureHelpLater(<JavaCompiledModule>module, model, position, null, null, structureHelpEnabled);
 
             if (signatureHelp?.value) {
                 let sh = signatureHelp.value;
