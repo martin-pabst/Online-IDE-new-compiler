@@ -41,7 +41,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
 
         if (!module) return;
 
-        let structureHelpEnabled = main.getSettings().getValue("editor.hoverVerbosity.showStructureStatementHelp") === 'true';
+        let structureHelpEnabled = main.getSettings().getValue("editor.contextSensitiveHelp.StructureStatements") === 'true';
 
         return new Promise(async (resolve, reject) => {
 

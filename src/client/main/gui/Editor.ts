@@ -116,7 +116,7 @@ export class Editor {
             autoClosingQuotes: settings.getValue("editor.autoClosingQuotes") as monaco.editor.EditorAutoClosingStrategy,
             autoClosingDelete: "auto",
             autoClosingOvertype: "auto",
-            parameterHints: { enabled: true, cycle: true },
+            parameterHints: { enabled: settings.getValue("editor.contextSensitiveHelp.ParameterHints") == "true", cycle: true },
             // //@ts-ignore
             // contribInfo: {
             //     suggestSelection: 'recentlyUsedByPrefix',
@@ -306,7 +306,7 @@ export class Editor {
                         }
                     }
 
-                    if (maxParameterCount > 1) {
+                    if (maxParameterCount > 1 && this.main.getSettings().getValue("editor.contextSensitiveHelp.ParameterHints") == "true") {
                         this.lastMethodCallPosition = firstMethodCallPosition;
                         setTimeout(() => {
                             this.editor.trigger("xy", "editor.action.triggerParameterHints", {});

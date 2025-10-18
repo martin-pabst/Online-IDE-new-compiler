@@ -389,7 +389,9 @@ export class Pruefungen extends AdminMenuItem {
 
         this.fieldGroupA = new w2field('list', {
             el: $firstLine.find('input[type=list]')[0],
-            items: this.workspaces.filter(ws => !ws.isFolder),
+            items: this.workspaces.filter(ws => !ws.isFolder).sort((wsa, wsb) => {
+                return wsa.text.localeCompare(wsb.text);
+            }),
             match: 'contains',
             markSearch: true,
             onSelect(event) {
@@ -400,7 +402,9 @@ export class Pruefungen extends AdminMenuItem {
 
         this.fieldGroupB = new w2field('list', {
             el: $secondLine.find('input[type=list]')[0],
-            items: this.workspaces.filter(ws => !ws.isFolder),
+            items: this.workspaces.filter(ws => !ws.isFolder).sort((wsa, wsb) => {
+                return wsa.text.localeCompare(wsb.text);
+            }),
             match: 'contains',
             markSearch: true,
             onSelect(event) {

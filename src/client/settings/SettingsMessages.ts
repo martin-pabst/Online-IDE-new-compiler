@@ -373,5 +373,23 @@ export class SettingsMessages {
         'fr': `Ordre défini par l'utilisateur`
     });
     
+    static ContextSensitiveHelpName = () => lm({
+        'de': `Kontextsensitive Hilfe`,
+        'en': `Context-sensitive help`
+    });
+    
+    static ContextSensitiveHelpDescription = () => lm({
+        'de': `Hier können Sie einstellen, ob in bestimmten Bereichen der Anwendung kontextsensitive Hilfetexte angezeigt werden sollen.`,
+        'en': `Here you can set whether context-sensitive help texts should be displayed in certain areas of the application.`
+    });
 
+    static ContextSensitiveHelpParameterHintsName = () => lm({
+        'de': `Parameterhinweise`,
+        'en': `Parameter hints`
+    });
+
+    static ContextSensitiveHelpParameterHintsDescription = () => lm({
+        'de': `Hier können Sie einstellen, ob dann, wenn sich der Cursor in einem Methodenaufruf befindet, Hinweise zu den Parametern dieser Methode angezeigt werden sollen. <br>`,
+        'en': `Here you can set whether hints about the parameters of a method should be displayed whenever the cursor is inside a method call.`
+    });
 }
