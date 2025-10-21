@@ -141,7 +141,14 @@ export class SettingsMessages {
         'en': 'Show class declaration',
         'fr': 'Afficher la déclarations de la classes'
     });
+
+    static ShowStructureStatementHelp = () => lm({
+        'de': `Hilfe für Strukturanweisungen anzeigen`,
+        'en': `Show help for structure statements`,
+        'fr': `Afficher l'aide pour les instructions de structure`
+    });
     
+
     static TypingAssistanceName = () => lm({
         'de': 'Unterstützung bei der Eingabe von Code',
         'en': 'Typing Assistance',
@@ -409,5 +416,23 @@ export class SettingsMessages {
         'en': `Info`,
         'fr': `Info`
     });
+    static ContextSensitiveHelpName = () => lm({
+        'de': `Kontextsensitive Hilfe`,
+        'en': `Context-sensitive help`
+    });
+    
+    static ContextSensitiveHelpDescription = () => lm({
+        'de': `Hier können Sie einstellen, ob in bestimmten Bereichen der Anwendung kontextsensitive Hilfetexte angezeigt werden sollen.`,
+        'en': `Here you can set whether context-sensitive help texts should be displayed in certain areas of the application.`
+    });
 
+    static ContextSensitiveHelpParameterHintsName = () => lm({
+        'de': `Parameterhinweise`,
+        'en': `Parameter hints`
+    });
+
+    static ContextSensitiveHelpParameterHintsDescription = () => lm({
+        'de': `Hier können Sie einstellen, ob dann, wenn sich der Cursor in einem Methodenaufruf befindet, Hinweise zu den Parametern dieser Methode angezeigt werden sollen. <br>`,
+        'en': `Here you can set whether hints about the parameters of a method should be displayed whenever the cursor is inside a method call.`
+    });
 }

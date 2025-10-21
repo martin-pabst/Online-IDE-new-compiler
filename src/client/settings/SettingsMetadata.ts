@@ -7,6 +7,9 @@ import hoverOverClass from '/assets/graphics/settings/hover_over_class.png';
 import scopeLines from '/assets/graphics/settings/scope_lines.png';
 import classDiagram from '/assets/graphics/settings/class_diagram.png';
 import explorer from '/assets/graphics/settings/explorer.png';
+import parameterHints from '/assets/graphics/settings/parameter_hints.png';
+import structureStatement from '/assets/graphics/settings/structure_statement_help.png';
+
 import type * as monaco from 'monaco-editor'
 import { SettingKey, SettingsScope, SettingValue } from "./SettingsStore";
 
@@ -91,6 +94,51 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
             },
             {
                 settingType: 'group',
+                name: SettingsMessages.ContextSensitiveHelpName,
+                description: SettingsMessages.ContextSensitiveHelpDescription,
+                settings: [
+                    {
+                        key: "editor.contextSensitiveHelp.StructureStatements",
+                        settingType: 'setting',
+                        name: SettingsMessages.ShowStructureStatementHelp,
+                        description: undefined,
+                        type: 'enumeration',
+                        optionValues: ['false', 'true'],
+                        optionTexts: [
+                            SettingsMessages.OptionFalse,
+                            SettingsMessages.OptionTrue,
+                        ],
+                        defaultValue: 'true',
+                        image: structureStatement
+                    },
+                    {
+                        key: "editor.contextSensitiveHelp.ParameterHints",
+                        settingType: 'setting',
+                        name: SettingsMessages.ContextSensitiveHelpParameterHintsName,
+                        description: SettingsMessages.ContextSensitiveHelpParameterHintsDescription,
+                        type: 'enumeration',
+                        optionValues: ['false', 'true'],
+                        optionTexts: [
+                            SettingsMessages.OptionFalse,
+                            SettingsMessages.OptionTrue,
+                        ],
+                        defaultValue: 'true',
+                        image: parameterHints,
+                        action: (main, value) => {
+                            main.getMainEditor().updateOptions({
+                                parameterHints:{
+                                    enabled: (value === 'true'),
+                                    cycle: true
+                                } 
+                            })
+                        }
+
+                    },
+
+                ]
+            },
+            {
+                settingType: 'group',
                 name: SettingsMessages.TypingAssistanceName,
                 description: SettingsMessages.TypingAssistanceDescription,
                 settings: [
@@ -106,7 +154,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                             SettingsMessages.AutoClosingBracketsNever],
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
-                                autoClosingBrackets:  value as monaco.editor.EditorAutoClosingStrategy
+                                autoClosingBrackets: value as monaco.editor.EditorAutoClosingStrategy
                             })
                         }
                     },
@@ -122,7 +170,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                             SettingsMessages.AutoClosingBracketsNever],
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
-                                autoClosingQuotes:  value as monaco.editor.EditorAutoClosingStrategy
+                                autoClosingQuotes: value as monaco.editor.EditorAutoClosingStrategy
                             })
                         }
                     },
@@ -154,12 +202,12 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                             SettingsMessages.BracketPairLinesVerticalAndUnderlined],
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
-                                guides:  {
+                                guides: {
                                     bracketPairs: value !== 'off',
                                     highlightActiveBracketPair: value !== 'off',
                                     bracketPairsHorizontal: (value === 'verticalAndUnderlined')
                                 } as monaco.editor.IGuidesOptions
-                            } )
+                            })
                         },
                         image: scopeLines
                     },
@@ -187,7 +235,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     SettingsMessages.ClassDiagramTypeConventionPascal
                 ],
                 action: (main, value) => {
-                    main.drawClassDiagrams(false);  
+                    main.drawClassDiagrams(false);
                 }
             },
             {

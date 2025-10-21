@@ -41,12 +41,13 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
 
         if (!module) return;
 
+        let structureHelpEnabled = main.getSettings().getValue("editor.contextSensitiveHelp.StructureStatements") === 'true';
 
         return new Promise(async (resolve, reject) => {
 
             await main.getCurrentWorkspace()?.ensureModuleIsCompiled(module);
 
-            resolve(JavaSignatureHelpProvider.provideSignatureHelpLater(module, model, position, token, context));
+            resolve(JavaSignatureHelpProvider.provideSignatureHelpLater(module, model, position, token, context, structureHelpEnabled));
 
         });
 
@@ -55,7 +56,8 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
     static provideSignatureHelpLater(module: JavaCompiledModule, model: monaco.editor.ITextModel,
         position: monaco.Position,
         token: monaco.CancellationToken,
-        context: monaco.languages.SignatureHelpContext):
+        context: monaco.languages.SignatureHelpContext,
+        structureHelpEnabled: boolean):
         monaco.languages.SignatureHelpResult {
 
         let methodCallPositions = module.methodCallPositions[position.lineNumber];
@@ -80,12 +82,12 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
 
         if (methodCallPosition == null) return null;
 
-        return JavaSignatureHelpProvider.getSignatureHelp(methodCallPosition, position);
+        return JavaSignatureHelpProvider.getSignatureHelp(methodCallPosition, position, structureHelpEnabled);
 
     }
 
     static getSignatureHelp(methodCallPosition: JavaMethodCallPosition,
-        position: monaco.Position): monaco.languages.SignatureHelpResult {
+        position: monaco.Position, structureHelpEnabled: boolean): monaco.languages.SignatureHelpResult {
 
         let parameterIndex: number = 0;
 
@@ -100,7 +102,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
         let activeSignature: number = 0;
 
         if (typeof methodCallPosition.possibleMethods == "string") {
-            let keywordInfo: monaco.languages.SignatureInformation[] = JavaSignatureHelpProvider.makeIntrinsicSignatureInformation(<string>methodCallPosition.possibleMethods, parameterIndex);
+            let keywordInfo: monaco.languages.SignatureInformation[] = structureHelpEnabled ? JavaSignatureHelpProvider.makeIntrinsicSignatureInformation(<string>methodCallPosition.possibleMethods, parameterIndex) : [];
             for (let kwi of keywordInfo) {
                 if (!kwi.label.startsWith("print")) kwi[JavaSignatureHelpProvider.ISINTRINSIC] = true;
             }
