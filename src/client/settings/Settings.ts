@@ -1,9 +1,11 @@
 import { SettingsMessages } from "./SettingsMessages";
 import { TranslatedText } from "../../tools/language/LanguageManager";
-import { AllSettingsMetadata, GroupOfSettingMetadata, SettingKey, SettingMetadata, SettingsScope, SettingValue, SettingValues } from "./SettingsMetadata";
-import { UserData } from "../communication/Data";
+import { AllSettingsMetadata, GroupOfSettingMetadata, SettingMetadata, SettingValues } from "./SettingsMetadata";
+import type { UserData } from "../communication/Data";
+import { SettingDefaultValues, SettingKey, SettingsScope, SettingsStore, SettingValue } from "./SettingsStore";
 
-export class Settings {
+
+export class Settings implements SettingsStore {
 
     hierarchy: SettingsScope[] = ['user', 'class', 'school', 'default'];
     hieararchyTexts: TranslatedText[] = [
@@ -36,8 +38,9 @@ export class Settings {
 
     private setDefaultValues(metadata: GroupOfSettingMetadata | SettingMetadata) {
         if (metadata.settingType === 'setting') {
-            if (metadata.defaultValue !== undefined) {
-                this.values.default[metadata.key] = metadata.defaultValue;
+            let defaultValue = SettingDefaultValues[metadata.key];
+            if (defaultValue !== undefined) {
+                this.values.default[metadata.key] = defaultValue;
             }
         } else if (metadata.settingType === 'group') {
             for (let setting of metadata.settings) {

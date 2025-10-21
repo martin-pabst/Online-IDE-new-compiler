@@ -4,11 +4,12 @@ import { GetSettingsResponse, UpdateSettingsDataRequest, UpdateSettingsDataRespo
 import { Dialog } from "../main/gui/Dialog.ts";
 import { Main } from "../main/Main.ts";
 import { SettingsMessages } from "./SettingsMessages.ts";
-import { AllSettingsMetadata, GroupOfSettingMetadata, SettingMetadata, SettingsScope, SettingValue, SettingValues } from "./SettingsMetadata.ts";
+import { AllSettingsMetadata, GroupOfSettingMetadata, SettingMetadata, SettingValues } from "./SettingsMetadata.ts";
 import jQuery from 'jquery';
 import '/assets/css/settings.css';
 import { getSelectedObject, SelectItem, setSelectItems } from "../../tools/HtmlTools.ts";
 import { Treeview } from "../../tools/components/treeview/Treeview.ts";
+import { SettingsScope, SettingValue } from "./SettingsStore.ts";
 
 type ClassSettings = { classId: number, className: string, settings: SettingValues };
 

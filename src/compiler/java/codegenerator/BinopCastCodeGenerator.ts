@@ -1,3 +1,4 @@
+import { DefaultValueSettingsStore, SettingsStore } from "../../../client/settings/SettingsStore.ts";
 import { ErrormessageWithId } from "../../../tools/language/LanguageManager";
 import { BaseSymbol } from "../../common/BaseSymbolTable.ts";
 import { Error, ErrorLevel, QuickFix } from "../../common/Error";
@@ -104,10 +105,15 @@ export abstract class BinopCastCodeGenerator {
 
     symbolTableStack: JavaSymbolTable[] = [];
 
+    settingStore: SettingsStore;
+
 
     constructor(protected module: JavaCompiledModule,
         protected libraryTypestore: JavaTypeStore,
-        protected compiledTypesTypestore: JavaTypeStore) {
+        protected compiledTypesTypestore: JavaTypeStore,
+        settingsStore?: SettingsStore) {
+
+        this.settingStore = settingsStore || new DefaultValueSettingsStore();
 
         this.voidType = this.libraryTypestore.getType("void")!;
         this.charType = this.libraryTypestore.getType("char")!;

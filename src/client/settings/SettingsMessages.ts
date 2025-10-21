@@ -324,6 +324,16 @@ export class SettingsMessages {
         'fr': `blanc`
     });
         
+    static CompilerSettingsName = () => lm({
+        'de': `Compiler-Einstellungen`,
+        'en': `Compiler settings`
+    });
+
+    static CompilerSettingsDescription = () => lm({
+        'de': `Hier können Sie die Einstellungen des Compilers vornehmen.`,
+        'en': `Here you can adjust the compiler settings.`
+    });
+
     static ExplorerSettingsName = () => lm({
         'de': `Explorer-Einstellungen`,
         'en': `Explorer settings`
@@ -334,6 +344,16 @@ export class SettingsMessages {
         'en': `Settings for file- and workspace explorer (in the main window on the left).`
     });
     
+    static CompilerShadowedSymbolErrorLevelName = () => lm({
+        'de': `Errorlevel bei verdeckten Symbolen`,
+        'en': `Error level for shadowed symbols`
+    });
+
+    static CompilerShadowedSymbolErrorLevelDescription = () => lm({
+        'de': `Welches Errorlevel soll der Fehler haben, wenn eine Variable in einem inneren Scope eine andere gleichnamige Variable in einem äußeren Scope verdeckt?`,
+        'en': `What error level should the error have if a variable in an inner scope shadows another variable with the same name in an outer scope?`
+    });
+
     static ExplorerFileOrderName = () => lm({
         'de': `Sortierung des Dateibaums`,
         'en': `Order of file treeview`
@@ -366,5 +386,28 @@ export class SettingsMessages {
         'fr': `Ordre défini par l'utilisateur`
     });
     
+    static ErrorLevelIgnore = () => lm({    
+        'de': `Ignorieren`,
+        'en': `Ignore`,
+        'fr': `Ignorer`
+    });
+
+    static ErrorLevelWarning = () => lm({    
+        'de': `Warnung`,
+        'en': `Warning`,
+        'fr': `Avertissement`
+    });
+
+    static ErrorLevelError = () => lm({    
+        'de': `Fehler`,
+        'en': `Error`,
+        'fr': `Erreur`
+    }); 
+
+    static ErrorLevelInfo = () => lm({    
+        'de': `Info`,
+        'en': `Info`,
+        'fr': `Info`
+    });
 
 }

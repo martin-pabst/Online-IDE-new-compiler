@@ -1,3 +1,5 @@
+import { SettingsStore } from "../../../client/settings/SettingsStore.ts";
+import { ErrorLevel } from "../../common/Error.ts";
 import { CatchBlockInfo } from "../../common/interpreter/ExceptionInfo.ts";
 import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
 import { EmptyRange, IRange, Range } from "../../common/range/Range.ts";
@@ -36,8 +38,9 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
     codeGenerationMode: CodeGenerationMode = "normal";
 
     constructor(module: JavaCompiledModule, libraryTypestore: JavaTypeStore, compiledTypesTypestore: JavaTypeStore,
-        protected exceptionTree: ExceptionTree) {
-        super(module, libraryTypestore, compiledTypesTypestore);
+        protected exceptionTree: ExceptionTree,
+        settingsStore: SettingsStore | undefined) {
+        super(module, libraryTypestore, compiledTypesTypestore, settingsStore);
 
     }
 
@@ -1018,16 +1021,17 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let shadowedSymbol = shadowedSymbolInformation?.symbol;
 
         if (shadowedSymbolInformation) {
+            let shadowedVariableErrorLevel: ErrorLevel | "ignore" = this.settingStore.getValue("compiler.shadowedVariableErrorLevel") as ErrorLevel | "ignore";
             if (this.codeGenerationMode == "normal") {
                 if (shadowedSymbol instanceof JavaLocalVariable) {
                     if (shadowedSymbolInformation.symbolTable == this.currentSymbolTable && this.codeGenerationMode == "normal") {
                         this.pushError(JCM.cantRedeclareVariableError(variable.identifier), "error", node.range);
                         variable = shadowedSymbol;
                     } else {
-                        this.pushError(JCM.shadowedVariableError(variable.identifier), "warning", node.identifierRange);
+                        if(shadowedVariableErrorLevel != "ignore") this.pushError(JCM.shadowedVariableError(variable.identifier), shadowedVariableErrorLevel, node.identifierRange);
                     }
                 } else if (shadowedSymbol instanceof JavaField && shadowedSymbol.classEnum.isMainClass) {
-                    this.pushError(JCM.shadowedVariableError(variable.identifier), "warning", node.identifierRange);
+                    if(shadowedVariableErrorLevel != "ignore") this.pushError(JCM.shadowedVariableError(variable.identifier), shadowedVariableErrorLevel, node.identifierRange);
                 }
             }
         }

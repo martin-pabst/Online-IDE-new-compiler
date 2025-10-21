@@ -33,6 +33,7 @@ import { MissingStatementManager } from "./MissingStatementsManager.ts";
 import { OuterClassFieldAccessTracker } from "./OuterClassFieldAccessTracker.ts";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
 import { ThisType } from "../types/ThisType.ts";
+import { SettingsStore } from "../../../client/settings/SettingsStore.ts";
 
 export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
@@ -53,8 +54,9 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
     isRepl: boolean = false;
 
 
-    constructor(module: JavaCompiledModule, libraryTypestore: JavaTypeStore, compiledTypesTypestore: JavaTypeStore) {
-        super(module, libraryTypestore, compiledTypesTypestore);
+    constructor(module: JavaCompiledModule, libraryTypestore: JavaTypeStore, compiledTypesTypestore: JavaTypeStore,
+        settingsStore: SettingsStore | undefined) {
+        super(module, libraryTypestore, compiledTypesTypestore, settingsStore);
 
         this.initConstantTypeToTypeMap();
     }

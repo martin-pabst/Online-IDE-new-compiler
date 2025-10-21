@@ -1,3 +1,4 @@
+import { SettingsStore } from "../../../client/settings/SettingsStore.ts";
 import { Program } from "../../common/interpreter/Program";
 import { Helpers } from "../../common/interpreter/StepFunction.ts";
 import { EmptyRange } from "../../common/range/Range.ts";
@@ -24,8 +25,10 @@ import { SnippetLinker } from "./SnippetLinker";
 export class CodeGenerator extends InnerClassCodeGenerator {
 
     constructor(module: JavaCompiledModule, libraryTypestore: JavaTypeStore, compiledTypesTypestore: JavaTypeStore,
-        exceptionTree: ExceptionTree, progressManager: CompilingProgressManager) {
-        super(module, libraryTypestore, compiledTypesTypestore, exceptionTree);
+        exceptionTree: ExceptionTree, progressManager: CompilingProgressManager,
+        settingsStore?: SettingsStore
+    ) {
+        super(module, libraryTypestore, compiledTypesTypestore, exceptionTree, settingsStore);
         this.progressManager = progressManager;
         this.linker = new SnippetLinker();
     }

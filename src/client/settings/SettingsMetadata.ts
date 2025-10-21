@@ -1,5 +1,5 @@
 import { TranslatedText } from "../../tools/language/LanguageManager";
-import { Main } from "../main/Main";
+import type { Main } from "../main/Main";
 import { SettingsMessages } from "./SettingsMessages";
 import hoverOverOperator from '/assets/graphics/settings/hover_over_operator.png';
 import hoverOverMethod from '/assets/graphics/settings/hover_over_method.png';
@@ -7,20 +7,10 @@ import hoverOverClass from '/assets/graphics/settings/hover_over_class.png';
 import scopeLines from '/assets/graphics/settings/scope_lines.png';
 import classDiagram from '/assets/graphics/settings/class_diagram.png';
 import explorer from '/assets/graphics/settings/explorer.png';
-import * as monaco from 'monaco-editor'
+import type * as monaco from 'monaco-editor'
+import { SettingKey, SettingsScope, SettingValue } from "./SettingsStore";
 
 
-export type SettingsScope = 'user' | 'class' | 'school' | 'default';
-
-export type SettingKey = "editor.hoverVerbosity.showHelpOnKeywordsAndOperators" |
-    "editor.hoverVerbosity.showMethodDeclaration" |
-    "editor.hoverVerbosity.showClassDeclaration" |
-    "editor.autoClosingBrackets" | "editor.autoClosingQuotes"| "editor.autoSemicolons" |
-    "editor.bracketPairLines" |
-    "classDiagram.typeConvention" | "classDiagram.background" |
-    "explorer.fileOrder" | "explorer.workspaceOrder" 
-
-export type SettingValue = string | number | boolean | undefined;
 export type SettingValues = Partial<Record<SettingKey, SettingValue>>;
 
 export type SettingsMetadataType = 'setting' | 'group';
@@ -34,7 +24,6 @@ export type SettingMetadata = {
     name: TranslatedText;
     description: TranslatedText | undefined;
     type: 'enumeration' | 'string' | 'boolean';
-    defaultValue?: SettingValue;
     optionValues?: SettingValue[]; // For string settings with predefined options
     optionTexts?: TranslatedText[]; // For string settings with translated options
     action?: SettingsAction; // Optional action to perform when the setting is changed
@@ -67,7 +56,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         name: SettingsMessages.ShowHelpOnKeywordsAndOperators,
                         description: undefined,
                         type: 'boolean',
-                        defaultValue: true,
                         image: hoverOverOperator,
                     },
                     {
@@ -82,7 +70,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                             SettingsMessages.Declarations,
                             SettingsMessages.DeclarationsAndComments
                         ],
-                        defaultValue: 'declarationsAndComments',
                         image: hoverOverMethod,
                     },
                     {
@@ -97,7 +84,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                             SettingsMessages.Declarations,
                             SettingsMessages.DeclarationsAndComments
                         ],
-                        defaultValue: 'declarationsAndComments',
                         image: hoverOverClass
                     },
 
@@ -118,7 +104,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         optionTexts: [SettingsMessages.AutoClosingBracketsAlways,
                             SettingsMessages.AutoClosingBracketsBeforeWhitespace,
                             SettingsMessages.AutoClosingBracketsNever],
-                        defaultValue: "always",
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
                                 autoClosingBrackets:  value as monaco.editor.EditorAutoClosingStrategy
@@ -135,7 +120,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         optionTexts: [SettingsMessages.AutoClosingBracketsAlways,
                             SettingsMessages.AutoClosingBracketsBeforeWhitespace,
                             SettingsMessages.AutoClosingBracketsNever],
-                        defaultValue: "always",
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
                                 autoClosingQuotes:  value as monaco.editor.EditorAutoClosingStrategy
@@ -149,7 +133,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         description: SettingsMessages.AutoSemicolonsDescription,
                         type: 'boolean',
                         optionTexts: [SettingsMessages.On, SettingsMessages.Off],
-                        defaultValue: true
                     },
 
                 ]
@@ -169,7 +152,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         optionTexts: [SettingsMessages.BracketPairLinesOff,
                             SettingsMessages.BracketPairLinesVertical,
                             SettingsMessages.BracketPairLinesVerticalAndUnderlined],
-                        defaultValue: "vertical",
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
                                 guides:  {
@@ -204,7 +186,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     SettingsMessages.ClassDiagramTypeConventionJava,
                     SettingsMessages.ClassDiagramTypeConventionPascal
                 ],
-                defaultValue: "java",
                 action: (main, value) => {
                     main.drawClassDiagrams(false);  
                 }
@@ -220,7 +201,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     SettingsMessages.ClassDiagramBackgroundTransparent,
                     SettingsMessages.ClassDiagramBackgroundWhite
                 ],
-                defaultValue: "transparent"
             },
         ]
     },
@@ -241,7 +221,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     SettingsMessages.ExplorerOrderComparator,
                     SettingsMessages.ExplorerOrderUserDefined
                 ],
-                defaultValue: "user-defined",
                 action: (main, value) => {
                     let treeview = main.projectExplorer.fileTreeview;
                     treeview.config.orderBy = value as 'comparator' | 'user-defined';
@@ -259,13 +238,36 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     SettingsMessages.ExplorerOrderComparator,
                     SettingsMessages.ExplorerOrderUserDefined
                 ],
-                defaultValue: "user-defined",
                 action: (main, value) => {
                     let treeview = main.projectExplorer.workspaceTreeview;
                     treeview.config.orderBy = value as 'comparator' | 'user-defined';
                     treeview.sort();
                 }
             },
+        ]
+    },
+    {
+        settingType: 'group',
+        name: SettingsMessages.CompilerSettingsName,
+        description: SettingsMessages.CompilerSettingsDescription,
+        settings: [
+            {
+                key: "compiler.shadowedSymbolErrorLevel",
+                settingType: 'setting',
+                name: SettingsMessages.CompilerShadowedSymbolErrorLevelName,
+                description: SettingsMessages.CompilerShadowedSymbolErrorLevelDescription,
+                type: 'enumeration',
+                optionValues: ["ignore", "info", "warning", "error"],
+                optionTexts: [
+                    SettingsMessages.ErrorLevelIgnore,
+                    SettingsMessages.ErrorLevelInfo,
+                    SettingsMessages.ErrorLevelWarning,
+                    SettingsMessages.ErrorLevelError,
+                ],
+                action: (main, value) => {
+                    main.getCompiler().triggerCompile();
+                }
+            }
         ]
     }
 

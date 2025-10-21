@@ -1,3 +1,4 @@
+import { SettingsStore } from "../../../client/settings/SettingsStore.ts";
 import { CallbackParameter } from "../../common/interpreter/CallbackParameter.ts";
 import { Program } from "../../common/interpreter/Program";
 import { CallbackFunction, Helpers, StepParams } from "../../common/interpreter/StepFunction.ts";
@@ -30,8 +31,9 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
     linker: SnippetLinker;
 
     constructor(module: JavaCompiledModule, libraryTypestore: JavaTypeStore, compiledTypesTypestore: JavaTypeStore,
-        exceptionTree: ExceptionTree) {
-        super(module, libraryTypestore, compiledTypesTypestore, exceptionTree);
+        exceptionTree: ExceptionTree,
+        settingsStore: SettingsStore | undefined) {
+        super(module, libraryTypestore, compiledTypesTypestore, exceptionTree, settingsStore);
         this.linker = new SnippetLinker();
     }
 

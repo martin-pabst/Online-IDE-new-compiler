@@ -140,7 +140,7 @@ export class JavaCompiler implements Compiler {
 
             for (const module of newOrDirtyModules) {
                 const codegenerator = new CodeGenerator(module, this.libraryModuleManager.typestore,
-                    this.moduleManager.typestore, exceptionTree, this.#progressManager);
+                    this.moduleManager.typestore, exceptionTree, this.#progressManager, this.main?.getSettings());
                 await codegenerator.start();
                 await this.#progressManager.interruptIfNeeded();
             }
@@ -221,7 +221,7 @@ export class JavaCompiler implements Compiler {
         const exceptionTree = new ExceptionTree(this.libraryModuleManager.typestore, this.moduleManager.typestore);
 
         const codegenerator = new CodeGenerator(module, this.libraryModuleManager.typestore,
-            this.moduleManager.typestore, exceptionTree, this.#progressManager);
+            this.moduleManager.typestore, exceptionTree, this.#progressManager, this.main?.getSettings());
         await codegenerator.start();
 
         /**
