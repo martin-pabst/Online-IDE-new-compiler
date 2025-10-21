@@ -1021,7 +1021,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let shadowedSymbol = shadowedSymbolInformation?.symbol;
 
         if (shadowedSymbolInformation) {
-            let shadowedVariableErrorLevel: ErrorLevel | "ignore" = this.settingStore.getValue("compiler.shadowedVariableErrorLevel") as ErrorLevel | "ignore";
+            let shadowedVariableErrorLevel: ErrorLevel | "ignore" = this.settingStore.getValue("compiler.shadowedSymbolErrorLevel") as ErrorLevel | "ignore";
             if (this.codeGenerationMode == "normal") {
                 if (shadowedSymbol instanceof JavaLocalVariable) {
                     if (shadowedSymbolInformation.symbolTable == this.currentSymbolTable && this.codeGenerationMode == "normal") {

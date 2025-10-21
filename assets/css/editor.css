@@ -734,6 +734,10 @@
         color: rgb(88, 102, 221);
     }
 
+    .jo_error_category {
+        color: rgba(255, 0, 0, 0.731);
+    }
+
     .jo_revealWarning {
         background-color: var(--reveal-warning);
     }

@@ -84,7 +84,10 @@ export class ErrorManagerMessages {
         'en': 'Info'
     });
 
-
+    static error = () => lm({
+        'de': 'Fehler',
+        'en': 'Error'
+    });
 
 }
 

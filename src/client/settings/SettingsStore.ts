@@ -1,7 +1,7 @@
 
 export type SettingsScope = 'user' | 'class' | 'school' | 'default';
 
-export var SettingDefaultValues: Record<string, SettingValue> = {
+export var SettingDefaultValues = {
     "editor.hoverVerbosity.showHelpOnKeywordsAndOperators": true,
     "editor.hoverVerbosity.showMethodDeclaration": 'declarationsAndComments',   
     "editor.hoverVerbosity.showClassDeclaration": 'declarationsAndComments',

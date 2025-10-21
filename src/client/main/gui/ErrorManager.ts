@@ -77,7 +77,7 @@ export class ErrorManager {
             '/<span class="jo_linecolumn">' + error.range.startColumn + '</span>]</span>:&nbsp;');
         let category = "";
         switch (error.level) {
-            case "error": break;
+            case "error": category = `<span class="jo_error_category">${ErrorManagerMessages.error()}: </span>`; break;
             case "warning": category = `<span class="jo_warning_category">${ErrorManagerMessages.warning()}: </span>`; break;
             case "info": category = `<span class="jo_info_category">${ErrorManagerMessages.info()}: </span>`; break;
         }

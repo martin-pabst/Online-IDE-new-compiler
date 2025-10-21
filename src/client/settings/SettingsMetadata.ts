@@ -9,6 +9,7 @@ import classDiagram from '/assets/graphics/settings/class_diagram.png';
 import explorer from '/assets/graphics/settings/explorer.png';
 import parameterHints from '/assets/graphics/settings/parameter_hints.png';
 import structureStatement from '/assets/graphics/settings/structure_statement_help.png';
+import variableShadowingError from '/assets/graphics/settings/variable_shadowing_error.png';
 
 import type * as monaco from 'monaco-editor'
 import { SettingKey, SettingsScope, SettingValue } from "./SettingsStore";
@@ -311,8 +312,9 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     SettingsMessages.ErrorLevelError,
                 ],
                 action: (main, value) => {
-                    main.getCompiler().triggerCompile();
-                }
+                    main.getCompiler().forceRecompililation();
+                },
+                image: variableShadowingError
             }
         ]
     }

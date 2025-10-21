@@ -275,6 +275,11 @@ export class JavaCompiler implements Compiler {
         return this.moduleManager.modules;
     }
 
+    forceRecompililation(): void {
+        this.moduleManager.modules.forEach(m => m.setDirty(true));
+        this.triggerCompile();
+    }
+
     setFileDirty(file: CompilerFile): void {
         const module = this.findModuleByFile(file);
         module?.setDirty(true);
