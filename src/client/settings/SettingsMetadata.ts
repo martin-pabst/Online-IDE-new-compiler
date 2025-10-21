@@ -108,7 +108,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                             SettingsMessages.OptionFalse,
                             SettingsMessages.OptionTrue,
                         ],
-                        defaultValue: 'true',
                         image: structureStatement
                     },
                     {
@@ -122,7 +121,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                             SettingsMessages.OptionFalse,
                             SettingsMessages.OptionTrue,
                         ],
-                        defaultValue: 'true',
                         image: parameterHints,
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
