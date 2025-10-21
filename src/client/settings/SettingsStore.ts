@@ -5,6 +5,8 @@ export var SettingDefaultValues: Record<string, SettingValue> = {
     "editor.hoverVerbosity.showHelpOnKeywordsAndOperators": true,
     "editor.hoverVerbosity.showMethodDeclaration": 'declarationsAndComments',   
     "editor.hoverVerbosity.showClassDeclaration": 'declarationsAndComments',
+    "editor.contextSensitiveHelp.StructureStatements" :"true",
+    "editor.contextSensitiveHelp.ParameterHints" :"true",
     "editor.autoClosingBrackets": "always",
     "editor.autoClosingQuotes": "always",
     "editor.autoSemicolons": true,
