@@ -52,7 +52,8 @@ export class CharacterClass extends ObjectClass implements IPrimitiveTypeWrapper
         return new CharacterClass(c);
     }
 
-    _constructor1() {
+    _constructor1(c: string) {
+        this.value = c;
         return this;
     }
 
