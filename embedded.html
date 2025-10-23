@@ -18,27 +18,15 @@
         'withFileList': true,
         'hideEditor': false,
         'hideStartPanel': false,
-        'libraries': ['gng'],
+        'libraries': [],
+        'settings': {
+            'compiler.shadowedSymbolErrorLevel': 'error'
+        },
         'withClassDiagram': true
 
     }">
         <script type="text/plain" title="Test1.java" data-type="java">
-            new HelloWorld().main();         // startet das Applet; main() ruft dann gleich setup() auf!
-
-public class HelloWorld extends PApplet {
-
-   /**
-    * Die Methode setup wird nach dem Initialisieren des Grafiksystems von main aufgerufen.
-    */
-   public void setup() {
-      createCanvas(800, 600);    // definiert das Koordinatensystem: 800 nach rechts, 600 nach unten
-      background(60);            // füllt den Hintergrund grau (60 von maximal 255)
-      fill(255);                 // Füllfarbe ab jetzt: weiß
-      textSize(50);
-      text("Hallo Welt!", 50, 300);   // Text an der Position (50, 300)
-   }
-
-}
+           
         </script>
     </div>
 

@@ -44,6 +44,7 @@ import { Tab } from "../../tools/TabManager.js";
 import { base64ToBytes } from "../../tools/Base64.js";
 import { Settings } from "../settings/Settings.js";
 import { EmbeddedFullpageController } from "./EmbeddedFullpageController.js";
+import { SettingValues } from "../settings/SettingsMetadata.js";
 
 
 type JavaOnlineConfig = {
@@ -60,7 +61,8 @@ type JavaOnlineConfig = {
     libraries?: string[],
     jsonFilename?: string,
     spritesheetURL?: string,
-    enableFileAccess?: boolean
+    enableFileAccess?: boolean,
+    settings?: SettingValues
 }
 
 export class MainEmbedded implements MainBase {
@@ -165,8 +167,10 @@ export class MainEmbedded implements MainBase {
     }
 
     getSettings(): Settings {
+        let userSettings = this.config.settings || {};
+
         if (!this.settings) {
-            this.settings = new Settings(undefined, {}, {}, {});
+            this.settings = new Settings(undefined, userSettings, {}, {});
         }
         return this.settings;
     }
