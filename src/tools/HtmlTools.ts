@@ -193,18 +193,34 @@ export function openContextMenu(items: ContextMenuItem[], x: number, y: number, 
 
     let leftRight = x > window.innerWidth * 0.8 ? "right" : "left";
     let xp = x > window.innerWidth * 0.8 ? window.innerWidth - x : x;
-    let topBottom = y > window.innerHeight * 0.8 ? "bottom" : "top";
-    let yp = y > window.innerHeight * 0.8 ? window.innerHeight - y : y;
+    let topBottom = "top"; //y > window.innerHeight * 0.8 ? "bottom" : "top";
+    // let yp = y > window.innerHeight * 0.8 ? window.innerHeight - y : y;
+
+    jQuery("body").append($contextMenu);
+    $contextMenu.show();
 
     let css: { [key: string]: any } = {};
+    
+    let yp = y;
+    let height = $contextMenu.height() || 0;
+    if (y + height > window.innerHeight) {
+        yp = y - (height - (window.innerHeight - y)) - 20;
+    }
+
+    if(height > window.innerHeight - 20){
+        yp = 10;
+        css['max-height'] = (window.innerHeight - 20) + "px";
+        css['overflow'] = "auto";
+    }
+
     css[leftRight] = xp + "px";
     css[topBottom] = yp + "px";
 
     $contextMenu.css(css);
 
-
-    jQuery("body").append($contextMenu);
-    $contextMenu.show();
+    $contextMenu.on(mousePointer + "down.contextmenu", (ev) => {
+        ev.stopPropagation();
+    });
 
     return $contextMenu;
 }
