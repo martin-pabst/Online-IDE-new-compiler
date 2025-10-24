@@ -221,7 +221,7 @@ export class JavaClass extends IJavaClass {
         super(identifier, identifierRange, path, module);
         this.genericTypeParameters = [];
     }
-    
+
     getAbstractMethodsNotYetImplemented(): JavaMethod[] {
 
         let abstractMethods: JavaMethod[] = [];
@@ -234,9 +234,9 @@ export class JavaClass extends IJavaClass {
                 if (m.isAbstract && klass != this) {
                     abstractMethods.push(m);
                 } else {
-                    let signature = m.getSignature();
+                    let signature = m.getSignatureWithoutReturnParameter();
                     let list = concreteMethodSignatures.get(signature);
-                    if(!list){
+                    if (!list) {
                         list = [];
                         concreteMethodSignatures.set(signature, list);
                     }
@@ -247,16 +247,35 @@ export class JavaClass extends IJavaClass {
         }
 
         let abstractMethodsNotYetImplemented: JavaMethod[] = [];
-        
-        for(let abstractMethod of abstractMethods){
-            let concreteMethods = concreteMethodSignatures.get(abstractMethod.getSignature());
-            if(!concreteMethods){
+
+        for (let abstractMethod of abstractMethods) {
+            let concreteMethods = concreteMethodSignatures.get(abstractMethod.getSignatureWithoutReturnParameter());
+            if (!concreteMethods) {
                 abstractMethodsNotYetImplemented.push(abstractMethod);
             } else {
-                concreteMethods.forEach(m => m.implementedMethod = abstractMethod);
+                let isImplemented: boolean = false;
+                for (let concreteMethod of concreteMethods) {
+                    if (concreteMethod.returnParameterType?.toString() == abstractMethod.returnParameterType?.toString()) {
+                        isImplemented = true;
+                        concreteMethod.implementedMethod = abstractMethod;
+                    } else {
+                        let concreteReturnType = concreteMethod.returnParameterType;
+                        let abstractReturnType = abstractMethod.returnParameterType;
+                        if (concreteReturnType instanceof NonPrimitiveType && abstractReturnType instanceof NonPrimitiveType) {
+                            if (concreteReturnType.canImplicitlyCastTo(abstractReturnType)) {
+                                isImplemented = true;
+                                concreteMethod.implementedMethod = abstractMethod;
+                            }
+                        }
+                    }
+                    // concreteMethods.forEach(m => m.implementedMethod = abstractMethod);
+                }
+                if (!isImplemented) {
+                    abstractMethodsNotYetImplemented.push(abstractMethod);
+                }
             }
         }
-        
+
         return abstractMethodsNotYetImplemented;
 
     }
@@ -644,7 +663,7 @@ export class GenericVariantOfJavaClass extends IJavaClass {
     get runtimeClass(): Klass | undefined {
         return this.isGenericVariantOf?.runtimeClass;
     }
- 
+
     getClassObject(): ClassClass {
         return this.isGenericVariantOf.getClassObject();
     }
