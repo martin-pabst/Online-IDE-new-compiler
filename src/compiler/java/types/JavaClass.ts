@@ -234,7 +234,7 @@ export class JavaClass extends IJavaClass {
                 if (m.isAbstract && klass != this) {
                     abstractMethods.push(m);
                 } else {
-                    let signature = m.getSignatureWithoutReturnParameter();
+                    let signature = m.getSignature();
                     let list = concreteMethodSignatures.get(signature);
                     if(!list){
                         list = [];
@@ -249,7 +249,7 @@ export class JavaClass extends IJavaClass {
         let abstractMethodsNotYetImplemented: JavaMethod[] = [];
         
         for(let abstractMethod of abstractMethods){
-            let concreteMethods = concreteMethodSignatures.get(abstractMethod.getSignatureWithoutReturnParameter());
+            let concreteMethods = concreteMethodSignatures.get(abstractMethod.getSignature());
             if(!concreteMethods){
                 abstractMethodsNotYetImplemented.push(abstractMethod);
             } else {
