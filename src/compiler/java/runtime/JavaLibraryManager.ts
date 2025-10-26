@@ -3,6 +3,7 @@ import { CheckboxState } from "../../../client/main/gui/Dialog";
 import { Compiler } from "../../common/Compiler";
 import { JavaLibraryModule } from "../module/libraries/JavaLibraryModule";
 import { GNGModule } from "./graphics/gng/GNGModule";
+import { NiedersachsenModule } from "./modules/niedersachsen/NiedersachsenModule";
 import { NRWModule } from "./modules/nrw/NRWModule";
 
 export type LibraryData = {
@@ -24,7 +25,12 @@ export class JavaLibraryManager {
             identifier: 'Abiturklassen Nordrhein-Westfalen',
             description: 'Klassenbibliothek zur Verwendung im Zentralabitur Nordrhein-Westfalen',
             id: 'nrw'
-        }
+        },
+        {
+            identifier: 'Abiturklassen Niedersachsen',
+            description: 'Klassenbibliothek zur Verwendung im Abitur Niedersachsen',
+            id: 'niedersachsen'
+        },
     ];
 
     libraryIds: string[] = [];
@@ -39,6 +45,8 @@ export class JavaLibraryManager {
                 case "gng": additionalModules.push(new GNGModule());
                 break;
                 case "nrw": additionalModules.push(new NRWModule());
+                break;
+                case "niedersachsen": additionalModules.push(new NiedersachsenModule());
                 break;
             }
         }
