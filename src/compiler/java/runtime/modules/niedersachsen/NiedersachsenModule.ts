@@ -32,7 +32,7 @@ export class NiedersachsenModule extends JavaLibraryModule {
     }
 
     prepareSystemModule(systemModule: SystemModule): void {
-        let classesToRemove: string[] = ['List', 'ArrayList', 'LinkedList', 'Vector', 'Stack', 'Queue', 'Deque', 'CopyOnWriteArrayList', 'Collections'];
+        let classesToRemove: string[] = ['Stack'];
         systemModule.classesInterfacesEnums = systemModule.classesInterfacesEnums.filter(c => classesToRemove.indexOf(this.getName(c)) < 0);
     }
 
