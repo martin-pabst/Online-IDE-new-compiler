@@ -515,7 +515,7 @@ export class JavaClass extends IJavaClass {
 
     canImplicitlyCastTo(bType: JavaType): boolean {
 
-        if (bType == this) return true;                   // A can cast to A.
+        if (bType == this || bType.identifier == this.identifier) return true;                   // A can cast to A.
 
         if (bType instanceof GenericTypeParameter) {
 
