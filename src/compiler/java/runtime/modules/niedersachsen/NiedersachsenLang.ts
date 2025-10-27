@@ -76,7 +76,7 @@ export class NiedersachsenLang {
     });
 
     static dynArrayIsEmptyComment = () => lm({
-        'de': `Gibt genau dann true zurück, wenn das dynamische Array keine Elemente enthält.`  ,
+        'de': `Gibt genau dann true zurück, wenn das dynamische Array keine Elemente enthält.`,
         'en': `Returns true if the dynamic array contains no elements.`
     });
 
