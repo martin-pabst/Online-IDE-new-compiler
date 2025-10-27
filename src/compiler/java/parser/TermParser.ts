@@ -538,7 +538,7 @@ export abstract class TermParser extends TokenIterator {
     parseCastedObject(): ASTCastNode | undefined {
         let startToken = this.cct;
         this.nextToken(); // skip (
-        let type = this.parseType(true);
+        let type = this.parseType(false);
         this.expect(TokenType.rightBracket);
         let term = this.parseTermUnary();
 
