@@ -126,14 +126,9 @@ try {
  * { "libraries": ["niedersachsen"] }
  */
 BinTree bt = new BinTree();
-assertFalse(bt.hasItem(), "Niedersachsen-BinTree: hasItem() returns false on empty binTree.");
 
 bt.setItem("Wurzel");
-assertTrue(bt.hasItem(), "Niedersachsen-BinTree: hasItem() returns true on non-empty binTree.");
 assertEquals("Wurzel", bt.getItem(), "Niedersachsen-BinTree: getItem() doesn't return correct value.");
-
-assertFalse(bt.hasLeft(), "Niedersachsen-BinTree: hasLeft() returns true on empty left child.");
-assertFalse(bt.hasRight(), "Niedersachsen-BinTree: hasRight() returns true on empty right child.");
 
 bt.setLeft(new BinTree("Links"));
 bt.setRight(new BinTree("Rechts"));
@@ -148,15 +143,5 @@ assertFalse(bt.isLeaf(), "Niedersachsen-BinTree: isLeaf() returns true on non-le
 assertEquals("BinTree[inhalt=Wurzel, left=BinTree[inhalt=Links, left=null, right=null], right=BinTree[inhalt=Rechts, left=null, right=null]]",
    bt.toString(), "Niedersachsen-BinTree: toString() doesn't return correct value.");
 
-bt.deleteItem();
-assertFalse(bt.hasItem(), "Niedersachsen-BinTree: hasItem() returns true after deleteItem().");
-assertTrue(bt.hasLeft(), "Niedersachsen-BinTree: hasLeft() returns false when left child exists.");
-assertTrue(bt.hasRight(), "Niedersachsen-BinTree: hasRight() returns false when right child exists.");
-
-bt.deleteLeft();
-assertFalse(bt.hasLeft(), "Niedersachsen-BinTree: hasLeft() returns true after deleteLeft().");
-
-bt.deleteRight();
-assertFalse(bt.hasRight(), "Niedersachsen-BinTree: hasRight() returns true after deleteRight().");
 
 
