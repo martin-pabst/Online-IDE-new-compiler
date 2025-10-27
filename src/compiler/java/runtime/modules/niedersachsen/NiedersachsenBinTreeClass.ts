@@ -26,6 +26,7 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
         { type: "method", signature: "void setRight(BinTree b)", native: NiedersachsenBinTreeClass.prototype._setRight, comment: NiedersachsenLang.binTreeSetRightComment },
         { type: "method", signature: "void deleteLeft()", native: NiedersachsenBinTreeClass.prototype._deleteLeft, comment: NiedersachsenLang.binTreeDeleteLeftComment },
         { type: "method", signature: "void deleteRight()", native: NiedersachsenBinTreeClass.prototype._deleteRight, comment: NiedersachsenLang.binTreeDeleteRightComment },
+        { type: "method", signature: "void setEmpty()", native: NiedersachsenBinTreeClass.prototype._setEmpty, comment: NiedersachsenLang.binTreeSetEmptyComment },
         { type: "method", signature: "String toString()", java: NiedersachsenBinTreeClass.prototype._mj$toString$String$, comment: JRC.objectToStringComment },
 
     ]
@@ -142,5 +143,9 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
         }
         this.right = null;
     }
-
+    _setEmpty() {
+        this.inhalt = null;
+        this.left = null;
+        this.right = null;
+    }
 }

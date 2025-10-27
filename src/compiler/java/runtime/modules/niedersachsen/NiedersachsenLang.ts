@@ -200,4 +200,9 @@ export class NiedersachsenLang {
         'de': `Es gibt keinen rechten Teilbaum zum Löschen.`,
         'en': `There is no right subtree to delete.`
     });
+
+    static binTreeSetEmptyComment = () => lm({
+        'de': `Der Baum wird zu einem leeren Baum, d. h. er besitzt keinen Inhalt und keine Teilbäume.`,
+        'en': `The tree becomes an empty tree, i.e., it has no content and no subtrees.`
+    });
 }
