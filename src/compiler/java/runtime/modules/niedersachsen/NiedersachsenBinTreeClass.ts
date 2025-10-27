@@ -13,19 +13,20 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
 
         { type: "method", signature: "BinTree()", native: NiedersachsenBinTreeClass.prototype._constructor, comment: NiedersachsenLang.binTreeConstructorComment },
         { type: "method", signature: "BinTree(Object o)", native: NiedersachsenBinTreeClass.prototype._constructor, comment: NiedersachsenLang.binTreeConstructorWithContentComment },
-        { type: "method", signature: "boolean hasItem()", native: NiedersachsenBinTreeClass.prototype._hasItem, comment: NiedersachsenLang.binTreeHasItemComment },
+        // { type: "method", signature: "boolean hasItem()", native: NiedersachsenBinTreeClass.prototype._hasItem, comment: NiedersachsenLang.binTreeHasItemComment },
         { type: "method", signature: "Object getItem()", native: NiedersachsenBinTreeClass.prototype._getItem, comment: NiedersachsenLang.binTreeGetItemComment },
         { type: "method", signature: "void setItem(Object o)", native: NiedersachsenBinTreeClass.prototype._setItem, comment: NiedersachsenLang.binTreeSetItemComment },
-        { type: "method", signature: "void deleteItem()", native: NiedersachsenBinTreeClass.prototype._deleteItem, comment: NiedersachsenLang.binTreeDeleteItemComment },
+        // { type: "method", signature: "void deleteItem()", native: NiedersachsenBinTreeClass.prototype._deleteItem, comment: NiedersachsenLang.binTreeDeleteItemComment },
         { type: "method", signature: "boolean isLeaf()", native: NiedersachsenBinTreeClass.prototype._isLeaf, comment: NiedersachsenLang.binTreeIsLeafComment },
-        { type: "method", signature: "boolean hasLeft()", native: NiedersachsenBinTreeClass.prototype._hasLeft, comment: NiedersachsenLang.binTreeHasLeftComment },
-        { type: "method", signature: "boolean hasRight()", native: NiedersachsenBinTreeClass.prototype._hasRight, comment: NiedersachsenLang.binTreeHasLeftComment },
+        // { type: "method", signature: "boolean hasLeft()", native: NiedersachsenBinTreeClass.prototype._hasLeft, comment: NiedersachsenLang.binTreeHasLeftComment },
+        // { type: "method", signature: "boolean hasRight()", native: NiedersachsenBinTreeClass.prototype._hasRight, comment: NiedersachsenLang.binTreeHasLeftComment },
         { type: "method", signature: "BinTree getLeft()", native: NiedersachsenBinTreeClass.prototype._getLeft, comment: NiedersachsenLang.binTreeGetLeftComment },
         { type: "method", signature: "BinTree getRight()", native: NiedersachsenBinTreeClass.prototype._getRight, comment: NiedersachsenLang.binTreeGetRightComment },
         { type: "method", signature: "void setLeft(BinTree b)", native: NiedersachsenBinTreeClass.prototype._setLeft, comment: NiedersachsenLang.binTreeSetLeftComment },
         { type: "method", signature: "void setRight(BinTree b)", native: NiedersachsenBinTreeClass.prototype._setRight, comment: NiedersachsenLang.binTreeSetRightComment },
-        { type: "method", signature: "void deleteLeft()", native: NiedersachsenBinTreeClass.prototype._deleteLeft, comment: NiedersachsenLang.binTreeDeleteLeftComment },
-        { type: "method", signature: "void deleteRight()", native: NiedersachsenBinTreeClass.prototype._deleteRight, comment: NiedersachsenLang.binTreeDeleteRightComment },
+        // { type: "method", signature: "void deleteLeft()", native: NiedersachsenBinTreeClass.prototype._deleteLeft, comment: NiedersachsenLang.binTreeDeleteLeftComment },
+        // { type: "method", signature: "void deleteRight()", native: NiedersachsenBinTreeClass.prototype._deleteRight, comment: NiedersachsenLang.binTreeDeleteRightComment },
+        { type: "method", signature: "void isEmpty()", native: NiedersachsenBinTreeClass.prototype._isEmpty, comment: NiedersachsenLang.binTreeIsEmptyComment },
         { type: "method", signature: "void setEmpty()", native: NiedersachsenBinTreeClass.prototype._setEmpty, comment: NiedersachsenLang.binTreeSetEmptyComment },
         { type: "method", signature: "String toString()", java: NiedersachsenBinTreeClass.prototype._mj$toString$String$, comment: JRC.objectToStringComment },
 
@@ -124,8 +125,7 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
 
     _getRight() {
         return this.right;
-    }
-    _setLeft(b: NiedersachsenBinTreeClass) {
+    }    _setLeft(b: NiedersachsenBinTreeClass) {
         this.left = b;
     }
     _setRight(b: NiedersachsenBinTreeClass) {
@@ -147,5 +147,8 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
         this.inhalt = null;
         this.left = null;
         this.right = null;
+    }
+    _isEmpty() {
+        return this.inhalt == null && this.left == null && this.right == null;
     }
 }

@@ -205,4 +205,9 @@ export class NiedersachsenLang {
         'de': `Der Baum wird zu einem leeren Baum, d. h. er besitzt keinen Inhalt und keine Teilbäume.`,
         'en': `The tree becomes an empty tree, i.e., it has no content and no subtrees.`
     });
+
+    static binTreeIsEmptyComment = () => lm({
+        'de': `Gibt genau dann true zurück, wenn der binäre Baum leer ist (d.h. kein Inhalt und keine Teilbäume).`,
+        'en': `Returns true if the binary tree is empty (no content and no subtrees).`
+    });
 }
