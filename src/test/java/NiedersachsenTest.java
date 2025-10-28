@@ -140,7 +140,7 @@ assertTrue(bt.getRight().isLeaf(), "Niedersachsen-BinTree: getRight().isLeaf() r
 
 assertFalse(bt.isLeaf(), "Niedersachsen-BinTree: isLeaf() returns true on non-leaf node.");
 
-assertEquals("BinTree[inhalt=Wurzel, left=BinTree[inhalt=Links, left=null, right=null], right=BinTree[inhalt=Rechts, left=null, right=null]]",
+assertEquals("BinTree[inhalt=Wurzel, left=BinTree[inhalt=Links, left=BinTree[inhalt=null, left=null, right=null], right=BinTree[inhalt=null, left=null, right=null]], right=BinTree[inhalt=Rechts, left=BinTree[inhalt=null, left=null, right=null], right=BinTree[inhalt=null, left=null, right=null]]]",
    bt.toString(), "Niedersachsen-BinTree: toString() doesn't return correct value.");
 
 

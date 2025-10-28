@@ -3,6 +3,8 @@ import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments.ts";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
+import { IllegalArgumentExceptionClass } from "../../system/javalang/IllegalArgumentException.ts";
+import { IllegalStateExceptionClass } from "../../system/javalang/IllegalStateException.ts";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { RuntimeExceptionClass } from "../../system/javalang/RuntimeException.ts";
 import { NiedersachsenLang } from "./NiedersachsenLang.ts";
@@ -12,7 +14,7 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
         { type: "declaration", signature: "class BinTree", comment: NiedersachsenLang.binTreeClassComment },
 
         { type: "method", signature: "BinTree()", native: NiedersachsenBinTreeClass.prototype._constructor, comment: NiedersachsenLang.binTreeConstructorComment },
-        { type: "method", signature: "BinTree(Object o)", native: NiedersachsenBinTreeClass.prototype._constructor, comment: NiedersachsenLang.binTreeConstructorWithContentComment },
+        { type: "method", signature: "BinTree(Object o)", native: NiedersachsenBinTreeClass.prototype._constructor1, comment: NiedersachsenLang.binTreeConstructorWithContentComment },
         // { type: "method", signature: "boolean hasItem()", native: NiedersachsenBinTreeClass.prototype._hasItem, comment: NiedersachsenLang.binTreeHasItemComment },
         { type: "method", signature: "Object getItem()", native: NiedersachsenBinTreeClass.prototype._getItem, comment: NiedersachsenLang.binTreeGetItemComment },
         { type: "method", signature: "void setItem(Object o)", native: NiedersachsenBinTreeClass.prototype._setItem, comment: NiedersachsenLang.binTreeSetItemComment },
@@ -26,7 +28,7 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
         { type: "method", signature: "void setRight(BinTree b)", native: NiedersachsenBinTreeClass.prototype._setRight, comment: NiedersachsenLang.binTreeSetRightComment },
         // { type: "method", signature: "void deleteLeft()", native: NiedersachsenBinTreeClass.prototype._deleteLeft, comment: NiedersachsenLang.binTreeDeleteLeftComment },
         // { type: "method", signature: "void deleteRight()", native: NiedersachsenBinTreeClass.prototype._deleteRight, comment: NiedersachsenLang.binTreeDeleteRightComment },
-        { type: "method", signature: "void isEmpty()", native: NiedersachsenBinTreeClass.prototype._isEmpty, comment: NiedersachsenLang.binTreeIsEmptyComment },
+        { type: "method", signature: "boolean isEmpty()", native: NiedersachsenBinTreeClass.prototype._isEmpty, comment: NiedersachsenLang.binTreeIsEmptyComment },
         { type: "method", signature: "void setEmpty()", native: NiedersachsenBinTreeClass.prototype._setEmpty, comment: NiedersachsenLang.binTreeSetEmptyComment },
         { type: "method", signature: "String toString()", java: NiedersachsenBinTreeClass.prototype._mj$toString$String$, comment: JRC.objectToStringComment },
 
@@ -43,8 +45,17 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
         this.inhalt = inhalt || null;
     }
 
-    _constructor(o: ObjectClassOrNull = null) {
+    _constructor() {
+        return this;
+    }
+
+    _constructor1(o: ObjectClassOrNull = null) {
+        if(o == null){
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.noContentForBinTreeExceptionMessage());
+        }
         this.inhalt = o;
+        this.left = new NiedersachsenBinTreeClass()._constructor();
+        this.right = new NiedersachsenBinTreeClass()._constructor();
         return this;
     }
 
@@ -93,13 +104,21 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
     }
 
     _getItem() {
-        if(this.inhalt == null){
-            throw new RuntimeExceptionClass(NiedersachsenLang.noContentInBinTreeExceptionMessage());
+        if(this._isEmpty()){
+            throw new IllegalStateExceptionClass(NiedersachsenLang.noContentInBinTreeExceptionMessage());
         }
         return this.inhalt;
     }
 
     _setItem(o: ObjectClassOrNull) {
+        if(o == null){
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.binTreeSetItemNullExceptionMessage());
+        }
+        if(this._isEmpty()){
+            this.left = new NiedersachsenBinTreeClass()._constructor();
+            this.right = new NiedersachsenBinTreeClass()._constructor();
+        }
+
         this.inhalt = o;
     }
 
@@ -108,7 +127,12 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
     }
 
     _isLeaf() {
-        return this.left == null && this.right == null;
+
+        if(this._isEmpty()){
+            throw new IllegalStateExceptionClass(NiedersachsenLang.binTreeEmptyIsLeafExceptionMessage());
+        }
+
+        return this.left?._isEmpty() && this.right?._isEmpty();
     }
 
     _hasLeft() {
@@ -120,17 +144,43 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
     }
 
     _getLeft() {
+        if(this._isEmpty()){
+            throw new IllegalStateExceptionClass(NiedersachsenLang.getLeftOnEmptyTreeExceptionMessage());
+        }
         return this.left;
     }
 
     _getRight() {
+        if(this._isEmpty()){
+            throw new IllegalStateExceptionClass(NiedersachsenLang.getRightOnEmptyTreeExceptionMessage());
+        }
         return this.right;
-    }    _setLeft(b: NiedersachsenBinTreeClass) {
+    }    
+    
+    _setLeft(b: NiedersachsenBinTreeClass) {
+        if(this._isEmpty()){
+            throw new IllegalStateExceptionClass(NiedersachsenLang.setLeftOnEmptyTreeExceptionMessage());
+        }
+
+        if(b == null){
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.setEmptyTreeAsChildExceptionMessage());
+        }
+
         this.left = b;
     }
+    
     _setRight(b: NiedersachsenBinTreeClass) {
+        if(this._isEmpty()){
+            throw new IllegalStateExceptionClass(NiedersachsenLang.setRightOnEmptyTreeExceptionMessage());
+        }
+
+        if(b == null){
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.setEmptyTreeAsChildExceptionMessage());
+        }
+
         this.right = b;
     }
+
     _deleteLeft() {
         if(!this.left){
             throw new RuntimeExceptionClass(NiedersachsenLang.noLeftSubtreeToDeleteExceptionMessage());   

@@ -1,10 +1,8 @@
-import { BaseListType } from "../../../../common/BaseType.ts";
 import { CallbackFunction } from "../../../../common/interpreter/StepFunction.ts";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments.ts";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
-import { SystemCollection } from "../../system/collections/SystemCollection.ts";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 

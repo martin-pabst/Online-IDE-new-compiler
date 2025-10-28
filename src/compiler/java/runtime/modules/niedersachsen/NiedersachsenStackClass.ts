@@ -4,6 +4,8 @@ import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments.ts";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
+import { IllegalArgumentExceptionClass } from "../../system/javalang/IllegalArgumentException.ts";
+import { IllegalStateExceptionClass } from "../../system/javalang/IllegalStateException.ts";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { RuntimeExceptionClass } from "../../system/javalang/RuntimeException.ts";
 import { NiedersachsenElementClass } from "./NiedersachsenElementClass.ts";
@@ -43,13 +45,16 @@ export class NiedersachsenStackClass extends ObjectClass implements BaseListType
     }
 
     _push(neu: ObjectClassOrNull) {
+        if(neu == null){
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.mustNotPushNullExceptionMessage());
+        }
         let element = new NiedersachsenElementClass()._constructorFull(neu, this.top);
         this.top = element;
     }
 
     _pop() {
         if (this._isEmpty()) {
-            throw new RuntimeExceptionClass("Stack is empty. Cannot pop element.");
+            throw new IllegalStateExceptionClass("Stack is empty. Cannot pop element.");
         }
         let tmp: ObjectClassOrNull = this.top.inhalt;
         this.top = this.top.next;
@@ -59,7 +64,7 @@ export class NiedersachsenStackClass extends ObjectClass implements BaseListType
 
     _top(): ObjectClassOrNull {
         if (this._isEmpty()) {
-            throw new RuntimeExceptionClass("Stack is empty. Cannot get top element.");
+            throw new IllegalStateExceptionClass(NiedersachsenLang.stackClassEmptyExceptionMessageTop());
         }
 
         return this.top.inhalt;

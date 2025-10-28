@@ -5,6 +5,8 @@ import { JRC } from "../../../language/JavaRuntimeLibraryComments.ts";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { SystemCollection } from "../../system/collections/SystemCollection.ts";
+import { IllegalArgumentExceptionClass } from "../../system/javalang/IllegalArgumentException.ts";
+import { IllegalStateExceptionClass } from "../../system/javalang/IllegalStateException.ts";
 import { ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { RuntimeExceptionClass } from "../../system/javalang/RuntimeException.ts";
 import { NiedersachsenElementClass } from "./NiedersachsenElementClass.ts";
@@ -44,6 +46,10 @@ export class NiedersachsenQueueClass extends SystemCollection {
     }
 
     _enqueue(neu: ObjectClassOrNull) {
+        if(neu == null){
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.mustNotEnqueueNullExceptionMessage());
+        }
+
         let element = new NiedersachsenElementClass()._constructorFull(neu, null);
 
         if(this.head == null) {
@@ -56,7 +62,7 @@ export class NiedersachsenQueueClass extends SystemCollection {
 
     _dequeue() {
         if (this._isEmpty()) {
-            throw new RuntimeExceptionClass("Queue is empty. Cannot dequeue element.");
+            throw new IllegalStateExceptionClass(NiedersachsenLang.queueClassEmptyExceptionMessage());
         }
 
         let tmp: ObjectClassOrNull = this.head.inhalt;
@@ -74,7 +80,7 @@ export class NiedersachsenQueueClass extends SystemCollection {
 
     _head(): ObjectClassOrNull {
         if (this._isEmpty()) {
-            throw new RuntimeExceptionClass("Queue is empty. Cannot get head element.");
+            throw new IllegalStateExceptionClass(NiedersachsenLang.queueClassEmptyExceptionMessageHead());
         }
 
         return this.head.inhalt;

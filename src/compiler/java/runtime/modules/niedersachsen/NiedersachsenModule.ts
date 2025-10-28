@@ -1,7 +1,6 @@
 import { CodeFragment } from "../../../../common/disassembler/CodeFragment";
 import { JavaLibraryModule } from "../../../module/libraries/JavaLibraryModule";
 import { SystemModule } from "../../system/SystemModule";
-import { NiedersachsenElementClass } from "./NiedersachsenElementClass";
 import { NiedersachsenDynArrayClass } from "./NiedersachsenDynArrayClass";
 import { NiedersachsenBinTreeClass } from "./NiedersachsenBinTreeClass";
 import { NiedersachsenStackClass } from "./NiedersachsenStackClass";
@@ -15,7 +14,7 @@ export class NiedersachsenModule extends JavaLibraryModule {
     constructor() {
         super();
         this.classesInterfacesEnums.push(
-            NiedersachsenElementClass, NiedersachsenDynArrayClass, 
+            NiedersachsenDynArrayClass, 
             NiedersachsenBinTreeClass, NiedersachsenStackClass,
             NiedersachsenQueueClass    
         )

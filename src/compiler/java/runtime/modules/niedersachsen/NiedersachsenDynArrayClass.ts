@@ -4,13 +4,14 @@ import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments.ts";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
+import { IllegalArgumentExceptionClass } from "../../system/javalang/IllegalArgumentException.ts";
 import { IndexOutOfBoundsExceptionClass } from "../../system/javalang/IndexOutOfBoundsExceptionClass.ts";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
 export class NiedersachsenDynArrayClass extends ObjectClass implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class DynArray", comment: NiedersachsenLang.dynArrayClassComment },
+        { type: "declaration", signature: "class DynArray implements Iterable<Object>", comment: NiedersachsenLang.dynArrayClassComment },
 
         { type: "method", signature: "DynArray()", native: NiedersachsenDynArrayClass.prototype._constructor, comment: NiedersachsenLang.dynArrayConstructorComment },
         { type: "method", signature: "boolean isEmpty()", native: NiedersachsenDynArrayClass.prototype._isEmpty, comment: NiedersachsenLang.dynArrayIsEmptyComment },
@@ -20,6 +21,8 @@ export class NiedersachsenDynArrayClass extends ObjectClass implements BaseListT
         { type: "method", signature: "void setItem(int index, Object x)", native: NiedersachsenDynArrayClass.prototype._setItem, comment: NiedersachsenLang.dynArraySetItemComment },
         { type: "method", signature: "void delete(int index)", native: NiedersachsenDynArrayClass.prototype._delete, comment: NiedersachsenLang.dynArrayDeleteComment },
         { type: "method", signature: "int getLength()", native: NiedersachsenDynArrayClass.prototype._getLength, comment: NiedersachsenLang.dynArrayGetLengthComment },
+        { type: "method", signature: "Iterator<Object> iterator()", native: NiedersachsenDynArrayClass.prototype._iterator, comment: NiedersachsenLang.dynArrayIteratorComment },
+        
         { type: "method", signature: "String toString()", java: NiedersachsenDynArrayClass.prototype._mj$toString$String$, comment: JRC.objectToStringComment },
 
     ]        
@@ -75,6 +78,10 @@ export class NiedersachsenDynArrayClass extends ObjectClass implements BaseListT
     }    
 
     _append(element: ObjectClassOrNull) {
+        if(element == null){
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.mustNotAppendNullExceptionMessage());
+        }
+
         this.elements.push(element);
     }    
 
@@ -83,15 +90,23 @@ export class NiedersachsenDynArrayClass extends ObjectClass implements BaseListT
             throw new IndexOutOfBoundsExceptionClass(JRC.indexOutOfBoundsException(index, this.elements.length - 1));
         }    
 
+        if(element == null){
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.mustNotInsertNullExceptionMessage());
+        }
+
         this.elements.splice(index, 0, element);
         return true;
     }    
-
+    
     _setItem(index: number, element: ObjectClassOrNull) {
         if (index < 0 || index >= this.elements.length) {
             throw new IndexOutOfBoundsExceptionClass(JRC.indexOutOfBoundsException(index, this.elements.length - 1));
         }    
-
+        
+        if(element == null){
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.mustNotInsertNullExceptionMessage());
+        }
+    
         let ret = this.elements[index];
 
         this.elements[index] = element;
@@ -112,6 +127,28 @@ export class NiedersachsenDynArrayClass extends ObjectClass implements BaseListT
 
     _getLength() {
         return this.elements.length;
+    }
+
+        _iterator() {
+
+        let iterator = new ObjectClass();
+
+        let nextIndex = 0;
+
+        //@ts-ignore
+        iterator["_mj$hasNext$boolean$"] = (t: Thread, callback: CallbackFunction) => {
+            t.s.push(nextIndex < this.elements.length);
+            if (callback) callback();
+        }
+
+        //@ts-ignore
+        iterator["_mj$next$E$"] = (t: Thread, callback: CallbackFunction) => {
+            if (nextIndex < this.elements.length) nextIndex++;
+            t.s.push(this.elements[nextIndex - 1]);
+            if (callback) callback();
+        }
+
+        return iterator;
     }
 
 }

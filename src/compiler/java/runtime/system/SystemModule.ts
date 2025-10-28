@@ -163,6 +163,7 @@ import { StreamInterface } from "./collections/StreamInterface.ts";
 import { SystemStreamClass } from "./collections/SystemStreamClass.ts";
 import { PredicateInterface } from "./functional/PredicateInterface.ts";
 import { IllegalArgumentExceptionClass } from "./javalang/IllegalArgumentException.ts";
+import { IllegalStateExceptionClass } from "./javalang/IllegalStateException.ts";
 
 export class SystemModule extends JavaLibraryModule {
 
@@ -207,7 +208,7 @@ export class SystemModule extends JavaLibraryModule {
             MathClass, RandomClass, DecimalFormatClass,
             ThrowableClass, ExceptionClass, RuntimeExceptionClass, IllegalArgumentExceptionClass, ArithmeticExceptionClass, NullPointerExceptionClass,
             ClassCastExceptionClass, IndexOutOfBoundsExceptionClass, IllegalMonitorStateExceptionClass,
-            EmptyStackExceptionClass,
+            EmptyStackExceptionClass, IllegalStateExceptionClass,
 
             // Collections
             IteratorInterface, IterableInterface, CollectionInterface, ListInterface, ArrayListClass, CopyOnWriteArrayListClass,
