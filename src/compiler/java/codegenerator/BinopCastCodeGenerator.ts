@@ -179,10 +179,10 @@ export abstract class BinopCastCodeGenerator {
         if (rWrapperIndex && leftSnippet.getConstantValue() !== null) rightSnippet = this.unbox(rightSnippet);
 
         if (operator == TokenType.equal || operator == TokenType.notEqual) {
-            if(leftType == this.nullType && (!rightType.isPrimitive || rightType == this.stringType) 
-                || rightType == this.nullType && (!leftType.isPrimitive || leftType == this.stringType)){
+            if (leftType == this.nullType && (!rightType.isPrimitive || rightType == this.stringType)
+                || rightType == this.nullType && (!leftType.isPrimitive || leftType == this.stringType)) {
                 return new BinaryOperatorTemplate(operatorIdentifier, true).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
-            } 
+            }
 
             if (lTypeIndex == 0 && rTypeIndex != 0 || lTypeIndex != 0 && rTypeIndex == 0) {
                 this.pushError(JCM.badOperandTypesForBinaryOperator(TokenTypeReadable[operator], leftType.toString(), rightType.toString()), "error", operatorRange);
@@ -253,14 +253,14 @@ export abstract class BinopCastCodeGenerator {
         }
 
         let stackFramePositionString: string = "";
-        if(ast.instanceofPatternIdentifier){
-            let patternVariable: JavaLocalVariable = new JavaLocalVariable(ast.instanceofPatternIdentifier,ast.instanceofPatternIdentifierRange, rightType.nonPrimitiveType,  this.currentSymbolTable);
+        if (ast.instanceofPatternIdentifier) {
+            let patternVariable: JavaLocalVariable = new JavaLocalVariable(ast.instanceofPatternIdentifier, ast.instanceofPatternIdentifierRange, rightType.nonPrimitiveType, this.currentSymbolTable);
             patternVariable.isFinal = true;
             this.registerUsagePosition(patternVariable, ast.instanceofPatternIdentifierRange);
-            
+
             this.currentSymbolTable.getStackFrame().addSymbol(patternVariable, "localVariable");
             stackFramePositionString = ", " + StepParams.stackBase + " + " + patternVariable.stackframePosition;
-            if(!ast.instanceofVariables){
+            if (!ast.instanceofVariables) {
                 ast.instanceofVariables = [];
             }
             ast.instanceofVariables.push(patternVariable)
@@ -271,7 +271,7 @@ export abstract class BinopCastCodeGenerator {
 
     }
 
-    
+
 
     /**
      * now both types are in [boolean, char, byte, short, int, long, float, double]
@@ -489,14 +489,14 @@ export abstract class BinopCastCodeGenerator {
 
     }
 
-    compileCast(snippet: CodeSnippet, castTo: JavaType, castType: "explicit" | "implicit", fromToStringMethod: boolean = false ): CodeSnippet {
+    compileCast(snippet: CodeSnippet, castTo: JavaType, castType: "explicit" | "implicit", fromToStringMethod: boolean = false): CodeSnippet {
         if (!snippet || !snippet.type || !castTo) return snippet;
         let type: JavaType = snippet.type;
 
         if (snippet.type == castTo) return snippet;
 
         if (!type.isPrimitive) {
-            if(type.identifier == "String" && castTo == this.stringType){
+            if (type.identifier == "String" && castTo == this.stringType) {
                 return new OneParameterTemplate('(§1?.value ?? null)').applyToSnippet(this.stringType, snippet.range, snippet);
             }
             // if (castTo.identifier == "string" || castTo.identifier == "String") {
@@ -513,8 +513,8 @@ export abstract class BinopCastCodeGenerator {
             if (castTo.isPrimitive) {
                 let boxedIndex = boxedTypesMap[type.identifier];
                 if (boxedIndex) {
-                    if(castTo == this.stringType){
-                        if(fromToStringMethod){
+                    if (castTo == this.stringType) {
+                        if (fromToStringMethod) {
                             return new OneParameterTemplate('((§1?.value ?? null) + "")').applyToSnippet(this.stringType, snippet.range, snippet);
                         } else {
                             this.pushError(JCM.cantCastType(type.identifier, castTo.identifier), "error", snippet.range!);
@@ -524,7 +524,17 @@ export abstract class BinopCastCodeGenerator {
                     snippet = this.unbox(snippet);
                     // continue below...
                 } else {
-                    this.pushError(JCM.cantCastType(type.identifier, castTo.identifier), "error", snippet.range!);
+                    if (type.identifier == "Object") {
+                        let castToIndex = primitiveTypeMap[castTo.identifier];
+                        let boxedTypeIdentifier = boxedTypeIdentifiers[castToIndex!];
+
+                        let range = snippet.range;
+                        return SnippetFramer.frame(snippet, `${Helpers.checkCast}(§1, "${boxedTypeIdentifier}", ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}).value`
+                            , castTo);
+                    } else {
+                        this.pushError(JCM.cantCastType(type.identifier, castTo.identifier), "error", snippet.range!);
+                    }
+
                     return snippet;
                 }
             } else {
@@ -609,7 +619,7 @@ export abstract class BinopCastCodeGenerator {
 
 
         // now both types are in nByte = 5, nShort = 6, nInteger = 7, nLong = 8, nFloat = 9, nDouble = 10
-        if (snippetTypeIndex <= castToTypeIndex ) {
+        if (snippetTypeIndex <= castToTypeIndex) {
             snippet.type = castTo;
             return snippet;
         }
@@ -695,9 +705,9 @@ export abstract class BinopCastCodeGenerator {
             }
         }
 
-        if(typeTo == this.stringType && typeFrom == this.nullType) return true;
+        if (typeTo == this.stringType && typeFrom == this.nullType) return true;
 
-        if(typeFrom.isPrimitive && typeTo.identifier == "Object"){
+        if (typeFrom.isPrimitive && typeTo.identifier == "Object" || typeFrom.identifier == "Object" && typeTo.isPrimitive) {
             return true;
         }
 
@@ -790,7 +800,7 @@ export abstract class BinopCastCodeGenerator {
         if (snippet instanceof StringCodeSnippet) snippet.setConstantValue(constant || null);
 
         let boxedType = this.libraryTypestore.getType(boxedIdentifier);
-        if(unboxedTypeIndex == nString){
+        if (unboxedTypeIndex == nString) {
             return SnippetFramer.frame(snippet, `${Helpers.primitiveStringToStringObject}(§1)`, boxedType);
         } else {
             return SnippetFramer.frame(snippet, `new ${Helpers.classes}["${boxedIdentifier}"](§1)`, boxedType);

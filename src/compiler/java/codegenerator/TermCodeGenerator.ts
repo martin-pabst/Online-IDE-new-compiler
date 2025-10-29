@@ -206,6 +206,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         if (this.canCastTo(sourceType, destType, "explicit")) {
             return this.compileCast(objectSnippet, destType, "explicit");
+        } else {
+            this.pushError(JCM.cantCastFromTo(sourceType.identifier, destType.identifier), "error", node);
         }
 
     }
