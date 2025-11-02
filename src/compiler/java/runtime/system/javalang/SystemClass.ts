@@ -49,7 +49,7 @@ export class PrintStreamClass extends ObjectClass {
     }
 
     _mn$println$void$string(t: Thread, callback: CallbackFunction, text?: string){
-        if(!text){
+        if(text == null){
             t.println("", undefined);
         } else {
             t.println(text, undefined);
@@ -59,7 +59,7 @@ export class PrintStreamClass extends ObjectClass {
     }
 
     _mn$println$void$int(t: Thread, callback: CallbackFunction, n?: number){
-        if(!n){
+        if(n == null){
             t.println("", undefined);
         } else {
             t.println(n + "", undefined);
@@ -69,7 +69,7 @@ export class PrintStreamClass extends ObjectClass {
     }
 
     _mn$println$void$double(t: Thread, callback: CallbackFunction, n?: number){
-        if(!n){
+        if(n == null){
             t.println("", undefined);
         } else {
             t.println(n + "", undefined);
@@ -79,7 +79,7 @@ export class PrintStreamClass extends ObjectClass {
     }
 
     _mn$println$void$boolean(t: Thread, callback: CallbackFunction, n?: boolean){
-        if(!n){
+        if(n == null){
             t.println("", undefined);
         } else {
             t.println(n + "", undefined);
