@@ -135,4 +135,7 @@ export abstract class BaseField extends BaseSymbol {
     abstract isStatic(): boolean;
     abstract isFinal(): boolean;
 
+    getValueForDebugger?: (o: { [index: string]: any }) => any;
+
+
 }

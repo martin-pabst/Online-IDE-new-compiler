@@ -467,7 +467,11 @@ export class ObjectFieldDebuggerEntry extends DebuggerSymbolEntry {
             value = object.getType().runtimeClass[identifier];
             this.render(value, (newValue) => { object.getType().runtimeClass[identifier] = newValue });
         } else {
-            value = object[identifier];
+            if(this.field.getValueForDebugger){
+                value = this.field.getValueForDebugger(object);
+            } else {
+                value = object[identifier];
+            }            
             this.render(value, (newValue) => { object[identifier] = newValue });
         }
     }

@@ -660,6 +660,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
             a.hiddenWhenDebugging = (<LibraryAttributeDeclaration> decl).hiddenWhenDebugging;
             a._isStatic = modifiers.static;
             a._isFinal = modifiers.final;
+            a.getValueForDebugger = adecl.getValueForDebugger;
             a.classEnum = klassType;
             a.documentation = adecl.comment;
 

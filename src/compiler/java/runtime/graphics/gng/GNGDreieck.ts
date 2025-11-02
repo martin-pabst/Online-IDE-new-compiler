@@ -2,7 +2,6 @@ import { CallbackFunction } from "../../../../common/interpreter/StepFunction.ts
 import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
-import { CircleClass } from "../CircleClass.ts";
 import { PolygonClass } from "../PolygonClass.ts";
 import { GNGBaseFigur } from "./GNGBaseFigur.ts";
 

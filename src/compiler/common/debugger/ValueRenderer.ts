@@ -89,7 +89,8 @@ export class ValueRenderer {
                     let field = fields[i] as JavaField;
                     if(field.internalName){
                         s += field.identifier + " = ";
-                        s += ValueRenderer.renderValue(value[field.internalName], maxLength - s.length);
+                        let fieldValue = field.getValueForDebugger ? field.getValueForDebugger(value) : value[field.internalName];
+                        s += ValueRenderer.renderValue(fieldValue, maxLength - s.length);
                     }
                     i++;
                     if(i < fields.length) s += ", ";

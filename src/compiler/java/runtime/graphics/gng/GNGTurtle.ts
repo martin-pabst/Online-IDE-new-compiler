@@ -12,12 +12,12 @@ export class GNGTurtle extends ObjectClass implements IGNGEventListener {
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", signature: "class GTurtle extends Object", comment: "Turtle-Klasse der Graphics'n Games-Bibliothek (Cornelsen-Verlag)" },
 
-        { type: "field", signature: "protected int x", template: `§1.moveAnchor.x`, comment: "x-Position des Grafikobjekts" },
-        { type: "field", signature: "protected int y", template: `§1.moveAnchor.y`, comment: "y-Position des Grafikobjekts" },
-        { type: "field", signature: "protected int winkel", template: `Math.round(§1.angle)`, comment: "Blickrichtung des Grafikobjekts in Grad" },
-        { type: "field", signature: "protected int größe", template: `§1.width`, comment: "Größe des Grafikobjekts (100 entspricht 'normalgroß')" },
-        { type: "field", signature: "protected boolean sichtbar", template: `§1.turtle.container.visible`, comment: "true, wenn das Grafikobjekt sichtbar ist" },
-        { type: "field", signature: "protected boolean stiftUnten", template: `§1.turtle.container.stiftUnten`, comment: "true, wenn die Turtle beim Gehen zeichnet" },
+        { type: "field", signature: "protected int x", template: `§1.moveAnchor.x`, getValueForDebugger: (o) => o.moveAnchor.x, comment: "x-Position des Grafikobjekts" },
+        { type: "field", signature: "protected int y", template: `§1.moveAnchor.y`, getValueForDebugger: (o) => o.moveAnchor.y, comment: "y-Position des Grafikobjekts" },
+        { type: "field", signature: "protected int winkel", template: `Math.round(§1.turtle.angle)`, getValueForDebugger: (o) => Math.round(o.turtle.angle), comment: "Blickrichtung des Grafikobjekts in Grad" },
+        { type: "field", signature: "protected int größe", template: `§1.turtle.width`, getValueForDebugger: (o) => o.turtle.width, comment: "Größe des Grafikobjekts (100 entspricht 'normalgroß')" },
+        { type: "field", signature: "protected boolean sichtbar", template: `§1.turtle.container.visible`, getValueForDebugger: (o) => o.turtle.container.visible, comment: "true, wenn das Grafikobjekt sichtbar ist" },
+        { type: "field", signature: "protected boolean stiftUnten", template: `§1.turtle.penIsDown`, getValueForDebugger: (o) => o.turtle.penIsDown, comment: "true, wenn die Turtle beim Gehen zeichnet" },
 
         { type: "method", signature: "GTurtle()", java: GNGTurtle.prototype._cj$_constructor_$GTurtle$, comment: "Instanziert ein neues Turtle-Objekt." },
         { type: "method", signature: "void GrößeSetzen(int größe)", native: GNGTurtle.prototype._groesseSetzen, comment: "Setzt die Größe des Turtle-Dreiecks." },

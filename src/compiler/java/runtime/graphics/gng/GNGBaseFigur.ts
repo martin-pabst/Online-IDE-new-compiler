@@ -14,12 +14,12 @@ export class GNGBaseFigur extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
         {type: "declaration", signature: "abstract class GNGBaseFigur extends Object"},
 
-        {type: "field", signature: "protected string farbe", comment: "Farbe des Grafikobjekts"},
-        {type: "field", signature: "protected int x", template: `§1.moveAnchor.x`, comment: "x-Position des Grafikobjekts"},
-        {type: "field", signature: "protected int y", template: `§1.moveAnchor.y`, comment: "y-Position des Grafikobjekts"},
-        {type: "field", signature: "protected int winkel", template: `Math.round(§1.angle)`, comment: "Blickrichtung des Grafikobjekts in Grad"},
-        {type: "field", signature: "protected int größe", template: `§1.width`, comment: "Größe des Grafikobjekts (100 entspricht 'normalgroß')"},
-        {type: "field", signature: "protected boolean sichtbar", template: `§1.filledShape.container.visible`, comment: "true, wenn das Grafikobjekt sichtbar ist"},
+        {type: "field", signature: "protected string farbe", comment: "Farbe des Grafikobjekts", template: `§1.colorString`, getValueForDebugger: (o) => o.colorString},
+        {type: "field", signature: "protected int x", template: `§1.moveAnchor.x`, getValueForDebugger: (o) => o.moveAnchor.x, comment: "x-Position des Grafikobjekts"},
+        {type: "field", signature: "protected int y", template: `§1.moveAnchor.y`, getValueForDebugger: (o) => o.moveAnchor.y, comment: "y-Position des Grafikobjekts"},
+        {type: "field", signature: "protected int winkel", template: `Math.round(§1.filledShape.angle)`, getValueForDebugger: (o) => Math.round(o.filledShape.angle), comment: "Blickrichtung des Grafikobjekts in Grad"},
+        {type: "field", signature: "protected int größe", template: `§1.width`, getValueForDebugger: (o) => o.width, comment: "Größe des Grafikobjekts (100 entspricht 'normalgroß')"},
+        {type: "field", signature: "protected boolean sichtbar", template: `§1.filledShape.container.visible`, getValueForDebugger: (o) => o.filledShape.container.visible, comment: "true, wenn das Grafikobjekt sichtbar ist"},
 
         {type: "method", signature: "void PositionSetzen(int x, int y)", native: GNGBaseFigur.prototype._positionSetzen, comment: "Verschiebt die Figur zur Position (x,y). Beim Rechteck führt dies beispielsweise dazu, dass die linke obere Ecke bei (x, y) zu liegen kommt."},
         {type: "method", signature: "void Verschieben(int deltaX, int deltaY)", native: GNGBaseFigur.prototype._verschieben, comment: "Verschiebt die Figur um (x, y)"},

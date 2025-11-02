@@ -1,3 +1,6 @@
+import { Klass } from "../../../common/interpreter/StepFunction";
+import { ObjectClass } from "../../runtime/system/javalang/ObjectClassStringClass";
+
 export type LMADeclarationType = "declaration" | "field" | "method";
 
 export type LibraryClassDeclaration = {
@@ -21,6 +24,7 @@ export type LibraryAttributeDeclaration = {
     signature: string;
     nativeIdentifier: string;
     template?: string;
+    getValueForDebugger?: (o: { [index: string]: any }) => any;
     constantValue: any;
     comment?: string | (() => string);
     hiddenWhenDebugging?: boolean
