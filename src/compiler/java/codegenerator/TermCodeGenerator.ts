@@ -811,7 +811,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
             if (outerClassLevel == 0) {   // outerClassLevel > 0 could be inside run-Method or runnable whicht runs on other thread and has other stack than main program
                 const snippet = new StringCodeSnippet(`${StepParams.stack}[0].${field.getInternalName()}`, range, field.type);
-                snippet.isLefty = !field._isFinal;
+                snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext == field.classEnum;
                 this.registerUsagePosition(field, range);
                 return snippet;
             }
@@ -820,11 +820,15 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         let type = (field).type;
 
-        if (field._isFinal && field.initialValueIsConstant) {
-            let constantValue = field.initialValue!;
-            let constantValueAsString = typeof constantValue == "string" ? `"${constantValue}"` : "" + constantValue;
-            return new StringCodeSnippet(constantValueAsString, range, type, constantValue);
-        }
+
+        // This code is bullshit, because final fields can be assigned in constructors.
+        // So we always have to access the field, because constructor could have run in the meantime.
+        
+        // if (field._isFinal && field.initialValueIsConstant && !(this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext == field.classEnum)) {
+        //     let constantValue = field.initialValue!;
+        //     let constantValueAsString = typeof constantValue == "string" ? `"${constantValue}"` : "" + constantValue;
+        //     return new StringCodeSnippet(constantValueAsString, range, type, constantValue);
+        // }
 
 
         let fieldName = (field).getInternalName();
@@ -849,7 +853,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
 
         }
-        snippet.isLefty = !field._isFinal;
+        snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext == field.classEnum;
 
         if (field.isInnerClassCopyOfOuterClassLocalVariable) {
             this.registerUsagePosition(field.isInnerClassCopyOfOuterClassLocalVariable, range);
