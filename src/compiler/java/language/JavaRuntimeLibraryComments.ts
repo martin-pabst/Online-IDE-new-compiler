@@ -660,6 +660,12 @@ export class JRC {
         "en": "If this graphic object collides with one/several other graphic objects then return the first one found. Otherwise return null.",
     })
 
+    static shapeReactToMouseEventsWhenInvisibleComment = () => lm({
+        'de': `Legt fest, ob das Objekt auf Mausevents (buttondown, mouse move, ...) reagiert, wenn es unsichtbar ist.`,
+        'en': `Defines whether object reacts to mouse events (buttondown, mouse move, ...) when it is invisible.`,
+    });
+    
+
     static shapeCollidesWithFillColorComment = () => lm({
         "de": "Gibt genau dann true zurück, wenn die Figur mit irgendeiner anderen Figur mit der angegebenen Füllfarbe überlappt.",
         "en": "Returns true if graphic object collides with any other graphic object with given fillColor.",

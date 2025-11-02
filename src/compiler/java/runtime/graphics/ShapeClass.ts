@@ -69,7 +69,8 @@ export class ShapeClass extends ActorClass {
         { type: "method", signature: "final boolean collidesWithFillColor(Color color)", native: ShapeClass.prototype._collidesWithAnyShape, comment: JRC.shapeCollidesWithFillColorComment },
         { type: "method", signature: "final Sprite getFirstCollidingSprite(int imageIndex)", native: ShapeClass.prototype._getFirstCollidingSprite, comment: JRC.shapeGetFirstCollidingSpriteComment },
         { type: "method", signature: "final Shape getFirstCollidingShape()", native: ShapeClass.prototype._getFirstCollidingShape, comment: JRC.shapeGetFirstCollidingShapeComment },
-        { type: "method", signature: "final <T> T[] getCollidingShapes(Group<T> group)", native: ShapeClass.prototype._getCollidingShapes, comment: JRC.shapeGetCollidingShapesComment },
+        { type: "method", signature: "final <T extends Shape> T[] getCollidingShapes(Group<T> group)", native: ShapeClass.prototype._getCollidingShapes, comment: JRC.shapeGetCollidingShapesComment },
+        { type: "method", signature: "final void reactToMouseEventsWhenInvisible(boolean b)", native: ShapeClass.prototype._reactToMouseEventsWhenInvisible, comment: JRC.shapeReactToMouseEventsWhenInvisibleComment },
 
 
         { type: "method", signature: "void onMouseUp(double x, double y, int button)", java: ShapeClass.prototype._mj$onMouseUp$void$double$double$int, comment: JRC.shapeOnMouseUpComment },
@@ -986,4 +987,7 @@ export class ShapeClass extends ActorClass {
         t.s.push(w);
     }
 
+    _reactToMouseEventsWhenInvisible(b: boolean) {
+        this.reactToMouseEventsWhenInvisible = b;
+    }
 }
