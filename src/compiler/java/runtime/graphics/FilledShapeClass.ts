@@ -37,8 +37,9 @@ export class FilledShapeClass extends ShapeClass {
 
         { type: "method", signature: "static void setDefaultBorder(double width, string color)", native: FilledShapeClass._setDefaultBorder , comment: JRC.fsSetDefaultBorderComment1},
         { type: "method", signature: "static void setDefaultBorder(double width, int color, double alpha)", native: FilledShapeClass._setDefaultBorder , comment: JRC.fsSetDefaultBorderComment2},
-        { type: "method", signature: "static void setDefaultBorder(string color)", native: FilledShapeClass._setDefaultFillColor , comment: JRC.fsSetDefaultFillColor},
-        { type: "method", signature: "static void setDefaultBorder(int color, double alpha)", native: FilledShapeClass._setDefaultFillColor , comment: JRC.fsSetDefaultFillColor},
+        { type: "method", signature: "static void setDefaultFillColor(string color)", native: FilledShapeClass._setDefaultFillColor , comment: JRC.fsSetDefaultFillColor},
+        { type: "method", signature: "static void setDefaultFillColor(int color, double alpha)", native: FilledShapeClass._setDefaultFillColor , comment: JRC.fsSetDefaultFillColor},
+        { type: "method", signature: "static void setDefaultFillColor(int color)", native: FilledShapeClass._setDefaultFillColor , comment: JRC.fsSetDefaultFillColor},
 
         // { type: "method", signature: "final boolean isKeyUp(string key)", java: ActorClass.prototype._mj$isKeyUp$boolean$string },
 
@@ -223,7 +224,11 @@ export class FilledShapeClass extends ShapeClass {
             FilledShapeDefaults.defaultFillAlpha = alpha == null ? c.alpha : alpha;
         } else {
             FilledShapeDefaults.defaultFillColor = color;
-            if (alpha != null) FilledShapeDefaults.defaultFillAlpha = alpha;
+            if (alpha != null){
+                FilledShapeDefaults.defaultFillAlpha = alpha;
+            }  else {
+                FilledShapeDefaults.defaultFillAlpha = 1.0;
+            }
         }
 
     }
