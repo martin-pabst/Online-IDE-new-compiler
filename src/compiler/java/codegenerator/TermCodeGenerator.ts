@@ -811,7 +811,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
             if (outerClassLevel == 0) {   // outerClassLevel > 0 could be inside run-Method or runnable whicht runs on other thread and has other stack than main program
                 const snippet = new StringCodeSnippet(`${StepParams.stack}[0].${field.getInternalName()}`, range, field.type);
-                snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext == field.classEnum;
+                snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
                 this.registerUsagePosition(field, range);
                 return snippet;
             }
@@ -853,7 +853,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
 
         }
-        snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext == field.classEnum;
+        snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
 
         if (field.isInnerClassCopyOfOuterClassLocalVariable) {
             this.registerUsagePosition(field.isInnerClassCopyOfOuterClassLocalVariable, range);
@@ -1121,11 +1121,12 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
         }
 
-        if (field._isFinal && field.initialValueIsConstant && !isEnum) {
-            let constantValue = field.initialValue!;
-            let constantValueAsString = typeof constantValue == "string" ? `"${constantValue}"` : "" + constantValue;
-            return new StringCodeSnippet(constantValueAsString, range, field.type, constantValue);
-        }
+        // this is bullshit as final fields can be assigned in constructors
+        // if (field._isFinal && field.initialValueIsConstant && !isEnum) {
+        //     let constantValue = field.initialValue!;
+        //     let constantValueAsString = typeof constantValue == "string" ? `"${constantValue}"` : "" + constantValue;
+        //     return new StringCodeSnippet(constantValueAsString, range, field.type, constantValue);
+        // }
 
 
         if (field._isStatic) {
@@ -1152,7 +1153,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             } else {
                 let snippet = new OneParameterTemplate(`${template}.${field.getInternalName()}`)
                     .applyToSnippet(field.type, range, objectSnippet);
-                snippet.isLefty = !field._isFinal;
+                snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
 
                 return snippet;
             }
