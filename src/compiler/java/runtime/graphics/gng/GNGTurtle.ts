@@ -12,12 +12,12 @@ export class GNGTurtle extends ObjectClass implements IGNGEventListener {
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", signature: "class GTurtle extends Object", comment: "Turtle-Klasse der Graphics'n Games-Bibliothek (Cornelsen-Verlag)" },
 
-        { type: "field", signature: "protected int x", template: `§1.moveAnchor.x`, comment: "x-Position des Grafikobjekts" },
-        { type: "field", signature: "protected int y", template: `§1.moveAnchor.y`, comment: "y-Position des Grafikobjekts" },
-        { type: "field", signature: "protected int winkel", template: `Math.round(§1.angle)`, comment: "Blickrichtung des Grafikobjekts in Grad" },
-        { type: "field", signature: "protected int größe", template: `§1.width`, comment: "Größe des Grafikobjekts (100 entspricht 'normalgroß')" },
-        { type: "field", signature: "protected boolean sichtbar", template: `§1.turtle.container.visible`, comment: "true, wenn das Grafikobjekt sichtbar ist" },
-        { type: "field", signature: "protected boolean stiftUnten", template: `§1.turtle.container.stiftUnten`, comment: "true, wenn die Turtle beim Gehen zeichnet" },
+        { type: "field", signature: "protected int x", template: `§1.x`, comment: "x-Position des Grafikobjekts" },
+        { type: "field", signature: "protected int y", template: `§1.y`, comment: "y-Position des Grafikobjekts" },
+        { type: "field", signature: "protected int winkel", template: `§1.winkel`, comment: "Blickrichtung des Grafikobjekts in Grad" },
+        { type: "field", signature: "protected int größe", template: `§1.größe`, comment: "Größe des Grafikobjekts (100 entspricht 'normalgroß')" },
+        { type: "field", signature: "protected boolean sichtbar", template: `§1.sichtbar`, comment: "true, wenn das Grafikobjekt sichtbar ist" },
+        { type: "field", signature: "protected boolean stiftUnten", template: `§1.stiftUnten`, comment: "true, wenn die Turtle beim Gehen zeichnet" },
 
         { type: "method", signature: "GTurtle()", java: GNGTurtle.prototype._cj$_constructor_$GTurtle$, comment: "Instanziert ein neues Turtle-Objekt." },
         { type: "method", signature: "void GrößeSetzen(int größe)", native: GNGTurtle.prototype._groesseSetzen, comment: "Setzt die Größe des Turtle-Dreiecks." },
@@ -57,6 +57,55 @@ export class GNGTurtle extends ObjectClass implements IGNGEventListener {
     // visible fields:
     moveAnchor: GNGPoint = { x: 0, y: 0 };
     colorString: string = "schwarz";
+
+    get x() {
+        return this.turtle.getPosition().x;
+    }   
+
+    get y() {
+        return this.turtle.getPosition().y;
+    }
+
+    get winkel() {
+        return Math.round(this.turtle.angle);
+    }
+
+    get größe() {
+        return this.turtle.turtleSize;
+    }
+
+    get sichtbar() {
+        return this.turtle.container.visible;
+    }
+
+    get stiftUnten() {
+        return this.turtle.penIsDown;
+    }
+
+    set stiftUnten(value: boolean) {
+        this.turtle.penIsDown = value;
+    }
+
+    set größe(value: number) {
+        this._groesseSetzen(value);
+    }
+
+    set sichtbar(value: boolean) {
+        this._sichtbarkeitSetzen(value);
+    }
+
+    set x(value: number) {
+        this.turtle._moveTo(value, this.moveAnchor.y);
+    }
+    
+    set y(value: number) {
+        this.turtle._moveTo(this.moveAnchor.x, value);
+    }
+
+    set winkel(value: number) {
+        this._winkelSetzen(value);
+    }
+
 
 
     _cj$_constructor_$GTurtle$(t: Thread, callback: CallableFunction) {

@@ -23,11 +23,11 @@ export class GNGFigur extends ObjectClass implements IGNGEventListener {
         { type: "declaration", signature: "class Figur extends Object", comment: "Figur-Klasse der Graphics'n Games-Bibliothek (Cornelsen-Verlag)" },
         { type: "method", signature: "Figur()", java: GNGFigur.prototype._cj$_constructor_$Figur$, comment: "Instanziert ein neues, achsenparalleles Figur-Objekt." },
 
-        { type: "field", signature: "int x", template: '§1.center.x', comment: "x-Position der Figur" },
-        { type: "field", signature: "int y", template: '§1.center.y', comment: "y-Position der Figur" },
-        { type: "field", signature: "int angle", template: 'Math.round(§1.group.angle)', comment: "Blickrichtung der Figur in Grad" },
-        { type: "field", signature: "int größe", template: 'Math.round(§1.group.scaleFactor * 100)', comment: "Größe der Figur (100 entspricht 'normalgroß')" },
-        { type: "field", signature: "boolean sichtbar", template: '§1.group.container.visible', comment: "true, wenn die Figur sichtbar ist" },
+        { type: "field", signature: "int x", template: '§1.x', comment: "x-Position der Figur" },
+        { type: "field", signature: "int y", template: '§1.y', comment: "y-Position der Figur" },
+        { type: "field", signature: "int winkel", template: '§1.winkel', comment: "Blickrichtung der Figur in Grad" },
+        { type: "field", signature: "int größe", template: '§1.größe', comment: "Größe der Figur (100 entspricht 'normalgroß')" },
+        { type: "field", signature: "boolean sichtbar", template: '§1.sichtbar', comment: "true, wenn die Figur sichtbar ist" },
 
         { type: "method", signature: "void GrößeSetzen(int größe)", native: GNGFigur.prototype._groesseSetzen, comment: "Setzt die Größe der Figur." },
         { type: "method", signature: "void Drehen(int grad)", native: GNGFigur.prototype._drehen, comment: "Dreht die Figur um den angegebenen Winkel. Positiver Winkel bedeutet Drehung gegen den Uhrzeigersinn." },
@@ -70,6 +70,43 @@ export class GNGFigur extends ObjectClass implements IGNGEventListener {
 
     isInitialTriangle: boolean = false;
 
+    get x(): number {
+        return this.center.x;
+    }
+    
+    get y(): number {
+        return this.center.y;
+    }   
+
+    set x(value: number) {
+        this._positionSetzen(value, this.center.y);
+    }
+
+    set y(value: number) {
+        this._positionSetzen(this.center.x, value);
+    }
+
+    get winkel(): number {
+        return this._winkelGeben();
+    }
+    
+    set winkel(value: number) {
+        this._winkelSetzen(value);
+    }
+    get größe(): number {
+        return Math.round(this.group.scaleFactor * 100);
+    }
+    set größe(value: number) {
+        this._groesseSetzen(value);
+    }
+
+    get sichtbar(): boolean {
+        return this.group.container.visible;
+    }
+
+    set sichtbar(value: boolean) {
+        this._sichtbarkeitSetzen(value);
+    }
 
     _cj$_constructor_$Figur$(t: Thread, callback: CallbackFunction) {
 

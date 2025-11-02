@@ -15,11 +15,11 @@ export class GNGBaseFigur extends ObjectClass {
         {type: "declaration", signature: "abstract class GNGBaseFigur extends Object"},
 
         {type: "field", signature: "protected string farbe", comment: "Farbe des Grafikobjekts"},
-        {type: "field", signature: "protected int x", template: `§1.moveAnchor.x`, comment: "x-Position des Grafikobjekts"},
-        {type: "field", signature: "protected int y", template: `§1.moveAnchor.y`, comment: "y-Position des Grafikobjekts"},
-        {type: "field", signature: "protected int winkel", template: `Math.round(§1.angle)`, comment: "Blickrichtung des Grafikobjekts in Grad"},
-        {type: "field", signature: "protected int größe", template: `§1.width`, comment: "Größe des Grafikobjekts (100 entspricht 'normalgroß')"},
-        {type: "field", signature: "protected boolean sichtbar", template: `§1.filledShape.container.visible`, comment: "true, wenn das Grafikobjekt sichtbar ist"},
+        {type: "field", signature: "protected int x",  comment: "x-Position des Grafikobjekts"},
+        {type: "field", signature: "protected int y", comment: "y-Position des Grafikobjekts"},
+        {type: "field", signature: "protected int winkel", comment: "Blickrichtung des Grafikobjekts in Grad"},
+        {type: "field", signature: "protected int größe", comment: "Größe des Grafikobjekts (100 entspricht 'normalgroß')"},
+        {type: "field", signature: "protected boolean sichtbar", comment: "true, wenn das Grafikobjekt sichtbar ist"},
 
         {type: "method", signature: "void PositionSetzen(int x, int y)", native: GNGBaseFigur.prototype._positionSetzen, comment: "Verschiebt die Figur zur Position (x,y). Beim Rechteck führt dies beispielsweise dazu, dass die linke obere Ecke bei (x, y) zu liegen kommt."},
         {type: "method", signature: "void Verschieben(int deltaX, int deltaY)", native: GNGBaseFigur.prototype._verschieben, comment: "Verschiebt die Figur um (x, y)"},
@@ -46,6 +46,50 @@ export class GNGBaseFigur extends ObjectClass {
     colorString: string = "schwarz";
 
     renderGNG(): void {}
+
+    get farbe(): string {
+        return this.colorString;
+    }
+
+    set farbe(value: string) {
+        this._farbeSetzen(value);
+    }
+
+    get x(): number {
+        return this.moveAnchor.x;
+    }
+
+    get y(): number {
+        return this.moveAnchor.y;
+    }
+
+    set x(value: number) {
+        this._positionSetzen(value, this.moveAnchor.y);
+    }      
+
+    set y(value: number) {
+        this._positionSetzen(this.moveAnchor.x, value);
+    }
+
+    set winkel(value: number) {
+        this._winkelSetzen(value);
+    }
+
+    get winkel(): number {
+        return Math.round(this.filledShape.angle);
+    }
+
+    get größe(): number {
+        return Math.round(this.width);
+    }
+
+    get sichtbar(): boolean {
+        return this.filledShape.container.visible;
+    }
+
+    set sichtbar(value: boolean) {
+        this._sichtbarkeitSetzen(value);
+    }
 
     setGNGBackgroundColor(){
         if(this.filledShape.world.shapesWhichBelongToNoGroup.length == 1){
