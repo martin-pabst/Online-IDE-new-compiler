@@ -28,7 +28,7 @@ import { SnippetFramer } from "./CodeSnippetTools";
 import { CodeTemplate, OneParameterTemplate, ParametersJoinedTemplate, SeveralParameterTemplate, TwoParameterTemplate } from "./CodeTemplate";
 import { JavaLocalVariable } from "./JavaLocalVariable";
 import { JavaSymbolTable } from "./JavaSymbolTable";
-import { LabelCodeSnippet } from "./LabelManager.ts";
+import { JumpToLabelCodeSnippet, LabelCodeSnippet } from "./LabelManager.ts";
 import { MissingStatementManager } from "./MissingStatementsManager.ts";
 import { OuterClassFieldAccessTracker } from "./OuterClassFieldAccessTracker.ts";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
@@ -137,7 +137,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         if (innerSnippet?.type && !innerSnippet.type.isPrimitive) {
             this.addTypePositionByTypeAndRange(innerSnippet.type, node.range)
         }
-        if(node.nodeInsideBrackets){
+        if (node.nodeInsideBrackets) {
             node.instanceofVariables = node.nodeInsideBrackets.instanceofVariables;
             node.negatedInstanceofVariables = node.nodeInsideBrackets.negatedInstanceofVariables;
         }
@@ -276,11 +276,11 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                     node.commaPositions, methods.possible, node.rightBracketPosition,
                     method);
             }
-    
+
             return new StringCodeSnippet("null", node.range, klassType);
-        } 
-        
-        if(method) {
+        }
+
+        if (method) {
             this.registerUsagePosition(method, node.klassIdentifierRange);
         }
 
@@ -823,7 +823,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         // This code is bullshit, because final fields can be assigned in constructors.
         // So we always have to access the field, because constructor could have run in the meantime.
-        
+
         // if (field._isFinal && field.initialValueIsConstant && !(this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext == field.classEnum)) {
         //     let constantValue = field.initialValue!;
         //     let constantValueAsString = typeof constantValue == "string" ? `"${constantValue}"` : "" + constantValue;
@@ -888,26 +888,26 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         if (ast.operator == TokenType.ternaryOperator) return this.compileTernaryOperator(ast);
 
         let leftOperand = this.compileTerm(ast.leftSide, this.isAssignmentOperator(ast.operator));
-        if(ast.operator == TokenType.and){
+        if (ast.operator == TokenType.and) {
             ast.instanceofVariables = ast.leftSide.instanceofVariables;
             ast.negatedInstanceofVariables = ast.leftSide.negatedInstanceofVariables;
-            if(ast.rightSide){
+            if (ast.rightSide) {
                 ast.rightSide.instanceofVariables = ast.instanceofVariables;
             }
         }
 
         let rightOperand: CodeSnippet | undefined;
-        if(ast.rightSide){
-            if(ast.rightSide?.instanceofVariables){
+        if (ast.rightSide) {
+            if (ast.rightSide?.instanceofVariables) {
                 this.pushAndGetNewSymbolTable(ast.rightSide.range, false);
                 ast.rightSide.instanceofVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
             }
             rightOperand = ast.rightSide?.kind == TokenType.lambdaOperator ? this.compileLambdaFunction(<ASTLambdaFunctionDeclarationNode>ast.rightSide, leftOperand?.type) : this.compileTerm(ast.rightSide);
-            if(ast.rightSide?.instanceofVariables){
+            if (ast.rightSide?.instanceofVariables) {
                 this.popSymbolTable();
             }
-        } else if(ast.instanceofVariables) {
-            this.pushAndGetNewSymbolTable({startLineNumber: ast.operatorRange.startLineNumber, startColumn: ast.operatorRange.startColumn, endLineNumber: ast.operatorRange.endLineNumber, endColumn: ast.operatorRange.endColumn + 3}, false);
+        } else if (ast.instanceofVariables) {
+            this.pushAndGetNewSymbolTable({ startLineNumber: ast.operatorRange.startLineNumber, startColumn: ast.operatorRange.startColumn, endLineNumber: ast.operatorRange.endLineNumber, endColumn: ast.operatorRange.endColumn + 3 }, false);
             ast.instanceofVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
             this.popSymbolTable();
         }
@@ -958,14 +958,45 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             return undefined;
         }
 
-        return new SeveralParameterTemplate(`((§1) ? (§2) : (§3) )`).applyToSnippet(destType, ast.range, leftOperand, firstAlternative, secondAlternative);
+        if (firstAlternative.type == this.voidType && secondAlternative.type == this.voidType) {
+            let ifSnippet = new CodeSnippetContainer([], ast.range);
+
+            let sn1 = SnippetFramer.frame(leftOperand, "if(§1){\n", this.voidType, leftOperand.range);
+            let label1 = new LabelCodeSnippet();
+            ifSnippet.addParts(sn1);
+            let jumpToLabel1 = new JumpToLabelCodeSnippet(label1);
+            ifSnippet.addParts(jumpToLabel1);
+            ifSnippet.addStringPart("}\n");
+
+            ifSnippet.addNextStepMark();
+
+            let label2 = new LabelCodeSnippet();
+            let jumpToLabel2 = new JumpToLabelCodeSnippet(label2);
+            
+            ifSnippet.addParts(secondAlternative);
+
+            ifSnippet.addParts(jumpToLabel2);
+            ifSnippet.addNextStepMark();
+
+            ifSnippet.addParts(label1);
+            ifSnippet.addParts(firstAlternative);
+
+            ifSnippet.addParts(label2);
+            ifSnippet.addNextStepMark();
+
+            return ifSnippet;
+
+        } else {
+            return new SeveralParameterTemplate(`((§1) ? (§2) : (§3) )`).applyToSnippet(destType, ast.range, leftOperand, firstAlternative, secondAlternative);
+        }
+
 
     }
 
     compileUnaryPrefixOperator(ast: ASTUnaryPrefixNode): CodeSnippet | undefined {
-        
+
         let operand = this.compileTerm(ast.term);
-        if(ast.operator == TokenType.not){
+        if (ast.operator == TokenType.not) {
             ast.instanceofVariables = ast.term?.negatedInstanceofVariables;
             ast.negatedInstanceofVariables = ast.term?.instanceofVariables;
         }
@@ -1131,7 +1162,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     }
 
-    getParameterValueSnippets(methodCallNode: ASTMethodCallNode | ASTNewObjectNode): {snippets: (CodeSnippet | undefined)[], withErrors: boolean}  {
+    getParameterValueSnippets(methodCallNode: ASTMethodCallNode | ASTNewObjectNode): { snippets: (CodeSnippet | undefined)[], withErrors: boolean } {
         let snippets: (CodeSnippet | undefined)[] = [];
         let withErrors: boolean = false;
         for (let parameterValueNode of methodCallNode.parameterValues) {
@@ -1139,7 +1170,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 snippets.push(undefined);
             } else {
                 let snippet = this.compileTerm(parameterValueNode);
-                if (!snippet || !snippet.type){
+                if (!snippet || !snippet.type) {
                     snippets.push(undefined);
                     withErrors = true;
                 } else {
@@ -1214,15 +1245,15 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
         }
 
-        let method = methods?.best;        
-        
+        let method = methods?.best;
+
         if (pv.withErrors) {
             if (node.rightBracketPosition) {
                 this.module.pushMethodCallPosition(node.identifierRange,
                     node.commaPositions, methods.possible, node.rightBracketPosition,
                     method);
             }
-            if(methods.possible.length > 0){
+            if (methods.possible.length > 0) {
                 this.registerUsagePosition(method || methods.possible[0], node.identifierRange);
             }
             return undefined;
@@ -1286,7 +1317,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         parameterValueSnippets = this.castParameterValuesAndPackEllipsis(parameterValueSnippets, method);
         let returnParameterType = method.returnParameterType;
-        if(returnParameterType == ThisType.this()){
+        if (returnParameterType == ThisType.this()) {
             returnParameterType = objectSnippet.type;
         }
 
@@ -1483,7 +1514,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 let toType = ellipsisType;
                 if (!toType) {
                     let parameter = method.parameters[i];
-                    if(!parameter) continue;
+                    if (!parameter) continue;
                     if (parameter.isEllipsis) {
                         toType = (<JavaArrayType>parameter.type).getElementType();
                         ellipsisType = toType;
