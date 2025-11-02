@@ -263,7 +263,7 @@ export class JavaMethod extends BaseSymbol {
         snippet += ")";
 
         if (this.returnParameterType == null || this.returnParameterType.identifier == "void") {
-            snippet += ";\n\t$0";
+            snippet += ";$0";
         } else {
             snippet += "$0";
         }

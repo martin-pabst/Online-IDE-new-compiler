@@ -178,7 +178,7 @@ export class Thread {
             if (exception instanceof ThrowableClass) {
                 this.#throwException(exception, step!);
             } else {
-                if(this.#state != ThreadState.terminatedWithException){
+                if (this.#state != ThreadState.terminatedWithException) {
                     this.#handleSystemException(exception, step!, currentProgramState);
                 }
             }
@@ -194,7 +194,7 @@ export class Thread {
      */
     throwRuntimeExceptionOnLastExecutedStep(exception: Exception & IThrowable) {
         let lastExcecutedStep = this.currentProgramState!.lastExecutedStep;
-        if(!lastExcecutedStep){
+        if (!lastExcecutedStep) {
             lastExcecutedStep = this.currentProgramState.currentStepList[this.currentProgramState.stepIndex];
         }
         this.#throwException(exception, lastExcecutedStep);
@@ -273,8 +273,6 @@ export class Thread {
         exception.range = exception.range || step.getValidRangeOrUndefined();
         exception.thread = this;
 
-        if (this.#isExecutingReplProgram) this.returnFromREPLProgram(exception, step);
-
         let classNames = exception.getExtendedImplementedIdentifiers().slice();
         classNames.push(exception.getIdentifier());
 
@@ -300,7 +298,7 @@ export class Thread {
                             break;
                         }
                     }
-                    if(foundCatchBlockInfo) break;
+                    if (foundCatchBlockInfo) break;
                 }
 
                 if (foundCatchBlockInfo) {
@@ -367,6 +365,9 @@ export class Thread {
             while (newProgramStates.length > 0) this.programStack.push(newProgramStates.pop()!);
             this.currentProgramState = this.programStack[this.programStack.length - 1];
         }
+
+        if (this.#isExecutingReplProgram) this.returnFromREPLProgram(exception, step);
+
     }
 
     getExceptionAndTrimStack(removeException: boolean): Exception | undefined {
@@ -538,12 +539,12 @@ export class Thread {
 
 
     print(text: string | undefined, color: number | undefined) {
-        if(text == null) text = "null";
+        if (text == null) text = "null";
         this.scheduler.interpreter.printManager.print(text, false, color);
     }
-    
+
     println(text: string | undefined, color: number | undefined) {
-        if(text == null && typeof text != "undefined") text = "null";
+        if (text == null && typeof text != "undefined") text = "null";
         this.scheduler.interpreter.printManager.print(text, true, color);
     }
 
@@ -613,7 +614,7 @@ export class Thread {
         if (object == null) return false;
         let objType = object.getType() as NonPrimitiveType;
         let ret = objType.fastExtendsImplements(type);
-        if(stackOffsetForPatternIdentifier){
+        if (stackOffsetForPatternIdentifier) {
             this.s[stackOffsetForPatternIdentifier] = ret ? object : null;
         }
         return ret;
@@ -691,8 +692,8 @@ export class Thread {
 
         }
 
-        if(ps.aquiredObjectLocks){
-            while(ps.aquiredObjectLocks.length > 0){
+        if (ps.aquiredObjectLocks) {
+            while (ps.aquiredObjectLocks.length > 0) {
                 ps.aquiredObjectLocks.pop().leaveSynchronizedBlock(this, false);
             }
         }
@@ -807,7 +808,7 @@ export class Thread {
     }
 
     primitiveStringToStringObject(s: string | null): StringClass {
-        if(s == null) return null;
+        if (s == null) return null;
         return new StringClass(s);
     }
 

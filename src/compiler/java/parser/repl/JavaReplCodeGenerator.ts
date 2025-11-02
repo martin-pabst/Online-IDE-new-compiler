@@ -74,7 +74,7 @@ export class JavaReplCodeGenerator extends StatementCodeGenerator {
             }
         }
 
-    
+        snippets.push(new NextStepMark());
         snippets.push(new StringCodeSnippet(`${Helpers.returnFromReplProgram}();\n`))
 
         new SnippetLinker().link(snippets, program);
