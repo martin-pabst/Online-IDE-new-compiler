@@ -154,9 +154,9 @@ export class GuiMessages {
     })
 
     static ToggleComment = () => lm({
-        "de": "Aus-/Einkommentieren (Strg + #)",
-        "en": "Toggle comment (Ctrl + +)",
-        "fr": "Activer/Désactiver le commentaire (Ctrl + #)",
+        "de": "Aus-/Einkommentieren (Strg + ,)",
+        "en": "Toggle comment (Ctrl + ,)",
+        "fr": "Activer/Désactiver le commentaire (Ctrl + ,)",
     })
 
     static AutoFormat = () => lm({

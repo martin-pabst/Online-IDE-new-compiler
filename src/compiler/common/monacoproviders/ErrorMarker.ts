@@ -36,7 +36,7 @@ export class ErrorMarker {
         });
 
         let oldDecorations = this.monacoModelToDeltaDecorationsMap.get(monacoModel) || [];
-        this.monacoModelToDeltaDecorationsMap.set(monacoModel, monacoModel.deltaDecorations(oldDecorations, decorations));
+        if(!monacoModel.isDisposed()) this.monacoModelToDeltaDecorationsMap.set(monacoModel, monacoModel.deltaDecorations(oldDecorations, decorations));
 
     }
 

@@ -102,7 +102,6 @@ export class Matrix4Class extends ObjectClass {
 
     _clone(): Matrix4Class {
         return new Matrix4Class(this.m.clone());
-        return this;
     }
 
     _copyFrom(m1: Matrix4Class){
