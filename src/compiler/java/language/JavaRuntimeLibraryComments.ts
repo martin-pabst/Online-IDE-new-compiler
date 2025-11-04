@@ -620,6 +620,16 @@ export class JRC {
         "en": "Moves object in a way so that it's 'center' is at (x,y).",
     })
 
+    static shapeSetYComment = () => lm({
+        "de": "Setzt die Y-Koordinate des Objekts.",
+        "en": "Sets the Y coordinate of the object.",
+    })
+
+    static shapeSetXComment = () => lm({
+        "de": "Setzt die X-Koordinate des Objekts.",
+        "en": "Sets the X coordinate of the object.",
+    })
+
     static shapeDefineCenterComment = () => lm({
         "de": "Setzt fest, wo der 'Mittelpunkt' des Objekts liegen soll. Dieser Punkt wird als Drehpunkt der Methode rotate, als Zentrum der Methode Scale und als Referenzpunkt der Methode moveTo benutzt.",
         "en": "Defines 'center' of object. This center is used in methods rotate, scale and moveTo.",

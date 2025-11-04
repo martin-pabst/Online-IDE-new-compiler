@@ -44,6 +44,8 @@ export class ShapeClass extends ActorClass {
         { type: "method", signature: "final This setAngle(double newAngle)", native: ShapeClass.prototype._setAngle, comment: JRC.shapeSetAngleComment },
         { type: "method", signature: "final boolean containsPoint(double x, double y)", native: ShapeClass.prototype._containsPoint, comment: JRC.shapeContainsPointComment },
         { type: "method", signature: "final This moveTo(double x, double y)", native: ShapeClass.prototype._moveTo, comment: JRC.shapeMoveToComment },
+        { type: "method", signature: "final This setX(double x)", native: ShapeClass.prototype._setX, comment: JRC.shapeSetXComment },
+        { type: "method", signature: "final This setY(double y)", native: ShapeClass.prototype._setY, comment: JRC.shapeSetYComment },
         { type: "method", signature: "final This defineCenter(double x, double y)", native: ShapeClass.prototype._defineCenter, comment: JRC.shapeDefineCenterComment },
         { type: "method", signature: "final This defineCenterRelative(double x, double y)", native: ShapeClass.prototype._defineCenterRelative, comment: JRC.shapeDefineCenterRelativeComment },
 
@@ -530,6 +532,15 @@ export class ShapeClass extends ActorClass {
 
     _moveTo(x: number, y: number) {
         this._move(x - this._getCenterX(), y - this._getCenterY())
+        return this;
+    }
+
+    _setX(x: number) {  
+        this._move(x - this._getCenterX(), 0);
+    }
+
+    _setY(y: number) {
+        this._move(0, y - this._getCenterY());
         return this;
     }
 
