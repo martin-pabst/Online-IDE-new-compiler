@@ -308,6 +308,11 @@ export class JRC {
         "en": "Scales world by given factorr. Pivot of scaling is (centerX, centerY).\n Hint: If objects should NOT scale with world, invoke method setStatic(true) for them.",
     })
 
+    static worldFlipYComment = () => lm({
+        "de": "Spiegelt die Welt an der horizontalen Achse. Mit dieser Methode kann erreicht werden, dass der Ursprung (0,0) unten links ist und die Y-Koordinaten nach oben hin größer werden.",
+        "en": "Flips the world along the horizontal axis. With this method it is possible to have the origin (0,0) at bottom-left and Y-coordinates increasing upwards.",
+    })
+
     static worldSetCoordinateSystemComment = () => lm({
         "de": "Setzt das Koordinatensystem der Welt so, dass (left, top) die linke obere Ecke des sichtbaren Bereiches ist, width seine Breite und height seine Höhe.",
         "en": "Sets coordinate system of world in a way so that (left, top) is top-left corner of visible view, width is it's width and height it's height.",

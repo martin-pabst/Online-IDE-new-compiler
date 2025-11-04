@@ -38,7 +38,7 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
         { type: "method", signature: "void move(double dx, double dy)", native: WorldClass.prototype._translate, comment: JRC.worldMoveComment },
         { type: "method", signature: "void rotate(double angleInDeg, double centerX, double centerY)", native: WorldClass.prototype._rotate, comment: JRC.worldRotateComment },
         { type: "method", signature: "void scale(double factor, double centerX, double centerY)", native: WorldClass.prototype._scale, comment: JRC.worldScaleComment },
-
+        { type: "method", signature: "void flipY()", native: WorldClass.prototype._flipY, comment: JRC.worldFlipYComment },
 
         { type: "method", signature: "void setCoordinateSystem(double left, double top, double width, double height)", native: WorldClass.prototype._setCoordinateSystem, comment: JRC.worldSetCoordinateSystemComment },
         { type: "method", signature: "void setCursor(string cursor)", native: WorldClass.prototype._setCursor, comment: JRC.world3dSetCursorComment },
@@ -414,6 +414,24 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
                 shape._move(left, top);
             });
 
+    }
+
+    _flipY() {
+        let stage = this.app.stage;
+        let centerY = this.currentTop + this.currentHeight / 2;
+
+        stage.localTransform.scale(1, -1);
+        stage.localTransform.translate(0, centerY * 2);
+
+        stage.setFromMatrix(stage.localTransform);
+        //@ts-ignore
+        stage._didLocalTransformChangeId = stage._didChangeId;
+
+        this.shapesNotAffectedByWorldTransforms.forEach(
+            (shape) => {
+                shape._mirrorY();
+                shape._setY(2*centerY - shape._getCenterY());
+            });
     }
 
     computeCurrentWorldBounds() {
