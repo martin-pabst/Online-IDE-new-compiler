@@ -296,7 +296,7 @@ export class ASTNodeFactory {
             isFinal: modifiers.isFinal,
             isStatic: modifiers.isStatic,
             isAbstract: modifiers.isAbstract,
-            isContructor: isContructor,
+            isConstructor: isContructor,
             isDefault: modifiers.isDefault,
             isSynchronized: modifiers.isSynchronized,
             parameters: [],

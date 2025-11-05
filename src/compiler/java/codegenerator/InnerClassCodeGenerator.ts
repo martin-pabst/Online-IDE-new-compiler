@@ -47,7 +47,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
         // let outerClass = this.currentSymbolTable.classContext;
         let klass = node.klass.resolvedType;
-        if(!klass) return undefined;
+        if (!klass) return undefined;
 
         // setup provisionally version of runtime class to collect programs:
         klass.runtimeClass = class {
@@ -101,7 +101,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
     }
 
     compileLambdaFunction(node: ASTLambdaFunctionDeclarationNode, expectedType: JavaType | undefined): CodeSnippet | undefined {
-         if (!node || !expectedType) return undefined;
+        if (!node || !expectedType) return undefined;
 
         if (!this.isFunctionalInterface(expectedType)) {
             this.pushError(JCM.lambdaFunctionHereNotPossible(), "error", node.range);
@@ -135,9 +135,9 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                     this.pushError(JCM.lambdaFunctionWrongParameterType(lambdaParameter.identifier, fiParameterType.toString()), "error", lambdaParameter.range);
                 }
             }
-            if(!lambdaParameter.type){
+            if (!lambdaParameter.type) {
                 this.module.addInlayHint(1, lambdaParameter.range, fiParameterType.toString(),
-                 false, true, fiParameterType.toString() + " " + methodToImplement.parameters[i].identifier);
+                    false, true, fiParameterType.toString() + " " + methodToImplement.parameters[i].identifier);
             }
         }
 
@@ -156,7 +156,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
         let methodNode: ASTMethodDeclarationNode = {
             range: method.identifierRange,
             statement: node.statement,
-            isContructor: false,
+            isConstructor: false,
             identifier: method.identifier,
             method: method,
             program: undefined,
@@ -449,7 +449,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             return snippet;
         } else {
 
-            if(fieldNode.initialization) field.initializedBeforeConstructor = true;
+            if (fieldNode.initialization) field.initializedBeforeConstructor = true;
             let snippet = this.compileInitialValue(fieldNode.initialization, fieldNode.type.resolvedType);
             if (snippet) {
 
@@ -498,14 +498,14 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
         if (!method) return;
 
         method.setAnnotations(methodNode.annotations.map(this.compileAnnotation));
-        if(method.isConstructor){
+        if (method.isConstructor) {
             this.registerUsagePosition(method.classEnumInterface, methodNode.identifierRange);
             this.registerUsagePosition(method, methodNode.identifierRange);
         } else {
             this.registerUsagePosition(method, methodNode.identifierRange);
         }
 
-        if (methodNode.isContructor) {
+        if (methodNode.isConstructor) {
             if (classContext.outerType && !classContext.isStatic) {
                 method.hasOuterClassParameter = true;
             }
@@ -526,6 +526,10 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
 
         let snippets: CodeSnippet[] = [];
+
+        if (method.isFullSpeedMethod()) {
+            snippets.push(new StringCodeSnippet(`${Helpers.enterFullspeedMode}();\n`));
+        }
 
         let thisCallHappened: boolean = false;
         let superCallHappened: boolean = false;
@@ -564,7 +568,11 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             let snippet = methodNode.statement ? this.compileStatementOrTerm(methodNode.statement) : undefined;
             if (snippet) snippets.push(snippet);
 
-            if (methodNode.isContructor) {
+            if (method.isFullSpeedMethod()) {
+                snippets.push(new StringCodeSnippet(`${Helpers.exitFullspeedMode}();\n`));
+            }
+
+            if (methodNode.isConstructor) {
                 let endOfMethodRange: IRange = Range.fromPositions(Range.getEndPosition(methodNode.range));
                 let returnSnippet = new CodeSnippetContainer([new StringCodeSnippet(`${Helpers.return}(${Helpers.elementRelativeToStackbase(0)});\n`, endOfMethodRange)]);
                 returnSnippet.enforceNewStepBeforeSnippet();
@@ -605,7 +613,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
             }
 
-            if (!this.missingStatementManager.hasReturnHappened() && !methodNode.isContructor) {
+            if (!this.missingStatementManager.hasReturnHappened() && !methodNode.isConstructor) {
                 let endOfMethodRange: IRange = Range.fromPositions(Range.getEndPosition(methodNode.range));
                 if (method.isSynchronized) {
                     snippets.push(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`, endOfMethodRange));
@@ -680,13 +688,13 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
         classContext: JavaClass | JavaEnum | JavaInterface, interruptIfNeeded: boolean) {
         for (let method of cdef.methods) {
 
-            if(interruptIfNeeded){
+            if (interruptIfNeeded) {
                 await this.progressManager.interruptIfNeeded();
             }
 
             this.compileMethodDeclaration(method, classContext);
 
-            if (method.isContructor) {
+            if (method.isConstructor) {
                 if (cdef.kind == TokenType.keywordEnum) {
                     if (method.visibility != TokenType.keywordPrivate) {
                         this.pushError(JCM.enumConstructorsMustBePrivate(), "error", method.range);

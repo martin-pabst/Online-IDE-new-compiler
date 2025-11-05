@@ -113,7 +113,7 @@ export class Scheduler {
             }
 
             // has current thread a speed limit?
-            if (currentThread.maxStepsPerSecond) {
+            if (currentThread.maxStepsPerSecond && currentThread.fullspeedCounter == 0) {
                 let t = performance.now();
                 let msPerStep = 1000 / currentThread.maxStepsPerSecond;
                 let elapsedTimeSinceLastThreadRun = t - currentThread.lastTimeThreadWasRun;

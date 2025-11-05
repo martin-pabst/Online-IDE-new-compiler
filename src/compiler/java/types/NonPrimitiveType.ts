@@ -14,6 +14,8 @@ import type * as monaco from 'monaco-editor'
 import type { ClassClass } from "../runtime/system/ClassClass.ts";
 import { JRC } from "../language/JavaRuntimeLibraryComments.ts";
 import { GenericVariantOfJavaClass, JavaClass } from "./JavaClass.ts";
+import { JavaCompilerStringConstants } from "../JavaCompilerStringConstants.ts";
+import { JavaAnnotations } from "./JavaAnnotations.ts";
 
 /**
  * A NonPrimitiveType
@@ -181,6 +183,10 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
             }
         }
         return false;
+    }
+
+    hasFullSpeedMethods(): boolean {
+        return this.hasAnnotation(JavaAnnotations.Fullspeed.identifier);
     }
 
     hasAnnotation(identifier: string) {

@@ -7,6 +7,8 @@ import { TokenType, TokenTypeReadable } from "../TokenType";
 import { JavaSymbolTable } from "../codegenerator/JavaSymbolTable";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
+import { JavaAnnotation } from "../types/JavaAnnotation.ts";
+import { JavaAnnotationsArray } from "../types/JavaAnnotations.ts";
 import { JavaArrayType } from "../types/JavaArrayType";
 import { IJavaClass, JavaClass } from "../types/JavaClass";
 import { JavaEnum } from "../types/JavaEnum.ts";
@@ -265,6 +267,8 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
         let completionItems: monaco.languages.CompletionItem[] = [];
 
+        if (varOrClassMatch[0].startsWith('@')) completionItems = completionItems.concat(this.getAnnotationCompletionItems(module, symbolTable, rangeToReplace));
+
         if (symbolTable && symbolTable.classContext && !symbolTable.methodContext && (symbolTable.classContext instanceof IJavaClass || symbolTable.classContext instanceof JavaEnum)) {
             let range = symbolTable.range;
             if (range.startLineNumber < range.endLineNumber) {
@@ -350,7 +354,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
                     )
                 }
             }
-        } 
+        }
         // else {
         //     if (classContext == null) {
         //         // Use filename to generate completion-item for class ... ?
@@ -388,6 +392,65 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
         return Promise.resolve({
             suggestions: completionItems
         });
+    }
+
+    getAnnotationCompletionItems(module: JavaCompiledModule, symbolTable: JavaSymbolTable, rangeToReplace: monaco.IRange): monaco.languages.CompletionItem[] {
+
+        let completionItems: monaco.languages.CompletionItem[] = [];
+        let line = rangeToReplace.startLineNumber;
+
+        let beforeClassDeclaration = module.ast.innerTypes.find(t => t.range.startLineNumber == line + 1 && t.kind == TokenType.keywordClass);
+        if (beforeClassDeclaration) {
+            JavaAnnotationsArray.filter(annotation => annotation.beforeClass).forEach(annotation => {
+                completionItems.push({
+                    label: "@" + annotation.identifier,
+                    filterText: "@" + annotation.identifier,
+                    insertText: "@" + annotation.identifier + "\n",
+                    detail: annotation.description,
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    kind: monaco.languages.CompletionItemKind.Issue,
+                    range: rangeToReplace
+                });
+            }
+            )
+        } else {
+            if (symbolTable.methodContext == null && symbolTable.classContext != null && symbolTable.classContext instanceof IJavaClass) {
+                let beforeMethodDeclaration = symbolTable.classContext.methods.find(m => m.identifierRange.startLineNumber == line + 1);
+                if (beforeMethodDeclaration) {
+                    JavaAnnotationsArray.filter(annotation => annotation.beforeMethod).forEach(annotation => {
+                        completionItems.push({
+                            label: "@" + annotation.identifier,
+                            filterText: "@" + annotation.identifier,
+                            insertText: "@" + annotation.identifier + "\n",
+                            detail: annotation.description,
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            kind: monaco.languages.CompletionItemKind.Issue,
+                            range: rangeToReplace
+                        });
+                    })
+                }
+            } else if (symbolTable.methodContext != null && symbolTable.methodContext.isMainMethod() && symbolTable.classContext != null && symbolTable.classContext.isMainClass) {
+                let klass = symbolTable.classContext["nonPrimitiveType"] as JavaClass;
+                let beforeMethodDeclaration = klass.methods.find(m => m.identifierRange.startLineNumber == line + 1);
+                if (beforeMethodDeclaration) {
+                    JavaAnnotationsArray.filter(annotation => annotation.beforeMethodOfMainClass).forEach(annotation => {
+                        completionItems.push({
+                            label: "@" + annotation.identifier,
+                            filterText: "@" + annotation.identifier,
+                            insertText: "@" + annotation.identifier + "\n",
+                            detail: annotation.description,
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            kind: monaco.languages.CompletionItemKind.Issue,
+                            range: rangeToReplace,
+                            sortText: "aaa" + annotation.identifier
+                        });
+                    })
+                }
+            }
+        }
+
+        return completionItems;
+
     }
 
     getGetter(classContext: JavaClass | JavaEnum, rangeToReplace: monaco.IRange, getPraefix: String): ConcatArray<monaco.languages.CompletionItem> {
@@ -924,7 +987,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
     }
 
     getConstructorCompletion(classContext: IJavaClass | JavaEnum, prange: IRange) {
-        
+
         let keywordCompletionItems: monaco.languages.CompletionItem[] = [];
 
         let constructors = classContext.getOwnMethods().filter(m => m.isConstructor && m.identifier == classContext.identifier && m.identifierRange.startLineNumber !== -1);

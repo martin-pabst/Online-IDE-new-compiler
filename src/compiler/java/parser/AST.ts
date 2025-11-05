@@ -173,7 +173,7 @@ export interface ASTMethodDeclarationNode extends ASTNode, ASTNodeWithModifiers,
     kind: TokenType.methodDeclaration;
     parameters: ASTParameterNode[];
     returnParameterType: ASTTypeNode | undefined;  // undefined in case of constructor
-    isContructor: boolean;
+    isConstructor: boolean;
     isAbstract: boolean;
     statement: ASTStatementNode | undefined;  // undefined in case of abstract method and methoddeclaration in interface
     method?: JavaMethod;

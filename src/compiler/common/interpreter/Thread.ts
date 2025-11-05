@@ -68,6 +68,12 @@ export class Thread {
 
     lastReentrenceCounter?: number;
 
+    /**
+     * counts how many times a method with @Fullspeed annotation was entered.
+     * As long as this counter is > 0, this thread is executing in fullspeed-mode
+     */
+    fullspeedCounter: number = 0; 
+
     get assertionObservers() {
         return this.scheduler.interpreter.assertionObserverList;
     }
@@ -647,6 +653,17 @@ export class Thread {
 
     NullstringIfNull(s: StringClass): string {
         return s == null ? "null" : s.value;
+    }
+
+    EnterFullspeedMode() {
+        this.fullspeedCounter++;
+    }
+
+    ExitFullspeedMode() {
+        this.fullspeedCounter--;
+        if (this.fullspeedCounter == 0){
+            this.state = ThreadState.changeSpeedRequested;
+        }
     }
 
     exit() {

@@ -18,6 +18,7 @@ import { Visibility } from "./Visibility";
 import { JavaAnnotation } from "./JavaAnnotation.ts";
 import { JavaCompilerStringConstants } from "../JavaCompilerStringConstants.ts";
 import { ThisType } from "./ThisType.ts";
+import { JavaAnnotations } from "./JavaAnnotations.ts";
 
 export class JavaMethod extends BaseSymbol {
 
@@ -271,6 +272,9 @@ export class JavaMethod extends BaseSymbol {
         return snippet;
     }
 
+    isFullSpeedMethod(): boolean {
+        return this.hasAnnotation(JavaAnnotations.Fullspeed.identifier) || (this.classEnumInterface?.hasFullSpeedMethods() ?? false);
+    }
 
     hasAnnotation(identifier: string) {
         return this.annotations.find(a => a.identifier == identifier) != null;

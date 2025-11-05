@@ -669,13 +669,13 @@ export class TypeResolver {
             method.isFinal = methodNode.isFinal;
             method.isStatic = methodNode.isStatic;
             method.classEnumInterface = type;
-            method.isConstructor = methodNode.isContructor;
+            method.isConstructor = methodNode.isConstructor;
             method.isDefault = methodNode.isDefault;
             method.isSynchronized = methodNode.isSynchronized;
             method.documentation = methodNode.documentation;
             method.annotations = methodNode.annotations;
 
-            method.returnParameterType = methodNode.isContructor ? type : methodNode.returnParameterType?.resolvedType;
+            method.returnParameterType = methodNode.isConstructor ? type : methodNode.returnParameterType?.resolvedType;
             for (let p of methodNode.parameters) {
                 if (p.type?.resolvedType) {
 
