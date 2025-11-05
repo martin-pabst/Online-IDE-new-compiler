@@ -726,7 +726,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             }
 
             if(constant){
-                if (!constant.isConstant()) {
+                if (!(constant.isConstant() || constant.isFinalField)) {
                     this.pushError(JCM.constantValueExpectedAfterCase(), "error", constantNode.range);
                 } else if (!constant.type || constant.type.identifier.toLowerCase() != typeId?.toLowerCase()) {
                     this.pushError(JCM.caseValueDoesntFitToSwitchValue(typeId || "---", constant.type!.identifier), "error", constantNode.range);
@@ -747,13 +747,17 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         for(let constant of constants){
             let constantValue = constant.getConstantValue();
     
-            switch (typeId) {
-                case 'String':
-                case 'string':
-                case 'char':
-                    caseSnippet.addStringPart(`case ${JSON.stringify(constantValue)}: \n`, node.range); break;
-                default:
-                    caseSnippet.addStringPart(`case ${constantValue}: \n`, node.range);
+            if(typeof constantValue != 'undefined'){
+                switch (typeId) {
+                    case 'String':
+                    case 'string':
+                    case 'char':
+                        caseSnippet.addStringPart(`case ${JSON.stringify(constantValue)}: \n`, node.range); break;
+                    default:
+                        caseSnippet.addStringPart(`case ${constantValue}: \n`, node.range);
+                }
+            } else {
+                caseSnippet.addStringPart(`case ${constant.emit()}: \n`, node.range);
             }
         }
 

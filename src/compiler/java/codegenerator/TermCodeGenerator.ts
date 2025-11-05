@@ -830,7 +830,6 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         //     return new StringCodeSnippet(constantValueAsString, range, type, constantValue);
         // }
 
-
         let fieldName = (field).getInternalName();
 
         let snippet: CodeSnippet;
@@ -854,6 +853,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         }
         snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
+
+        snippet.isFinalField = field._isFinal;
 
         if (field.isInnerClassCopyOfOuterClassLocalVariable) {
             this.registerUsagePosition(field.isInnerClassCopyOfOuterClassLocalVariable, range);
@@ -1117,7 +1118,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
             let value = enumType.runtimeClass!.getSpriteLibrary(id, node.attributeIdentifier);
             if (value) {
-                return new StringCodeSnippet(`${Helpers.classes}["SpriteLibrary"].getSpriteLibrary(${id}, "${node.attributeIdentifier}")`, node.range, enumType);
+                let snippet1 = new StringCodeSnippet(`${Helpers.classes}["SpriteLibrary"].getSpriteLibrary(${id}, "${node.attributeIdentifier}")`, node.range, enumType);
+                snippet1.isFinalField = field.isFinal();
             }
         }
 
@@ -1135,10 +1137,12 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 let code = field.template.replace("§1", `${Helpers.classes}["${classIdentifier}"]`);
                 let snippet = new StringCodeSnippet(code, range, field.type);
                 snippet.isLefty = false;
+                snippet.isFinalField = field._isFinal;
                 return snippet;
             } else {
                 let snippet = new StringCodeSnippet(`${Helpers.classes}["${classIdentifier}"].${field.getInternalName()}`, range, field.type);
                 snippet.isLefty = !field._isFinal;
+                snippet.isFinalField = field._isFinal;
                 return snippet;
             }
         } else {
@@ -1148,12 +1152,14 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 let objSnippet1 = new OneParameterTemplate(template).applyToSnippet(objectSnippet.type, objectSnippet.range!, objectSnippet);
                 let snippet = new OneParameterTemplate(field.template).applyToSnippet(field.type, range, objSnippet1);
                 snippet.isLefty = !field._isFinal;
-
+                snippet.isFinalField = field._isFinal;
+                
                 return snippet;
             } else {
                 let snippet = new OneParameterTemplate(`${template}.${field.getInternalName()}`)
-                    .applyToSnippet(field.type, range, objectSnippet);
+                .applyToSnippet(field.type, range, objectSnippet);
                 snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
+                snippet.isFinalField = field._isFinal;
 
                 return snippet;
             }

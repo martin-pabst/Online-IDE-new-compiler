@@ -16,6 +16,9 @@ export abstract class CodeSnippet {
 
     isSuperKeywordWithLevel?: number;
 
+    public isFinalField?: boolean;
+
+
     abstract emit(): string;
     abstract index(currentIndex: number): number;
     abstract emitToStep(currentStep: Step, steps: Step[], module: Module): Step;
@@ -81,7 +84,7 @@ export class StringCodeSnippet extends CodeSnippet {
         this.constantValue = constantValue;
     }
 
-    setConstantValue(value: ConstantValue){
+    setConstantValue(value: ConstantValue) {
         this.constantValue = value;
     }
 
@@ -94,8 +97,8 @@ export class StringCodeSnippet extends CodeSnippet {
     }
 
     ensureFinalValueIsOnStack(): void {
-        if(this.finalValueIsOnStack) return;
-        if(this.text.endsWith(";\n")) this.text = this.text.substring(0, this.text.length - 2);
+        if (this.finalValueIsOnStack) return;
+        if (this.text.endsWith(";\n")) this.text = this.text.substring(0, this.text.length - 2);
         this.text = `${StepParams.stack}.push(${this.text});\n`
         this.finalValueIsOnStack = true;
     }
@@ -115,7 +118,7 @@ export class StringCodeSnippet extends CodeSnippet {
     }
 
     takeEmitToStepListenersFrom(snippets: CodeSnippet | CodeSnippet[]) {
-        if(!Array.isArray(snippets)) snippets = [snippets];
+        if (!Array.isArray(snippets)) snippets = [snippets];
         for (let sn of snippets) {
             this.emitToStepListeners = this.emitToStepListeners.concat(sn.getEmitToStepListeners());
         }
