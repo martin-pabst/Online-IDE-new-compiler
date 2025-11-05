@@ -186,7 +186,8 @@ export class ProjectExplorer {
         this.fileTreeview.contextMenuProvider = (file, node) => {
             let cmiList: TreeviewContextMenuItem<GUIFile, number>[] = [];
 
-            cmiList.push({
+            cmiList.push(
+                {
                 caption: ProjectExplorerMessages.duplicate(),
                 callback: async (file, treeviewNode) => {
 
@@ -206,7 +207,16 @@ export class ProjectExplorer {
                         newNode.renameNode();
                     }
                 }
-            });
+            },
+                {
+                caption: ProjectExplorerMessages.exportAsFile(),
+                callback: async (file, treeviewNode) => {
+
+                    downloadFile(file.getText(), file.name);
+                    
+                }
+            },
+        );
 
 
             if (!(this.main.user.is_teacher || this.main.user.is_admin || this.main.user.is_schooladmin)) {

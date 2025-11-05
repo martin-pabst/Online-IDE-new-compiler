@@ -260,6 +260,11 @@ Are you sure?`
         'en': 'Duplicate'
     });
 
+    static exportAsFile = () => lm({
+        'de': 'Als Datei exportieren',
+        'en': 'Export as file'
+    });
+
     static copy = () => lm({
         'de': 'Kopie',
         'en': 'copy'
