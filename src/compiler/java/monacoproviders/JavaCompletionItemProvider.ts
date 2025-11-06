@@ -25,7 +25,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
     isConsole: boolean = false;
 
-    public triggerCharacters: string[] = ['.', 'abcdefghijklmnopqrstuvwxyzäöüß_ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ', ' '];
+    public triggerCharacters: string[] = ' .abcdefghijklmnopqrstuvwxyzäöüß_ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ@'.split('');
 
     constructor(public language: JavaLanguage) {
         super(language);
@@ -267,7 +267,12 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
         let completionItems: monaco.languages.CompletionItem[] = [];
 
-        if (varOrClassMatch[0].startsWith('@')) completionItems = completionItems.concat(this.getAnnotationCompletionItems(module, symbolTable, rangeToReplace));
+        if (varOrClassMatch[0].trim().startsWith('@')) {
+            completionItems = completionItems.concat(this.getAnnotationCompletionItems(module, symbolTable, rangeToReplace));
+            return Promise.resolve({
+                suggestions: completionItems
+            });
+        }
 
         if (symbolTable && symbolTable.classContext && !symbolTable.methodContext && (symbolTable.classContext instanceof IJavaClass || symbolTable.classContext instanceof JavaEnum)) {
             let range = symbolTable.range;
@@ -404,12 +409,12 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
             JavaAnnotationsArray.filter(annotation => annotation.beforeClass).forEach(annotation => {
                 completionItems.push({
                     label: "@" + annotation.identifier,
-                    filterText: "@" + annotation.identifier,
-                    insertText: "@" + annotation.identifier + "\n",
+                    filterText: annotation.identifier,
+                    insertText: annotation.identifier + "\n",
                     detail: annotation.description,
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                     kind: monaco.languages.CompletionItemKind.Issue,
-                    range: rangeToReplace
+                    range: rangeToReplace,
+                    sortText: "aaa" + annotation.identifier
                 });
             }
             )
@@ -420,12 +425,12 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
                     JavaAnnotationsArray.filter(annotation => annotation.beforeMethod).forEach(annotation => {
                         completionItems.push({
                             label: "@" + annotation.identifier,
-                            filterText: "@" + annotation.identifier,
-                            insertText: "@" + annotation.identifier + "\n",
+                            filterText: annotation.identifier,
+                            insertText: annotation.identifier + "\n",
                             detail: annotation.description,
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                             kind: monaco.languages.CompletionItemKind.Issue,
-                            range: rangeToReplace
+                            range: rangeToReplace,
+                            sortText: "aaa" + annotation.identifier
                         });
                     })
                 }
@@ -436,10 +441,9 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
                     JavaAnnotationsArray.filter(annotation => annotation.beforeMethodOfMainClass).forEach(annotation => {
                         completionItems.push({
                             label: "@" + annotation.identifier,
-                            filterText: "@" + annotation.identifier,
-                            insertText: "@" + annotation.identifier + "\n",
+                            filterText: annotation.identifier,
+                            insertText: annotation.identifier + "\n",
                             detail: annotation.description,
-                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                             kind: monaco.languages.CompletionItemKind.Issue,
                             range: rangeToReplace,
                             sortText: "aaa" + annotation.identifier

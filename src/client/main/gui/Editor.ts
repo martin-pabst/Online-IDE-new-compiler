@@ -105,7 +105,7 @@ export class Editor {
             suggestLineHeight: 22,
             suggest: {
                 localityBonus: true,
-                insertMode: "replace"
+                insertMode: "replace",
                 // snippetsPreventQuickSuggestions: false
             },
             bracketPairColorization: {
