@@ -1,3 +1,4 @@
+import { on } from "events";
 import { IRange } from "../../common/range/Range";
 import { Lexer } from "../lexer/Lexer";
 import { Token, TokenList } from "../lexer/Token";
@@ -103,6 +104,8 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
         let lastTokenWasNewLine: number = 0;
         let roundBracketsOpen: number = 0;
 
+        let oneTimeIndent: boolean = false; // if after for, while, ... there's no { } and therefore only one line is indented
+
         for (let i = 0; i < tokenlist.length; i++) {
 
             let t = tokenlist[i];
@@ -121,6 +124,7 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                     }
                     break;
                 case TokenType.leftCurlyBracket:
+                    oneTimeIndent = false;
                     if (switchHappend) {
                         switchHappend = false;
                         indentLevelAtSwitchStatements.push(indentLevel + 2);
@@ -246,7 +250,8 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                         }
                         if (il < 0) il = 0;
 
-                        let correctIndentation = il * tabSize;
+                        let correctIndentation = il * tabSize + (oneTimeIndent ? tabSize : 0);
+                        oneTimeIndent = false;
 
                         if (correctIndentation > currentIndentation) {
                             this.insertSpaces(edits, t.range.startLineNumber + 1, 0, correctIndentation - currentIndentation);
@@ -278,9 +283,16 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                             this.insertSpaces(edits, nextToken.range.startLineNumber, nextToken.range.startColumn, 1);
                         }
                     }
+                    oneTimeIndent = true;
+                    break;
+                case TokenType.keywordIf:
+                case TokenType.keywordElse:
+                case TokenType.keywordDo:
+                    oneTimeIndent = true;
                     break;
                 case TokenType.comma:
                 case TokenType.semicolon:
+                    oneTimeIndent = false;
                     if (i > 1) {
                         let lastToken1 = tokenlist[i - 1];
                         let lastToken2 = tokenlist[i - 2];
