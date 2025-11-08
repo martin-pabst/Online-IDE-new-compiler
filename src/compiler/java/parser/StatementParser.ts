@@ -107,6 +107,8 @@ export abstract class StatementParser extends TermParser {
         let type = this.analyzeIfVariableDeclarationOrMethodDeclarationAhead(this.isCodeOutsideClassdeclarations);
         let statement: ASTStatementNode | undefined;
         let pos = this.pos;
+
+        let errorCount = this.module.errors.length;
         switch (type) {
             case "variabledeclaration":
                 // In main program we convert local variables in uppermost nesting level to fields
@@ -140,7 +142,7 @@ export abstract class StatementParser extends TermParser {
                 }
         }
 
-        if (!statement || (expectSemicolonAfterStatement && !this.expectSemicolon(true, true))) {
+        if (!statement || (expectSemicolonAfterStatement && !this.expectSemicolon(true, errorCount == this.module.errors.length))) {
             if (pos == this.pos) {
                 if (!this.module.errors.find(error => error.level == "error")) {
                     this.pushError(JCM.unexpectedToken(this.cct.value + ""))
@@ -438,7 +440,7 @@ export abstract class StatementParser extends TermParser {
         if (this.comesToken(TokenType.semicolon, false)) {
             this.pushError(JCM.loopOverEmptyStatement(), "warning");
         }
-        let statementToRepeat = this.parseStatementOrExpression(false);
+        let statementToRepeat = this.parseStatementOrExpression(true);
         // if (statementToRepeat?.isEmpty) {
         //     let beginOfBlockRange: IRange = Range.fromPositions(Range.getStartPosition(statementToRepeat.range));
         //     this.pushError(JCM.loopOverEmptyStatement(), "info", beginOfBlockRange);

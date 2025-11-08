@@ -240,7 +240,7 @@ export class TokenIterator {
 
                     if (!this.isOperatorOrDot(this.lastToken.tt)) {
                         let error: Error = {
-                            message: JCM.insertSemicolonHere(),
+                            message: JCM.insertSemicolonHere() + (invokeSemicolonAngel ? "" : "x"),
                             id: "1",
                             level: "error",
                             range: range

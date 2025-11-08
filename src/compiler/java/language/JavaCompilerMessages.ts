@@ -660,6 +660,12 @@ export class JCM {
         "fr": `Vous ne pouvez pas avoir de méthodes abstraites dans des classes non abstraites.`,
     })
 
+    static methodNeedsMethodBody = (methodidentifier: string) => le({
+        'de': `Die Methode ${methodidentifier} braucht hier noch einen Methodenrumpf, d.h. sie braucht Anweisungen, die in { ... } eingeschlossen sind.`,
+        'en': `Method ${methodidentifier} needs a body here, i.e. it needs statements enclosed in { ... }.`
+    });
+    
+
     /**
      * 
      * class TermParser

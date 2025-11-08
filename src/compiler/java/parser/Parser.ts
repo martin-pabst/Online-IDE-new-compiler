@@ -337,11 +337,12 @@ export class Parser extends StatementParser {
                     (<ASTBaseTypeNode>type).identifiers[0].identifier = "string";
                 }
 
+                let errorCount = this.module.errors.length;
                 do {
                     this.parseFieldDeclaration(classASTNode, modifiers, type, documentation);
                 } while (this.comesToken(TokenType.comma, true));
 
-                this.expectSemicolon(true, true);
+                this.expectSemicolon(true, this.module.errors.length == errorCount);
 
             }
         }
@@ -387,7 +388,7 @@ export class Parser extends StatementParser {
                     this.pushError(JCM.noSemicolonAsMethodBody());
                 }
                 methodNode.statement = this.nodeFactory.buildBlockNode(this.cct);
-                this.expectSemicolon(true, true);
+                this.pushError(JCM.methodNeedsMethodBody(methodNode.identifier), "error", this.cct.range);
             } else {
                 if(parentNode.kind == TokenType.keywordClass && !parentNode.isAbstract){
                     this.setEndOfRange(methodNode);
@@ -421,7 +422,7 @@ export class Parser extends StatementParser {
     }
 
     parseFieldDeclaration(classASTNode: ASTClassDefinitionNode | ASTEnumDefinitionNode | ASTInterfaceDefinitionNode, modifiers: ASTNodeWithModifiers,
-        type: ASTTypeNode | undefined, documentation: string | undefined) {
+        type: ASTTypeNode | undefined, documentation: string | undefined){
         let rangeStart = this.cct.range;
         let identifier = this.expectAndSkipIdentifierAsToken();
 
