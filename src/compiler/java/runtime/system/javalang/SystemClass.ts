@@ -14,11 +14,13 @@ export class PrintStreamClass extends ObjectClass {
         { type: "method", signature: "void print(int number)", java: PrintStreamClass.prototype._mn$print$void$int, comment: JRC.PrintStreamPrintComment},
         { type: "method", signature: "void print(double number)", java: PrintStreamClass.prototype._mn$print$void$double, comment: JRC.PrintStreamPrintComment},
         { type: "method", signature: "void print(boolean b)", java: PrintStreamClass.prototype._mn$print$void$boolean, comment: JRC.PrintStreamPrintComment},
+        { type: "method", signature: "void print(Object o)", java: PrintStreamClass.prototype._mn$print$void$Object, comment: JRC.PrintStreamPrintComment},
         { type: "method", signature: "void println(char text)", java: PrintStreamClass.prototype._mn$println$void$string, comment: JRC.PrintStreamPrintlnComment},
         { type: "method", signature: "void println(string text)", java: PrintStreamClass.prototype._mn$println$void$string, comment: JRC.PrintStreamPrintlnComment},
         { type: "method", signature: "void println(int number)", java: PrintStreamClass.prototype._mn$println$void$int, comment: JRC.PrintStreamPrintlnComment},
         { type: "method", signature: "void println(double number)", java: PrintStreamClass.prototype._mn$println$void$double, comment: JRC.PrintStreamPrintlnComment},
         { type: "method", signature: "void println(boolean b)", java: PrintStreamClass.prototype._mn$println$void$boolean, comment: JRC.PrintStreamPrintlnComment},
+        { type: "method", signature: "void println(Object o)", java: PrintStreamClass.prototype._mn$println$void$Object, comment: JRC.PrintStreamPrintlnComment},
         { type: "method", signature: "void println()", java: PrintStreamClass.prototype._mn$println$void$string, comment: JRC.PrintStreamPrintlnComment2},
     ];
 
@@ -86,6 +88,44 @@ export class PrintStreamClass extends ObjectClass {
         }
 
         if(callback) callback();
+    }
+
+    _mn$println$void$Object(t: Thread, callback: CallbackFunction, n: ObjectClass){
+        if(n == null){
+            t.println("null", undefined);
+            if(callback) callback();
+            return;
+        } else {
+            n._mj$toString$String$(t, () => {
+                let str = t.s.pop() as StringClass;
+                if(str == null){
+                    t.println("null", undefined);
+                } else {
+                    t.println(str.value, undefined);
+                }
+                if(callback) callback();
+                return;
+            });
+        }
+    }
+
+    _mn$print$void$Object(t: Thread, callback: CallbackFunction, n: ObjectClass){
+        if(n == null){
+            t.print("null", undefined);
+            if(callback) callback();
+            return;
+        } else {
+            n._mj$toString$String$(t, () => {
+                let str = t.s.pop() as StringClass;
+                if(str == null){
+                    t.print("null", undefined);
+                } else {
+                    t.print(str.value, undefined);
+                }
+                if(callback) callback();
+                return;
+            });
+        }
     }
 
 
