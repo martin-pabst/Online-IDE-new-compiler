@@ -14,7 +14,7 @@ export class Vector2Class extends ObjectClass {
 
         { type: "method", signature: "Vector2(double x, double y)", native: Vector2Class.prototype._constructor2, comment: JRC.Vector2ConstructorComment },
 
-        { type: "method", signature: "static Vector2 fromPolarCoordinates()", native: Vector2Class._fromPolarCoordinates, comment: JRC.Vector2ToStringComment },
+        { type: "method", signature: "static Vector2 fromPolarCoordinates(double r, double angle)", native: Vector2Class._fromPolarCoordinates, comment: JRC.Vector2ToStringComment },
         { type: "method", signature: "final double getAngleDeg()", native: Vector2Class.prototype._getAngleDeg, comment: JRC.Vector2GetAngleDegComment },
         { type: "method", signature: "final double getAngleRad()", native: Vector2Class.prototype._getAngleRad, comment: JRC.Vector2GetAngleRadComment },
         { type: "method", signature: "final double getLength()", native: Vector2Class.prototype._getLength, comment: JRC.Vector2GetLengthComment },
