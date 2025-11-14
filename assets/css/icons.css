@@ -433,14 +433,14 @@
       background-image: url('../icons/home-dark.svg');
    }
 
-   .img_homework-corrected {
+   .img_homework-corrected-dark {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
       background-image: url('../icons/homework-corrected.svg');
    }
 
-   .img_homework {
+   .img_homework-dark {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;

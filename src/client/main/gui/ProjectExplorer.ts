@@ -325,6 +325,9 @@ export class ProjectExplorer {
         if (klass) {
             homeworkButton.iconClass = klass;
             homeworkButton.title = title;
+            homeworkButton.setVisible(true);
+        } else {
+            homeworkButton.setVisible(false);
         }
 
     }
