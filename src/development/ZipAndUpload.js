@@ -89,7 +89,7 @@ await ssh.execCommand('rm assets.zip', {cwd: '/var/www/learnj.de/htdocs/javaonli
 await ssh.execCommand('rm -r ./assets', {cwd: '/var/www/learnj.de/htdocs/javaonline'});
 await ssh.execCommand('mv assets-new assets', {cwd: '/var/www/learnj.de/htdocs/javaonline'});
 
-await ssh.execCommand('/var/www/embed1.learnj.de/makeArchive.sh', {cwd: '/var/www/learnj.de/htdocs/javaonline'});
+await ssh.execCommand('/var/www/embed.learnj.de/makeArchive.sh', {cwd: '/var/www/learnj.de/htdocs/javaonline'});
 
 rmSync('intern/tmp', { recursive: true, force: true });
 

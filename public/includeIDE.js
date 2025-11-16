@@ -1,4 +1,4 @@
-let base = "https://embed1.learnj.de/include/";
+let base = "https://embed.learnj.de/include/";
 
 
 let scripts = [
@@ -54,6 +54,8 @@ function initScripts(jo_doc) {
     }
     let htmlElement = document.getElementsByTagName('html')[0];
     let bodyElement = document.getElementsByTagName('body')[0];
+    bodyElement.classList.add('joeCssFence');
+    
     /** @type HTMLDivElement */
     let divElement = document.createElement('div');
     divElement.classList.add('java-online');
