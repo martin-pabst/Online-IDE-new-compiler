@@ -67,7 +67,7 @@ await zipDirectory('dist-embedded/assets', 'intern/tmp/assets.zip');
 await ssh.connect({
   host: 'mathe-pabst.de',
   username: 'root',
-  privateKeyPath: 'intern/keys/ssh_private_key.ppk'
+  privateKeyPath: 'intern/keys/putty_id_rsa_vps_30.ppk'
 })
 
 
