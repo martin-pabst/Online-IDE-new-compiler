@@ -178,7 +178,7 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
             t.s.push(this);
 
             if (callback) callback();
-        })
+        });
 
     }
 

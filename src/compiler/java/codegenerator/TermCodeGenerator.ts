@@ -1120,6 +1120,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             if (value) {
                 let snippet1 = new StringCodeSnippet(`${Helpers.classes}["SpriteLibrary"].getSpriteLibrary(${id}, "${node.attributeIdentifier}")`, node.range, enumType);
                 snippet1.isFinalField = field.isFinal();
+                snippet1.isLefty = false;
+                return snippet1;
             }
         }
 

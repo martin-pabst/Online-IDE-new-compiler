@@ -76,7 +76,12 @@ export class SpriteClass extends ShapeClass {
             if (copyFromOtherShape == null) {
                 this.spriteLibrary = (typeof spriteLibrary == "string") ? spriteLibrary : spriteLibrary!.name;
                 this.imageIndex = imageIndex;
-                this.setTexture(undefined, imageIndex);
+                try {
+                    this.setTexture(this.spriteLibrary, this.imageIndex);
+                } catch (e) {
+                    t.throwRuntimeExceptionOnLastExecutedStep(e);
+                    return;
+                }
             } else {
                 this.copyBitmapFromShape(copyFromOtherShape);
                 let bounds = copyFromOtherShape.container.getBounds();
@@ -87,11 +92,16 @@ export class SpriteClass extends ShapeClass {
             }
 
             let sprite = <PIXI.Sprite>this.container;
+            if(sprite == null){
+                let sl = (typeof spriteLibrary == "string") ? spriteLibrary : spriteLibrary?.name;
+                t.throwRuntimeExceptionOnLastExecutedStep(new RuntimeExceptionClass(JRC.spriteErrorImageNotFound(sl, imageIndex)));
+                return;
+            }
 
-            this.container.localTransform.translate(this.x - sprite.width / 2, this.y - sprite.height / 2);
-            this.container.setFromMatrix(this.container.localTransform);
+            sprite.localTransform.translate(this.x - sprite.width / 2, this.y - sprite.height / 2);
+            sprite.setFromMatrix(sprite.localTransform);
             //@ts-ignore
-            this.container._didLocalTransformChangeId = this.container._didChangeId;
+            sprite._didLocalTransformChangeId = sprite._didChangeId;
 
 
             this.world.app.stage.addChild(sprite);
@@ -312,7 +322,7 @@ export class SpriteClass extends ShapeClass {
 
         if(this.container?.destroyed) return;
 
-        if (spriteLibrary == this.spriteLibrary && imageIndex == this.imageIndex) return;
+        if (this.container && spriteLibrary == this.spriteLibrary && imageIndex == this.imageIndex) return;
         if (spriteLibrary == null) spriteLibrary = this.spriteLibrary;
 
         if (imageIndex == null) imageIndex = 0;
