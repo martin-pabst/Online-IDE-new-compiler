@@ -434,31 +434,49 @@ export class StudentBulkImportMI extends AdminMenuItem {
 
     }
 
-    static getRandomPassword(minimumLength: number = 8, minimumNumberOfCategries: number = 3): string {
+    static getRandomPassword(minimumLength: number = 8): string {
         let categoryList: string[] = ["abcdefghkmnpqrstuvwxy", "ABCDEFGHKLMNPQRSTUVW", "123456789", "#!§$%&/()=[]{}*+:;-"];
 
-        let goodCharacters: string = categoryList.join("");
+        let s: string = "";
+        // s += categoryList[3].charAt(Math.trunc(Math.random() * categoryList[3].length));
+        s += categoryList[2].charAt(Math.trunc(Math.random() * categoryList[2].length));
+        s += categoryList[1].charAt(Math.trunc(Math.random() * categoryList[1].length));
 
-        let goodPasswordFound: boolean = false;
-        let pw: string = '';
-
-        while(!goodPasswordFound){
-            pw = '';
-            let categories: Map<number, boolean> = new Map();
-            for(let i = 0; i< minimumLength; i++){
-                let c = goodCharacters.charAt(Math.trunc(Math.random() * goodCharacters.length));
-                pw += c;
-                for(let i = 0; i < categoryList.length; i++){
-                    let category = categoryList[i];
-                    if(category.indexOf(c) >= 0){
-                        categories.set(i, true);
-                    }
-                }
-            }
-            goodPasswordFound = categories.size >= minimumNumberOfCategries;
+        while(s.length < minimumLength){
+            s += categoryList[0].charAt(Math.trunc(Math.random() * categoryList[0].length));
         }
 
-        return pw;
+        for(let i = 0; i < minimumLength * 10; i++){
+            let pos1 = Math.trunc(Math.random() * s.length);
+            let pos2 = Math.trunc(Math.random() * s.length);
+            let c1 = s.charAt(pos1);
+            let c2 = s.charAt(pos2);
+            s = s.substring(0, pos1) + c2 + s.substring(pos1 + 1);
+            s = s.substring(0, pos2) + c1 + s.substring(pos2 + 1);
+        }
+
+        // let goodCharacters: string = categoryList.join("");
+
+        // let goodPasswordFound: boolean = false;
+        // let pw: string = '';
+
+        // while(!goodPasswordFound){
+        //     pw = '';
+        //     let categories: Map<number, boolean> = new Map();
+        //     for(let i = 0; i< minimumLength; i++){
+        //         let c = goodCharacters.charAt(Math.trunc(Math.random() * goodCharacters.length));
+        //         pw += c;
+        //         for(let i = 0; i < categoryList.length; i++){
+        //             let category = categoryList[i];
+        //             if(category.indexOf(c) >= 0){
+        //                 categories.set(i, true);
+        //             }
+        //         }
+        //     }
+        //     goodPasswordFound = categories.size >= minimumNumberOfCategries;
+        // }
+
+        return s;
     }
 
 

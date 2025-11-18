@@ -584,9 +584,12 @@ export class AdminMessages {
         den korrekten Bezeichnern (Klasse, Rufname, Familienname, Username, Passwort) enthält, kümmert sich der Import-Algorithmus
         um die richtige Reihenfolge und blendet ggf. auch überflüssige Spalten aus. Falls eine Zeile kein Passwort enthält,
         setzt die Online-IDE ein Zufallspasswort.<br>
+        Passwortregeln: Aus den Kategorien Kleinbuchstaben, Großbuchstaben, Ziffern und Sonderzeichen müssen mindestens drei
+        in jedem Passwort vertreten sein. Die Mindestlänge beträgt 8 Zeichen.<br>
         Bitte fügen Sie den Inhalt der Tabelle per Copy-Paste in dieses Eingabefeld ein:`,
         'en': `To import student data you need a tab-separated table with colums FirstName, LastName, Username, Class (optional) and password(optional).<br>
         You get this format from Excel or other spreadsheet software by copying to clipboard.<br>
+        Password rules: At least three of the following categories must be represented in each password: lowercase letters, uppercase letters, digits, and special characters. Minimum length is 8 characters.<br>
         Column order is arbitrary if you provide a first row with header-identifiers given above. Random passwords are generated for each student without one.<br>
         Please insert table in textfield below by copy/paste.`
     });
