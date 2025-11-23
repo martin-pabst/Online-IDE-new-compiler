@@ -481,6 +481,11 @@ export class DistributeToStudentsDialogMessages {
         'en': 'Filter list'
     });
 
+    static selectMultiple = () => lm({
+        'de': '(Mehrfachauswahl ist durch Halten der Shift- oder Strg-/Cmd-Taste möglich.)',
+        'en': '(Select multiple students by holding Shift or Ctrl/Cmd key.)'
+    });
+
     static cancel = () => lm({
         'de': 'Abbrechen',
         'en': 'Cancel'
