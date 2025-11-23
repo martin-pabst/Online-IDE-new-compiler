@@ -185,6 +185,18 @@ export class SettingsMessages {
         'fr': `Afficher les lignes entre les paires de parenthèses`
     });
 
+    static StickyScroll = () => lm({
+        'de': `Sticky Scroll`,
+        'en': `Sticky Scroll`,
+        'fr': `Défilement fixe`
+    }); 
+
+    static StickyScrollDescription = () => lm({
+        'de': `Zeigt die aktuellen Blocküberschriften (z.B. Methoden- oder Klassennamen) immer oben im Editor an, auch wenn diese nicht mehr im sichtbaren Bereich sind.`,
+        'en': `Always displays the current block headers (e.g., method or class names) at the top of the editor, even when they are no longer in the visible area.`,
+        'fr': `Affiche toujours les en-têtes de bloc actuels (par exemple, les noms de méthodes ou de classes) en haut de l'éditeur, même lorsqu'ils ne sont plus dans la zone visible.`
+    });
+
     static BracketPairLinesDescription = () => lm({
         'de': `Vertikale Linien zwischen passenden Klammerpaaren anzeigen, gegebenfalls um Unterstreichung des Scope-Beginns.`,
         'en': `Display vertical lines between matching bracket pairs, possibly with underlined scope-start.`,

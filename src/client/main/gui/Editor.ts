@@ -69,6 +69,9 @@ export class Editor {
             // gotoLocation: {
             //     multipleReferences: "gotoAndPeek"
             // },
+            stickyScroll: {
+                enabled: settings.getValue("editor.stickyScroll") !== "off"
+            },
             guides: {
                 bracketPairs: settings.getValue("editor.bracketPairLines") !== 'off',
                 highlightActiveBracketPair: settings.getValue("editor.bracketPairLines") !== 'off',

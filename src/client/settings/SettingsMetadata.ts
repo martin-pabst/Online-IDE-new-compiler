@@ -210,6 +210,22 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         },
                         image: scopeLines
                     },
+                    {
+                        key: "editor.stickyScroll",
+                        settingType: 'setting',
+                        name: SettingsMessages.StickyScroll,
+                        description: SettingsMessages.StickyScrollDescription,
+                        type: 'enumeration',
+                        optionValues: ["off", "on"],
+                        optionTexts: [SettingsMessages.Off, SettingsMessages.On],
+                        action: (main, value) => {
+                            main.getMainEditor().updateOptions({
+                                stickyScroll: {
+                                    enabled: value !== 'off'
+                                } as monaco.editor.IEditorStickyScrollOptions
+                            })
+                        }
+                    }
 
                 ]
             }
