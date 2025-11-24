@@ -209,6 +209,9 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                     if (i < tokenlist.length - 2) {
 
                         let nextNonSpaceToken = this.getNextNonSpaceToken(i, tokenlist);
+                        if(nextNonSpaceToken.tt == TokenType.leftCurlyBracket){
+                            oneTimeIndent = false;
+                        }
 
                         // no additional indent after "case 12 :"
                         let lastTokenIsOperator = this.isBinaryOperator(lastNonSpaceToken?.tt) && lastNonSpaceToken?.tt != TokenType.colon;
