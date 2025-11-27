@@ -40,6 +40,8 @@ export class SpriteClass extends ShapeClass {
         { type: "method", signature: "void makeTiling(double width, double height)", native: SpriteClass.prototype.makeTiling, comment: JRC.spriteMakeTilingComment1 },
         { type: "method", signature: "void makeTiling(double width, double height, double gapX, double gapY)", native: SpriteClass.prototype.makeTiling, comment: JRC.spriteMakeTilingComment2 },
         { type: "method", signature: "TileImage getTileImage()", native: SpriteClass.prototype.getTileImage, comment: JRC.spriteGetTileImageComment },
+        { type: "method", signature: "int getPixelColor(int x, int y)", native: SpriteClass.prototype._getPixelColor, comment: JRC.spriteGetPixelColorComment },
+        { type: "method", signature: "double getPixelAlpha(int x, int y)", native: SpriteClass.prototype._getPixelAlpha, comment: JRC.spriteGetPixelAlphaComment },
 
     ]
 
@@ -63,6 +65,9 @@ export class SpriteClass extends ShapeClass {
     y!: number;
     spriteLibrary!: string;
     imageIndex: number = 0;    // If you change this identifier then you have to change corresponding declaration in class ShapeClass
+
+    pixels: Uint8ClampedArray<ArrayBufferLike>; // if getPixelColor is called, we cache the pixels here
+
 
     _cj$_constructor_$Sprite$double$double$SpriteLibrary$int$ScaleMode(t: Thread, callback: CallbackParameter,
         x: number, y: number, spriteLibrary: string | SpriteLibraryEnum | undefined, imageIndex: number,
@@ -92,7 +97,7 @@ export class SpriteClass extends ShapeClass {
             }
 
             let sprite = <PIXI.Sprite>this.container;
-            if(sprite == null){
+            if (sprite == null) {
                 let sl = (typeof spriteLibrary == "string") ? spriteLibrary : spriteLibrary?.name;
                 t.throwRuntimeExceptionOnLastExecutedStep(new RuntimeExceptionClass(JRC.spriteErrorImageNotFound(sl, imageIndex)));
                 return;
@@ -277,13 +282,13 @@ export class SpriteClass extends ShapeClass {
         }
     }
 
-    _setAsBackgroundImage(){
+    _setAsBackgroundImage() {
         let sprite = <PIXI.Sprite>this.container;
-        let ownRatio = sprite.width/sprite.height;
-        let worldRatio = this.world.currentWidth/this.world.currentHeight;
-        let factor = (ownRatio > worldRatio) ? this.world.height/sprite.height : this.world.width/sprite.width;
+        let ownRatio = sprite.width / sprite.height;
+        let worldRatio = this.world.currentWidth / this.world.currentHeight;
+        let factor = (ownRatio > worldRatio) ? this.world.height / sprite.height : this.world.width / sprite.width;
         this._setScale(factor);
-        this._moveTo(this.world.currentLeft + this.world.currentWidth/2, this.world.currentTop + this.world.currentHeight/2);
+        this._moveTo(this.world.currentLeft + this.world.currentWidth / 2, this.world.currentTop + this.world.currentHeight / 2);
         this._sendToBack();
     }
 
@@ -297,7 +302,7 @@ export class SpriteClass extends ShapeClass {
         return sprite.height;
     }
 
-    _mj$copy$Shape$(t: Thread, callback: CallbackParameter){
+    _mj$copy$Shape$(t: Thread, callback: CallbackParameter) {
         this._mj$copy$Sprite$(t, callback);
     }
 
@@ -320,7 +325,7 @@ export class SpriteClass extends ShapeClass {
 
     setTexture(spriteLibrary?: string, imageIndex?: number) {
 
-        if(this.container?.destroyed) return;
+        if (this.container?.destroyed) return;
 
         if (this.container && spriteLibrary == this.spriteLibrary && imageIndex == this.imageIndex) return;
         if (spriteLibrary == null) spriteLibrary = this.spriteLibrary;
@@ -392,7 +397,7 @@ export class SpriteClass extends ShapeClass {
             let dy = oldCenterY - this.centerYInitial;
 
 
-            if(this.belongsToGroup && dx*dx + dy*dy > 1e-10){
+            if (this.belongsToGroup && dx * dx + dy * dy > 1e-10) {
 
                 this.container.setFromMatrix(this.container.localTransform.append(new PIXI.Matrix().translate(oldCenterX - this.centerXInitial, oldCenterY - this.centerYInitial)));
 
@@ -418,7 +423,7 @@ export class SpriteClass extends ShapeClass {
 
     _playAnimation1(fromIndex: number, toIndex: number, repeatType: RepeatTypeEnum, imagesPerSecond: number) {
         let animationArray: number[] = [];
-        for(let i = fromIndex; i <= toIndex; i++){
+        for (let i = fromIndex; i <= toIndex; i++) {
             animationArray.push(i);
         }
         this._playAnimation(animationArray, repeatType, imagesPerSecond);
@@ -488,7 +493,7 @@ export class SpriteClass extends ShapeClass {
                 image = Math.trunc(this.imagesPerMillisecond * this.animationTime);
                 if (image >= this.animationIndices.length) {
                     this._stopAnimation(true);
-                    if(this.repeatTypeOrdinal == RepeatType.once){
+                    if (this.repeatTypeOrdinal == RepeatType.once) {
                         this.destroy();
                     }
                     return;
@@ -504,7 +509,7 @@ export class SpriteClass extends ShapeClass {
         // the exception ourselves...
         try {
             this.setTexture(this.textureName, this.animationIndices[image]);
-        } catch (exception: any){
+        } catch (exception: any) {
             this.world.interpreter.stop(false);
             this.world.interpreter.printManager.printHtmlElement(ExceptionPrinter.getHtmlWithLinks(exception, [], this.world.interpreter.getMain()));
             this._stopAnimation(false);
@@ -518,6 +523,43 @@ export class SpriteClass extends ShapeClass {
         }
 
         return new TileImageClass(this);
+    }
+
+    #getPixels(){
+        let renderer = <PIXI.Renderer>this.world.app.renderer;
+        this.pixels = renderer.extract.pixels(this.container).pixels;
+    }
+
+    _getPixelColor(x: number, y: number): number {
+        let w = this.container.width;
+        let h = this.container.height;
+
+        if(this.pixels == null){
+            this.#getPixels();
+        }
+
+        if (x < 0 || x >= w || y < 0 || y >= h) {
+            throw new RuntimeExceptionClass(JRC.spriteGetPixelColorOutOfBoundsError(x, y, w, h));
+        }
+
+        let index = (y * w + x) * 4;
+
+        return (this.pixels[index] << 16) + (this.pixels[index + 1] << 8) + (this.pixels[index + 2] << 0);
+
+    }
+
+    _getPixelAlpha(x: number, y: number): number {
+        let w = this.container.width;
+        let h = this.container.height;
+        if(this.pixels == null){
+            this.#getPixels();
+        }
+        if (x < 0 || x >= w || y < 0 || y >= h) {
+            throw new RuntimeExceptionClass(JRC.spriteGetPixelColorOutOfBoundsError(x, y, w, h));
+        }   
+        let index = (y * w + x) * 4;
+
+        return this.pixels[index + 3] / 255.0;
     }
 
 }
@@ -564,8 +606,6 @@ export class TileImageClass extends ObjectClass {
     _mirrorY() {
         this._scale(1, -1);
     }
-
-
 
 }
 

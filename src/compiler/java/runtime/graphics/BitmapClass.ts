@@ -11,6 +11,9 @@ import { ColorClass } from './ColorClass.ts';
 import { ShapeClass } from './ShapeClass';
 import { JRC } from '../../language/JavaRuntimeLibraryComments.ts';
 import { PositionClass } from './PositionClass.ts';
+import { downloadFile } from '../../../../tools/HtmlTools.ts';
+import * as UPNG from 'upng-js'
+
 
 export class BitmapClass extends ShapeClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -28,6 +31,7 @@ export class BitmapClass extends ShapeClass {
         { type: "method", signature: "final void setColor(int x, int y, string color)", native: BitmapClass.prototype._setColor, comment: JRC.BitmapSetColorComment },
         { type: "method", signature: "final Color getColor(int x, int y)", native: BitmapClass.prototype._getColor, comment: JRC.BitmapGetColorComment },
         { type: "method", signature: "final int getColorAsInt(int x, int y)", native: BitmapClass.prototype._getColorAsInt, comment: JRC.BitmapGetColorComment },
+        { type: "method", signature: "double getAlpha(int x, int y)", native: BitmapClass.prototype._getAlpha, comment: JRC.BitmapGetPixelAlphaComment },
 
         { type: "method", signature: "final boolean isColor(int x, int y, string colorAsRGBString)", native: BitmapClass.prototype._isColor, comment: JRC.BitmapIsColorComment },
         { type: "method", signature: "final boolean isColor(int x, int y, int color)", native: BitmapClass.prototype._isColor, comment: JRC.BitmapIsColorComment },
@@ -36,6 +40,10 @@ export class BitmapClass extends ShapeClass {
 
         { type: "method", signature: "final void fillAll(int color, double alpha)", native: BitmapClass.prototype._fillAll, comment: JRC.BitmapFillAllComment },
         { type: "method", signature: "final void fillAll(string colorAsRGBString, double alpha)", native: BitmapClass.prototype._fillAll, comment: JRC.BitmapFillAllComment },
+
+        { type: "method", signature: "final void downloadAsPngFile(string filename)", native: BitmapClass.prototype._downloadAsPngFile, comment: JRC.BitmapDownloadAsPngFileComment },
+
+
 
         { type: "method", signature: "final Bitmap copy()", java: BitmapClass.prototype._mj$copy$Bitmap$, comment: JRC.BitmapCopyComment },
 
@@ -133,7 +141,8 @@ export class BitmapClass extends ShapeClass {
 
         if (!clone) {
 
-            this.texture = PIXI.Texture.from(new PIXI.BufferImageSource({resource: u8Array,
+            this.texture = PIXI.Texture.from(new PIXI.BufferImageSource({
+                resource: u8Array,
                 width: this.anzahlX,
                 height: this.anzahlY,
                 scaleMode: "nearest",
@@ -151,7 +160,7 @@ export class BitmapClass extends ShapeClass {
         this.world.app.stage.addChild(this.container);
     }
 
-    _mj$copy$Shape$(t: Thread, callback: CallbackParameter){
+    _mj$copy$Shape$(t: Thread, callback: CallbackParameter) {
         this._mj$copy$Bitmap$(t, callback);
     }
 
@@ -172,7 +181,7 @@ export class BitmapClass extends ShapeClass {
 
     timerID: any = undefined;
     uploadData() {
-        if(this.timerID) return;
+        if (this.timerID) return;
 
         this.timerID = setTimeout(() => {
             this.texture.source.update();
@@ -208,6 +217,14 @@ export class BitmapClass extends ShapeClass {
 
     }
 
+    public _getAlpha(x: number, y: number): number {
+
+        let i = (x + y * (this.anzahlX));
+        let c = this.data[i];
+
+        return ((c & 0xff000000) >>> 24) / 255.0; // >>> to get unsigned shift
+
+    }
 
     public _isColor(x: number, y: number, color: string | number, alpha?: number) {
 
@@ -235,7 +252,7 @@ export class BitmapClass extends ShapeClass {
 
     public _setColor(x: number, y: number, color: string | number, alpha?: number) {
 
-        if(x < 0 || x > this.anzahlX || y < 0 || y > this.anzahlY){
+        if (x < 0 || x > this.anzahlX || y < 0 || y > this.anzahlY) {
             throw new RuntimeExceptionClass(JRC.BitmapCoordinatesOutOfBoundsException(x, y, this.anzahlX, this.anzahlY));
         }
 
@@ -276,6 +293,27 @@ export class BitmapClass extends ShapeClass {
         }
     }
 
+    public _downloadAsPngFile(filename: string) {
+        let pngFileBuffer = UPNG.encode([<ArrayBuffer>this.data.buffer], this.anzahlX, this.anzahlY, 0);
+        let pngFile = new Uint8Array(pngFileBuffer);
+        //@ts-ignore
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            //@ts-ignore
+            window.navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            var e = document.createEvent('MouseEvents'),
+                a = document.createElement('a');
+            a.download = filename;
+            a.href = window.URL.createObjectURL(new Blob([pngFile], { type: 'application/octet-stream' }));
+            a.dataset.downloadurl = ['image/png', a.download, a.href].join(':');
+            //@ts-ignore
+            e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            a.dispatchEvent(e);
+            a.remove();
+        }
+
+    }
+
     public setzeFarbeRGBA(x: number, y: number, r: number, g: number, b: number, alpha: number) {
         let c = alpha * 0xff000000 + b * 0x10000 + g * 0x100 + r;
         let i = (x + y * (this.anzahlX));
@@ -303,23 +341,23 @@ export class BitmapClass extends ShapeClass {
     }
 
     _debugOutput() {
-        if(this.isDestroyed) return "<destroyed Bitmap>"
+        if (this.isDestroyed) return "<destroyed Bitmap>"
         let s = `{width: ${this.width * this.scaleFactor}, height: ${this.height * this.scaleFactor}, centerX: ${this._getCenterX()}, centerY: ${this._getCenterY()} }`;
         return s;
     }
 
-    _worldCoordinatesToBitmapCoordinates(x: number, y: number){
-        let xb = Math.trunc((x - this.top)/this.width * this.anzahlX);
-        let yb = Math.trunc((y - this.top)/this.width * this.anzahlY);
+    _worldCoordinatesToBitmapCoordinates(x: number, y: number) {
+        let xb = Math.trunc((x - this.top) / this.width * this.anzahlX);
+        let yb = Math.trunc((y - this.top) / this.width * this.anzahlY);
 
         return new PositionClass(xb, yb);
     }
 
-    _getResolutionX(){
+    _getResolutionX() {
         return this.anzahlX;
     }
 
-    _getResolutionY(){
+    _getResolutionY() {
         return this.anzahlY;
     }
 

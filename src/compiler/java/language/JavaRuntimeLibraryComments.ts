@@ -1706,6 +1706,10 @@ export class JRC {
         "en": "Returns resolution ( = number of pixels) in y-direction.",
     })
 
+    static BitmapGetPixelAlphaComment = () => lm({
+        "de": "Gibt die Transparenz des Pixels an der angegebenen Position innerhalb der Bitmap zurück.",
+        "en": "Returns alpha value of pixel at given position inside bitmap.",
+    })
 
     static BitmapGetColorComment = () => lm({
         "de": "Gibt die Farbe des angegebenen Punktes als Color-Objekt zurück.",
@@ -1729,6 +1733,11 @@ export class JRC {
         "en": "Fills whole Bitmap with given color.",
     })
 
+    static BitmapDownloadAsPngFileComment = () => lm({
+        "de": "Lädt die Bitmap als PNG-Datei mit dem angegebenen Dateinamen herunter.",
+        "en": "Downloads the bitmap as a PNG file with the given filename.",
+    })
+
     /**
      * enum Direction
      */
@@ -1741,6 +1750,11 @@ export class JRC {
     /**
      * class Sprite
      */
+
+    static spriteGetPixelColorOutOfBoundsError = (x: number, y: number, width: number, height: number) => lm({
+        "de": "Die Koordinaten (" + x + ", " + y + ") liegen außerhalb des Sprites mit der Breite " + width + " und der Höhe " + height,
+        "en": "Coordinates (" + x + ", " + y + ") are out of bounds of sprite with width " + width + " and height " + height,
+    })
 
     static spriteClassComment = () => lm({
         "de": "Ein Sprite ist eine kleine Pixelgrafik, die verschoben, gedreht und skaliert werden kann. Zudem besitzt es Methoden zum Erkennen von Kollisionen mit anderen grafischen Objekten.",
@@ -1872,6 +1886,15 @@ export class JRC {
         "en": "This sprite has no tileImage as it had not beeen converted to a TileSprite via method 'makeTiling'.",
     })
 
+    static spriteGetPixelColorComment = () => lm({
+        "de": "Gibt die Farbe des Pixels an der angegebenen Position innerhalb des Sprites zurück.",
+        "en": "Returns color of pixel at given position inside sprite.",
+    })
+
+    static spriteGetPixelAlphaComment = () => lm({
+        "de": "Gibt die Transparenz des Pixels an der angegebenen Position innerhalb des Sprites zurück.",
+        "en": "Returns alpha value of pixel at given position inside sprite.",
+    })
 
     /**
      * Enum ScaleMode
