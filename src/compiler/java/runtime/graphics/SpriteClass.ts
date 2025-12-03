@@ -390,8 +390,8 @@ export class SpriteClass extends ShapeClass {
             let oldCenterX = this.centerXInitial;
             let oldCenterY = this.centerYInitial;
 
-            this.centerXInitial = sprite.width / 2;
-            this.centerYInitial = sprite.height / 2;
+            this.centerXInitial = sprite.width / this.scaleFactor / 2;
+            this.centerYInitial = sprite.height / this.scaleFactor / 2;
 
             let dx = oldCenterX - this.centerXInitial;
             let dy = oldCenterY - this.centerYInitial;
@@ -525,7 +525,7 @@ export class SpriteClass extends ShapeClass {
         return new TileImageClass(this);
     }
 
-    #getPixels(){
+    #getPixels() {
         let renderer = <PIXI.Renderer>this.world.app.renderer;
         this.pixels = renderer.extract.pixels(this.container).pixels;
     }
@@ -534,7 +534,7 @@ export class SpriteClass extends ShapeClass {
         let w = this.container.width;
         let h = this.container.height;
 
-        if(this.pixels == null){
+        if (this.pixels == null) {
             this.#getPixels();
         }
 
@@ -551,12 +551,12 @@ export class SpriteClass extends ShapeClass {
     _getPixelAlpha(x: number, y: number): number {
         let w = this.container.width;
         let h = this.container.height;
-        if(this.pixels == null){
+        if (this.pixels == null) {
             this.#getPixels();
         }
         if (x < 0 || x >= w || y < 0 || y >= h) {
             throw new RuntimeExceptionClass(JRC.spriteGetPixelColorOutOfBoundsError(x, y, w, h));
-        }   
+        }
         let index = (y * w + x) * 4;
 
         return this.pixels[index + 3] / 255.0;
