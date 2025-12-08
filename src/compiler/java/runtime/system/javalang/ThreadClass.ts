@@ -153,7 +153,8 @@ export class ThreadClass extends ObjectClass implements RunnableInterface {
     _mj$join(t: Thread, callback: CallbackFunction, milliseconds?: number){
 
         // only other thread can join this thread
-        if(!this.thread || this.thread == t || this.thread.state >= ThreadState.terminated){
+        if(!this.thread || this.thread == t || 
+            [ThreadState.terminated, ThreadState.terminatedWithException].indexOf(this.thread.state) >= 0){
             if(callback) callback();
             return;
         }

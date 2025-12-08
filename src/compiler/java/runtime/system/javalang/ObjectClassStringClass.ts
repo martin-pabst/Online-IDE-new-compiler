@@ -124,7 +124,7 @@ export class ObjectClass {
                     t.scheduler.restoreThread(t);
 
                     this.threadHoldingLockToThisObject = t;
-                    this.reentranceCounter = t.lastReentrenceCounter || 1;
+                    this.reentranceCounter = t.lastReentrenceCounter || 0;
 
                     // console.log("Thread " + t.name + " unblocked with reentrance counter " + t.lastReentrenceCounter + ".");
                     return;
