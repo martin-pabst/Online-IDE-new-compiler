@@ -31,7 +31,7 @@ export class ImplementInterfaceOrAbstractClassQuickfix extends Quickfix {
                         resource: model.uri,
                         textEdit: {
                             range: {startLineNumber: klassRange.endLineNumber, startColumn: 0, endLineNumber: klassRange.endLineNumber, endColumn: 0},
-                            text: this.notImplementedMethods.map(m => "\t" + m.getDeclaration() + "{\n\t\t//TODO!\n\t}\n").join("\n")
+                            text: this.notImplementedMethods.map(m => "   " + m.getDeclaration() + "{\n      //TODO!\n   }\n").join("\n")
                         },
                         versionId: model.getVersionId()
                     }

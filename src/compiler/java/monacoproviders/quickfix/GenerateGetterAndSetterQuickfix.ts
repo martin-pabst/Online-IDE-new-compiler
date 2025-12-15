@@ -22,8 +22,8 @@ class GenerateGetterAndSetterQuickfix extends Quickfix {
 
         let title = "";
         let text = "";
-        let getterText = `\n\tpublic ${this.field.type.toString()} get${firstLetterUppercaseIdentifier}(){\n\t\treturn ${this.field.identifier};\n\t}\n`;
-        let setterText = `\n\tpublic void set${firstLetterUppercaseIdentifier}(${this.field.type.toString()} ${this.field.identifier}){\n\t\tthis.${this.field.identifier} = ${this.field.identifier};\n\t}\n`;
+        let getterText = `\n   public ${this.field.type.toString()} get${firstLetterUppercaseIdentifier}(){\n   return ${this.field.identifier};\n   }\n`;
+        let setterText = `\n   public void set${firstLetterUppercaseIdentifier}(${this.field.type.toString()} ${this.field.identifier}){\n   this.${this.field.identifier} = ${this.field.identifier};\n   }\n`;
 
         switch (this.type) {
             case "getter":
