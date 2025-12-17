@@ -2068,6 +2068,21 @@ export class JRC {
         "en": "Constructs an empty list.",
     })
 
+    static vectorFirstElementComment = () => lm({
+        "de": "Gibt das erste Element der Liste zurück.",
+        "en": "Returns the first element of this list.",
+    })
+    
+    static vectorLastElementComment = () => lm({
+        "de": "Gibt das letzte Element der Liste zurück.",
+        "en": "Returns the last element of this list.",
+    })
+
+    static vectorRemoveElementAtComment = () => lm({
+        "de": "Entfernt das Element an der angegebenen Position aus der Liste. index == 0 bedeutet das erste Element der Liste.",
+        "en": "Removes the element at the specified position in this list. index == 0 means first element of the list.",
+    })
+
     static vectorIteratorComment = () => lm({
         "de": "Gibt ein Iterator-Objekt zurück, mit dem über alle Elemente der Liste in der gespeicherten Reihenfolge iteriert werden kann.",
         "en": "Returns an iterator over the elements in this list in proper sequence.",
