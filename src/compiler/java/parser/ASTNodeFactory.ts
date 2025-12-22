@@ -517,10 +517,11 @@ export class ASTNodeFactory {
 
     buildForLoopNode(forToken: Token, firstStatement: ASTStatementNode | undefined, condition: ASTTermNode | undefined,
         lastStatement: ASTStatementNode | undefined,
-        statementToRepeat: ASTStatementNode): ASTForLoopNode {
+        statementToRepeat: ASTStatementNode, endRange?: IRange): ASTForLoopNode {
+        endRange = endRange || statementToRepeat?.range || EmptyRange.instance;
         return {
             kind: TokenType.keywordFor,
-            range: { startLineNumber: forToken.range.startLineNumber, startColumn: forToken.range.startColumn, endLineNumber: statementToRepeat.range.endLineNumber, endColumn: statementToRepeat.range.endColumn },
+            range: { startLineNumber: forToken.range.startLineNumber, startColumn: forToken.range.startColumn, endLineNumber: endRange.endLineNumber, endColumn: endRange.endColumn },
             firstStatement: firstStatement,
             condition: condition,
             lastStatement: lastStatement,
