@@ -26,56 +26,17 @@
 
     }">
         <script type="text/plain" title="Test1.java" data-type="java">
-           Counter counter = new Counter();
-ArrayList<Thread> threads = new ArrayList<>();
 
-for (int i = 0; i < 3; i++) {
-   Incrementer inc = new Incrementer(counter, 1e6, i);
-   Thread t = new Thread(inc);
-   t.setName("Thread " + i);
-   threads.add(t);
-   println("Starte Thread " + i);
-   t.start();
-}
+            String test(){
+                println("test() wurde aufgerufen");
+                return "x";
+            }
 
-for (var t : threads) {
-   t.join();
-}
+            boolean b = true;
+            String a = b ? "true" : test();
 
-println("Der Counter steht jetzt auf: "); print(counter.counter, Color.lightgreen);
-
-class Counter {
-   long counter = 0;
-
-   public synchronized void increment() {   // <-- mit Schlüsselwort synchronized!
-      long i = counter;
-      i++;
-      counter = i;
-   }
-}
-
-
-class Incrementer implements Runnable {
-   
-   Counter counter;
-   long increment = 0;
-   int index;
-
-   Incrementer(Counter counter, long increment, int index) {
-      this.increment = increment;
-      this.counter = counter;
-      this.index = index;
-   }
-
-   public void run() {
-      for (long i = 1; i <= increment; i++) {
-         counter.increment();
-         if(i % (increment / 10) == 0) println(Thread.currentThread().getName() + " hat " + i + " mal erhöht!");
-      }
-      println(Thread.currentThread().getName() + "\nDone!", Color.lightblue);
-   }
-
-}
+            println(a);
+            
         </script>
     </div>
 

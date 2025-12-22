@@ -959,7 +959,16 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             return undefined;
         }
 
-        if (firstAlternative.type == this.voidType && secondAlternative.type == this.voidType) {
+        let bothAlternativesArePureTerms = firstAlternative.isPureTerm() && secondAlternative.isPureTerm();
+        let bothAlternativesHaveVoidType = firstAlternative.type == this.voidType && secondAlternative.type == this.voidType;
+
+        if (bothAlternativesHaveVoidType || !bothAlternativesArePureTerms) {
+            let notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType = !bothAlternativesArePureTerms && !bothAlternativesHaveVoidType;
+            if(notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType) {
+                firstAlternative.ensureFinalValueIsOnStack();
+                secondAlternative.ensureFinalValueIsOnStack();
+            }
+
             let ifSnippet = new CodeSnippetContainer([], ast.range);
 
             let sn1 = SnippetFramer.frame(leftOperand, "if(§1){\n", this.voidType, leftOperand.range);
@@ -982,8 +991,12 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             ifSnippet.addParts(label1);
             ifSnippet.addParts(firstAlternative);
 
-            ifSnippet.addParts(label2);
             ifSnippet.addNextStepMark();
+            ifSnippet.addParts(label2);
+
+            if(!notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType) {
+                ifSnippet.finalValueIsOnStack = true;
+            }
 
             return ifSnippet;
 
