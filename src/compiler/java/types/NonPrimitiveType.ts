@@ -37,7 +37,7 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
 
     private _isMainClass?: boolean;
 
-    set isMainClass(isMainClass: boolean){
+    set isMainClass(isMainClass: boolean) {
         this._isMainClass = true;
     }
 
@@ -79,7 +79,7 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
         return this.runtimeClass_;
     }
 
-    public set runtimeClass(klass: Klass){
+    public set runtimeClass(klass: Klass) {
         this.runtimeClass_ = klass;
     }
 
@@ -213,4 +213,13 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
         cf.type = new GenericVariantOfJavaClass(<JavaClass>classType, typeMap);
         return cf;
     }
-}
+
+    getArraySnippetEnding(dimension: number): string {
+        let snippetEnding: string = ""; 
+        for (let i = 0; i < dimension; i++) {
+            snippetEnding += "[$" + i + "]";
+        }
+        return snippetEnding;
+    }
+
+} 

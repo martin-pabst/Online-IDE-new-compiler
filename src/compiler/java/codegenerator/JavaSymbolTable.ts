@@ -158,6 +158,18 @@ export class JavaSymbolTable extends BaseSymbolTable {
                 filterText: symbol.identifier,
                 range: rangeToReplace
             })
+
+            if (symbol.type["dimension"] !== undefined) {
+                let dimension: number = symbol.type["dimension"];
+                items.push({
+                    label: symbol.identifier + "[]",
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    detail: symbol.getDeclaration(),
+                    insertText: symbol.identifier + this.getArraySnippetEnding(dimension),
+                    filterText: symbol.identifier,
+                    range: rangeToReplace
+                })
+            }
         })
 
         if (this.parent) {
@@ -168,6 +180,13 @@ export class JavaSymbolTable extends BaseSymbolTable {
         return items;
     }
 
+    getArraySnippetEnding(dimension: number): string {
+        let snippetEnding: string = ""; 
+        for (let i = 0; i < dimension; i++) {
+            snippetEnding += "[$" + i + "]";
+        }
+        return snippetEnding;
+    }
 
 }
 

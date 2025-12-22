@@ -71,6 +71,19 @@ export abstract class IJavaClass extends JavaTypeWithInstanceInitializer {
                 //@ts-ignore
                 signature: field.toString()
             });
+
+            if (field.type["dimension"] !== undefined) { 
+                let dimension: number = field.type["dimension"];
+                itemList.push({
+                    label: field.identifier + "[]",
+                    kind: monaco.languages.CompletionItemKind.Snippet,
+                    detail: field.getDeclaration(),
+                    insertText: field.identifier + this.getArraySnippetEnding(dimension),
+                    filterText: field.identifier,
+                    range: rangeToReplace
+                })
+
+            }
         }
 
         for (let method of this.getOwnMethods().filter(m => (m.classEnumInterface == this || m.visibility != TokenType.keywordPrivate) && (m.isStatic || !onlyStatic))) {
@@ -950,4 +963,4 @@ export class GenericVariantOfJavaClass extends IJavaClass {
     }
 
 
-}
+} 
