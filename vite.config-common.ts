@@ -36,8 +36,9 @@ export default {
     build: {
         sourcemap: true,
         emptyOutDir: true,
-        chunkSizeWarningLimit: 4912,
-        assetsInlineLimit: 10 * 1024
+        chunkSizeWarningLimit: 0x8000, // 10 MB
+        assetsInlineLimit: 10 * 1024,
+        cssCodeSplit: true,
     },
     define: {
         'APP_VERSION': JSON.stringify(pkg.version),

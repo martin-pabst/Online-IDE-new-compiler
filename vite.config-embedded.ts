@@ -18,17 +18,29 @@ export default {
                         {
                             test: (id: string) => id.endsWith('diagram.css'),
                             name: 'diagram.css',
+                            priority: 10
                         },
                         {
                             test: (id: string) => id.endsWith('.css'),
                             name: 'css',
-                        }
-                    ].concat(['pixi.js', 'w2ui', 'three', 'p5', 'monaco-editor', 'diff-match-patch', 
-                        'howler', 'upng-js', 'markdown-it', 'jquery', 'jszip', 'chart.js', 'pako'].map(libName => ({
-                        test: (id: string) => id.includes(`node_modules/${libName}`),
-                        name: libName,
+                            priority: 5
+                        },
+                        {
+                            test: /node_modules/,
+                            name: (id: string) => {
+                                let moduleName: string = id.toString().split('node_modules/')[1].split('/')[0].toString().replace("@", "");
+                                return moduleName;
+                            },
+                            priority: 1
+                        },
 
-                    })))
+                    ]
+                    // .concat(['pixi.js', 'w2ui', 'three', 'p5', 'monaco-editor', 'diff-match-patch', 
+                    //     'howler', 'upng-js', 'markdown-it', 'jquery', 'jszip', 'chart.js', 'pako'].map(libName => ({
+                    //     test: (id: string) => id.includes(`node_modules/${libName}`),
+                    //     name: libName,
+
+                    // })))
                 },
                 entryFileNames: _assetInfo => {
                     return 'online-ide-embedded.js'; // im Hauptverzeichnis

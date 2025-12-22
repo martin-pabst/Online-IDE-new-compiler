@@ -10,7 +10,7 @@
     "build-deploy": "tsgo && vite build && vite build --config vite.config-embedded.js && node src/development/ZipAndUpload.js",
     "build-ide": "tsgo && vite build",
     "build-embedded": "tsgo && vite build --config vite.config-embedded.js",
-    "preview": "npm run build && vite preview --port 3000 --host",
+    "preview": "npm run build-ide && vite preview --port 3000 --host",
     "preview-embedded": "npm run build-embedded && vite preview --port 3000 --host --config vite.config-embedded.js",
     "build_tools": "tsgo --project tsconfig_development-tools.json",
     "test": "vitest --config vitest.config.ts",

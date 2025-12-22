@@ -24,47 +24,22 @@ export default {
                         {
                             test: (id: string) => id.endsWith('diagram.css'),
                             name: 'diagram.css',
+                            priority: 10
                         },
                         {
-                            test: (id: string) => id.endsWith('.css'),
-                            name: 'css',
-                        }
-                    ].concat(['pixi.js', 'w2ui', 'three', 'p5', 'monaco-editor', 'diff-match-patch', 
-                        'howler', 'upng-js', 'markdown-it', 'jquery', 'jszip', 'chart.js', 'pako'].map(libName => ({
-                        test: (id: string) => id.includes(`node_modules/${libName}`),
-                        name: libName,
-                        
-                    })))
+                            test: /node_modules/,
+                            name: (id: string) => {
+                                let moduleName: string = id.toString().split('node_modules/')[1].split('/')[0].toString().replace("@", "");
+                                if (id.endsWith('.css')) {
+                                    return moduleName + '_css';
+                                }
+                                return moduleName;
+                            },
+                            priority: 5
+                        },
+                    ]
                 },
-                // manualChunks: (id: string, { getModuleInfo }) => {
-                //     if (id.includes('node_modules')) {
-                //         let moduleName: string = id.toString().split('node_modules/')[1].split('/')[0].toString().replace("@", "");
-                //         if (id.endsWith('.css')) {
-                //             return moduleName + '_css';
-                //         }
-                //         return moduleName;
-                //     }
-
-                //     if (id.endsWith('diagram.css')) {
-                //         return 'classDiagram.Css';
-                //     }
-
-
-                //     return undefined;
-                // },
             }
-
-            // output: {
-            //   entryFileNames: assetInfo => {
-            //     if (assetInfo.name.indexOf('worker') >= 0) {
-            //       return 'worker/[name].js';
-            //     }
-            //     return '[name]-[hash].js';
-            //   },
-            //   assetFileNames: assetInfo => assetInfo.name.endsWith('css') ? '[name]-[hash][extname]' : 'assets/[name]-[hash][extname]',
-            //   chunkFileNames: 'assets/js/[name]-[hash].js',
-            //   manualChunks: {}
-            // }
         },
         outDir: './dist',
     },
