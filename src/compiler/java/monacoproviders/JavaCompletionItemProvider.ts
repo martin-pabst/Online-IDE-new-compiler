@@ -394,6 +394,12 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
         this.upvoteItemsWithSameFirstCharacterCasing(completionItems, text);
 
+        if(symbolTable?.methodContext != null) {    
+            completionItems = completionItems.filter(item => item.label !== 'void');
+        }
+
+        completionItems = completionItems.filter(item => item.label != 'string');
+
         return Promise.resolve({
             suggestions: completionItems
         });

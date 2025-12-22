@@ -429,10 +429,11 @@ export abstract class StatementParser extends TermParser {
 
         if (!statementToRepeat) {
             this.pushError(JCM.statementOrBlockExpected());
-            return undefined;
-        }
+        } 
 
-        return this.nodeFactory.buildForLoopNode(tokenFor, firstStatement, condition, lastStatement, statementToRepeat);
+        let endRange: IRange = statementToRepeat ? statementToRepeat.range : this.cct.range;
+
+        return this.nodeFactory.buildForLoopNode(tokenFor, firstStatement, condition, lastStatement, statementToRepeat, endRange);
 
     }
 
