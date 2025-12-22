@@ -7,9 +7,10 @@ import { JavaEnum } from '../../types/JavaEnum';
 import { JavaField } from '../../types/JavaField';
 import { EnumClass } from '../system/javalang/EnumClass';
 
+//@ts-ignore
 import { SpriteLibrary } from "./SpriteLibrary.js";
 
-// declare var SpriteLibrary: { index: number, name: string }[];
+declare var SpriteLibrary: { index: number, name: string }[];
 
 export class SpriteLibraryEnum extends EnumClass {
     static __javaDeclarations: LibraryDeclarations = [

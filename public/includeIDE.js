@@ -2,8 +2,7 @@ let base = "https://embed.learnj.de/include/";
 
 
 let scripts = [
-    base + 'online-ide-embedded.css',
-    base + 'online-ide-embedded2.css',
+    base + 'online-ide-embedded.css'
 ]
 
 includeJsAndCss(scripts, () => {

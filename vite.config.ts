@@ -8,7 +8,7 @@ export default {
     ...commonConfig,
     build: {
         ...commonConfig.build,
-        rolldownOptions: {
+        rollupOptions: {
             input: {
                 main: './index.html',
                 admin: './administration_mc.html',
@@ -18,40 +18,18 @@ export default {
                 shortcuts: './shortcuts.html',
                 registeruser: './registerUser.html',
             },
-            output: {                
-                advancedChunks: {
-                    groups: [
-                        {
-                            test: (id: string) => id.endsWith('diagram.css'),
-                            name: 'diagram.css',
-                        },
-                        {
-                            test: (id: string) => id.endsWith('.css'),
-                            name: 'css',
+            output: {
+                manualChunks: (id: string, { getModuleInfo, getModuleIds }) => {
+                    if (id.includes('node_modules')) {
+                        let moduleName: string = id.toString().split('node_modules/')[1].split('/')[0].toString().replace("@", "");
+                        if (id.endsWith('.css')) {
+                            return moduleName + '_css';
                         }
-                    ].concat(['pixi.js', 'w2ui', 'three', 'p5', 'monaco-editor', 'diff-match-patch', 
-                        'howler', 'upng-js', 'markdown-it', 'jquery', 'jszip', 'chart.js', 'pako'].map(libName => ({
-                        test: (id: string) => id.includes(`node_modules/${libName}`),
-                        name: libName,
-                        
-                    })))
+                        return moduleName;
+                    }
+
+                    return undefined;
                 },
-                // manualChunks: (id: string, { getModuleInfo }) => {
-                //     if (id.includes('node_modules')) {
-                //         let moduleName: string = id.toString().split('node_modules/')[1].split('/')[0].toString().replace("@", "");
-                //         if (id.endsWith('.css')) {
-                //             return moduleName + '_css';
-                //         }
-                //         return moduleName;
-                //     }
-
-                //     if (id.endsWith('diagram.css')) {
-                //         return 'classDiagram.Css';
-                //     }
-
-
-                //     return undefined;
-                // },
             }
 
             // output: {
