@@ -204,6 +204,13 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             return this.compileExplicitCastFromObjectToObject(node, objectSnippet, sourceType, destType);
         }
 
+        if (sourceType.identifier == 'Object' && destType instanceof JavaArrayType) {
+            let range = node.range;
+            return SnippetFramer.frame(objectSnippet, `${Helpers.checkCastToArray}(§1, ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn})`
+                , destType);
+
+        }
+
         if (this.canCastTo(sourceType, destType, "explicit")) {
             return this.compileCast(objectSnippet, destType, "explicit");
         } else {
@@ -964,7 +971,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         if (bothAlternativesHaveVoidType || !bothAlternativesArePureTerms) {
             let notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType = !bothAlternativesArePureTerms && !bothAlternativesHaveVoidType;
-            if(notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType) {
+            if (notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType) {
                 firstAlternative.ensureFinalValueIsOnStack();
                 secondAlternative.ensureFinalValueIsOnStack();
             }
@@ -982,7 +989,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
             let label2 = new LabelCodeSnippet();
             let jumpToLabel2 = new JumpToLabelCodeSnippet(label2);
-            
+
             ifSnippet.addParts(secondAlternative);
 
             ifSnippet.addParts(jumpToLabel2);
@@ -994,7 +1001,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             ifSnippet.addNextStepMark();
             ifSnippet.addParts(label2);
 
-            if(!notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType) {
+            if (!notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType) {
                 ifSnippet.finalValueIsOnStack = true;
             }
 
@@ -1168,11 +1175,11 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 let snippet = new OneParameterTemplate(field.template).applyToSnippet(field.type, range, objSnippet1);
                 snippet.isLefty = !field._isFinal;
                 snippet.isFinalField = field._isFinal;
-                
+
                 return snippet;
             } else {
                 let snippet = new OneParameterTemplate(`${template}.${field.getInternalName()}`)
-                .applyToSnippet(field.type, range, objectSnippet);
+                    .applyToSnippet(field.type, range, objectSnippet);
                 snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
                 snippet.isFinalField = field._isFinal;
 

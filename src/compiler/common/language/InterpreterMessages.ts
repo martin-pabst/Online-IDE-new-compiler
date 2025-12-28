@@ -22,6 +22,11 @@ export class InterpreterMessages {
     "en": `An object of class ${type} is no object of class ${destType}, therefore casting ist not possible.`,
     })
 
+    static CastToArrayException = (type: string) => lm({    
+    "de": `Ein Objekt der Klasse ${type} ist kein Array und kann daher nicht in einen Array-Typ gecastet werden.`,
+    "en": `An object of class ${type} is no array, therefore casting to an array type is not possible.`,
+    })
+
     static SimpleArrayIndexOutOfBoundsException = () => lm({
     "de": `Zugriff auf ein Element außerhalb des Arrays (d.h. index < 0 oder >= Anzahl der Elemente)`,
     "en": `The index is out of bounds of this array.`,

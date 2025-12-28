@@ -696,6 +696,9 @@ export abstract class BinopCastCodeGenerator {
                 if (typeFrom instanceof JavaArrayType && typeTo instanceof JavaArrayType) {
                     return typeFrom.dimension == typeTo.dimension && this.canCastTo(typeFrom.elementType, typeTo.elementType, castType);
                 }
+                if(typeFrom instanceof JavaArrayType){
+                    return typeTo.identifier == "Object";
+                }
                 return false;
             }
             if (castType == "explicit") {

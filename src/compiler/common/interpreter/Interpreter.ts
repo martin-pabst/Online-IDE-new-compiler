@@ -25,6 +25,7 @@ import { ThreadState } from "./ThreadState.ts";
 import { InterpreterMessages } from './InterpreterMessages.ts';
 import { GUIFile } from "../../../client/workspace/File.ts";
 import { GuiMessages } from "../../../client/main/gui/language/GuiMessages.ts";
+import { ArrayClassSimulator } from "../../java/runtime/system/javalang/ArrayClassSimulator.ts";
 
 
 type InterpreterEvents = "stop" | "done" | "resetRuntime" | "stateChanged" |
@@ -102,6 +103,8 @@ export class Interpreter {
         public exceptionMarker?: ExceptionMarker,
         private main?: IMain
     ) {
+        ArrayClassSimulator.prepareArrayPrototype();
+
         this.printManager = printManager || new DummyPrintManager();
 
         this.graphicsManager?.setInterpreter(this);

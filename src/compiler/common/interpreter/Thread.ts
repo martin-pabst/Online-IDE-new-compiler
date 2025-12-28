@@ -616,6 +616,27 @@ export class Thread {
         throw exception;
     }
 
+    CheckCastToArray(object: ObjectClass, startLineNumber: number, startColumn: number, endLineNumber: number, endColumn: number): ObjectClass {
+        if (object == null) return object;
+        if(Array.isArray(object)) return object;
+
+        let type = object.getType() as NonPrimitiveType;
+
+       let range: IRange = {
+            startLineNumber: startLineNumber,
+            startColumn: startColumn,
+            endLineNumber: endLineNumber,
+            endColumn: endColumn
+        }
+
+        let exception = new ClassCastExceptionClass(InterpreterMessages.CastToArrayException(type.identifier));
+        exception.range = range;
+
+        throw exception;
+
+    }
+
+
     Instanceof(object: ObjectClass, type: string, stackOffsetForPatternIdentifier?: number): boolean {
         if (object == null) return false;
         let objType = object.getType() as NonPrimitiveType;

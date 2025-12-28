@@ -39,6 +39,7 @@ export class Helpers {
 
     static throwNPE = StepParams.thread + "." + Thread.prototype.NPE.name;
     static checkCast = StepParams.thread + "." + Thread.prototype.CheckCast.name;
+    static checkCastToArray = StepParams.thread + "." + Thread.prototype.CheckCastToArray.name;
     static instanceof = StepParams.thread + "." + Thread.prototype.Instanceof.name;
     static toString = StepParams.thread + "." + Thread.prototype.ToString.name;
     static exit = StepParams.thread + "." + Thread.prototype.exit.name;
