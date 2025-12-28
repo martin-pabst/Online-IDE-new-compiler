@@ -125,7 +125,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         image: parameterHints,
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
-                                parameterHints:{
+                                parameterHints: {
                                     enabled: (value === 'true'),
                                     cycle: true
                                 } 
@@ -149,8 +149,8 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         type: 'enumeration',
                         optionValues: ["always", "beforeWhitespace", "never"],
                         optionTexts: [SettingsMessages.AutoClosingBracketsAlways,
-                            SettingsMessages.AutoClosingBracketsBeforeWhitespace,
-                            SettingsMessages.AutoClosingBracketsNever],
+                        SettingsMessages.AutoClosingBracketsBeforeWhitespace,
+                        SettingsMessages.AutoClosingBracketsNever],
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
                                 autoClosingBrackets: value as monaco.editor.EditorAutoClosingStrategy
@@ -165,8 +165,8 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         type: 'enumeration',
                         optionValues: ["always", "beforeWhitespace", "never"],
                         optionTexts: [SettingsMessages.AutoClosingBracketsAlways,
-                            SettingsMessages.AutoClosingBracketsBeforeWhitespace,
-                            SettingsMessages.AutoClosingBracketsNever],
+                        SettingsMessages.AutoClosingBracketsBeforeWhitespace,
+                        SettingsMessages.AutoClosingBracketsNever],
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
                                 autoClosingQuotes: value as monaco.editor.EditorAutoClosingStrategy
@@ -197,8 +197,8 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         type: 'enumeration',
                         optionValues: ["off", "vertical", "verticalAndUnderlined"],
                         optionTexts: [SettingsMessages.BracketPairLinesOff,
-                            SettingsMessages.BracketPairLinesVertical,
-                            SettingsMessages.BracketPairLinesVerticalAndUnderlined],
+                        SettingsMessages.BracketPairLinesVertical,
+                        SettingsMessages.BracketPairLinesVerticalAndUnderlined],
                         action: (main, value) => {
                             main.getMainEditor().updateOptions({
                                 guides: {
@@ -264,6 +264,14 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     SettingsMessages.ClassDiagramBackgroundTransparent,
                     SettingsMessages.ClassDiagramBackgroundWhite
                 ],
+            },
+            {
+                key: "classDiagram.omitVoidReturnType",
+                settingType: 'setting',
+                name: SettingsMessages.classDiagramOmitVoidReturnType,
+                description: SettingsMessages.ClassDiagramOmitVoidReturnTypeDescription,
+                type: 'boolean',
+                optionTexts: [SettingsMessages.show, SettingsMessages.omit],
             },
         ]
     },

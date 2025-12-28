@@ -306,6 +306,30 @@ export class SettingsMessages {
         'fr': 'Arrière-plan lors de l\'exportation en fichier png'
     });
 
+    static classDiagramOmitVoidReturnType = () => lm({
+        'de': 'Rückgabetyp "void" im Klassendiagramm weglassen',
+        'en': 'Omit "void" return type in class diagram',
+        'fr': 'Omettre le type de retour "void" dans le diagramme de classes'
+    });
+
+    static ClassDiagramOmitVoidReturnTypeDescription = () => lm({
+        'de': `Legt fest, ob im Klassendiagramm bei Methoden der Rückgabetyp "void" weggelassen werden soll.`,
+        'en': `Determines whether the return type "void" should be omitted in the class diagram for methods.`,
+        'fr': `Détermine si le type de retour "void" doit être omis dans le diagramme de classes pour les méthodes.`
+    });
+
+    static show = () => lm({
+        'de': `anzeigen`,
+        'en': `show`,
+        'fr': `afficher`
+    });
+
+    static omit = () => lm({
+        'de': `weglassen`,
+        'en': `omit`,
+        'fr': `omettre`
+    });
+
     static ClassDiagramBackgroundDescription = () => lm({
         'de': `Legt fest, ob der Hintergrund des Klassendiagramms beim Exportieren als png-Datei transparent oder weiß sein soll.`,
         'en': `Determines whether the background of the class diagram should be transparent or white when exporting as a png file.`,
