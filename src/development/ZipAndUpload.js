@@ -46,8 +46,9 @@ await ssh.execCommand('unzip ./dist.zip', {cwd: '/var/www/online-ide/htdocs-new'
 
 console.log(chalk.blue('tidying up...'));
 await ssh.execCommand('rm dist.zip', {cwd: '/var/www/online-ide/htdocs-new'});
-await ssh.execCommand('mv htdocs /home/martin/backup/program_files/online-ide/htdocs-old_' + date, {cwd: '/var/www/online-ide'});
-await ssh.execCommand('mv ./htdocs-new htdocs', {cwd: '/var/www/online-ide'});
+await ssh.execCommand('mv htdocs htdocs-old', {cwd: '/var/www/online-ide'});
+await ssh.execCommand('mv htdocs-new htdocs', {cwd: '/var/www/online-ide'});
+await ssh.execCommand('rm -r htdocs-old', {cwd: '/var/www/online-ide'});
 
 ssh.dispose();
 
