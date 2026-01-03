@@ -158,6 +158,12 @@ export class JCM {
         "fr": `Vous ne pouvez pas instancier d'objets à partir d'une classe abstraite.`,
     })
 
+    static cantInstantiateFromType = (type: string) => le({
+        "de": `Vom Datentyp ${type} können keine Objekte instanziert werden.`,
+        "en": `You can't create objects of type ${type}.`, 
+        "fr": `Vous ne pouvez pas instancier d'objets à partir de ce type ${type}.`
+    })
+
     static interfacesDontHaveConstructors = () => le({
         "de": `Interfaces haben keinen Konstruktor.`,
         "en": `Interfaces don't have construtctors.`,
