@@ -108,6 +108,7 @@ export class Main implements MainBase {
     interpreter: Interpreter;
 
     settings: Settings;
+    jUnitTestrunner: JUnitTestrunner;
 
     showFile(file?: CompilerFile): void {
         if (!file) return;
@@ -255,7 +256,7 @@ export class Main implements MainBase {
         */
         this.language = JavaLanguage.registerMain(this, errorMarker);
 
-        new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
+        this.jUnitTestrunner = new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
 
         this.getCompiler().eventManager.on('compilationFinishedWithNewExecutable', this.onCompilationFinished, this);
         this.getCompiler().eventManager.on('compilationFinished', () => {

@@ -15,7 +15,7 @@ export class ErrorManager {
     oldDecorations: Map<monaco.editor.ITextModel, string[]> = new Map();
     $errorDiv: JQuery<HTMLElement>;
 
-    minimapColor: {[key: string]:string } = {};
+    minimapColor: { [key: string]: string } = {};
 
     tab: Tab;
 
@@ -104,7 +104,7 @@ export class ErrorManager {
             }
         }
 
-        if(this.main instanceof MainEmbedded){
+        if (this.main instanceof MainEmbedded) {
             this.main.setFileActive(f);
         }
 
@@ -139,20 +139,25 @@ export class ErrorManager {
 
     }
 
-    hideAllErrorDecorations(){
+    hideAllErrorDecorations() {
 
         let files = this.main.getCurrentWorkspace()?.getFiles();
 
-        for(let file of files){
+        for (let file of files) {
             let model = file.getMonacoModel();
             let oldDecorations: string[] = this.oldDecorations.get(model) || [];
-    
+
             oldDecorations = model.deltaDecorations(oldDecorations, [
             ]);
-    
+
             this.oldDecorations.delete(model);
         }
-        
+
     }
+
+    clearErrors() {
+        this.$errorDiv.empty();
+    }
+
 
 }

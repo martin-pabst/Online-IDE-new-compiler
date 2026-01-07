@@ -282,6 +282,9 @@ export class JUnitTestrunner {
         }
     }
 
+    clearTree() {
+        this.testTreeview?.clear();
+    }
 
 
 }

@@ -5,6 +5,7 @@ import { Main } from "../Main.js";
 import jQuery from "jquery";
 import { PruefungManagerForStudentsMessages } from "./PruefungManagerForStudentsMessages.js";
 import { Workspace } from "../../workspace/Workspace.js";
+import { JUnitTestrunner } from "../../../compiler/common/testrunner/JUnitTestrunner.js";
 
 type MessagePruefungStart = { pruefung: Pruefung }
 type MessagePruefungStop = { pruefung: Pruefung }
@@ -66,6 +67,7 @@ export class PruefungManagerForStudents {
             return;
         }
 
+
         this.pruefung = pruefung;
 
         let pruefungWorkspace = wss[0];
@@ -78,10 +80,17 @@ export class PruefungManagerForStudents {
         projectExplorer.fileTreeview.addElementsButton.setVisible(true);
         projectExplorer.fileTreeview.addFolderButton.setVisible(true);
 
+        this.main.bottomDiv.errorManager.clearErrors();
+        this.main.bottomDiv.console.clear();
+        this.main.jUnitTestrunner.clearOutput();
+        this.main.jUnitTestrunner.clearTree();
+        this.main.disassembler.clear();
+
         projectExplorer.setWorkspaceActive(pruefungWorkspace);
         pruefungWorkspace.saved = false;
 
         this.main.getInterpreter().resetRuntime();
+
 
         // this.pruefung = pruefung;
 
