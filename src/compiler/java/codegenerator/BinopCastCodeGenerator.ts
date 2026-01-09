@@ -768,10 +768,17 @@ export abstract class BinopCastCodeGenerator {
 
         let unboxedType = this.primitiveTypes[boxedTypeIndex];
 
-        // return SnippetFramer.frame(snippet, `(§1 || {value: ${unboxedNullValuesMap[snippet.type.identifier]}}).value`, unboxedType);
+        if(boxedTypeIndex == nString){
+            // special handling for String:
+            // (§1 || String.null).value
+            return SnippetFramer.frame(snippet, `(§1 || ${Helpers.classes}["String"].null).value`, unboxedType);
+        } else {
+            // return SnippetFramer.frame(snippet, `(§1 || {value: ${unboxedNullValuesMap[snippet.type.identifier]}}).value`, unboxedType);
+    
+            // better variant:
+            return SnippetFramer.frame(snippet, `${Helpers.checkNPE('§1', snippet.range!)}.value`, unboxedType);
+        }
 
-        // better variant:
-        return SnippetFramer.frame(snippet, `${Helpers.checkNPE('§1', snippet.range!)}.value`, unboxedType);
     }
 
     getUnboxedType(type: JavaType): JavaType {
