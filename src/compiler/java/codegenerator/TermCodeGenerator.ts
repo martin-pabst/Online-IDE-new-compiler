@@ -386,7 +386,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         // call javascript constructor and directly thereafter call java constructor
-        let template: string = `§1.${method.getInternalName(callingConvention)}(`;
+        let template: string = `§1.${method.getInternalNameWithGenericParameterIdentifiers(callingConvention)}(`;
 
         // instantiation of non-static inner class-object?
         // we can't rely on method.hasOuterClassParameter because this object instantiation
