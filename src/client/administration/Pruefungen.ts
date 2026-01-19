@@ -578,6 +578,11 @@ export class Pruefungen extends AdminMenuItem {
                 $printingDiv.append(`<h2>${markText}</h2>`);
             }
 
+            if(sd.comment != null && sd.comment != ""){
+                $printingDiv.append(`<h3>${AdminMessages.comment()}: </h3>`);
+                $printingDiv.append(`<div style="white-space: pre-wrap;">${sd.comment}</div>`);
+            }
+
             for (let f of sd.files) {
 
                 makeDiv(null, 'jo_fileCaption', AdminMessages.file() + f.name, null, $printingDiv);
