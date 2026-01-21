@@ -340,6 +340,11 @@ export class AdminMessages {
         'de': 'Punkte',
         'en': 'Points'
     });
+
+    static comment = () => lm({
+        'de': 'Kommentar',
+        'en': 'Comment'
+    });
     
     static markShort = () => lm({
         'de': 'N',
