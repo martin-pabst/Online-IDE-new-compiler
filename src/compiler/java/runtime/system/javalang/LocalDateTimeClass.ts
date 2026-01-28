@@ -43,24 +43,31 @@ export class LocalDateTimeClass extends ObjectClass {
         t.s.push(this);
     }
 
+    constructor(date ?: Date) {
+        super();
+        if (date) {
+            this.date = date;
+        } else {
+            this.date = new Date();
+        }
+    }
+
     static _now() {
         let obj = new LocalDateTimeClass();
-        obj.date = new Date();
         return obj;
     }
 
     static _of(year: number, month: number, dayOfMonth: number, hour: number, minute: number, second: number) {
-        let obj = new LocalDateTimeClass();
-        obj.date = new Date(year, month - 1, dayOfMonth, hour, minute, second);
+        let obj = new LocalDateTimeClass(new Date(year, month - 1, dayOfMonth, hour, minute, second));
         return obj;
     }
 
-    _plusDays(days: number) {
-        return new Date(this.date.getTime() + days * 24 * 3600 * 1000);
+    _plusDays(days: number): LocalDateTimeClass {
+        return new LocalDateTimeClass(new Date(this.date.getTime() + days * 24 * 3600 * 1000));
     }
 
-    _minusDays(days: number) {
-        return new Date(this.date.getTime() - days * 24 * 3600 * 1000);
+    _minusDays(days: number): LocalDateTimeClass {
+        return new LocalDateTimeClass(new Date(this.date.getTime() - days * 24 * 3600 * 1000));
     }
 
     _mj$compareTo$int$T(otherDate: LocalDateTimeClass) {
