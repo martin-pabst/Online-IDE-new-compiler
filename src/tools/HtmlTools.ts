@@ -411,7 +411,7 @@ export function getCookieValue(name: string): string | undefined {
     }
 }
 
-export function findGetParameter(parameterName: string) {
+export function findGetParameter(parameterName: string): string | null {
     var result: string | null = null,
         tmp: string[] = [];
     location.search

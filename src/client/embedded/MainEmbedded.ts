@@ -15,7 +15,7 @@ import { ProgramPointerManager } from "../../compiler/common/monacoproviders/Pro
 import { IRange, Range } from "../../compiler/common/range/Range.js";
 import { JavaLanguage } from "../../compiler/java/JavaLanguage.js";
 import { JavaRepl } from "../../compiler/java/parser/repl/JavaRepl.js";
-import { downloadFile, makeTabs, openContextMenu } from "../../tools/HtmlTools.js";
+import { downloadFile, findGetParameter, makeTabs, openContextMenu } from "../../tools/HtmlTools.js";
 import { BottomDiv } from "../main/gui/BottomDiv.js";
 import { Editor } from "../main/gui/Editor.js";
 import { FileManager } from "../main/gui/FileManager.js";
@@ -62,7 +62,8 @@ type JavaOnlineConfig = {
     jsonFilename?: string,
     spritesheetURL?: string,
     enableFileAccess?: boolean,
-    settings?: SettingValues
+    settings?: SettingValues,
+    workspaceURLParameterName?: string
 }
 
 export class MainEmbedded implements MainBase {
@@ -201,46 +202,45 @@ export class MainEmbedded implements MainBase {
 
         this.initGUI($outerDiv);
 
-        this.initScripts();
+        this.initScripts().then(() => {
 
-        this.currentWorkspace.setLibraries(this.getCompiler());
+            this.currentWorkspace.setLibraries(this.getCompiler());
 
-        this.loadUserSpritesheet().then(() => {
-            if (!this.config.hideStartPanel) {
-                this.indexedDB = new EmbeddedIndexedDB();
-                this.indexedDB.open(() => {
+            this.loadUserSpritesheet().then(() => {
+                if (!this.config.hideStartPanel) {
+                    this.indexedDB = new EmbeddedIndexedDB();
+                    this.indexedDB.open(() => {
 
-                    if (this.config.id != null) {
-                        this.readScripts(async () => {
-                            if (this.fileExplorer) {
-                                this.getCompiler().setFiles(this.fileExplorer.getFiles());
-                                this.fileExplorer.selectFirstFileIfPresent();
-                            }
-                            if (this.fileExplorer == null) {
-                                let files = this.currentWorkspace.getFiles();
-                                this.getCompiler().setFiles(files);
-                                if (files.length > 0) {
-                                    this.setFileActive(files[0]);
+                        if (this.config.id != null) {
+                            this.readScripts(async () => {
+                                if (this.fileExplorer) {
+                                    this.getCompiler().setFiles(this.fileExplorer.getFiles());
+                                    this.fileExplorer.selectFirstFileIfPresent();
                                 }
-                            }
+                                if (this.fileExplorer == null) {
+                                    let files = this.currentWorkspace.getFiles();
+                                    this.getCompiler().setFiles(files);
+                                    if (files.length > 0) {
+                                        this.setFileActive(files[0]);
+                                    }
+                                }
 
-                            this.readClassDiagram();
+                                this.readClassDiagram();
 
-                            this.getCompiler().triggerCompile();
+                                this.getCompiler().triggerCompile();
 
-                        });
-                    }
+                            });
+                        }
 
-                    if (this.config.enableFileAccess) {
-                        //@ts-ignore
-                        window.online_ide_access = new OnlineIDEAccessImpl();
-                        OnlineIDEAccessImpl.registerIDE(this);
-                    }
-                });
-            }
+                        if (this.config.enableFileAccess) {
+                            //@ts-ignore
+                            window.online_ide_access = new OnlineIDEAccessImpl();
+                            OnlineIDEAccessImpl.registerIDE(this);
+                        }
+                    });
+                }
+            });
         });
-
-
 
     }
 
@@ -278,9 +278,33 @@ export class MainEmbedded implements MainBase {
         f();
     }
 
-    initScripts() {
+    async tryLoadingWorkspaceFromURL() {
+        if (!this.config.workspaceURLParameterName) return;
+        let url = findGetParameter(this.config.workspaceURLParameterName);
+        if (!url) return;
+
+        try {
+            let response = await fetch(url);
+            let workspaces = await response.json();
+            if (!Array.isArray(workspaces)) workspaces = [workspaces];
+            let exportedWorkspace: ExportedWorkspace = workspaces[0];
+            this.scriptList = exportedWorkspace.modules.map(mo => ({
+                title: mo.name,
+                text: mo.text
+            })
+            );
+        } catch (error) {
+            console.log("Error retreiving or converting data from URL " + url + " to json.")
+            console.error(error);
+            return
+        }
+    }
+
+    async initScripts() {
 
         this.fileExplorer?.removeAllFiles();
+
+        await this.tryLoadingWorkspaceFromURL();
 
         this.initWorkspace(this.scriptList);
 
@@ -787,9 +811,9 @@ export class MainEmbedded implements MainBase {
             $window.hide();
         });
 
-        this.$outerDiv.find(".joe_codeResetModalOK").on("click", () => {
+        this.$outerDiv.find(".joe_codeResetModalOK").on("click", async () => {
 
-            this.initScripts();
+            await this.initScripts();
             this.currentWorkspace.getFiles().forEach(f => f.setSaved(true));
             this.deleteScriptsInDB();
 
