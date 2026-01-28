@@ -46,7 +46,10 @@ import { Settings } from "../settings/Settings.js";
 import { EmbeddedFullpageController } from "./EmbeddedFullpageController.js";
 import { SettingValues } from "../settings/SettingsMetadata.js";
 
-
+/**
+ * Configuration options for the Java Online IDE in embedded mode.
+ * https://learnj.de/doku.php?id=onlineide:integration:start#bedeutung_der_konfigurationsparameter
+ */
 type JavaOnlineConfig = {
     withFileList?: boolean,
     withPCode?: boolean,
@@ -63,7 +66,8 @@ type JavaOnlineConfig = {
     spritesheetURL?: string,
     enableFileAccess?: boolean,
     settings?: SettingValues,
-    workspaceURLParameterName?: string
+    workspaceURLParameterName?: string,
+    cacheUserEdits?: boolean
 }
 
 export class MainEmbedded implements MainBase {
@@ -330,6 +334,10 @@ export class MainEmbedded implements MainBase {
             this.config = {}
         }
 
+        if (typeof this.config.cacheUserEdits !== "boolean") {
+            this.config.cacheUserEdits = true;
+        }
+
         if (this.config.hideEditor == null) this.config.hideEditor = false;
         if (this.config.hideStartPanel == null) this.config.hideStartPanel = false;
 
@@ -407,6 +415,12 @@ export class MainEmbedded implements MainBase {
             f.getMonacoModel();
             f.setSaved(true);
         })
+
+        if (!this.config.cacheUserEdits){
+            callback();
+            return;
+        }
+
 
         let that = this;
 
@@ -521,6 +535,7 @@ export class MainEmbedded implements MainBase {
     }
 
     initWorkspace(scriptList: JOScript[]) {
+
         this.currentWorkspace = new Workspace("Embedded-Workspace", this, 0);
         this.currentWorkspace.settings.libraries = this.config.libraries;
         this.currentWorkspace.id = 0; // class diagram needs this
