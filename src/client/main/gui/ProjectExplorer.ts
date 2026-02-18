@@ -97,7 +97,11 @@ export class ProjectExplorer {
         this.fileTreeview.newNodeCallback = async (name: string, node: TreeviewNode<GUIFile, number>) => {
 
             if (this.main.currentWorkspace == null) {
-                alert(ProjectExplorerMessages.firstChooseWorkspace());
+                if (this.fileTreeview.getCurrentlySelectedNodes().length > 0 && this.fileTreeview.getCurrentlySelectedNodes()[0].isFolder) {
+                    alert(ProjectExplorerMessages.firstChooseWorkspaceBecauseFolderIsSelected());
+                } else {
+                    alert(ProjectExplorerMessages.firstChooseWorkspace());
+                }
                 return null;
             }
 
@@ -188,35 +192,35 @@ export class ProjectExplorer {
 
             cmiList.push(
                 {
-                caption: ProjectExplorerMessages.duplicate(),
-                callback: async (file, treeviewNode) => {
+                    caption: ProjectExplorerMessages.duplicate(),
+                    callback: async (file, treeviewNode) => {
 
-                    let oldFile: GUIFile = file;
-                    let newFile: GUIFile = new GUIFile(this.main, oldFile.name + " - " + ProjectExplorerMessages.copy(), oldFile.getText());
-                    newFile.remote_version = oldFile.remote_version;
+                        let oldFile: GUIFile = file;
+                        let newFile: GUIFile = new GUIFile(this.main, oldFile.name + " - " + ProjectExplorerMessages.copy(), oldFile.getText());
+                        newFile.remote_version = oldFile.remote_version;
 
-                    let workspace = this.main.getCurrentWorkspace();
-                    workspace.addFile(newFile);
+                        let workspace = this.main.getCurrentWorkspace();
+                        workspace.addFile(newFile);
 
-                    let success = await this.main.networkManager.sendCreateFile(newFile, workspace, this.main.workspacesOwnerId);
+                        let success = await this.main.networkManager.sendCreateFile(newFile, workspace, this.main.workspacesOwnerId);
 
-                    if (success) {
-                        let newNode = this.fileTreeview.addNode(false, newFile.name, FileTypeManager.filenameToFileType(newFile.name).iconclass,
-                            newFile, treeviewNode.parentKey);
-                        this.setFileActive(newFile);
-                        newNode.renameNode();
+                        if (success) {
+                            let newNode = this.fileTreeview.addNode(false, newFile.name, FileTypeManager.filenameToFileType(newFile.name).iconclass,
+                                newFile, treeviewNode.parentKey);
+                            this.setFileActive(newFile);
+                            newNode.renameNode();
+                        }
                     }
-                }
-            },
+                },
                 {
-                caption: ProjectExplorerMessages.exportAsFile(),
-                callback: async (file, treeviewNode) => {
+                    caption: ProjectExplorerMessages.exportAsFile(),
+                    callback: async (file, treeviewNode) => {
 
-                    downloadFile(file.getText(), file.name);
-                    
-                }
-            },
-        );
+                        downloadFile(file.getText(), file.name);
+
+                    }
+                },
+            );
 
 
             if (!(this.main.user.is_teacher || this.main.user.is_admin || this.main.user.is_schooladmin)) {
