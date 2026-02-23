@@ -1,6 +1,12 @@
 import { lm } from "../../tools/language/LanguageManager";
 
 export class HelpMessages {
+    static noAdditionalLibrary = () => lm({
+        "de": "Keine zusätzliche Bibliothek",
+        "en": "No additional library",
+        "fr": "Aucune bibliothèque supplémentaire"
+    })
+
     static apiDocNone = () => lm({
         "de": "Keine",
         "en": "None",

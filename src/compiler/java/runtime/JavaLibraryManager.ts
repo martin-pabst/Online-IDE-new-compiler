@@ -15,7 +15,7 @@ export type LibraryData = {
 
 export class JavaLibraryManager {
 
-    libraries: LibraryData[] = [
+     public static libraries: LibraryData[] = [
         {
             identifier: 'Graphics and Games Library',
             description: 'Graphische Klassenbibliothek für die bayerischen Informatikbücher des Cornelsen-Verlages',
@@ -36,6 +36,10 @@ export class JavaLibraryManager {
     libraryIds: string[] = [];
 
     addLibrariesToCompiler(compiler: Compiler){
+        compiler.setAdditionalModules(...this.getAdditionalModules());
+    }
+
+    getAdditionalModules(): JavaLibraryModule[]{
         let additionalModules: JavaLibraryModule[] = [
             new DatabaseModule()
         ]
@@ -51,7 +55,7 @@ export class JavaLibraryManager {
             }
         }
 
-        compiler.setAdditionalModules(...additionalModules);
+        return additionalModules;
     }
 
     addLibraries(...libraryIds){

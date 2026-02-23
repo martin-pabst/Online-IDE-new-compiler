@@ -8,7 +8,7 @@ import { WorkspaceSettingsDialogMessages } from "./language/GUILanguage.js";
 
 export class WorkspaceSettingsDialog{
 
-    libraries: LibraryData[] = new JavaLibraryManager().libraries;
+    libraries: LibraryData[] = JavaLibraryManager.libraries;
 
     constructor(private workspace: Workspace, private main: Main){
 

@@ -22,9 +22,10 @@ import "/assets/fonts/fonts.css";
 import "/assets/css/icons.css";
 import "/assets/css/apidoc.css";
 import { Button } from '../../tools/Button.js';
-import { downloadFile } from '../../tools/HtmlTools.js';
+import { downloadFile, setSelectItems } from '../../tools/HtmlTools.js';
 import { JavaSyntaxAPIPrinter } from './JavaSyntaxAPIPrinter.js';
 import { DatabaseModule } from '../libraries/java/database/DatabaseModule.js';
+import { JavaLibraryManager, LibraryData } from '../../compiler/java/runtime/JavaLibraryManager.js';
 
 
 declare global {
@@ -40,7 +41,27 @@ export class ApiDoc {
         extractLanguageFromGetRequest();
 
         this.initEditor();
-        this.initClassDocumentation();
+        this.initLibraryChooser();
+        this.initClassDocumentation("none");
+    }
+
+    initLibraryChooser() {
+        let $libraryChooserSelect = <JQuery<HTMLSelectElement>> jQuery('#libraryChooserSelect');
+        $libraryChooserSelect.empty();
+        let libraries = JavaLibraryManager.libraries.slice();
+        libraries.unshift({
+            identifier: HelpMessages.noAdditionalLibrary(),
+            description: "",
+            id: "none"
+        } as LibraryData);
+
+        setSelectItems($libraryChooserSelect, libraries.map(lib => {return {value: lib.id, object: lib, caption: lib.identifier}}));
+
+        $libraryChooserSelect.on('change', (e) => {
+            let selectedId = $libraryChooserSelect.val() as string;
+            this.initClassDocumentation(selectedId);
+        });
+
     }
 
     initEditor(){
@@ -96,9 +117,13 @@ export class ApiDoc {
         
     }
 
-    initClassDocumentation() {
+    initClassDocumentation(selectedLibrary: string) {
+        let libManager = new JavaLibraryManager();
+        libManager.addLibraries(selectedLibrary);
 
-        let mm = new JavaLibraryModuleManager(new DatabaseModule());
+        jQuery('#classes').empty();
+
+        let mm = new JavaLibraryModuleManager(...libManager.getAdditionalModules());
 
         let typeList = mm.javaTypes
         .sort(
@@ -123,7 +148,7 @@ export class ApiDoc {
         // jQuery('#classesHeading').text(HelpMessages.apiDocClasses());
         // jQuery('#interfacesHeading').text(HelpMessages.apiDocInterfaces());
         // jQuery('#enumsHeading').text(HelpMessages.apiDocEnums());
-        jQuery('#mainHeading').text(HelpMessages.apiDocMainHeading());
+        jQuery('#mainHeadingCaption').text(HelpMessages.apiDocMainHeading());
 
         let button = new Button(jQuery('#mainHeading')[0], HelpMessages.apiDocDownloadForAIPrompt(), "#303030", () => {
             downloadFile(this.getClassDocumentationForAI(), "Online-IDE API-Documentation.txt", false);
