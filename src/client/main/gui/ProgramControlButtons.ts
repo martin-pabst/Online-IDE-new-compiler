@@ -29,10 +29,15 @@ export class ProgramControlButtons {
         { actionIdentifier: "interpreter.startTests", title: GuiMessages.ProgramExecuteAllTests(), iconClass: "img_test-start jo_button jo_start-test-button" },
     ]
 
-    constructor($buttonsContainer: JQuery<HTMLElement>, interpreter: Interpreter, actionManager: ActionManager) {
-
-
+    constructor($buttonsContainer: JQuery<HTMLElement>, interpreter: Interpreter, actionManager: ActionManager, hideUnitTests?: boolean, simplifyDebugger?: boolean) {
         for (let bd of this.buttonData) {
+            if (bd.actionIdentifier == "interpreter.startTests" && hideUnitTests 
+                ||  simplifyDebugger && 
+                    ["interpreter.stepInto", "interpreter.stepOut", "interpreter.restart", "interpreter.gotoCursor"].includes(bd.actionIdentifier)
+            ) {
+                continue;
+            }
+
             let $button = jQuery(`<div title="${bd.title}" class="${bd.iconClass}"></div>`);
             bd.$button = $button;
             $buttonsContainer.append($button);

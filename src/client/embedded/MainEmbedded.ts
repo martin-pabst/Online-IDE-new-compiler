@@ -67,7 +67,11 @@ type JavaOnlineConfig = {
     enableFileAccess?: boolean,
     settings?: SettingValues,
     workspaceURLParameterName?: string,
-    cacheUserEdits?: boolean
+    cacheUserEdits?: boolean,
+    hideResetButton?: boolean,
+    hideUnitTests?: boolean,
+    hideWorkspaceFilesMng?: boolean,
+    simplifyDebugger?: boolean
 }
 
 export class MainEmbedded implements MainBase {
@@ -366,7 +370,10 @@ export class MainEmbedded implements MainBase {
         if (this.config.speed == null) this.config.speed = "max";
         if (this.config.libraries == null) this.config.libraries = [];
         if (this.config.jsonFilename == null) this.config.jsonFilename = "workspace.json";
-
+        if (this.config.hideUnitTests == null) this.config.hideUnitTests = false;
+        if (this.config.hideWorkspaceFilesMng == null) this.config.hideWorkspaceFilesMng = false;
+        if (this.config.simplifyDebugger == null) this.config.simplifyDebugger = false;
+        if (this.config.hideResetButton == null) this.config.hideResetButton = false;
     }
 
     setFileActive(file: GUIFile) {
@@ -404,6 +411,7 @@ export class MainEmbedded implements MainBase {
 
         this.disassembler?.disassemble();
 
+        console.log(this.config);
     }
 
     eraseDokuwikiSearchMarkup(text: string): string {
@@ -605,24 +613,28 @@ export class MainEmbedded implements MainBase {
         let $controlsDiv = jQuery('<div class="joe_controlsDiv"></div>');
         let $bottomDivInner = jQuery('<div class="joe_bottomDivInner"></div>');
 
-        let $buttonOpen = jQuery('<label type="file" class="img_open-file jo_button jo_active"' +
-            'style="margin-right: 8px;" title="Workspace aus Datei laden"><input type="file" style="display:none"></label>');
-
         let that = this;
 
-        $buttonOpen.find('input').on('change', (event) => {
-            //@ts-ignore
-            var files: FileList = event.originalEvent.target.files;
-            that.loadWorkspaceFromFile(files[0]);
-        })
+        if(!this.config.hideWorkspaceFilesMng) {
+            let $buttonOpen = jQuery('<label type="file" class="img_open-file jo_button jo_active"' +
+                'style="margin-right: 8px;" title="Workspace aus Datei laden"><input type="file" style="display:none"></label>');
 
-        let $buttonSave = jQuery('<div class="img_save-dark jo_button jo_active"' +
-            'style="margin-right: 8px;" title="Workspace in Datei speichern"></div>');
+            $buttonOpen.find('input').on('change', (event) => {
+                //@ts-ignore
+                var files: FileList = event.originalEvent.target.files;
+                that.loadWorkspaceFromFile(files[0]);
+            })
+
+            let $buttonSave = jQuery('<div class="img_save-dark jo_button jo_active"' +
+                'style="margin-right: 8px;" title="Workspace in Datei speichern"></div>');
 
 
-        $buttonSave.on('click', () => { that.saveWorkspaceToFile() });
+            $buttonSave.on('click', () => { that.saveWorkspaceToFile() });
 
-        $controlsDiv.append($buttonOpen, $buttonSave);
+            $controlsDiv.append($buttonOpen, $buttonSave);
+        }
+
+
 
 
 
@@ -712,7 +724,7 @@ export class MainEmbedded implements MainBase {
         let errorMarker = new ErrorMarker();
         this.language = JavaLanguage.registerMain(this, errorMarker);
 
-        if (this.config.withBottomPanel) {
+        if (this.config.withBottomPanel && !this.config.hideUnitTests) {
             new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
         }
 
@@ -724,7 +736,7 @@ export class MainEmbedded implements MainBase {
             this.disassembler = new Disassembler(this.bottomDiv.disassemblerTab.bodyDiv, this);
         }
 
-        this.programControlButtons = new ProgramControlButtons($controlsDiv, this.interpreter, this.actionManager);
+        this.programControlButtons = new ProgramControlButtons($controlsDiv, this.interpreter, this.actionManager, this.config.hideUnitTests, this.config.simplifyDebugger);
 
         new EditorOpenerProvider(this);
 
@@ -939,7 +951,9 @@ export class MainEmbedded implements MainBase {
     }
 
     showResetButton() {
-        this.$resetButton.fadeIn(1000);
+        if(!this.config.hideResetButton) {
+            this.$resetButton.fadeIn(1000);
+        }
     }
 
     makeRightDiv(): JQuery<HTMLElement> {
@@ -1002,7 +1016,9 @@ export class MainEmbedded implements MainBase {
     }
 
     showJUnitDiv(): void {
-        this.bottomDiv?.showJunitTab();
+        if(!this.config.hideUnitTests) {
+            this.bottomDiv?.showJunitTab();
+        }
     }
 
     showProgramPosition(file?: CompilerFile, positionOrRange?: IPosition | IRange, setCursor: boolean = true) {

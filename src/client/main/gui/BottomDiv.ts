@@ -13,6 +13,7 @@ import '/assets/css/tabs.css';
 import gridSVG from '/assets/graphics/grid.svg';
 import compileGIF from '/assets/graphics/compile.gif';
 import { BottomDivMessages } from "./language/GUILanguage.js";
+import { MainEmbedded } from "../../embedded/MainEmbedded.js";
 
 export class BottomDiv {
 
@@ -60,8 +61,10 @@ export class BottomDiv {
             this.tabManager.addTab(this.disassemblerTab);
         }
 
-        this.jUnitTab = new Tab(BottomDivMessages.testRunner(), ["jo_testrunnerTab"]);
-        this.tabManager.addTab(this.jUnitTab);
+        if(!(this.main as MainEmbedded).config?.hideUnitTests) {
+            this.jUnitTab = new Tab(BottomDivMessages.testRunner(), ["jo_testrunnerTab"]);
+            this.tabManager.addTab(this.jUnitTab);
+        }
 
         //         <img class="jo_db-busy" title="Warten auf Datenbank..."
         //     src="assets/graphics/grid.svg">
