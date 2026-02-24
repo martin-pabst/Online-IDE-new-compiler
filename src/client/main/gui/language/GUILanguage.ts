@@ -245,6 +245,11 @@ Are you sure?`
         'en': 'Choose workspace first.'
     });
 
+    static firstChooseWorkspaceBecauseFolderIsSelected = () => lm({
+        'de': 'Bitte wählen Sie zuerst einen Workspace aus. Selektiert ist aktuell ein Ordner, kein Workspace.',
+        'en': 'Choose workspace first. Currently a folder is selected, not a workspace.'
+    });
+
     static serverNotReachable = () => lm({
         'de': 'Der Server ist nicht erreichbar!',
         'en': 'Server not reachable!'
