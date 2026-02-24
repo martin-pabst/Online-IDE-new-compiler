@@ -410,8 +410,6 @@ export class MainEmbedded implements MainBase {
         file.restoreViewState(this.getMainEditor());
 
         this.disassembler?.disassemble();
-
-        console.log(this.config);
     }
 
     eraseDokuwikiSearchMarkup(text: string): string {

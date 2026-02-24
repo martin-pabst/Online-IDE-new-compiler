@@ -109,12 +109,12 @@ export class OnlineIDEAccessImpl implements OnlineIDEAccess {
     }
 
     public static notifyFileCreated(ide: MainEmbedded, fileName: string): void {
-        console.log(`Notifying file created: ${fileName} in IDE ${ide.config.id}`);
+        //console.log(`Notifying file created: ${fileName} in IDE ${ide.config.id}`);
         OnlineIDEAccessImpl.ideMap.get(ide.config.id!)?.notifyFileCreated(fileName);
     }
 
     public static notifyFileSelected(ide: MainEmbedded, fileName: string): void {
-        console.log(`Notifying file selected: ${fileName} in IDE ${ide.config.id}`);
+        //console.log(`Notifying file selected: ${fileName} in IDE ${ide.config.id}`);
         OnlineIDEAccessImpl.ideMap.get(ide.config.id!)?.notifyFileSelected(fileName);
     }
     
