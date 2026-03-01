@@ -18,6 +18,115 @@
     outline: none;
 }
 
+/* ── Output pop-out modal (appended to document.body, outside joeCssFence) ── */
+.jo_output-popout-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.jo_output-popout-content {
+    position: relative;
+    width: 85vw;
+    height: 85vh;
+    background: var(--backgroundDark, #1e1e1e);
+    color: var(--fontColorNormal, #ccc);
+    border: 1px solid gray;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif;
+    font-size: 10pt;
+}
+
+.jo_output-popout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    border-bottom: 1px solid gray;
+    font-size: 12px;
+    flex-shrink: 0;
+    background: var(--backgroundLight, #2d2d2d);
+}
+
+.jo_popout-debug-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 10px;
+    flex: 1;
+}
+
+/* Override controlsDiv styles when hosted inside the pop-out header */
+.jo_popout-debug-controls .joe_controlsDiv {
+    border-bottom: none;
+    padding: 0;
+    flex-wrap: nowrap;
+}
+
+.jo_popout-debug-controls .jo_button {
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+.jo_popout-debug-controls .jo_button:hover {
+    opacity: 1;
+}
+
+.jo_output-popout-close {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    opacity: 0.7;
+}
+
+.jo_output-popout-close:hover { opacity: 1; }
+
+.jo_output-popout-trigger {
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 1px 3px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+}
+
+.jo_output-popout-trigger:hover { opacity: 1; }
+
+.jo_output-popout-content .jo_tab {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex !important;
+}
+
+/* Console + Output split inside the pop-out modal */
+.jo_output-popout-content .jo_popout-console-split {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.jo_output-popout-content .jo_popout-console-split > .jo_tab {
+    flex: 1;
+    min-width: 0;
+}
+
+.jo_output-popout-content .jo_popout-console-split > .jo_tab + .jo_tab {
+    border-left: 1px solid var(--splitter1-color, #555);
+}
 
 .joeCssFence {
     /* prevent chrome from setting border-color: white when div has focus */
@@ -254,6 +363,23 @@
         height: auto;
         flex: 1;
         overflow: hidden;
+    }
+
+    /* Console + Ausgabe split view */
+    .joe_bottomDivInner .jo_tabs.jo_console-split {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .joe_bottomDivInner .jo_tabs.jo_console-split > .jo_consoleTab {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .joe_bottomDivInner .jo_tabs.jo_console-split > .jo_run {
+        flex: 1;
+        min-width: 0;
+        border-left: 1px solid var(--splitter1-color, #555);
     }
 
     .joe_tabheading-right {

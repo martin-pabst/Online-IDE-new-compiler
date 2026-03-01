@@ -611,6 +611,8 @@ export class MainEmbedded implements MainBase {
 
         let $controlsDiv = jQuery('<div class="joe_controlsDiv"></div>');
         let $bottomDivInner = jQuery('<div class="joe_bottomDivInner"></div>');
+        let debuggerTabRef: Tab | undefined;
+        let popoutHasDebugger = false;
 
         let that = this;
 
@@ -709,6 +711,146 @@ export class MainEmbedded implements MainBase {
                 if (this.bottomDiv.errorManager?.tab) {
                     btm.setActive(this.bottomDiv.errorManager.tab);
                 }
+                debuggerTabRef = btm.tabs.find(t => t.bodyDiv.classList.contains('jo_variablesTab'));
+
+                // Pop-out button: pops whichever tab is currently active out into a modal.
+                {
+                    const $popOutBtn = jQuery(`<button class="jo_output-popout-trigger" title="Aktiven Tab in Dialog öffnen"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 12,1 12,5"/><line x1="12" y1="1" x2="6" y2="7"/><polyline points="5,4 1,4 1,12 9,12 9,8"/></svg></button>`);
+                    jQuery(btm.tabheadingRightDiv).append($popOutBtn[0]);
+
+                    let popped = false;
+                    let $popOverlay: JQuery<HTMLElement>;
+                    let poppedTab: Tab | undefined;
+                    let originalBodyParent: HTMLElement;
+                    let poppedOutputTab: Tab | undefined;
+                    let originalOutputBodyParent: HTMLElement | undefined;
+                    let isConsoleSplitMode = false;
+                    let poppedControlsDiv: HTMLElement | null = null;
+                    let poppedControlsDivNextSibling: Node | null = null;
+                    let poppedControlsDivParent: HTMLElement | null = null;
+
+                    const closePopout = () => {
+                        if (poppedTab && originalBodyParent) originalBodyParent.appendChild(poppedTab.bodyDiv);
+                        if (poppedOutputTab && originalOutputBodyParent) {
+                            originalOutputBodyParent.appendChild(poppedOutputTab.bodyDiv);
+                            if (isConsoleSplitMode) {
+                                // Re-enable the in-panel console+output split view.
+                                jQuery(btm.bodiesDiv).addClass('jo_console-split');
+                                if (poppedTab) poppedTab.bodyDiv.style.display = 'flex';
+                                poppedOutputTab.bodyDiv.style.display = 'flex';
+                            }
+                            poppedOutputTab = undefined;
+                            originalOutputBodyParent = undefined;
+                            isConsoleSplitMode = false;
+                        }
+                        // Return the controls bar to its original location.
+                        if (poppedControlsDiv && poppedControlsDivParent) {
+                            poppedControlsDivParent.insertBefore(poppedControlsDiv, poppedControlsDivNextSibling);
+                            poppedControlsDiv = null;
+                            poppedControlsDivNextSibling = null;
+                            poppedControlsDivParent = null;
+                        }
+                        popoutHasDebugger = false;
+                        $popOverlay?.remove();
+                        popped = false;
+                        poppedTab = undefined;
+                        $popOutBtn.attr('title', 'Aktiven Tab in Dialog öffnen');
+                    };
+
+                    const togglePopout = (evt?: Event) => {
+                        if (evt) evt.stopPropagation();
+                        if (!popped) {
+                            const activeTab = btm.tabs.find(t => t.isActive());
+                            if (!activeTab) return;
+                            poppedTab = activeTab;
+                            originalBodyParent = activeTab.bodyDiv.parentElement!;
+                            const title = activeTab.headingDiv.textContent ?? '';
+                            $popOverlay = jQuery('<div class="jo_output-popout-overlay"></div>');
+                            const $popContent = jQuery('<div class="jo_output-popout-content joeCssFence"></div>');
+                            const $title = jQuery(`<span>${title}</span>`);
+                            const $close = jQuery('<button class="jo_output-popout-close" title="Schließen">✕</button>');
+                            const $popHeader = jQuery('<div class="jo_output-popout-header"></div>');
+                            $popHeader.append($title);
+                            const splitOutputTab = this.rightDiv?.outputTab;
+                            const isConsolePop = activeTab === this.bottomDiv.console?.tab && splitOutputTab;
+                            const isDebuggerPop = activeTab.bodyDiv.classList.contains('jo_variablesTab') && splitOutputTab;
+                            if (isConsolePop) {
+                                isConsoleSplitMode = true;
+                                poppedOutputTab = splitOutputTab;
+                                originalOutputBodyParent = splitOutputTab!.bodyDiv.parentElement ?? undefined;
+                                jQuery(btm.bodiesDiv).removeClass('jo_console-split');
+                                const $split = jQuery('<div class="jo_popout-console-split"></div>');
+                                $split.append(activeTab.bodyDiv, splitOutputTab!.bodyDiv);
+                                $popHeader.append($close);
+                                $popContent.append($popHeader, $split);
+                                splitOutputTab!.bodyDiv.style.display = 'flex';
+                            } else if (isDebuggerPop) {
+                                // Move output left, debugger right; move entire control bar into header.
+                                popoutHasDebugger = true;
+                                poppedOutputTab = splitOutputTab;
+                                originalOutputBodyParent = splitOutputTab!.bodyDiv.parentElement ?? undefined;
+                                const cd = $controlsDiv[0];
+                                poppedControlsDivParent = cd.parentElement;
+                                poppedControlsDivNextSibling = cd.nextSibling;
+                                poppedControlsDiv = cd;
+                                const $btnGroup = jQuery('<div class="jo_popout-debug-controls"></div>');
+                                $btnGroup.append(cd);
+                                $popHeader.append($btnGroup, $close);
+                                const $split = jQuery('<div class="jo_popout-console-split"></div>');
+                                $split.append(splitOutputTab!.bodyDiv, activeTab.bodyDiv);
+                                $popContent.append($popHeader, $split);
+                                splitOutputTab!.bodyDiv.style.display = 'flex';
+                            } else {
+                                $popHeader.append($close);
+                                $popContent.append($popHeader, activeTab.bodyDiv);
+                            }
+                            $popOverlay.append($popContent);
+                            jQuery('body').append($popOverlay);
+                            activeTab.bodyDiv.style.display = 'flex';
+                            popped = true;
+                            $popOutBtn.attr('title', 'Dialog schließen');
+                            $popOverlay.on('pointerup', (ev) => { if (ev.target === $popOverlay[0]) closePopout(); });
+                            $close.on('pointerup', (ev) => { ev.stopPropagation(); closePopout(); });
+                        } else {
+                            closePopout();
+                        }
+                    };
+
+                    $popOutBtn.on('pointerup', (e) => togglePopout(e.originalEvent));
+                }
+
+                // Console + Ausgabe split view: when the Console tab is active,
+                // show the Ausgabe (output) body side-by-side to its right.
+                const consoleSplitTab = this.bottomDiv.console?.tab;
+                const consoleSplitOutputTab = this.rightDiv?.outputTab;
+                if (consoleSplitTab && consoleSplitOutputTab) {
+                    const $bodiesDiv = jQuery(btm.bodiesDiv);
+
+                    const enableSplit = () => {
+                        $bodiesDiv.addClass('jo_console-split');
+                        consoleSplitOutputTab.bodyDiv.style.display = 'flex';
+                    };
+
+                    const disableSplit = () => {
+                        $bodiesDiv.removeClass('jo_console-split');
+                        if (!consoleSplitOutputTab.isActive()) {
+                            consoleSplitOutputTab.bodyDiv.style.display = 'none';
+                        }
+                    };
+
+                    // Intercept setActive so any tab switch away from console cleans up the split.
+                    const origSetActive = btm.setActive.bind(btm);
+                    btm.setActive = (tab: Tab) => {
+                        origSetActive(tab);
+                        if (tab !== consoleSplitTab) disableSplit();
+                    };
+
+                    const prevConsoleOnShow = consoleSplitTab.onShow;
+                    consoleSplitTab.onShow = () => {
+                        if (prevConsoleOnShow) prevConsoleOnShow();
+                        enableSplit();
+                    };
+                }
             }
             $rightDiv.hide();
         }
@@ -746,11 +888,18 @@ export class MainEmbedded implements MainBase {
 
         this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
 
-        // Show Ausgabe tab when program starts running.
+        // Manage tab focus on execution state changes.
         if (this.config.withBottomPanel) {
             this.interpreter.eventManager.on("stateChanged", (oldState, newState) => {
-                if (oldState !== newState && newState === SchedulerState.running) {
-                    this.rightDiv?.outputTab?.show();
+                if (oldState === newState) return;
+                if (newState === SchedulerState.running) {
+                    // Only jump to output on a fresh start (not when continuing from a breakpoint/step).
+                    if (oldState === SchedulerState.paused) return;
+                    if (this.bottomDiv.console?.tab?.isActive()) return;
+                    if (!popoutHasDebugger) this.rightDiv?.outputTab?.show();
+                } else if (newState === SchedulerState.paused) {
+                    // Breakpoint hit or step completed — show the debugger tab.
+                    if (!popoutHasDebugger) debuggerTabRef?.show();
                 }
             }, this);
         }
@@ -782,6 +931,8 @@ export class MainEmbedded implements MainBase {
         });
 
         this.embeddedFullpageController = new EmbeddedFullpageController(this, this.$outerDiv[0], $controlsDiv[0]);
+        // Hide the whole-window / fullscreen button — not needed in this embedding.
+        this.embeddedFullpageController.primaryButton.divElement.style.display = 'none';
 
         setTimeout(() => {
             this.editor.editor.layout();
