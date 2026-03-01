@@ -201,7 +201,7 @@
 
     .joe_bottomDiv {
         position: relative;
-        height: 150px;
+        height: 220px;
         display: flex;
         border-top: 1px solid gray;
         overflow: hidden;

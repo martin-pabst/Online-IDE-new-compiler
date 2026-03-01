@@ -45,6 +45,7 @@ import { base64ToBytes } from "../../tools/Base64.js";
 import { Settings } from "../settings/Settings.js";
 import { EmbeddedFullpageController } from "./EmbeddedFullpageController.js";
 import { SettingValues } from "../settings/SettingsMetadata.js";
+import { SchedulerState } from "../../compiler/common/interpreter/SchedulerState.js";
 
 /**
  * Configuration options for the Java Online IDE in embedded mode.
@@ -649,7 +650,6 @@ export class MainEmbedded implements MainBase {
             }
             makeTabs($bottomDivInner);
 
-
             $centerDiv.append($editorDiv, $bottomDiv);
             this.verticalSlider = new Slider($bottomDiv[0], true, true, () => { this.editor.editor.layout(); });
         } else {
@@ -675,7 +675,7 @@ export class MainEmbedded implements MainBase {
         $div.addClass('joe_javaOnlineDiv');
         $div.append($centerDiv, $rightDiv);
 
-        if (!this.config.hideEditor) {
+        if (!this.config.hideEditor && !this.config.withBottomPanel) {
             this.horizontalSlider = new Slider($rightDiv[0], true, false, () => {
                 this.editor.editor.layout();
             });
@@ -693,10 +693,28 @@ export class MainEmbedded implements MainBase {
         if (this.config.withBottomPanel) {
             this.bottomDiv = new BottomDiv(this, $bottomDivInner, this.config.withConsole, this.config.withPCode, this.config.withErrorList, true);
             this.bottomDiv.initGUI();
+
+            // Merge Ausgabe + Debugger tabs from rightDiv into the shared bottom tab section.
+            if (this.rightDiv?.tabManager) {
+                const rtm = this.rightDiv.tabManager;
+                const btm = this.bottomDiv.tabManager;
+                for (const tab of [...rtm.tabs]) {
+                    btm.headingsDiv.insertBefore(tab.headingDiv, btm.tabheadingRightDiv);
+                    btm.bodiesDiv.appendChild(tab.bodyDiv);
+                    tab.tabManager = btm;
+                    btm.tabs.push(tab);
+                }
+                rtm.tabs = [];
+                // Ensure only one tab is highlighted (Fehler is the default shown tab).
+                if (this.bottomDiv.errorManager?.tab) {
+                    btm.setActive(this.bottomDiv.errorManager.tab);
+                }
+            }
+            $rightDiv.hide();
         }
 
-        let graphicsDiv = this.$rightDivInner.find('.jo_graphics')[0];
-        let coordinatesDiv = <HTMLDivElement>this.$rightDivInner.find('.jo_coordinates')[0];
+        let graphicsDiv = $div.find('.jo_graphics')[0];
+        let coordinatesDiv = <HTMLDivElement>$div.find('.jo_coordinates')[0];
 
         this.debugger = new Debugger(<HTMLDivElement>this.$debuggerDiv[0], this);
         let breakpointManager = new BreakpointManager(this);
@@ -727,6 +745,15 @@ export class MainEmbedded implements MainBase {
         }
 
         this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
+
+        // Show Ausgabe tab when program starts running.
+        if (this.config.withBottomPanel) {
+            this.interpreter.eventManager.on("stateChanged", (oldState, newState) => {
+                if (oldState !== newState && newState === SchedulerState.running) {
+                    this.rightDiv?.outputTab?.show();
+                }
+            }, this);
+        }
 
         // this.getCompiler().triggerCompile();
 
