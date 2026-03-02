@@ -48,12 +48,13 @@ export class TreeviewSplitter {
 
             this.transparentOverlay = DOM.makeDiv(document.body);
             this.transparentOverlay.style.cursor = 'ns-resize';
-            this.transparentOverlay.style.position = 'absolute';
+            this.transparentOverlay.style.position = 'fixed';
             this.transparentOverlay.style.left = '0';
             this.transparentOverlay.style.top = '0';
-            this.transparentOverlay.style.bottom = '0';
-            this.transparentOverlay.style.right = '0';
+            this.transparentOverlay.style.width = '100%';
+            this.transparentOverlay.style.height = '100%';
             this.transparentOverlay.style.zIndex = '1000';
+            this.transparentOverlay.style.touchAction = 'none';
 
             this.transparentOverlay!.onpointermove = (ev) => {
                 this.onPointerMove(ev.pageY);

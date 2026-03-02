@@ -715,7 +715,7 @@ export class MainEmbedded implements MainBase {
 
                 // Pop-out button: pops whichever tab is currently active out into a modal.
                 {
-                    const $popOutBtn = jQuery(`<button class="jo_output-popout-trigger" title="Aktiven Tab in Dialog öffnen"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 12,1 12,5"/><line x1="12" y1="1" x2="6" y2="7"/><polyline points="5,4 1,4 1,12 9,12 9,8"/></svg></button>`);
+                    const $popOutBtn = jQuery(`<button class="jo_output-popout-trigger jo_button" title="Aktiven Tab in Dialog öffnen"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,1 12,1 12,5"/><line x1="12" y1="1" x2="6" y2="7"/><polyline points="5,4 1,4 1,12 9,12 9,8"/></svg></button>`);
                     jQuery(btm.tabheadingRightDiv).append($popOutBtn[0]);
 
                     let popped = false;
@@ -728,6 +728,7 @@ export class MainEmbedded implements MainBase {
                     let poppedControlsDiv: HTMLElement | null = null;
                     let poppedControlsDivNextSibling: Node | null = null;
                     let poppedControlsDivParent: HTMLElement | null = null;
+                    let popoutEscHandler: ((e: KeyboardEvent) => void) | null = null;
 
                     const closePopout = () => {
                         if (poppedTab && originalBodyParent) originalBodyParent.appendChild(poppedTab.bodyDiv);
@@ -755,6 +756,10 @@ export class MainEmbedded implements MainBase {
                         popped = false;
                         poppedTab = undefined;
                         $popOutBtn.attr('title', 'Aktiven Tab in Dialog öffnen');
+                        if (popoutEscHandler) {
+                            document.removeEventListener('keydown', popoutEscHandler);
+                            popoutEscHandler = null;
+                        }
                     };
 
                     const togglePopout = (evt?: Event) => {
@@ -811,6 +816,8 @@ export class MainEmbedded implements MainBase {
                             $popOutBtn.attr('title', 'Dialog schließen');
                             $popOverlay.on('pointerup', (ev) => { if (ev.target === $popOverlay[0]) closePopout(); });
                             $close.on('pointerup', (ev) => { ev.stopPropagation(); closePopout(); });
+                            popoutEscHandler = (e: KeyboardEvent) => { if (e.key === 'Escape') closePopout(); };
+                            document.addEventListener('keydown', popoutEscHandler);
                         } else {
                             closePopout();
                         }
@@ -914,6 +921,7 @@ export class MainEmbedded implements MainBase {
 
         new EditorOpenerProvider(this);
 
+        /*
         let $infoButton = jQuery('<div class="jo_button jo_active img_ellipsis-dark" style="margin-left: 16px"></div>');
         $infoButton[0].title = 'Über die Online-IDE...';
         $controlsDiv.append($infoButton);
@@ -928,7 +936,7 @@ export class MainEmbedded implements MainBase {
                     // nothing to do.
                 }
             }], ev.pageX + 2, ev.pageY + 2);
-        });
+        });*/
 
         this.embeddedFullpageController = new EmbeddedFullpageController(this, this.$outerDiv[0], $controlsDiv[0]);
         // Hide the whole-window / fullscreen button — not needed in this embedding.
@@ -1014,6 +1022,12 @@ export class MainEmbedded implements MainBase {
 
         this.$outerDiv.find(".joe_codeResetModalCancel").on("click", () => {
             $window.hide();
+        });
+
+        document.addEventListener('keydown', (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && $window.is(':visible')) {
+                $window.hide();
+            }
         });
 
         this.$outerDiv.find(".joe_codeResetModalOK").on("click", async () => {

@@ -41,6 +41,9 @@
         width: 100%;
         cursor: ns-resize;
         z-index: 10;
+        /* Prevent browser from claiming the touch for scrolling so
+           pointerdown/pointermove fire reliably on touch / iPad. */
+        touch-action: none;
     }
 
     .jo_treeview_splitter:hover {

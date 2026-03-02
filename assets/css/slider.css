@@ -8,6 +8,9 @@
         left: calc(100% - 2px); */
         z-index: 10;
         user-select: none;
+        /* Prevent browser from claiming the touch for scrolling so
+           pointerdown/pointermove fire reliably on touch / iPad. */
+        touch-action: none;
     }
 
     .jo_slider:hover {
@@ -23,6 +26,7 @@
         top: -8px;
         transform: scale(1.5);
         user-select: none;
+        touch-action: none;
         /* cursor: move !important; */
     }
 
