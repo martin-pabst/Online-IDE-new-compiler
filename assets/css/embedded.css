@@ -214,7 +214,7 @@
 
     .joe_editorDiv {
         flex: 3;
-        overflow: visible;
+        overflow: hidden;
     }
 
     .joe_monacoDiv {
@@ -283,10 +283,11 @@
         height: 100%;
         /* padding: 2px 0 2px 5px; */
         overflow: auto;
+        font-size: 12pt;
     }
 
     .joe_hintDiv code {
-        font-size: 14pt;
+        font-size: 12pt;
         background-color: transparent;
         box-shadow: none;
     }
@@ -296,7 +297,7 @@
         word-wrap: normal;
         border: 1px solid #444;
         background-color: #2a2a2a;
-        font-size: 14pt;
+        font-size: 12pt;
         line-height: 100%;
         padding: 8px 12px;
         border-radius: 4px;
