@@ -596,9 +596,9 @@ export class MainEmbedded implements MainBase {
         let $editorDiv = jQuery('<div class="joe_editorDiv"></div>');
         this.$monacoDiv = jQuery('<div class="joe_monacoDiv"></div>');
         this.$hintDiv = jQuery('<div class="joe_hintDiv jo_scrollable"></div>');
-        this.$resetButton = jQuery('<div class="joe_resetButton jo_button jo_active" title="Code auf Ausgangszustand zurücksetzen">Code Reset</div>');
+            this.$resetButton = jQuery('<div class="joe_resetButton jo_button jo_active" title="Code auf Ausgangszustand zurücksetzen">Code Reset</div>');
 
-        $editorDiv.append(this.$monacoDiv, this.$hintDiv, this.$resetButton);
+            $editorDiv.append(this.$monacoDiv, this.$hintDiv, this.$resetButton);
 
         // let $bracketErrorDiv = this.makeBracketErrorDiv();
         // $editorDiv.append($bracketErrorDiv);
@@ -1037,7 +1037,7 @@ export class MainEmbedded implements MainBase {
             this.deleteScriptsInDB();
 
             $window.hide();
-            this.$resetButton.hide();
+                this.$resetButton.hide();
             this.compileRunsAfterCodeReset = 1;
 
         });
@@ -1055,7 +1055,7 @@ export class MainEmbedded implements MainBase {
 
     considerShowingCodeResetButton() {
         this.compileRunsAfterCodeReset++;
-        if (this.compileRunsAfterCodeReset == 3) {
+        if (!this.config.hideResetButton && this.compileRunsAfterCodeReset == 3) {
             this.$resetButton.fadeIn(1000);
         }
     }
