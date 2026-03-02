@@ -292,19 +292,23 @@
     }
 
     .joe_hintDiv pre {
-        overflow: visible;
+        overflow: auto;
         word-wrap: normal;
-        border: none;
-        background-color: transparent;
+        border: 1px solid #444;
+        background-color: #2a2a2a;
         font-size: 14pt;
         line-height: 100%;
-        padding: 0;
-        border-radius: 0;
+        padding: 8px 12px;
+        border-radius: 4px;
         box-shadow: none;
     }
 
     .joe_hintDiv li {
         line-height: 24px;
+    }
+
+    .joe_hintDiv a {
+        color: #6ab0f5;
     }
 
     .joe_bottomDiv {
