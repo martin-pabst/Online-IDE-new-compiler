@@ -42,7 +42,11 @@ export class ErrorManager {
 
             let $errorList: JQuery<HTMLElement>[] = [];
 
-            let errors = this.main.getCompiler().getSortedAndFilteredErrors(file);
+            const minLevel = (this.main.getSettings().getValue("compiler.errorOutputLevel") as string) || "info";
+            const levelOrder: Record<string, number> = { "info": 0, "warning": 1, "error": 2 };
+            const minLevelNum = levelOrder[minLevel] ?? 0;
+            let errors = this.main.getCompiler().getSortedAndFilteredErrors(file)
+                .filter(e => (levelOrder[e.level] ?? 0) >= minLevelNum);
             errorCountMap.set(file, errors.filter(error => error.level == "error").length);
 
             for (let error of errors) {

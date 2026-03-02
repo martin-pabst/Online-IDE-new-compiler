@@ -17,7 +17,8 @@ export type SettingsType = {
     "classDiagram.omitVoidReturnType": "omit" | "show",
     "explorer.fileOrder": "user-defined" | "comparator",
     "explorer.workspaceOrder": "user-defined" | "comparator",
-    "compiler.shadowedSymbolErrorLevel": "ignore" | "info" | "warning" | "error"
+    "compiler.shadowedSymbolErrorLevel": "ignore" | "info" | "warning" | "error",
+    "compiler.errorOutputLevel": "info" | "warning" | "error"
 }
 
 export type SettingKey = keyof SettingsType;
@@ -38,7 +39,8 @@ export var SettingDefaultValues: SettingsType = {
     "classDiagram.omitVoidReturnType": "omit",
     "explorer.fileOrder": "user-defined",
     "explorer.workspaceOrder": "user-defined",
-    "compiler.shadowedSymbolErrorLevel": "warning"
+    "compiler.shadowedSymbolErrorLevel": "warning",
+    "compiler.errorOutputLevel": "warning"
 };
 
 

@@ -471,4 +471,14 @@ export class SettingsMessages {
         'de': `Hier können Sie einstellen, ob dann, wenn sich der Cursor in einem Methodenaufruf befindet, Hinweise zu den Parametern dieser Methode angezeigt werden sollen. <br>`,
         'en': `Here you can set whether hints about the parameters of a method should be displayed whenever the cursor is inside a method call.`
     });
+
+    static CompilerErrorOutputLevelName = () => lm({
+        'de': `Mindest-Errorlevel im Fehlerfenster`,
+        'en': `Minimum error level in error panel`
+    });
+
+    static CompilerErrorOutputLevelDescription = () => lm({
+        'de': `Legt fest, welche Meldungen im Fehlerfenster angezeigt werden. "Info" zeigt alle Meldungen, "Warnung" blendet Info-Meldungen aus, "Fehler" zeigt nur echte Fehler.`,
+        'en': `Sets which messages are shown in the error panel. "Info" shows all messages, "Warning" hides info messages, "Error" shows only real errors.`
+    });
 }

@@ -343,6 +343,22 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     main.getCompiler().forceRecompililation();
                 },
                 image: variableShadowingError
+            },
+            {
+                key: "compiler.errorOutputLevel",
+                settingType: 'setting',
+                name: SettingsMessages.CompilerErrorOutputLevelName,
+                description: SettingsMessages.CompilerErrorOutputLevelDescription,
+                type: 'enumeration',
+                optionValues: ["info", "warning", "error"],
+                optionTexts: [
+                    SettingsMessages.ErrorLevelInfo,
+                    SettingsMessages.ErrorLevelWarning,
+                    SettingsMessages.ErrorLevelError,
+                ],
+                action: (main, value) => {
+                    main.getCompiler().forceRecompililation();
+                }
             }
         ]
     }
