@@ -91,6 +91,7 @@ export function removeJavadocSyntax(s: string, indent: number|string = ""): stri
   }
 
   s = s.replace(/\/\*\*/g, "");
+  s = s.replace(/\/\*/g, "");
   s = s.replace(/\n\s*\*\//g, "\n");
   s = s.replace(/\n\s*\*/g, "\n");
   s = s.trim();
