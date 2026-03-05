@@ -15,6 +15,7 @@ export type SettingsType = {
     "classDiagram.typeConvention": "java" | "pascal",
     "classDiagram.background": "transparent" | "white",
     "classDiagram.omitVoidReturnType": "omit" | "show",
+    "classDiagram.drawCompositionDiamond": "yes" | "no",
     "explorer.fileOrder": "user-defined" | "comparator",
     "explorer.workspaceOrder": "user-defined" | "comparator",
     "compiler.shadowedSymbolErrorLevel": "ignore" | "info" | "warning" | "error"
@@ -36,6 +37,7 @@ export var SettingDefaultValues: SettingsType = {
     "classDiagram.typeConvention": "java",
     "classDiagram.background": "transparent",
     "classDiagram.omitVoidReturnType": "omit",
+    "classDiagram.drawCompositionDiamond": "yes",
     "explorer.fileOrder": "user-defined",
     "explorer.workspaceOrder": "user-defined",
     "compiler.shadowedSymbolErrorLevel": "warning"

@@ -471,4 +471,25 @@ export class SettingsMessages {
         'de': `Hier können Sie einstellen, ob dann, wenn sich der Cursor in einem Methodenaufruf befindet, Hinweise zu den Parametern dieser Methode angezeigt werden sollen. <br>`,
         'en': `Here you can set whether hints about the parameters of a method should be displayed whenever the cursor is inside a method call.`
     });
+    static ClassDiagramDrawCompositionDiamond = () => lm({
+        'de': `Kompositionsbeziehungen mit Raute darstellen`,
+        'en': `Draw composition relationships with diamond`,
+        'fr': `Dessiner les relations de composition avec un losange`
+    });
+    
+    static ClassDiagramDrawCompositionDiamondDescription = () => lm({
+        'de': `Hier können Sie einstellen, ob Kompositionsbeziehungen mit einer Raute dargestellt werden sollen oder nur als einfache Linien.`,
+        'en': `Here you can set whether composition relationships should be displayed with a diamond or as simple lines.`,
+        'fr': `Ici, vous pouvez définir si les relations de composition doivent être affichées avec un losange ou sous forme de lignes simples.`
+    });
+    static CompositionDiamondYes = () => lm({
+        'de': `Ja, als Raute darstellen`,
+        'en': `Yes, display with diamond`,
+        'fr': `Oui, afficher avec un losange`
+    });
+    static CompositionDiamondNo = () => lm({
+        'de': `Nein, nur einfache Linien`,
+        'en': `No, display as simple lines`,
+        'fr': `Non, afficher sous forme de lignes simples`
+    });
 }

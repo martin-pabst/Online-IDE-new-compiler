@@ -277,6 +277,21 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     main.drawClassDiagrams(false);
                 }
             },
+            {
+                key: "classDiagram.drawCompositionDiamond",
+                settingType: 'setting',
+                name: SettingsMessages.ClassDiagramDrawCompositionDiamond,
+                description: SettingsMessages.ClassDiagramDrawCompositionDiamondDescription,
+                type: 'enumeration',
+                optionValues: ["yes", "no"],
+                optionTexts: [
+                    SettingsMessages.CompositionDiamondYes,
+                    SettingsMessages.CompositionDiamondNo
+                ],
+                action: (main, value) => {
+                    main.drawClassDiagrams(false);
+                }
+            }
         ]
     },
     {

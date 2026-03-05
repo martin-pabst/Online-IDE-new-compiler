@@ -85,7 +85,7 @@ export class DiagramArrow {
     }
 
 
-    public render() {
+    public render(withCompositionDiamond: boolean = true) {
 
         let $group = this.$element;
         if ($group == null) {
@@ -122,15 +122,17 @@ export class DiagramArrow {
         }
 
         if (points.length > 1 && this.routingArrow.endsOnArrowWithIdentifier == null) {
-            let head = ArrowHead.makeHead(points[points.length - 2], points[points.length - 1],
-                this.routingArrow.arrowType);
-
-            let $head = this.createElement("path", $group[0], { d: head.path });
-            $head.css({
-                stroke: this.color,
-                "stroke-width": "0.2 cm",
-                "fill": head.fill
-            });
+            if(this.routingArrow.arrowType != "composition" || withCompositionDiamond){
+                let head = ArrowHead.makeHead(points[points.length - 2], points[points.length - 1],
+                    this.routingArrow.arrowType);
+    
+                let $head = this.createElement("path", $group[0], { d: head.path });
+                $head.css({
+                    stroke: this.color,
+                    "stroke-width": "0.2 cm",
+                    "fill": head.fill
+                });
+            }
         }
 
     }

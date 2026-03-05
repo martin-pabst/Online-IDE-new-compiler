@@ -427,7 +427,7 @@ export class ClassDiagram extends Diagram {
 
                 ro.arrows.forEach((arrow) => {
                     let da: DiagramArrow = new DiagramArrow(that.svgElement, arrow, arrow.color);
-                    da.render();
+                    da.render(that.main.getSettings().getValue("classDiagram.drawCompositionDiamond") == "yes");
                     that.arrows.push(da);
                 });
 
