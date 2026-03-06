@@ -538,8 +538,14 @@ export class Treeview<E, K> {
     selectNodeAndSetFocus(node: TreeviewNode<E, K>, invokeCallback: boolean) {
         if (!node) return;
         node.select(invokeCallback);
-        node.setFocus(true);
-        this.lastSelectedElement = node;
+        // A callback (e.g. B2J's file-restore logic) may have changed the
+        // selection to a different node while select() was running.
+        // Only grab focus if this node is still the selected one; otherwise
+        // the node that was selected by the callback already has focus.
+        if (node.isSelected) {
+            node.setFocus(true);
+            this.lastSelectedElement = node;
+        }
         node.expand();
         if(typeof this.config.scrollToSelectedElement === undefined || this.config.scrollToSelectedElement){
             node.scrollIntoView();
