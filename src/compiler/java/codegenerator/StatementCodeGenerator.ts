@@ -1027,15 +1027,16 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if (shadowedSymbolInformation) {
             let shadowedVariableErrorLevel: ErrorLevel | "ignore" = this.settingStore.getValue("compiler.shadowedSymbolErrorLevel") as ErrorLevel | "ignore";
             if (this.codeGenerationMode == "normal") {
+                let shadowedSymbolLine = shadowedSymbol.identifierRange.startLineNumber;
                 if (shadowedSymbol instanceof JavaLocalVariable) {
                     if (shadowedSymbolInformation.symbolTable == this.currentSymbolTable && this.codeGenerationMode == "normal") {
                         this.pushError(JCM.cantRedeclareVariableError(variable.identifier), "error", node.range);
                         variable = shadowedSymbol;
                     } else {
-                        if(shadowedVariableErrorLevel != "ignore") this.pushError(JCM.shadowedVariableError(variable.identifier), shadowedVariableErrorLevel, node.identifierRange);
+                        if(shadowedVariableErrorLevel != "ignore") this.pushError(JCM.shadowedVariableError(variable.identifier, shadowedSymbolLine), shadowedVariableErrorLevel, node.identifierRange);
                     }
                 } else if (shadowedSymbol instanceof JavaField && shadowedSymbol.classEnum.isMainClass) {
-                    if(shadowedVariableErrorLevel != "ignore") this.pushError(JCM.shadowedVariableError(variable.identifier), shadowedVariableErrorLevel, node.identifierRange);
+                    if(shadowedVariableErrorLevel != "ignore") this.pushError(JCM.shadowedVariableError(variable.identifier, shadowedSymbolLine), shadowedVariableErrorLevel, node.identifierRange);
                 }
             }
         }

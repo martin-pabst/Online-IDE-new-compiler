@@ -257,10 +257,10 @@ export class JCM {
         "fr": `La variable ${identifier} a été déclarée deux fois.`,
     })
 
-    static shadowedVariableError = (identifier: string) => le({
-        "de": "Die Variable " + identifier + " überdeckt eine gleichnamige Variable in einem äußeren Sichtbarkeitsbereich.",
-        "en": "Variable " + identifier + " shadowes a variable with same identifier in outer scope.",
-        "fr": `La variable ${identifier} masque une variable du même identifiant dans une portée externe.`,
+    static shadowedVariableError = (identifier: string, shadowedSymbolLine: number) => le({
+        "de": "Die Variable " + identifier + " überdeckt eine gleichnamige Variable in einem äußeren Sichtbarkeitsbereich (definiert in Zeile " + shadowedSymbolLine + ").",
+        "en": "Variable " + identifier + " shadowes a variable with same identifier in outer scope (defined in line " + shadowedSymbolLine + ").",
+        "fr": `La variable ${identifier} masque une variable du même identifiant dans une portée externe (définie à la ligne ${shadowedSymbolLine}).`,
     })
 
     static breakNotExpected = () => le({
