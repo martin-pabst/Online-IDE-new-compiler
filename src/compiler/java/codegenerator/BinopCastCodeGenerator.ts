@@ -285,7 +285,7 @@ export abstract class BinopCastCodeGenerator {
 
         let bothSnippetsAreConstant = leftSnippet.isConstant() && rightSnippet.isConstant();
 
-        if (operator == TokenType.XOR || bothSnippetsAreConstant) return new BinaryOperatorTemplate("^", false).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
+        if (operator == TokenType.XOR || bothSnippetsAreConstant) return new BinaryOperatorTemplate(TokenTypeReadable[operator], false).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
 
         /*
         * lazy and/or
