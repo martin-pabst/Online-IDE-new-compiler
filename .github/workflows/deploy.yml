@@ -60,7 +60,22 @@ jobs:
           # optional repository variable IMAGE_NAME can override the generated name
           IMAGE_NAME_REPO: ${{ vars.IMAGE_NAME }}
         run: |
-          IMAGE_NAME=${IMAGE_NAME_REPO:-ghcr.io/${{ github.repository }}:${{ github.sha }}}
+          # Normalize IMAGE_NAME so it always includes the ghcr.io/owner/repo prefix
+          IMAGE_NAME_REPO=${IMAGE_NAME_REPO:-}
+          if [[ -z "$IMAGE_NAME_REPO" ]]; then
+            IMAGE_NAME=ghcr.io/${{ github.repository }}:${{ github.sha }}
+          elif [[ "$IMAGE_NAME_REPO" != ghcr.io/* ]]; then
+            TAG_PART="${IMAGE_NAME_REPO##*:}"
+            OWNER_REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+            IMAGE_NAME="ghcr.io/${OWNER_REPO_LOWER}:${TAG_PART}"
+          else
+            PREFIX="${IMAGE_NAME_REPO%%/*}"
+            REST="${IMAGE_NAME_REPO#*/}"
+            OWNER_REPO="${REST%%:*}"
+            TAG_PART="${REST#*:}"
+            OWNER_REPO_LOWER=$(echo "$OWNER_REPO" | tr '[:upper:]' '[:lower:]')
+            IMAGE_NAME="${PREFIX}/${OWNER_REPO_LOWER}:${TAG_PART}"
+          fi
           echo "Building image: $IMAGE_NAME"
           bash scripts/build_docker.sh "$IMAGE_NAME"
 
