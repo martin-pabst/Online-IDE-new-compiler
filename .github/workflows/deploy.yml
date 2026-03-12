@@ -77,6 +77,8 @@ jobs:
           fi
           echo "Building image: $IMAGE_NAME"
           bash scripts/build_docker.sh "$IMAGE_NAME"
+          # Export computed IMAGE_NAME to job environment for later steps
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
