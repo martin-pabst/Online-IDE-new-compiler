@@ -67,10 +67,8 @@ jobs:
       - name: Set image output
         id: set-image
         run: |
-          IMAGE_NAME=${{ vars.IMAGE_NAME }}
-          if [ -z "$IMAGE_NAME" ]; then
-            IMAGE_NAME=ghcr.io/${{ github.repository }}:${{ github.sha }}
-          fi
+          IMAGE_NAME_REPO=${{ vars.IMAGE_NAME }}
+          IMAGE_NAME=${IMAGE_NAME_REPO:-ghcr.io/${{ github.repository }}:${{ github.sha }}}
           echo "image=$IMAGE_NAME" >> $GITHUB_OUTPUT
 
   publish:
