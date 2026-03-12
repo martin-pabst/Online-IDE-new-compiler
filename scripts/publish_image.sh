@@ -8,15 +8,12 @@ if [ -z "$IMAGE" ]; then
   exit 2
 fi
 
-if [ -z "${GHCR_USERNAME:-}" ] || [ -z "${GHCR_TOKEN:-}" ]; then
-  echo "Error: GHCR_USERNAME and GHCR_TOKEN environment variables must be set." >&2
-  exit 3
+if [ -z "${IMAGE:-}" ]; then
+  echo "Error: IMAGE argument is required" >&2
+  exit 2
 fi
 
-echo "Logging into ghcr.io as $GHCR_USERNAME..."
-echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
-
-echo "Pushing image $IMAGE to ghcr.io..."
+echo "Pushing image $IMAGE..."
 docker push "$IMAGE"
 
 echo "Publish complete."
