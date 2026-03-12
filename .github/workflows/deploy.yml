@@ -1,0 +1,107 @@
+name: CI Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [synchronize]
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Install & Build (embedded)
+    runs-on: ubuntu-latest
+    if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true) }}
+    environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install and build embedded
+        run: |
+          bash scripts/install_and_build.sh
+
+      - name: Upload built dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+  docker-build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true) }}
+    environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
+    outputs:
+      image: ${{ steps.set-image.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Build image
+        id: build-image
+        env:
+          # optional repository variable IMAGE_NAME can override the generated name
+          IMAGE_NAME_REPO: ${{ vars.IMAGE_NAME }}
+        run: |
+          IMAGE_NAME=${IMAGE_NAME_REPO:-ghcr.io/${{ github.repository }}:${{ github.sha }}}
+          echo "Building image: $IMAGE_NAME"
+          bash scripts/build_docker.sh "$IMAGE_NAME"
+
+      - name: Set image output
+        id: set-image
+        run: |
+          IMAGE_NAME=${{ vars.IMAGE_NAME }}
+          if [ -z "$IMAGE_NAME" ]; then
+            IMAGE_NAME=ghcr.io/${{ github.repository }}:${{ github.sha }}
+          fi
+          echo "image=$IMAGE_NAME" >> $GITHUB_OUTPUT
+
+  publish:
+    name: Publish image to ghcr.io
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true) }}
+    environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish image
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          IMAGE_NAME: ${{ needs.docker-build.outputs.image }}
+        run: |
+          bash scripts/publish_image.sh "$IMAGE_NAME"
+
+  deploy:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest
+    needs: publish
+    if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true) }}
+    environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy container on remote host
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          IMAGE_NAME: ${{ needs.docker-build.outputs.image }}
+          REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
+          CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
+        run: |
+          bash scripts/deploy_via_ssh.sh "$IMAGE_NAME" "${REMOTE_PORT:-80}" "${CONTAINER_NAME:-online-ide}"
