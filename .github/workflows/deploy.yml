@@ -1,5 +1,9 @@
 name: CI Deploy
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   workflow_dispatch:
   push:
@@ -33,8 +37,8 @@ jobs:
           name: dist
           path: dist
 
-  docker-build:
-    name: Build Docker image
+  build-and-publish:
+    name: Build & Publish Docker image
     runs-on: ubuntu-latest
     needs: build
     if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true) }}
@@ -53,43 +57,51 @@ jobs:
       - name: Build image
         id: build-image
         env:
-          # optional repository variable IMAGE_NAME can override the generated name
           IMAGE_NAME_REPO: ${{ vars.IMAGE_NAME }}
         run: |
-          IMAGE_NAME=${IMAGE_NAME_REPO:-ghcr.io/${{ github.repository }}:${{ github.sha }}}
+          # Normalize IMAGE_NAME so it always includes the ghcr.io/owner/repo prefix
+          IMAGE_NAME_REPO=${IMAGE_NAME_REPO:-}
+          if [[ -z "$IMAGE_NAME_REPO" ]]; then
+            IMAGE_NAME=ghcr.io/${{ github.repository }}:${{ github.sha }}
+          elif [[ "$IMAGE_NAME_REPO" != ghcr.io/* ]]; then
+            TAG_PART="${IMAGE_NAME_REPO##*:}"
+            OWNER_REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+            IMAGE_NAME="ghcr.io/${OWNER_REPO_LOWER}:${TAG_PART}"
+          else
+            PREFIX="${IMAGE_NAME_REPO%%/*}"
+            REST="${IMAGE_NAME_REPO#*/}"
+            OWNER_REPO="${REST%%:*}"
+            TAG_PART="${REST#*:}"
+            OWNER_REPO_LOWER=$(echo "$OWNER_REPO" | tr '[:upper:]' '[:lower:]')
+            IMAGE_NAME="${PREFIX}/${OWNER_REPO_LOWER}:${TAG_PART}"
+          fi
           echo "Building image: $IMAGE_NAME"
           bash scripts/build_docker.sh "$IMAGE_NAME"
+          # Export computed IMAGE_NAME to job environment for later steps
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish image
+        run: |
+          docker push "$IMAGE_NAME"
 
       - name: Set image output
         id: set-image
         run: |
-          IMAGE_NAME=${{ vars.IMAGE_NAME }}
-          if [ -z "$IMAGE_NAME" ]; then
-            IMAGE_NAME=ghcr.io/${{ github.repository }}:${{ github.sha }}
-          fi
+          # Use the IMAGE_NAME computed and exported earlier (via $GITHUB_ENV)
+          IMAGE_NAME=${IMAGE_NAME:-ghcr.io/${{ github.repository }}:${{ github.sha }}}
           echo "image=$IMAGE_NAME" >> $GITHUB_OUTPUT
-
-  publish:
-    name: Publish image to ghcr.io
-    runs-on: ubuntu-latest
-    needs: docker-build
-    if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true) }}
-    environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Publish image
-        env:
-          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          IMAGE_NAME: ${{ needs.docker-build.outputs.image }}
-        run: |
-          bash scripts/publish_image.sh "$IMAGE_NAME"
 
   deploy:
     name: Deploy via SSH
     runs-on: ubuntu-latest
-    needs: publish
+    needs: build-and-publish
     if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.draft == true) }}
     environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
     steps:
@@ -100,7 +112,7 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          IMAGE_NAME: ${{ needs.docker-build.outputs.image }}
+          IMAGE_NAME: ${{ needs.build-and-publish.outputs.image }}
           REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
           CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
         run: |
