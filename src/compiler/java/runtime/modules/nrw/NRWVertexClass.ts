@@ -17,7 +17,7 @@ export class NRWVertexClass extends ObjectClass {
 
     static type: NonPrimitiveType;
 
-    id: StringClass;
+    id: string;
     mark: boolean;
 
 
@@ -26,14 +26,14 @@ export class NRWVertexClass extends ObjectClass {
     }
 
     _constructor1(pID: StringClass){
-        this.id = pID;
+        this.id = pID == null ? null : pID.value;
         this.mark = false;
 
         return this;
     }
 
     _getID(){
-        return this.id;
+        return this.id == null ? null : new StringClass(this.id);
     }
 
     _isMarked(){
