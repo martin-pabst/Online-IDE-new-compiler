@@ -1,6 +1,6 @@
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
-import { ObjectClass } from "../../system/javalang/ObjectClassStringClass";
+import { ObjectClass, StringClass } from "../../system/javalang/ObjectClassStringClass";
 import { NRWLang } from "./NRWLang";
 
 export class NRWVertexClass extends ObjectClass {
@@ -17,7 +17,7 @@ export class NRWVertexClass extends ObjectClass {
 
     static type: NonPrimitiveType;
 
-    id: string;
+    id: StringClass;
     mark: boolean;
 
 
@@ -25,7 +25,7 @@ export class NRWVertexClass extends ObjectClass {
         super();
     }
 
-    _constructor1(pID: string){
+    _constructor1(pID: StringClass){
         this.id = pID;
         this.mark = false;
 
