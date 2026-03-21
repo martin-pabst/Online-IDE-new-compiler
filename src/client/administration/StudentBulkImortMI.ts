@@ -183,7 +183,7 @@ export class StudentBulkImportMI extends AdminMenuItem {
         $printDiv.empty();
         this.usersToWrite.forEach((user) => {
             $printDiv.append(`<div style="page-break-inside: avoid;">
-            <div><b>URL:</b> https://www.online-ide.de</div>
+            <div><b>URL:</b> https://www.online-ide.de und https://www.sql-ide.de</div>
             <div><b>${AdminMessages.name()}:</b> ${user.rufname} ${user.familienname}</div>
             <div><b>${AdminMessages.classWord()}:</b> ${this.classes.find(cl => cl.id == user.klasse_id)?.name}</div>
             <div><b>${AdminMessages.username()}:</b> ${user.username}</div>
