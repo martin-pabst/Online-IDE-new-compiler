@@ -205,6 +205,7 @@ export class GroupClass extends ShapeClass implements BaseListType {
 
         this.centerXInitial = p1.x;
         this.centerYInitial = p1.y;
+        // console.log("centerOfAddedShape: " + centerOfAddedShape.x + ", " + centerOfAddedShape.y + ", p0: " + p0.x + ", " + p0.y + ", center of group after adding shape: " + p1.x + ", " + p1.y);
 
     }
 

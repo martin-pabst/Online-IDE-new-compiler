@@ -471,7 +471,8 @@ export class ShapeClass extends ActorClass {
 
     public getCenter(): PIXI.Point {
         let p = new PIXI.Point(this.centerXInitial, this.centerYInitial);
-        return this.container.worldTransform.apply(p, p);
+        return this.getWorldTransform().apply(p, p);
+        // return this.container.worldTransform.apply(p, p);
     }
 
     public destroy() {
