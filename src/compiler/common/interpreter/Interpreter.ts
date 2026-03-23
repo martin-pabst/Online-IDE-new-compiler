@@ -346,9 +346,9 @@ export class Interpreter {
 
         this.main?.getBottomDiv()?.errorManager?.hideAllErrorDecorations();
         this.keyboardManager?.clearPressedKeys();
-        this.graphicsManager?.shrinkGraphicsDiv();
-
+        
         if (this.scheduler.state != SchedulerState.paused && this.executable && resetRuntime) {
+            this.graphicsManager?.shrinkGraphicsDiv();
             this.printManager.clear();
             this.#init(this.executable, fileToStart);
             this.resetRuntime();
