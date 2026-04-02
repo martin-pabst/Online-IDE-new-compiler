@@ -174,6 +174,12 @@ export class MainMenu {
                                     this.main.editor.editor.updateOptions({ wordWrap: wordWrap });
                                 }
                             },
+                            {
+                                identifier: GuiMessages.SetDefaultFontSize(),
+                                action: () => {
+                                    this.main.editor.setFontSize(14);
+                                }
+                            }
 
                         ]
                     }

@@ -225,6 +225,13 @@ export class GuiMessages {
         "fr": "Clair",
     })
 
+    static SetDefaultFontSize = () => lm({
+        'de': `Schriftgröße zurücksetzen`,
+        'en': `Reset font size`,
+        'fr': `Réinitialiser la taille de la police`,
+    });
+    
+
     static HighContrastOnOff = () => lm({
         "de": "Hoher Kontrast im Editor ein/aus",
         "en": "High contrast on/off",
