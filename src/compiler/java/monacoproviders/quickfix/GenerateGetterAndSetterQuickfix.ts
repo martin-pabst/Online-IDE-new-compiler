@@ -18,6 +18,7 @@ class GenerateGetterAndSetterQuickfix extends Quickfix {
     }
 
     provideCodeAction(model: editor.ITextModel): languages.CodeAction | undefined {
+        if(!this.field?.type) return;
         let firstLetterUppercaseIdentifier = this.field.identifier[0].toLocaleUpperCase() + this.field.identifier.substring(1);
 
         let title = "";
