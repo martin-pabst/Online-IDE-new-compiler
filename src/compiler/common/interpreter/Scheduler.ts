@@ -465,8 +465,10 @@ export class Scheduler {
 
         let parameterlessConstructor = parameterlessConstructors[0]!;
 
-        let statement1 = `new ${Helpers.classes}["${klass.identifier}"]().${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, ${StepParams.stack}, undefined);
+        let statement1 = `new ${Helpers.classes}["${klass.identifier}"]().${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, () => {});
                           return 1;\n`;
+        // let statement1 = `new ${Helpers.classes}["${klass.identifier}"]().${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, ${StepParams.stack}, undefined);
+        //                   return 1;\n`;
         program.addStep(statement1);
 
         // Step 2: call test method
