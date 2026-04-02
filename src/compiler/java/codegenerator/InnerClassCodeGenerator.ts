@@ -100,6 +100,8 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
         return snippet;
     }
 
+    counter: number = 0;
+
     compileLambdaFunction(node: ASTLambdaFunctionDeclarationNode, expectedType: JavaType | undefined): CodeSnippet | undefined {
         if (!node || !expectedType) return undefined;
 
@@ -219,13 +221,15 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
         let instantiationAtRuntimeNeeded = outerClassFieldAccessHappened || outerLocalVariables.length > 0;
 
-        let template = instantiationAtRuntimeNeeded ? `new this.innerClass(${parameterString})` : `this.lambdaObject`;
+        let counter = this.counter++;
+
+        let template = instantiationAtRuntimeNeeded ? `new this.innerClass(${parameterString})` : `this.lambdaObject${counter}`;
         let newClassSnippet = new StringCodeSnippet(template, node.range, klass);
         newClassSnippet.addEmitToStepListener((step) => {
             if (instantiationAtRuntimeNeeded) {
                 step.innerClass = klass.runtimeClass;
             } else {
-                step.lambdaObject = new klass.runtimeClass!(null);
+                step["lambdaObject" + counter] = new klass.runtimeClass!(null);
             }
         });
 
