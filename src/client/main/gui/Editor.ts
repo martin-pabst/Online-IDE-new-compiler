@@ -366,19 +366,30 @@ export class Editor {
         this.lastPosition = historyEntry;
     }
 
+    /**
+     * We need to track zoom level, see
+     * https://github.com/microsoft/monaco-editor/issues/196
+     */
+    zoom: number = 1;
     setFontSize(fontSizePx: number) {
 
         let editorfs = this.editor.getOptions().get(monaco.editor.EditorOption.fontSize);
 
+        let oldFontSize = fontSizePx;
         if (this.main instanceof Main) {
+            oldFontSize = this.main.viewModeController.getChosenViewMode().fontSize;
             this.main.viewModeController.saveFontSize(fontSizePx);
         }
 
         if (fontSizePx != editorfs) {
+            // this.editor.updateOptions({ fontSize: fontSizePx }); calls setFontSize again via onDidChangeConfiguration, so we need to check if the font size really changed to avoid infinite loop
             this.editor.updateOptions({
-                fontSize: fontSizePx
+                fontSize: fontSizePx / this.zoom
             });
-
+        } else {
+            if (this.main instanceof Main) {
+                this.zoom *= fontSizePx / oldFontSize;
+            }
         }
 
         let bottomDiv = this.main.getBottomDiv();
