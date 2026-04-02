@@ -216,6 +216,39 @@ export abstract class IJavaClass extends JavaTypeWithInstanceInitializer {
         return ext.hasAncestorOrIs(objectType);
     }
 
+        findMethodWithSignature(otherMethod: JavaMethod): JavaMethod | undefined {
+        let otherMethodsIdentifier = otherMethod.identifier;
+        let otherMethodsParameterCount = otherMethod.parameters.length;
+        for (let method of this.getOwnMethods()) {
+            if (method.identifier == otherMethodsIdentifier && method.parameters.length == otherMethodsParameterCount) {
+                let parameterTypesCompatible: boolean = true;
+                for (let i = 0; i < otherMethodsParameterCount; i++) {
+                    let methodsParameterType = method.parameters[i].type;
+                    let otherMethodsParameterType = otherMethod.parameters[i].type;
+                    if (methodsParameterType && otherMethodsParameterType) {
+                        if (methodsParameterType.toString() != otherMethodsParameterType.toString()) {
+                            if (!(otherMethodsParameterType instanceof NonPrimitiveType && methodsParameterType instanceof NonPrimitiveType)) {
+                                parameterTypesCompatible = false;
+                                break;
+                            } else {
+                                if (!methodsParameterType.canImplicitlyCastTo(otherMethodsParameterType)) {
+                                    parameterTypesCompatible = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (parameterTypesCompatible) return method;
+            }
+        }
+        if (this.getExtends()) {
+            return (<IJavaClass>this.getExtends()).findMethodWithSignature(otherMethod);
+        }
+
+        return undefined;
+    }
+
 }
 
 
@@ -293,39 +326,42 @@ export class JavaClass extends IJavaClass {
         return abstractMethodsNotYetImplemented;
 
     }
+    
+    /**
+     * 02.04.26: Moved to IJavaClass, because also needed for GenericVariantOfJavaClass
+     */
+    // findMethodWithSignature(otherMethod: JavaMethod): JavaMethod | undefined {
+    //     let otherMethodsIdentifier = otherMethod.identifier;
+    //     let otherMethodsParameterCount = otherMethod.parameters.length;
+    //     for (let method of this.methods) {
+    //         if (method.identifier == otherMethodsIdentifier && method.parameters.length == otherMethodsParameterCount) {
+    //             let parameterTypesCompatible: boolean = true;
+    //             for (let i = 0; i < otherMethodsParameterCount; i++) {
+    //                 let methodsParameterType = method.parameters[i].type;
+    //                 let otherMethodsParameterType = otherMethod.parameters[i].type;
+    //                 if (methodsParameterType && otherMethodsParameterType) {
+    //                     if (methodsParameterType.toString() != otherMethodsParameterType.toString()) {
+    //                         if (!(otherMethodsParameterType instanceof NonPrimitiveType && methodsParameterType instanceof NonPrimitiveType)) {
+    //                             parameterTypesCompatible = false;
+    //                             break;
+    //                         } else {
+    //                             if (!methodsParameterType.canImplicitlyCastTo(otherMethodsParameterType)) {
+    //                                 parameterTypesCompatible = false;
+    //                                 break;
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //             if (parameterTypesCompatible) return method;
+    //         }
+    //     }
+    //     if (this.extends) {
+    //         return (<IJavaClass>this.extends).findMethodWithSignature(otherMethod);
+    //     }
 
-    findMethodWithSignature(otherMethod: JavaMethod): JavaMethod | undefined {
-        let otherMethodsIdentifier = otherMethod.identifier;
-        let otherMethodsParameterCount = otherMethod.parameters.length;
-        for (let method of this.methods) {
-            if (method.identifier == otherMethodsIdentifier && method.parameters.length == otherMethodsParameterCount) {
-                let parameterTypesCompatible: boolean = true;
-                for (let i = 0; i < otherMethodsParameterCount; i++) {
-                    let methodsParameterType = method.parameters[i].type;
-                    let otherMethodsParameterType = otherMethod.parameters[i].type;
-                    if (methodsParameterType && otherMethodsParameterType) {
-                        if (methodsParameterType.toString() != otherMethodsParameterType.toString()) {
-                            if (!(otherMethodsParameterType instanceof NonPrimitiveType && methodsParameterType instanceof NonPrimitiveType)) {
-                                parameterTypesCompatible = false;
-                                break;
-                            } else {
-                                if (!methodsParameterType.canImplicitlyCastTo(otherMethodsParameterType)) {
-                                    parameterTypesCompatible = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (parameterTypesCompatible) return method;
-            }
-        }
-        if (this.extends) {
-            return (<JavaClass>this.extends).findMethodWithSignature(otherMethod);
-        }
-
-        return undefined;
-    }
+    //     return undefined;
+    // }
 
     checkIfAbstractParentsAreImplemented() {
         if (!this._isAbstract) {
