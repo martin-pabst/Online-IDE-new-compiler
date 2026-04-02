@@ -406,6 +406,12 @@ export class JCM {
      * Error messages in class TermCodeGenerator
      */
 
+    static voidTypeNotAllowedAsParameterType = (methodIdentifier: string) => le({
+        "de": `Der Datentyp void ist nicht als Typ eines Parameters der Methode ${methodIdentifier} erlaubt.`,
+        "en": `Void type is not allowed as parameter type of method ${methodIdentifier}.`,
+        "fr": `Le type void n'est pas autorisé comme type de paramètre de la méthode ${methodIdentifier}.`,
+    });
+
     static localVariableUsedBeforeDeclaration = (variable: string) => le({
         "de": `Die Variable ${variable} wurde vor ihrer Deklaration verwendet.`,
         "en": `Variable ${variable} is used before it's declaration.`,

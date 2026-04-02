@@ -34,6 +34,7 @@ import { OuterClassFieldAccessTracker } from "./OuterClassFieldAccessTracker.ts"
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
 import { ThisType } from "../types/ThisType.ts";
 import { SettingsStore } from "../../../client/settings/SettingsStore.ts";
+import { param } from "jquery";
 
 export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
@@ -257,7 +258,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             return undefined;
         }
 
-        if ( !(klassType instanceof IJavaClass)) {
+        if (!(klassType instanceof IJavaClass)) {
             this.pushError(JCM.cantInstantiateFromType(klassType.identifier), "error", node.range);
             return undefined;
         }
@@ -279,7 +280,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 We need a A-object to construct a new B-object. We need a B-Object to construct a new C-Object
         */
 
-        let methods = this.searchMethod(klassType.identifier, klassType, parameterValues.map(p => p?.type), true, false, true, node.range);
+        let parameterTypes = this.convertParameterValueSnippetsToParameterTypes(klassType.identifier, parameterValues);
+        if (!parameterTypes) return undefined;
+
+        let methods = this.searchMethod(klassType.identifier, klassType, parameterTypes, true, false, true, node.range);
         let method = methods.best;
 
         if (pv.withErrors) {
@@ -1229,6 +1233,9 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         let pv = this.getParameterValueSnippets(node);
         let parameterValueSnippets = pv.snippets;
 
+        let parameterTypes = this.convertParameterValueSnippetsToParameterTypes(node.identifier, parameterValueSnippets);
+        if (!parameterTypes) return undefined;
+
         let methodIsConstructor = false;
         if (node.nodeToGetObject && [TokenType.keywordThis, TokenType.keywordSuper].indexOf(node.nodeToGetObject?.kind) >= 0) {
             if (node.identifier == "") {
@@ -1269,10 +1276,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             return undefined;
         }
 
-        let methods = this.searchMethod(node.identifier, objectSnippet.type, parameterValueSnippets.map(p => p?.type), methodIsConstructor,
+        let methods = this.searchMethod(node.identifier, objectSnippet.type, parameterTypes, methodIsConstructor,
             objectSnippet.type instanceof StaticNonPrimitiveType, true, node.identifierRange);
         if ((<NonPrimitiveType>objectSnippet.type).isMainClass && !methods.best) {
-            let globalMethod = this.searchGlobalMethod(node.identifier, parameterValueSnippets.map(p => p?.type), node.identifierRange);
+            let globalMethod = this.searchGlobalMethod(node.identifier, parameterTypes, node.identifierRange);
             if (globalMethod) {
                 methods.best = globalMethod.method;
                 objectSnippet = new StringCodeSnippet(`${Helpers.classes}["${globalMethod.staticMainClass.identifier}"]`, node.identifierRange, globalMethod.staticMainClass);
@@ -1298,7 +1305,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         if (!method && node.identifier.startsWith("assert") || node.identifier.startsWith("fail")) {
-            methods = this.searchMethod(node.identifier, this.assertionsType, parameterValueSnippets.map(p => p?.type), false, objectSnippet instanceof StaticNonPrimitiveType, true, node.identifierRange);
+
+            methods = this.searchMethod(node.identifier, this.assertionsType, parameterTypes, false, objectSnippet instanceof StaticNonPrimitiveType, true, node.identifierRange);
             method = methods?.best;
         }
 
@@ -1308,7 +1316,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             let outerType: NonPrimitiveType | StaticNonPrimitiveType | undefined = this.currentSymbolTable.classContext?.outerType;
             while (outerType && outerType instanceof NonPrimitiveType) {
                 outerTypeTemplate += "." + Helpers.outerClassAttributeIdentifier;
-                methods = this.searchMethod(node.identifier, outerType, parameterValueSnippets.map(p => p?.type), false, objectSnippet instanceof StaticNonPrimitiveType, true, node.identifierRange);
+
+                methods = this.searchMethod(node.identifier, outerType, parameterTypes, false, objectSnippet instanceof StaticNonPrimitiveType, true, node.identifierRange);
                 method = methods.best;
                 if (method) {
                     break;
@@ -1324,7 +1333,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         if (!method) {
-            let invisibleMethod = this.searchMethod(node.identifier, objectSnippet.type, parameterValueSnippets.map(p => p?.type), false, objectSnippet.type instanceof StaticNonPrimitiveType, false, node.identifierRange).best;
+
+            let invisibleMethod = this.searchMethod(node.identifier, objectSnippet.type, parameterTypes, false, objectSnippet.type instanceof StaticNonPrimitiveType, false, node.identifierRange).best;
 
             if (invisibleMethod) {
                 this.pushError(JCM.methodHasWrongVisibility(node.identifier, TokenTypeReadable[invisibleMethod.visibility]), "error", node);
@@ -1456,7 +1466,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
     /**
      *
      */
-    searchGlobalMethod(identifier: string, parameterTypes: JavaType[], methodCallRange: IRange): { method: JavaMethod, staticMainClass: StaticNonPrimitiveType } | undefined {
+    searchGlobalMethod(identifier: string, parameterTypes: (JavaType | undefined)[], methodCallRange: IRange): { method: JavaMethod, staticMainClass: StaticNonPrimitiveType } | undefined {
         for (let mainClass of this.compiledTypesTypestore.getMainClasses()) {
             let methods = this.searchMethod(identifier, mainClass.staticType,
                 parameterTypes, false, true, false, methodCallRange
@@ -1486,6 +1496,20 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         this.module.codeReachedAssertions.registerAssertion(codeReachedAssertion);
 
         return new StringCodeSnippet(`${Helpers.registerCodeReached}("${codeReachedAssertion.key}")`, node.range);
+    }
+
+    convertParameterValueSnippetsToParameterTypes(methodIdentifier: string, parameterSnippets: CodeSnippet[]): (JavaType | undefined)[] {
+        let parameterTypes: (JavaType | undefined)[] = [];
+        for (let i = 0; i < parameterSnippets.length; i++) {
+            let snippet = parameterSnippets[i];
+            let type = snippet?.type;
+            if (type == this.voidType) {
+                this.pushError(JCM.voidTypeNotAllowedAsParameterType(methodIdentifier), "error", snippet.range);
+                return undefined;
+            }
+            parameterTypes.push(snippet?.type || undefined);
+        }
+        return parameterTypes;
     }
 
     searchMethod(identifier: string, objectType: JavaType, parameterTypes: (JavaType | undefined)[],
@@ -1543,6 +1567,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             let suitable: boolean = true;
             for (let i = 0; i < parameterTypes.length; i++) {
                 let fromType = parameterTypes[i];
+
                 if (!fromType) continue;
 
                 let toType = ellipsisType;
