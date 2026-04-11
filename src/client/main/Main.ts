@@ -185,6 +185,10 @@ export class Main implements MainBase {
         let singleUseToken: string | undefined = findGetParameter("singleUseToken");
         let loggedInWithVidis: boolean = findGetParameter("vidis") == "true";
 
+        if(loggedInWithVidis){
+            this.login.vidis_id_token = findGetParameter("vidis-id-token") || "";
+        }
+
         if (singleUseToken) {
             this.login.initGUI();
             this.login.loginWithVidisOrAutoLogin(singleUseToken, loggedInWithVidis);
