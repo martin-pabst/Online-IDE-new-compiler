@@ -13,6 +13,7 @@ import { SqlIdeUrlHolder } from './SqlIdeUrlHolder.js';
 import { AutoLogout } from './AutoLogout.js';
 import { SchedulerState } from "../../compiler/common/interpreter/SchedulerState.js";
 import * as monaco from 'monaco-editor';
+import * as PIXI from 'pixi.js';
 import { LoginMessages } from './language/MainLanguage.js';
 import { Settings } from '../settings/Settings.js';
 
@@ -260,6 +261,10 @@ export class Login {
 
                         this.main.pruefungManagerForStudents.startPruefung(response.activePruefung);
                     }
+                }
+
+                if(!PIXI.isWebGLSupported()){
+                        alert(LoginMessages.webGLNotSupported());
                 }
 
             }
