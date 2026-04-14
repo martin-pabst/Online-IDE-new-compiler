@@ -6,7 +6,7 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy built files
 COPY dist/ /usr/share/nginx/html/
 
-# Serve files with permissive CORS headers for embedded integrations.
+# Custom nginx server config (CORS handling for embedded consumers).
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
