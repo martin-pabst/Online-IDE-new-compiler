@@ -6,13 +6,28 @@
     <title>Embedded-Test</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
 
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .java-online {
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+        }
+    </style>
+
     <script type="module" src="/src/client/embedded/EmbeddedStarter.ts"></script>
 </head>
 
 <body>
-    <h1>Erstes Beispiel</h1>
 
-    <div class="java-online" style="width: calc(100% - 10px); height: 500px; margin-left: 5px" data-java-online="{
+    <div class="java-online" data-java-online="{
         'id': 'abcd',
         'speed': 'max',
         'withFileList': true,
