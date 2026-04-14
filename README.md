@@ -2,7 +2,46 @@
 
 This Fork of Online-IDE focuses only on the embedded version. It's API is extended
 to provide notifications when files are selected, created, deleted or renamed and
-allows more simplifications of the user interface.  
+allows more simplifications of the user interface.
+
+## Deployment
+This repo provides multiple deployment options for developers:
+
+- Build: install dependencies and produce the static bundle:
+
+```bash
+npm ci
+npm run build
+```
+
+This creates the `dist/` folder with the compiled app and required assets (for example `dist/assets`, `dist/lib`, `dist/online-ide-embedded.js`, `dist/online-ide-embedded.css`).
+
+- Static hosting: publish the contents of `dist/` to a web server or CDN. A helper script is available at `scripts/deploy_via_ssh.sh` for SSH-based deploys.
+
+- Docker: build and run a container using the provided `Dockerfile` (helper: `scripts/build_docker.sh`) and publish with `scripts/publish_image.sh` if needed.
+
+Notes:
+- The Embedded-IDE is a static web app and can be served from any static host. The full Online-IDE variant requires a server backend — see the `documentation/` folder for server deployment details.
+
+**GitHub Actions**
+
+This repository includes a CI/Deploy workflow at [.github/workflows/deploy.yml](.github/workflows/deploy.yml) that automates build and deployment.
+
+- Triggers: `push` to `main`, `release` publish, `workflow_dispatch` (manual) and PR synchronizations.
+- Jobs:
+    - `build`: installs Node, runs `scripts/install_and_build.sh` and uploads the produced `dist/` artifact.
+    - `build-and-publish`: downloads `dist/`, builds a Docker image (uses `scripts/build_docker.sh`) and pushes it to GitHub Container Registry. The repository variable `IMAGE_NAME` is used to control image naming.
+    - `deploy`: runs `scripts/deploy_via_ssh.sh` on a remote host and uses secrets to connect and deploy the container.
+
+Key repo variables and secrets used by the workflow:
+
+- `vars.IMAGE_NAME` (optional) — override the default image name/tag.
+- `secrets.SSH_HOST`, `secrets.SSH_USER`, `secrets.SSH_PRIVATE_KEY` — SSH target for the `deploy` job.
+- `secrets.REMOTE_PORT`, `secrets.CONTAINER_NAME` — optional deployment parameters.
+
+To run the workflow manually, open the Actions tab in GitHub, select **CI Deploy**, and choose **Run workflow**.
+
+
 
 ## Online-IDE
 
