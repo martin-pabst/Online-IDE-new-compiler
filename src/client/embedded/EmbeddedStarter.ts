@@ -4,11 +4,11 @@ import * as PIXI from 'pixi.js';
 import { ThemeManager } from "../main/gui/ThemeManager.js";
 import { MainEmbedded } from "./MainEmbedded.js";
 
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
-import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+import editorWorkerUrl from 'monaco-editor/esm/vs/editor/editor.worker?url'
+import jsonWorkerUrl from 'monaco-editor/esm/vs/language/json/json.worker?url'
+import cssWorkerUrl from 'monaco-editor/esm/vs/language/css/css.worker?url'
+import htmlWorkerUrl from 'monaco-editor/esm/vs/language/html/html.worker?url'
+import tsWorkerUrl from 'monaco-editor/esm/vs/language/typescript/ts.worker?url'
 
 
 // All css files for embedded online-ide:
@@ -64,24 +64,33 @@ function initMonacoEditor(): void {
     // https://dev.to/lawrencecchen/monaco-editor-svelte-kit-572
     // https://github.com/microsoft/monaco-editor/issues/4045
 
+    const createMonacoWorker = (workerUrl: string): Worker => {
+        const absoluteWorkerUrl = new URL(workerUrl, globalThis.location.href).toString();
+        const workerBootCode = `importScripts('${absoluteWorkerUrl}');`;
+        const workerBlob = new Blob([workerBootCode], { type: 'text/javascript' });
+        const blobUrl = URL.createObjectURL(workerBlob);
+
+        return new Worker(blobUrl, { name: 'monaco-worker' });
+    };
+
     self.MonacoEnvironment = {
         getWorker: (_workerId, label) => {
             switch (label) {
                 case 'json':
-                    return new jsonWorker()
+                    return createMonacoWorker(jsonWorkerUrl)
                 case 'css':
                 case 'scss':
                 case 'less':
-                    return new cssWorker()
+                    return createMonacoWorker(cssWorkerUrl)
                 case 'html':
                 case 'handlebars':
                 case 'razor':
-                    return new htmlWorker()
+                    return createMonacoWorker(htmlWorkerUrl)
                 case 'typescript':
                 case 'javascript':
-                    return new tsWorker()
+                    return createMonacoWorker(tsWorkerUrl)
                 default:
-                    return new editorWorker()
+                    return createMonacoWorker(editorWorkerUrl)
             }
         }
     };
