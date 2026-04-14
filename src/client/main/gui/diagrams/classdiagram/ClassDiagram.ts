@@ -11,7 +11,7 @@ import { JavaInterface } from '../../../../../compiler/java/types/JavaInterface.
 import { JavaCompiledModule } from '../../../../../compiler/java/module/JavaCompiledModule.js';
 import { ClassDiagramHelper } from '../../../../../compiler/java/types/ClassDiagramHelper.js';
 import type { Main } from '../../../Main.js';
-import RouterWorker from './Router?worker';
+import RouterWorker from './Router?worker&inline';
 
 import "/assets/css/diagram.css";
 import { ajaxAsync, csrfToken } from '../../../../communication/AjaxHelper.js';
