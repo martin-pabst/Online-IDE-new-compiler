@@ -15,4 +15,9 @@ fi
 echo "Running build-embedded..."
 npm run build-embedded
 
+# Ensure root path (/) serves the embedded page as well.
+if [ -f dist/embedded.html ]; then
+  cp dist/embedded.html dist/index.html
+fi
+
 echo "Build complete. Output: ./dist"
