@@ -17,8 +17,8 @@
 
         .java-online {
             width: 100%;
-            height: 100vh;
-            height: 100dvh;
+            height: 94vh;
+            height: 94dvh;
         }
     </style>
 
@@ -41,17 +41,15 @@
 
     }">
         <script type="text/plain" title="Test1.java" data-type="java">
+String test(){
+    println("test() wurde aufgerufen");
+    return "x";
+}
 
-            String test(){
-                println("test() wurde aufgerufen");
-                return "x";
-            }
+boolean b = true;
+String a = b ? "true" : test();
 
-            boolean b = true;
-            String a = b ? "true" : test();
-
-            println(a);
-            
+println(a);
         </script>
     </div>
 
