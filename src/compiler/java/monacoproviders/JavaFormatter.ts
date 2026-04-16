@@ -4,7 +4,6 @@ import { Lexer } from "../lexer/Lexer";
 import { Token, TokenList } from "../lexer/Token";
 import { TokenType } from "../TokenType";
 import * as monaco from 'monaco-editor'
-import { T } from "vitest/dist/chunks/environment.0M5R1SX_";
 import type { JavaLanguage } from "../JavaLanguage";
 import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider";
 
