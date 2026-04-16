@@ -40,10 +40,14 @@ export class JavaLanguage extends Language {
 
     public static registerMain(main: IMain, errorMarker: ErrorMarker): JavaLanguage {
         let compiler = new JavaCompiler(main, errorMarker);
+        let repl = new JavaRepl(main, compiler);
+        let settings = main.getSettings();
+
         let instance = JavaLanguage.getInstance();
         instance.registerCompiler(main, compiler);
-        let repl = new JavaRepl(main, compiler);
         instance.registerRepl(main, repl);
+        instance.registerSettings(main, settings)
+
         JavaOnDidTypeProvider.configureEditor(main.getMainEditor());
         new JavaSymbolAndMethodMarker(main);
         return instance;
@@ -64,7 +68,7 @@ export class JavaLanguage extends Language {
 
         new JavaColorProvider(this);
 
-        let formatter = new JavaFormatter();
+        let formatter = new JavaFormatter(this);
         monaco.languages.registerDocumentFormattingEditProvider(this.monacoLanguageSelector, formatter);
         monaco.languages.registerOnTypeFormattingEditProvider(this.monacoLanguageSelector, formatter);
         monaco.languages.registerCodeActionProvider(this.monacoLanguageSelector, new JavaCodeActionProvider(this));

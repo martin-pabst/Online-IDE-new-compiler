@@ -1,3 +1,4 @@
+import { Settings } from "../../client/settings/Settings";
 import { JavaRepl } from "../java/parser/repl/JavaRepl";
 import { Compiler } from "./Compiler";
 import { IMain } from "./IMain";
@@ -6,6 +7,7 @@ export abstract class Language {
 
     #compilers: Map<IMain, Compiler> = new Map();
     #repls: Map<IMain, JavaRepl> = new Map();
+    #settings: Map<IMain, Settings> = new Map();
 
     mains: Set<IMain> = new Set();
 
@@ -21,6 +23,9 @@ export abstract class Language {
         return this.#repls.get(main);
     } 
     
+    getSettings(main: IMain): Settings {
+        return this.#settings.get(main);
+    }
 
     protected registerCompiler(main: IMain, compiler: Compiler){
         this.#compilers.set(main, compiler);
@@ -32,4 +37,8 @@ export abstract class Language {
         this.mains.add(main);
     }
 
+    protected registerSettings(main: IMain, settings: Settings) {
+        this.#settings.set(main, settings);
+        this.mains.add(main);
+    }
 }

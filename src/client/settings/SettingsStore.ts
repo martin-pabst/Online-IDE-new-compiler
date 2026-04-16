@@ -12,6 +12,7 @@ export type SettingsType = {
     "editor.autoSemicolons": true | false,
     "editor.bracketPairLines": "off" | "vertical" | "verticalAndUnderlined",
     "editor.stickyScroll": "off" | "on",
+    "formatter.forceSpacesAfterIfForWhileDo": "0" | "1" | "no"
     "classDiagram.typeConvention": "java" | "pascal",
     "classDiagram.background": "transparent" | "white",
     "classDiagram.omitVoidReturnType": "omit" | "show",
@@ -34,6 +35,7 @@ export var SettingDefaultValues: SettingsType = {
     "editor.autoSemicolons": true,
     "editor.bracketPairLines": "vertical",
     "editor.stickyScroll": "on",
+    "formatter.forceSpacesAfterIfForWhileDo": "1",
     "classDiagram.typeConvention": "java",
     "classDiagram.background": "transparent",
     "classDiagram.omitVoidReturnType": "omit",

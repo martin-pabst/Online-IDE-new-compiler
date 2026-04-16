@@ -167,6 +167,48 @@ export class SettingsMessages {
         'fr': `Vous pouvez ajuster les paramètres d'affichage de l'éditeur ici.`
     });    
 
+    static EditorFormatterSettings = () => lm({
+        'de': `Code-Formatter-Einstellungen`,
+        'en': `Editor Formatter Settings`,
+        'fr': `Paramètres du formateur de code`
+    });
+
+    static EditorFormatterSettingsDescription = () => lm({
+        'de': `Hier können Sie die Einstellungen für den Code-Formatter anpassen.`,
+        'en': `Here you can adjust the settings for the code formatter.`,
+        'fr': `Ici, vous pouvez ajuster les paramètres du formateur de code.`
+    });
+
+    static ForceSpacesAfterIfForWhileDoName = () => lm({
+        'de': `Anzahl von Leerzeichen nach if, for, while und do erzwingen`,
+        'en': `Force number of spaces after if, for, while and do`,
+        'fr': `Forcer le nombre d'espaces après if, for, while et do`
+    });
+
+    static ForceSpacesAfterIfForWhileDoDescription = () => lm({
+        'de': `Erzwinge eine bestimmte Anzahl von Leerzeichen nach if, for, while und do`,
+        'en': `Force a specific number of spaces after if, for, while and do`,
+        'fr': `Forcer un nombre spécifique d'espaces après if, for, while et do`
+    });
+
+    static one = () => lm({
+        'de': `1`,
+        'en': `1`,
+        'fr': `1`
+    });
+
+    static zero = () => lm({
+        'de': `0`,
+        'en': `0`,
+        'fr': `0`
+    });
+
+    static no = () => lm({
+        'de': `Nein, nicht erzwingen`,
+        'en': `No, do not force`,
+        'fr': `Non, ne pas forcer`
+    });
+
     static TypingAssistanceDescription = () => lm({
         'de': 'Hier können Sie die Eingabeunterstützung des Editors anpassen.',
         'en': 'Here you can adjust the typing assistance of the editor.',

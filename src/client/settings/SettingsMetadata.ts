@@ -185,6 +185,25 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                 ]
             },
             {
+                    settingType: 'group',
+                    name: SettingsMessages.EditorFormatterSettings,
+                    description: SettingsMessages.EditorFormatterSettingsDescription,
+                    settings: [
+                        {
+                            key: "formatter.forceSpacesAfterIfForWhileDo",
+                            settingType: 'setting',
+                            name: SettingsMessages.ForceSpacesAfterIfForWhileDoName,
+                            description: SettingsMessages.ForceSpacesAfterIfForWhileDoDescription,
+                            type: 'enumeration',
+                            optionValues: ["0", "1", "no"],
+                            optionTexts: [SettingsMessages.zero, SettingsMessages.one, SettingsMessages.no],
+                            action: (main, value) => {
+                                main.editor.editor.getAction("editor.action.formatDocument").run();
+                            }
+                        }
+                    ]
+            },
+            {
                 settingType: 'group',
                 name: SettingsMessages.EditorViewSettings,
                 description: SettingsMessages.EditorViewSettingsDescription,

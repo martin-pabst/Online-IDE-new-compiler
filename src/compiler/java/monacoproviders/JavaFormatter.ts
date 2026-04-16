@@ -4,14 +4,21 @@ import { Lexer } from "../lexer/Lexer";
 import { Token, TokenList } from "../lexer/Token";
 import { TokenType } from "../TokenType";
 import * as monaco from 'monaco-editor'
+import { T } from "vitest/dist/chunks/environment.0M5R1SX_";
+import type { JavaLanguage } from "../JavaLanguage";
+import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider";
 
 
-export class JavaFormatter implements monaco.languages.DocumentFormattingEditProvider,
+export class JavaFormatter extends BaseMonacoProvider implements monaco.languages.DocumentFormattingEditProvider,
     monaco.languages.OnTypeFormattingEditProvider {
 
     autoFormatTriggerCharacters: string[] = ['\n'];
 
     displayName?: string = "Java-Autoformat";
+
+    constructor(public language: JavaLanguage) {
+        super(language);
+    }
 
     provideOnTypeFormattingEdits(model: monaco.editor.ITextModel, position: monaco.Position, ch: string, options: monaco.languages.FormattingOptions, token: monaco.CancellationToken): monaco.languages.ProviderResult<monaco.languages.TextEdit[]> {
 
@@ -106,6 +113,8 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
 
         let oneTimeIndent: boolean = false; // if after for, while, ... there's no { } and therefore only one line is indented
 
+        let settings = this.language.getSettings(this.findMainForModel(model));
+
         for (let i = 0; i < tokenlist.length; i++) {
 
             let t = tokenlist[i];
@@ -143,7 +152,7 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                     if (i < tokenlist.length - 1) {
                         let token1 = tokenlist[i + 1];
                         if (token1.tt != TokenType.newline && token1.tt != TokenType.space) {
-                            this.insertSpaces(edits, token1.range.startLineNumber, token1.range.startColumn, 1);
+                            this.insertSpacesBefore(edits, token1.range.startLineNumber, token1.range.startColumn, 1);
                         }
                     }
                     break;
@@ -164,7 +173,7 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                         if (i > 0) {
                             let token1 = tokenlist[i - 1];
                             if (token1.tt != TokenType.space && token1.tt != TokenType.newline) {
-                                this.insertSpaces(edits, t.range.startLineNumber, t.range.startColumn, 1);
+                                this.insertSpacesBefore(edits, t.range.startLineNumber, t.range.startColumn, 1);
                             }
                         }
                     }
@@ -187,7 +196,9 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                     if (i > 1) {
                         let lastToken1 = tokenlist[i - 1];
                         let lastToken2 = tokenlist[i - 2];
-                        if (lastToken1.tt == TokenType.space && [TokenType.newline, TokenType.keywordFor, TokenType.keywordWhile].indexOf(lastToken2.tt) < 0 && !this.isBinaryOperator(lastToken2.tt)) {
+                        if (lastToken1.tt == TokenType.space && 
+                            [TokenType.newline, TokenType.keywordFor, TokenType.keywordWhile, TokenType.keywordIf, TokenType.keywordElse, TokenType.keywordDo].indexOf(lastToken2.tt) < 0 && 
+                            !this.isBinaryOperator(lastToken2.tt)) {
                             if (this.lengthOfRange(lastToken1.range) == 1) {
                                 this.deleteSpaces(edits, lastToken1.range.startLineNumber, lastToken1.range.startColumn, 1);
                             }
@@ -257,7 +268,7 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                         oneTimeIndent = false;
 
                         if (correctIndentation > currentIndentation) {
-                            this.insertSpaces(edits, t.range.startLineNumber + 1, 0, correctIndentation - currentIndentation);
+                            this.insertSpacesBefore(edits, t.range.startLineNumber + 1, 0, correctIndentation - currentIndentation);
                         } else if (correctIndentation < currentIndentation) {
                             this.deleteSpaces(edits, t.range.startLineNumber + 1, 0, currentIndentation - correctIndentation);
                         }
@@ -280,18 +291,17 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                     break;
                 case TokenType.keywordFor:
                 case TokenType.keywordWhile:
-                    if (i < tokenlist.length - 1) {
-                        let nextToken = tokenlist[i + 1];
-                        if (nextToken.tt == TokenType.leftBracket) {
-                            this.insertSpaces(edits, nextToken.range.startLineNumber, nextToken.range.startColumn, 1);
-                        }
+                case TokenType.keywordIf:
+                case TokenType.keywordDo:
+                    if(settings.getValue("formatter.forceSpacesAfterIfForWhileDo") != "no"){
+                        let numberOfSpaces = parseInt(<string>settings.getValue("formatter.forceSpacesAfterIfForWhileDo") || "0");
+                        this.forceSpacesBeforeOpeningBracket(edits, i + 1, tokenlist, t.range.startLineNumber, t.range.startColumn, numberOfSpaces);
                     }
                     oneTimeIndent = true;
                     break;
-                case TokenType.keywordIf:
-                case TokenType.keywordElse:
-                case TokenType.keywordDo:
-                    oneTimeIndent = true;
+                    case TokenType.keywordElse:
+                        this.forceSpacesBeforeOpeningBracket(edits, i + 1, tokenlist, t.range.startLineNumber, t.range.startColumn, 1);
+                        oneTimeIndent = true;
                     break;
                 case TokenType.comma:
                 case TokenType.semicolon:
@@ -309,7 +319,7 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                     if (i < tokenlist.length - 1) {
                         let nextToken = tokenlist[i + 1];
                         if (nextToken.tt != TokenType.comment && nextToken.tt != TokenType.space && nextToken.tt != TokenType.newline) {
-                            this.insertSpaces(edits, nextToken.range.startLineNumber, nextToken.range.startColumn, 1);
+                            this.insertSpacesBefore(edits, nextToken.range.startLineNumber, nextToken.range.startColumn, 1);
                         }
                     }
                     break;
@@ -335,12 +345,12 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                         let spaces = (lowerGeneric || greaterGeneric) ? 0 : 1;
                         if (tokenBefore.tt == TokenType.space) {
                             if (this.lengthOfRange(tokenBefore.range) != spaces) {
-                                this.insertSpaces(edits, tokenBefore.range.startLineNumber,
+                                this.insertSpacesBefore(edits, tokenBefore.range.startLineNumber,
                                     tokenBefore.range.startColumn, spaces - this.lengthOfRange(tokenBefore.range));
                             }
                         } else {
                             if (spaces == 1)
-                                this.insertSpaces(edits, t.range.startLineNumber, t.range.startColumn, 1);
+                                this.insertSpacesBefore(edits, t.range.startLineNumber, t.range.startColumn, 1);
                         }
                     }
 
@@ -352,14 +362,14 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
                                 spaces = 0;
                             }
                             if (this.lengthOfRange(nextToken.range) != spaces) {
-                                this.insertSpaces(edits, nextToken.range.startLineNumber,
+                                this.insertSpacesBefore(edits, nextToken.range.startLineNumber,
                                     nextToken.range.startColumn, spaces - this.lengthOfRange(nextToken.range));
                             }
                         } else {
                             if (greaterGeneric && nextToken.tt == TokenType.leftBracket) {
                                 spaces = 0;
                             }
-                            if (spaces == 1) this.insertSpaces(edits, nextToken.range.startLineNumber, nextToken.range.startColumn, 1);
+                            if (spaces == 1) this.insertSpacesBefore(edits, nextToken.range.startLineNumber, nextToken.range.startColumn, 1);
                         }
                     }
 
@@ -432,6 +442,28 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
         }
     }
 
+    forceSpacesBeforeOpeningBracket(edits: monaco.languages.TextEdit[], fromIndex: number, tokenList: TokenList, line: number, column: number, numberOfSpaces: number) {
+        let currentNumberOfSpaces = 0;
+        let nextTokenIndex = fromIndex;
+        if(tokenList[fromIndex].tt == TokenType.space){
+            currentNumberOfSpaces = this.lengthOfRange(tokenList[fromIndex].range);
+            nextTokenIndex++;
+        }
+
+        if([TokenType.leftBracket, TokenType.leftCurlyBracket].indexOf(tokenList[nextTokenIndex].tt) < 0) return;
+
+        if(currentNumberOfSpaces == numberOfSpaces) return;
+
+        
+        if(currentNumberOfSpaces > numberOfSpaces){
+            let firstSpaceToken = tokenList[fromIndex];
+            this.deleteSpaces(edits, firstSpaceToken.range.startLineNumber, firstSpaceToken.range.startColumn, currentNumberOfSpaces - numberOfSpaces);
+        } else {
+            let nextTokenRange = tokenList[nextTokenIndex].range;
+            this.insertSpacesBefore(edits, nextTokenRange.startLineNumber, nextTokenRange.startColumn, numberOfSpaces - currentNumberOfSpaces);
+        }
+    }
+
     deleteSpaces(edits: monaco.languages.TextEdit[], line: number, column: number, numberOfSpaces: number) {
         edits.push({
             range: {
@@ -444,7 +476,7 @@ export class JavaFormatter implements monaco.languages.DocumentFormattingEditPro
         });
     }
 
-    insertSpaces(edits: monaco.languages.TextEdit[], line: number, column: number, numberOfSpaces: number) {
+    insertSpacesBefore(edits: monaco.languages.TextEdit[], line: number, column: number, numberOfSpaces: number) {
 
         if (numberOfSpaces < 0) {
             this.deleteSpaces(edits, line, column, -numberOfSpaces);
