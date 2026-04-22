@@ -673,7 +673,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             }
         }
         //@ts-ignore
-        if (!statement.kind == TokenType.methodCall) return [false, false];
+        if (statement.kind != TokenType.methodCall) return [false, false];
 
         let methodCall = <ASTMethodCallNode>statement;
 
