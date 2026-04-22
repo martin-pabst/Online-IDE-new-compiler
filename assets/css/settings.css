@@ -95,4 +95,9 @@
     .jo_settingClearBoth {
         clear: both;
     }   
+
+    .jo_settingDisabledMessage {
+        margin-top: 5px;
+        font-style: italic;
+    }
 }

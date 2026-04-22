@@ -20,7 +20,7 @@ export class Settings implements SettingsStore {
         default: {}
     }
 
-    constructor(private user: UserData | undefined, 
+    constructor(private user: UserData | undefined,
         userSettings: SettingValues | undefined,
         classSettings: SettingValues | undefined, schoolSettings: SettingValues | undefined) {
         // Initialize default values
@@ -28,7 +28,7 @@ export class Settings implements SettingsStore {
             this.setDefaultValues(setting);
         }
 
-        
+
         this.values.user = userSettings || {};
         this.values.class = classSettings || {};
         this.values.school = schoolSettings || {};
@@ -53,11 +53,16 @@ export class Settings implements SettingsStore {
     }
 
     public getValue(key: SettingKey, scope?: SettingsScope): SettingValue | undefined {
-        if(scope) {
+        if (scope) {
             return this.values[scope][key];
-        } 
-        
+        }
+
         let settingsPrecedence: SettingPrecedence = SettingPrecedenceValues[key] || 'userClassSchoolDefault';
+
+        if (this.user?.is_teacher || this.user?.is_schooladmin) {
+            settingsPrecedence = 'userClassSchoolDefault';
+        }
+
         let settingPrecedenceArray = SettingsPrecedenceArrays[settingsPrecedence];
 
         for (let s of settingPrecedenceArray) {

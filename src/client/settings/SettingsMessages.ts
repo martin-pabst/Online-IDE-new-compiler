@@ -88,6 +88,12 @@ export class SettingsMessages {
         'fr': 'Paramètres de l\'éditeur'
     });
 
+    static SettingDisabledByHigherPrecedence = () => lm({
+        'de': 'Diese Einstellung wird von einer klassen- oder schulweiten Einstellung mit höherer Präzedenz überschrieben und kann daher nicht geändert werden.',
+        'en': 'This setting is overridden by a class- or school-wide setting with higher precedence and therefore cannot be changed.',
+        'fr': 'Ce paramètre est remplacé par un paramètre de priorité supérieure au niveau de la classe ou de l\'école et ne peut donc pas être modifié.'
+    });
+
     static EditorSettingsDescription = () => lm({
         'de': 'Hier können Sie die Einstellungen des Editors anpassen.',
         'en': 'Here you can adjust the editor settings.',

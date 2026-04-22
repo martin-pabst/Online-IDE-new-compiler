@@ -9,7 +9,7 @@ import jQuery from 'jquery';
 import '/assets/css/settings.css';
 import { getSelectedObject, SelectItem, setSelectItems } from "../../tools/HtmlTools.ts";
 import { Treeview } from "../../tools/components/treeview/Treeview.ts";
-import { SettingsScope, SettingValue } from "./SettingsStore.ts";
+import { SettingPrecedence, SettingPrecedenceValues, SettingsScope, SettingValue } from "./SettingsStore.ts";
 
 type ClassSettings = { classId: number, className: string, settings: SettingValues };
 
@@ -154,7 +154,8 @@ export class SettingsGUI {
 
         let key = setting.key;
         let currentSettingValue = this.getCurrentSettingValues()[key];
-        let defaultSettingValue = this.getDefaultSettingValue(key);
+        let defaultSettingValue = this.getDefaultSettingValue(key, !(this.main.user.is_teacher || this.main.user.is_schooladmin));
+        let isDisabled = defaultSettingValue.isForced;
 
         switch (setting.type) {
             case 'boolean':
@@ -165,17 +166,17 @@ export class SettingsGUI {
                 this.appendSelectElement($settingDiv, optionCaptions, optionValues, currentSettingValue,
                     async (selectedValue, $savingMessage) => {
                         await this.storeAndSave(setting, setting.key, selectedValue, $savingMessage);
-                    })
+                    }, isDisabled)
                 break;
             case 'string':
-                this.appendInputElement($settingDiv, <string>currentSettingValue, <string>defaultSettingValue,
+                this.appendInputElement($settingDiv, <string>currentSettingValue, <string>defaultSettingValue.value,
                     async (selectedValue, $savingMessage) => {
                         await this.storeAndSave(setting, setting.key, selectedValue, $savingMessage)
-                    })
+                    }, isDisabled)
                 break;
             case 'enumeration':
                 let optionCaptions1: string[] = setting.optionTexts.map(t => t());
-                let defaultSettingIndex = setting.optionValues.indexOf(defaultSettingValue);
+                let defaultSettingIndex = setting.optionValues.indexOf(defaultSettingValue.value);
                 if(defaultSettingIndex == -1) defaultSettingIndex =  0;
                 optionCaptions1.push(SettingsMessages.OptionDefault() + ": " + optionCaptions1[defaultSettingIndex]);
                 let optionValues1: SettingValue[] = setting.optionValues.slice();
@@ -184,12 +185,17 @@ export class SettingsGUI {
                 this.appendSelectElement($settingDiv, optionCaptions1, optionValues1, currentSettingValue,
                     async (selectedValue, $savingMessage) => {
                         await this.storeAndSave(setting, setting.key, selectedValue, $savingMessage);
-                    })
+                    }, isDisabled)
                 break;
         }
 
         if(setting.image){
             $settingDiv.append(jQuery('<div class="jo_settingClearBoth"></div>'));
+        }
+
+        if(isDisabled){
+            let $disabledMessage = jQuery(`<div class="jo_settingDisabledMessage">${SettingsMessages.SettingDisabledByHigherPrecedence()}</div>`);
+            $settingDiv.append($disabledMessage);
         }
 
     }
@@ -237,9 +243,11 @@ export class SettingsGUI {
     }
 
     appendInputElement($parent: JQuery<HTMLElement>, currentValue: string, defaultValue: string,
-        onChangedCallback: (selectedValue: SettingValue, $savingMessage: JQuery<HTMLDivElement>) => Promise<void>
+        onChangedCallback: (selectedValue: SettingValue, $savingMessage: JQuery<HTMLDivElement>) => Promise<void>,
+        isDisabled: boolean = false
     ) {
-        let $inputElement: JQuery<HTMLInputElement> = jQuery(`<input type='text' placeholder='default: ${defaultValue}' class='jo_settingsInput'>`);
+        let disabledString = isDisabled ? " disabled" : "";
+        let $inputElement: JQuery<HTMLInputElement> = jQuery(`<input type='text' placeholder='default: ${defaultValue}' class='jo_settingsInput' ${disabledString}>`);
         if (typeof currentValue !== 'undefined') $inputElement.val(currentValue);
         let $savingMessage = this.wrapWithSavingMessageAndAppendToParent($inputElement, $parent);
         $inputElement.on('focusout', async () => {
@@ -257,10 +265,13 @@ export class SettingsGUI {
         optionCaptions: string[],
         optionValues: SettingValue[],
         selectedValue: SettingValue,   // undefined -> defaultCaption 
-        onChangedCallback: (selectedValue: SettingValue, $savingMessage: JQuery<HTMLDivElement>) => Promise<void>
+        onChangedCallback: (selectedValue: SettingValue, $savingMessage: JQuery<HTMLDivElement>) => Promise<void>,
+        isDisabled: boolean = false
     ) {
 
-        let $selectElement: JQuery<HTMLSelectElement> = jQuery('<select class="jo_settingsSelect"></select>');
+        let disabledString = isDisabled ?  " disabled" : "";
+
+        let $selectElement: JQuery<HTMLSelectElement> = jQuery(`<select class="jo_settingsSelect"${disabledString}></select>`);
 
         let $savingMessage = this.wrapWithSavingMessageAndAppendToParent($selectElement, $parent);
 
@@ -287,18 +298,26 @@ export class SettingsGUI {
     }
 
 
-    getDefaultSettingValue(key: string) {
+    getDefaultSettingValue(key: string, userIsStudent: boolean):{value: SettingValue, isForced: boolean} {
         let value: SettingValue = undefined;
+        let settingsPrecedence: SettingPrecedence = SettingPrecedenceValues[key] || 'userClassSchoolDefault';
+
+        let isForced: boolean = false;
+
         if (this.currentScope == 'user' && this.ownClassSettings) {
             value = this.ownClassSettings[key];
+            if(typeof value != 'undefined' && settingsPrecedence === 'classSchoolUserDefault') isForced = true;
         }
         if (typeof value == 'undefined') {
             value = this.schoolSettings[key];
+            if(typeof value != 'undefined' && settingsPrecedence === 'classSchoolUserDefault') isForced = true;
         }
+
         if (typeof value == 'undefined') {
             value = this.main.settings.values.default[key];
         }
-        return value;
+
+        return { value: value, isForced: isForced && userIsStudent };
     }
 
     getCurrentSettingValues(): SettingValues {
