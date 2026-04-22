@@ -179,7 +179,9 @@ export class JavaCompiler implements Compiler {
             // this doesn't hurry, so give browser's main thread time to do its chores            
             for (const module of this.#lastCompiledExecutable.moduleManager.modules) {
                 this.errorMarker?.markErrorsOfModule(module);
-                GenerateGetterAndSetterQuickfixHelper.start(module);
+                if(this.main.getSettings().getValue("editor.quickFix.getterAndSetter") == "offer"){
+                    GenerateGetterAndSetterQuickfixHelper.start(module);
+                }
                 SemicolonInserter.start(module, this.main);
             }
         }, 10);
@@ -275,7 +277,7 @@ export class JavaCompiler implements Compiler {
         return this.moduleManager.modules;
     }
 
-    forceRecompililation(): void {
+    forceRecompilation(): void {
         this.moduleManager.modules.forEach(m => m.setDirty(true));
         this.triggerCompile();
     }

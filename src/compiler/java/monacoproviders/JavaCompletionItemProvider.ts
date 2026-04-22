@@ -278,7 +278,10 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
             let range = symbolTable.range;
             if (range.startLineNumber < range.endLineNumber) {
                 completionItems = completionItems.concat(this.getOverridableMethodsCompletion(symbolTable.classContext, rangeToReplace));
-                completionItems = completionItems.concat(this.getConstructorCompletion(symbolTable.classContext, rangeToReplace));
+                
+                if (main.getSettings().getValue("editor.quickFix.generateConstructor") == "offer") {
+                    completionItems = completionItems.concat(this.getConstructorCompletion(symbolTable.classContext, rangeToReplace));
+                }
 
                 if (varOrClassMatch[1]?.startsWith('g')) {
                     completionItems = completionItems.concat(this.getGetter(symbolTable.classContext, rangeToReplace, 'get'));
@@ -394,7 +397,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
         this.upvoteItemsWithSameFirstCharacterCasing(completionItems, text);
 
-        if(symbolTable?.methodContext != null) {    
+        if (symbolTable?.methodContext != null) {
             completionItems = completionItems.filter(item => item.label !== 'void');
         }
 
@@ -1003,7 +1006,6 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
         let constructors = classContext.getOwnMethods().filter(m => m.isConstructor && m.identifier == classContext.identifier && m.identifierRange.startLineNumber !== -1);
         if (constructors.length > 0) return [];
 
-
         let fields = classContext.getFields().filter(f => f.classEnum == classContext && !f.isStatic() && !f.initializedBeforeConstructor && !f.isFinal());
 
         let i: number = 1;
@@ -1011,11 +1013,11 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
         let attibuteParameters: string = fields.map(f => "${" + i++ + ":" + f.type?.toString() + " " + f.identifier).join(", }");
         if (attibuteParameters.length > 0) attibuteParameters += "}";
 
-        let attributeInitialization: string = fields.map(f => "${" + i++ + ":this." + f.identifier + " = " + f.identifier + ";").join("\n\t}");
+        let attributeInitialization: string = fields.map(f => "\t\t${" + i++ + ":this." + f.identifier + " = " + f.identifier + ";").join("\n\t}");
         if (attributeInitialization.length > 0) attributeInitialization += "}";
 
 
-        let insertText = `${classContext.identifier}(${attibuteParameters}){\n\t${attributeInitialization}\n\t$0\n}`;
+        let insertText = `\tpublic ${classContext.identifier}(${attibuteParameters}){\n\t${attributeInitialization}\n\t\t\t$0\n\t}`;
 
         let ci: monaco.languages.CompletionItem = {
             label: { label: classContext.identifier + "(){...}", detail: " -> insert constructor" },
@@ -1027,15 +1029,15 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
             sortText: "_aaa"
         }
 
-        let ci1 = Object.assign({}, ci);
-        ci1.filterText = "public";
-        ci1.insertText = "public " + ci.insertText;
-        //@ts-ignore
-        ci1.label.label = "public " + ci.label.label;
-        ci1.sortText = '_aab'
+        // let ci1 = Object.assign({}, ci);
+        // ci1.filterText = "public";
+        // ci1.insertText = "public " + ci.insertText;
+        // //@ts-ignore
+        // ci1.label = { label: "public " + classContext.identifier + "(){...}", detail: " -> insert constructor" };
+        // ci1.sortText = '_aab'
 
 
-        keywordCompletionItems.push(ci, ci1);
+        keywordCompletionItems.push(ci);
 
         return keywordCompletionItems;
 

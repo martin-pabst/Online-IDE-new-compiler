@@ -1,6 +1,12 @@
 
 export type SettingsScope = 'user' | 'class' | 'school' | 'default';
 
+export type SettingPrecedence = 'userClassSchoolDefault' | 'classSchoolUserDefault';
+export var SettingsPrecedenceArrays: {[key in SettingPrecedence]: SettingsScope[]} = {
+    'userClassSchoolDefault': ['user', 'class', 'school', 'default'],
+    'classSchoolUserDefault': ['class', 'school', 'user', 'default']
+}
+
 export type SettingsType = {
     "editor.hoverVerbosity.showHelpOnKeywordsAndOperators": true | false,
     "editor.hoverVerbosity.showMethodDeclaration": 'none' | 'declarations' | 'declarationsAndComments',   
@@ -12,6 +18,9 @@ export type SettingsType = {
     "editor.autoSemicolons": true | false,
     "editor.bracketPairLines": "off" | "vertical" | "verticalAndUnderlined",
     "editor.stickyScroll": "off" | "on",
+    "editor.quickFix.getterAndSetter": "offer" | "dontOffer",
+    "editor.quickFix.generateConstructor": "offer" | "dontOffer",
+
     "formatter.forceSpacesAfterIfForWhileDo": "0" | "1" | "no"
     "classDiagram.typeConvention": "java" | "pascal",
     "classDiagram.background": "transparent" | "white",
@@ -19,7 +28,7 @@ export type SettingsType = {
     "classDiagram.drawCompositionDiamond": "yes" | "no",
     "explorer.fileOrder": "user-defined" | "comparator",
     "explorer.workspaceOrder": "user-defined" | "comparator",
-    "compiler.shadowedSymbolErrorLevel": "ignore" | "info" | "warning" | "error"
+    "compiler.shadowedSymbolErrorLevel": "ignore" | "info" | "warning" | "error",
 }
 
 export type SettingKey = keyof SettingsType;
@@ -35,6 +44,9 @@ export var SettingDefaultValues: SettingsType = {
     "editor.autoSemicolons": true,
     "editor.bracketPairLines": "vertical",
     "editor.stickyScroll": "on",
+    "editor.quickFix.getterAndSetter": "offer",
+    "editor.quickFix.generateConstructor": "offer",
+
     "formatter.forceSpacesAfterIfForWhileDo": "1",
     "classDiagram.typeConvention": "java",
     "classDiagram.background": "transparent",
@@ -45,6 +57,10 @@ export var SettingDefaultValues: SettingsType = {
     "compiler.shadowedSymbolErrorLevel": "warning"
 };
 
+export var SettingPrecedenceValues: Partial<{[key in SettingKey]: SettingPrecedence}> = {
+    "editor.quickFix.getterAndSetter": "classSchoolUserDefault",
+    "editor.quickFix.generateConstructor": "classSchoolUserDefault",
+}
 
 export type SettingValue = string | number | boolean | undefined;
 

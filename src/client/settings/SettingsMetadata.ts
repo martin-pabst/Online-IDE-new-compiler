@@ -128,7 +128,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                                 parameterHints: {
                                     enabled: (value === 'true'),
                                     cycle: true
-                                } 
+                                }
                             })
                         }
 
@@ -185,23 +185,23 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                 ]
             },
             {
-                    settingType: 'group',
-                    name: SettingsMessages.EditorFormatterSettings,
-                    description: SettingsMessages.EditorFormatterSettingsDescription,
-                    settings: [
-                        {
-                            key: "formatter.forceSpacesAfterIfForWhileDo",
-                            settingType: 'setting',
-                            name: SettingsMessages.ForceSpacesAfterIfForWhileDoName,
-                            description: SettingsMessages.ForceSpacesAfterIfForWhileDoDescription,
-                            type: 'enumeration',
-                            optionValues: ["0", "1", "no"],
-                            optionTexts: [SettingsMessages.zero, SettingsMessages.one, SettingsMessages.no],
-                            action: (main, value) => {
-                                main.editor.editor.getAction("editor.action.formatDocument").run();
-                            }
+                settingType: 'group',
+                name: SettingsMessages.EditorFormatterSettings,
+                description: SettingsMessages.EditorFormatterSettingsDescription,
+                settings: [
+                    {
+                        key: "formatter.forceSpacesAfterIfForWhileDo",
+                        settingType: 'setting',
+                        name: SettingsMessages.ForceSpacesAfterIfForWhileDoName,
+                        description: SettingsMessages.ForceSpacesAfterIfForWhileDoDescription,
+                        type: 'enumeration',
+                        optionValues: ["0", "1", "no"],
+                        optionTexts: [SettingsMessages.zero, SettingsMessages.one, SettingsMessages.no],
+                        action: (main, value) => {
+                            main.editor.editor.getAction("editor.action.formatDocument").run();
                         }
-                    ]
+                    }
+                ]
             },
             {
                 settingType: 'group',
@@ -246,6 +246,34 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         }
                     }
 
+                ]
+            },
+            {
+                settingType: 'group',
+                name: SettingsMessages.EditorQuickFixSettingsName,
+                description: SettingsMessages.EditorQuickFixSettingsDescription,
+                settings: [
+                    {
+                        key: "editor.quickFix.getterAndSetter",
+                        settingType: 'setting',
+                        name: SettingsMessages.EditorQuickFixGetterSetterName,
+                        description: SettingsMessages.EditorQuickFixGetterSetterDescription,
+                        type: 'enumeration',
+                        optionValues: ["offer", "dontOffer"],
+                        optionTexts: [SettingsMessages.offer, SettingsMessages.dontOffer],
+                        action: (main, value) => {
+                            main.getCompiler().forceRecompilation();
+                        },
+                    },
+                    {
+                        key: "editor.quickFix.generateConstructor",
+                        settingType: 'setting',
+                        name: SettingsMessages.EditorQuickFixGenerateConstructorName,
+                        description: SettingsMessages.EditorQuickFixGenerateConstructorDescription,
+                        type: 'enumeration',
+                        optionValues: ["offer", "dontOffer"],
+                        optionTexts: [SettingsMessages.offer, SettingsMessages.dontOffer]
+                    },
                 ]
             }
 
@@ -374,7 +402,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     SettingsMessages.ErrorLevelError,
                 ],
                 action: (main, value) => {
-                    main.getCompiler().forceRecompililation();
+                    main.getCompiler().forceRecompilation();
                 },
                 image: variableShadowingError
             }

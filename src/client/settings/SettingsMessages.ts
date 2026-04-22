@@ -155,6 +155,55 @@ export class SettingsMessages {
         'fr': 'Assistance à la saisie de code'
     });
 
+    static EditorQuickFixSettingsName = () => lm({
+        'de': 'Quick-Fix-Einstellungen',
+        'en': 'Quick Fix Settings',
+        'fr': 'Paramètres de correction rapide'
+     });
+
+     static EditorQuickFixSettingsDescription = () => lm({
+        'de': 'Hier können Sie einstellen, welche Quick-Fixes angeboten werden sollen. Im Gegensatz zu den meisten anderen Einstellungen gilt hier: Klasseneinstellung vor Schuleinstellung vor User-Einstellung.',
+        'en': 'Here you can set which quick fixes should be offered. In contrast to most other settings, here class setting takes precedence over school setting which takes precedence over user setting.',
+        'fr': 'Ici, vous pouvez définir les corrections rapides qui doivent être proposées. Contrairement à la plupart des autres paramètres, ici la configuration de la classe a la priorité sur la configuration de l\'école qui a la priorité sur la configuration de l\'utilisateur.'
+     });
+
+     static EditorQuickFixGetterSetterName = () => lm({
+        'de': 'Automatische Erstellung von Getter- und Setter-Methoden',
+        'en': 'Automatic generation of getter and setter methods',
+        'fr': 'Génération automatique des méthodes getter et setter'
+     });
+
+        static EditorQuickFixGetterSetterDescription = () => lm({
+        'de': 'Befindet sich der Cursor in einem Attribut einer Klasse, so erscheint daneben eine Glühbirne, über die angeboten wird, automatisch eine Getter- und Setter-Methode für dieses Attribut zu erstellen.',
+        'en': 'If the cursor is on an attribute of a class, a light bulb appears next to it, offering to automatically create a getter and setter method for that attribute.',
+        'fr': 'Si le curseur se trouve sur un attribut d\'une classe, une ampoule apparaît à côté, offrant de créer automatiquement une méthode getter et setter pour cet attribut.'
+    });
+
+    static offer = () => lm({
+        'de': 'Anbieten',
+        'en': 'Offer',
+        'fr': 'Proposer'
+    });
+
+    static dontOffer = () => lm({
+        'de': 'Nicht anbieten',
+        'en': 'Do not offer',
+        'fr': 'Ne pas proposer'
+    });
+
+    static EditorQuickFixGenerateConstructorName = () => lm({
+        'de': 'Automatische Erstellung von Konstruktoren',
+        'en': 'Automatic generation of constructors',
+        'fr': 'Génération automatique des constructeurs'
+     });
+
+        static EditorQuickFixGenerateConstructorDescription = () => lm({
+            'de': 'Befindet sich der Cursor in einer Klasse, aber nicht in einer Methode, so erscheint in der kontextsensitiven Hilfe (<Strg> + <Leertaste>) ein Menüpunkt zur automatischen Erstellung eines Konstruktors.',
+            'en': 'If the cursor is in a class but not in a method, a menu item for automatically creating a constructor appears in the context-sensitive help (<Ctrl> + <Space>).',
+            'fr': 'Si le curseur se trouve dans une classe mais pas dans une méthode, un élément de menu pour créer automatiquement un constructeur apparaît dans l\'aide contextuelle (<Ctrl> + <Espace>).'
+        })
+
+
     static EditorViewSettings = () => lm({
         'de': `Anzeigeeinstellungen des Editors`,
         'en': `Editor View Settings`,

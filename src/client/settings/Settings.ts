@@ -2,12 +2,11 @@ import { SettingsMessages } from "./SettingsMessages";
 import { TranslatedText } from "../../tools/language/LanguageManager";
 import { AllSettingsMetadata, GroupOfSettingMetadata, SettingMetadata, SettingValues } from "./SettingsMetadata";
 import type { UserData } from "../communication/Data";
-import { SettingDefaultValues, SettingKey, SettingsScope, SettingsStore, SettingValue } from "./SettingsStore";
+import { SettingDefaultValues, SettingKey, SettingsScope, SettingsStore, SettingValue, SettingPrecedenceValues, SettingPrecedence, SettingsPrecedenceArrays } from "./SettingsStore";
 
 
 export class Settings implements SettingsStore {
 
-    hierarchy: SettingsScope[] = ['user', 'class', 'school', 'default'];
     hieararchyTexts: TranslatedText[] = [
         SettingsMessages.ScopeUser,
         SettingsMessages.ScopeClass,
@@ -58,7 +57,10 @@ export class Settings implements SettingsStore {
             return this.values[scope][key];
         } 
         
-        for (let s of this.hierarchy) {
+        let settingsPrecedence: SettingPrecedence = SettingPrecedenceValues[key] || 'userClassSchoolDefault';
+        let settingPrecedenceArray = SettingsPrecedenceArrays[settingsPrecedence];
+
+        for (let s of settingPrecedenceArray) {
             if (this.values[s] && this.values[s][key] !== undefined) {
                 return this.values[s][key];
             }
