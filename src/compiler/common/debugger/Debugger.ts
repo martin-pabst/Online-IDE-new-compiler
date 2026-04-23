@@ -18,6 +18,7 @@ import { IPosition } from "../range/Position.ts";
 import { Range } from "../range/Range.ts";
 import { JavaSymbolTable } from "../../java/codegenerator/JavaSymbolTable.ts";
 import { IRange } from "monaco-editor";
+import { GUIFile } from "../../../client/workspace/File.ts";
 
 export class Debugger {
 
@@ -32,13 +33,16 @@ export class Debugger {
 
     watchTreeview!: Treeview<DebuggerWatchEntry, DebuggerWatchEntry>;
 
+    fileTreeview: Treeview<GUIFile, number>;
+    
+
     maxCallstackEntries: number = 15;
 
     lastThread?: Thread;
 
     watchSection: DebuggerWatchSection;
 
-    constructor(private debuggerDiv: HTMLDivElement, public main: IMain) {
+    constructor(private debuggerDiv: HTMLDivElement, withFiles: boolean, public main: IMain) {
 
         this.treeviewAccordion = new TreeviewAccordion(debuggerDiv, debuggerDiv.parentElement.parentElement);
         this.initShowVariablesTreeview();

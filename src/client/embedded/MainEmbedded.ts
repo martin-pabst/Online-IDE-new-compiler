@@ -686,7 +686,7 @@ export class MainEmbedded implements MainBase {
         let graphicsDiv = this.$rightDivInner.find('.jo_graphics')[0];
         let coordinatesDiv = <HTMLDivElement>this.$rightDivInner.find('.jo_coordinates')[0];
 
-        this.debugger = new Debugger(<HTMLDivElement>this.$debuggerDiv[0], this);
+        this.debugger = new Debugger(<HTMLDivElement>this.$debuggerDiv[0], false, this);
         let breakpointManager = new BreakpointManager(this);
         let inputManager = new InputManager(this.$runDiv, this);
         let printManager = new PrintManager(this.$runDiv, this);
