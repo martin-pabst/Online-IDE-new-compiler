@@ -2,6 +2,7 @@ import { Error } from "../../../common/Error.ts";
 import { Executable } from "../../../common/Executable.ts";
 import { IMain } from "../../../common/IMain.ts";
 import { DebuggerCallstackEntry } from "../../../common/debugger/DebuggerCallstackEntry.ts";
+import { DummyPrintManager } from "../../../common/interpreter/IPrintManager.ts";
 import { Interpreter } from "../../../common/interpreter/Interpreter.ts";
 import { Program } from "../../../common/interpreter/Program.ts";
 import { SchedulerState } from "../../../common/interpreter/SchedulerState.ts";
@@ -284,7 +285,12 @@ export class JavaRepl {
             currentThread.maxStepsPerSecond = saveMaxStepsPerSecond;
             currentThread.state = ThreadState.running;
             currentThread.lastTimeThreadWasRun = performance.now();
+
+            let pm = interpreter.printManager;
+            interpreter.printManager = new DummyPrintManager();
             interpreter.setState(oldState);
+            interpreter.printManager = pm;
+
             scheduler.retrieveThreads();
             if (callback) callback(currentThread.replReturnValue);
         }
