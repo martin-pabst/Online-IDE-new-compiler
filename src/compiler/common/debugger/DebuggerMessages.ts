@@ -14,6 +14,11 @@ export class DebM {
         "en": "WATCH"
     });
 
+    static files = () => lm({
+        "de": "DATEIEN",
+        "en": "FILES"
+    })
+
     static threads = () => lm({
         "de": "THREADS",
         "en": "THREADS"

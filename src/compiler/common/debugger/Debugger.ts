@@ -19,6 +19,8 @@ import { Range } from "../range/Range.ts";
 import { JavaSymbolTable } from "../../java/codegenerator/JavaSymbolTable.ts";
 import { IRange } from "monaco-editor";
 import { GUIFile } from "../../../client/workspace/File.ts";
+import { FileTypeManager } from "../module/FileTypeManager.ts";
+import { Main } from "../../../client/main/Main.ts";
 
 export class Debugger {
 
@@ -34,7 +36,6 @@ export class Debugger {
     watchTreeview!: Treeview<DebuggerWatchEntry, DebuggerWatchEntry>;
 
     fileTreeview: Treeview<GUIFile, number>;
-    
 
     maxCallstackEntries: number = 15;
 
@@ -42,11 +43,16 @@ export class Debugger {
 
     watchSection: DebuggerWatchSection;
 
-    constructor(private debuggerDiv: HTMLDivElement, withFiles: boolean, public main: IMain) {
+    constructor(private debuggerDiv: HTMLDivElement, private withFileTreeview: boolean, public main: IMain) {
 
         this.treeviewAccordion = new TreeviewAccordion(debuggerDiv, debuggerDiv.parentElement.parentElement);
         this.initShowVariablesTreeview();
         this.initWatchTreeview();
+
+        if (withFileTreeview) {
+            this.initFileTreeview();
+        }
+
         this.initCallstackTreeview();
         this.initThreadsTreeview();
 
@@ -60,10 +66,71 @@ export class Debugger {
 
     hide() {
         this.debuggerDiv.style.display = "none";
+        this.fileTreeview?.clear();
     }
 
     show() {
+
+        if (this.withFileTreeview) {
+            let currentWorkspace = this.main.getCurrentWorkspace();
+            this.fileTreeview.clear();
+            if (currentWorkspace) {
+                let files = currentWorkspace.getFiles().slice();
+                for (let file of files) {
+
+                    this.fileTreeview.addNode(file.isFolder, file.name,
+                        file.isFolder ? undefined : FileTypeManager.filenameToFileType(file.name).iconclass, file);
+
+                }
+
+                this.fileTreeview.sort();
+
+            }
+
+        }
+
         this.debuggerDiv.style.display = "block";
+    }
+
+    initFileTreeview() {
+        this.fileTreeview = new Treeview(this.treeviewAccordion, {
+            captionLine: {
+                enabled: true,
+                text: DebM.files()
+            },
+            flexWeight: "1",
+            withDeleteButtons: false,
+            isDragAndDropSource: false,
+            buttonAddFolders: false,
+            withSelection: false,
+            minHeight: 50,
+            defaultIconClass: "img_file-dark-java",
+            comparator: (a, b) => {
+                return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
+            },
+            keyExtractor: (file) => file.id,
+            parentKeyExtractor: (file) => file.parent_folder_id,
+
+            orderExtractor: (file) => file?.sorting_order || 0,
+            orderSetter(file, order) {
+                file.sorting_order = order;
+            },
+            orderBy: this.main.getSettings().getValue("explorer.fileOrder") as ("user-defined" | "comparator")
+        });
+
+        this.fileTreeview.nodeClickedCallback =
+            (file: GUIFile) => {
+                if (!file.isFolder) {
+                    let editor = this.main.getMainEditor();
+
+                    (<Main>this.main).projectExplorer.lastOpenFile?.saveViewState(editor);
+
+                    editor.updateOptions({ readOnly: this.main.getCurrentWorkspace()?.readonly });
+                    editor.setModel(file.getMonacoModel());
+                    file.restoreViewState(editor);
+                }
+            }
+
     }
 
     initWatchTreeview() {
@@ -97,7 +164,8 @@ export class Debugger {
             buttonAddElements: false,
             withSelection: true,
             minHeight: 50,
-            orderBy: "comparator"
+            orderBy: "comparator",
+            initialExpandCollapseState: "collapsed"
         });
 
     }
@@ -115,7 +183,8 @@ export class Debugger {
             buttonAddElements: false,
             withSelection: true,
             minHeight: 50,
-            orderBy: "comparator"
+            orderBy: "comparator",
+            initialExpandCollapseState: "collapsed"
         });
 
     }
