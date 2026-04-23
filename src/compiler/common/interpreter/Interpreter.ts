@@ -490,6 +490,7 @@ export class Interpreter {
             this.keyboardManager?.unsubscribeAllListeners();
             this.actorManager.clear();
             this.actorManager.registerKeyboardListeners(this);
+            this.main?.getBottomDiv()?.console?.clear();
             // TODO
             // this.closeAllWebsockets();
         }
