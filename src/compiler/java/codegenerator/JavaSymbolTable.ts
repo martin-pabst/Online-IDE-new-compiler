@@ -159,7 +159,7 @@ export class JavaSymbolTable extends BaseSymbolTable {
                 range: rangeToReplace
             })
 
-            if (symbol.type["dimension"] !== undefined) {
+            if (symbol.type && symbol.type["dimension"] !== undefined) {
                 let dimension: number = symbol.type["dimension"];
                 items.push({
                     label: symbol.identifier + "[]".repeat(dimension),

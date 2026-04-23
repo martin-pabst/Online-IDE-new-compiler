@@ -95,6 +95,8 @@ export class BaseStackframe {
     numberOfParameters: number = 0;         // without "this"
     numberOfLocalVariables: number = 0;
 
+    numberOfReplLocalVariables: number = 0;
+
     positionToSymbolMap: { [position: number]: BaseSymbol } = {};
 
     constructor(firstFreePosition: number) {

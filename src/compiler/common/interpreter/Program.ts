@@ -106,7 +106,7 @@ export class Program {
         return message;
     }
 
-    #logAllSteps(){
+    logAllSteps(){
         let i: number = 0;
         for(let step of this.stepsSingle){
             console.log((i++) + step.codeAsString);

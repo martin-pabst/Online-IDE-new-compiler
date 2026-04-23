@@ -125,7 +125,9 @@ export class Treeview<E, K> {
     config: TreeviewConfig<E, K>;
 
     public getFixedHeight(): number {
-        return this.captionLineDiv.getBoundingClientRect().height;
+        let height = this.captionLineDiv.getBoundingClientRect().height;
+        if(height == 0) height = 20;
+        return height;
     }
 
     public getCurrentVariableHeight(): number {
@@ -335,8 +337,9 @@ export class Treeview<E, K> {
 
         this.buildCaption();
         this._nodeDiv = DOM.makeDiv(this._outerDiv, "jo_treeview_nodediv", "jo_scrollable");
-        if (this.config.initialExpandCollapseState! == "collapsed") {
-            this._nodeDiv.style.display = "none";
+        if (this.config.initialExpandCollapseState == "collapsed") {
+            // this._nodeDiv.style.display = "none";
+            this.captionLineExpandCollapseComponent.setState("collapsed", false);
         }
 
     }

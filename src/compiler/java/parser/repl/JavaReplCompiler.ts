@@ -30,6 +30,18 @@ export class JavaReplCompiler {
             let replCodeGenerator = new JavaReplCodeGenerator(replCompiledModule, libraryTypestore,
                 compiledTypesTypestore, executable.exceptionTree);
 
+            if(isStandalone){
+                let stackframe = symbolTable.getStackFrame();
+                stackframe.nextFreePosition = stackframe.numberOfReplLocalVariables;
+                stackframe.numberOfLocalVariables = stackframe.numberOfReplLocalVariables;
+    
+                symbolTable.identifierToSymbolMap.forEach((symbol, identifier) => {
+                    if (symbol.stackframePosition >= stackframe.nextFreePosition!) {
+                        symbolTable.identifierToSymbolMap.delete(identifier);
+                    }
+                })
+            }
+
             let program = replCodeGenerator.start(symbolTable, withToStringCall, isStandalone);
             return {
                 module: replCompiledModule,

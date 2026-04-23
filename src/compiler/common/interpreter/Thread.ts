@@ -72,7 +72,7 @@ export class Thread {
      * counts how many times a method with @Fullspeed annotation was entered.
      * As long as this counter is > 0, this thread is executing in fullspeed-mode
      */
-    fullspeedCounter: number = 0; 
+    fullspeedCounter: number = 0;
 
     get assertionObservers() {
         return this.scheduler.interpreter.assertionObserverList;
@@ -355,7 +355,9 @@ export class Thread {
                 }
 
             });
-            this.stackTrace[0].range = exception.range;
+            if (this.stackTrace.length > 0) {
+                this.stackTrace[0].range = exception.range;
+            }
             this.exception = exception;
             // ExceptionPrinter.print(exception, this.stackTrace, this.scheduler.interpreter.printManager);
             ExceptionPrinter.printWithLinks(exception, this.stackTrace, this.scheduler.interpreter.printManager,
@@ -618,11 +620,11 @@ export class Thread {
 
     CheckCastToArray(object: ObjectClass, startLineNumber: number, startColumn: number, endLineNumber: number, endColumn: number): ObjectClass {
         if (object == null) return object;
-        if(Array.isArray(object)) return object;
+        if (Array.isArray(object)) return object;
 
         let type = object.getType() as NonPrimitiveType;
 
-       let range: IRange = {
+        let range: IRange = {
             startLineNumber: startLineNumber,
             startColumn: startColumn,
             endLineNumber: endLineNumber,
@@ -682,7 +684,7 @@ export class Thread {
 
     ExitFullspeedMode() {
         this.fullspeedCounter--;
-        if (this.fullspeedCounter == 0){
+        if (this.fullspeedCounter == 0) {
             this.state = ThreadState.changeSpeedRequested;
         }
     }

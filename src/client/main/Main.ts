@@ -111,7 +111,7 @@ export class Main implements MainBase {
     jUnitTestrunner: JUnitTestrunner;
 
     showFile(file?: CompilerFile): void {
-        if (!file) return;
+        if (!file || !(file instanceof GUIFile)) return;
         this.projectExplorer.setFileActive(<GUIFile>file);
     }
 
