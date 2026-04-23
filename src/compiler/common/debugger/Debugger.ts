@@ -98,11 +98,12 @@ export class Debugger {
                 enabled: true,
                 text: DebM.files()
             },
+            buttonAddElements: false,
             flexWeight: "1",
             withDeleteButtons: false,
             isDragAndDropSource: false,
             buttonAddFolders: false,
-            withSelection: false,
+            withSelection: true,
             minHeight: 50,
             defaultIconClass: "img_file-dark-java",
             comparator: (a, b) => {
