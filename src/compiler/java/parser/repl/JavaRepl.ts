@@ -265,8 +265,6 @@ export class JavaRepl {
         programAndModule.program.compileToJavascriptFunctions();
         programAndModule.program.isReplProgram = true;
 
-        programAndModule.program.logAllSteps();
-
         let noProgramIsRunning = [SchedulerState.running, SchedulerState.paused].indexOf(scheduler.state) < 0;
         let currentThread = scheduler.getCurrentThread()!;
         if (noProgramIsRunning) {
@@ -290,7 +288,6 @@ export class JavaRepl {
         let oldState = scheduler.state;
 
         scheduler.callbackAfterReplProgramFinished = () => {
-            console.log(currentThread.s);
             currentThread.maxStepsPerSecond = saveMaxStepsPerSecond;
             currentThread.state = ThreadState.running;
             currentThread.lastTimeThreadWasRun = performance.now();
