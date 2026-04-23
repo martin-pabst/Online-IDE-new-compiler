@@ -115,7 +115,7 @@
     }
 
     .jo_ceChildContainer {
-        line-height: 15px;
+        line-height: inherit;
     }
 
     .jo_consoleEntry.jo_cannotOpen>.jo_ceFirstline::before {
