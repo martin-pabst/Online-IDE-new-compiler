@@ -135,8 +135,9 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
         if (varOrClassMatch != null) {
 
+            let line: string = model.getLineContent(position.lineNumber);
 
-            return this.getCompletionItemsInsideIdentifier(main, varOrClassMatch, position, module,
+            return this.getCompletionItemsInsideIdentifier(main, varOrClassMatch, line, position, module,
                 identifierAndBracketAfterCursor, classContext, leftBracketAlreadyThere, symbolTable);
 
         }
@@ -247,7 +248,8 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
         });
     }
 
-    getCompletionItemsInsideIdentifier(main: IMain, varOrClassMatch: RegExpMatchArray, position: monaco.Position, module: JavaCompiledModule, identifierAndBracketAfterCursor: string,
+    getCompletionItemsInsideIdentifier(main: IMain, varOrClassMatch: RegExpMatchArray,
+        line: string, position: monaco.Position, module: JavaCompiledModule, identifierAndBracketAfterCursor: string,
         classContext: NonPrimitiveType | StaticNonPrimitiveType | undefined,
         leftBracketAlreadyThere: boolean, symbolTable: JavaSymbolTable | undefined): monaco.languages.ProviderResult<monaco.languages.CompletionList> {
 
@@ -277,7 +279,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
         if (symbolTable && symbolTable.classContext && !symbolTable.methodContext && (symbolTable.classContext instanceof IJavaClass || symbolTable.classContext instanceof JavaEnum)) {
             let range = symbolTable.range;
             if (range.startLineNumber < range.endLineNumber) {
-                completionItems = completionItems.concat(this.getOverridableMethodsCompletion(symbolTable.classContext, rangeToReplace));
+                completionItems = completionItems.concat(this.getOverridableMethodsCompletion(symbolTable.classContext, rangeToReplace, line));
                 
                 if (main.getSettings().getValue("editor.quickFix.generateConstructor") == "offer") {
                     completionItems = completionItems.concat(this.getConstructorCompletion(symbolTable.classContext, rangeToReplace));
@@ -941,7 +943,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
     }
 
-    getOverridableMethodsCompletion(classContext: IJavaClass | JavaEnum, range: IRange) {
+    getOverridableMethodsCompletion(classContext: IJavaClass | JavaEnum, range: IRange, line: string) {
 
         let keywordCompletionItems: monaco.languages.CompletionItem[] = [];
 
@@ -978,7 +980,9 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
             let label: string = (m.isAbstract ? "implement " : "override ") + m.getCompletionLabel(false);
             let filterText = m.identifier;
-            let insertText = TokenTypeReadable[m.visibility] + " " + (m.returnParameterType == null ? "void" : m.returnParameterType.toString()) + " ";
+            let returnParameterType = m.returnParameterType == null ? "void" : m.returnParameterType.toString();
+            let insertText = "";
+            if(line.indexOf(returnParameterType) < 0) insertText += TokenTypeReadable[m.visibility] + " " + (m.returnParameterType == null ? "void" : m.returnParameterType.toString()) + " ";
             insertText += m.identifier + "(" + m.parameters.map(p => p.type.toString() + " " + p.identifier).join(", ");
             insertText += ") {\n\t$0\n}";
 
