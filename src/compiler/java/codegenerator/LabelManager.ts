@@ -17,6 +17,10 @@ export class LabelCodeSnippet extends CodeSnippet {
         this.id = LabelCodeSnippet.count++;
     }
 
+    isEmptyStatement(): boolean {
+        return true;
+    }
+
     flattenInto(flatList: CodeSnippet[]): void {
         flatList.push(this);
     }
@@ -54,6 +58,10 @@ export class JumpToLabelCodeSnippet extends CodeSnippet {
 
     constructor(private label: LabelCodeSnippet){
         super();
+    }
+
+    isEmptyStatement(): boolean {
+        return false;
     }
 
     flattenInto(flatList: CodeSnippet[]): void {
