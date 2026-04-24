@@ -124,7 +124,7 @@
     --renameInput-color: #ffffff;
     /*debugger*/
     --debugger-classidentifier: #2a709e;
-
+    --console-fieldidentifier: #e6e92c;
 
     /* Sorgt für eine bessere Schriftart unter Linux: */
     .monaco-editor {
