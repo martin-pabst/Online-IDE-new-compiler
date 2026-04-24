@@ -33,6 +33,16 @@ export class CodeSnippetContainer extends CodeSnippet {
 
     }
 
+    isEmptyStatement(): boolean {
+        for(let part of this.parts){
+            if(part != null && !part.isEmptyStatement()){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     getEmitToStepListeners(): EmitToStepListener[] {
         let listeners: EmitToStepListener[] = [];
         this.parts.forEach(part => listeners = listeners.concat(part.getEmitToStepListeners()));
@@ -277,6 +287,11 @@ export class CodeSnippetContainer extends CodeSnippet {
 }
 
 export class NextStepMark extends CodeSnippet {
+    
+    isEmptyStatement(): boolean {
+        return true;
+    }
+    
     emit(): string {
         return "";
     }
@@ -314,6 +329,10 @@ export class EmptyPart extends CodeSnippet {
         this.range = EmptyRange.instance;
     }
 
+    isEmptyStatement(): boolean {
+        return true;
+    }
+
     emitToStep(currentStep: Step, _steps: Step[]): Step {
         return currentStep;
     }
@@ -333,6 +352,10 @@ export class EmptyPart extends CodeSnippet {
 }
 
 class StartPositionMark extends CodeSnippet {
+
+    isEmptyStatement(): boolean {
+        return true;
+    }
 
     emit(): string {
         return "";
@@ -360,6 +383,10 @@ class StartPositionMark extends CodeSnippet {
 }
 
 class EndPositionMark extends CodeSnippet {
+
+    isEmptyStatement(): boolean {
+        return true;
+    }
 
     emit(): string {
         return "";

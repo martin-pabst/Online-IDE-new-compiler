@@ -41,6 +41,8 @@ export abstract class CodeSnippet {
         return true;
     }
 
+    abstract isEmptyStatement(): boolean;
+
     alterPureTerm(newCode: string) {
         // standard implementation is empty
     }
@@ -82,6 +84,10 @@ export class StringCodeSnippet extends CodeSnippet {
         this.range = range;
         this.type = type;
         this.constantValue = constantValue;
+    }
+
+    isEmptyStatement(): boolean {
+        return !this.text || this.text.length == 0;
     }
 
     setConstantValue(value: ConstantValue) {

@@ -906,6 +906,11 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             instanceOfVariables.forEach(v => symbolTable.addSymbolWithoutAddingToStackframe(v));
         }
         let statementIfTrue = this.compileStatementOrTerm(node.statementIfTrue);
+
+        if(statementIfTrue?.isEmptyStatement()){
+            this.pushError(JCM.emptyStatementAfterIf(), "warning", statementIfTrue.range);
+        }
+
         if (instanceOfVariables) {
             this.popSymbolTable();
         }

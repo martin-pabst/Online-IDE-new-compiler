@@ -275,6 +275,11 @@ export class JCM {
         "fr": `Vous ne pouvez pas déclarer de variable pendant qu'un programme est en cours d'exécution (ou en pause).`,
     })
 
+    static emptyStatementAfterIf = () => le({
+        "de": "Hinter if(...) steht eine leere Anweisung. Dies ist sicher nicht so gewollt.",
+        "en": "There's an empty statement after if(...). This may be unintentional."
+    })
+
     static continueNotExpected = () => le({
         "de": "An dieser Stelle kann kein continue stehen, da der Ausdruck nicht innerhalb einer Schleife (for, while, do) oder switch-case Anweisung steht.",
         "en": `continue statement is only expected inside loops (for, while, do...while) and switch-statements.`,
