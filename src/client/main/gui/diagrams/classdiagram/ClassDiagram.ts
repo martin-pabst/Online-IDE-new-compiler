@@ -293,7 +293,7 @@ export class ClassDiagram extends Diagram {
 
         for (let file of workspace.getFiles()) {
             let module = <JavaCompiledModule>this.main.getCompiler().findModuleByFile(file);
-            if (!module) return;
+            if (!module) continue;
 
             let typeList = module.types;
             if (typeList == null) continue;
