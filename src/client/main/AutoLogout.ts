@@ -4,13 +4,14 @@ import { Login } from "./Login";
 
 export class AutoLogout {
 
-    logoutAfterMinutes: number = 20;
+    logoutAfterMinutes: number = 25;
     counterInMinutes: number = this.logoutAfterMinutes;
 
     constructor(login?: Login) {
         let that = this;
         setInterval(() => {
             that.counterInMinutes--;
+            console.log("AutoLogout: " + that.counterInMinutes + " minutes left until logout.");
             if (that.counterInMinutes == 0) {
                 if (login) {
                     login.logout();
