@@ -131,7 +131,6 @@ export class ClassDiagram extends Diagram {
                             let height = rect.height / that.zoomfactor * factor;
 
                             let marginPx = that.marginCm / 2.54 * 72 * factor;
-                            console.log("width: " + width + " height: " + height + " marginPx: " + marginPx);
                             canvas.width = width - marginPx;
                             canvas.height = height - marginPx;
                             let context = canvas.getContext("2d");
