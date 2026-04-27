@@ -217,14 +217,14 @@ export class Range {
 	}
 
 	/**
-	 * A intersection of the two ranges.
+	 * An intersection of the two ranges.
 	 */
 	public intersectRanges(range: IRange): Range | null {
 		return Range.intersectRanges(this, range);
 	}
 
 	/**
-	 * A intersection of the two ranges.
+	 * An intersection of the two ranges.
 	 */
 	public static intersectRanges(a: IRange, b: IRange): Range | null {
 		let resultStartLineNumber = a.startLineNumber;

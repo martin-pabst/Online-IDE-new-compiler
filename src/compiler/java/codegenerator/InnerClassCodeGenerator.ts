@@ -83,7 +83,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
         Object.assign(klass.runtimeClass, oldRuntimeClass);
         Object.assign(klass.runtimeClass.prototype, oldRuntimeClass.prototype);
-        // snippet which instantiates object of this class calling it's typescript constructor and it's java constructor
+        // snippet which instantiates object of this class calling its typescript constructor and its java constructor
 
         // klass.checkIfInterfacesAreImplementedAndSupplementDefaultMethods({});
         // klass.takeSignaturesFromOverriddenMethods({});
@@ -212,7 +212,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
         Object.assign(klass.runtimeClass, oldRuntimeClass);
         Object.assign(klass.runtimeClass.prototype, oldRuntimeClass.prototype);
-        // snippet which instantiates object of this class calling it's typescript constructor and it's java constructor
+        // snippet which instantiates object of this class calling its typescript constructor and its java constructor
 
         let parameterString = Helpers.elementRelativeToStackbase(0);
         if (outerLocalVariables.length > 0) {

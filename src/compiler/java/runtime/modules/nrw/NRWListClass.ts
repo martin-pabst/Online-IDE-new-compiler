@@ -8,6 +8,8 @@ import { SystemCollection } from "../../system/collections/SystemCollection.ts";
 import { ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { NRWLang } from "./NRWLang.ts";
 
+// Spellcheck TODO: check if usage of "ae", "oe" and "ue" is intended, as often found in NRW files
+
 class ListNode {
     next: ListNode | undefined;
 

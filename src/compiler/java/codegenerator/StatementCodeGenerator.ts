@@ -258,7 +258,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         * There are 3 cases:
         * a) loop over array (using an index)
         * b) loop over a SystemCollection
-        * c) loop over a Iterable
+        * c) loop over an Iterable
         */
 
         let collectionType = collectionSnippet.type;

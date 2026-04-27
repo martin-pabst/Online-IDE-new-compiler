@@ -48,7 +48,7 @@ export class SchoolSettings extends AdminMenuItem {
             record: {
                 vidis_schulkennung: settings.vidis_schulkennung,
             },
-            // formURL: 'data/form.html',    // you can load form from extenral file
+            // formURL: 'data/form.html',    // you can load form from external file
             formHTML: jQuery('#form').html(), // or you can use form that is already in HTML
             fields: [
                 { field: 'vidis_schulkennung', type: 'text', required: false },

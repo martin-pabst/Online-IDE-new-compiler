@@ -81,7 +81,7 @@ export class HelpMessages {
     });
     
     static spriteLibraryDescription = () => lm({
-        'de': '(Instanziert ein Sprite-Objekt an der Position (100, 150). Als Bild wird Bild Nr. 3 der Reihe "Minesweeper" gesetzt.)',
+        'de': '(Instanziiert ein Sprite-Objekt an der Position (100, 150). Als Bild wird Bild Nr. 3 der Reihe "Minesweeper" gesetzt.)',
         'en': '(Instantiates a Sprite object at position (100, 150) with image number 3 in series "Minesweeper".)',
         'fr': '(Instancie un objet Sprite à la position (100, 150) avec l’image numéro 3 de la série "Minesweeper".)'
     });

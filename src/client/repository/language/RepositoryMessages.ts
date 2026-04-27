@@ -166,12 +166,12 @@ export class RepocheckoutManagerMessages {
     
     static accessableForClass = () => lm({
         'de': 'für die Klasse freigegebene',
-        'en': 'accessable for whole class'
+        'en': 'accessible for whole class'
     });
 
     static accessableForSchool = () => lm({
         'de': 'für die Schule freigegebene',
-        'en': 'accessable for whole school'
+        'en': 'accessible for whole school'
     });
     
     static caption = () => lm({
@@ -268,7 +268,7 @@ export class RepositoryCreateManagerMessages {
     });
     
     static createRepositoryAndConnectToWorkspace = (name: string) => lm({
-        'de': 'Repository anlegen und mit Workspae ' + name + ' verknüpfen:',
+        'de': 'Repository anlegen und mit Workspace ' + name + ' verknüpfen:',
         'en': 'Create repository and connect to workspace ' + name
     });
     

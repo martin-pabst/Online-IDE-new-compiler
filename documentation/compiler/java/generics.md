@@ -14,7 +14,7 @@ In this text ``A, B, C`` denote classes, ``I, J, K`` denote interfaces, ``S, T, 
   * ``B < C`` => ``A<B> < A<? extends C>``
   * ``A < B`` => ``C<B> < C<? super A>``
   
-```javascript
+```typescript
 ```
 
 

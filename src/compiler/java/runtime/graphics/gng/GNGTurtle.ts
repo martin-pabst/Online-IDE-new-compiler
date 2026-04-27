@@ -10,7 +10,7 @@ import { IGNGEventListener } from "./IGNGEventListener.ts";
 
 export class GNGTurtle extends ObjectClass implements IGNGEventListener {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class GTurtle extends Object", comment: "Turtle-Klasse der Graphics'n Games-Bibliothek (Cornelsen-Verlag)" },
+        { type: "declaration", signature: "class GTurtle extends Object", comment: "Turtle-Klasse der Graphics'n'Games-Bibliothek (Cornelsen-Verlag)" },
 
         { type: "field", signature: "protected int x", template: `§1.x`, comment: "x-Position des Grafikobjekts" },
         { type: "field", signature: "protected int y", template: `§1.y`, comment: "y-Position des Grafikobjekts" },
@@ -19,7 +19,7 @@ export class GNGTurtle extends ObjectClass implements IGNGEventListener {
         { type: "field", signature: "protected boolean sichtbar", template: `§1.sichtbar`, comment: "true, wenn das Grafikobjekt sichtbar ist" },
         { type: "field", signature: "protected boolean stiftUnten", template: `§1.stiftUnten`, comment: "true, wenn die Turtle beim Gehen zeichnet" },
 
-        { type: "method", signature: "GTurtle()", java: GNGTurtle.prototype._cj$_constructor_$GTurtle$, comment: "Instanziert ein neues Turtle-Objekt." },
+        { type: "method", signature: "GTurtle()", java: GNGTurtle.prototype._cj$_constructor_$GTurtle$, comment: "Instanziiert ein neues Turtle-Objekt." },
         { type: "method", signature: "void GrößeSetzen(int größe)", native: GNGTurtle.prototype._groesseSetzen, comment: "Setzt die Größe des Turtle-Dreiecks." },
         { type: "method", signature: "void FarbeSetzen(string farbe)", native: GNGTurtle.prototype._farbeSetzen, comment: "Setzt die Zeichenfarbe des Turtle-Dreiecks." },
         { type: "method", signature: "void Drehen(int winkelInGrad)", native: GNGTurtle.prototype._drehen, comment: "Dreht die Turtle um den angegebenen Winkel. Positiver Winkel bedeutet Drehung gegen den Uhrzeigersinn." },

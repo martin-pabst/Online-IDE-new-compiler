@@ -287,8 +287,8 @@ export class AdminMessages {
     });
 
     static templateWorkspace = () => lm({
-        'de': 'Vorlage-Worksp.',
-        'en': 'Template worksp.'
+        'de': 'Vorlage-Worksp.', // Spellcheck TODO: check if shortening is intended
+        'en': 'Template worksp.' // Spellcheck TODO: check if shortening is intended
     });
     
     static createNewTest = () => lm({

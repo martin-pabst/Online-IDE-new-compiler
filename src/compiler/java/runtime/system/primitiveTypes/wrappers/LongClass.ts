@@ -15,7 +15,7 @@ export class LongClass extends NumberClass {
         {type: "declaration", signature: "class Long extends Number implements Comparable<Long>"},
         {type: "field", signature: "static final int MAX_VALUE", constantValue: Number.MAX_SAFE_INTEGER},
         {type: "field", signature: "static final int MIN_VALUE", constantValue: Number.MIN_SAFE_INTEGER},
-        // for doubleValue(), floatValue(), intValue() and longValue() there are methods (if called for a Number variable containing an Long value) and templates
+        // for doubleValue(), floatValue(), intValue() and longValue() there are methods (if called for a Number variable containing a Long value) and templates
         // (if called fo Long variable). Offering templates to the compiler is only possible because the methods are final.
 
         {type: "method", signature: "public Long(long d)", native: LongClass.prototype._constructorLong},

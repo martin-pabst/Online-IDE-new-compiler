@@ -9,8 +9,8 @@ import { IGNGEventListener } from "./IGNGEventListener.ts";
 export class GNGEreignisbehandlung extends ObjectClass implements IGNGEventListener {
 
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Ereignisbehandlung extends Object", comment: "Zugriff auf Ereignisse einschließlich Taktgeber (Graphics'n Games-Bibliothek (Cornelsen-Verlag))" },
-        { type: "method", signature: "Ereignisbehandlung()", java: GNGEreignisbehandlung.prototype._cj$_constructor_$Ereignisbehandlung$, comment: "Instanziert ein neues Ereignisbehandlungs-Objekt." },
+        { type: "declaration", signature: "class Ereignisbehandlung extends Object", comment: "Zugriff auf Ereignisse einschließlich Taktgeber (Graphics'n'Games-Bibliothek (Cornelsen-Verlag))" },
+        { type: "method", signature: "Ereignisbehandlung()", java: GNGEreignisbehandlung.prototype._cj$_constructor_$Ereignisbehandlung$, comment: "Instanziiert ein neues Ereignisbehandlungs-Objekt." },
 
         { type: "method", signature: "void Starten()", native: GNGEreignisbehandlung.prototype._Starten, comment: "Zeitgeber starten." },
         { type: "method", signature: "void Anhalten()", native: GNGEreignisbehandlung.prototype._Anhalten, comment: "Zeitgeber anhalten." },

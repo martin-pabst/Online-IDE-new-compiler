@@ -227,7 +227,7 @@ export class JavaCompiler implements Compiler {
         await codegenerator.start();
 
         /**
-         * The compilation run we did is not sufficient to produce a up to date executable,
+         * The compilation run we did is not sufficient to produce an up-to-date executable,
          * so we mark module as dirty to force new compilation
          */
         module.setDirty(true);

@@ -18,7 +18,7 @@ export class DoubleClass extends NumberClass {
         {type: "field", signature: "static final int POSITIVE_INFINITY", constantValue: Number.POSITIVE_INFINITY},
         {type: "field", signature: "static final int NEGATIVE_INFINITY", constantValue: Number.NEGATIVE_INFINITY},
         {type: "field", signature: "static final int MIN_VALUE", constantValue: Number.MIN_VALUE},
-        // for doubleValue(), floatValue(), intValue() and longValue() there are methods (if called for a Number variable containing an Long value) and templates
+        // for doubleValue(), floatValue(), intValue() and longValue() there are methods (if called for a Number variable containing a Long value) and templates
         // (if called fo Long variable). Offering templates to the compiler is only possible because the methods are final.
         {type: "method", signature: "public final double doubleValue()", native: DoubleClass.prototype.doubleValue, template: "§1.value"},
         {type: "method", signature: "public final float floatValue()", native: DoubleClass.prototype.floatValue, template: "Math.fround(§1.value)"},

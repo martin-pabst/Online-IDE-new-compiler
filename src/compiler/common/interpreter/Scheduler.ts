@@ -68,8 +68,8 @@ export class Scheduler {
 
         if (this.state != SchedulerState.running) return SchedulerExitState.nothingMoreToDo;
 
-        // If pause button is pressed while no thread is in state running then noStartinNextThreadCallback is set to wait
-        // for next running thread. This is neccessary because we we want to show program pointer immediately after program is paused.
+        // If pause button is pressed while no thread is in state running then onStartinNextThreadCallback is set to wait
+        // for next running thread. This is necessary because we want to show program pointer immediately after program is paused.
         if (this.onStartingNextThreadCallback) {
             if (this.getNextStepPosition()) {
                 this.onStartingNextThreadCallback();
@@ -92,7 +92,7 @@ export class Scheduler {
 
         while (numberOfStepsInThisRun < numberOfStepsMax && this.state == SchedulerState.running) {
 
-            // watchdog: if all threads had beed run once and no one executed a step then exit the loop to avoid endless looping when there's nothing to do:
+            // watchdog: if all threads have been run once and no one executed a step then exit the loop to avoid endless looping when there's nothing to do:
             if (this.#currentThreadIndex == 0) {
                 if (lastStoredStepsInThisRun == numberOfStepsInThisRun || this.runningThreads.length == 0) {
                     break;
@@ -100,7 +100,7 @@ export class Scheduler {
                 lastStoredStepsInThisRun = numberOfStepsInThisRun;
             }
 
-            // fetch next thread (round robin)
+            // fetch next thread (round-robin)
             let currentThread = this.runningThreads[this.#currentThreadIndex];
             if (!currentThread) {
                 if (this.runningThreads.length > 0) {
@@ -459,7 +459,7 @@ export class Scheduler {
         let parameterlessConstructors = klass.getAllMethods().filter(m => m.isConstructor && m.parameters.length == 0);
         if (parameterlessConstructors.length == 0) {
             // this shouldn't happen:
-            console.log("Couldn't find parameterless constrructor for class " + klass.identifier + ".");
+            console.log("Couldn't find parameterless constructor for class " + klass.identifier + ".");
             return undefined;
         }
 

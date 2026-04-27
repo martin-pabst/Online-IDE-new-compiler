@@ -8,8 +8,8 @@ import { GNGBaseFigur } from "./GNGBaseFigur.ts";
 
 export class GNGDreieck extends GNGBaseFigur {
     static __javaDeclarations: LibraryDeclarations = [
-        {type: "declaration", signature: "class Dreieck extends GNGBaseFigur", comment: "Dreieck-Klasse der Graphics'n Games-Bibliothek (Cornelsen-Verlag)"},
-        {type: "method", signature: "Dreieck()", java: GNGDreieck.prototype._cj$_constructor_$Dreieck$, comment: "Instanziert ein neues Dreieck-Objekt."},
+        {type: "declaration", signature: "class Dreieck extends GNGBaseFigur", comment: "Dreieck-Klasse der Graphics'n'Games-Bibliothek (Cornelsen-Verlag)"},
+        {type: "method", signature: "Dreieck()", java: GNGDreieck.prototype._cj$_constructor_$Dreieck$, comment: "Instanziiert ein neues Dreieck-Objekt."},
 
         {type: "field", signature: "protected int breite", comment: "Breite des Dreiecks"},
         {type: "field", signature: "protected int höhe", comment: "Höhe des Dreiecks"},

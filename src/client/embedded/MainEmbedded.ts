@@ -252,7 +252,7 @@ export class MainEmbedded implements MainBase {
         if (!this.config.withClassDiagram) return;
 
         /*
-         * In MainEmbedded.initGUI the classDiagram-Object is instantiated asynchroneously to wait for
+         * In MainEmbedded.initGUI the classDiagram-Object is instantiated asynchronously to wait for
          * DOM-Construction first:
          * setTimeout(() => {
          *       this.classDiagram = new ClassDiagram(jQuery(this.classDiagramTab.bodyDiv), this.main);
@@ -298,7 +298,7 @@ export class MainEmbedded implements MainBase {
             })
             );
         } catch (error) {
-            console.log("Error retreiving or converting data from URL " + url + " to json.")
+            console.log("Error retrieving or converting data from URL " + url + " to json.")
             console.error(error);
             return
         }
@@ -395,7 +395,7 @@ export class MainEmbedded implements MainBase {
         try {
             this.editor.editor.setModel(file.getMonacoModel());
         } catch (e) {
-            console.log("Catched!");
+            console.log("Caught!"); // Spellcheck TODO: check if "Catched!" is intended log
         }
 
         file.restoreViewState(this.getMainEditor());

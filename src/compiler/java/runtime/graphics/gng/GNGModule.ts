@@ -17,7 +17,7 @@ export class GNGModule extends JavaLibraryModule {
     constructor() {
         super();
         this.classesInterfacesEnums.push(
-            // Graphics'n Games (GNG)
+            // Graphics'n'Games (GNG)
             GNGBaseFigur, GNGKreis, GNGRechteck, GNGDreieck, GNGText, GNGFigur,
             GNGAktionsempfaenger, GNGZeichenfensterClass, GNGTurtle, GNGEreignisbehandlung
         )

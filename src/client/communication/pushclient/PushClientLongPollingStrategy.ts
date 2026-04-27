@@ -12,7 +12,7 @@ export class PushClientLongPollingStrategy extends PushClientStrategy {
      * then the browser is informed but the server does not which leads to resources
      * not being freed on server side. 
      * The solution for this problem is to make the server timeout after a certain amount
-     * of time and free it's resources. To get a rough estimation for this timeout we 
+     * of time and free its resources. To get a rough estimation for this timeout we
      * let the client measure how long polling requests last and tell it to the server.
      */
     serverTimeoutMs: number = 180000;   // 3 min

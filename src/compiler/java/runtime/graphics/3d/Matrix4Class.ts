@@ -22,7 +22,7 @@ export class Matrix4Class extends ObjectClass {
         { type: "method", signature: "Matrix4 invert()", native: Matrix4Class.prototype._invert, comment: JRC.Matrix4InvertComment },
         { type: "method", signature: "double determinant()", native: Matrix4Class.prototype._determinant, comment: JRC.Matrix4DeterminantComment },
         { type: "method", signature: "Matrix4 clone()", native: Matrix4Class.prototype._clone, comment: JRC.Matrix4CloneComment },
-        { type: "method", signature: "Matrix4 copyFropm(Matrix4 m)", native: Matrix4Class.prototype._copyFrom, comment: JRC.Matrix4CopyFromComment },
+        { type: "method", signature: "Matrix4 copyFropm(Matrix4 m)", native: Matrix4Class.prototype._copyFrom, comment: JRC.Matrix4CopyFromComment }, // Spellcheck TODO: "copyFropm" should be "copyFrom", but changing it would break existing code
         { type: "method", signature: "Matrix4 multiply(Matrix4 m)", native: Matrix4Class.prototype._multiply, comment: JRC.Matrix4MultiplyComment },
         { type: "method", signature: "Matrix4 premultiply(Matrix4 m)", native: Matrix4Class.prototype._premultiply, comment: JRC.Matrix4preMultiplyComment },
     ];

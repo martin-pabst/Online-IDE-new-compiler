@@ -67,7 +67,7 @@ export type DropInsertKind = "asElement" | "intoElement";
 
 export type DragAndDropSource = { treeview: Treeview<any, any>, dropInsertKind: DropInsertKind, defaultDragKind: DragKind, dragKindWithCtrl?: DragKind, dragKindWithShift?: DragKind };
 
-// Callback functions return true if changes shall be executed on treeview, false if action should get cancelled
+// Callback functions return true if changes shall be executed on treeview, false if action should get canceled
 export type TreeviewRenameCallback<E, K> = (element: E, newName: string, node: TreeviewNode<E, K>) =>
     Promise<{ correctedName: string, success: boolean }>;
 export type TreeviewDeleteCallback<E, K> = (element: E | null, node: TreeviewNode<E, K>) => Promise<boolean>;

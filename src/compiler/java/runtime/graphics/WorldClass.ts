@@ -110,7 +110,7 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
         if (existingWorld) {
 
             if(this.constructor["type"].identifier != 'World'){
-                throw new RuntimeExceptionClass("Es wurde schon ein World-Objekt instanziert.");
+                throw new RuntimeExceptionClass("Es wurde schon ein World-Objekt instanziiert.");
             }
 
             t.s.push(existingWorld);

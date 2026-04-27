@@ -8,10 +8,10 @@ import { GNGBaseFigur } from "./GNGBaseFigur.ts";
 
 export class GNGRechteck extends GNGBaseFigur {
     static __javaDeclarations: LibraryDeclarations = [
-        {type: "declaration", signature: "class Rechteck extends GNGBaseFigur", comment: "Rechteck-Klasse der Graphics'n Games-Bibliothek (Cornelsen-Verlag)"},
-        {type: "method", signature: "Rechteck()", java: GNGRechteck.prototype._cj$_constructor_$Rechteck$, comment: "Instanziert ein neues, achsenparalleles Rechteck-Objekt."},
+        {type: "declaration", signature: "class Rechteck extends GNGBaseFigur", comment: "Rechteck-Klasse der Graphics'n'Games-Bibliothek (Cornelsen-Verlag)"},
+        {type: "method", signature: "Rechteck()", java: GNGRechteck.prototype._cj$_constructor_$Rechteck$, comment: "Instanziiert ein neues, achsenparalleles Rechteck-Objekt."},
 
-        {type: "field", signature: "protected int breite", comment: "Breite des Recthecks"},
+        {type: "field", signature: "protected int breite", comment: "Breite des Rechtecks"},
         {type: "field", signature: "protected int höhe", comment: "Höhe des Rechtecks"},
 
         {type: "method", signature: "void GrößeSetzen(int breite, int höhe)", native: GNGRechteck.prototype._groesseSetzen, comment: "Setzt die Breite und Höhe des Rechtecks."}

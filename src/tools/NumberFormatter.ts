@@ -28,7 +28,7 @@
  * uses "," to divide thousands, and "." as a decimal point.
  *
  * As of 1.2 the way this plugin works has changed slightly, parsing text to a number
- * has 1 set of functions, formatting a number to text has it's own. Before things
+ * has 1 set of functions, formatting a number to text has its own. Before things
  * were a little confusing, so I wanted to separate the 2 out more.
  *
  *
@@ -50,7 +50,7 @@
  * parseNumber(numberString, options) - Takes a number as text that is formatted the same as the given
  * options then and returns it as a plain Number object.
  *
- * To achieve the old way of combining parsing and formatting to keep say a input field always formatted
+ * To achieve the old way of combining parsing and formatting to keep say an input field always formatted
  * to a given format after it has lost focus you'd simply use a combination of the functions.
  *
  * e.g.

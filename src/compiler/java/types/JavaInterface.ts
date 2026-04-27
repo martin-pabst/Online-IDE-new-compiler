@@ -121,7 +121,7 @@ export abstract class IJavaInterface extends NonPrimitiveType {
 export class JavaInterface extends IJavaInterface {
 
     methods: JavaMethod[] = [];
-    fields: JavaField[] = [];               // A interface may have fields, but they must be static final
+    fields: JavaField[] = [];               // An interface may have fields, but they must be static final
 
     private extends: IJavaInterface[] = [];
 
