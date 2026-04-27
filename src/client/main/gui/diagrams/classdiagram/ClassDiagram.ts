@@ -129,8 +129,11 @@ export class ClassDiagram extends Diagram {
                             let rect = that.svgElement.parentElement.getBoundingClientRect();
                             let width = rect.width / that.zoomfactor * factor;
                             let height = rect.height / that.zoomfactor * factor;
-                            canvas.width = width;
-                            canvas.height = height;
+
+                            let marginPx = that.marginCm / 2.54 * 72 * factor;
+                            console.log("width: " + width + " height: " + height + " marginPx: " + marginPx);
+                            canvas.width = width - marginPx;
+                            canvas.height = height - marginPx;
                             let context = canvas.getContext("2d");
                             switch (main.getSettings().getValue("classDiagram.background")) {
                                 case "transparent":
@@ -141,7 +144,8 @@ export class ClassDiagram extends Diagram {
                                     context.fillRect(0, 0, width, height);
                                     break;
                             }
-                            context.drawImage(image, 0, 0, width, height);
+
+                            context.drawImage(image, -marginPx, -marginPx, width , height );
 
                             //Create blob and save if with FileSaver.js
                             canvas.toBlob((blob) => {
