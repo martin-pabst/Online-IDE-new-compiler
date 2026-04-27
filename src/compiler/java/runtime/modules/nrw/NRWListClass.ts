@@ -8,7 +8,7 @@ import { SystemCollection } from "../../system/collections/SystemCollection.ts";
 import { ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { NRWLang } from "./NRWLang.ts";
 
-// Spellcheck TODO: check if usage of "ae", "oe" and "ue" is intended, as often found in NRW files
+// Spellcheck RESOLVED: check if usage of "ae", "oe" and "ü" is intended, as often found in NRW files -> Good point! -> I changed them all.
 
 class ListNode {
     next: ListNode | undefined;
@@ -101,18 +101,18 @@ export class NRWListClass extends SystemCollection implements BaseListType {
         if (pContent != null) {
             if (this._hasAccess()) {
                 const newNode = new ListNode(pContent);
-                if (this.current != this.first) { // Fall: Nicht an erster Stelle einfuegen.
+                if (this.current != this.first) { // Fall: Nicht an erster Stelle einfügen.
                     const previous = this._getPrevious(this.current);
                     newNode.next = previous.next;
                     previous.next = newNode;
-                } else { // Fall: An erster Stelle einfuegen.
+                } else { // Fall: An erster Stelle einfügen.
                     newNode.next = this.first;
                     this.first = newNode;
                 }
             } else {
-                if (this._isEmpty()) { // Fall: In leere Liste einfuegen.
+                if (this._isEmpty()) { // Fall: In leere Liste einfügen.
 
-                    // Neuen Knoten erstellen.
+                    // Neün Knoten erstellen.
                     const newNode = new ListNode(pContent);
 
                     this.first = newNode;
@@ -125,11 +125,11 @@ export class NRWListClass extends SystemCollection implements BaseListType {
 
     _append(pContent: ObjectClassOrNull) {
         if (pContent != null) {
-            if (this._isEmpty()) { // Fall: An leere Liste anfuegen.
+            if (this._isEmpty()) { // Fall: An leere Liste anfügen.
                 this._insert(pContent);
-            } else { // Fall: An nicht-leere Liste anfuegen.
+            } else { // Fall: An nicht-leere Liste anfügen.
 
-                // Neuen Knoten erstellen.
+                // Neün Knoten erstellen.
                 const newNode = new ListNode(pContent);
 
                 this.last.next = newNode;
@@ -142,10 +142,10 @@ export class NRWListClass extends SystemCollection implements BaseListType {
         if (pList != this && pList != null && !pList._isEmpty()) { // Nichts tun,
             // wenn pList und this identisch, pList leer oder nicht existent.
 
-            if (this._isEmpty()) { // Fall: An leere Liste anfuegen.
+            if (this._isEmpty()) { // Fall: An leere Liste anfügen.
                 this.first = pList.first;
                 this.last = pList.last;
-            } else { // Fall: An nicht-leere Liste anfuegen.
+            } else { // Fall: An nicht-leere Liste anfügen.
                 this.last.next = pList.first;
                 this.last = pList.last;
             }
@@ -158,7 +158,7 @@ export class NRWListClass extends SystemCollection implements BaseListType {
     }
 
     _remove() {
-        // Nichts tun, wenn es kein aktuelle Element gibt oder die Liste leer ist.
+        // Nichts tun, wenn es kein aktülle Element gibt oder die Liste leer ist.
         if (this._hasAccess() && !this._isEmpty()) {
 
             if (this.current == this.first) {

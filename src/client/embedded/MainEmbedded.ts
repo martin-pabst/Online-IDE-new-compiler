@@ -395,7 +395,7 @@ export class MainEmbedded implements MainBase {
         try {
             this.editor.editor.setModel(file.getMonacoModel());
         } catch (e) {
-            console.log("Caught!"); // Spellcheck TODO: check if "Catched!" is intended log
+            console.log("Caught!"); // Spellcheck RESOLVED: check if "Catched!" is intended log -> i checked it, but "Caught!" is the correct past tense of "Catch", so I kept it as it is.
         }
 
         file.restoreViewState(this.getMainEditor());

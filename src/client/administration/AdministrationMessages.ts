@@ -287,8 +287,8 @@ export class AdminMessages {
     });
 
     static templateWorkspace = () => lm({
-        'de': 'Vorlage-Worksp.', // Spellcheck TODO: check if shortening is intended
-        'en': 'Template worksp.' // Spellcheck TODO: check if shortening is intended
+        'de': 'Vorlage-Worksp.', // Spellcheck RESOLVED: check if shortening is intended -> it is intended, because it is used as a columnn header in a table and there is not much space
+        'en': 'Template worksp.' // Spellcheck RESOLVED: check if shortening is intended -> it is intended, because it is used as a columnn header in a table and there is not much space
     });
     
     static createNewTest = () => lm({

@@ -895,7 +895,7 @@ export class GenericVariantOfJavaClass extends IJavaClass {
             // ... Find concrete parameterized supertype of ArrayList<Integer> which is generic variant of List (so: find List<Integer>)
 
             // interfaceImplementedByMeWhichIsGenericVariantOfOtherType ==> iibm
-            // scenario class ArrayList<X> should get casted to List<String> // Spellcheck TODO: check if "casted" is correct in this case or if it should be "cast"
+            // scenario class ArrayList<X> should get cast to List<String> // Spellcheck RESOLVED: check if "casted" is correct in this case or if it should be "cast" -> thank you for pointing this out! I changed it to "cast".
             // strategy: construct Type List<X> from ArrayList<X> and then compare X to String
             let iibm = this.findInterfaceImplementedByMeWhichIsGenericVariantOf(ot1);
 
