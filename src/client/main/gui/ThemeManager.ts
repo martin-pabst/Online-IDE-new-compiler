@@ -216,7 +216,7 @@ export class ThemeManager {
                 // Debugger
                 "--deIdentifier": "black",
                 "--deValue": "#0000a0",
-                "--debugger-fieldIdentifier": "#b37c35ff",
+                "--debugger-fieldIdentifier": "#855c27ff",
                 "--debugger-localVariableIdentifier": "#25940fff",
 
 

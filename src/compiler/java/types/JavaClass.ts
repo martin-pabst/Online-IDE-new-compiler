@@ -72,7 +72,7 @@ export abstract class IJavaClass extends JavaTypeWithInstanceInitializer {
                 signature: field.toString()
             });
 
-            if (field.type["dimension"] !== undefined) { 
+            if (field?.type && field.type["dimension"] !== undefined) { 
                 let dimension: number = field.type["dimension"];
                 itemList.push({
                     label: field.identifier + "[]".repeat(dimension),
