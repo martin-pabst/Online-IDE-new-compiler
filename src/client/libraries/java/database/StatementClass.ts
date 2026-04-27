@@ -37,7 +37,7 @@ export class StatementClass extends ObjectClass {
 
             if(error != null){
                 // this callback is called by a network-event, so if we just throw an exception
-                // it won't get catched by thread.run.
+                // it won't get caught by thread.run.
                 t.throwRuntimeExceptionOnLastExecutedStep(new RuntimeExceptionClass(error));
                 return;
             }
@@ -66,7 +66,7 @@ export class StatementClass extends ObjectClass {
 
             if(error != null){
                 // this callback is called by a network-event, so if we just throw an exception
-                // it won't get catched by thread.run.
+                // it won't get caught by thread.run.
                 t.throwRuntimeExceptionOnLastExecutedStep(new RuntimeExceptionClass(error));
                 return;
             }

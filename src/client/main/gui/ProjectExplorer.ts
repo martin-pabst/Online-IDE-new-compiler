@@ -286,7 +286,7 @@ export class ProjectExplorer {
             }
 
         this.fileTreeview.orderChangedCallback = async (nodesWithNewOrder) => {
-            // we don't await response to increase gui repsonsiveness
+            // we don't await response to increase gui responsiveness
             // damage due to failed request would be low
             this.main.networkManager.sendUpdateFileOrder(nodesWithNewOrder.map(node => node.externalObject));
             return true;

@@ -20,8 +20,8 @@ type GNGPoint = {
 
 export class GNGFigur extends ObjectClass implements IGNGEventListener {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Figur extends Object", comment: "Figur-Klasse der Graphics'n Games-Bibliothek (Cornelsen-Verlag)" },
-        { type: "method", signature: "Figur()", java: GNGFigur.prototype._cj$_constructor_$Figur$, comment: "Instanziert ein neues, achsenparalleles Figur-Objekt." },
+        { type: "declaration", signature: "class Figur extends Object", comment: "Figur-Klasse der Graphics'n'Games-Bibliothek (Cornelsen-Verlag)" },
+        { type: "method", signature: "Figur()", java: GNGFigur.prototype._cj$_constructor_$Figur$, comment: "Instanziiert ein neues, achsenparalleles Figur-Objekt." },
 
         { type: "field", signature: "int x", template: '§1.x', comment: "x-Position der Figur" },
         { type: "field", signature: "int y", template: '§1.y', comment: "y-Position der Figur" },

@@ -62,7 +62,7 @@ export class SoundTools {
         {
             url: short_bell,
             name: "short_bell",
-            description: "kurzes Klingeln (wie bei alter Landenkasse)"
+            description: "kurzes Klingeln (wie bei alter Ladenkasse)"
         },
         {
             url: flamethrower,
@@ -172,7 +172,7 @@ export class SoundTools {
                     };
                 },
                 function (err: any) {
-                    console.log("The following error occured: " + err.name)
+                    console.log("The following error occurred: " + err.name)
                 });
         } else {
             console.log("getUserMedia not supported");

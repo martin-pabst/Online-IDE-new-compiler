@@ -8,8 +8,8 @@ import { GNGBaseFigur } from "./GNGBaseFigur.ts";
 
 export class GNGText extends GNGBaseFigur {
     static __javaDeclarations: LibraryDeclarations = [
-        {type: "declaration", signature: "class GText extends GNGBaseFigur", comment: "Text-Klasse der Graphics'n Games-Bibliothek (Cornelsen-Verlag)"},
-        {type: "method", signature: "GText()", java: GNGText.prototype._cj$_constructor_$GText$, comment: "Instanziert ein neues Text-Objekt."},
+        {type: "declaration", signature: "class GText extends GNGBaseFigur", comment: "Text-Klasse der Graphics'n'Games-Bibliothek (Cornelsen-Verlag)"},
+        {type: "method", signature: "GText()", java: GNGText.prototype._cj$_constructor_$GText$, comment: "Instanziiert ein neues Text-Objekt."},
 
         {type: "field", signature: "protected string text", comment: "Angezeigter Text"},
         {type: "field", signature: "protected int textgröße", nativeIdentifier: 'textgroesse', comment: "Textgröße"},

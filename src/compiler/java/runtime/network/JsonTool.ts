@@ -71,7 +71,7 @@ export class JsonTool {
 
         let serializedObject: SerializedObject = { "!k": klass.identifier, "!i": index };
 
-        // Don't serialize system classes unless they are explicitely serializable
+        // Don't serialize system classes unless they are explicitly serializable
         if (klass.module.isLibraryModule) {
             return null;
         }

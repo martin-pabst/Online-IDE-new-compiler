@@ -14,7 +14,7 @@ export function createDb(SQL, buffer) {
         var dateformat = /^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/;
         // Match the date format through regular expression
         if (inputText.match(dateformat)) {
-            //Test which seperator is used '/' or '-'
+            //Test which separator is used '/' or '-'
             var opera1 = inputText.split('/');
             var opera2 = inputText.split('-');
             var lopera1 = opera1.length;

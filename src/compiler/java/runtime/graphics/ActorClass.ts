@@ -13,9 +13,9 @@ import { ActorManager } from "./ActorManager";
 import { IActor } from "./IActor";
 import { IWorld } from "./IWorld";
 
-// TODO: Gampad support
+// TODO: Gamepad support
 /**
- * Base class of all Objects which have a act-method and kan sense keyboard or gamepad
+ * Base class of all Objects which have an act-method and kan sense keyboard or gamepad
  */
 export class ActorClass extends ObjectClass implements IActor {
     static __javaDeclarations: LibraryDeclarations = [

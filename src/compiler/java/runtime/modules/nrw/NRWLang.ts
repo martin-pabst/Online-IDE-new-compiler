@@ -1,5 +1,7 @@
 import { lm } from "../../../../../tools/language/LanguageManager";
 
+// Spellcheck TODO: check if usage of "ae", "oe" and "ue" is intended, as often found in NRW files
+
 /**
  * Language file for NRW-Classes
  */

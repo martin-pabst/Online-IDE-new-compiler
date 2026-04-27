@@ -427,7 +427,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         if (callingConvention == "java") {
             /*
-             * if class is child of Actor or Shape then overridden listener-methos (act, onMouseDown, onKeyDown, ...)
+             * if class is child of Actor or Shape then overridden listener-method (act, onMouseDown, onKeyDown, ...)
              * must not be called before constructor is FULLY finished. We achieve this by setting the callback-function
              * of the constructor:
              */
@@ -825,7 +825,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             if (range.startLineNumber < field.identifierRange.startLineNumber) {
                 this.pushError(JCM.localVariableUsedBeforeDeclaration(field.identifier), "error", range);
             }
-            if (outerClassLevel == 0) {   // outerClassLevel > 0 could be inside run-Method or runnable whicht runs on other thread and has other stack than main program
+            if (outerClassLevel == 0) {   // outerClassLevel > 0 could be inside run-Method or runnable which runs on other thread and has other stack than main program
                 const snippet = new StringCodeSnippet(`${StepParams.stack}[0].${field.getInternalName()}`, range, field.type);
                 snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
                 this.registerUsagePosition(field, range);
@@ -1224,7 +1224,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
 
     // if Method is generic:
-    // a) catch type paramters inside types to get actual types for them
+    // a) catch type parameters inside types to get actual types for them
     // b) make sure all catches for one type parameter deliver the same type
     // c) compute actual type for return parameter
 
@@ -1620,7 +1620,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 return { best: bestMethodSoFar, possible: possibleMethods };
             }
 
-            // The next line is commented out because it's possible that there are catches that are not catched yet,
+            // The next line is commented out because it's possible that there are catches that are not caught yet,
             // for example public <U> Optional<U> map(Function<T,U> f)
             // When f is a lambda function then U is return parameter of it and therefore
             // only catched after lambda function has been compiled.

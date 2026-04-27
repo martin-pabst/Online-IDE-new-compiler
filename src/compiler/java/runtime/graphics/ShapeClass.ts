@@ -616,7 +616,7 @@ export class ShapeClass extends ActorClass {
 
         if (this.hitPolygonInitial == null || otherShape.hitPolygonInitial == null) return true;
 
-        // boundig boxes collide, so check further:
+        // bounding boxes collide, so check further:
         if (this.hitPolygonDirty) this.transformHitPolygon();
         if (otherShape.hitPolygonDirty) otherShape.transformHitPolygon();
 

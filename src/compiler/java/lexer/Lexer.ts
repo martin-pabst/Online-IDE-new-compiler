@@ -996,7 +996,7 @@ export class Lexer {
 
         let text = this.input.substring(posStart + 1, posEnd);
 
-        // TODO: Check if valid indentifier?
+        // TODO: Check if valid identifier?
         this.pushToken(TokenType.identifier, text, line, column + 1, this.line, this.column);
     }
 

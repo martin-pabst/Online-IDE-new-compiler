@@ -29,7 +29,7 @@ export class JavaRepl {
 
     /**
      * If REPL-Statements are executed outside a paused program context
-     * then use this symbol table an this thread:
+     * then use this symbol table an this thread: // Spellcheck TODO: figure out what this is supposed to mean
      */
     standaloneModule: JavaCompiledModule;
     standaloneSymbolTable: JavaSymbolTable;

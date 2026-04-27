@@ -151,7 +151,7 @@ export class JRC {
 
     static stringStartsWithComment = () => lm({
         "de": "Gibt genau dann true zurück, wenn der String mit dem übergebenen String beginnt.",
-        "en": "Tests if this string starts with the specified praefix.",
+        "en": "Tests if this string starts with the specified prefix.",
     })
 
     static stringEqualsIgnoreCaseComment = () => lm({
@@ -299,13 +299,13 @@ export class JRC {
     })
 
     static worldRotateComment = () => lm({
-        "de": "Rotiert die Welt um den angegebenen Winkel (in Grad!) im Urzeigersinn. Drehpunkt ist der Punkt (centerX, centerY).\nTipp: Falls Objekte NICHT mitgedreht werden sollen, rufe die Methode setStatic(true) auf.",
+        "de": "Rotiert die Welt um den angegebenen Winkel (in Grad!) im Uhrzeigersinn. Drehpunkt ist der Punkt (centerX, centerY).\nTipp: Falls Objekte NICHT mitgedreht werden sollen, rufe die Methode setStatic(true) auf.",
         "en": "Rotates world by angleInDeg clockwise.\n Hint: If objects should NOT rotate with world, invoke method setStatic(true) for them.",
     })
 
     static worldScaleComment = () => lm({
         "de": "Streckt die Welt um den angegebenen Faktor. Zentrum der Streckung ist (CenterX, centerY). Drehpunkt ist der Punkt (centerX, centerY).\nTipp: Falls Objekte NICHT mitgedreht werden sollen, rufe die Methode setStatic(true) auf.",
-        "en": "Scales world by given factorr. Pivot of scaling is (centerX, centerY).\n Hint: If objects should NOT scale with world, invoke method setStatic(true) for them.",
+        "en": "Scales world by given factor. Pivot of scaling is (centerX, centerY).\n Hint: If objects should NOT scale with world, invoke method setStatic(true) for them.",
     })
 
     static worldFlipYComment = () => lm({
@@ -388,7 +388,7 @@ export class JRC {
     })
 
     static actorActMethodComment2 = () => lm({
-        "de": "Die Methode act wird 30-mal pro Sekunde aufgerufen. Wenn Sie sie in einer Unterklasse überschreiben, so wird Ihre Methode 30-mal pro Sekunde aufgerufen. DletaTime ist die seit dem letzten Aufruf verstrichene Zeit in ms.",
+        "de": "Die Methode act wird 30-mal pro Sekunde aufgerufen. Wenn Sie sie in einer Unterklasse überschreiben, so wird Ihre Methode 30-mal pro Sekunde aufgerufen. DeltaTime ist die seit dem letzten Aufruf verstrichene Zeit in ms.",
         "en": "Method act gets called 30 times per second. Overwrite it to get your own method being called 30 times per second. DeltaTime is time since last call in ms.",
     })
 
@@ -424,7 +424,7 @@ export class JRC {
 
     static actorIsActingComment = () => lm({
         "de": "Gibt genau dann true zurück, wenn die act-Methode 30-mal pro Sekunden aufgerufen wird. Nutzen Sie die Methoden stopActing und restartActing um dies zu deaktivieren bzw. zu aktivieren.",
-        "en": "Returns true if act method is called regularly 30 time sper second. Use Methods stopActing and restartActing to disable/enable this behaviour.",
+        "en": "Returns true if act method is called regularly 30 times per second. Use Methods stopActing and restartActing to disable/enable this behaviour.",
     })
 
     static actorIsDestroyedComment = () => lm({
@@ -642,11 +642,11 @@ export class JRC {
 
     static shapeDefineCenterRelativeComment = () => lm({
         "de": "Setzt fest, wo der 'Mittelpunkt' des Objekts liegen soll. Dabei bedeutet (XRel/YRel) = (0/0) die linke obere Ecke der Bounding Box des Objekts, (XRel/YRel) = (1/1) die rechte untere Ecke. Defaultwert ist (XRel/YRel) = (0.5/0.5), also der Diagonalenschnittpunkt der Bounding Box. Dieser Punkt wird als Drehpunkt der Methode rotate, als Zentrum der Methode Scale und als Referenzpunkt der Methode moveTo benutzt.\n\nVORSICHT: Diese Methode arbeitet nicht mehr korrekt, wenn das Objekt schon gedreht wurde!",
-        "en": "Definec center of object relative to it's bounding box. (0,0) means: center at top left oft boundingbox, (1/1) means: center at bottom right of bounding box. Beware: this method doesn't work as expected if object had been rotated.",
+        "en": "Define center of object relative to it's bounding box. (0,0) means: center at top left oft bounding box, (1/1) means: center at bottom right of bounding box. Beware: this method doesn't work as expected if object had been rotated.",
     })
 
     static shapeSetDefaultVisibilityComment = () => lm({
-        "de": "Setzt den Standardwert für das Attribut 'visible'. Dieser wird nachfolgend immer dann verwendet, wenn ein neues grafisches Objekt instanziert wird.",
+        "de": "Setzt den Standardwert für das Attribut 'visible'. Dieser wird nachfolgend immer dann verwendet, wenn ein neues grafisches Objekt instanziiert wird.",
         "en": "Sets default value for field 'visibility' for all subsequently instantiated graphic objects.",
     })
 
@@ -736,7 +736,7 @@ export class JRC {
     })
 
     static fsSetFillColorCommentIntDouble = () => lm({
-        "de": "Setzt die Füllfarbe des Objekts. Die Farbe wird als integer-Wert angegeben, der alpha-Wert (Durchsichtigkeit) als double-Wert. 0.0 bedeutet komplett durchsichtig, 1.0 bedeutet kompett undurchsichtig.\n Tipp: Schreibe die Farbe in der Form 0xffffff, dann zeigt die IDE ein kleines Farbquadrat, mit dem Du einen Color Picker öffnen kannst.",
+        "de": "Setzt die Füllfarbe des Objekts. Die Farbe wird als integer-Wert angegeben, der alpha-Wert (Durchsichtigkeit) als double-Wert. 0.0 bedeutet komplett durchsichtig, 1.0 bedeutet komplett undurchsichtig.\n Tipp: Schreibe die Farbe in der Form 0xffffff, dann zeigt die IDE ein kleines Farbquadrat, mit dem Du einen Color Picker öffnen kannst.",
         "en": "Set fill color from int value. Alpha-value is given as double value: 0.0 means completely transparent, 1.0 means completely opaque. \n Hint: If you write fillcolor as hex value like 0xffffff then the IDE shows a little color patch. Hover over it to open a color picker.",
     })
 
@@ -766,7 +766,7 @@ export class JRC {
     })
 
     static fsSetBorderColorCommentIntDouble = () => lm({
-        "de": "Setzt die Randfarbe des Objekts. Die Farbe wird als integer-Wert angegeben, der alpha-Wert (Durchsichtigkeit) als double-Wert. 0.0 bedeutet komplett durchsichtig, 1.0 bedeutet kompett undurchsichtig.\n Tipp: Schreibe die Farbe in der Form 0xffffff, dann zeigt die IDE ein kleines Farbquadrat, mit dem Du einen Color Picker öffnen kannst.",
+        "de": "Setzt die Randfarbe des Objekts. Die Farbe wird als integer-Wert angegeben, der alpha-Wert (Durchsichtigkeit) als double-Wert. 0.0 bedeutet komplett durchsichtig, 1.0 bedeutet komplett undurchsichtig.\n Tipp: Schreibe die Farbe in der Form 0xffffff, dann zeigt die IDE ein kleines Farbquadrat, mit dem Du einen Color Picker öffnen kannst.",
         "en": "Set border color as int value. Alpha-value is given as double value: 0.0 means completely transparent, 1.0 means completely opaque. \n Hint: If you write BorderColor as hex value like 0xffffff then the IDE shows a little color patch. Hover over it to open a color picker.",
     })
 
@@ -926,12 +926,12 @@ export class JRC {
     })
 
     static circleEmptyConstructorComment = () => lm({
-        "de": "Instanziert einen neuen Kreis mit Mittelpunkt (50, 50) und Radius 50.",
+        "de": "Instanziiert einen neuen Kreis mit Mittelpunkt (50, 50) und Radius 50.",
         "en": "Creates a new Circle object with center at (50, 50) and radius 50.",
     })
 
     static circleConstructorComment = () => lm({
-        "de": "Instanziert einen neuen Kreis. (mx, my) ist der Mittelpunt, r sein Radius.",
+        "de": "Instanziiert einen neuen Kreis. (mx, my) ist der Mittelpunkt, r sein Radius.",
         "en": "Creates a new Circle object with center at (mx, my) and given radius.",
     })
 
@@ -960,12 +960,12 @@ export class JRC {
     })
 
     static ArcConstructorComment1 = () => lm({
-        "de": "Instanziert einen neuen Kreisbogen.",
+        "de": "Instanziiert einen neuen Kreisbogen.",
         "en": "Creates a new Arc.",
     })
 
     static ArcConstructorComment = () => lm({
-        "de": "Instanziert einen neuen Kreisbogen. (mx, my) ist der Mittelpunt, ri sein Innenradius, ra sein Außenradius. Der Kreisbogen wird von startAngle bis endAngle (beides in Grad) gegen den Uhrzeigersinn gezogen.",
+        "de": "Instanziiert einen neuen Kreisbogen. (mx, my) ist der Mittelpunkt, ri sein Innenradius, ra sein Außenradius. Der Kreisbogen wird von startAngle bis endAngle (beides in Grad) gegen den Uhrzeigersinn gezogen.",
         "en": "Creates a new Arc. (mx, my) is it's center, ri it's inner radius, ra it's outer radius. The arc will be drawn from startAngle up to endAngle (both in degrees) counterclockwise.",
     })
 
@@ -1023,12 +1023,12 @@ export class JRC {
     })
 
     static TextEmptyConstructorComment = () => lm({
-        "de": "Instanziert ein neues Textobjekt. Der Textanker (default: links oben) liegt bei (0, 0).",
+        "de": "Instanziiert ein neues Textobjekt. Der Textanker (default: links oben) liegt bei (0, 0).",
         "en": "Creates a new Text object. It's anchor (default: top left) is positioned at (0, 0).",
     })
 
     static TextConstructorComment1 = () => lm({
-        "de": "Instanziert ein neues Textobjekt. (x, y) sind die Koordinaten des Textankers (default: links oben), fontsize die Höhe des Textes in Pixeln.",
+        "de": "Instanziiert ein neues Textobjekt. (x, y) sind die Koordinaten des Textankers (default: links oben), fontsize die Höhe des Textes in Pixeln.",
         "en": "Creates a new Text object. (x, y) is it's anchor's position, fontSize it's height in pixels.",
     })
 
@@ -1213,12 +1213,12 @@ export class JRC {
     })
 
     static SectorConstructorComment1 = () => lm({
-        "de": "Instanziert einen neuen Kreisbogen.",
+        "de": "Instanziiert einen neuen Kreisbogen.",
         "en": "Creates a new Sector. (mx, my) is it's center, ri it's inner radius, ra it's outer radius. The sector will be drawn from startAngle up to endAngle (both in degrees) counterclockwise.",
     })
 
     static SectorConstructorComment = () => lm({
-        "de": "Instanziert einen neuen Kreisbogen. (mx, my) ist der Mittelpunt, ri sein Innenradius, ra sein Außenradius. Der Kreisbogen wird von startAngle bis endAngle (beides in Grad) gegen den Uhrzeigersinn gezogen.",
+        "de": "Instanziiert einen neuen Kreisbogen. (mx, my) ist der Mittelpunkt, ri sein Innenradius, ra sein Außenradius. Der Kreisbogen wird von startAngle bis endAngle (beides in Grad) gegen den Uhrzeigersinn gezogen.",
         "en": "Creates a new Sector. (mx, my) is it's center, ri it's inner radius, ra it's outer radius. The sector will be drawn from startAngle up to endAngle (both in degrees) counterclockwise.",
     })
 
@@ -1282,22 +1282,22 @@ export class JRC {
     })
 
     static PolygonEmptyConstructorComment = () => lm({
-        "de": "Instanziert ein neues Polygon. Der Standardkonstruktor ohne Parameter instanziert ein regelmäßiges Sechseck. \nTipp: Es gibt auch Konstruktoren, denen man ein Array von Koordinaten bzw. einzelne Koordinaten übergeben kann!",
+        "de": "Instanziiert ein neues Polygon. Der Standardkonstruktor ohne Parameter instanziiert ein regelmäßiges Sechseck. \nTipp: Es gibt auch Konstruktoren, denen man ein Array von Koordinaten bzw. einzelne Koordinaten übergeben kann!",
         "en": "Creates a polygon. The parameterless constructor creates a regular hexagon. \nHint: There are constructors that take (an array of) coordinates.",
     })
 
     static PolygonConstructor1Comment = () => lm({
-        "de": "Instanziert ein neues Polygon. Die Punkte werden als Array von double-Werten der Form {x1, y1, x2, y2, ...} übergeben.",
+        "de": "Instanziiert ein neues Polygon. Die Punkte werden als Array von double-Werten der Form {x1, y1, x2, y2, ...} übergeben.",
         "en": "Creates a polygon. Points are given as array of double-values in this order: {x1, y1, x2, y2, ...}",
     })
 
     static PolygonConstructor2Comment = () => lm({
-        "de": "Instanziert ein neues Polygon. Die Punkte werden als double-Werte der Form x1, y1, x2, y2, ... übergeben.",
+        "de": "Instanziiert ein neues Polygon. Die Punkte werden als double-Werte der Form x1, y1, x2, y2, ... übergeben.",
         "en": "Creates a polygon. Points are given as double-values in this order: x1, y1, x2, y2, ...",
     })
 
     static PolygonConstructorShapeComment = () => lm({
-        "de": "Instanziert ein neues Polygon. Seine Punkte sind die Punkte des Hitpolygons der übergebenen Figur.",
+        "de": "Instanziiert ein neues Polygon. Seine Punkte sind die Punkte des Hitpolygons der übergebenen Figur.",
         "en": "Creates a polygon based on given shape's hitpolygon.",
     })
 
@@ -1338,7 +1338,7 @@ export class JRC {
     })
 
     static PolygonOpenComment = () => lm({
-        "de": "Öffnet das Polygon, indem des die Strecke zwischen erstem und letzem Punkt entfernt. Diese Methode hat bei gefüllten Polygonen keinen Effekt.",
+        "de": "Öffnet das Polygon, indem es die Strecke zwischen erstem und letztem Punkt entfernt. Diese Methode hat bei gefüllten Polygonen keinen Effekt.",
         "en": "Opens polygon by removing the line between first and last point. This method does nothing when polygon is filled.",
     })
 
@@ -1352,12 +1352,12 @@ export class JRC {
     })
 
     static EllipseEmptyConstructorComment = () => lm({
-        "de": "Instanziert einen neuen Ellipse mit Mittelpunkt (200, 100) und den Radien 100 und 50.",
+        "de": "Instanziiert einen neuen Ellipse mit Mittelpunkt (200, 100) und den Radien 100 und 50.",
         "en": "Creates a new ellipse object with center at (200, 100) and radii 100, 50.",
     })
 
     static EllipseConstructorComment = () => lm({
-        "de": "Instanziert eine neuen Ellipse. (mx, my) ist der Mittelpunt, rx ihr Radius in x-Richtung, ry ihr Radius in y-Richtung.",
+        "de": "Instanziiert eine neuen Ellipse. (mx, my) ist der Mittelpunkt, rx ihr Radius in x-Richtung, ry ihr Radius in y-Richtung.",
         "en": "Creates a new ellipse object with center at (mx, my) and given radii in rx, ry.",
     })
 
@@ -1395,17 +1395,17 @@ export class JRC {
     })
 
     static TurtleEmptyConstructorComment = () => lm({
-        "de": "Instanziert ein neues Turtle-Objekt ohne Punkte. Die Turtle blickt anfangs nach rechts. Am Ende des Streckenzugs wird eine 'Schildkröte' (kleines Dreieck) gezeichnet.",
+        "de": "Instanziiert ein neues Turtle-Objekt ohne Punkte. Die Turtle blickt anfangs nach rechts. Am Ende des Streckenzugs wird eine 'Schildkröte' (kleines Dreieck) gezeichnet.",
         "en": "Creates a new Turtle object without points/lines. Initially the turtle's viewing direction is to the right. A small red triangle shows the turtle's current position. ",
     })
 
     static TurtleConstructorComment1 = () => lm({
-        "de": "Instanziert ein neues Turtle-Objekt ohne Punkte. (x, y) is die Startposition der Turtle. Die Turtle blickt anfangs nach rechts. Am Ende des Streckenzugs wird eine 'Schildkröte' (kleines Dreieck) gezeichnet.",
+        "de": "Instanziiert ein neues Turtle-Objekt ohne Punkte. (x, y) is die Startposition der Turtle. Die Turtle blickt anfangs nach rechts. Am Ende des Streckenzugs wird eine 'Schildkröte' (kleines Dreieck) gezeichnet.",
         "en": "Creates a new Turtle object without points/lines at position (x, y). Initially the turtle's viewing direction is to the right. A small red triangle shows the turtle's current position. ",
     })
 
     static TurtleConstructorComment2 = () => lm({
-        "de": "Instanziert ein neues Turtle-Objekt ohne Punkte. (x, y) is die Startposition der Turtle. Die Turtle blickt anfangs nach rechts. Falls showTurtle == true wird am Ende des Streckenzugs eine 'Schildkröte' (kleines Dreieck) gezeichnet.",
+        "de": "Instanziiert ein neues Turtle-Objekt ohne Punkte. (x, y) is die Startposition der Turtle. Die Turtle blickt anfangs nach rechts. Falls showTurtle == true wird am Ende des Streckenzugs eine 'Schildkröte' (kleines Dreieck) gezeichnet.",
         "en": "Creates a new Turtle object without points/lines at position (x, y). Initially the turtle's viewing direction is to the right. If showTurtle == true a small red triangle shows the turtle's current position. ",
     })
 
@@ -1436,7 +1436,7 @@ export class JRC {
 
     static TurtleCloseAndFillComment = () => lm({
         "de": "closeAndFill == true bewirkt, dass das von der Turtlezeichnung umschlossene Gebiet gefüllt wird.",
-        "en": "If closeAndFill == true then the area surronded by the turtle's drawing is filled.",
+        "en": "If closeAndFill == true then the area surrounded by the turtle's drawing is filled.",
     })
 
     static TurtleShowTurtleComment = () => lm({
@@ -1523,12 +1523,12 @@ export class JRC {
     })
 
     static rectangleEmptyConstructorComment = () => lm({
-        "de": "Instanziert ein Retangle-Objekt mit Standardmaßen. Seine linke obere Ecke liegt bei (0/0). Breite und Höhe betragen jeweils 100. Die Rechteckseiten sind zunächst parallel zu den Koordinatenachsen.",
+        "de": "Instanziiert ein Retangle-Objekt mit Standardmaßen. Seine linke obere Ecke liegt bei (0/0). Breite und Höhe betragen jeweils 100. Die Rechteckseiten sind zunächst parallel zu den Koordinatenachsen.",
         "en": "Instantiates a rectangle object with default geometry. It's left top edge is located at (0/0). Width and height are 100 each. Initial orientation is parallel to x- and y-axis."
     })
 
     static rectangleConstructorComment = () => lm({
-        "de": "Instanziert ein Retangle-Objekt. Seine linke obere Ecke liegt bei (top/left). Width ist seine Breite, height seine Höhe. Das Rechteck ist zunächst achsenparallel.",
+        "de": "Instanziiert ein Retangle-Objekt. Seine linke obere Ecke liegt bei (top/left). Width ist seine Breite, height seine Höhe. Das Rechteck ist zunächst achsenparallel.",
         "en": "Instantiates a rectangle object with given width and height. It's left top edge is located at (top/left). Initial orientation is parallel to x- and y-axis."
     })
 
@@ -1571,12 +1571,12 @@ export class JRC {
     })
 
     static RoundedRectangleEmptyConstructorComment = () => lm({
-        "de": "Instanziert ein Retangle-Objekt mit Standardmaßen. Seine linke obere Ecke liegt bei (0/0). Breite und Höhe betragen jeweils 100. Die Rechteckseiten sind zunächst parallel zu den Koordinatenachsen.",
+        "de": "Instanziiert ein Retangle-Objekt mit Standardmaßen. Seine linke obere Ecke liegt bei (0/0). Breite und Höhe betragen jeweils 100. Die Rechteckseiten sind zunächst parallel zu den Koordinatenachsen.",
         "en": "Instantiates a RoundedRectangle object with default geometry. It's left top edge is located at (0/0). Width and height are 100 each. Initial orientation is parallel to x- and y-axis."
     })
 
     static RoundedRectangleConstructorComment = () => lm({
-        "de": "Instanziert ein Retangle-Objekt. Seine linke obere Ecke liegt bei (top/left). Width ist seine Breite, height seine Höhe. Das Rechteck ist zunächst achsenparallel.",
+        "de": "Instanziiert ein Retangle-Objekt. Seine linke obere Ecke liegt bei (top/left). Width ist seine Breite, height seine Höhe. Das Rechteck ist zunächst achsenparallel.",
         "en": "Instantiates a RoundedRectangle object with given width and height. It's left top edge is located at (top/left). Initial orientation is parallel to x- and y-axis."
     })
 
@@ -1676,7 +1676,7 @@ export class JRC {
     })
 
     static BitmapConstructorComment = () => lm({
-        "de": "Instanziert eine neue Bitmap. pointsX bzw. pointsY bezeichnet Anzahl der Bildpunkte in x bzw. y-Richtung, (left, top) sind die Koordinaten der linken oberen Ecke.",
+        "de": "Instanziiert eine neue Bitmap. pointsX bzw. pointsY bezeichnet Anzahl der Bildpunkte in x bzw. y-Richtung, (left, top) sind die Koordinaten der linken oberen Ecke.",
         "en": "Creates a new Bitmap. pointsX and pointsY are it's resolution, (left, top) is it's top-left corner.",
     })
 
@@ -1762,7 +1762,7 @@ export class JRC {
     })
 
     static spriteConstructorComment1 = () => lm({
-        "de": "Instanziert ein neues Sprite und stellt es an der Position (x, y) dar (== Diagonalenschnittpunkt der Boundingbox). SpriteLibrary ist ein Aufzählungstyp (enum). Gib einfach SpriteLibraryEntry gefolgt von einem Punkt ein, dann erhältst Du ein Auswahl von Bildern. Einen Überblick über die Bilder bekommst Du auch über den Menüpunkt Hilfe->Sprite-Bilderübersicht.",
+        "de": "Instanziiert ein neues Sprite und stellt es an der Position (x, y) dar (== Diagonalenschnittpunkt der Boundingbox). SpriteLibrary ist ein Aufzählungstyp (enum). Gib einfach SpriteLibraryEntry gefolgt von einem Punkt ein, dann erhältst Du ein Auswahl von Bildern. Einen Überblick über die Bilder bekommst Du auch über den Menüpunkt Hilfe->Sprite-Bilderübersicht.",
         "en": "Instantiate a new sprite object and move it to position (x,y) (== diagonal intersection of bounding box). SpriteLibrary is a enum. Just enter SpriteLibraryEntry followed by a dot to get a list of library identifiers. To view all sprite libraries got to Help->Sprite Libraries.",
     })
 
@@ -1807,7 +1807,7 @@ export class JRC {
     })
 
     static spriteSetImageComment = () => lm({
-        "de": "Ändert das Bild des Sprites. SpriteLibraryEntry ist ein Auzählungstyp (enum). Gib einfach SpriteLibraryEntry gefolgt von einem Punkt ein, dann erhältst Du ein Auswahl von Bildern. Einen Überblick über die Bilder bekommst Du auch über den Menüpunkt Hilfe->Sprite-Bilderübersicht.",
+        "de": "Ändert das Bild des Sprites. SpriteLibraryEntry ist ein Aufzählungstyp (enum). Gib einfach SpriteLibraryEntry gefolgt von einem Punkt ein, dann erhältst Du ein Auswahl von Bildern. Einen Überblick über die Bilder bekommst Du auch über den Menüpunkt Hilfe->Sprite-Bilderübersicht.",
         "en": "sets the image of this sprite. SpriteLibrary is a enum. Just enter SpriteLibraryEntry followed by a dot to get a list of library identifiers. To view all sprite libraries got to Help->Sprite Libraries.",
     })
 
@@ -1883,7 +1883,7 @@ export class JRC {
 
     static spriteSpriteIsNoTiledSpriteError = () => lm({
         "de": "Das Sprite hat kein TileImage. Sie müssen es zuerst mit der Methode makeTiling in ein Kachel-Sprite umwandeln.",
-        "en": "This sprite has no tileImage as it had not beeen converted to a TileSprite via method 'makeTiling'.",
+        "en": "This sprite has no tileImage as it had not been converted to a TileSprite via method 'makeTiling'.",
     })
 
     static spriteGetPixelColorComment = () => lm({
@@ -1974,7 +1974,7 @@ export class JRC {
     })
 
     static collectionRemoveAllComment = () => lm({
-        "de": "Entnimnt der Liste alle Vorkommen aller Elemente der übergebenen Collection.",
+        "de": "Entnimmt der Liste alle Vorkommen aller Elemente der übergebenen Collection.",
         "en": "Removes from this list all of its elements that are contained in the specified collection.",
     })
 
@@ -2002,12 +2002,12 @@ export class JRC {
      * List
      */
     static listAddElementComment = () => lm({
-        "de": "Fügt das angegebene Element an der angegebenen Position in die Liste ein. Alle nachfolgendne Elemente werden um eine Position nach hinten verschoben.",
+        "de": "Fügt das angegebene Element an der angegebenen Position in die Liste ein. Alle nachfolgende Elemente werden um eine Position nach hinten verschoben.",
         "en": "Inserts the specified element at the specified position in this list. Shifts the element currently at that position (if any) and any subsequent elements to the right (adds one to their indices).",
     })
 
     static listAddAllElementsComment = () => lm({
-        "de": "Fügt alle Elemente der übergebenen Collection an der angegebenen Position in die Liste ein. Alle nachfolgendne Elemente werden entsprechend nach hinten verschoben.",
+        "de": "Fügt alle Elemente der übergebenen Collection an der angegebenen Position in die Liste ein. Alle nachfolgende Elemente werden entsprechend nach hinten verschoben.",
         "en": "Inserts all of the elements in the specified collection into this list, starting at the specified position. Shifts the element currently at that position (if any) and any subsequent elements to the right (increases their indices). The new elements will appear in the list in the order that they are returned by the specified collection's iterator.",
     })
 
@@ -2046,7 +2046,7 @@ export class JRC {
     })
 
     static arrayListConstructorComment = () => lm({
-        "de": "Instanziert (d.h. erzeugt) eine neue, leere Liste.",
+        "de": "Instanziiert (d.h. erzeugt) eine neue, leere Liste.",
         "en": "Constructs an empty list.",
     })
 
@@ -2064,7 +2064,7 @@ export class JRC {
      * Vector
      */
     static vectorConstructorComment = () => lm({
-        "de": "Instanziert (d.h. erzeugt) eine neue, leere Liste.",
+        "de": "Instanziiert (d.h. erzeugt) eine neue, leere Liste.",
         "en": "Constructs an empty list.",
     })
 
@@ -2153,7 +2153,7 @@ export class JRC {
     })
 
     static iteratorHasNextComment = () => lm({
-        "de": "Liefert true zurück falls es noch weitere Elemente gibt, die mit der Methoe next() abgerufen werden können.",
+        "de": "Liefert true zurück falls es noch weitere Elemente gibt, die mit der Methode next() abgerufen werden können.",
         "en": "Returns true if the iteration has more elements.",
     })
 
@@ -2480,7 +2480,7 @@ export class JRC {
     })
 
     static threadSetSpeedComment = () => lm({
-        "de": "Setzt die gewünschte Ausführungsgeschwindigkeit des Threads in Schritten/Sekunde. Werte <= 0 bewirken die Ausführung mit maximaler Geschwidigkeit.",
+        "de": "Setzt die gewünschte Ausführungsgeschwindigkeit des Threads in Schritten/Sekunde. Werte <= 0 bewirken die Ausführung mit maximaler Geschwindigkeit.",
         "en": "Sets speed of thread in steps/second. Values <= 0 mean 'maximum speed'.",
     })
 
@@ -2709,12 +2709,12 @@ export class JRC {
 
     static PAppletTRIANGLE_STRIPComment = () => lm({
         "de": "zeichne nachfolgend einen Triangle-Strip",
-        "en": "draw triangle-strip subesequently",
+        "en": "draw triangle-strip subsequently",
     })
 
     static PAppletTRIANGLE_FANComment = () => lm({
         "de": "zeichne nachfolgend einen Triangle-Fan",
-        "en": "draw triangle-fan subesequently",
+        "en": "draw triangle-fan subsequently",
     })
 
     static PAppletQUADSComment = () => lm({
@@ -3480,7 +3480,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static KaraConstructorComment = () => lm({
-        "de": "Instanziert ein neues Kara-Objekt.",
+        "de": "Instanziiert ein neues Kara-Objekt.",
         "en": "Creates a new Kara beatle.",
     })
 
@@ -3515,12 +3515,12 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static KaraTreeLeftComment = () => lm({
-        "de": "Gibt genau dann true zurück, wenn sich auf dem Feld unmmittelbar links von Kara ein Baumstumpf befindet.",
+        "de": "Gibt genau dann true zurück, wenn sich auf dem Feld unmittelbar links von Kara ein Baumstumpf befindet.",
         "en": "Returns true if and only if directly left of Kara there is a tree stump.",
     })
 
     static KaraTreeRightComment = () => lm({
-        "de": "Gibt genau dann true zurück, wenn sich auf dem Feld unmmittelbar rechts von Kara ein Baumstumpf befindet.",
+        "de": "Gibt genau dann true zurück, wenn sich auf dem Feld unmittelbar rechts von Kara ein Baumstumpf befindet.",
         "en": "Returns true if and only if directly right of Kara there is a tree stump.",
     })
 
@@ -3558,7 +3558,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static HamsterWorldConstructorComment = () => lm({
-        "de": "Instanziert eine neue JavaHamster-Welt"
+        "de": "Instanziiert eine neue JavaHamster-Welt"
     })
 
     static HamsterWorldGetBreiteComment = () => lm({
@@ -3598,7 +3598,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static HamsterConstructorComment = () => lm({
-        "de": "Instanziert ein neues Hamster-Objekt",
+        "de": "Instanziiert ein neues Hamster-Objekt",
         "en": "",
     })
 
@@ -3691,7 +3691,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static PositionConstructorComment = () => lm({
-        "de": "Instanziert eine neue Position den Komponenten x und y.",
+        "de": "Instanziiert eine neue Position den Komponenten x und y.",
         "en": "Creates a new Position object with components x and y",
     })
 
@@ -3705,7 +3705,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static BigIntegerConstructorComment = () => lm({
-        "de": "Instanziert ein neues BigInteger-Objekt.",
+        "de": "Instanziiert ein neues BigInteger-Objekt.",
         "en": "Creates a new BigInteger-object.",
     })
 
@@ -3720,12 +3720,12 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static BigIntegerDivideComment = () => lm({
-        "de": "Dividiert das BigInteger-Objekt durch das übergebene undd gibt ein neues BigInteger-Objekt zurück, dessen Wert der errechnete Quotient ist. Die Methode add ändert nicht das aktuelle BigInteger-Objekt!",
+        "de": "Dividiert das BigInteger-Objekt durch das übergebene und gibt ein neues BigInteger-Objekt zurück, dessen Wert der errechnete Quotient ist. Die Methode add ändert nicht das aktuelle BigInteger-Objekt!",
         "en": "Divides this BigInteger-object by given one and returns a NEW BigInteger-object whose value is the quotient of the two.",
     })
 
     static BigIntegerRemainderComment = () => lm({
-        "de": "Dividiert das BigInteger-Objekt durch das übergebene undd gibt ein neues BigInteger-Objekt zurück, dessen Wert der Rest der Division ist. Die Methode add ändert nicht das aktuelle BigInteger-Objekt!",
+        "de": "Dividiert das BigInteger-Objekt durch das übergebene und gibt ein neues BigInteger-Objekt zurück, dessen Wert der Rest der Division ist. Die Methode add ändert nicht das aktuelle BigInteger-Objekt!",
         "en": "Divides this BigInteger-object by given one and returns a NEW BigInteger-object whose value is the remainder of this division.",
     })
 
@@ -3822,12 +3822,12 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
 
     static Vector2RotateComment = () => lm({
         "de": "Rotiert das Vector2-Objekt um den angegebenen Winkel (in Grad) und gibt es zurück (für Method-Chaining!). Positive Winkel bedeuten eine Drehung ENTGEGEN dem Uhrzeigersinn.",
-        "en": "Rotates this Vector2-object by given angle (in degrees) and returns it for method chaining. Positve angles lead to COUNTERCLOCKWISE rotation.",
+        "en": "Rotates this Vector2-object by given angle (in degrees) and returns it for method chaining. Positive angles lead to COUNTERCLOCKWISE rotation.",
     })
 
     static Vector2RotatedByComment = () => lm({
         "de": "Gibt ein NEUES Vector2-Objekt zurück, das um den angegebenen Winkel (in Grad) gedreht ist. Positive Winkel bedeuten eine Drehung ENTGEGEN dem Uhrzeigersinn.",
-        "en": "Returns a NEW Vector2-object rotated by given angle (in degrees). Positve angles lead to COUNTERCLOCKWISE rotation.",
+        "en": "Returns a NEW Vector2-object rotated by given angle (in degrees). Positive angles lead to COUNTERCLOCKWISE rotation.",
     })
 
     static Vector2PlusComment = () => lm({
@@ -4028,12 +4028,12 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
 
     static Vector3RotateComment = () => lm({
         "de": "Rotiert das Vector3-Objekt um den angegebenen Winkel (in Grad) und gibt es zurück (für Method-Chaining!). Positive Winkel bedeuten eine Drehung ENTGEGEN dem Uhrzeigersinn.",
-        "en": "Rotates this Vector3-object by given angle (in degrees) and returns it for method chaining. Positve angles lead to COUNTERCLOCKWISE rotation.",
+        "en": "Rotates this Vector3-object by given angle (in degrees) and returns it for method chaining. Positive angles lead to COUNTERCLOCKWISE rotation.",
     })
 
     static Vector3RotatedByComment = () => lm({
         "de": "Gibt ein NEUES Vector3-Objekt zurück, das um den angegebenen Winkel (in Grad) gedreht ist. Positive Winkel bedeuten eine Drehung ENTGEGEN dem Uhrzeigersinn.",
-        "en": "Returns a NEW Vector3-object rotated by given angle (in degrees). Positve angles lead to COUNTERCLOCKWISE rotation.",
+        "en": "Returns a NEW Vector3-object rotated by given angle (in degrees). Positive angles lead to COUNTERCLOCKWISE rotation.",
     })
 
     static Vector3PlusComment = () => lm({
@@ -4489,7 +4489,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static ButtonConstructorComment = () => lm({
-        "de": "Instanziert ein neues Button-Objekt. (x, y) sind die Koordinaten der linken oberen Ecke, fontsize die Höhe des Textes in Pixeln.",
+        "de": "Instanziiert ein neues Button-Objekt. (x, y) sind die Koordinaten der linken oberen Ecke, fontsize die Höhe des Textes in Pixeln.",
         "en": "Creates a new Button object. (x,y) is it's top left corner, fontsize the height of it's caption in pixels.",
     })
 
@@ -4513,7 +4513,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static CheckBoxConstructorComment = () => lm({
-        "de": "Instanziert ein neues CheckBox-Objekt. (x, y) sind die Koordinaten der linken oberen Ecke, fontsize die Höhe des Textes in Pixeln.",
+        "de": "Instanziiert ein neues CheckBox-Objekt. (x, y) sind die Koordinaten der linken oberen Ecke, fontsize die Höhe des Textes in Pixeln.",
         "en": "Creates a new CheckBox object. (x,y) is it's top left corner, fontsize the height of it's caption in pixels.",
     })
 
@@ -4548,7 +4548,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static RadiobuttonConstructorComment = () => lm({
-        "de": "Instanziert ein neues Radiobutton-Objekt. (x, y) sind die Koordinaten der linken oberen Ecke, fontsize die Höhe des Textes in Pixeln.",
+        "de": "Instanziiert ein neues Radiobutton-Objekt. (x, y) sind die Koordinaten der linken oberen Ecke, fontsize die Höhe des Textes in Pixeln.",
         "en": "Creates a new Radiobutton object. (x,y) is it's top left corner, fontsize the height of it's caption in pixels.",
     })
 
@@ -4563,13 +4563,13 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static RadiobuttonGetIndexOfSelectedRadiobuttonComment = () => lm({
-        "de": "Sind mehrere Radiobuttons mittels connectTo mit dieserm logisch verbunden, so ist genau einer davon selektiert. Diese Methode gibt den Index dieses selektierten Radiobuttons zurück.",
-        "en": "If threre are several radiobuttons grouped together via method connectTo then this method returns the selected radiobutton's index.",
+        "de": "Sind mehrere Radiobuttons mittels connectTo logisch verbunden, so ist genau einer davon selektiert. Diese Methode gibt den Index dieses selektierten Radiobuttons zurück.",
+        "en": "If there are several radiobuttons grouped together via method connectTo then this method returns the selected radiobutton's index.",
     })
 
     static RadiobuttonGetTextOfSelectedRadiobuttonComment = () => lm({
-        "de": "Sind mehrere Radiobuttons mittels connectTo mit dieserm logisch verbunden, so ist genau einer davon selektiert. Diese Methode gibt den Text dieses selektierten Radiobuttons zurück.",
-        "en": "If threre are several radiobuttons grouped together via method connectTo then this method returns the selected radiobutton's text.",
+        "de": "Sind mehrere Radiobuttons mittels connectTo logisch verbunden, so ist genau einer davon selektiert. Diese Methode gibt den Text dieses selektierten Radiobuttons zurück.",
+        "en": "If there are several radiobuttons grouped together via method connectTo then this method returns the selected radiobutton's text.",
     })
 
     static RadiobuttonSetIndexComment = () => lm({
@@ -4607,7 +4607,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static TextfieldConstructorComment = () => lm({
-        "de": "Instanziert ein neues TextField-Objekt. (x, y) sind die Koordinaten der linken oberen Ecke, fontsize die Höhe des Textes in Pixeln.",
+        "de": "Instanziiert ein neues TextField-Objekt. (x, y) sind die Koordinaten der linken oberen Ecke, fontsize die Höhe des Textes in Pixeln.",
         "en": "Creates a new Textfield. (x, y) is it's top left edge, fontsize it's text height in pixels.",
     })
 
@@ -4760,7 +4760,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static JsonElementGetAttributeIdentifiersException = () => lm({
-        "de": "Das Json-Element ist kein Objekt, daher kann diese Methode kein Array von Attributbzeichnern liefern.",
+        "de": "Das Json-Element ist kein Objekt, daher kann diese Methode kein Array von Attributbezeichnern liefern.",
         "en": "This json element is no object, therefore this method cannot return an array with field identifiers.",
     })
 
@@ -4810,7 +4810,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static HttpRequestConstructorComment = () => lm({
-        "de": "Instanziert ein neues HttpRequest-Objekt.",
+        "de": "Instanziiert ein neues HttpRequest-Objekt.",
         "en": "Creates a new HttpRequest-object.",
     })
 
@@ -4866,7 +4866,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
 
     static HttpResponseRequestComment = () => lm({
         "de": "Gibt das Request-Objekt zurück, das diesen Response zur Folge hatte.",
-        "en": "Returns the request-object whicht lead to this response.",
+        "en": "Returns the request-object which lead to this response.",
     })
 
     static HttpResponseHeadersComment = () => lm({
@@ -4886,7 +4886,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static HttpClientConstructorComment = () => lm({
-        "de": "Instanziert ein neues HttpClient-Objekt.",
+        "de": "Instanziiert ein neues HttpClient-Objekt.",
         "en": "Creates a new HttpClient-object.",
     })
 
@@ -4908,11 +4908,11 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
      */
     static WebSocketClassComment = () => lm({
         "de": "Ein Objekt der Klasse WebSocket kann Daten über das Internet senden und empfangen. Um die Klasse benutzen zu können, musst Du eine eigene Klasse schreiben, die die Klasse WebSocket erweitert und die Methoden onConnect, onMessage, onOtherClientConnected und onOtherClientDisconnected überschreibt.",
-        "en": "An Object of class WebSocket can send/receive data over the internet. To use this class you have to write your own class extending this one. By overwriting methods onConnect, onMessage, onOtherClientConnected and onOtherclientDisconnected you can react to these events.",
+        "en": "An Object of class WebSocket can send/receive data over the internet. To use this class you have to write your own class extending this one. By overwriting methods onConnect, onMessage, onOtherClientConnected and onOtherClientDisconnected you can react to these events.",
     })
 
     static WebSocketConstructorComment = () => lm({
-        "de": "Instanziert ein neues WebSocket-Objekt.",
+        "de": "Instanziiert ein neues WebSocket-Objekt.",
         "en": "Creates a new WebSocket object.",
     })
 
@@ -5006,7 +5006,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
 
     static WebSocketClientSetUserDataComment = () => lm({
         "de": "Mit dieser Methode kannst Du beliebige Objektreferenzen in diesem WebSocketClient-Objekt speichern. Den Schlüssel kannst Du dabei frei wählen und später nutzen, um den Wert durch die Methode getUserData wieder zu holen.",
-        "en": "This method lets you save arbitrary object references alongside this WebSocketClient-object. You may choose the key freely and use it later on to retreive the value by calling getUserData.",
+        "en": "This method lets you save arbitrary object references alongside this WebSocketClient-object. You may choose the key freely and use it later on to retrieve the value by calling getUserData.",
     })
 
     static WebSocketClientGetUserDataComment = () => lm({
@@ -5322,7 +5322,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
      * Mesh3d
      */
     static Mesh3dClassComment = () => lm({
-        "de": "Basisklasse für alle 3d-Meshes, d.h. Objekte, die aus Dreicken bestehen.",
+        "de": "Basisklasse für alle 3d-Meshes, d.h. Objekte, die aus Dreiecken bestehen.",
         "en": "Base class of all 3d meshes (objects consisting of triangles)",
     })
 
@@ -5331,7 +5331,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
      * GraphicsManager
      */
     static GraphicSystemNotAvailableError = (systemOld: string, systemNew: string) => lm({
-        "de": "Die Grafikausgabe ist schon in Gebrauch durch " + systemOld + ", daher kann das Graphiksystem " + systemNew + " nicht gestartet werden.",
+        "de": "Die Grafikausgabe ist schon in Gebrauch durch " + systemOld + ", daher kann das Grafiksystem " + systemNew + " nicht gestartet werden.",
         "en": "Graphic output is in use by " + systemOld + ", therefore it is not available for " + systemNew + ".",
     })
 
@@ -5497,22 +5497,22 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static robotEmptyConstructorComment = () => lm({
-        "de": `Instanziert ein neues Robot-Objekt. Der Roboter steht anfangs an der Stelle (1/1)'`,
+        "de": `Instanziiert ein neues Robot-Objekt. Der Roboter steht anfangs an der Stelle (1/1)'`,
         "en": `Creates a new Robot object. Start position is at (1, 1).`,
     })
 
     static robotConstructorStartXStartY = () => lm({
-        "de": `Instanziert ein neues Robot-Objekt. Der Roboter wird anfangs an die Stelle (startX/startY) gesetzt.`,
+        "de": `Instanziiert ein neues Robot-Objekt. Der Roboter wird anfangs an die Stelle (startX/startY) gesetzt.`,
         "en": `Creates a new Robot object. Start position is at (startX, startY).`,
     })
 
     static robotConstructorStartXStartYWorldXWorldY = () => lm({
-        "de": `Instanziert ein neues Robot-Objekt. Der Roboter wird anfangs an die Stelle (startX/startY) gesetzt. WorldX und WorldY sind die Ausmaße der Welt.`,
+        "de": `Instanziiert ein neues Robot-Objekt. Der Roboter wird anfangs an die Stelle (startX/startY) gesetzt. WorldX und WorldY sind die Ausmaße der Welt.`,
         "en": `Creates a new Robot object. Start position is at (startX, startY). WorldX and WorldY define the extent of the world.`,
     })
 
     static robotConstructorStartXStartYinitialWorld = () => lm({
-        "de": `Instanziert ein neues Robot-Objekt. Der Roboter wird anfangs an die Stelle (startX/startY) gesetzt. Wenn die RobotWorld noch nicht instanziert ist, wird sie auf Grundlage des Strings initialeWelt erstellt.`,
+        "de": `Instanziiert ein neues Robot-Objekt. Der Roboter wird anfangs an die Stelle (startX/startY) gesetzt. Wenn die RobotWorld noch nicht instanziiert ist, wird sie auf Grundlage des Strings initialeWelt erstellt.`,
         "en": `Creates a new Robot object. Start position is at (startX, startY). World is generated from string initialWorld.`,
     })
 
@@ -5740,11 +5740,11 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     static robotWorldConstructorWorldXWorldY = () => lm({
-        "de": `Instanziert eine neue Robot-Welt`,
+        "de": `Instanziiert eine neue Robot-Welt`,
     })
 
     static robotWorldConstructorInitialWorld = () => lm({
-        "de": `Instanziert eine neue Robot-Welt`,
+        "de": `Instanziiert eine neue Robot-Welt`,
     })
 
     static robotWorldSetzeMaximalHoehe = () => lm({

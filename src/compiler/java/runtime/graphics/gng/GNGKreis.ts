@@ -7,8 +7,8 @@ import { GNGBaseFigur } from "./GNGBaseFigur.ts";
 
 export class GNGKreis extends GNGBaseFigur {
     static __javaDeclarations: LibraryDeclarations = [
-        {type: "declaration", signature: "class Kreis extends GNGBaseFigur", comment: "Kreis-Klasse der Graphics'n Games-Bibliothek (Cornelsen-Verlag)"},
-        {type: "method", signature: "Kreis()", java: GNGKreis.prototype._cj$_constructor_$Kreis$, comment: "Instanziert ein neues Kreis-Objekt."},
+        {type: "declaration", signature: "class Kreis extends GNGBaseFigur", comment: "Kreis-Klasse der Graphics'n'Games-Bibliothek (Cornelsen-Verlag)"},
+        {type: "method", signature: "Kreis()", java: GNGKreis.prototype._cj$_constructor_$Kreis$, comment: "Instanziiert ein neues Kreis-Objekt."},
         {type: "method", signature: "void RadiusSetzen(int radius)", native: GNGKreis.prototype._radiusSetzen, comment: "Setzt den Radius des Kreis-Objekts."},
     ];
 

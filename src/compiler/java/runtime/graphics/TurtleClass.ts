@@ -306,7 +306,7 @@ export class TurtleClass extends FilledShapeClass {
 
         if (this.hitPolygonInitial == null || shape.hitPolygonInitial == null) return true;
 
-        // boundig boxes collide, so check further:
+        // bounding boxes collide, so check further:
         if (this.hitPolygonDirty) this.transformHitPolygon();
         if (shape.hitPolygonDirty) shape.transformHitPolygon();
 

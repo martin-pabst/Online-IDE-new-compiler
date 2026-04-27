@@ -30,13 +30,13 @@ export class JCM {
 
     static rightSideOfInstanceofError = () => le({
         "de": "Rechts vom Operator instanceof muss eine Klasse/ein Interface/ein Enum-Typ stehen.",
-        "en": "Class/interface/enum-type expected on righthand side of operator instanceof.",
+        "en": "Class/interface/enum-type expected on right hand side of operator instanceof.",
         "fr": "Type classe/interface/enum attendu à droite de l'opérateur instanceof.",
     });
 
     static leftSideOfInstanceofError = () => le({
         "de": "Links vom Operator instanceof muss ein Objekt stehen.",
-        "en": "Object expected on righthand side of operator instanceof.",
+        "en": "Object expected on right hand side of operator instanceof.",
         "fr": "Objet attendu à gauche de l'opérateur instanceof.",
     });
 
@@ -159,7 +159,7 @@ export class JCM {
     })
 
     static cantInstantiateFromType = (type: string) => le({
-        "de": `Vom Datentyp ${type} können keine Objekte instanziert werden.`,
+        "de": `Vom Datentyp ${type} können keine Objekte instanziiert werden.`,
         "en": `You can't create objects of type ${type}.`, 
         "fr": `Vous ne pouvez pas instancier d'objets à partir de ce type ${type}.`
     })

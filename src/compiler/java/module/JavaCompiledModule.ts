@@ -163,7 +163,7 @@ export class JavaCompiledModule extends JavaBaseModule {
                     if (step) return [step];
                 }
 
-                // A instance initializer may have been copied to several constructors, so if
+                // An instance initializer may have been copied to several constructors, so if
                 // breakpoint in instance initializer is set there may be several steps to
                 // consider setting a breakpoint in.
                 let steps: Step[] = [];
