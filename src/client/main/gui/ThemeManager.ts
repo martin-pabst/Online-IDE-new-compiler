@@ -116,6 +116,9 @@ export class ThemeManager {
                 // Debugger
                 "--deIdentifier": "rgb(156, 156, 235)",
                 "--deValue": "white",
+                "--debugger-fieldIdentifier": "#e6e92c",
+                "--debugger-localVariableIdentifier": "#4ffa2c",
+
 
                 // Helper
                 "--helper-background-color": "#383838",
@@ -213,6 +216,9 @@ export class ThemeManager {
                 // Debugger
                 "--deIdentifier": "black",
                 "--deValue": "#0000a0",
+                "--debugger-fieldIdentifier": "#b37c35ff",
+                "--debugger-localVariableIdentifier": "#25940fff",
+
 
                 // Helper
                 "--helper-background-color": "#f3f3f3",

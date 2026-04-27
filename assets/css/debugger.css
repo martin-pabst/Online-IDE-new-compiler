@@ -12,16 +12,20 @@
 
 .joeCssFence {
     /* Debugger */
+
+    --debugger-fieldIdentifier: #e6e92c;
+    --debugger-localVariableIdentifier: #4ffa2c;
+
     .jo_debugger_type {
         color:#6cbfe6;
     }
 
     .jo_debugger_localVariableIdentifier {
-        color:#4ffa2c;
+        color:var(--debugger-localVariableIdentifier);
     }
 
     .jo_debugger_fieldIdentifier {
-        color:#e6e92c;
+        color: var(--debugger-fieldIdentifier);
     }
 
     .jo_debugger_value {
