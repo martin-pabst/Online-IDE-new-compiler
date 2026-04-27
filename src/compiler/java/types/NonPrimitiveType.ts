@@ -29,7 +29,7 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
     abstract isGenericTypeParameter(): boolean;
 
     abstract canExplicitlyCastTo(otherType: JavaType): boolean;  // you can cast long to int or Number to Integer EXPLICITLY, e.g. int c = (int)10L
-    abstract canImplicitlyCastTo(otherType: JavaType): boolean; // int gets cast to long implicitly; Integer gets cast to Number implicitly e.g. in: Number n = new Integer(10); // Spellcheck RESOLVED: check if "casted" is correct in this case or if it should be "cast" -> thank you for pointing this out! I changed it to "cast".
+    abstract canImplicitlyCastTo(otherType: JavaType): boolean; // int gets cast to long implicitly; Integer gets cast to Number implicitly e.g. in: Number n = new Integer(10);
 
     abstract getFields(): JavaField[];
     abstract getOwnMethods(): JavaMethod[];

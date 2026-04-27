@@ -33,7 +33,7 @@ export class JavaRepl {
 
     /**
      * If REPL-Statements are executed outside a paused program context
-     * then use this symbol table and this thread: // Spellcheck RESOLVED: figure out what this is supposed to mean -> corrected typo and reordered field declarations to make it more clear 
+     * then use this symbol table and this thread:
      */
     standaloneSymbolTable: JavaSymbolTable;
     standaloneThread: Thread;
