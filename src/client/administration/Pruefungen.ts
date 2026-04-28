@@ -761,7 +761,7 @@ export class Pruefungen extends AdminMenuItem {
     }
 
     async onSelectPruefung(recId: number) {
-        if (typeof recId == 'undefined') return;
+        if (typeof recId == 'undefined' || typeof recId != 'number') return;
         this.currentPruefung = <any>this.pruefungTable.records.find(p => p["recid"] == recId);
 
         let request: GetPruefungStudentTableDataRequest = { pruefung_id: recId };
