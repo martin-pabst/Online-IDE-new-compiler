@@ -853,6 +853,9 @@ export class ProjectExplorer {
         });
 
 
+        if(this.main.getSettings().getValue("output.clearOutputAfterWorkspaceChange") == "yes"){
+            this.main.getInterpreter()?.printManager?.clear();
+        }
 
     }
 

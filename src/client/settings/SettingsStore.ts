@@ -29,6 +29,8 @@ export type SettingsType = {
     "explorer.fileOrder": "user-defined" | "comparator",
     "explorer.workspaceOrder": "user-defined" | "comparator",
     "compiler.shadowedSymbolErrorLevel": "ignore" | "info" | "warning" | "error",
+
+    "output.clearOutputAfterWorkspaceChange": "yes" | "no"
 }
 
 export type SettingKey = keyof SettingsType;
@@ -54,7 +56,8 @@ export var SettingDefaultValues: SettingsType = {
     "classDiagram.drawCompositionDiamond": "yes",
     "explorer.fileOrder": "user-defined",
     "explorer.workspaceOrder": "user-defined",
-    "compiler.shadowedSymbolErrorLevel": "warning"
+    "compiler.shadowedSymbolErrorLevel": "warning",
+    "output.clearOutputAfterWorkspaceChange": "no"
 };
 
 export var SettingPrecedenceValues: Partial<{[key in SettingKey]: SettingPrecedence}> = {

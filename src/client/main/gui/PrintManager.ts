@@ -191,6 +191,7 @@ export class PrintManager implements IPrintManager {
     }
 
     clear() {
+        if(!this.$outputDiv) return;
         this.$outputDiv.empty();
         this.$lastDiv = jQuery('<div></div>');
         this.$lines.push(this.$lastDiv);

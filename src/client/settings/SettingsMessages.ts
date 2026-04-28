@@ -7,13 +7,13 @@ export class SettingsMessages {
         'en': 'saving...',
         'fr': 'enregistrement...'
     });
-    
+
     static Saved = () => lm({
         'de': 'Gespeichert',
         'en': 'saved',
         'fr': 'enregistré'
     });
-    
+
 
     static OptionDefault = () => lm({
         'de': 'Standard',
@@ -32,7 +32,7 @@ export class SettingsMessages {
         'en': 'false',
         'fr': 'Non'
     });
-    
+
 
     static CloseButton = () => lm({
         'de': 'Schließen',
@@ -80,12 +80,12 @@ export class SettingsMessages {
         'de': 'Schule',
         'en': 'School',
         'fr': 'École'
-    }); 
+    });
 
     static EditorSettingsName = () => lm({
-        'de': 'Editoreinstellungen',
-        'en': 'Editor Settings',
-        'fr': 'Paramètres de l\'éditeur'
+        'de': 'Editor',
+        'en': 'Editor',
+        'fr': 'Éditeur'
     });
 
     static SettingDisabledByHigherPrecedence = () => lm({
@@ -117,7 +117,7 @@ export class SettingsMessages {
         'en': 'Show help texts for keywords and operators',
         'fr': 'Afficher les textes d\'aide pour les mots-clés et les opérateurs'
     });
-    
+
     static ShowMethodDeclaration = () => lm({
         'de': 'Methodendeklarationen anzeigen',
         'en': 'Show method declarations',
@@ -153,7 +153,7 @@ export class SettingsMessages {
         'en': `Show help for structure statements`,
         'fr': `Afficher l'aide pour les instructions de structure`
     });
-    
+
 
     static TypingAssistanceName = () => lm({
         'de': 'Unterstützung bei der Eingabe von Code',
@@ -165,21 +165,21 @@ export class SettingsMessages {
         'de': 'Quick-Fix-Einstellungen',
         'en': 'Quick Fix Settings',
         'fr': 'Paramètres de correction rapide'
-     });
+    });
 
-     static EditorQuickFixSettingsDescription = () => lm({
+    static EditorQuickFixSettingsDescription = () => lm({
         'de': 'Hier können Sie einstellen, welche Quick-Fixes angeboten werden sollen. Im Gegensatz zu den meisten anderen Einstellungen gilt hier: Klasseneinstellung vor Schuleinstellung vor User-Einstellung.',
         'en': 'Here you can set which quick fixes should be offered. In contrast to most other settings, here class setting takes precedence over school setting which takes precedence over user setting.',
         'fr': 'Ici, vous pouvez définir les corrections rapides qui doivent être proposées. Contrairement à la plupart des autres paramètres, ici la configuration de la classe a la priorité sur la configuration de l\'école qui a la priorité sur la configuration de l\'utilisateur.'
-     });
+    });
 
-     static EditorQuickFixGetterSetterName = () => lm({
+    static EditorQuickFixGetterSetterName = () => lm({
         'de': 'Automatische Erstellung von Getter- und Setter-Methoden',
         'en': 'Automatic generation of getter and setter methods',
         'fr': 'Génération automatique des méthodes getter et setter'
-     });
+    });
 
-        static EditorQuickFixGetterSetterDescription = () => lm({
+    static EditorQuickFixGetterSetterDescription = () => lm({
         'de': 'Befindet sich der Cursor in einem Attribut einer Klasse, so erscheint daneben eine Glühbirne, über die angeboten wird, automatisch eine Getter- und Setter-Methode für dieses Attribut zu erstellen.',
         'en': 'If the cursor is on an attribute of a class, a light bulb appears next to it, offering to automatically create a getter and setter method for that attribute.',
         'fr': 'Si le curseur se trouve sur un attribut d\'une classe, une ampoule apparaît à côté, offrant de créer automatiquement une méthode getter et setter pour cet attribut.'
@@ -201,13 +201,13 @@ export class SettingsMessages {
         'de': 'Automatische Erstellung von Konstruktoren',
         'en': 'Automatic generation of constructors',
         'fr': 'Génération automatique des constructeurs'
-     });
+    });
 
-        static EditorQuickFixGenerateConstructorDescription = () => lm({
-            'de': 'Befindet sich der Cursor in einer Klasse, aber nicht in einer Methode, so erscheint in der kontextsensitiven Hilfe (<Strg> + <Leertaste>) ein Menüpunkt zur automatischen Erstellung eines Konstruktors.',
-            'en': 'If the cursor is in a class but not in a method, a menu item for automatically creating a constructor appears in the context-sensitive help (<Ctrl> + <Space>).',
-            'fr': 'Si le curseur se trouve dans une classe mais pas dans une méthode, un élément de menu pour créer automatiquement un constructeur apparaît dans l\'aide contextuelle (<Ctrl> + <Espace>).'
-        })
+    static EditorQuickFixGenerateConstructorDescription = () => lm({
+        'de': 'Befindet sich der Cursor in einer Klasse, aber nicht in einer Methode, so erscheint in der kontextsensitiven Hilfe (<Strg> + <Leertaste>) ein Menüpunkt zur automatischen Erstellung eines Konstruktors.',
+        'en': 'If the cursor is in a class but not in a method, a menu item for automatically creating a constructor appears in the context-sensitive help (<Ctrl> + <Space>).',
+        'fr': 'Si le curseur se trouve dans une classe mais pas dans une méthode, un élément de menu pour créer automatiquement un constructeur apparaît dans l\'aide contextuelle (<Ctrl> + <Espace>).'
+    })
 
 
     static EditorViewSettings = () => lm({
@@ -220,7 +220,7 @@ export class SettingsMessages {
         'de': `Hier können Sie die Anzeigeeinstellungen des Editors anpassen.`,
         'en': `You can adjust the editor view settings here.`,
         'fr': `Vous pouvez ajuster les paramètres d'affichage de l'éditeur ici.`
-    });    
+    });
 
     static EditorFormatterSettings = () => lm({
         'de': `Code-Formatter-Einstellungen`,
@@ -258,7 +258,7 @@ export class SettingsMessages {
         'fr': `0`
     });
 
-    static no = () => lm({
+    static dontForce = () => lm({
         'de': `Nein, nicht erzwingen`,
         'en': `No, do not force`,
         'fr': `Non, ne pas forcer`
@@ -269,7 +269,7 @@ export class SettingsMessages {
         'en': 'Here you can adjust the typing assistance of the editor.',
         'fr': 'Ici, vous pouvez ajuster l\'assistance à la saisie de l\'éditeur.'
     });
-    
+
     static AutoClosingBracketsName = () => lm({
         'de': 'Automatisches Schließen von Klammern',
         'en': 'Auto Closing Brackets',
@@ -286,7 +286,7 @@ export class SettingsMessages {
         'de': `Sticky Scroll`,
         'en': `Sticky Scroll`,
         'fr': `Défilement fixe`
-    }); 
+    });
 
     static StickyScrollDescription = () => lm({
         'de': `Zeigt die aktuellen Blocküberschriften (z.B. Methoden- oder Klassennamen) immer oben im Editor an, auch wenn diese nicht mehr im sichtbaren Bereich sind.`,
@@ -317,7 +317,7 @@ export class SettingsMessages {
         'en': `Display vertical lines and underline`,
         'fr': `Afficher des lignes verticales et souligner`
     });
-    
+
     static AutoSemicolonsName = () => lm({
         'de': `Automatisches Ergänzen von Strichpunkten`,
         'en': `Auto Semicolons`,
@@ -329,7 +329,7 @@ export class SettingsMessages {
         'en': `Missing semicolons at the end of the line are automatically added in most cases.`,
         'fr': `Les points-virgules manquants à la fin de la ligne sont automatiquement ajoutés dans la plupart des cas.`
     });
-    
+
     static On = () => lm({
         'de': `Ein`,
         'en': `On`,
@@ -341,7 +341,7 @@ export class SettingsMessages {
         'en': `Off`,
         'fr': `Désactivé`
     });
-    
+
 
     static AutoClosingQuotesName = () => lm({
         'de': 'Automatisches Schließen von Anführungszeichen',
@@ -354,13 +354,13 @@ export class SettingsMessages {
         'en': 'Automatically add closing brackets when typing opening brackets.',
         'fr': 'Ajoute automatiquement les parenthèses fermantes lors de la saisie des parenthèses ouvrantes.'
     });
-    
+
     static AutoClosingQuotesDescription = () => lm({
         'de': 'Bei Eingabe eines Anführungszeichens wird automatisch ein zweites hinter dem Cursor hinzugefügt.',
         'en': 'Automatically add a second quote behind the cursor when typing a quote.',
         'fr': 'Ajoute automatiquement un deuxième guillemet derrière le curseur lors de la saisie d\'un guillemet.'
     });
-    
+
     static AutoClosingBracketsAlways = () => lm({
         'de': 'Immer',
         'en': 'Always',
@@ -378,7 +378,7 @@ export class SettingsMessages {
         'en': 'Only before whitespace',
         'fr': 'Seulement avant les espaces'
     });
-    
+
     static ClassDiagramSettingsName = () => lm({
         'de': 'Klassendiagramm',
         'en': 'Class Diagram',
@@ -396,7 +396,7 @@ export class SettingsMessages {
         'en': 'Type Representation',
         'fr': 'Représentation des types'
     });
-    
+
     static ClassDiagramBackground = () => lm({
         'de': 'Hintergrund beim Exportieren als png-Datei',
         'en': 'Background when exporting as png file',
@@ -432,14 +432,14 @@ export class SettingsMessages {
         'en': `Determines whether the background of the class diagram should be transparent or white when exporting as a png file.`,
         'fr': `Détermine si l'arrière-plan du diagramme de classes doit`
     });
-    
+
 
     static ClassDiagramTypeConventionDescription = () => lm({
         'de': 'Wenn Datentypen im Klassendiagramm angezeigt werden, kann dies entweder in der Art von Java (z.B. String name) erfolgen oder in der Art von Pascal (name: String).',
         'en': 'If data types are displayed in the class diagram, they can be shown in either Java style (e.g., String name) or Pascal style (name: String).',
         'fr': 'Si les types de données sont affichés dans le diagramme de classes, ils peuvent être présentés dans le style Java (par exemple, String name) ou dans le style Pascal (name: String).'
     });
-    
+
     static ClassDiagramTypeConventionJava = () => lm({
         'de': 'Java-Stil (z.B. String name)',
         'en': 'Java Style (e.g., String name)',
@@ -451,7 +451,7 @@ export class SettingsMessages {
         'en': 'Pascal Style (name: String)',
         'fr': 'Style Pascal (name: String)'
     });
-    
+
     static ClassDiagramBackgroundTransparent = () => lm({
         'de': `durchsichtig`,
         'en': `transparent`,
@@ -463,27 +463,30 @@ export class SettingsMessages {
         'en': `white`,
         'fr': `blanc`
     });
-        
+
     static CompilerSettingsName = () => lm({
-        'de': `Compiler-Einstellungen`,
-        'en': `Compiler settings`
+        'de': `Compiler`,
+        'en': `Compiler`,
+        'fr': `Compilateur`
     });
 
     static CompilerSettingsDescription = () => lm({
         'de': `Hier können Sie die Einstellungen des Compilers vornehmen.`,
-        'en': `Here you can adjust the compiler settings.`
+        'en': `Here you can adjust the compiler settings.`,
+        'fr': `Ici, vous pouvez ajuster les paramètres du compilateur.`
     });
 
     static ExplorerSettingsName = () => lm({
-        'de': `Explorer-Einstellungen`,
-        'en': `Explorer settings`
+        'de': `Explorer`,
+        'en': `Explorer`,
+        'fr': `Explorateur`
     });
 
     static ExplorerSettingsDescription = () => lm({
         'de': `Einstellungen für den Datei- und Workspaceexplorer (im Hauptfenster links).`,
         'en': `Settings for file- and workspace explorer (in the main window on the left).`
     });
-    
+
     static CompilerShadowedSymbolErrorLevelName = () => lm({
         'de': `Errorlevel bei verdeckten Symbolen`,
         'en': `Error level for shadowed symbols`
@@ -503,7 +506,7 @@ export class SettingsMessages {
         'de': `Hier können Sie einstellen, ob der Dateibaum grundsätzlich alphabetisch sortiert werden soll oder der Nutzer durch drag and drop eine davon abweichende Sortierung festlegen kann.`,
         'en': `You can set here whether the file tree should be sorted alphabetically by default or whether the user can define a different sorting by drag and drop.`
     });
-    
+
     static ExplorerWorkspaceOrderName = () => lm({
         'de': `Sortierung des Workspacebaums`,
         'en': `Order of workspace treeview`
@@ -513,7 +516,7 @@ export class SettingsMessages {
         'de': `Hier können Sie einstellen, ob der Workspacebaum grundsätzlich alphabetisch sortiert werden soll oder der Nutzer durch drag and drop eine davon abweichende Sortierung festlegen kann.`,
         'en': `You can set here whether the workspace tree should be sorted alphabetically by default or whether the user can define a different sorting by drag and drop.`
     });
-    
+
     static ExplorerOrderComparator = () => lm({
         'de': `Immer alphabetisch`,
         'en': `Always alphabetical`,
@@ -525,26 +528,26 @@ export class SettingsMessages {
         'en': `User-defined order`,
         'fr': `Ordre défini par l'utilisateur`
     });
-    
-    static ErrorLevelIgnore = () => lm({    
+
+    static ErrorLevelIgnore = () => lm({
         'de': `Ignorieren`,
         'en': `Ignore`,
         'fr': `Ignorer`
     });
 
-    static ErrorLevelWarning = () => lm({    
+    static ErrorLevelWarning = () => lm({
         'de': `Warnung`,
         'en': `Warning`,
         'fr': `Avertissement`
     });
 
-    static ErrorLevelError = () => lm({    
+    static ErrorLevelError = () => lm({
         'de': `Fehler`,
         'en': `Error`,
         'fr': `Erreur`
-    }); 
+    });
 
-    static ErrorLevelInfo = () => lm({    
+    static ErrorLevelInfo = () => lm({
         'de': `Info`,
         'en': `Info`,
         'fr': `Info`
@@ -553,7 +556,7 @@ export class SettingsMessages {
         'de': `Kontextsensitive Hilfe`,
         'en': `Context-sensitive help`
     });
-    
+
     static ContextSensitiveHelpDescription = () => lm({
         'de': `Hier können Sie einstellen, ob in bestimmten Bereichen der Anwendung kontextsensitive Hilfetexte angezeigt werden sollen.`,
         'en': `Here you can set whether context-sensitive help texts should be displayed in certain areas of the application.`
@@ -573,7 +576,7 @@ export class SettingsMessages {
         'en': `Draw composition relationships with diamond`,
         'fr': `Dessiner les relations de composition avec un losange`
     });
-    
+
     static ClassDiagramDrawCompositionDiamondDescription = () => lm({
         'de': `Hier können Sie einstellen, ob Kompositionsbeziehungen mit einer Raute dargestellt werden sollen oder nur als einfache Linien.`,
         'en': `Here you can set whether composition relationships should be displayed with a diamond or as simple lines.`,
@@ -588,5 +591,41 @@ export class SettingsMessages {
         'de': `Nein, nur einfache Linien`,
         'en': `No, display as simple lines`,
         'fr': `Non, afficher sous forme de lignes simples`
+    });
+
+    static OutputSettingsName = () => lm({
+        'de': `Ausgabe`,
+        'en': `Output`,
+        'fr': `Sortie`
+    });
+
+    static OutputSettingsDescription = () => lm({
+        'de': `Hier können Sie die Einstellungen für die Ausgabe (rechter Teil der Online-IDE) anpassen.`,
+        'en': `Here you can adjust the settings for the output (right part of the online IDE).`,
+        'fr': `Ici, vous pouvez ajuster les paramètres de la sortie (partie droite de l'IDE en ligne).`
+    });
+
+    static clearOutputAfterWorkspaceChangeName = () => lm({
+        'de': `Ausgabe nach Wechsel des Workspaces löschen`,
+        'en': `Clear output after changing workspace`,
+        'fr': `Effacer la sortie après le changement de workspace`
+    });
+
+    static clearOutputAfterWorkspaceChangeDescription = () => lm({
+        'de': `Hier können Sie einstellen, ob die Ausgabe (rechter Teil der Online-IDE) automatisch gelöscht werden soll, wenn Sie den Workspace wechseln.`,
+        'en': `Here you can set whether the output (right part of the online IDE) should be automatically cleared when you change the workspace.`,
+        'fr': `Ici, vous pouvez définir si la sortie (partie droite de l'IDE en ligne) doit être automatiquement effacée lorsque vous changez de workspace.`
+    });
+
+    static yes = () => lm({
+        'de': `Ja`,
+        'en': `Yes`,
+        'fr': `Oui`
+    });
+
+    static no = () => lm({
+        'de': `Nein`,
+        'en': `No`,
+        'fr': `Non`
     });
 }

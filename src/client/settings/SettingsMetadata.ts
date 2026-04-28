@@ -196,7 +196,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         description: SettingsMessages.ForceSpacesAfterIfForWhileDoDescription,
                         type: 'enumeration',
                         optionValues: ["0", "1", "no"],
-                        optionTexts: [SettingsMessages.zero, SettingsMessages.one, SettingsMessages.no],
+                        optionTexts: [SettingsMessages.zero, SettingsMessages.one, SettingsMessages.dontForce],
                         action: (main, value) => {
                             main.editor.editor.getAction("editor.action.formatDocument").run();
                         }
@@ -405,6 +405,25 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     main.getCompiler().forceRecompilation();
                 },
                 image: variableShadowingError
+            }
+        ]
+    },
+    {
+        settingType: 'group',
+        name: SettingsMessages.OutputSettingsName,
+        description: SettingsMessages.OutputSettingsDescription,
+        settings: [
+            {
+                key: "output.clearOutputAfterWorkspaceChange",
+                settingType: 'setting',
+                name: SettingsMessages.clearOutputAfterWorkspaceChangeName,
+                description: SettingsMessages.clearOutputAfterWorkspaceChangeDescription,
+                type: 'enumeration',
+                optionValues: ["yes", "no"],
+                optionTexts: [
+                    SettingsMessages.yes,
+                    SettingsMessages.no,
+                ]
             }
         ]
     }
