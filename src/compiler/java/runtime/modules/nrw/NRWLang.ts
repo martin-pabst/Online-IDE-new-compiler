@@ -1,7 +1,5 @@
 import { lm } from "../../../../../tools/language/LanguageManager";
 
-// Spellcheck RESOLVED: check if usage of "ä", "ö" and "ü" is intended, as often found in NRW files -> Good point! -> I changed them all.
-
 
 /**
  * Language file for NRW-Classes
@@ -13,7 +11,7 @@ export class NRWLang {
      * List class
      */
     static listClassComment = () => lm({
-        "de": `Generische Klasse List<ContentType> Objekt der generischen Klasse List verwalten beliebig viele linear angeordnete Objekte vom Typ ContentType. Auf höchstens ein Listenobjekt, aktüllesObjekt genannt, kann jeweils zugegriffen werden. Wenn eine Liste leer ist, vollständig durchlaufen wurde oder das aktülle Objekt am Ende der Liste gelöscht wurde, gibt es kein aktülles Objekt.<br /> Das erste oder das letzte Objekt einer Liste können durch einen Auftrag zum aktüllen Objekt gemacht werden. Ausserdem kann das dem aktüllen Objekt folgende Listenobjekt zum neün aktüllen Objekt werden. <br /> Das aktülle Objekt kann gelesen, verändert oder gelöscht werden. Ausserdem kann vor dem aktüllen Objekt ein Listenobjekt eingefügt werden.`,
+        "de": `Generische Klasse List<ContentType> Objekt der generischen Klasse List verwalten beliebig viele linear angeordnete Objekte vom Typ ContentType. Auf höchstens ein Listenobjekt, aktuellesObjekt genannt, kann jeweils zugegriffen werden. Wenn eine Liste leer ist, vollständig durchlaufen wurde oder das aktuelle Objekt am Ende der Liste gelöscht wurde, gibt es kein aktuelles Objekt.<br /> Das erste oder das letzte Objekt einer Liste können durch einen Auftrag zum aktuellen Objekt gemacht werden. Ausserdem kann das dem aktuellen Objekt folgende Listenobjekt zum neuen aktuellen Objekt werden. <br /> Das aktuelle Objekt kann gelesen, verändert oder gelöscht werden. Ausserdem kann vor dem aktuellen Objekt ein Listenobjekt eingefügt werden.`,
         "en": "Generic class List<ContentType>",
     })
 
@@ -23,57 +21,57 @@ export class NRWLang {
     })
 
     static listClassIsEmptyComment = () => lm({
-        "de": "Die Anfrage liefert den Wert trü, wenn die Liste keine Objekte enthält, sonst liefert sie den Wert false.",
-        "en": "Returns trü if and only if this list contains no objects.",
+        "de": "Die Anfrage liefert den Wert true, wenn die Liste keine Objekte enthält, sonst liefert sie den Wert false.",
+        "en": "Returns true if and only if this list contains no objects.",
     })
 
     static listClassHasAccessComment = () => lm({
-        "de": "Die Anfrage liefert den Wert trü, wenn es ein aktülles Objekt gibt, sonst liefert sie den Wert false.",
-        "en": "Returns trü if and only there is a 'current object'.",
+        "de": "Die Anfrage liefert den Wert true, wenn es ein aktuelles Objekt gibt, sonst liefert sie den Wert false.",
+        "en": "Returns true if and only there is a 'current object'.",
     })
 
     static listClassNextComment = () => lm({
-        "de": "Falls die Liste nicht leer ist, es ein aktülles Objekt gibt und dieses nicht das letzte Objekt der Liste ist, wird das dem aktüllen Objekt in der Liste folgende Objekt zum aktüllen Objekt, andernfalls gibt es nach Ausführung des Auftrags kein aktülles Objekt, d.h. hasAccess() liefert den Wert false.",
+        "de": "Falls die Liste nicht leer ist, es ein aktuelles Objekt gibt und dieses nicht das letzte Objekt der Liste ist, wird das dem aktuellen Objekt in der Liste folgende Objekt zum aktuellen Objekt, andernfalls gibt es nach Ausführung des Auftrags kein aktuelles Objekt, d.h. hasAccess() liefert den Wert false.",
         "en": "Makes 'current object' point to next object in list. If end of list is reached then there's no current object anymore.",
     })
 
     static listClassToFirstComment = () => lm({
-        "de": `Falls die Liste nicht leer ist, wird das erste Objekt der Liste aktülles Objekt. Ist die Liste leer, geschieht nichts.`,
+        "de": `Falls die Liste nicht leer ist, wird das erste Objekt der Liste aktuelles Objekt. Ist die Liste leer, geschieht nichts.`,
         "en": `If this list is not empty, then first object gets 'current object'. Otherwise nothing happens.`,
     })
 
     static listClassToLastComment = () => lm({
-        "de": `Falls die Liste nicht leer ist, wird das letzte Objekt der Liste aktülles Objekt. Ist die Liste leer, geschieht nichts.`,
+        "de": `Falls die Liste nicht leer ist, wird das letzte Objekt der Liste aktuelles Objekt. Ist die Liste leer, geschieht nichts.`,
         "en": `If this list is not empty, then last object gets 'current object'. Otherwise nothing happens.`,
     })
 
     static listClassGetContentComment = () => lm({
-        "de": `Falls es ein aktülles Objekt gibt (hasAccess() == trü), wird das aktülle Objekt zurückgegeben, andernfalls (hasAccess() == false) gibt die Anfrage den Wert null zurück.`,
-        "en": `If there is a current object (that is: hasAccess() == trü), then this object is returned, otherwise null is returned.`,
+        "de": `Falls es ein aktuelles Objekt gibt (hasAccess() == true), wird das aktuelle Objekt zurückgegeben, andernfalls (hasAccess() == false) gibt die Anfrage den Wert null zurück.`,
+        "en": `If there is a current object (that is: hasAccess() == true), then this object is returned, otherwise null is returned.`,
     })
 
     static listClassSetContentComment = () => lm({
-        "de": `Falls es ein aktülles Objekt gibt (hasAccess() == trü) und pContent ungleich null ist, wird das aktülle Objekt durch pContent ersetzt. Sonst geschieht nichts.`,
-        "en": `If there is a current object (that is: hasAccess() == trü) and pContent != null, then current object gets replaced by pContent.`,
+        "de": `Falls es ein aktuelles Objekt gibt (hasAccess() == true) und pContent ungleich null ist, wird das aktuelle Objekt durch pContent ersetzt. Sonst geschieht nichts.`,
+        "en": `If there is a current object (that is: hasAccess() == true) and pContent != null, then current object gets replaced by pContent.`,
     })
 
     static listClassInsertComment = () => lm({
-        "de": `Falls es ein aktülles Objekt gibt (hasAccess() == trü), und pContent != null ist, wird ein neüs Objekt vor dem aktüllen Objekt in die Liste eingefügt. Das aktülle Objekt bleibt unverändert. <br /> Wenn die Liste leer ist, wird pContent in die Liste eingefügt und es gibt weiterhin kein aktülles Objekt (hasAccess() == false). <br /> Falls es kein aktülles Objekt gibt (hasAccess() == false) und die Liste nicht leer ist oder pContent gleich null ist, geschieht nichts.`,
-        "en": `If there is a current object (that is: hasAccess() == trü) and pContent != null then given pContent is inserted before current objecte.`,
+        "de": `Falls es ein aktuelles Objekt gibt (hasAccess() == true), und pContent != null ist, wird ein neues Objekt vor dem aktuellen Objekt in die Liste eingefügt. Das aktuelle Objekt bleibt unverändert. <br /> Wenn die Liste leer ist, wird pContent in die Liste eingefügt und es gibt weiterhin kein aktuelles Objekt (hasAccess() == false). <br /> Falls es kein aktuelles Objekt gibt (hasAccess() == false) und die Liste nicht leer ist oder pContent gleich null ist, geschieht nichts.`,
+        "en": `If there is a current object (that is: hasAccess() == true) and pContent != null then given pContent is inserted before current objecte.`,
     })
 
     static listClassAppendComment = () => lm({
-        "de": `Falls pContent gleich null ist, geschieht nichts.<br /> Ansonsten wird ein neüs Objekt pContent am Ende der Liste eingefügt. Das aktülle Objekt bleibt unverändert. <br /> Wenn die Liste leer ist, wird das Objekt pContent in die Liste eingefügt und es gibt weiterhin kein aktülles Objekt (hasAccess() == false).`,
+        "de": `Falls pContent gleich null ist, geschieht nichts.<br /> Ansonsten wird ein neues Objekt pContent am Ende der Liste eingefügt. Das aktuelle Objekt bleibt unverändert. <br /> Wenn die Liste leer ist, wird das Objekt pContent in die Liste eingefügt und es gibt weiterhin kein aktuelles Objekt (hasAccess() == false).`,
         "en": `If pContent == null then nothing happens. Otherwise pContent is added at the end of the list. Current object is not changed.`,
     })
 
     static listClassConcatComment = () => lm({
-        "de": `Falls es sich bei der Liste und pList um dasselbe Objekt handelt, pList null oder eine leere Liste ist, geschieht nichts.<br /> Ansonsten wird die Liste pList an die aktülle Liste angehängt. Anschliessend wird pList eine leere Liste. Das aktülle Objekt bleibt unverändert. Insbesondere bleibt hasAccess identisch.`,
+        "de": `Falls es sich bei der Liste und pList um dasselbe Objekt handelt, pList null oder eine leere Liste ist, geschieht nichts.<br /> Ansonsten wird die Liste pList an die aktuelle Liste angehängt. Anschliessend wird pList eine leere Liste. Das aktuelle Objekt bleibt unverändert. Insbesondere bleibt hasAccess identisch.`,
         "en": `If pList == this list, pList == null or pList is empty then nothing happens. Otherwise pList is concatenated to this list and then emptied.`,
     })
 
     static listClassRemoveComment = () => lm({
-        "de": `Wenn die Liste leer ist oder es kein aktülles Objekt gibt (hasAccess() == false), geschieht nichts.<br /> Falls es ein aktülles Objekt gibt (hasAccess() == trü), wird das aktülle Objekt gelöscht und das Objekt hinter dem gelöschten Objekt wird zum aktüllen Objekt. <br /> Wird das Objekt, das am Ende der Liste steht, gelöscht, gibt es kein aktülles Objekt mehr.`,
+        "de": `Wenn die Liste leer ist oder es kein aktuelles Objekt gibt (hasAccess() == false), geschieht nichts.<br /> Falls es ein aktuelles Objekt gibt (hasAccess() == true), wird das aktuelle Objekt gelöscht und das Objekt hinter dem gelöschten Objekt wird zum aktuellen Objekt. <br /> Wird das Objekt, das am Ende der Liste steht, gelöscht, gibt es kein aktuelles Objekt mehr.`,
         "en": `If list is empty or there is no 'current object' (hasAccess() == false), then nothing happens. Otherwise the current object gets removed and the next object is the new current object. If the object removed was last in the list, then there won't be any current object.`,
     })
 
@@ -83,7 +81,7 @@ export class NRWLang {
     })
 
     static queueClassComment = () => lm({
-        "de": `Objekte der generischen Klasse Queue (Warteschlange) verwalten beliebige Objekte vom Typ ContentType nach dem First-In-First-Out-Prinzip, d.h., das zürst abgelegte Objekt wird als erstes wieder entnommen. Alle Methoden haben eine konstante Laufzeit, unabhängig von der Anzahl der verwalteten Objekte.`,
+        "de": `Objekte der generischen Klasse Queue (Warteschlange) verwalten beliebige Objekte vom Typ ContentType nach dem First-In-First-Out-Prinzip, d.h., das zuerst abgelegte Objekt wird als erstes wieder entnommen. Alle Methoden haben eine konstante Laufzeit, unabhängig von der Anzahl der verwalteten Objekte.`,
         "en": `Implementation of a queue. Elements can be accessed according to fifo systematic (first in - first out).`,
     })
 
@@ -93,8 +91,8 @@ export class NRWLang {
     })
 
     static queueClassIsEmptyComment = () => lm({
-        "de": "Die Anfrage liefert den Wert trü, wenn die Queue keine Objekte enthält, sonst liefert sie den Wert false.",
-        "en": "Returns trü if and only if this queue contains no objects.",
+        "de": "Die Anfrage liefert den Wert true, wenn die Queue keine Objekte enthält, sonst liefert sie den Wert false.",
+        "en": "Returns true if and only if this queue contains no objects.",
     })
 
     static queueClassEnqueueComment = () => lm({
@@ -123,8 +121,8 @@ export class NRWLang {
     })
 
     static stackClassIsEmptyComment = () => lm({
-        "de": "Die Anfrage liefert den Wert trü, wenn die Stack keine Objekte enthält, sonst liefert sie den Wert false.",
-        "en": "Returns trü if and only if this stack contains no objects.",
+        "de": "Die Anfrage liefert den Wert true, wenn die Stack keine Objekte enthält, sonst liefert sie den Wert false.",
+        "en": "Returns true if and only if this stack contains no objects.",
     })
 
     static stackClassPushComment = () => lm({
@@ -148,18 +146,18 @@ export class NRWLang {
     })
 
     static comparableContentIsGreaterComment = () => lm({
-        "de": `Wenn festgestellt wird, dass das Objekt, von dem die Methode aufgerufen wird, bzgl. der gewünschten Ordnungsrelation grösser als das Objekt pContent ist, wird trü geliefert. Sonst wird false geliefert.`,
-        "en": `Returns trü if and only if this object is "greater" than given object pContent.`,
+        "de": `Wenn festgestellt wird, dass das Objekt, von dem die Methode aufgerufen wird, bzgl. der gewünschten Ordnungsrelation grösser als das Objekt pContent ist, wird true geliefert. Sonst wird false geliefert.`,
+        "en": `Returns true if and only if this object is "greater" than given object pContent.`,
     })
 
     static comparableContentIsLessComment = () => lm({
-        "de": `Wenn festgestellt wird, dass das Objekt, von dem die Methode aufgerufen wird, bzgl. der gewünschten Ordnungsrelation kleiner als das Objekt pContent ist, wird trü geliefert. Sonst wird false geliefert.`,
-        "en": `Returns trü if and only if this object is "less" than given object pContent.`,
+        "de": `Wenn festgestellt wird, dass das Objekt, von dem die Methode aufgerufen wird, bzgl. der gewünschten Ordnungsrelation kleiner als das Objekt pContent ist, wird true geliefert. Sonst wird false geliefert.`,
+        "en": `Returns true if and only if this object is "less" than given object pContent.`,
     })
 
     static comparableContentIsEqualComment = () => lm({
-        "de": `Wenn festgestellt wird, dass das Objekt, von dem die Methode aufgerufen wird, bzgl. der gewünschten Ordnungsrelation gleich groß ist wie das Objekt pContent, wird trü geliefert. Sonst wird false geliefert.`,
-        "en": `Returns trü if and only if this object is "equal" to given object pContent.`,
+        "de": `Wenn festgestellt wird, dass das Objekt, von dem die Methode aufgerufen wird, bzgl. der gewünschten Ordnungsrelation gleich groß ist wie das Objekt pContent, wird true geliefert. Sonst wird false geliefert.`,
+        "en": `Returns true if and only if this object is "equal" to given object pContent.`,
     })
 
     static binaryTreeClassComment = () => lm({
@@ -183,8 +181,8 @@ export class NRWLang {
     })
 
     static binaryTreeIsEmptyComment = () => lm({
-        "de": `Diese Anfrage liefert den Wahrheitswert trü, wenn der Binärbaum leer ist, sonst liefert sie den Wert false.`,
-        "en": `Returns trü if and only if this tree is empty.`,
+        "de": `Diese Anfrage liefert den Wahrheitswert true, wenn der Binärbaum leer ist, sonst liefert sie den Wert false.`,
+        "en": `Returns true if and only if this tree is empty.`,
     })
 
     static binaryTreeSetContentComment = () => lm({
@@ -244,8 +242,8 @@ export class NRWLang {
     })
 
     static binarySearchTreeIsEmptyComment = () => lm({
-        "de": `Diese Anfrage liefert den Wahrheitswert trü, wenn der Binärbaum leer ist, sonst liefert sie den Wert false.`,
-        "en": `Returns trü if and only if this tree is empty.`,
+        "de": `Diese Anfrage liefert den Wahrheitswert true, wenn der Binärbaum leer ist, sonst liefert sie den Wert false.`,
+        "en": `Returns true if and only if this tree is empty.`,
     })
 
     static binarySearchTreeGetContentComment = () => lm({
@@ -264,7 +262,7 @@ export class NRWLang {
     })
 
     static binarySearchTreeInsertComment = () => lm({
-        "de": `Falls der Parameter null ist, geschieht nichts. Falls ein bezüglich der verwendeten Vergleichsmethode isEqual mit pContent übereinstimmendes Objekt im geordneten binären Suchbau enthalten ist, passiert nichts.  Achtung: hier wird davon ausgegangen, dass isEqual genau dann trü liefert, wenn isLess und isGreater false liefern.  Andernfalls (isLess oder isGreater) wird das Objekt pContent entsprechend der vorgegebenen Ordnungsrelation in den BinarySearchTree eingeordnet.`,
+        "de": `Falls der Parameter null ist, geschieht nichts. Falls ein bezüglich der verwendeten Vergleichsmethode isEqual mit pContent übereinstimmendes Objekt im geordneten binären Suchbau enthalten ist, passiert nichts.  Achtung: hier wird davon ausgegangen, dass isEqual genau dann true liefert, wenn isLess und isGreater false liefern.  Andernfalls (isLess oder isGreater) wird das Objekt pContent entsprechend der vorgegebenen Ordnungsrelation in den BinarySearchTree eingeordnet.`,
         "en": `If given pContent != null then it is inserted into this binary search tree.`,
     })
 
@@ -280,11 +278,11 @@ export class NRWLang {
 
     static vertexClassComment = () => lm({
         "de": `Die Klasse Vertex stellt einen einzelnen Knoten eines Graphen dar. Jedes Objekt  dieser Klasse verfügt über eine im Graphen eindeutige ID als String und kann diese  ID zurückliefern. Darüber hinaus kann eine Markierung gesetzt und abgefragt werden.`,
-        "en": `Objects of this class represent a node in a graph. Each vertex has a (per graph) uniqü ID (type String). There's also a boolean field mark which you can set and get.`,
+        "en": `Objects of this class represent a node in a graph. Each vertex has a (per graph) unique ID (type String). There's also a boolean field mark which you can set and get.`,
     })
 
     static vertexConstructorComment = () => lm({
-        "de": `Ein neüs Objekt vom Typ Vertex wird erstellt. Seine Markierung hat den Wert false.`,
+        "de": `Ein neues Objekt vom Typ Vertex wird erstellt. Seine Markierung hat den Wert false.`,
         "en": `Creates a new vertex object with mark == false.`,
     })
 
@@ -295,12 +293,12 @@ export class NRWLang {
 
     static vertexSetMarkComment = () => lm({
         "de": `Der Auftrag setzt die Markierung des Knotens auf den Wert pMark.`,
-        "en": `Sets valü of field mark.`,
+        "en": `Sets value of field mark.`,
     })
 
     static vertexIsMarkedComment = () => lm({
-        "de": `Die Anfrage liefert trü, wenn die Markierung des Knotens den Wert trü hat, ansonsten false.`,
-        "en": `Returns the valü of this vertex' mark.`,
+        "de": `Die Anfrage liefert true, wenn die Markierung des Knotens den Wert true hat, ansonsten false.`,
+        "en": `Returns the value of this vertex' mark.`,
     })
 
     static edgeClassComment = () => lm({
@@ -309,18 +307,18 @@ export class NRWLang {
     })
 
     static edgeConstructorComment = () => lm({
-        "de": `Ein neüs Objekt vom Typ Edge wird erstellt. Die von diesem Objekt repräsentierte Kante verbindet die Knoten pVertex und pAnotherVertex mit der  Gewichtung pWeight. Ihre Markierung hat den Wert false.`,
-        "en": `Creates a new edge-object connecting nodes pVertex and pAnotherVertex with given weight. Its mark has valü false. `,
+        "de": `Ein neues Objekt vom Typ Edge wird erstellt. Die von diesem Objekt repräsentierte Kante verbindet die Knoten pVertex und pAnotherVertex mit der  Gewichtung pWeight. Ihre Markierung hat den Wert false.`,
+        "en": `Creates a new edge-object connecting nodes pVertex and pAnotherVertex with given weight. Its mark has value false. `,
     })
 
     static edgeGetVerticesComment = () => lm({
-        "de": `Die Anfrage gibt die beiden Knoten, die durch die Kante verbunden werden, als neüs Feld vom Typ Vertex zurück. Das Feld hat genau zwei Einträge mit den Indexwerten 0 und 1.`,
+        "de": `Die Anfrage gibt die beiden Knoten, die durch die Kante verbunden werden, als neues Feld vom Typ Vertex zurück. Das Feld hat genau zwei Einträge mit den Indexwerten 0 und 1.`,
         "en": `Returns an array containing the two nodes that are connected by this vertex.`,
     })
 
     static edgeSetWeightComment = () => lm({
         "de": `Der Auftrag setzt das Gewicht der Kante auf pWeight.`,
-        "en": `Sets valü of field weight.`,
+        "en": `Sets value of field weight.`,
     })
 
     static edgeGetWeightComment = () => lm({
@@ -330,12 +328,12 @@ export class NRWLang {
 
     static edgeSetMarkComment = () => lm({
         "de": `Der Auftrag setzt die Markierung der Kante auf den Wert pMark.`,
-        "en": `Sets valü of field mark.`,
+        "en": `Sets value of field mark.`,
     })
 
     static edgeIsMarkedComment = () => lm({
-        "de": `Die Anfrage liefert trü, wenn die Markierung der Kante den Wert trü hat, ansonsten false.`,
-        "en": `Returns the valü of this edges mark.`,
+        "de": `Die Anfrage liefert true, wenn die Markierung der Kante den Wert true hat, ansonsten false.`,
+        "en": `Returns the value of this edges mark.`,
     })
 
 
@@ -350,12 +348,12 @@ export class NRWLang {
     })
 
     static graphGetVerticesComment = () => lm({
-    "de": `Die Anfrage liefert eine neü Liste aller Knotenobjekte vom Typ List<Vertex>.`,
+    "de": `Die Anfrage liefert eine neue Liste aller Knotenobjekte vom Typ List<Vertex>.`,
     "en": `Returns a list containing all vertices of this graph.`,
     })
 
     static graphGetEdgesComment = () => lm({
-    "de": `Die Anfrage liefert eine neü Liste aller Kantenobjekte vom Typ List<Edge>.`,
+    "de": `Die Anfrage liefert eine neue Liste aller Kantenobjekte vom Typ List<Edge>.`,
     "en": `Returns a list containing all edges of this graph.`,
     })
 
@@ -366,7 +364,7 @@ export class NRWLang {
 
     static graphAddVertexComment = () => lm({
     "de": `Der Auftrag fügt den Knoten pVertex in den Graphen ein, sofern es noch keinen Knoten mit demselben ID-Eintrag wie pVertex im Graphen gibt und pVertex eine ID ungleich null hat. Ansonsten passiert nichts.`,
-    "en": `Adds given vertex to this graph. Dös nothing if vertex with this vertex' id is already present.`,
+    "en": `Adds given vertex to this graph. Does nothing if vertex with this vertex' id is already present.`,
     })
 
     static graphAddEdgeComment = () => lm({
@@ -386,31 +384,31 @@ export class NRWLang {
 
     static graphSetAllVertexMarksComment = () => lm({
     "de": `Der Auftrag setzt die Markierungen aller Knoten des Graphen auf pMark.`,
-    "en": `Sets marks of all vertices to given valü.`,
+    "en": `Sets marks of all vertices to given value.`,
     })
 
     static graphSetAllEdgeMarksComment = () => lm({
     "de": `Der Auftrag setzt die Markierungen aller Kanten des Graphen auf pMark.`,
-    "en": `Sets marks of all edges to given valü.`,
+    "en": `Sets marks of all edges to given value.`,
     })
 
     static graphAllVerticesMarkedComment = () => lm({
-    "de": `Die Anfrage liefert trü, wenn alle Knoten des Graphen mit trü markiert sind, ansonsten false.`,
-    "en": `Returns trü if and only if all vertices of this graph have mark == trü.`,
+    "de": `Die Anfrage liefert true, wenn alle Knoten des Graphen mit true markiert sind, ansonsten false.`,
+    "en": `Returns true if and only if all vertices of this graph have mark == true.`,
     })
 
     static graphAllEdgesMarkedComment = () => lm({
-    "de": `Die Anfrage liefert trü, wenn alle Kanten des Graphen mit trü markiert sind, ansonsten false.`,
-    "en": `Returns trü if and only if all edges of this graph have mark == trü.`,
+    "de": `Die Anfrage liefert true, wenn alle Kanten des Graphen mit true markiert sind, ansonsten false.`,
+    "en": `Returns true if and only if all edges of this graph have mark == true.`,
     })
 
     static graphGetNeighboursComment = () => lm({
-    "de": `Die Anfrage liefert alle Nachbarn des Knotens pVertex als neü Liste vom Typ List<Vertex>. Hat der Knoten pVertex keine Nachbarn in diesem Graphen oder ist gar nicht in diesem Graphen enthalten, so  wird eine leere Liste zurückgeliefert.`,
+    "de": `Die Anfrage liefert alle Nachbarn des Knotens pVertex als neue Liste vom Typ List<Vertex>. Hat der Knoten pVertex keine Nachbarn in diesem Graphen oder ist gar nicht in diesem Graphen enthalten, so wird eine leere Liste zurückgeliefert.`,
     "en": `Returns all vertices that are connected to pVertex.`,
     })
 
     static graphGetEdgesForVertexComment = () => lm({
-    "de": `Die Anfrage liefert eine neü Liste alle inzidenten Kanten zum Knoten pVertex. Hat der Knoten pVertex keine inzidenten Kanten in diesem Graphen oder ist gar nicht in diesem Graphen enthalten, so  wird eine leere Liste zurückgeliefert.`,
+    "de": `Die Anfrage liefert eine neue Liste alle inzidenten Kanten zum Knoten pVertex. Hat der Knoten pVertex keine inzidenten Kanten in diesem Graphen oder ist gar nicht in diesem Graphen enthalten, so  wird eine leere Liste zurückgeliefert.`,
     "en": `Returns all edges connected to given vertex.`,
     })
 
@@ -420,8 +418,8 @@ export class NRWLang {
     })
 
     static graphIsEmptyComment = () => lm({
-    "de": `Die Anfrage liefert trü, wenn der Graph keine Knoten enthält, ansonsten false.`,
-    "en": `Returns trü if and only if this graph contains no vertices.`,
+    "de": `Die Anfrage liefert true, wenn der Graph keine Knoten enthält, ansonsten false.`,
+    "en": `Returns true if and only if this graph contains no vertices.`,
     })
 
     static queryResultClassComment = () => lm({
@@ -460,7 +458,7 @@ export class NRWLang {
     })
 
     static databaseConnectorConstructorComment = () => lm({
-    "de": `Erstellt ein neüs DatabaseConnector-Objekt. code ist der Zugriffscode für eine Datenbank der SQL-IDE.`,
+    "de": `Erstellt ein neues DatabaseConnector-Objekt. code ist der Zugriffscode für eine Datenbank der SQL-IDE.`,
     "en": `Creates a new DatabaseConnector object. You get the access code from the SQL-IDE.`,
     })
 

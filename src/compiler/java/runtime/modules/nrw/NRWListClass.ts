@@ -8,7 +8,6 @@ import { SystemCollection } from "../../system/collections/SystemCollection.ts";
 import { ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { NRWLang } from "./NRWLang.ts";
 
-// Spellcheck RESOLVED: check if usage of "ae", "oe" and "ü" is intended, as often found in NRW files -> Good point! -> I changed them all.
 
 class ListNode {
     next: ListNode | undefined;
@@ -112,7 +111,7 @@ export class NRWListClass extends SystemCollection implements BaseListType {
             } else {
                 if (this._isEmpty()) { // Fall: In leere Liste einfügen.
 
-                    // Neün Knoten erstellen.
+                    // Neuen Knoten erstellen.
                     const newNode = new ListNode(pContent);
 
                     this.first = newNode;
@@ -129,7 +128,7 @@ export class NRWListClass extends SystemCollection implements BaseListType {
                 this._insert(pContent);
             } else { // Fall: An nicht-leere Liste anfügen.
 
-                // Neün Knoten erstellen.
+                // Neuen Knoten erstellen.
                 const newNode = new ListNode(pContent);
 
                 this.last.next = newNode;
@@ -150,7 +149,7 @@ export class NRWListClass extends SystemCollection implements BaseListType {
                 this.last = pList.last;
             }
 
-            // Liste pList loeschen.
+            // Liste pList löschen.
             pList.first = null;
             pList.last = null;
             pList.current = null;
@@ -158,7 +157,7 @@ export class NRWListClass extends SystemCollection implements BaseListType {
     }
 
     _remove() {
-        // Nichts tun, wenn es kein aktülle Element gibt oder die Liste leer ist.
+        // Nichts tun, wenn es kein aktuelle Element gibt oder die Liste leer ist.
         if (this._hasAccess() && !this._isEmpty()) {
 
             if (this.current == this.first) {
@@ -176,7 +175,7 @@ export class NRWListClass extends SystemCollection implements BaseListType {
             this.current.next = null
             this.current = temp;
 
-            //Beim Loeschen des letzten Elements last auf null setzen. 
+            //Beim Löschen des letzten Elements last auf null setzen.
             if (this._isEmpty()) {
                 this.last = null;
             }
