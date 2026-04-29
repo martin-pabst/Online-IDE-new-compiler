@@ -154,6 +154,12 @@ export class SpriteManagerMessages {
         'de': 'Serie ' + series + ', index ' + index + ' ist schon weiter oben vergeben.',
         'en': 'Series ' + series + ', index ' + index + ' already is used.'
     });
+
+    static pleaseSelectZip = () => lm({
+        'de': 'Spritesheets sind immer in einer zip-Datei gespeichert. Die von Ihnen ausgewählte Datei ist also kein Spritesheet.',
+        'en': 'Spritesheets are always stored in a zip file. The file you selected is not a spritesheet.',
+        'fr': 'Les spritesheets sont toujours stockés dans un fichier zip. Le fichier que vous avez sélectionné n\'est pas un spritesheet.'
+    });
        
 }
 

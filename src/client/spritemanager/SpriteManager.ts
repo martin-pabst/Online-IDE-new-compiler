@@ -176,6 +176,11 @@ export class SpriteManager {
     async importSpritesheet(fileList: FileList) {
         if(!this.userSpritesheet) return;
 
+        if(!fileList[0] || !fileList[0].name.endsWith(".zip")){
+            alert(SpriteManagerMessages.pleaseSelectZip());
+            return;
+        }
+
         await this.userSpritesheet.spritesheet.unpackZip(fileList[0]);
 
         this.userSpritesheet.extractImagesFromSheet();
