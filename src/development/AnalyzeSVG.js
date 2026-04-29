@@ -128,7 +128,7 @@ function analyzeSVGNode(svgNode, fileWithPath) {
     // Hat das SVG-Element ein desc-Feld (Description)?
     if(svgNode.desc){
         let id = svgNode.attr["@_id"];  // In Inkscape: Feld Objekteigenschaften -> Kennung
-        let description = svgNode.desc; // IN Inksape: Feld Objekteigenschaften -> Beschreibung
+        let description = svgNode.desc; // In Inkscape: Feld Objekteigenschaften -> Beschreibung
         let data = {};
         let text = description["#text"];
         if(text){
