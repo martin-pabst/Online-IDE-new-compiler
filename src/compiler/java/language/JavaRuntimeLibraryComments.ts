@@ -407,6 +407,16 @@ export class JRC {
         "en": "onKeyDown gets called after a key had been pressed down. The key is stored in parameter key. For special keys (like enter, arrow keys, ...) use constants Key.Enter, Key.ArrowUp, ...",
     })
 
+    static actorIsKeyUpComment = () => lm({
+        "de": `Gibt genau dann true zurück, wenn die Taste key gerade nicht gedrückt ist.`,
+        "en": `Returns true if key is currently not pressed down.`,
+    })
+
+    static actorIsKeyDownComment = () => lm({
+        "de": `Gibt genau dann true zurück, wenn die Taste key gerade gedrückt ist.`,
+        "en": `Returns true if key is currently pressed down.`,
+    })
+
     static getWorldComment = () => lm({
         "de": "Gibt das aktuelle World-Objekt zurück.",
         "en": "Returns current World object.",
