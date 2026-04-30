@@ -1533,12 +1533,12 @@ export class JRC {
     })
 
     static rectangleEmptyConstructorComment = () => lm({
-        "de": "Instanziiert ein Retangle-Objekt mit Standardmaßen. Seine linke obere Ecke liegt bei (0/0). Breite und Höhe betragen jeweils 100. Die Rechteckseiten sind zunächst parallel zu den Koordinatenachsen.",
+        "de": "Instanziiert ein Rectangle-Objekt mit Standardmaßen. Seine linke obere Ecke liegt bei (0/0). Breite und Höhe betragen jeweils 100. Die Rechteckseiten sind zunächst parallel zu den Koordinatenachsen.",
         "en": "Instantiates a rectangle object with default geometry. It's left top edge is located at (0/0). Width and height are 100 each. Initial orientation is parallel to x- and y-axis."
     })
 
     static rectangleConstructorComment = () => lm({
-        "de": "Instanziiert ein Retangle-Objekt. Seine linke obere Ecke liegt bei (top/left). Width ist seine Breite, height seine Höhe. Das Rechteck ist zunächst achsenparallel.",
+        "de": "Instanziiert ein Rectangle-Objekt. Seine linke obere Ecke liegt bei (top/left). Width ist seine Breite, height seine Höhe. Das Rechteck ist zunächst achsenparallel.",
         "en": "Instantiates a rectangle object with given width and height. It's left top edge is located at (top/left). Initial orientation is parallel to x- and y-axis."
     })
 
@@ -1581,12 +1581,12 @@ export class JRC {
     })
 
     static RoundedRectangleEmptyConstructorComment = () => lm({
-        "de": "Instanziiert ein Retangle-Objekt mit Standardmaßen. Seine linke obere Ecke liegt bei (0/0). Breite und Höhe betragen jeweils 100. Die Rechteckseiten sind zunächst parallel zu den Koordinatenachsen.",
+        "de": "Instanziiert ein Rectangle-Objekt mit Standardmaßen. Seine linke obere Ecke liegt bei (0/0). Breite und Höhe betragen jeweils 100. Die Rechteckseiten sind zunächst parallel zu den Koordinatenachsen.",
         "en": "Instantiates a RoundedRectangle object with default geometry. It's left top edge is located at (0/0). Width and height are 100 each. Initial orientation is parallel to x- and y-axis."
     })
 
     static RoundedRectangleConstructorComment = () => lm({
-        "de": "Instanziiert ein Retangle-Objekt. Seine linke obere Ecke liegt bei (top/left). Width ist seine Breite, height seine Höhe. Das Rechteck ist zunächst achsenparallel.",
+        "de": "Instanziiert ein Rectangle-Objekt. Seine linke obere Ecke liegt bei (top/left). Width ist seine Breite, height seine Höhe. Das Rechteck ist zunächst achsenparallel.",
         "en": "Instantiates a RoundedRectangle object with given width and height. It's left top edge is located at (top/left). Initial orientation is parallel to x- and y-axis."
     })
 
