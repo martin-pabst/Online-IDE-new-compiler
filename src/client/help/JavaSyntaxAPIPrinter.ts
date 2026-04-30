@@ -1,9 +1,9 @@
 import { TokenType, TokenTypeReadable } from "../../compiler/java/TokenType";
 import { GenericTypeParameter } from "../../compiler/java/types/GenericTypeParameter";
-import { JavaClass } from "../../compiler/java/types/JavaClass";
+import { IJavaClass, JavaClass } from "../../compiler/java/types/JavaClass";
 import { JavaEnum } from "../../compiler/java/types/JavaEnum";
 import { JavaField } from "../../compiler/java/types/JavaField";
-import { JavaInterface } from "../../compiler/java/types/JavaInterface";
+import { IJavaInterface, JavaInterface } from "../../compiler/java/types/JavaInterface";
 import { GenericMethod, JavaMethod } from "../../compiler/java/types/JavaMethod";
 import { Visibility } from "../../compiler/java/types/Visibility.ts";
 import { APIPrinter } from "./APIPrinter";
@@ -23,10 +23,7 @@ export class JavaSyntaxAPIPrinter extends APIPrinter {
 
         let s: string = ""; 
             s += this.toJavaDocComment(cei.documentation, "");
-        s += "public " + type + " " + cei.identifier;
-        if (cei.genericTypeParameters?.length > 0) {
-            s += '<' + cei.genericTypeParameters.map(gtp => this.genericTypeParameterToString(gtp)).join(", ") + ">"
-        }
+            s += cei.getDeclaration();
 
         s += " {\n";
         if (cei instanceof JavaEnum) {
