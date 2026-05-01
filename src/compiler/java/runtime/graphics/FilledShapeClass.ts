@@ -14,8 +14,8 @@ export class FilledShapeClass extends ShapeClass {
         { type: "declaration", signature: "abstract class FilledShape extends Shape" },
 
         { type: "method", signature: "FilledShape()", java: FilledShapeClass.prototype._cj$_constructor_$FilledShape$ },
-        { type: "method", signature: "Color getFillColor()", native: FilledShapeClass.prototype._getFillColor , comment: JRC.fsGetFillColorComment},
-        { type: "method", signature: "int getFillColorAsInt()", native: FilledShapeClass.prototype._getFillColorAsInt , comment: JRC.fsGetFillColorComment},
+        { type: "method", signature: "Color getFillColor()", native: FilledShapeClass.prototype._getFillColor , comment: JRC.fsGetFillColorCommentColor},
+        { type: "method", signature: "int getFillColorAsInt()", native: FilledShapeClass.prototype._getFillColorAsInt , comment: JRC.fsGetFillColorCommentInt},
         { type: "method", signature: "final This setFillColor(Color color)", native: FilledShapeClass.prototype._setFillColorColor , comment: JRC.fsSetFillColorCommentColor},
         { type: "method", signature: "final This setFillColor(Color color, double alpha)", native: FilledShapeClass.prototype._setFillColorColor , comment: JRC.fsSetFillColorCommentColor},
         { type: "method", signature: "final This setFillColor(int color)", native: FilledShapeClass.prototype._setFillColorInt , comment: JRC.fsSetFillColorCommentInt},
