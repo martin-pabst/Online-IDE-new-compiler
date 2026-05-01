@@ -1,26 +1,18 @@
 import { TokenType, TokenTypeReadable } from "../../compiler/java/TokenType";
 import { GenericTypeParameter } from "../../compiler/java/types/GenericTypeParameter";
-import { IJavaClass, JavaClass } from "../../compiler/java/types/JavaClass";
+import { JavaClass } from "../../compiler/java/types/JavaClass";
 import { JavaEnum } from "../../compiler/java/types/JavaEnum";
 import { JavaField } from "../../compiler/java/types/JavaField";
-import { IJavaInterface, JavaInterface } from "../../compiler/java/types/JavaInterface";
+import { JavaInterface } from "../../compiler/java/types/JavaInterface";
 import { GenericMethod, JavaMethod } from "../../compiler/java/types/JavaMethod";
 import { Visibility } from "../../compiler/java/types/Visibility.ts";
 import { APIPrinter } from "./APIPrinter";
-
-type classEnumInterface = "class" | "enum" | "interface";
 
 export class JavaSyntaxAPIPrinter extends APIPrinter {
 
     indentation: string = "   ";
 
     printClassEnumInterface(cei: JavaClass | JavaEnum | JavaInterface): string {
-        let type: classEnumInterface;
-
-        if (cei instanceof JavaClass) type = "class";
-        if (cei instanceof JavaEnum) type = "enum";
-        if (cei instanceof JavaInterface) type = "interface";
-
         let s: string = ""; 
             s += this.toJavaDocComment(cei.documentation, "");
             s += cei.getDeclaration();
