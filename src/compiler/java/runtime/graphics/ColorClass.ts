@@ -41,7 +41,10 @@ export class ColorClass extends ObjectClass {
 
     alpha: number = 1.0;
 
+    static predefinedColorsInitialized = false;
     static _initPredefinedColors(){
+        if(ColorClass.predefinedColorsInitialized) return;
+        ColorClass.predefinedColorsInitialized = true;
 
         for (let colorName in ColorHelper.predefinedColors) {
 
