@@ -56,6 +56,8 @@ export class GNGFigur extends ObjectClass implements IGNGEventListener {
         { type: "method", signature: "void TasteGedrückt(char taste)", java: GNGFigur.prototype._mj$TasteGedrückt$void$char, comment: "Wird aufgerufen, wenn eine Taste gedrückt wird." },
         { type: "method", signature: "void SonderTasteGedrückt(int sondertaste)", java: GNGFigur.prototype._mj$SonderTasteGedrückt$void$int, comment: "Wird aufgerufen, wenn eine SonderTaste gedrückt wird." },
         { type: "method", signature: "void MausGeklickt(int x, int y, int anzahl)", java: GNGFigur.prototype._mj$MausGeklickt$void$int$int$int, comment: "Wird aufgerufen, wenn eine die linke Maustaste gedrückt wird." },
+        
+        { type: "method", signature: "Group<FilledShape> FigurteileGeben()", native: GNGFigur.prototype._figurteileGeben, comment: "Gibt die Gruppe der Figurteile zurück." },
 
 
     ];
@@ -397,5 +399,9 @@ export class GNGFigur extends ObjectClass implements IGNGEventListener {
 
     _containsPoint(x: number, y: number) {
         return this.group._containsPoint(x, y);
+    }
+
+    _figurteileGeben(): GroupClass {
+        return this.group;
     }
 }
