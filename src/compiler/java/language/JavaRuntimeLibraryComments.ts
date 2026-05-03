@@ -620,6 +620,16 @@ export class JRC {
         "en": "Y coordinate of the diagonal intersection of the object's BoundingBox",
     })
 
+    static shapeGetTopLeftXComment = () => lm({
+        "de": "Gibt die X-Koordinate der linken oberen Ecke des Objekts zurück. Wurde das Objekt gedreht, so wird die X-Koordinate der gedrehten Ecke zurückgegeben.",
+        "en": "Returns x-coordinate of object. If the object is rotated, the x-coordinate of the rotated corner is returned.",
+    })
+
+    static shapeGetTopLeftYComment = () => lm({
+        "de": "Gibt die Y-Koordinate der linken oberen Ecke des Objekts zurück. Wurde das Objekt gedreht, so wird die Y-Koordinate der gedrehten Ecke zurückgegeben.",
+        "en": "Returns y-coordinate of object. If the object is rotated, the y-coordinate of the rotated corner is returned.",
+    })
+
     static shapeScaleFactorComment = () => lm({
         "de": `Streckungsfaktor des Shapes`,
         "en": `Scale factor of this Shape object`,

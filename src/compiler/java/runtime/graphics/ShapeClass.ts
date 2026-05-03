@@ -49,6 +49,9 @@ export class ShapeClass extends ActorClass {
         { type: "method", signature: "final This defineCenter(double x, double y)", native: ShapeClass.prototype._defineCenter, comment: JRC.shapeDefineCenterComment },
         { type: "method", signature: "final This defineCenterRelative(double x, double y)", native: ShapeClass.prototype._defineCenterRelative, comment: JRC.shapeDefineCenterRelativeComment },
 
+        { type: "method", signature: "final double getTopLeftX()", native: ShapeClass.prototype._getTopLeftX, comment: JRC.shapeGetTopLeftXComment },
+        { type: "method", signature: "final double getTopLeftY()", native: ShapeClass.prototype._getTopLeftY, comment: JRC.shapeGetTopLeftYComment },
+
         { type: "method", signature: "final This tint(int color)", native: ShapeClass.prototype._setTintInt, comment: JRC.shapeTintComment },
         { type: "method", signature: "final This tint(string color)", native: ShapeClass.prototype._setTintString, comment: JRC.shapeTintComment },
         { type: "method", signature: "final This tint(Color color)", native: ShapeClass.prototype._setTintColor, comment: JRC.shapeTintComment },
@@ -105,6 +108,9 @@ export class ShapeClass extends ActorClass {
 
     centerXInitial: number = 0;
     centerYInitial: number = 0;
+
+    initialWidth!: number;
+    initialHeight!: number;
 
     angle: number = 0;      // in Degrees
 
@@ -166,6 +172,10 @@ export class ShapeClass extends ActorClass {
         super.copyFrom(otherShape);
         this.centerXInitial = otherShape.centerXInitial;
         this.centerYInitial = otherShape.centerYInitial;
+
+        this.initialHeight = otherShape.initialHeight;
+        this.initialWidth = otherShape.initialWidth;
+
         this.angle = otherShape.angle;
         this.hitPolygonInitial = otherShape.hitPolygonInitial.slice();
         this.hitPolygonTransformed = otherShape.hitPolygonTransformed.slice();
@@ -309,8 +319,8 @@ export class ShapeClass extends ActorClass {
 
     }
 
-    _setScale(factor: number){
-        this._scale(factor/this.scaleFactor);
+    _setScale(factor: number) {
+        this._scale(factor / this.scaleFactor);
         return this;
     }
 
@@ -346,12 +356,12 @@ export class ShapeClass extends ActorClass {
         return this;
     }
 
-    _mirrorX(){
+    _mirrorX() {
         this._mirrorXY(-1, 1);
         return this;
     }
 
-    _mirrorY(){
+    _mirrorY() {
         this._mirrorXY(1, -1);
         return this;
     }
@@ -536,7 +546,7 @@ export class ShapeClass extends ActorClass {
         return this;
     }
 
-    _setX(x: number) {  
+    _setX(x: number) {
         this._move(x - this._getCenterX(), 0);
     }
 
@@ -651,7 +661,7 @@ export class ShapeClass extends ActorClass {
                 if (collidingSprite) break;
             } else {
                 let spriteIndex = otherShape.imageIndex;
-                if(!spriteIndex) continue;
+                if (!spriteIndex) continue;
                 if (imageIndex != -1 && spriteIndex != imageIndex) continue;
 
                 if (!this.hasOverlappingBoundingBoxWith(otherShape, bounds)) continue;
@@ -707,9 +717,9 @@ export class ShapeClass extends ActorClass {
             if (color != null && !otherShape.shapes) {
                 if (otherShape.fillColor != color) continue;
             }
-            
+
             if (!this.hasOverlappingBoundingBoxWith(otherShape, bounds)) continue;
-            
+
             if (otherShape.shapes && !this.shapes) {
                 if (collidingShape = this.collidesWithAnyShapeHelper(color, otherShape.shapes, bounds)) {
                     break;
@@ -718,13 +728,13 @@ export class ShapeClass extends ActorClass {
 
             if (this.shapes) {
                 let cd: boolean = false;
-                for(let shape of this.shapes){
+                for (let shape of this.shapes) {
                     if (collidingShape = shape.collidesWithAnyShapeHelper(color, [otherShape], bounds)) {
                         cd = true;
                         break;
                     }
                 }
-                if(cd){
+                if (cd) {
                     break;
                 }
             }
@@ -734,7 +744,7 @@ export class ShapeClass extends ActorClass {
                 break;
             }
 
-            if(this.hitPolygonTransformed.length == 0){
+            if (this.hitPolygonTransformed.length == 0) {
                 collidingShape = null;
                 break;
             }
@@ -869,7 +879,7 @@ export class ShapeClass extends ActorClass {
     }
 
     _setTintColor(color: ColorClass) {
-        if(color == null){
+        if (color == null) {
             this.container.tint = 0xffffff;
         } else {
             this.container.tint = color._toInt();
@@ -1002,4 +1012,41 @@ export class ShapeClass extends ActorClass {
     _reactToMouseEventsWhenInvisible(b: boolean) {
         this.reactToMouseEventsWhenInvisible = b;
     }
+
+    _getTopLeftX(): number {
+        if(typeof this.initialWidth == "undefined") this.setInitialWidthAndHeight();
+        
+        let initialTopLeftX = this.centerXInitial - this.initialWidth / 2;
+        let initialTopLeftY = this.centerYInitial - this.initialHeight / 2;
+        let p = new PIXI.Point(initialTopLeftX, initialTopLeftY);
+        if (this.container) this.getWorldTransform().apply(p, p);
+        return p.x;
+    }
+    
+    _getTopLeftY(): number {
+        if(typeof this.initialWidth == "undefined") this.setInitialWidthAndHeight();
+        let initialTopLeftX = this.centerXInitial - this.initialWidth / 2;
+        let initialTopLeftY = this.centerYInitial - this.initialHeight / 2;
+        let p = new PIXI.Point(initialTopLeftX, initialTopLeftY);
+        if (this.container) this.getWorldTransform().apply(p, p);
+        return p.y;
+    }
+
+    setInitialWidthAndHeight() {
+        let xMin: number = Number.POSITIVE_INFINITY;
+        let xMax: number = Number.NEGATIVE_INFINITY;
+        let yMin: number = Number.POSITIVE_INFINITY;
+        let yMax: number = Number.NEGATIVE_INFINITY;
+
+        for(let p of this.hitPolygonInitial) {
+            if(p.x < xMin) xMin = p.x;
+            if(p.x > xMax) xMax = p.x;
+            if(p.y < yMin) yMin = p.y;
+            if(p.y > yMax) yMax = p.y;
+        }
+
+        this.initialWidth = xMax - xMin;
+        this.initialHeight = yMax - yMin;   
+    }
+
 }

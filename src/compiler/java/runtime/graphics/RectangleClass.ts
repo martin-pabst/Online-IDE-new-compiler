@@ -19,8 +19,8 @@ export class RectangleClass extends FilledShapeClass {
         { type: "method", signature: "Rectangle(double left, double top, double width, double height)", java: RectangleClass.prototype._cj$_constructor_$Rectangle$double$double$double$double, comment: JRC.rectangleConstructorComment },
         { type: "method", signature: "final void setWidth(double width)", native: RectangleClass.prototype._setWidth, comment: JRC.rectangleSetWidthComment },
         { type: "method", signature: "final void setHeight(double height)", native: RectangleClass.prototype._setHeight, comment: JRC.rectangleSetHeightComment },
-        { type: "method", signature: "final double getWidth()", template: '(§1.width*§1.scaleFactor)', comment: JRC.rectangleGetWidthComment },
-        { type: "method", signature: "final double getHeight()", template: '(§1.height*§1.scaleFactor)', comment: JRC.rectangleGetHeightComment },
+        { type: "method", signature: "final double getWidth()", template: '(§1.initialWidth*§1.scaleFactor)', comment: JRC.rectangleGetWidthComment },
+        { type: "method", signature: "final double getHeight()", template: '(§1.initialHeight*§1.scaleFactor)', comment: JRC.rectangleGetHeightComment },
         { type: "method", signature: "final Rectangle copy()", java: RectangleClass.prototype._mj$copy$Rectangle$, comment: JRC.rectangleCopyComment },
         { type: "method", signature: "final Rectangle moveTo(double x, double y)", native: RectangleClass.prototype._moveTo, comment: JRC.rectangleMoveToComment },
 
@@ -31,15 +31,13 @@ export class RectangleClass extends FilledShapeClass {
     static type: NonPrimitiveType;
     left!: number;
     top!: number;
-    width!: number;
-    height!: number;
 
     get scaledWidth(): number {
-        return this.scaleFactor * this.width;
+        return this.scaleFactor * this.initialWidth;
     }
 
     get scaledHeight(): number {
-        return this.scaleFactor * this.width;
+        return this.scaleFactor * this.initialHeight;
     }
 
     set scaledWidth(w: number) {
@@ -63,12 +61,12 @@ export class RectangleClass extends FilledShapeClass {
 
             this.left = left;
             this.top = top;
-            this.width = width;
-            this.height = height;
+            this.initialWidth = width;
+            this.initialHeight = height;
 
             this.hitPolygonInitial = [
-                { x: this.left, y: this.top }, { x: this.left, y: this.top + this.height },
-                { x: this.left + this.width, y: this.top + this.height }, { x: this.left + this.width, y: this.top }
+                { x: this.left, y: this.top }, { x: this.left, y: this.top + this.initialHeight },
+                { x: this.left + this.initialWidth, y: this.top + this.initialHeight }, { x: this.left + this.initialWidth, y: this.top }
             ];
 
             this.render();
@@ -80,8 +78,8 @@ export class RectangleClass extends FilledShapeClass {
 
     calculateHitPolygonInitial(){
         this.hitPolygonInitial = [
-            { x: this.left, y: this.top }, { x: this.left, y: this.top + this.height },
-            { x: this.left + this.width, y: this.top + this.height }, { x: this.left + this.width, y: this.top }
+            { x: this.left, y: this.top }, { x: this.left, y: this.top + this.initialHeight },
+            { x: this.left + this.initialWidth, y: this.top + this.initialHeight }, { x: this.left + this.initialWidth, y: this.top }
         ];
     }
 
@@ -90,7 +88,7 @@ export class RectangleClass extends FilledShapeClass {
     }
     _mj$copy$Rectangle$(t: Thread, callback: CallbackFunction){
         let copy = new RectangleClass();
-        copy._cj$_constructor_$Rectangle$double$double$double$double(t, callback, this.left, this.top, this.width, this.height);
+        copy._cj$_constructor_$Rectangle$double$double$double$double(t, callback, this.left, this.top, this.initialWidth, this.initialHeight);
         copy.copyFrom(this);
         copy.render();
         t.s.push(copy);
@@ -110,7 +108,7 @@ export class RectangleClass extends FilledShapeClass {
             g.clear();
         }
 
-        g.rect(this.left, this.top, this.width, this.height);
+        g.rect(this.left, this.top, this.initialWidth, this.initialHeight);
 
         if (this.fillColor != null) {
             g.fill(this.fillColor);
@@ -131,15 +129,15 @@ export class RectangleClass extends FilledShapeClass {
     };
 
     _setWidth(width: number){
-        this.width = width / this.container.scale.x;
-        this.centerXInitial = this.left + this.width / 2;
+        this.initialWidth = width / this.container.scale.x;
+        this.centerXInitial = this.left + this.initialWidth / 2;
         this.calculateHitPolygonInitial();
         this.render();
     }
 
     _setHeight(height: number){
-        this.height = height / this.container.scale.y;
-        this.centerYInitial = this.top + this.height / 2;
+        this.initialHeight = height / this.container.scale.y;
+        this.centerYInitial = this.top + this.initialHeight / 2;
         this.calculateHitPolygonInitial();
 
         this.render();

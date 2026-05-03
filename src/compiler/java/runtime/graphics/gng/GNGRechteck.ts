@@ -36,8 +36,8 @@ export class GNGRechteck extends GNGBaseFigur {
 
         rectangle.left = this.moveAnchor.x;
         rectangle.top = this.moveAnchor.y;
-        rectangle.width = this.width;
-        rectangle.height = this.height;
+        rectangle.initialWidth = this.width;
+        rectangle.initialHeight = this.height;
 
         rectangle.calculateHitPolygonInitial();
 
