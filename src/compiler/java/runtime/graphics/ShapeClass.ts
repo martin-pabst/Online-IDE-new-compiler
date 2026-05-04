@@ -86,6 +86,9 @@ export class ShapeClass extends ActorClass {
 
         { type: "method", signature: "void startTrackingEveryMouseMovement()", native: ShapeClass.prototype._startTrackingEveryMouseMovement, comment: JRC.shapeStartTrackingEveryMouseMovementComment },
         { type: "method", signature: "void stopTrackingEveryMouseMovement()", native: ShapeClass.prototype._stopTrackingEveryMouseMovement, comment: JRC.shapeStartTrackingEveryMouseMovementComment },
+        { type: "method", signature: "void stopTrackingEveryMouseMovement()", native: ShapeClass.prototype._stopTrackingEveryMouseMovement, comment: JRC.shapeStartTrackingEveryMouseMovementComment },
+
+        { type: "method", signature: "void setHitPolygon(double[][] points)", native: ShapeClass.prototype._setHitPolygon, comment: JRC.shapeSetHitPolygonComment },
 
         { type: "method", signature: "abstract Shape copy()", java: ShapeClass.prototype._mj$copy$Shape$, comment: JRC.shapeCopyComment },
         { type: "method", signature: "final World getWorld()", java: ShapeClass.prototype._mj$getWorld$World, comment: JRC.getWorldComment },
@@ -1047,6 +1050,13 @@ export class ShapeClass extends ActorClass {
 
         this.initialWidth = xMax - xMin;
         this.initialHeight = yMax - yMin;   
+    }
+
+    _setHitPolygon(points: number[][]) {
+        this.hitPolygonTransformed = [];
+        let m = this.getWorldTransform().clone().invert();
+        this.hitPolygonInitial = points.map(p => ({ x: (m.a * p[0]) + (m.c * p[1]) + m.tx, y: (m.b * p[0]) + (m.d * p[1]) + m.ty }));
+        this.hitPolygonDirty = true;
     }
 
 }

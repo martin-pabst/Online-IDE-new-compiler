@@ -505,14 +505,19 @@ export class JRC {
         "en": `Makes the object react to mouse move events even if it doesn't contain the mouse pointer. Hint: use this method to create drag/drop-functionality.`,
     })
 
+    static shapeSetHitPolygonComment = () => lm({
+        "de": `Setzt das Hit-Polygon des Objekts auf das übergebene Polygon (in der Form [[x1, y1], [x2, y2], ...]). Die Koordinaten der Punkte beziehen sich auf das Welt-Koordinatensystem, sind also abhängig davon, wo sich das Objekt gerade befindet. Das Polygon muss nicht geschlossen sein.`,
+        "en": `Sets the hit polygon of the object to the given polygon (in the form [[x1, y1], [x2, y2], ...]). The coordinates of the points are relative to the world's coordinate system, depending on the object's current position. The polygon does not need to be closed.`,
+    })
+
     static shapeCopyComment = () => lm({
         "de": `Erstellt eine Kopie des Grafikobjekts und gibt sie zurück.`,
         "en": `Creates and returns a copy of this object.`,
     })
 
     static shapeStopTrackingEveryMouseMovementComment = () => lm({
-        "de": `Sorgt dafür, dass ab jetzt nur noch dann Bewegungen des Mauszeigers ein MouseMove-Ereignis für dieses Objekt auslösen, wenn sich der Mauszeiger über dem Objekt befindet. -> Praktisch zur Umsetzung des "Ziehens" von Objekten mit der Maus!`,
-        "en": `Makes the object react to mouse move events only if it contains the mouse pointer. Hint: use this method to create drag/drop-functionality.`,
+        "de": `Sorgt dafür, dass ab jetzt nur noch dann Bewegungen des Mauszeigers ein MouseMove- Ereignis für dieses Objekt auslösen, wenn sich der Mauszeiger über dem Objekt befindet. -> Praktisch zur Umsetzung des "Ziehens" von Objekten mit der Maus!`,
+        "en": `Makes the object react to mouse move events only if it contains the mouse pointer.Hint: use this method to create drag / drop - functionality.`,
     })
 
     static shapeOnMouseEnterComment = () => lm({
@@ -576,8 +581,8 @@ export class JRC {
     })
 
     static shapeDirectionRelativeToComment = () => lm({
-        "de": `Gibt die Richtung (top, right, bottom oder left) zurück, in der das graphische Objekt relativ zum übergebenen graphischen Objekt steht.`,
-        "en": `Returns direction (top, right, bottom, left) of this shape's position relative to the other shape's position.`,
+        "de": `Gibt die Richtung(top, right, bottom oder left) zurück, in der das graphische Objekt relativ zum übergebenen graphischen Objekt steht.`,
+        "en": `Returns direction(top, right, bottom, left) of this shape's position relative to the other shape's position.`,
     })
 
     static shapeAlreadyDestroyedError = () => lm({
@@ -591,8 +596,8 @@ export class JRC {
     })
 
     static shapeMoveBackFromComment = () => lm({
-        "de": `Rückt das Objekt entlang der letzten durch Aufruf der Methode move() vorgegebenen Richtung zurück, bis es das übergebene Objekt gerade noch (keepColliding == true) bzw. gerade nicht mehr (keepColliding == false) berührt.`,
-        "en": `Moves the object back along the last direction specified by calls to method move() until it just (keepColliding == true) or no longer touches the passed object (keepColliding == false).`,
+        "de": `Rückt das Objekt entlang der letzten durch Aufruf der Methode move() vorgegebenen Richtung zurück, bis es das übergebene Objekt gerade noch(keepColliding == true) bzw.gerade nicht mehr(keepColliding == false) berührt.`,
+        "en": `Moves the object back along the last direction specified by calls to method move() until it just(keepColliding == true) or no longer touches the passed object(keepColliding == false).`,
     })
 
     static shapeForwardComment = () => lm({
@@ -696,10 +701,10 @@ export class JRC {
     })
 
     static shapeReactToMouseEventsWhenInvisibleComment = () => lm({
-        'de': `Legt fest, ob das Objekt auf Mausevents (buttondown, mouse move, ...) reagiert, wenn es unsichtbar ist.`,
-        'en': `Defines whether object reacts to mouse events (buttondown, mouse move, ...) when it is invisible.`,
+        'de': `Legt fest, ob das Objekt auf Mausevents(buttondown, mouse move, ...) reagiert, wenn es unsichtbar ist.`,
+        'en': `Defines whether object reacts to mouse events(buttondown, mouse move, ...) when it is invisible.`,
     });
-    
+
 
     static shapeCollidesWithFillColorComment = () => lm({
         "de": "Gibt genau dann true zurück, wenn die Figur mit irgendeiner anderen Figur mit der angegebenen Füllfarbe überlappt.",
@@ -727,7 +732,7 @@ export class JRC {
     })
 
     static shapeTintComment = () => lm({
-        "de": `Überzieht das Grafikobjekt mit der angegebenen Farbe. Diese Methode wirkt nur bei denjenigen Grafikobjekten, die die Methode tint unterstützen.`,
+        "de": `Überzieht das Grafikobjekt mit der angegebenen Farbe.Diese Methode wirkt nur bei denjenigen Grafikobjekten, die die Methode tint unterstützen.`,
         "en": `Sets tint color of this object.`,
     })
 
@@ -894,8 +899,8 @@ export class JRC {
     })
 
     static groupRenderAsStaticBitmapComment = () => lm({
-        "de": `Erstellt eine Bitmap (Textur) und zeichnet alle in der Gruppe enthaltenen Elemente darauf. Zeichnet ab diesem Zeitpunkt statt der enthaltenen Elemente nur noch die Bitmap (=> schneller!). Alle enthaltenen Elemente werden bei dieser Operation zerstört.`,
-        "en": `Creates a bitmap (texture) and draws all elements onto it. Then it uses this bitmap to draw to screen instead of the elements (=> faster!). All elements are destroyed afterwards.`,
+        "de": `Erstellt eine Bitmap(Textur) und zeichnet alle in der Gruppe enthaltenen Elemente darauf.Zeichnet ab diesem Zeitpunkt statt der enthaltenen Elemente nur noch die Bitmap(=> schneller!).Alle enthaltenen Elemente werden bei dieser Operation zerstört.`,
+        "en": `Creates a bitmap(texture) and draws all elements onto it.Then it uses this bitmap to draw to screen instead of the elements(=> faster!).All elements are destroyed afterwards.`,
     })
 
     static groupCopyComment = () => lm({
@@ -2097,7 +2102,7 @@ export class JRC {
         "de": "Gibt das erste Element der Liste zurück.",
         "en": "Returns the first element of this list.",
     })
-    
+
     static vectorLastElementComment = () => lm({
         "de": "Gibt das letzte Element der Liste zurück.",
         "en": "Returns the last element of this list.",
@@ -6081,12 +6086,12 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "de": `Erzeugt aus den Werten für Rot, Grün und Blau (jeweils zwischen 0 und 255) ein Color-Objekt.`,
         "en": `Creates a Color object from red, green and blue value. Values between 0 and 255.`,
     })
-    
+
     static ColorConstructorFromRGB = () => lm({
         "de": `Erzeugt aus den Werten für Rot, Grün und Blau (jeweils zwischen 0 und 255) ein Color-Objekt.`,
         "en": `Creates a Color object from red, green and blue value. Values between 0 and 255.`,
     })
-    
+
     static ColorFromRGBA = () => lm({
         "de": `Erzeugt aus den Werten für Rot, Grün, Blau (jeweils zwischen 0 und 255) und Alpha (zwischen 0 und 1) ein Color-Objekt.`,
         "en": `Creates a Color object from red, green, blue (0...255) and alpha (0 - 1) value.`,
@@ -6148,7 +6153,7 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
 
 
 
-    
+
 
 
 }
