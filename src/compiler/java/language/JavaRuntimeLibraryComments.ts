@@ -354,7 +354,7 @@ export class JRC {
     })
 
     static worldFollowComment = () => lm({
-        "de": `Verschiebt die Welt so, dass das übergebene graphische Objekt (shape) sichtbar wird. Verschoben wird nur, wenn das Objekt weniger als frameWidth vom Rand entfernt ist und die Welt nicht über die gegebenen Koordinaten xMin, xMax, yMin und yMax hinausragt.`,
+        "de": `Verschiebt die Welt so, dass das übergebene graphische Objekt (shape) sichtbar wird. Verschoben wird nur, wenn das Objekt weniger als frameWidth vom Rand (margin) entfernt ist und die Welt nicht über die gegebenen Koordinaten xMin, xMax, yMin und yMax hinausragt.`,
         "en": `Moves world coordinate system to make given shape visible again. It is only moved if the shape is less than frameWidth from the edge and the world does not extend beyond the given coordinates xMin, xMax, yMin and yMax.`,
     })
 

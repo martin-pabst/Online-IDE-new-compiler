@@ -53,6 +53,7 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
         { type: "method", signature: "void setDefaultGroup(Group defaultGroup)", template: `§1.defaultGroup = §2;`, comment: JRC.worldSetDefaultGroupComment },
 
         { type: "method", signature: "void follow(Shape shape, double margin, double xMin, double xMax, double yMin, double yMax)", native: WorldClass.prototype._follow, comment: JRC.worldFollowComment },
+        { type: "method", signature: "void follow(Shape shape, double marginTop, double marginRight, double marginBottom, double marginLeft, double xMin, double xMax, double yMin, double yMax)", native: WorldClass.prototype._followWit4Margins, comment: JRC.worldFollowComment },
 
         { type: "method", signature: "void addMouseListener(MouseListener mouseListener)", template: `§1.mouseManager.${MouseManager.prototype.addJavaMouseListener.name}(§2);`, comment: JRC.world3dAddMouseListenerComment },
 
@@ -467,7 +468,8 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
         return "2D-World";
     }
 
-    _follow(shape: ShapeClass, margin: number, xMin: number, xMax: number, yMin: number, yMax: number) {
+    _followWit4Margins(shape: ShapeClass, marginTop: number, marginRight: number, marginBottom: number, marginLeft: number, xMin: number, xMax: number, yMin: number, yMax: number) {
+    
         if (shape == null) throw new RuntimeExceptionClass(JRC.shapeNullError());
         if (shape.isDestroyed) throw new RuntimeExceptionClass(JRC.shapeAlreadyDestroyedError());
 
@@ -477,22 +479,22 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
         let shapeX: number = shape._getCenterX();
         let shapeY: number = shape._getCenterY();
 
-        let outsideRight = shapeX - (this.currentLeft + this.currentWidth - margin);
+        let outsideRight = shapeX - (this.currentLeft + this.currentWidth - marginRight);
         if (outsideRight > 0 && this.currentLeft + this.currentWidth < xMax) {
             moveX = -outsideRight;
         }
 
-        let outsideLeft = (this.currentLeft + margin) - shapeX;
+        let outsideLeft = (this.currentLeft + marginLeft) - shapeX;
         if (outsideLeft > 0 && this.currentLeft > xMin) {
             moveX = outsideLeft;
         }
 
-        let outsideBottom = shapeY - (this.currentTop + this.currentHeight - margin);
+        let outsideBottom = shapeY - (this.currentTop + this.currentHeight - marginBottom);
         if (outsideBottom > 0 && this.currentTop + this.currentHeight <= yMax) {
             moveY = -outsideBottom;
         }
 
-        let outsideTop = (this.currentTop + margin) - shapeY;
+        let outsideTop = (this.currentTop + marginTop) - shapeY;
         if (outsideTop > 0 && this.currentTop >= yMin) {
             moveY = outsideTop;
         }
@@ -515,7 +517,12 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
                     shape._move(-moveX, -moveY);
                 });
         }
+    
+    }
 
+
+    _follow(shape: ShapeClass, margin: number, xMin: number, xMax: number, yMin: number, yMax: number) {
+        this._followWit4Margins(shape, margin, margin, margin, margin, xMin, xMax, yMin, yMax);
     }
 
     static _getWorld(t: Thread) {
