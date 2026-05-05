@@ -10,7 +10,7 @@ export class GNGKreis extends GNGBaseFigur {
         {type: "declaration", signature: "class Kreis extends GNGBaseFigur", comment: "Kreis-Klasse der Graphics'n'Games-Bibliothek (Cornelsen-Verlag)"},
         {type: "method", signature: "Kreis()", java: GNGKreis.prototype._cj$_constructor_$Kreis$, comment: "Instanziiert ein neues Kreis-Objekt."},
         {type: "method", signature: "void RadiusSetzen(int radius)", native: GNGKreis.prototype._radiusSetzen, comment: "Setzt den Radius des Kreis-Objekts."},
-        {type: "method", signature: "int RadiusGeben()", native: GNGKreis.prototype._getRadius, comment: "Gibt den Radius des Kreis-Objekts zurück."},
+        {type: "method", signature: "double RadiusGeben()", native: GNGKreis.prototype._getRadius, comment: "Gibt den Radius des Kreis-Objekts zurück."},
     ];
 
     static type: NonPrimitiveType;
