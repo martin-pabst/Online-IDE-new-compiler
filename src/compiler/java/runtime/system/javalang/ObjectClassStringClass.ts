@@ -124,7 +124,8 @@ export class ObjectClass {
                     t.scheduler.restoreThread(t);
 
                     this.threadHoldingLockToThisObject = t;
-                    this.reentranceCounter = t.lastReentrenceCounter || 0;
+                    this.reentranceCounter = t.lastReentrenceCounter || 1;
+                    t.registerEnteringSynchronizedBlock(this);
 
                     // console.log("Thread " + t.name + " unblocked with reentrance counter " + t.lastReentrenceCounter + ".");
                     return;
@@ -212,7 +213,10 @@ export class ObjectClass {
 
     leaveSynchronizedBlock(t: Thread, registerLeaving: boolean = true) {
         this.reentranceCounter!--;
-        if (this.reentranceCounter == 0) {
+        if (this.reentranceCounter <= 0) {
+            // if(this.reentranceCounter < 0){
+            //     console.error("Thread " + t.name + " left synchronized block with reentranceCounter = " + this.reentranceCounter);
+            // }
             // console.log("Thread " + t.name + " leaves synchronized block.")
             if (registerLeaving) t.registerLeavingSynchronizedBlock();
             // this._mj$notifyAll$void$(t, undefined);
