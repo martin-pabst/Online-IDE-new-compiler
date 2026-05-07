@@ -563,7 +563,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             this.synchronizedBlockCount++;
             let getLockObjectSnippet = this.compileTerm(lockObject);
             if (getLockObjectSnippet) {
-                let beforeEnteringSynchronizedBlockStatement = SnippetFramer.frame(getLockObjectSnippet, `§1.${ObjectClass.prototype.beforeEnteringSynchronizedBlock.name}(${StepParams.thread});\n`);
+                let beforeEnteringSynchronizedBlockStatement = SnippetFramer.frame(getLockObjectSnippet, `return this.index + §1.${ObjectClass.prototype.beforeEnteringSynchronizedBlock.name}(${StepParams.thread});\n`);
                 snippet.addParts(beforeEnteringSynchronizedBlockStatement);
                 snippet.addNextStepMark();
 

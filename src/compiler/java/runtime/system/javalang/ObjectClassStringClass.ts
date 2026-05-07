@@ -124,8 +124,8 @@ export class ObjectClass {
                     t.scheduler.restoreThread(t);
 
                     this.threadHoldingLockToThisObject = t;
-                    this.reentranceCounter = t.lastReentrenceCounter || 1;
-                    t.registerEnteringSynchronizedBlock(this);
+                    this.reentranceCounter = t.lastReentrenceCounter || 0;
+                    // t.registerEnteringSynchronizedBlock(this);
 
                     // console.log("Thread " + t.name + " unblocked with reentrance counter " + t.lastReentrenceCounter + ".");
                     return;
@@ -192,6 +192,7 @@ export class ObjectClass {
             // console.error("Thread " + t.name + " entered with reentranceCounter = " + this.reentranceCounter);
         }
         this.reentranceCounter++;
+        // console.log("Thread " + t.name + " entered block on first attempt => reentranceCounter is now " + this.reentranceCounter);
         t.registerEnteringSynchronizedBlock(this);
         return 1;
     }
@@ -212,11 +213,13 @@ export class ObjectClass {
     // }
 
     leaveSynchronizedBlock(t: Thread, registerLeaving: boolean = true) {
+        
         this.reentranceCounter!--;
         if (this.reentranceCounter <= 0) {
-            // if(this.reentranceCounter < 0){
-            //     console.error("Thread " + t.name + " left synchronized block with reentranceCounter = " + this.reentranceCounter);
-            // }
+            // console.error("Thread " + t.name + " leaves synchronized block with reentranceCounter = " + this.reentranceCounter);
+            if(this.reentranceCounter < 0){
+                console.error("Thread " + t.name + " left synchronized block with reentranceCounter = " + this.reentranceCounter);
+            }
             // console.log("Thread " + t.name + " leaves synchronized block.")
             if (registerLeaving) t.registerLeavingSynchronizedBlock();
             // this._mj$notifyAll$void$(t, undefined);
@@ -457,17 +460,17 @@ export class StringClass extends ObjectClass implements IPrimitiveTypeWrapper {
         return Array.from(this.value);
     }
 
-    _valueOf(v: any){
+    _valueOf(v: any) {
         return "" + v;
     }
 
-    _valueOfCharArray(v: string[]){
-        if(v == null) return "";
+    _valueOfCharArray(v: string[]) {
+        if (v == null) return "";
         return v.join('');
     }
 
-    _mj$valueOfObject$String$Object(t: Thread, o: ObjectClassOrNull){
-        if(o == null) return 'null';
+    _mj$valueOfObject$String$Object(t: Thread, o: ObjectClassOrNull) {
+        if (o == null) return 'null';
         o._mj$toString$String$(t, () => {
         });
     }
