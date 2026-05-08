@@ -725,7 +725,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 constant = this.compileTerm(constantNode);
             }
 
-            if(constant){
+            if (constant) {
                 if (!(constant.isConstant() || constant.isFinalField)) {
                     this.pushError(JCM.constantValueExpectedAfterCase(), "error", constantNode.range);
                 } else if (!constant.type || constant.type.identifier.toLowerCase() != typeId?.toLowerCase()) {
@@ -744,10 +744,10 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let caseSnippet = new CodeSnippetContainer([], node.range);
         let caseStatementSnippet = new CodeSnippetContainer([], node.range);
 
-        for(let constant of constants){
+        for (let constant of constants) {
             let constantValue = constant.getConstantValue();
-    
-            if(typeof constantValue != 'undefined'){
+
+            if (typeof constantValue != 'undefined') {
                 switch (typeId) {
                     case 'String':
                     case 'string':
@@ -907,7 +907,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         }
         let statementIfTrue = this.compileStatementOrTerm(node.statementIfTrue);
 
-        if(statementIfTrue?.isEmptyStatement()){
+        if (statementIfTrue?.isEmptyStatement()) {
             this.pushError(JCM.emptyStatementAfterIf(), "warning", statementIfTrue.range);
         }
 
@@ -1031,7 +1031,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         if (shadowedSymbolInformation) {
             let shadowedVariableErrorLevel: ErrorLevel | "ignore" = this.settingStore.getValue("compiler.shadowedSymbolErrorLevel") as ErrorLevel | "ignore";
-            if(this.codeGenerationMode == "replStandalone") shadowedVariableErrorLevel = "error";
+            if (this.codeGenerationMode == "replStandalone") shadowedVariableErrorLevel = "error";
             if (["normal", "replStandalone"].includes(this.codeGenerationMode)) {
                 let shadowedSymbolLine = shadowedSymbol.identifierRange.startLineNumber;
                 if (shadowedSymbol instanceof JavaLocalVariable) {
@@ -1039,16 +1039,16 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                         this.pushError(JCM.cantRedeclareVariableError(variable.identifier), "error", node.range);
                         variable = shadowedSymbol;
                     } else {
-                        if(shadowedVariableErrorLevel != "ignore") this.pushError(JCM.shadowedVariableError(variable.identifier, shadowedSymbolLine), shadowedVariableErrorLevel, node.identifierRange);
+                        if (shadowedVariableErrorLevel != "ignore") this.pushError(JCM.shadowedVariableError(variable.identifier, shadowedSymbolLine), shadowedVariableErrorLevel, node.identifierRange);
                     }
                 } else if (shadowedSymbol instanceof JavaField && shadowedSymbol.classEnum.isMainClass) {
-                    if(shadowedVariableErrorLevel != "ignore") this.pushError(JCM.shadowedVariableError(variable.identifier, shadowedSymbolLine), shadowedVariableErrorLevel, node.identifierRange);
+                    if (shadowedVariableErrorLevel != "ignore") this.pushError(JCM.shadowedVariableError(variable.identifier, shadowedSymbolLine), shadowedVariableErrorLevel, node.identifierRange);
                 }
             }
         }
 
         if (variable != shadowedSymbolInformation?.symbol) {
-            if(shadowedSymbolInformation == null || this.codeGenerationMode != "replStandalone"){
+            if (shadowedSymbolInformation == null || this.codeGenerationMode != "replStandalone") {
                 this.currentSymbolTable.addSymbol(variable);
             }
         }
@@ -1142,8 +1142,17 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
     }
 
     compileThrowStatement(node: ASTThrowNode): CodeSnippet | undefined {
+        this.missingStatementManager.onReturnHappened();
+
         let exceptionSnippet = this.compileTerm(node.exception);
         if (!exceptionSnippet) return undefined;
+
+        if(exceptionSnippet.type){
+            if (!this.canCastTo(exceptionSnippet.type, this.throwableType, "implicit")) {
+                this.pushError(JCM.throwExpressionTypeMustBeThrowable(exceptionSnippet.type.toString()), "error", node.exception.range);
+                return undefined;
+            }
+        }
 
         return new OneParameterTemplate(`throw §1;\n`).applyToSnippet(this.voidType, node.range, exceptionSnippet);
     }

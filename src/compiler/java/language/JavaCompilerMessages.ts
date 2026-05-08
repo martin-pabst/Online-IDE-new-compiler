@@ -250,6 +250,11 @@ export class JCM {
      * Messages for class StatementCodeGenerator
      */
 
+    static throwExpressionTypeMustBeThrowable = (actualType: string) => le({
+        "de": `Der Wert des Terms hinter throw muss das Objekt einer Unterklasse von Throwable sein, hier ist aber ${actualType} angegeben.`,
+        "en": `Expression after throw must be an object of a subclass of Throwable, but found type ${actualType}.`,
+        "fr": `L'expression après throw doit être un objet d'une sous-classe de Throwable, mais le type ${actualType} a été trouvé.`,
+    })
 
     static cantRedeclareVariableError = (identifier: string) => le({
         "de": "Die Variable " + identifier + " wurde zweifach deklariert.",
