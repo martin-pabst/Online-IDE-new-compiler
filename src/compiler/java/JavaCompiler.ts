@@ -179,7 +179,7 @@ export class JavaCompiler implements Compiler {
             // this doesn't hurry, so give browser's main thread time to do its chores            
             for (const module of this.#lastCompiledExecutable.moduleManager.modules) {
                 this.errorMarker?.markErrorsOfModule(module);
-                if(this.main.getSettings().getValue("editor.quickFix.getterAndSetter") == "offer"){
+                if(this.main?.getSettings().getValue("editor.quickFix.getterAndSetter") == "offer"){
                     GenerateGetterAndSetterQuickfixHelper.start(module);
                 }
                 SemicolonInserter.start(module, this.main);
