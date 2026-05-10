@@ -280,7 +280,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
             let range = symbolTable.range;
             if (range.startLineNumber < range.endLineNumber) {
                 completionItems = completionItems.concat(this.getOverridableMethodsCompletion(symbolTable.classContext, rangeToReplace, line));
-                
+
                 if (main.getSettings().getValue("editor.quickFix.generateConstructor") == "offer") {
                     completionItems = completionItems.concat(this.getConstructorCompletion(symbolTable.classContext, rangeToReplace));
                 }
@@ -418,11 +418,13 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
         let beforeClassDeclaration = module.ast.innerTypes.find(t => t.range.startLineNumber == line + 1 && t.kind == TokenType.keywordClass);
         if (beforeClassDeclaration) {
             JavaAnnotationsArray.filter(annotation => annotation.beforeClass).forEach(annotation => {
+                let isInstance = (annotation.identifier == "Instance");
                 completionItems.push({
                     label: "@" + annotation.identifier,
                     filterText: annotation.identifier,
-                    insertText: annotation.identifier + "\n",
+                    insertText: annotation.identifier + (isInstance ? '("$0")' : "") + "\n",
                     detail: annotation.description,
+                    insertTextRules: isInstance ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet : undefined,
                     kind: monaco.languages.CompletionItemKind.Issue,
                     range: rangeToReplace,
                     sortText: "aaa" + annotation.identifier
@@ -440,6 +442,22 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
                             insertText: annotation.identifier + "\n",
                             detail: annotation.description,
                             kind: monaco.languages.CompletionItemKind.Issue,
+                            range: rangeToReplace,
+                            sortText: "aaa" + annotation.identifier
+                        });
+                    })
+                }
+                let beforeFieldDeclaration = symbolTable.classContext.fields.find(f => f.identifierRange.startLineNumber == line + 1);
+                if (beforeFieldDeclaration) {
+                    JavaAnnotationsArray.filter(annotation => annotation.beforeField).forEach(annotation => {
+                        let isInject = annotation.identifier == "Inject";
+                        completionItems.push({
+                            label: "@" + annotation.identifier,
+                            filterText: annotation.identifier,
+                            insertText: annotation.identifier + (isInject ? '("$0")' : "") + "\n",
+                            detail: annotation.description,
+                            kind: monaco.languages.CompletionItemKind.Issue,
+                            insertTextRules: isInject ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet : undefined,
                             range: rangeToReplace,
                             sortText: "aaa" + annotation.identifier
                         });
@@ -982,7 +1000,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
             let filterText = m.identifier;
             let returnParameterType = m.returnParameterType == null ? "void" : m.returnParameterType.toString();
             let insertText = "";
-            if(line.indexOf(returnParameterType) < 0) insertText += TokenTypeReadable[m.visibility] + " " + (m.returnParameterType == null ? "void" : m.returnParameterType.toString()) + " ";
+            if (line.indexOf(returnParameterType) < 0) insertText += TokenTypeReadable[m.visibility] + " " + (m.returnParameterType == null ? "void" : m.returnParameterType.toString()) + " ";
             insertText += m.identifier + "(" + m.parameters.map(p => p.type.toString() + " " + p.identifier).join(", ");
             insertText += ") {\n\t$0\n}";
 
