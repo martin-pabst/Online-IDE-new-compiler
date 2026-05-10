@@ -487,7 +487,30 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
     }
 
     compileAnnotation(node: ASTAnnotationNode): JavaAnnotation {
-        return new JavaAnnotation(node.identifier, node.range);
+        return new JavaAnnotation(node.identifier, node.range, node.parameter);
+    }
+
+    addDIInjectSnippetsToInstanceInitializer(cdef: ASTClassDefinitionNode | ASTEnumDefinitionNode, classContext: JavaClass | JavaEnum) {
+        if (!(classContext instanceof JavaClass)) return;
+
+        for (const fieldOrInit of cdef.fieldsOrInstanceInitializers) {
+            if (fieldOrInit.kind !== TokenType.fieldDeclaration) continue;
+            if (fieldOrInit.isStatic) continue;
+
+            const injectAnnotation = fieldOrInit.annotations?.find(a => a.identifier === "Inject");
+            if (!injectAnnotation?.parameter) continue;
+
+            const field = classContext.fields.find(f => f.identifier === fieldOrInit.identifier);
+            if (!field) continue;
+
+            const instanceName = injectAnnotation.parameter;
+            const injectSnippet = new StringCodeSnippet(
+                `${Helpers.elementRelativeToStackbase(0)}.${field.getInternalName()} = ` +
+                `(${Helpers.classes}.__di_instances && ${Helpers.classes}.__di_instances["${instanceName}"]) || null;\n`,
+                fieldOrInit.range
+            );
+            classContext.instanceInitializer.push(injectSnippet);
+        }
     }
 
 

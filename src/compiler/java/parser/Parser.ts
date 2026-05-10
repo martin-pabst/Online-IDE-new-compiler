@@ -676,7 +676,15 @@ export class Parser extends StatementParser {
         if (this.comesToken(TokenType.at, true)) {
             let identifier = this.expectAndSkipIdentifierAsToken();
             if (identifier) {
-                this.collectedAnnotations.push(this.nodeFactory.buildAnnotationNode(identifier));
+                let parameter: string | undefined;
+                if (this.comesToken(TokenType.leftBracket, true)) {
+                    if (this.comesToken(TokenType.stringLiteral, false)) {
+                        parameter = String(this.cct.value);
+                        this.nextToken();
+                    }
+                    this.expect(TokenType.rightBracket, true);
+                }
+                this.collectedAnnotations.push(this.nodeFactory.buildAnnotationNode(identifier, parameter));
                 return identifier;
             }
         }
