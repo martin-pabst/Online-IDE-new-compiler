@@ -33,6 +33,7 @@ export class Executable {
         public exceptionTree: ExceptionTree
     ) {
         this.#setupStaticInitializationSequence(globalErrors);
+        this.#setupDIInitializationSequence();
     }
 
     compileToJavascript() {
@@ -101,6 +102,64 @@ export class Executable {
             const errorWithId = JCM.cyclicReferencesAmongStaticVariables(classesToInitialize.map(c => c.identifier).join(", "));
             errors.push({ message: errorWithId.message, id: errorWithId.id, level: "error", range: EmptyRange.instance });
         }
+    }
+
+    #setupDIInitializationSequence() {
+        const diTypes: NonPrimitiveType[] = [];
+
+        for (const module of this.moduleManager.modules.filter(m => !m.hasErrors())) {
+            if (!module.ast) continue;
+            for (const cdef of module.ast.innerTypes) {
+                const type = cdef.resolvedType;
+                if (type && type.diInitializer && type.diInitializer.stepsSingle.length > 0) {
+                    diTypes.push(type);
+                }
+            }
+        }
+
+        // topological sort based on @Inject dependencies among @Instance classes
+        const sorted = this.#topologicalSortDITypes(diTypes);
+
+        for (const type of sorted) {
+            this.staticInitializationSequence.push({
+                klass: type.runtimeClass!,
+                program: type.diInitializer!
+            });
+        }
+    }
+
+    #topologicalSortDITypes(diTypes: NonPrimitiveType[]): NonPrimitiveType[] {
+        const nameToType = new Map<string, NonPrimitiveType>();
+        for (const type of diTypes) {
+            if (type.diInstanceName) nameToType.set(type.diInstanceName, type);
+        }
+
+        const sorted: NonPrimitiveType[] = [];
+        const visited = new Set<string>();
+
+        const visit = (type: NonPrimitiveType) => {
+            if (!type.diInstanceName || visited.has(type.diInstanceName)) return;
+            visited.add(type.diInstanceName);
+
+            const module = this.moduleManager.modules.find(m => m.types.includes(type));
+            if (module?.ast) {
+                const cdef = module.ast.innerTypes.find(c => c.resolvedType === type);
+                if (cdef) {
+                    for (const fieldOrInit of (cdef as any).fieldsOrInstanceInitializers ?? []) {
+                        const injectAnnotation = fieldOrInit.annotations?.find((a: any) => a.identifier === "Inject");
+                        if (injectAnnotation?.parameter) {
+                            const dep = nameToType.get(injectAnnotation.parameter);
+                            if (dep) visit(dep);
+                        }
+                    }
+                }
+            }
+
+            sorted.push(type);
+        };
+
+        for (const type of diTypes) visit(type);
+        return sorted;
     }
 
     hasTests(): boolean {

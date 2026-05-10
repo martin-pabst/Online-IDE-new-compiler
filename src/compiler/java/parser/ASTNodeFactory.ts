@@ -698,11 +698,12 @@ export class ASTNodeFactory {
         }
     }
 
-    buildAnnotationNode(identifer: Token): ASTAnnotationNode {
+    buildAnnotationNode(identifer: Token, parameter?: string): ASTAnnotationNode {
         return {
             kind: TokenType.annotation,
             range: identifer.range,
-            identifier: <string>identifer.value
+            identifier: <string>identifer.value,
+            parameter: parameter
         }
     }
 

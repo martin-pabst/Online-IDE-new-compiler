@@ -1148,4 +1148,70 @@ export class JCM {
         "fr": `Remplacez ${toReplace} par ${replaceBy}.`,
     })
 
+    /**
+     * Dependency Injection (@Instance / @Inject)
+     */
+    static diAnnotationRequiresParameter = (identifier: string) => le({
+        "id": "diAnnotationRequiresParameter",
+        "de": `Die Annotation @${identifier} benötigt einen Parameter (z.B. @${identifier}("meinName")).`,
+        "en": `Annotation @${identifier} requires a parameter (e.g. @${identifier}("myName")).`,
+        "fr": `L'annotation @${identifier} nécessite un paramètre (ex. @${identifier}("monNom")).`,
+    })
+
+    static diInstanceOnNonClass = () => le({
+        "id": "diInstanceOnNonClass",
+        "de": `@Instance darf nur auf Klassen angewendet werden, nicht auf Interfaces oder Enums.`,
+        "en": `@Instance can only be applied to classes, not to interfaces or enums.`,
+        "fr": `@Instance ne peut être appliqué qu'aux classes, pas aux interfaces ou aux enums.`,
+    })
+
+    static diInstanceOnAbstractClass = (name: string) => le({
+        "id": "diInstanceOnAbstractClass",
+        "de": `@Instance kann nicht auf die abstrakte Klasse '${name}' angewendet werden, da sie nicht instanziiert werden kann.`,
+        "en": `@Instance cannot be applied to abstract class '${name}' because it cannot be instantiated.`,
+        "fr": `@Instance ne peut pas être appliqué à la classe abstraite '${name}' car elle ne peut pas être instanciée.`,
+    })
+
+    static diInstanceOnMainClass = () => le({
+        "id": "diInstanceOnMainClass",
+        "de": `@Instance kann nicht auf die Hauptklasse angewendet werden.`,
+        "en": `@Instance cannot be applied to the main class.`,
+        "fr": `@Instance ne peut pas être appliqué à la classe principale.`,
+    })
+
+    static diDuplicateInstanceName = (name: string) => le({
+        "id": "diDuplicateInstanceName",
+        "de": `Der Instanzname '${name}' wird bereits von einer anderen Klasse verwendet.`,
+        "en": `The instance name '${name}' is already used by another class.`,
+        "fr": `Le nom d'instance '${name}' est déjà utilisé par une autre classe.`,
+    })
+
+    static diInstanceNoDefaultConstructor = (className: string) => le({
+        "id": "diInstanceNoDefaultConstructor",
+        "de": `Die Klasse '${className}' hat keinen zugänglichen parameterlosen Konstruktor und kann daher nicht als @Instance verwendet werden.`,
+        "en": `Class '${className}' has no accessible no-argument constructor and therefore cannot be used as @Instance.`,
+        "fr": `La classe '${className}' n'a pas de constructeur sans paramètres accessible et ne peut donc pas être utilisée comme @Instance.`,
+    })
+
+    static diInjectOnStaticField = () => le({
+        "id": "diInjectOnStaticField",
+        "de": `@Inject darf nicht auf statischen Feldern verwendet werden.`,
+        "en": `@Inject must not be used on static fields.`,
+        "fr": `@Inject ne doit pas être utilisé sur des champs statiques.`,
+    })
+
+    static diInjectUnknownName = (name: string) => le({
+        "id": "diInjectUnknownName",
+        "de": `Es gibt keine @Instance("${name}")-Klasse. Bitte überprüfe den Namen oder füge @Instance("${name}") zu einer Klasse hinzu.`,
+        "en": `There is no @Instance("${name}") class. Please check the name or add @Instance("${name}") to a class.`,
+        "fr": `Il n'y a pas de classe @Instance("${name}"). Vérifiez le nom ou ajoutez @Instance("${name}") à une classe.`,
+    })
+
+    static diCircularDependency = (cycle: string) => le({
+        "id": "diCircularDependency",
+        "de": `Zirkuläre @Inject-Abhängigkeit erkannt: ${cycle}. Bitte entferne die zirkuläre Abhängigkeit.`,
+        "en": `Circular @Inject dependency detected: ${cycle}. Please remove the circular dependency.`,
+        "fr": `Dépendance circulaire @Inject détectée: ${cycle}. Veuillez supprimer la dépendance circulaire.`,
+    })
+
 }

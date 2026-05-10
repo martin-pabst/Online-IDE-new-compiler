@@ -1,6 +1,6 @@
 import { SettingsStore } from "../../../client/settings/SettingsStore.ts";
 import { Program } from "../../common/interpreter/Program";
-import { Helpers } from "../../common/interpreter/StepFunction.ts";
+import { Helpers, StepParams } from "../../common/interpreter/StepFunction.ts";
 import { EmptyRange } from "../../common/range/Range.ts";
 import { CompilingProgressManager } from "../CompilingProgressManager.ts";
 import { TokenType } from "../TokenType";
@@ -36,6 +36,7 @@ export class CodeGenerator extends InnerClassCodeGenerator {
     async start() {
         this.module.programsToCompileToFunctions = [];
         await this.compileClassesEnumsAndInterfaces(this.module.ast);
+        this.compileDIInstanceInitializersRecursively(this.module.ast);
         // this.compileMainProgram();
     }
 
@@ -73,6 +74,8 @@ export class CodeGenerator extends InnerClassCodeGenerator {
             }
 
             this.compileInstanceFieldsAndInitializer(cdef, type as JavaClass | JavaEnum);
+
+            this.addDIInjectSnippetsToInstanceInitializer(cdef, type as JavaClass | JavaEnum);
 
             if (cdef.kind == TokenType.keywordClass) {
                 this.buildStandardConstructors(type as JavaClass);
@@ -261,6 +264,73 @@ export class CodeGenerator extends InnerClassCodeGenerator {
     }
 
 
+
+    compileDIInstanceInitializersRecursively(typeScope: TypeScope | undefined) {
+        if (!typeScope) return;
+
+        for (let cdef of typeScope.innerTypes) {
+            if (cdef.isAnonymousInnerType) continue;
+            if (cdef.kind !== TokenType.keywordClass) continue;
+
+            const type = cdef.resolvedType as JavaClass | undefined;
+            if (!type) continue;
+
+            const instanceAnnotation = cdef.annotations?.find(a => a.identifier === "Instance");
+            if (!instanceAnnotation?.parameter) {
+                this.compileDIInstanceInitializersRecursively(cdef);
+                continue;
+            }
+
+            const instanceName = instanceAnnotation.parameter;
+            const constructor = type.methods.find(m => m.isConstructor && m.parameters.length === 0);
+            if (!constructor) {
+                this.compileDIInstanceInitializersRecursively(cdef);
+                continue;
+            }
+
+            if (cdef.symbolTable) {
+                this.pushSymbolTable(cdef.symbolTable);
+            } else {
+                cdef.symbolTable = this.pushAndGetNewSymbolTable(cdef.range, false, type);
+            }
+
+            const snippets: CodeSnippet[] = [];
+            const useNative = constructor.hasImplementationWithNativeCallingConvention;
+
+            if (useNative) {
+                const ctorName = constructor.getInternalName("native");
+                snippets.push(new StringCodeSnippet(
+                    `if(!${Helpers.classes}.__di_instances) ${Helpers.classes}.__di_instances = {};\n` +
+                    `${Helpers.classes}.__di_instances["${instanceName}"] = ` +
+                    `new ${Helpers.classes}["${type.pathAndIdentifier}"]().${ctorName}();\n`
+                ));
+            } else {
+                const ctorName = constructor.getInternalName("java");
+                const callSnippet = new StringCodeSnippet(
+                    `new ${Helpers.classes}["${type.pathAndIdentifier}"]().${ctorName}(${StepParams.thread}, undefined);\n`,
+                    type.identifierRange
+                );
+                const container = new CodeSnippetContainer([callSnippet], type.identifierRange);
+                container.addNextStepMark();
+                container.finalValueIsOnStack = true;
+                snippets.push(container);
+
+                snippets.push(new StringCodeSnippet(
+                    `if(!${Helpers.classes}.__di_instances) ${Helpers.classes}.__di_instances = {};\n` +
+                    `${Helpers.classes}.__di_instances["${instanceName}"] = ` +
+                    `${StepParams.thread}.s[${StepParams.thread}.s.length - 1];\n` +
+                    `${StepParams.thread}.s.pop();\n`
+                ));
+            }
+
+            type.diInstanceName = instanceName;
+            type.diInitializer = this.buildInitializer(snippets, "diInitializer:" + instanceName);
+
+            this.popSymbolTable();
+
+            this.compileDIInstanceInitializersRecursively(cdef);
+        }
+    }
 
     buildInitializer(snippets: CodeSnippet[], identifier: string): Program {
         let program = new Program(this.module, this.currentSymbolTable, identifier);

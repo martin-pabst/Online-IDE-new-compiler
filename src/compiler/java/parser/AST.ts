@@ -540,4 +540,5 @@ export interface ASTTryCatchNode extends ASTStatementNode {
 export interface ASTAnnotationNode extends ASTStatementNode {
     kind: TokenType.annotation;
     identifier: string;
+    parameter?: string;
 }

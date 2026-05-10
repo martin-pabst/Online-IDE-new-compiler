@@ -21,6 +21,7 @@ import { GenericMethod, JavaMethod } from "../types/JavaMethod";
 import { NonPrimitiveType } from "../types/NonPrimitiveType";
 import { JavaParameter } from "../types/JavaParameter";
 import { CycleFinder } from "./CycleFinder";
+import { DIValidator } from "./DIValidator.ts";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { JavaCompilerStringConstants } from "../JavaCompilerStringConstants.ts";
 import { GenerateGetterAndSetterQuickfixHelper } from "../monacoproviders/quickfix/GenerateGetterAndSetterQuickfix.ts";
@@ -59,6 +60,13 @@ export class TypeResolver {
         this.buildAllMethods();
 
         this.buildRuntimeClassesAndTheirFields();
+
+        DIValidator.validate(
+            this.classDeclarationNodes,
+            this.interfaceDeclarationNodes,
+            this.enumDeclarationNodes,
+            this.pushError.bind(this)
+        );
 
         return true;
     }

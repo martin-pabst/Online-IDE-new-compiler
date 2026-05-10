@@ -89,6 +89,9 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
 
     staticInitializer?: Program;
 
+    diInstanceName?: string;
+    diInitializer?: Program;
+
     staticConstructorsDependOn: Map<NonPrimitiveType, boolean> = new Map();
 
     public pathAndIdentifier: string;
