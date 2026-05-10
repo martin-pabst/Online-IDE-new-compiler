@@ -810,7 +810,7 @@ export class ShapeClass extends ActorClass {
         if (!this.worldTransformDirty) return this.container._worldTransform || PIXI.Matrix.IDENTITY;
         if (this.belongsToGroup != null)
             this.belongsToGroup.getWorldTransform();
-        let parent = this.container.parent;
+        let parent = this.container.parent || this.container;
 
         //@ts-ignore
         this.container._worldTransform ||= new PIXI.Matrix();
