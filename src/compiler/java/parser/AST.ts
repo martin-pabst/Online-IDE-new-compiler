@@ -218,7 +218,8 @@ export interface ASTClassDefinitionNode
 
     isMainClass: boolean;
 
-    staticInitializer?: Program       // only for debugging purposes,
+    staticInitializer?: Program;       // only for debugging purposes,
+    hasInjectedFields?: boolean; // only for optimization purposes, to avoid iterating through all fields when there are none with @Inject annotation
 }
 
 export interface ASTInterfaceDefinitionNode
@@ -229,7 +230,8 @@ ASTNodeWithIdentifier, AnnotatedNode, ASTTypeDefinitionWithFields, TypeScope, Ty
     resolvedType: JavaInterface | undefined;
     isAnonymousInnerType: boolean;
 
-    staticInitializer?: Program       // only for debugging purposes,
+    staticInitializer?: Program;       // only for debugging purposes,
+    hasInjectedFields?: boolean; // only for optimization purposes, to avoid iterating through all fields when there are none with @Inject annotation
 }
 
 export interface ASTEnumValueNode extends ASTNode {
@@ -249,7 +251,8 @@ export interface ASTEnumDefinitionNode
     resolvedType: JavaEnum | undefined;
     isAnonymousInnerType: boolean;
 
-    staticInitializer?: Program       // only for debugging purposes,
+    staticInitializer?: Program;       // only for debugging purposes,
+    hasInjectedFields?: boolean; // only for optimization purposes, to avoid iterating through all fields when there are none with @Inject annotation
 }
 
 

@@ -142,6 +142,12 @@ class Service {
  * Error: @Inject references unknown instance name
  * { "expectedCompilationError": {"id": "diInjectUnknownName"} }
  */
+// Compiler reports the error only if at least one @Instance annotation is present, so we need to define a dummy one here
+@Instance("client")
+class A {
+
+}
+
 class Client {
     @Inject("missing")
     Object obj;

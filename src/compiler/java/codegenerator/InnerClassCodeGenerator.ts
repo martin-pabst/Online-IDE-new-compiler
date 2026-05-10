@@ -490,8 +490,9 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
         return new JavaAnnotation(node.identifier, node.range, node.parameter);
     }
 
-    addDIInjectSnippetsToInstanceInitializer(cdef: ASTClassDefinitionNode | ASTEnumDefinitionNode, classContext: JavaClass | JavaEnum) {
+    addDependencyInjectionSnippetsToInstanceInitializer(cdef: ASTClassDefinitionNode | ASTEnumDefinitionNode, classContext: JavaClass | JavaEnum) {
         if (!(classContext instanceof JavaClass)) return;
+        if(!cdef.hasInjectedFields) return; // optimization to avoid iterating through all fields if there are none with @Inject annotation
 
         for (const fieldOrInit of cdef.fieldsOrInstanceInitializers) {
             if (fieldOrInit.kind !== TokenType.fieldDeclaration) continue;

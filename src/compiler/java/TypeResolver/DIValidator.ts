@@ -6,6 +6,7 @@ import { JavaBaseModule } from "../module/JavaBaseModule";
 import { ASTClassDefinitionNode, ASTEnumDefinitionNode, ASTFieldDeclarationNode, ASTInterfaceDefinitionNode } from "../parser/AST";
 import { JavaClass } from "../types/JavaClass";
 import { JCM } from "../language/JavaCompilerMessages.ts";
+import { i } from "vite/dist/node/types.d-aGj9QkWt";
 
 type PushErrorFn = (msg: ErrormessageWithId, range: IRange, module: JavaBaseModule, level?: ErrorLevel) => void;
 
@@ -16,17 +17,22 @@ export class DIValidator {
         interfaceDeclarationNodes: ASTInterfaceDefinitionNode[],
         enumDeclarationNodes: ASTEnumDefinitionNode[],
         pushError: PushErrorFn
-    ): Map<string, ASTClassDefinitionNode> {
+    ) {
 
         const instanceMap = new Map<string, ASTClassDefinitionNode>();
 
         DIValidator.validateInstanceAnnotations(classDeclarationNodes, interfaceDeclarationNodes, enumDeclarationNodes, pushError, instanceMap);
 
+        /**
+         * Most of the time, there won't be any @Instance annotations, so we can skip the more expensive validations if the instanceMap is empty 
+         */
+        if(instanceMap.size === 0) return; 
+
         DIValidator.validateInjectAnnotations(classDeclarationNodes, pushError, instanceMap);
 
         DIValidator.detectCircularDependencies(classDeclarationNodes, pushError, instanceMap);
 
-        return instanceMap;
+        return;
     }
 
     private static validateInstanceAnnotations(
@@ -86,6 +92,8 @@ export class DIValidator {
                 }
             }
 
+            classNode.module.hasDependencyInjectionAnnotations = true;
+            
             instanceMap.set(name, classNode);
         }
     }

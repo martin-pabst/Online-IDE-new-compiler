@@ -36,7 +36,10 @@ export class CodeGenerator extends InnerClassCodeGenerator {
     async start() {
         this.module.programsToCompileToFunctions = [];
         await this.compileClassesEnumsAndInterfaces(this.module.ast);
-        this.compileDIInstanceInitializersRecursively(this.module.ast);
+
+        if (this.module.hasDependencyInjectionAnnotations) {
+            this.compileDependencyInjectionInstanceInitializersRecursively(this.module.ast);
+        }
         // this.compileMainProgram();
     }
 
@@ -75,7 +78,7 @@ export class CodeGenerator extends InnerClassCodeGenerator {
 
             this.compileInstanceFieldsAndInitializer(cdef, type as JavaClass | JavaEnum);
 
-            this.addDIInjectSnippetsToInstanceInitializer(cdef, type as JavaClass | JavaEnum);
+            this.addDependencyInjectionSnippetsToInstanceInitializer(cdef, type as JavaClass | JavaEnum);
 
             if (cdef.kind == TokenType.keywordClass) {
                 this.buildStandardConstructors(type as JavaClass);
@@ -91,43 +94,43 @@ export class CodeGenerator extends InnerClassCodeGenerator {
 
     insertJsonMethods(klass: JavaClass) {
 
-            let hasParameterlessConstructor = klass.methods.filter(m => m.isConstructor && m.parameters.length == 0);
-            let doesExtendSystemClass: boolean = false;
-            let klass1: IJavaClass | undefined = klass.getExtends();
-            while(klass1 != this.objectType){
-                if(klass1?.module instanceof SystemModule){
-                    doesExtendSystemClass = true;
-                    break;
-                }
-                klass1 = klass1.getExtends();
+        let hasParameterlessConstructor = klass.methods.filter(m => m.isConstructor && m.parameters.length == 0);
+        let doesExtendSystemClass: boolean = false;
+        let klass1: IJavaClass | undefined = klass.getExtends();
+        while (klass1 != this.objectType) {
+            if (klass1?.module instanceof SystemModule) {
+                doesExtendSystemClass = true;
+                break;
             }
+            klass1 = klass1.getExtends();
+        }
 
-            if(!hasParameterlessConstructor || doesExtendSystemClass) return;
+        if (!hasParameterlessConstructor || doesExtendSystemClass) return;
 
-            let toJsonMethod = new JavaMethod("toJson", EmptyRange.instance, this.module);
-            toJsonMethod.hasImplementationWithNativeCallingConvention = true;
-            toJsonMethod.isFinal = true;
-            toJsonMethod.returnParameterType = this.stringType;
+        let toJsonMethod = new JavaMethod("toJson", EmptyRange.instance, this.module);
+        toJsonMethod.hasImplementationWithNativeCallingConvention = true;
+        toJsonMethod.isFinal = true;
+        toJsonMethod.returnParameterType = this.stringType;
 
-            klass.methods.push(toJsonMethod);
+        klass.methods.push(toJsonMethod);
 
-            //@ts-ignore
-            klass.runtimeClass!.prototype._mn$toJson$string$ = function(){
-                return new JsonTool().toJson(this);
-            }
+        //@ts-ignore
+        klass.runtimeClass!.prototype._mn$toJson$string$ = function () {
+            return new JsonTool().toJson(this);
+        }
 
-            let fromJsonMethod = new JavaMethod("fromJson", EmptyRange.instance, this.module);
-            fromJsonMethod.isStatic = true;
-            fromJsonMethod.parameters.push(new JavaParameter("jsonString", EmptyRange.instance, this.module, this.stringType, true, false, false));
-            fromJsonMethod.returnParameterType = klass;
-            fromJsonMethod.hasImplementationWithNativeCallingConvention = true;
+        let fromJsonMethod = new JavaMethod("fromJson", EmptyRange.instance, this.module);
+        fromJsonMethod.isStatic = true;
+        fromJsonMethod.parameters.push(new JavaParameter("jsonString", EmptyRange.instance, this.module, this.stringType, true, false, false));
+        fromJsonMethod.returnParameterType = klass;
+        fromJsonMethod.hasImplementationWithNativeCallingConvention = true;
 
-            klass.methods.push(fromJsonMethod);
+        klass.methods.push(fromJsonMethod);
 
-            //@ts-ignore
-            klass.runtimeClass["_mn$fromJson$" + klass.identifier + "$string"] = function(jsonString: string){
-                return new JsonTool().fromJson(jsonString, klass);
-            }
+        //@ts-ignore
+        klass.runtimeClass["_mn$fromJson$" + klass.identifier + "$string"] = function (jsonString: string) {
+            return new JsonTool().fromJson(jsonString, klass);
+        }
 
     }
 
@@ -265,7 +268,7 @@ export class CodeGenerator extends InnerClassCodeGenerator {
 
 
 
-    compileDIInstanceInitializersRecursively(typeScope: TypeScope | undefined) {
+    compileDependencyInjectionInstanceInitializersRecursively(typeScope: TypeScope | undefined) {
         if (!typeScope) return;
 
         for (let cdef of typeScope.innerTypes) {
@@ -277,14 +280,14 @@ export class CodeGenerator extends InnerClassCodeGenerator {
 
             const instanceAnnotation = cdef.annotations?.find(a => a.identifier === "Instance");
             if (!instanceAnnotation?.parameter) {
-                this.compileDIInstanceInitializersRecursively(cdef);
+                this.compileDependencyInjectionInstanceInitializersRecursively(cdef);
                 continue;
             }
 
             const instanceName = instanceAnnotation.parameter;
             const constructor = type.methods.find(m => m.isConstructor && m.parameters.length === 0);
             if (!constructor) {
-                this.compileDIInstanceInitializersRecursively(cdef);
+                this.compileDependencyInjectionInstanceInitializersRecursively(cdef);
                 continue;
             }
 
@@ -328,7 +331,7 @@ export class CodeGenerator extends InnerClassCodeGenerator {
 
             this.popSymbolTable();
 
-            this.compileDIInstanceInitializersRecursively(cdef);
+            this.compileDependencyInjectionInstanceInitializersRecursively(cdef);
         }
     }
 

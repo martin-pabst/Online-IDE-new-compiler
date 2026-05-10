@@ -59,6 +59,8 @@ export class JavaCompiledModule extends JavaBaseModule {
 
     inlayHints: monaco.languages.InlayHint[] = [];
 
+    hasDependencyInjectionAnnotations: boolean = false;
+
     constructor(file: CompilerFile, public moduleManager?: JavaModuleManager) {
         super(file, false);
     }
