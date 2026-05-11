@@ -12,6 +12,7 @@ import { WorkspaceImportMessages } from "../main/gui/language/WorkspaceImportMes
 import { NetworkManager } from "../communication/NetworkManager";
 import { SpriteManager } from "../spritemanager/SpriteManager";
 import { ProgressIndicator } from "../main/gui/ProgressIndicator";
+import exp from "constants";
 
 export type ExportedWorkspace = {
     name: string;
@@ -27,6 +28,7 @@ export type ExportedWorkspace = {
 export type ExportedFile = {
     name: string;
     text: string;
+    id: number;
 
     is_copy_of_id?: number,
     repository_file_version?: number,
@@ -74,8 +76,8 @@ export class WorkspaceExporter {
             try {
                 let sd: SpritesheetData = new SpritesheetData();
                 await sd.load(workspace.spritesheetId);
-                if(sd.zipFile != null) spritesheetBase64 = bytesToBase64(sd.zipFile);
-            } catch (ex){
+                if (sd.zipFile != null) spritesheetBase64 = bytesToBase64(sd.zipFile);
+            } catch (ex) {
                 console.log("Hier!");
             }
         }
@@ -95,6 +97,7 @@ export class WorkspaceExporter {
         return {
             name: file.name,
             text: file.getText(),
+            id: file.id,
             identical_to_repository_version: file.identical_to_repository_version,
             is_copy_of_id: file.is_copy_of_id,
             repository_file_version: file.repository_file_version,
@@ -120,7 +123,7 @@ export class WorkspaceImporter {
     }
 
 
-    public async importWorkspaces(workspacesToImport: ExportedWorkspace[], 
+    public async importWorkspaces(workspacesToImport: ExportedWorkspace[],
         targetFolderNode: TreeviewNode<Workspace, number>, progressIndicator?: ProgressIndicator) {
 
         while (!targetFolderNode.isFolder && !targetFolderNode.isRootNode) {
@@ -134,22 +137,22 @@ export class WorkspaceImporter {
         // delete parent_folder_ids if workspacesToImport doesn't contain folder:
         let folderIds: Set<number> = new Set(workspacesToImport.filter(w => w.isFolder).map(w => w.id));
         workspacesToImport.forEach(w => { if (!folderIds.has(w.parent_folder_id)) w.parent_folder_id = null })
-            
-            // order: parents first, children next
-            let orderedWorkspacesToImport: ExportedWorkspace[] = [];
-            let oldLength = -1;
-            let idsDone: Set<number> = new Set();
-            while (orderedWorkspacesToImport.length > oldLength) {
-                oldLength = orderedWorkspacesToImport.length;
-                for (let ws of workspacesToImport) {
-                    if (!idsDone.has(ws.id) && (ws.parent_folder_id == null || idsDone.has(ws.parent_folder_id))) {
+
+        // order: parents first, children next
+        let orderedWorkspacesToImport: ExportedWorkspace[] = [];
+        let oldLength = -1;
+        let idsDone: Set<number> = new Set();
+        while (orderedWorkspacesToImport.length > oldLength) {
+            oldLength = orderedWorkspacesToImport.length;
+            for (let ws of workspacesToImport) {
+                if (!idsDone.has(ws.id) && (ws.parent_folder_id == null || idsDone.has(ws.parent_folder_id))) {
                     orderedWorkspacesToImport.push(ws);
                     idsDone.add(ws.id);
                 }
             }
         }
-        
-        if(progressIndicator){
+
+        if (progressIndicator) {
             progressIndicator.init(0, orderedWorkspacesToImport.length);
             progressIndicator.show();
         }
@@ -160,7 +163,7 @@ export class WorkspaceImporter {
         let newNodes: TreeviewNode<Workspace, number>[] = []
 
         for (let wse of orderedWorkspacesToImport) {
-            if(progressIndicator){
+            if (progressIndicator) {
                 progressIndicator.set(i++);
             }
 
@@ -170,16 +173,16 @@ export class WorkspaceImporter {
             let workspace = await this.importWorkspaceWithoutSpritesheet(wse, parent_folder_id);
             await this.importSpritesheet(wse, workspace);
 
-            if(workspace){
+            if (workspace) {
                 let iconClass = workspace.repository_id == null ? 'img_workspace-dark' : 'img_workspace-dark-repository';
                 let newNode = parentNode.treeview.addNode(workspace.isFolder, workspace.name, iconClass, workspace);
                 newNodes.push(newNode);
-                if(workspace.isFolder) oldIdToNewFolderMap.set(wse.id, newNode);
+                if (workspace.isFolder) oldIdToNewFolderMap.set(wse.id, newNode);
             }
 
         }
 
-        if(progressIndicator) progressIndicator.hide();
+        if (progressIndicator) progressIndicator.hide();
 
         newNodes.forEach(nn => nn.setCaptionColor('#00b000'));
 
@@ -209,10 +212,31 @@ export class WorkspaceImporter {
 
         if (success) {
             this.main.addWorkspace(ws);
+
+            let oldIdToFileMap: Map<number, GUIFile> = new Map();
+            let exportedFileToFileMap: Map<ExportedFile, GUIFile> = new Map();
+
             for (let exportedFile of wse.modules) {
                 let file = await this.importFile(exportedFile, ws);
-                if (file) ws.addFile(file);
+                if (file) {
+                    ws.addFile(file);
+                    oldIdToFileMap.set(exportedFile.id, file);
+                    exportedFileToFileMap.set(exportedFile, file);
+                }
             }
+
+            for(let exportedFile of wse.modules) {
+                let file = exportedFileToFileMap.get(exportedFile);
+                if (file && exportedFile.parent_folder_id) {
+                    let parentFile = oldIdToFileMap.get(exportedFile.parent_folder_id);
+                    if (parentFile) {
+                        file.parent_folder_id = parentFile.id;
+                        file.setSaved(false);
+                    }
+                }
+            }
+
+            this.networkManager?.sendUpdatesAsync(true);
 
             return ws;
         }
@@ -228,10 +252,10 @@ export class WorkspaceImporter {
         file.is_copy_of_id = ef.is_copy_of_id;
         file.repository_file_version = ef.repository_file_version;
         file.isFolder = ef.isFolder || false;
-        file.parent_folder_id = ef.parent_folder_id || null;
+        file.parent_folder_id = null;
 
         if (this.networkManager) {
-            let success = this.networkManager.sendCreateFile(file, ws, this.owner_id);
+            let success = await this.networkManager.sendCreateFile(file, ws, this.owner_id);
             if (!success) file = null;
         }
 
