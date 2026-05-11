@@ -1,24 +1,48 @@
-import { Exception } from "./ExceptionInfo";
+export abstract class IPrintManager {
 
-export interface IPrintManager {
-    print(text: string | undefined, withNewline: boolean, color: number | undefined): void;
+    #log: string = "";
+    #isLogging: boolean = false;
 
-    flush(): void;
+    print(text: string | undefined, withNewline: boolean, color: number | undefined): void {
+        this.printIntern(text, withNewline, color);
+        if(this.#isLogging){
+            this.#log += text;
+            if(withNewline) this.#log += "\n";
+        }
+    }
+    
+    abstract printIntern(text: string | undefined, withNewline: boolean, color: number | undefined): void;
 
-    clear(): void;
+    abstract flush(): void;
 
-    printHtmlElement(htmlElement: HTMLElement): void;
+    abstract clear(): void;
 
-    isTestPrintManager(): boolean;
+    abstract printHtmlElement(htmlElement: HTMLElement): void;
+
+    abstract isTestPrintManager(): boolean;
+
+    startLogging(): void {
+        this.#log = "";
+        this.#isLogging = true;
+    }
+
+    stopLogging(): void {
+        this.#isLogging = false;
+    }
+
+    getLog(): string {
+        return this.#log;
+    }
+
 }
 
-export class DummyPrintManager implements IPrintManager {
+export class DummyPrintManager extends IPrintManager {
 
     printHtmlElement(htmlElement: HTMLElement): void {
         throw new Error("Method not implemented.");
     }
 
-    print(text: string | undefined, withNewline: boolean, color: number | undefined): void {
+    printIntern(text: string | undefined, withNewline: boolean, color: number | undefined): void {
     }
 
     flush(): void {

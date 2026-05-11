@@ -4291,6 +4291,18 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "en": "Returns the number of logical processors available to run threads on the user's computer.",
     })
 
+    static StartLoggingPrintOutputComment = () => lm({
+        "de": "Beginnt damit, ab diesem Zeitpunkt alle print-Ausgaben aufzuzeichnen. Sie können dann mittels SystemTools.getPrintLog() ausgewertet werden."
+    })
+
+    static StopLoggingPrintOutputComment = () => lm({
+        "de": "Beendet die Aufzeichnung der print-Ausgaben."
+    })
+
+    static GetPrintLogComment = () => lm({
+        "de": "Gibt die aufgezeichneten print-Ausgaben zurück."
+    })
+
     static SystemToolsSetCallActMethodFrequency = () => lm({
         "de": "Legt fest, wie oft pro Sekunde die Methode act() von Actor-Objekten aufgerufen wird. Der Parameter frequency wird in Aufrufen pro Sekunde angegeben. Die Frequenz ist für alle Actor-Objekte gleich.",
         "en": "Sets how often per second the method act() of Actor-objects is called. Parameter frequency is given in calls/second. Frequency is the same for all Actor-objects.",

@@ -9,7 +9,7 @@ import { ViteTestAssertions } from "./ViteTestAssertions";
 import { JavaLibraryManager } from "../compiler/java/runtime/JavaLibraryManager";
 import { CompilerFile } from "../compiler/common/module/CompilerFile";
 
-class StoreOutputPrintManager implements IPrintManager {
+class StoreOutputPrintManager extends IPrintManager {
 
     output: string = "";
 
@@ -21,7 +21,7 @@ class StoreOutputPrintManager implements IPrintManager {
 
     }
 
-    print(text: string | undefined, withNewline: boolean, color: number | undefined): void {
+    printIntern(text: string | undefined, withNewline: boolean, color: number | undefined): void {
         if (!text) return;
         if (text.startsWith("Execution")) return;
         this.output += text;

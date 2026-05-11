@@ -11,7 +11,7 @@ type PrintCommand = {
     newLine: boolean;
 }
 
-export class PrintManager implements IPrintManager {
+export class PrintManager extends IPrintManager {
 
     color: string = "";
     lastSpan: string = "";
@@ -31,6 +31,7 @@ export class PrintManager implements IPrintManager {
     beginOfLineState: boolean = true; // Spaces at begin of line are converted to &nbsp;
 
     constructor(private $runDiv: JQuery<HTMLElement>, private main: MainBase) {
+        super();
         jQuery(() => {
             this.$outputDiv = $runDiv.find('.jo_output');
             this.clear();
@@ -202,7 +203,7 @@ export class PrintManager implements IPrintManager {
         this.printCommands = [];
     }
 
-    print(text: string | null, withNewline: boolean, color: string|number|ColorClass|undefined) {
+    printIntern(text: string | null, withNewline: boolean, color: string|number|ColorClass|undefined) {
         if (text == null) text = "";
 
         if(withNewline) text += "\n";
