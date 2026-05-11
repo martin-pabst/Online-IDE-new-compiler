@@ -423,8 +423,14 @@ export class SpriteClass extends ShapeClass {
 
     _playAnimation1(fromIndex: number, toIndex: number, repeatType: RepeatTypeEnum, imagesPerSecond: number) {
         let animationArray: number[] = [];
-        for (let i = fromIndex; i <= toIndex; i++) {
-            animationArray.push(i);
+        if(toIndex >= fromIndex){
+            for (let i = fromIndex; i <= toIndex; i++) {
+                animationArray.push(i);
+            }
+        } else {
+            for (let i = fromIndex; i >= toIndex; i--) {
+                animationArray.push(i);
+            }
         }
         this._playAnimation(animationArray, repeatType, imagesPerSecond);
     }
