@@ -11,7 +11,7 @@ export class AutoLogout {
         let that = this;
         setInterval(() => {
             that.counterInMinutes--;
-            console.log("AutoLogout: " + that.counterInMinutes + " minutes left until logout.");
+            // console.log("AutoLogout: " + that.counterInMinutes + " minutes left until logout.");
             if (that.counterInMinutes == 0) {
                 if (login) {
                     login.logout();
