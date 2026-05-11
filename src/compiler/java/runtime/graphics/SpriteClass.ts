@@ -492,7 +492,6 @@ export class SpriteClass extends ShapeClass {
                 let timeIntoPeriod1 = this.animationTime - numberOfPeriodsDone1 * period;
                 image = this.imagesPerMillisecond * timeIntoPeriod1;
                 image = Math.trunc(image);
-                image = Math.trunc(image);
                 break;
             case RepeatType.once:
             case RepeatType.onceWithoutDestroying:
