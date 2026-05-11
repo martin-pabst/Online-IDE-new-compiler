@@ -3,6 +3,11 @@ import { lm } from "../../../tools/language/LanguageManager";
 type JavaAnnotationType = {
     identifier: string;
     description: string;
+
+    /*
+     * fields beforeClass, beforeMethod, ... describe where each annotation can occur. 
+     * This information is used by JavaCompletionItemProvider to provide code assist.
+     */
     beforeClass: boolean;
     beforeMethod: boolean;
     beforeMethodOfMainClass: boolean;
