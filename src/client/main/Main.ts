@@ -314,7 +314,7 @@ export class Main implements MainBase {
         });
 
 
-        TabletConsoleLog.registerProvider((message) => { printManager.print(message, false, '#5050ff')});
+        TabletConsoleLog.registerProvider((message) => { printManager.print(message, false, 0x5050ff)});
 
 
     }
