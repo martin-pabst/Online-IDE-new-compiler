@@ -49,8 +49,11 @@ export class FastSpriteManager3d {
             if(propertyNames.length > 0){
                 let name = propertyNames[0];
                 let spritelLibrary: string = name.substring(0, name.indexOf('#'));
-                let sprite = this.createSprite(1e-6, spritelLibrary, 0);
-                this.moveSprite(sprite, 1e6, 1e6, 1e6);
+                let index = parseInt(name.substring(name.indexOf('#') + 1));
+                let sprite = this.createSprite(1e-6, spritelLibrary, index);
+                if(sprite) {
+                    this.moveSprite(sprite, 1e6, 1e6, 1e6);
+                }
             }
 
         }
@@ -184,7 +187,8 @@ export class FastSpriteManager3d {
         let libraryName = (typeof library == "string") ? library : library.name;
         let textureFrame = this.world3d.textureManager3d.getFrame(libraryName, index);
         if (!textureFrame) {
-            throw new RuntimeExceptionClass("Didn't find sprite " + index + " in library " + libraryName + ".");
+           console.error("Didn't find sprite " + index + " in library " + libraryName + ".");
+           return null;
         }
 
         let frame = textureFrame.frame;
@@ -246,7 +250,7 @@ export class FastSpriteManager3d {
 
 
     resizeBuffers() {
-        console.log("resizeBuffers")
+        // console.log("resizeBuffers")
         this.maxCount *= 3;
         const newInterleavedBuffer = new Float32Array(this.maxCount * this.bufferElementSize);
         newInterleavedBuffer.set(this.interleavedBuffer);
