@@ -13,6 +13,7 @@ import { ActorManager } from "./ActorManager";
 import { IActor } from "./IActor";
 import { IWorld } from "./IWorld";
 
+
 // TODO: Gamepad support
 /**
  * Base class of all Objects which have an act-method and kan sense keyboard or gamepad
@@ -40,6 +41,10 @@ export class ActorClass extends ObjectClass implements IActor {
         { type: "method", signature: "final double getGamepadAxisValue(int gamepadIndex, int axisIndex)", native: ActorClass.prototype._getGamepadAxisValue, comment: JRC.actorGetGamepadAxisValueComment },
 
         {type: "method", signature: "static void setActFrequency(int frequencyInHz)", java: ActorClass._mj$setCallActMethodFrequency$void$int$, comment: JRC.SystemToolsSetCallActMethodFrequency},
+
+        { type: "method", signature: "void onMouseMovement(double dx, double dy)", java: ActorClass.prototype._mj$onMouseMovement$void$double$double, comment: JRC.actorOnMouseMovementComment },
+        { type: "method", signature: "final void enablePointerLock()", java: ActorClass.prototype._mj$enablePointerLock$void$, comment: JRC.actorEnablePointerLockComment },
+        { type: "method", signature: "final void disablePointerLock()", java: ActorClass.prototype._mj$disablePointerLock$void$, comment: JRC.actorDisablePointerLockComment },
 
     ]
 
@@ -84,6 +89,10 @@ export class ActorClass extends ObjectClass implements IActor {
             this.actorManager.registerActor(this, "keyUp");
         }
 
+        if (this._mj$onMouseMovement$void$double$double != ActorClass.prototype._mj$onMouseMovement$void$double$double) {
+            this.actorManager.registerActor(this, "mouseMovement");
+        }
+
     }
 
     
@@ -111,7 +120,22 @@ export class ActorClass extends ObjectClass implements IActor {
     
     _mj$onKeyDown$void$String(t: Thread, callback: CallbackParameter, key: StringClass): void {
     }
-    
+
+    _mj$onMouseMovement$void$double$double(t: Thread, callback: CallbackParameter, dx: number, dy: number): void {
+    }
+
+    _mj$enablePointerLock$void$(t: Thread, callback: CallbackParameter): void {
+        let world = t.scheduler.interpreter.retrieveObject("WorldClass") as IWorld;
+        world?.mouseManager.enablePointerLock();
+        if (callback) callback();
+    }
+
+    _mj$disablePointerLock$void$(t: Thread, callback: CallbackParameter): void {
+        let world = t.scheduler.interpreter.retrieveObject("WorldClass") as IWorld;
+        world?.mouseManager.disablePointerLock();
+        if (callback) callback();
+    }
+
     _mj$destroy$void$(t: Thread) {
         this.destroy();
     }

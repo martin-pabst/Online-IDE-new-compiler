@@ -22,10 +22,16 @@ export class MouseManager {
 
     listeners: Map<string, any> = new Map();
 
+    isPointerLocked: boolean = false;
+    private pointerLockChangeListener: () => void = () => {};
+    private pointerLockErrorListener: () => void = () => {};
+
     constructor(private world: IWorld, private coordinateDiv: HTMLDivElement) {
     }
 
     unregisterListeners(){
+        this.disablePointerLock();
+
         let canvas = this.world.app!.canvas;
         for (let mouseEventKind of ["mouseup", "mousedown", "mousemove", "mouseenter", "mouseleave"]) {
             canvas.removeEventListener(mouseEventKind, this.listeners.get(mouseEventKind));
@@ -90,6 +96,10 @@ export class MouseManager {
                 if(this.coordinateDiv  && mouseEventKind == "mousemove") this.coordinateDiv.textContent = '(' + Math.round(x) + "/" + Math.round(y) + ")";
                 if(this.coordinateDiv  && mouseEventKind == "mouseleave") this.coordinateDiv.textContent = '';
 
+                if (mouseEventKind === "mousemove" && this.isPointerLocked) {
+                    this.world.interpreter.actorManager.onMouseMovement(e.movementX, e.movementY);
+                }
+
                 // if (listenerType == "mousedown") {
                 //     let gngEreignisbehandlung = this.interpreter.gngEreignisbehandlungHelper;
                 //     if (gngEreignisbehandlung != null) {
@@ -124,6 +134,30 @@ export class MouseManager {
         this.shapesWithImplementedMouseMethods = [];
         this.internalMouseListeners = [];
         this.listeners = new Map();
+    }
+
+    enablePointerLock(): void {
+        let canvas = this.world.app!.canvas;
+
+        this.pointerLockChangeListener = () => {
+            this.isPointerLocked = document.pointerLockElement === canvas;
+        };
+        this.pointerLockErrorListener = () => {
+            this.isPointerLocked = false;
+        };
+
+        document.addEventListener("pointerlockchange", this.pointerLockChangeListener);
+        document.addEventListener("pointerlockerror", this.pointerLockErrorListener);
+        canvas.requestPointerLock();
+    }
+
+    disablePointerLock(): void {
+        if (this.isPointerLocked) {
+            document.exitPointerLock();
+        }
+        this.isPointerLocked = false;
+        document.removeEventListener("pointerlockchange", this.pointerLockChangeListener);
+        document.removeEventListener("pointerlockerror", this.pointerLockErrorListener);
     }
 
     addShapeWithImplementedMouseMethods(shape: ShapeClass) {

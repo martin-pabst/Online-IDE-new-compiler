@@ -467,6 +467,21 @@ export class JRC {
         "en": `Returns value of Gamepad-stick with given index on given axis.`,
     })
 
+    static actorOnMouseMovementComment = () => lm({
+        "de": "Wird aufgerufen, wenn der Mauszeiger gesperrt ist (enablePointerLock) und sich die Maus bewegt. dx und dy sind die relative Bewegung in Pixeln.",
+        "en": "Called when the mouse pointer is locked (enablePointerLock) and the mouse moves. dx and dy are the relative movement in pixels.",
+    })
+
+    static actorEnablePointerLockComment = () => lm({
+        "de": "Sperrt den Mauszeiger in die Canvas (Pointer Lock). Danach wird onMouseMovement mit der relativen Mausbewegung aufgerufen.",
+        "en": "Locks the mouse pointer to the canvas (Pointer Lock). Afterwards onMouseMovement is called with relative mouse movement.",
+    })
+
+    static actorDisablePointerLockComment = () => lm({
+        "de": "Gibt den gesperrten Mauszeiger wieder frei.",
+        "en": "Releases the locked mouse pointer.",
+    })
+
     /**
      * class World3d
     */
