@@ -1,7 +1,7 @@
 import { Thread } from "../../../common/interpreter/Thread";
 import { StringClass } from "../system/javalang/ObjectClassStringClass";
 
-export const ActorTypes = ["act", "actWithTime", "keyPressed", "keyUp", "keyDown"] as const;
+export const ActorTypes = ["act", "actWithTime", "keyPressed", "keyUp", "keyDown", "mouseMovement"] as const;
 export type ActorType = typeof ActorTypes[number];
 
 export interface IActor {
@@ -12,4 +12,5 @@ export interface IActor {
     _mj$onKeyUp$void$String(t: Thread, callback: (() => {}) | undefined, key: StringClass): void;
     _mj$onKeyDown$void$String(t: Thread, callback: (() => {}) | undefined,
         key: StringClass): void;
+    _mj$onMouseMovement$void$double$double(t: Thread, callback: (() => {}) | undefined, dx: number, dy: number): void;
 }

@@ -19,7 +19,8 @@ export class ActorManager {
         "actWithTime": [],
         "keyDown": [],
         "keyUp": [],
-        "keyPressed": []
+        "keyPressed": [],
+        "mouseMovement": []
     };
 
     keyDownListener: KeyDownListener = (key: string, isShift: boolean, isCtrl: boolean, isAlt: boolean) => {
@@ -181,5 +182,15 @@ export class ActorManager {
         }
         t.state = ThreadState.running;
 
+    }
+
+    onMouseMovement(dx: number, dy: number): void {
+        if (this.actors["mouseMovement"].length == 0) return;
+        let t = this.interpreter.scheduler.createThread("mouse movement event thread");
+
+        for (let actor of this.actors["mouseMovement"]) {
+            if (actor.isActing) actor._mj$onMouseMovement$void$double$double(t, undefined, dx, dy);
+        }
+        t.state = ThreadState.running;
     }
 }
