@@ -431,12 +431,13 @@ export class Parser extends StatementParser {
         let initialization = this.comesToken(TokenType.assignment, true) ? this.parseTerm() : undefined;
 
         if (identifier.value != "" && type != null) {
-            let node = this.nodeFactory.buildFieldDeclarationNode(rangeStart, identifier, type, initialization,
-                modifiers, this.collectedAnnotations);
-
             if(this.collectedAnnotations.some(a => a.identifier === "Inject")){
                 classASTNode.hasInjectedFields = true; // optimization to avoid iterating through all fields when there are none with @Inject annotation
             }
+
+            let node = this.nodeFactory.buildFieldDeclarationNode(rangeStart, identifier, type, initialization,
+                modifiers, this.collectedAnnotations);
+
 
             node.documentation = documentation;
             classASTNode.fieldsOrInstanceInitializers.push(node);
