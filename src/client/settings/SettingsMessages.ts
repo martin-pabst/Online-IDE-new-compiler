@@ -161,6 +161,24 @@ export class SettingsMessages {
         'fr': 'Assistance à la saisie de code'
     });
 
+    static CodeCompletionHelpName = () => lm({
+        'de': 'Einträge bei der Codevervollständigung',
+        'en': 'Entries in code completion',
+        'fr': 'Entrées dans la complétion de code'
+    });
+
+    static CodeCompletionHelpDescription = () => lm({
+        'de': 'Hier können Sie einstellen, welche Art von Hilfe die Codevervollständigung bieten soll.',
+        'en': 'Here you can set which kind of help code completion should provide.',
+        'fr': 'Ici, vous pouvez définir le type d\'aide que la complétion de code doit fournir.'
+    });
+
+    static CodeCompletionShowHelpForKeywordsName = () => lm({
+        'de': 'Hilfstexte für Schlüsselwörter wie for, while und if in der Codevervollständigung anzeigen',
+        'en': 'Show help texts for keywords like for, while and if in code completion',
+        'fr': 'Afficher les textes d\'aide pour les mots-clés comme for, while et if dans la complétion de code'
+    });
+
     static EditorQuickFixSettingsName = () => lm({
         'de': 'Quick-Fix-Einstellungen',
         'en': 'Quick Fix Settings',

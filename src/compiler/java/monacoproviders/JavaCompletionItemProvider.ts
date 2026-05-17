@@ -392,7 +392,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
         //     }
         // }
 
-        completionItems = completionItems.concat(this.getKeywordCompletion(symbolTable, rangeToReplace, module));
+        completionItems = completionItems.concat(this.getKeywordCompletion(main, symbolTable, rangeToReplace, module));
         completionItems = this.deleteDoublesWithIdenticalInsertText(completionItems);
 
         // console.log("Complete variable/Class/Keyword " + text);
@@ -690,9 +690,10 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
         return keywordCompletionItems;
     }
 
-    getKeywordCompletion(symbolTable: JavaSymbolTable, range: monaco.IRange, module: JavaCompiledModule): monaco.languages.CompletionItem[] {
+    getKeywordCompletion(main: IMain, symbolTable: JavaSymbolTable, range: monaco.IRange, module: JavaCompiledModule): monaco.languages.CompletionItem[] {
         let keywordCompletionItems: monaco.languages.CompletionItem[] = [];
-        if (!this.isConsole && (symbolTable?.classContext == null || symbolTable?.methodContext != null))
+        let settingsShowHelpForKeywords = main.getSettings().getValue("editor.codeCompletion.showHelpForKeywords");
+        if ( settingsShowHelpForKeywords && !this.isConsole && (symbolTable?.classContext == null || symbolTable?.methodContext != null))
             keywordCompletionItems = keywordCompletionItems.concat([
                 {
                     label: "while(Bedingung){Anweisungen}",

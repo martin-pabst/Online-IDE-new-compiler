@@ -10,6 +10,7 @@ import explorer from '/assets/graphics/settings/explorer.png';
 import parameterHints from '/assets/graphics/settings/parameter_hints.png';
 import structureStatement from '/assets/graphics/settings/structure_statement_help.png';
 import variableShadowingError from '/assets/graphics/settings/variable_shadowing_error.png';
+import showHelpForKeywords from '/assets/graphics/settings/show_help_for_keywords.png';
 
 import type * as monaco from 'monaco-editor'
 import { SettingKey, SettingsScope, SettingValue } from "./SettingsStore";
@@ -32,6 +33,7 @@ export type SettingMetadata = {
     optionTexts?: TranslatedText[]; // For string settings with translated options
     action?: SettingsAction; // Optional action to perform when the setting is changed
     image?: string;
+    imageWidth?: string;
 }
 
 export type GroupOfSettingMetadata = {
@@ -133,6 +135,23 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         }
 
                     },
+
+                ]
+            },
+            {
+                settingType: 'group',
+                name: SettingsMessages.CodeCompletionHelpName,
+                description: SettingsMessages.CodeCompletionHelpDescription,
+                settings: [
+                    {
+                        key: "editor.codeCompletion.showHelpForKeywords",
+                        settingType: 'setting',
+                        name: SettingsMessages.CodeCompletionShowHelpForKeywordsName,
+                        description: undefined,
+                        type: 'boolean',
+                        image: showHelpForKeywords,
+                        imageWidth: "400px"
+                    }
 
                 ]
             },

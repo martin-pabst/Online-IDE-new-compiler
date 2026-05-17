@@ -146,7 +146,7 @@ export class SettingsGUI {
     renderSetting(setting: SettingMetadata, $settingDiv: JQuery<HTMLElement>) {
         if (setting.image) {
             $settingDiv.append(jQuery('<div class="jo_settingClearBoth"></div>'));
-            let $img = jQuery(`<img class="jo_settingImage" src="${setting.image}">`);
+            let $img = jQuery(`<img class="jo_settingImage" src="${setting.image}"${setting.imageWidth ? ' style="width: ' + setting.imageWidth + ';"' : ''}>`);
             $settingDiv.append($img);
         }
         $settingDiv.append(jQuery(`<div class="jo_settingCaption">${setting.name()}</div>`));
