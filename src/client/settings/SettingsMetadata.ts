@@ -111,7 +111,8 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                             SettingsMessages.OptionFalse,
                             SettingsMessages.OptionTrue,
                         ],
-                        image: structureStatement
+                        image: structureStatement,
+                        imageWidth: "400px",
                     },
                     {
                         key: "editor.contextSensitiveHelp.ParameterHints",
@@ -135,23 +136,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         }
 
                     },
-
-                ]
-            },
-            {
-                settingType: 'group',
-                name: SettingsMessages.CodeCompletionHelpName,
-                description: SettingsMessages.CodeCompletionHelpDescription,
-                settings: [
-                    {
-                        key: "editor.codeCompletion.showHelpForKeywords",
-                        settingType: 'setting',
-                        name: SettingsMessages.CodeCompletionShowHelpForKeywordsName,
-                        description: undefined,
-                        type: 'boolean',
-                        image: showHelpForKeywords,
-                        imageWidth: "400px"
-                    }
 
                 ]
             },

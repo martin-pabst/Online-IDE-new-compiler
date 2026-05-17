@@ -692,7 +692,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
     getKeywordCompletion(main: IMain, symbolTable: JavaSymbolTable, range: monaco.IRange, module: JavaCompiledModule): monaco.languages.CompletionItem[] {
         let keywordCompletionItems: monaco.languages.CompletionItem[] = [];
-        let settingsShowHelpForKeywords = main.getSettings().getValue("editor.codeCompletion.showHelpForKeywords");
+        let settingsShowHelpForKeywords = main.getSettings().getValue("editor.contextSensitiveHelp.StructureStatements") === 'true';
         if ( settingsShowHelpForKeywords && !this.isConsole && (symbolTable?.classContext == null || symbolTable?.methodContext != null))
             keywordCompletionItems = keywordCompletionItems.concat([
                 {
