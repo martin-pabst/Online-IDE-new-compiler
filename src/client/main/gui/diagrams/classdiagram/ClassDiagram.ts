@@ -6,8 +6,8 @@ import { Diagram, DiagramUnitCm } from "../Diagram.js";
 import { ClassBox, SerializedClassBox } from "./ClassBox.js";
 import { DiagramArrow } from "./DiagramArrow.js";
 import { RoutingInput, RoutingOutput } from "./Router.js";
-import { JavaClass } from '../../../../../compiler/java/types/JavaClass.js';
-import { JavaInterface } from '../../../../../compiler/java/types/JavaInterface.js';
+import { IJavaClass, JavaClass } from '../../../../../compiler/java/types/JavaClass.js';
+import { IJavaInterface, JavaInterface } from '../../../../../compiler/java/types/JavaInterface.js';
 import { JavaCompiledModule } from '../../../../../compiler/java/module/JavaCompiledModule.js';
 import { ClassDiagramHelper } from '../../../../../compiler/java/types/ClassDiagramHelper.js';
 import type { Main } from '../../../Main.js';
@@ -513,7 +513,7 @@ export class ClassDiagram extends Diagram {
 
     }
 
-    findClassbox(klass: JavaClass | JavaInterface, classBoxes: ClassBox[]): ClassBox {
+    findClassbox(klass: IJavaClass | IJavaInterface, classBoxes: ClassBox[]): ClassBox {
 
         for (let cb of classBoxes) {
             if (cb.klass == klass) return cb;

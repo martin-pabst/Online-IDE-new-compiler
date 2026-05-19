@@ -6,10 +6,10 @@ import { JavaType } from "./JavaType";
 
 
 // Used for class diagrams:
-export type CompostionData = { klass: JavaClass | JavaInterface, identifier: string };
+export type CompostionData = { klass: IJavaClass | IJavaInterface, identifier: string };
 
 export class ClassDiagramHelper {
-    registerUsedSystemClasses(klass: JavaClass, usedSystemClasses: Set<JavaClass | JavaInterface>) {
+    registerUsedSystemClasses(klass: JavaClass, usedSystemClasses: Set<IJavaClass | IJavaInterface>) {
         if(klass.getExtends() && (klass.getExtends()?.module instanceof SystemModule)){
             usedSystemClasses.add(this.getTypeWithoutGenerics(klass.getExtends()!));
         }
@@ -35,19 +35,24 @@ export class ClassDiagramHelper {
         return <JavaClass | JavaInterface> type;
     }
 
-
+    aggregatingClassIdentifiers: string[] = ["list", "set", "menge", "tree", "baum"];
     getCompositeData(klass: JavaClass): CompostionData[] {
 
         let cd: CompostionData[] = [];
-        let cdMap: Map<JavaClass | JavaInterface | JavaArrayType, CompostionData> = new Map();
+        let cdMap: Map<IJavaClass | IJavaInterface | JavaArrayType, CompostionData> = new Map();
 
         for (let a of klass.fields) {
             let type: JavaType | undefined = a.type;
-            if (type && (a.type instanceof JavaClass) || (a.type instanceof JavaInterface)
+            if (type && (a.type instanceof IJavaClass) || (a.type instanceof IJavaInterface)
                 || (a.type instanceof JavaArrayType)) {
-                if (["ArrayList", "List", "LinkedList"].indexOf(type.identifier) >= 0 &&
-                type instanceof GenericVariantOfJavaClass && type.genericTypeParameters?.length == 1) {
-                    type = type.typeMap.get(type.genericTypeParameters[0]);
+                
+                let isAggregatingClass = this.aggregatingClassIdentifiers.some(id => a.type?.identifier.toLowerCase().includes(id));
+
+                if (isAggregatingClass &&
+                type instanceof GenericVariantOfJavaClass && type.typeMap?.size == 1) {
+                    type.typeMap.forEach((v, k) => {
+                        type = v;
+                    });
                 }
 
                 while(type instanceof JavaArrayType){
@@ -59,7 +64,7 @@ export class ClassDiagramHelper {
                 let cda = cdMap.get(a.type);
                 if (cda == null) {
                     cda = {
-                        klass: <JavaClass | JavaInterface>type,
+                        klass: <IJavaClass | IJavaInterface>type,
                         identifier: a.identifier
                     };
                     cdMap.set(a.type, cda);
