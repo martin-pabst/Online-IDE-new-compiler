@@ -8,6 +8,13 @@ import { Sliderknob } from '../../../tools/components/Sliderknob.js';
 export class Sliders {
 
     main: Main;
+    sliderLeft: Slider;
+    sliderRight: Slider;
+    sliderBottom: Slider;
+
+    sliderKnobLeft: Sliderknob;
+    sliderKnobRight: Sliderknob;
+
 
     constructor(main: Main) {
         this.main = main;
@@ -20,28 +27,28 @@ export class Sliders {
         let $rightDiv = jQuery('#rightdiv');
         let $bottomDiv = jQuery('#bottomdiv-outer');
 
-        new Slider($leftPanel[0], false, false, (newLength) => {
+        this.sliderLeft = new Slider($leftPanel[0], false, false, (newLength) => {
             this.main.getMainEditor().layout();
             if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
                 this.main.bottomDiv.homeworkManager.diffEditor.layout();
             }
         }, $editor[0]);
 
-        new Slider($rightDiv[0], true, false, (newLength) => {
+         this.sliderRight = new Slider($rightDiv[0], true, false, (newLength) => {
             this.main.getMainEditor().layout();
             if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
                 this.main.bottomDiv.homeworkManager.diffEditor.layout();
             }
         }, $editor[0]);
 
-        new Slider($bottomDiv[0], true, true, (newLength) => {
+        this.sliderBottom = new Slider($bottomDiv[0], true, true, (newLength) => {
             this.main.getMainEditor().layout();
             if (this.main.bottomDiv.homeworkManager.diffEditor != null) {
                 this.main.bottomDiv.homeworkManager.diffEditor.layout();
             }
         }, $editor[0]);
 
-        new Sliderknob([
+        this.sliderKnobLeft = new Sliderknob([
             {element: $leftPanel[0], neighbourOrientation: ["left"]},
             {element: $editor[0], neighbourOrientation: ["right", "top"]},
             {element: $bottomDiv[0], neighbourOrientation: ["bottom"]},
@@ -53,7 +60,7 @@ export class Sliders {
             }
         })
 
-        new Sliderknob([
+        this.sliderKnobRight = new Sliderknob([
             {element: $rightDiv[0], neighbourOrientation: ["right"]},
             {element: $bottomDiv[0], neighbourOrientation: ["bottom"]},
             {element: $editor[0], neighbourOrientation: ["left", "top"]},
@@ -65,6 +72,16 @@ export class Sliders {
             }
         })
 
+    }
+
+    toggleSliderVisibilityWhenEditorHasFullWidth(editorHasFullWidth: boolean) {
+        this.sliderKnobLeft.toggleVisibility(!editorHasFullWidth);
+        this.sliderKnobRight.toggleVisibility(!editorHasFullWidth);
+        this.sliderLeft.toggleVisibility(!editorHasFullWidth);
+        this.sliderRight.toggleVisibility(!editorHasFullWidth);
+        this.sliderBottom.toggleVisibility(!editorHasFullWidth);
+
+        let $editor = jQuery('#editor')[0]
     }
 
 

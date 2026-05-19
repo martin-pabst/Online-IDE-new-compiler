@@ -36,17 +36,17 @@ export class Sliderknob {
 
     init() {
 
-        this.initSliderknobPosition();
+        this.createAndInitSliderknob();
 
         this.initPointerEvents();
 
         this.initTouchEvents();
     }
 
-    private initTouchEvents(){
+    private initTouchEvents() {
         this.sliderknobDiv.addEventListener("touchstart", (ev: TouchEvent) => {
             ev.preventDefault();
-            if(ev.touches.length > 0 && typeof this.touchIdentifier == 'undefined'){
+            if (ev.touches.length > 0 && typeof this.touchIdentifier == 'undefined') {
                 let touch = ev.touches[0];
                 this.xStart = touch.clientX;
                 this.yStart = touch.clientY;
@@ -55,29 +55,27 @@ export class Sliderknob {
         })
 
         this.sliderknobDiv.addEventListener("touchmove", (ev: TouchEvent) => {
-            for(let i = 0; i < ev.touches.length; i++){
+            for (let i = 0; i < ev.touches.length; i++) {
                 let touch = ev.touches[i];
-                if(touch.identifier == this.touchIdentifier){
+                if (touch.identifier == this.touchIdentifier) {
                     this.dragMove(touch.clientX, touch.clientY);
                 }
             }
         })
 
         this.sliderknobDiv.addEventListener("touchend", (ev: TouchEvent) => {
-            for(let i = 0; i < ev.touches.length; i++){
+            for (let i = 0; i < ev.touches.length; i++) {
                 let touch = ev.touches[i];
-                if(touch.identifier == this.touchIdentifier){
+                if (touch.identifier == this.touchIdentifier) {
                     this.touchIdentifier == undefined;
                     this.dragEnd();
                 }
             }
 
         })
-        
+
 
     }
-
-
 
     private initPointerEvents() {
         this.sliderknobDiv.addEventListener("mousedown", (md: PointerEvent) => { md.stopPropagation(); md.preventDefault(); });
@@ -118,12 +116,12 @@ export class Sliderknob {
                 this.transparentOverlay!.remove();
                 this.dragEnd();
             });
-            
-            
+
+
         });
     }
-    
-    private dragEnd(){
+
+    private dragEnd() {
         if (this.sliderknobEndCallback) this.sliderknobEndCallback();
     }
 
@@ -170,12 +168,44 @@ export class Sliderknob {
 
     }
 
-    private initSliderknobPosition() {
+    private createAndInitSliderknob() {
         this.sliderknobDiv = DOM.makeDiv(undefined, "jo_sliderknob", "img_knob", "jo_button", "jo_active");
         this.sliderknobDiv.draggable = false;
         this.sliderknobDiv.style.zIndex = "10";
 
         document.body.append(this.sliderknobDiv);
+
+        this.initSliderknobPosition();
+        this.initResizeObservers();
+    }
+
+    private initResizeObservers() {
+
+        for (let neighbour of this.neighbours) {
+
+            for (let orientation of neighbour.neighbourOrientation) {
+                switch (orientation) {
+                    case "top":
+                        break;
+                    case "bottom":
+                        new ResizeObserver(() => {
+                            this.sliderknobDiv.style.top = neighbour.element.getBoundingClientRect().top + this.DY + window.scrollY + "px";
+                        }).observe(neighbour.element);
+                        break;
+                    case "left":
+                        break;
+                    case "right":
+                        new ResizeObserver(() => {
+                            this.sliderknobDiv.style.left = neighbour.element.getBoundingClientRect().left + this.DX + window.scrollX + "px";
+                        }).observe(neighbour.element);
+                        break;
+                }
+            }
+
+        }
+    }
+
+    private initSliderknobPosition() {
 
         let left = 0;
         let top = 0;
@@ -190,18 +220,12 @@ export class Sliderknob {
                         break;
                     case "bottom":
                         top = neighbourBoundingBox.top;
-                        new ResizeObserver(() => {
-                            this.sliderknobDiv.style.top = neighbour.element.getBoundingClientRect().top + this.DY + window.scrollY + "px";
-                        }).observe(neighbour.element);
                         break;
                     case "left":
                         left = neighbourBoundingBox.left + neighbourBoundingBox.width;
                         break;
                     case "right":
                         left = neighbourBoundingBox.left;
-                        new ResizeObserver(() => {
-                            this.sliderknobDiv.style.left = neighbour.element.getBoundingClientRect().left + this.DX + window.scrollX + "px";
-                        }).observe(neighbour.element);
                         break;
                 }
             }
@@ -211,4 +235,13 @@ export class Sliderknob {
         this.sliderknobDiv.style.top = top + window.scrollY + this.DY + "px";
         this.sliderknobDiv.style.left = left + window.scrollX + this.DX + "px";
     }
+
+    toggleVisibility(visible: boolean) {
+        this.sliderknobDiv.style.display = visible ? "" : "none";
+        if(visible){
+            this.initSliderknobPosition();
+        }
+    }
+
+
 }

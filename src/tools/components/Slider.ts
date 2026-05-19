@@ -160,15 +160,15 @@ export class Slider {
         let otherRectangle = this.otherDiv.getBoundingClientRect();
 
         if (this.vertHor) {
-            this.savedPosition = {own: ownRectangle.height, other: otherRectangle.height}
+            this.savedPosition = { own: ownRectangle.height, other: otherRectangle.height }
         } else {
-            this.savedPosition = {own: ownRectangle.width, other: otherRectangle.width}
+            this.savedPosition = { own: ownRectangle.width, other: otherRectangle.width }
         }
 
     }
 
-    restorePosition(){
-        if(this.vertHor){
+    restorePosition() {
+        if (this.vertHor) {
             this.container.style.height = this.savedPosition.own + "px";
             this.otherDiv.style.height = this.savedPosition.other + "px";
         } else {
@@ -176,4 +176,9 @@ export class Slider {
             this.otherDiv.style.width = this.savedPosition.other + "px";
         }
     }
+
+    toggleVisibility(visible: boolean) {
+        this.sliderDiv.style.display = visible ? "" : "none";
+    }
+
 }

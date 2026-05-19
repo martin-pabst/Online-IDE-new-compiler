@@ -2,6 +2,7 @@ import jQuery from 'jquery';
 import { ViewMode } from "../../communication/Data";
 import { Main } from "../Main";
 import { ViewModeControllerMessages } from './language/GUILanguage';
+import { Sliders } from './Sliders';
 
 export class ViewModeController {
 
@@ -17,7 +18,7 @@ export class ViewModeController {
     rightDivWidth: number;
     editorWidth: number;
 
-    constructor(private $buttonsContainer: JQuery<HTMLElement>, private main: Main) {
+    constructor(private $buttonsContainer: JQuery<HTMLElement>, private sliders: Sliders, private main: Main) {
 
         this.$buttonEditorFullscreen = jQuery(`<div title="${ViewModeControllerMessages.fullWidth()}" class="img_whole-window-dark jo_button jo_active" style="padding: 1px; margin-right: 8px"></div>`);
         this.$buttonPresentationMode = jQuery(`<div title="${ViewModeControllerMessages.presentation()}" class="img_presentation-mode jo_button jo_active" syle="padding: 1px"></div>`);
@@ -57,24 +58,31 @@ export class ViewModeController {
             this.$buttonEditorFullscreen.addClass('img_whole-window-dark');
             this.$buttonEditorFullscreen.attr('title', ViewModeControllerMessages.fullWidth());
             jQuery('#rightdiv').css('width', this.rightDivWidth + "px");
-            jQuery('#editor>.monaco-editor').css('width', this.editorWidth + 'px');
-
+            jQuery('#editor').css('width', this.editorWidth + 'px');
+            
             jQuery('#rightdiv').show(600);
             jQuery('#leftpanel').show(600);
             jQuery('#controls').show();
 
+            setTimeout(() => {
+                this.sliders.toggleSliderVisibilityWhenEditorHasFullWidth(false);                
+            }, 800);
+            
         } else {
             this.$buttonEditorFullscreen.removeClass('img_whole-window-dark');
             this.$buttonEditorFullscreen.addClass('img_whole-window-back-dark');
             this.$buttonEditorFullscreen.attr('title', ViewModeControllerMessages.defaultWidth());
-
+            
             this.rightDivWidth = Number.parseInt(jQuery('#rightdiv').css('width').replace('px', ''));
-            this.editorWidth = Number.parseInt(jQuery('#editor>.monaco-editor').css('width').replace('px', ''));
+            this.editorWidth = Number.parseInt(jQuery('#editor').css('width').replace('px', ''));
+            jQuery('#editor').css('width', '');
 
             jQuery('#rightdiv').hide(600);
             jQuery('#leftpanel').hide(600);
             jQuery('#controls').hide();
             this.main.getInterpreter().stop(false);
+
+            this.sliders.toggleSliderVisibilityWhenEditorHasFullWidth(true);
         }
 
         setTimeout(() => {

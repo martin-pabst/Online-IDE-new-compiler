@@ -185,7 +185,7 @@ export class Main implements MainBase {
         let singleUseToken: string | undefined = findGetParameter("singleUseToken");
         let loggedInWithVidis: boolean = findGetParameter("vidis") == "true";
 
-        if(loggedInWithVidis){
+        if (loggedInWithVidis) {
             this.login.vidis_id_token = findGetParameter("vidis-id-token") || "";
         }
 
@@ -216,8 +216,6 @@ export class Main implements MainBase {
 
         //@ts-ignore
         window.UZIP = null; // needed by UPNG
-
-        this.viewModeController = new ViewModeController(jQuery("#view-mode"), this);
 
         this.editor = new Editor(this, true, false);
         this.editor.initGUI(jQuery('#editor'));
@@ -299,6 +297,8 @@ export class Main implements MainBase {
             let sliders = new Sliders(this);
             sliders.initSliders();
 
+            this.viewModeController = new ViewModeController(jQuery("#view-mode"), sliders, this);
+
         }, 200);
 
         jQuery(window).on('unload', async function () {
@@ -314,7 +314,7 @@ export class Main implements MainBase {
         });
 
 
-        TabletConsoleLog.registerProvider((message) => { printManager.print(message, false, 0x5050ff)});
+        TabletConsoleLog.registerProvider((message) => { printManager.print(message, false, 0x5050ff) });
 
 
     }
@@ -333,10 +333,10 @@ export class Main implements MainBase {
         this.interpreter.setExecutable(executable);
 
         // this can wait => give the main thread time to do its chores:
-        setTimeout(() => {            
+        setTimeout(() => {
             let errors = this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
             this.projectExplorer.renderErrorCount(this.currentWorkspace, errors);
-            this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());    
+            this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());
         }, 20);
 
     }
