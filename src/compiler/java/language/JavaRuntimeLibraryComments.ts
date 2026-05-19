@@ -740,12 +740,12 @@ export class JRC {
      * Class FilledShape
      */
 
-    static fsGetFillColorCommentColor = () => lm({
+    static fsGetFillColorComment = () => lm({
         "de": "Gibt die Füllfarbe dieses Objekts als Color-Objekt zurück.",
         "en": "Returns fill color of this object as a Color object.",
     })
 
-    static fsGetFillColorCommentInt = () => lm({
+    static fsGetFillColorAsIntComment = () => lm({
         "de": "Gibt die Füllfarbe dieses Objekts als integer-Wert zurück.",
         "en": "Returns fill color of this object as int value.",
     })

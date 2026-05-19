@@ -86,7 +86,6 @@ export class ShapeClass extends ActorClass {
 
         { type: "method", signature: "void startTrackingEveryMouseMovement()", native: ShapeClass.prototype._startTrackingEveryMouseMovement, comment: JRC.shapeStartTrackingEveryMouseMovementComment },
         { type: "method", signature: "void stopTrackingEveryMouseMovement()", native: ShapeClass.prototype._stopTrackingEveryMouseMovement, comment: JRC.shapeStartTrackingEveryMouseMovementComment },
-        { type: "method", signature: "void stopTrackingEveryMouseMovement()", native: ShapeClass.prototype._stopTrackingEveryMouseMovement, comment: JRC.shapeStartTrackingEveryMouseMovementComment },
 
         { type: "method", signature: "void setHitPolygon(double[][] points)", native: ShapeClass.prototype._setHitPolygon, comment: JRC.shapeSetHitPolygonComment },
 
