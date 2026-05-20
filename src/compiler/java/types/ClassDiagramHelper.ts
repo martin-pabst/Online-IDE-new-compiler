@@ -10,7 +10,8 @@ export type CompostionData = { klass: IJavaClass | IJavaInterface, identifier: s
 
 export class ClassDiagramHelper {
     registerUsedSystemClasses(klass: JavaClass, usedSystemClasses: Set<IJavaClass | IJavaInterface>) {
-        if (klass.getExtends() && (klass.getExtends()?.module instanceof SystemModule)) {
+        let ext = klass.getExtends();
+        if (ext && (ext.module instanceof SystemModule) && ["Object", "Class"].indexOf(ext.identifier) === -1) {
             usedSystemClasses.add(this.getTypeWithoutGenerics(klass.getExtends()!));
         }
 

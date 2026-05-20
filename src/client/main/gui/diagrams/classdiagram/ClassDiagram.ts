@@ -208,6 +208,9 @@ export class ClassDiagram extends Diagram {
     }
 
     deserialize(serializedClassDiagram: SerializedClassDiagram) {
+
+        serializedClassDiagram.classBoxes = serializedClassDiagram.classBoxes.filter(cb => ["Class", "Object"].indexOf(cb.className) === -1);
+
         for (let cb of serializedClassDiagram.classBoxes) {
             let classBoxes: ClassBoxes = this.classBoxesRepository[cb.workspaceId];
             if (classBoxes == null) {
@@ -342,6 +345,7 @@ export class ClassDiagram extends Diagram {
 
         for (let klass of newClassesToDraw) {
             if(!(klass instanceof IJavaClass) && !(klass instanceof IJavaInterface)) continue;
+
             let cb = new ClassBox(this, Math.random() * 10 * DiagramUnitCm, Math.random() * 10 * DiagramUnitCm, klass);
 
             cb.renderLines();

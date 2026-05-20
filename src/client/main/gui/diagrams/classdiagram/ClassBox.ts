@@ -129,6 +129,8 @@ export class ClassBox extends DiagramElement {
 
     renderLines() {
 
+        if(!(this.klass instanceof IJavaClass) && !(this.klass instanceof IJavaInterface)) return;
+
         this.clear();
 
         let parametersWithTypes = (<ClassDiagram>this.diagram).currentClassBoxes.parametersWithTypes;
