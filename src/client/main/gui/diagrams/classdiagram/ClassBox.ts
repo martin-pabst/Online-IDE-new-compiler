@@ -3,8 +3,8 @@ import { hash } from "../../../../../tools/StringTools.js";
 import { Diagram } from "../Diagram.js";
 import { Alignment, DiagramElement } from "../DiagramElement.js";
 import { ClassDiagram } from "./ClassDiagram.js";
-import { JavaClass } from '../../../../../compiler/java/types/JavaClass.js';
-import { JavaInterface } from '../../../../../compiler/java/types/JavaInterface.js';
+import { IJavaClass, JavaClass } from '../../../../../compiler/java/types/JavaClass.js';
+import { IJavaInterface, JavaInterface } from '../../../../../compiler/java/types/JavaInterface.js';
 import { SystemModule } from '../../../../../compiler/java/runtime/system/SystemModule.js';
 import { JavaMethod } from '../../../../../compiler/java/types/JavaMethod.js';
 import { JavaField } from '../../../../../compiler/java/types/JavaField.js';
@@ -328,7 +328,10 @@ export class ClassBox extends DiagramElement {
         }
     }
 
-    getSignature(klass: JavaClass | JavaInterface): number {
+    getSignature(klass: IJavaClass | IJavaInterface): number {
+
+        if(!(klass instanceof IJavaClass) && !(klass instanceof IJavaInterface)) return 0;
+
 
         let s: string = "";
 
