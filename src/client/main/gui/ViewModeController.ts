@@ -18,7 +18,9 @@ export class ViewModeController {
     rightDivWidth: number;
     editorWidth: number;
 
-    constructor(private $buttonsContainer: JQuery<HTMLElement>, private sliders: Sliders, private main: Main) {
+    sliders: Sliders;
+
+    constructor(private $buttonsContainer: JQuery<HTMLElement>, private main: Main) {
 
         this.$buttonEditorFullscreen = jQuery(`<div title="${ViewModeControllerMessages.fullWidth()}" class="img_whole-window-dark jo_button jo_active" style="padding: 1px; margin-right: 8px"></div>`);
         this.$buttonPresentationMode = jQuery(`<div title="${ViewModeControllerMessages.presentation()}" class="img_presentation-mode jo_button jo_active" syle="padding: 1px"></div>`);
@@ -65,7 +67,7 @@ export class ViewModeController {
             jQuery('#controls').show();
 
             setTimeout(() => {
-                this.sliders.toggleSliderVisibilityWhenEditorHasFullWidth(false);                
+                this.sliders?.toggleSliderVisibilityWhenEditorHasFullWidth(false);                
             }, 800);
             
         } else {
@@ -82,7 +84,7 @@ export class ViewModeController {
             jQuery('#controls').hide();
             this.main.getInterpreter().stop(false);
 
-            this.sliders.toggleSliderVisibilityWhenEditorHasFullWidth(true);
+            this.sliders?.toggleSliderVisibilityWhenEditorHasFullWidth(true);
         }
 
         setTimeout(() => {
@@ -177,5 +179,8 @@ export class ViewModeController {
         this.setMode(settings.viewModes.viewModeChosen, false);
     }
 
+    registerSliders(sliders: Sliders) {
+        this.sliders = sliders;
+    }
 
 }

@@ -217,6 +217,8 @@ export class Main implements MainBase {
         //@ts-ignore
         window.UZIP = null; // needed by UPNG
 
+        this.viewModeController = new ViewModeController(jQuery("#view-mode"), this);
+
         this.editor = new Editor(this, true, false);
         this.editor.initGUI(jQuery('#editor'));
 
@@ -296,8 +298,9 @@ export class Main implements MainBase {
 
             let sliders = new Sliders(this);
             sliders.initSliders();
+            this.viewModeController.registerSliders(sliders);
 
-            this.viewModeController = new ViewModeController(jQuery("#view-mode"), sliders, this);
+//            this.viewModeController = new ViewModeController(jQuery("#view-mode"), sliders, this);
 
         }, 200);
 
