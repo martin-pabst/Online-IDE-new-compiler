@@ -341,6 +341,7 @@ export class ClassDiagram extends Diagram {
         this.dirty = this.dirty || newClassesToDraw.length > 0;
 
         for (let klass of newClassesToDraw) {
+            if(!(klass instanceof JavaClass) && !(klass instanceof JavaInterface)) continue;
             let cb = new ClassBox(this, Math.random() * 10 * DiagramUnitCm, Math.random() * 10 * DiagramUnitCm, klass);
 
             cb.renderLines();
