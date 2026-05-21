@@ -198,7 +198,9 @@ export class GenericTypeParameter extends NonPrimitiveType {
             return;
         }
 
-        let catchesAsString = this.catches.map(c => c.toString());
+        let catchesAsString = this.catches.filter(c => typeof c !== "undefined").map(c => {
+            return c.toString();
+        });
         let allEqual = true;
         for (let i = 0; i < catchesAsString.length && allEqual; i++) {
             for (let j = i + 1; j < catchesAsString.length && allEqual; j++) {
