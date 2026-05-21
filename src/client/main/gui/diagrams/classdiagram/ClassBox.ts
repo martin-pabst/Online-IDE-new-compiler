@@ -332,7 +332,7 @@ export class ClassBox extends DiagramElement {
 
     getSignature(klass: IJavaClass | IJavaInterface): number {
 
-        if(!(klass instanceof IJavaClass) && !(klass instanceof IJavaInterface)) return 0;
+        if(!(klass instanceof IJavaClass) && !(klass instanceof IJavaInterface)) return -1;
 
 
         let s: string = "";
