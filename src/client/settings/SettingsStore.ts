@@ -2,17 +2,17 @@
 export type SettingsScope = 'user' | 'class' | 'school' | 'default';
 
 export type SettingPrecedence = 'userClassSchoolDefault' | 'classSchoolUserDefault';
-export var SettingsPrecedenceArrays: {[key in SettingPrecedence]: SettingsScope[]} = {
+export var SettingsPrecedenceArrays: { [key in SettingPrecedence]: SettingsScope[] } = {
     'userClassSchoolDefault': ['user', 'class', 'school', 'default'],
     'classSchoolUserDefault': ['class', 'school', 'user', 'default']
 }
 
 export type SettingsType = {
     "editor.hoverVerbosity.showHelpOnKeywordsAndOperators": true | false,
-    "editor.hoverVerbosity.showMethodDeclaration": 'none' | 'declarations' | 'declarationsAndComments',   
-    "editor.hoverVerbosity.showClassDeclaration":  'none' | 'declarations' | 'declarationsAndComments',
-    "editor.contextSensitiveHelp.StructureStatements" :"true" | "false",
-    "editor.contextSensitiveHelp.ParameterHints" :"true" | "false",
+    "editor.hoverVerbosity.showMethodDeclaration": 'none' | 'declarations' | 'declarationsAndComments',
+    "editor.hoverVerbosity.showClassDeclaration": 'none' | 'declarations' | 'declarationsAndComments',
+    "editor.contextSensitiveHelp.StructureStatements": "true" | "false",
+    "editor.contextSensitiveHelp.ParameterHints": "true" | "false",
     "editor.autoClosingBrackets": "always" | "beforeWhitespace" | "never",
     "editor.autoClosingQuotes": "always" | "beforeWhitespace" | "never",
     "editor.autoSemicolons": true | false,
@@ -37,10 +37,10 @@ export type SettingKey = keyof SettingsType;
 
 export var SettingDefaultValues: SettingsType = {
     "editor.hoverVerbosity.showHelpOnKeywordsAndOperators": true,
-    "editor.hoverVerbosity.showMethodDeclaration": 'declarationsAndComments',   
+    "editor.hoverVerbosity.showMethodDeclaration": 'declarationsAndComments',
     "editor.hoverVerbosity.showClassDeclaration": 'declarationsAndComments',
-    "editor.contextSensitiveHelp.StructureStatements" :"true",
-    "editor.contextSensitiveHelp.ParameterHints" :"true",
+    "editor.contextSensitiveHelp.StructureStatements": "true",
+    "editor.contextSensitiveHelp.ParameterHints": "true",
     "editor.autoClosingBrackets": "beforeWhitespace",
     "editor.autoClosingQuotes": "beforeWhitespace",
     "editor.autoSemicolons": true,
@@ -60,9 +60,14 @@ export var SettingDefaultValues: SettingsType = {
     "output.clearOutputAfterWorkspaceChange": "no"
 };
 
-export var SettingPrecedenceValues: Partial<{[key in SettingKey]: SettingPrecedence}> = {
+export var SettingPrecedenceValues: Partial<{ [key in SettingKey]: SettingPrecedence }> = {
     "editor.quickFix.getterAndSetter": "classSchoolUserDefault",
     "editor.quickFix.generateConstructor": "classSchoolUserDefault",
+    "editor.hoverVerbosity.showHelpOnKeywordsAndOperators": "classSchoolUserDefault",
+    "editor.hoverVerbosity.showMethodDeclaration": "classSchoolUserDefault",
+    "editor.hoverVerbosity.showClassDeclaration": "classSchoolUserDefault",
+    "editor.contextSensitiveHelp.StructureStatements": "classSchoolUserDefault",
+    "editor.contextSensitiveHelp.ParameterHints": "classSchoolUserDefault",
 }
 
 export type SettingValue = string | number | boolean | undefined;
