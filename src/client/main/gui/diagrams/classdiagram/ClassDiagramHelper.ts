@@ -1,8 +1,8 @@
-import { SystemModule } from "../runtime/system/SystemModule";
-import { JavaArrayType } from "./JavaArrayType";
-import { GenericVariantOfJavaClass, IJavaClass, JavaClass } from "./JavaClass";
-import { GenericVariantOfJavaInterface, IJavaInterface, JavaInterface } from "./JavaInterface";
-import { JavaType } from "./JavaType";
+import { SystemModule } from "../../../../../compiler/java/runtime/system/SystemModule";
+import { JavaArrayType } from "../../../../../compiler/java/types/JavaArrayType";
+import { GenericVariantOfJavaClass, IJavaClass, JavaClass } from "../../../../../compiler/java/types/JavaClass";
+import { GenericVariantOfJavaInterface, IJavaInterface, JavaInterface } from "../../../../../compiler/java/types/JavaInterface";
+import { JavaType } from "../../../../../compiler/java/types/JavaType";
 
 
 // Used for class diagrams:
@@ -63,6 +63,10 @@ export class ClassDiagramHelper {
                 }
 
                 if (!type) continue;
+
+                if(['Class', 'Object'].indexOf(type.identifier) !== -1) continue;
+
+                // console.log("Found composition: " + klass.identifier + " -> " + type.identifier);
 
                 let cda = cdMap.get(a.type);
                 if (cda == null) {

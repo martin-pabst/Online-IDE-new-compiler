@@ -9,7 +9,7 @@ import { RoutingInput, RoutingOutput } from "./Router.js";
 import { IJavaClass, JavaClass } from '../../../../../compiler/java/types/JavaClass.js';
 import { IJavaInterface, JavaInterface } from '../../../../../compiler/java/types/JavaInterface.js';
 import { JavaCompiledModule } from '../../../../../compiler/java/module/JavaCompiledModule.js';
-import { ClassDiagramHelper } from '../../../../../compiler/java/types/ClassDiagramHelper.js';
+import { ClassDiagramHelper } from './ClassDiagramHelper.js';
 import type { Main } from '../../../Main.js';
 import RouterWorker from './Router?worker';
 
