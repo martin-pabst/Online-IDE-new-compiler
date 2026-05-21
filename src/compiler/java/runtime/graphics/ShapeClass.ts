@@ -607,6 +607,8 @@ export class ShapeClass extends ActorClass {
 
     _collidesWith(otherShape: ShapeClass): boolean {
 
+        if(otherShape == null) return false;
+
         // is other shape a turtle?
         if (!this.turtle && otherShape.turtle) {
             return otherShape._collidesWith(this);
