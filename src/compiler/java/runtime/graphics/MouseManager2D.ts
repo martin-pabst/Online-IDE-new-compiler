@@ -22,13 +22,12 @@ export class MouseManager {
 
     listeners: Map<string, any> = new Map();
 
-    constructor(private world: IWorld, private coordinateDiv: HTMLDivElement) {
+    constructor(private world: IWorld, private graphicsDiv: HTMLDivElement, private coordinateDiv: HTMLDivElement) {
     }
 
     unregisterListeners(){
-        let canvas = this.world.app!.canvas;
         for (let mouseEventKind of ["mouseup", "mousedown", "mousemove", "mouseenter", "mouseleave"]) {
-            canvas.removeEventListener(mouseEventKind, this.listeners.get(mouseEventKind));
+            this.graphicsDiv.removeEventListener(mouseEventKind, this.listeners.get(mouseEventKind));
         }
 
         this.internalMouseListeners = [];
@@ -42,7 +41,6 @@ export class MouseManager {
 
     registerListeners() {
 
-        let canvas = this.world.app!.canvas;
         let that = this;
 
         for (let mouseEventKind of ["mouseup", "mousedown", "mousemove", "mouseenter", "mouseleave"]) {
@@ -54,8 +52,8 @@ export class MouseManager {
             
             let listener: any;
             //@ts-ignore
-            canvas.addEventListener(mouseEventKind,  listener = (e: MouseEvent) => {
-                let canvasRect = canvas.getBoundingClientRect();
+            this.graphicsDiv.addEventListener(mouseEventKind,  listener = (e: MouseEvent) => {
+                let canvasRect = this.graphicsDiv.getBoundingClientRect();
                 let x = that.world.width * e.offsetX / canvasRect.width;
                 let y = that.world.height * e.offsetY / canvasRect.height;
 
@@ -101,7 +99,7 @@ export class MouseManager {
 
             this.listeners.set(mouseEventKind, listener);
 
-            canvas.addEventListener("contextmenu", (e) => {
+            this.graphicsDiv.addEventListener("contextmenu", (e) => {
                 e.preventDefault();
             })
 

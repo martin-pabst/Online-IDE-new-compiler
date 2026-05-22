@@ -22,11 +22,12 @@ import { ColorClass } from './ColorClass.ts';
 import { NullPointerExceptionClass } from '../system/javalang/NullPointerExceptionClass.ts';
 import { RuntimeExceptionClass } from '../system/javalang/RuntimeException.ts';
 import { DOM } from '../../../../tools/DOM.ts';
+import { BaseWorldClass } from './BaseWorldClass.ts';
 
 
-export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
+export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class World" },
+        { type: "declaration", signature: "class World extends BaseWorld" },
 
         { type: "method", signature: "World()", java: WorldClass.prototype._cj$_constructor_$World$ },
         { type: "method", signature: "World(int width, int height)", java: WorldClass.prototype._cj$_constructor_$World$int$int },
@@ -55,8 +56,6 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
         { type: "method", signature: "void follow(Shape shape, double margin, double xMin, double xMax, double yMin, double yMax)", native: WorldClass.prototype._follow, comment: JRC.worldFollowComment },
         { type: "method", signature: "void follow(Shape shape, double marginTop, double marginRight, double marginBottom, double marginLeft, double xMin, double xMax, double yMin, double yMax)", native: WorldClass.prototype._followWit4Margins, comment: JRC.worldFollowComment },
 
-        { type: "method", signature: "void addMouseListener(MouseListener mouseListener)", template: `§1.mouseManager.${MouseManager.prototype.addJavaMouseListener.name}(§2);`, comment: JRC.world3dAddMouseListenerComment },
-
         { type: "method", signature: "Shape[] getAllShapes()", native: WorldClass.prototype._getAllShapes, comment: JRC.getAllShapesComment },
 
         { type: "method", signature: "static World getWorld()", java: WorldClass._getWorld, comment: JRC.getWorldComment },
@@ -79,7 +78,6 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
 
     app!: PIXI.Application;
 
-    graphicsDiv?: HTMLDivElement;
     resizeObserver?: ResizeObserver;
 
     gngEventlistenerManager!: GNGEventlistenerManager;
@@ -89,8 +87,6 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
     shapesWhichBelongToNoGroup: ShapeClass[] = [];
 
     shapesNotAffectedByWorldTransforms: ShapeClass[] = [];
-
-    mouseManager!: MouseManager;
 
     tickerFunction?: (ticker: PIXI.Ticker) => void;
 
@@ -167,7 +163,7 @@ export class WorldClass extends ObjectClass implements IWorld, GraphicSystem {
 
             interpreter.isExternalTimer = true;
 
-            this.mouseManager = new MouseManager(this, interpreter.graphicsManager?.coordinatesDiv);
+            this.mouseManager = new MouseManager(this, this.graphicsDiv, interpreter.graphicsManager?.coordinatesDiv);
             this.mouseManager.registerListeners();
 
             this.gngEventlistenerManager = new GNGEventlistenerManager(interpreter, this);

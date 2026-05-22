@@ -164,6 +164,7 @@ import { SystemStreamClass } from "./collections/SystemStreamClass.ts";
 import { PredicateInterface } from "./functional/PredicateInterface.ts";
 import { IllegalArgumentExceptionClass } from "./javalang/IllegalArgumentException.ts";
 import { IllegalStateExceptionClass } from "./javalang/IllegalStateException.ts";
+import { BaseWorldClass } from "../graphics/BaseWorldClass.ts";
 
 export class SystemModule extends JavaLibraryModule {
 
@@ -241,7 +242,7 @@ export class SystemModule extends JavaLibraryModule {
             // Graphics
             ColorClass, DirectionEnum, AlignmentEnum,
             MouseListenerInterface,
-            WorldClass, ActorClass, ShapeClass, FilledShapeClass, RectangleClass,
+            BaseWorldClass, WorldClass, ActorClass, ShapeClass, FilledShapeClass, RectangleClass,
             CollisionPairClass, GroupClass,
             ScaleModeEnum, RepeatTypeEnum, SpriteLibraryEnum, TileImageClass, SpriteClass, // Sprite
             CircleClass, EllipseClass, ArcClass, SectorClass,

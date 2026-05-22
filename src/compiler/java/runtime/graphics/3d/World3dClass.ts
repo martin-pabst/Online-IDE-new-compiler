@@ -26,13 +26,14 @@ import type { Light3dClass } from './lights/Light3dClass';
 import type { Camera3dClass } from './camera/Camera3dClass';
 import { FastSpriteManager3d } from './FastSprite/FastSpriteManager3d';
 import { RuntimeExceptionClass } from '../../system/javalang/RuntimeException';
+import { BaseWorldClass } from '../BaseWorldClass';
 // import { DirectionalLight3dClass } from './lights/DirectionalLight3dClass';
 // import { AmbientLight3dClass } from './lights/AmbientLight3dClass';
 
 
-export class World3dClass extends ObjectClass implements IWorld3d, GraphicSystem {
+export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSystem {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class World3d" },
+        { type: "declaration", signature: "class World3d extends BaseWorld" },
 
         { type: "method", signature: "World3d()", java: World3dClass.prototype._cj$_constructor_$World3d$ },
 
@@ -42,8 +43,6 @@ export class World3dClass extends ObjectClass implements IWorld3d, GraphicSystem
 
         { type: "method", signature: "void setCursor(string cursor)", native: World3dClass.prototype._setCursor, comment: JRC.world3dSetCursorComment },
         { type: "method", signature: "void clear()", native: World3dClass.prototype._clear, comment: JRC.world3dClearComment },
-
-        { type: "method", signature: "void addMouseListener(MouseListener mouseListener)", template: `§1.mouseListener.addMouseListener(§2);`, comment: JRC.world3dAddMouseListenerComment },
 
         { type: "method", signature: "Light3d[] getLights()", template: `§1.lights.slice()`, comment: JRC.worldGetLightsComment },
         { type: "method", signature: "void removeAllLights()", native: World3dClass.prototype._removeAllLights, comment: JRC.worldRemoveAllLightsComment },
@@ -65,12 +64,9 @@ export class World3dClass extends ObjectClass implements IWorld3d, GraphicSystem
     width: number = 800;
     height: number = 600;
 
-    graphicsDiv?: HTMLDivElement;
     resizeObserver?: ResizeObserver;
 
     actorManager!: ActorManager;
-
-    mouseManager!: MouseManager;
 
     scene: THREE.Scene;
     renderer: THREE.WebGLRenderer;
