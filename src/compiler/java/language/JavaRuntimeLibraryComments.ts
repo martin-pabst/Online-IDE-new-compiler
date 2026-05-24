@@ -6,7 +6,6 @@ import { lm } from "../../../tools/language/LanguageManager"
  */
 export class JRC {
 
-
     /**
      * Class Object
      */
@@ -268,9 +267,19 @@ export class JRC {
         "en": 'Sets world\'s background color. Color is coded as predefined color ("black", "red", ...) or css color like "#ffa7b3" (ohne alpha), "#ffa7b380" (mit alpha), "rgb(172, 22, 18)" oder "rgba(123, 22,18, 0.3).',
     })
 
-    static world3dAddMouseListenerComment = () => lm({
+    static baseWorldAddMouseListenerComment = () => lm({
         "de": "Fügt einen neuen MouseListener hinzu, dessen Methoden bei Mausereignissen aufgerufen werden.",
         "en": "Adds a MouseLister object. It's methods are called every time a mouse event occurs.",
+    })
+
+    static baseWorldLockPointerComment = () => lm({
+        "de": "Versteckt den Mauscursor und fängt ihn ein, so dass er sich nicht mehr aus dem Grafikbereich bewegen kann. Diese Methode ist z.B. für Spiele nützlich. Um den Cursor wieder sichtbar zu machen und die Einschränkung aufzuheben, rufen Sie unlockPointer() auf.",
+        "en": "Hides the mouse cursor and captures it, preventing it from moving outside the graphics area. This method is useful for games. To make the cursor visible again and remove the restriction, call unlockPointer().",
+    })
+
+    static baseWorldUnlockPointerComment = () => lm({
+        "de": "Macht den Mauscursor wieder sichtbar und hebt die Einschränkung auf, so dass er sich wieder frei bewegen kann.",
+        "en": "Makes the mouse cursor visible again and removes the restriction, allowing it to move freely.",
     })
 
     static worldGetLightsComment = () => lm({
@@ -430,6 +439,11 @@ export class JRC {
     static getWorld3dComment = () => lm({
         "de": "Gibt das aktuelle World3d-Objekt zurück.",
         "en": "Returns current World3d object.",
+    })
+
+    static world3dGetVectorFromCameraThroughScreenPointComment = () => lm({
+        "de": "Gibt einen Vektor zurück, der von der Kamera durch den Punkt (screenXRelative, screenYRelative) auf dem Bildschirm verläuft. Dieser kann z.B. dazu verwendet werden, herauszufinden, auf welches Objekt gerade mit der Maus gezeigt wird.",
+        "en": "Returns a vector that goes from camera through point (screenXRelative, screenYRelative) on screen. This can be used for example to find out which object is currently pointed to by mouse.",
     })
 
     static actorIsActingComment = () => lm({
@@ -1530,8 +1544,8 @@ export class JRC {
     })
 
     static mouseListenerOnMouseMoveComment = () => lm({
-        "de": "Wird aufgerufen, wenn der Mauszeiger über dem Grafikbereich bewegt wird.",
-        "en": "This method gets called if user moves mouse.",
+        "de": "Wird aufgerufen, wenn der Mauszeiger über dem Grafikbereich bewegt wird. Wenn PointerLock aktiv ist, dann werden der Methode Delta-Koordinatenwerte übergeben, ansonsten die absolute Position innerhalb des Grafikbereichts.",
+        "en": "This method gets called if user moves mouse. If pointer lock is active then method receives delta coordinates, otherwise absolute position within graphic view.",
     })
 
     static mouseListenerOnMouseEnterComment = () => lm({
@@ -4120,6 +4134,69 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "de": `Der Parameter ${direction} darf nicht null sein!`,
         "en": `The parameter ${direction} must not be null!`,
     })
+
+    /**
+     * Line3
+     */
+
+    static Line3ClassComment = () => lm({
+        'de': `Line3 repräsentiert eine Strecke im 3D-Raum, definiert durch einen Start- und Endpunkt vom Typ Vector3. Es ist ein mathematisches Hilfsmittel für geometrische Berechnungen, Raycasting und Schnittests, und kein direkt renderbares Objekt im Szenengraphen.`,
+        'en': `Line3 represents an analytical line segment in 3D space, defined by a start and end Vector3. It is a mathematical utility used for geometric calculations, raycasting, and intersection testing, rather than a renderable object in the scene graph.`
+    });
+    
+    static Line3ConstructorComment = () => lm({
+        'de': `Erstellt ein neues Line3-Objekt mit gegebenen Start- und Endpunkten.`,
+        'en': `Creates a new Line3 object with given start and end points.`
+    });
+
+    static Line3GetLengthComment = () => lm({
+        'de': `Gibt die Länge der Strecke zurück.`,
+        'en': `Returns the length of the line.`
+    });
+
+    static Line3CloneComment = () => lm({
+        'de': `Gibt eine identische Kopie dieses Line3-Objekts zurück.`,
+        'en': `Returns an identical copy of this Line3 object.`
+    });
+
+    static Line3ApplyMatrix4Comment = () => lm({
+        'de': ` Wendet eine 4x4-Matrix auf diese Linie an.`,
+        'en': `Applies a 4x4 matrix to this line.`
+    });
+
+    static Line3ClosestPointToComment = () => lm({
+        'de': `Gibt den Punkt auf der Linie zurück, der dem gegebenen Punkt am nächsten ist. ClampeToLine bestimmt, ob der zurückgegebene Punkt innerhalb der Strecke liegen muss oder ob er auch außerhalb der Endpunkte liegen darf.`,
+        'en': `Returns the point on the line that is closest to the given point. clampToLine determines whether the returned point must lie within the line segment or if it can also lie outside the endpoints.`
+    });
+    
+    static Line3DistanceToPointComment = () => lm({
+        'de': `Gibt den Abstand des gegebenen Punkts zur Linie zurück. ClampeToLine bestimmt, ob der Abstand zum nächsten Punkt auf der Strecke oder zur unendlich verlängerten Linie berechnet wird.`,
+        'en': `Returns the distance from the given point to the line. ClampToLine determines whether the distance is calculated to the nearest point on the line segment or to the infinitely extended line.`
+    });
+
+    static Line3ToStringComment = () => lm({
+        'de': `Gibt eine String-Repräsentation der Linie zurück.`,
+        'en': `Returns a string representation of the line.`
+    });
+
+    static Line3AtComment = () => lm({
+        'de': `Gibt den Punkt zurück, der sich bei einem bestimmten Parameter t auf der Linie befindet. t=0 entspricht dem Startpunkt, t=1 dem Endpunkt, und Werte außerhalb des Bereichs [0, 1] liegen entsprechend außerhalb der Strecke.`,
+        'en': `Returns the point at a given parameter t along the line. t=0 corresponds to the start point, t=1 to the end point, and values outside the range [0, 1] lie accordingly outside the line segment.`
+    });
+
+    static Line3StartComment = () => lm({
+        'de': `Gibt den Startpunkt der Linie zurück.`,
+        'en': `Returns the start point of the line.`
+    });
+
+    static Line3EndComment = () => lm({
+        'de': `Gibt den Endpunkt der Linie zurück.`,
+        'en': `Returns the end point of the line.`
+    });
+
+    /**
+     * Group3d
+     */
 
     static Group3dAddComment = () => lm({
         "de": `Fügt der Gruppe ein 3d-Objekt hinzu.`,

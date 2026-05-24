@@ -12,7 +12,7 @@ import { ActorManager } from './ActorManager.ts';
 import { GroupClass } from './GroupClass.ts';
 import { ActorType, IActor } from './IActor.ts';
 import { IWorld } from './IWorld.ts';
-import { MouseManager } from './MouseManager2D.ts';
+import { MouseListenerWorld, MouseManager } from './MouseManager2D.ts';
 import { ShapeClass } from './ShapeClass.ts';
 import { GNGEventListenerType, IGNGEventListener } from './gng/IGNGEventListener.ts';
 import { GNGEventlistenerManager } from './gng/GNGEventlistenerManager.ts';
@@ -25,7 +25,7 @@ import { DOM } from '../../../../tools/DOM.ts';
 import { BaseWorldClass } from './BaseWorldClass.ts';
 
 
-export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem {
+export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem, MouseListenerWorld {
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", signature: "class World extends BaseWorld" },
 
@@ -106,7 +106,7 @@ export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem 
         let existingWorld = <WorldClass>interpreter.retrieveObject("WorldClass");
         if (existingWorld) {
 
-            if(this.constructor["type"].identifier != 'World'){
+            if (this.constructor["type"].identifier != 'World') {
                 throw new RuntimeExceptionClass("Es wurde schon ein World-Objekt instanziiert.");
             }
 
@@ -192,7 +192,7 @@ export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem 
         }
 
         let onProgramStoppedCallback = () => {
-            if(this.interpreter.getMain().getRepl().state == "standalone") return;
+            if (this.interpreter.getMain().getRepl().state == "standalone") return;
             this.onProgramStopped();
             interpreter.eventManager.off(onProgramStoppedCallback);
             this.mouseManager.removeAllListeners();
@@ -427,7 +427,7 @@ export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem 
         this.shapesNotAffectedByWorldTransforms.forEach(
             (shape) => {
                 shape._mirrorY();
-                shape._setY(2*centerY - shape._getCenterY());
+                shape._setY(2 * centerY - shape._getCenterY());
             });
     }
 
@@ -465,7 +465,7 @@ export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem 
     }
 
     _followWit4Margins(shape: ShapeClass, marginTop: number, marginRight: number, marginBottom: number, marginLeft: number, xMin: number, xMax: number, yMin: number, yMax: number) {
-    
+
         if (shape == null) throw new RuntimeExceptionClass(JRC.shapeNullError());
         if (shape.isDestroyed) throw new RuntimeExceptionClass(JRC.shapeAlreadyDestroyedError());
 
@@ -513,7 +513,7 @@ export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem 
                     shape._move(-moveX, -moveY);
                 });
         }
-    
+
     }
 
 
@@ -529,9 +529,22 @@ export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem 
         t.s.push(w);
     }
 
-    _getAllShapes(){
+    _getAllShapes() {
         return this.shapesWhichBelongToNoGroup.slice();
     }
 
+    normalizedCoordinatesToXY(xNormalized: number, yNormalized: number): { x: number, y: number } {
+        let x = this.width * xNormalized;
+        let y = this.height * yNormalized;
+
+        let p = new PIXI.Point(x, y);
+        this.app.stage.localTransform.applyInverse(p, p);
+
+        return { x: p.x, y: p.y };
+    }
+
+    getInterpreter(): Interpreter {
+        return this.interpreter;
+    }
 }
 

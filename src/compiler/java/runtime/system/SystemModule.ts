@@ -165,6 +165,7 @@ import { PredicateInterface } from "./functional/PredicateInterface.ts";
 import { IllegalArgumentExceptionClass } from "./javalang/IllegalArgumentException.ts";
 import { IllegalStateExceptionClass } from "./javalang/IllegalStateException.ts";
 import { BaseWorldClass } from "../graphics/BaseWorldClass.ts";
+import { Line3Class } from "../graphics/3d/Line3Class.ts";
 
 export class SystemModule extends JavaLibraryModule {
 
@@ -242,6 +243,7 @@ export class SystemModule extends JavaLibraryModule {
             // Graphics
             ColorClass, DirectionEnum, AlignmentEnum,
             MouseListenerInterface,
+            Vector3Class, Line3Class,
             BaseWorldClass, WorldClass, ActorClass, ShapeClass, FilledShapeClass, RectangleClass,
             CollisionPairClass, GroupClass,
             ScaleModeEnum, RepeatTypeEnum, SpriteLibraryEnum, TileImageClass, SpriteClass, // Sprite
@@ -251,7 +253,7 @@ export class SystemModule extends JavaLibraryModule {
             MethodOfDestroyedGOExceptionClass,
 
             // Graphics 3D
-            Vector3Class, Material3dClass, BasicMaterial3dClass, LambertMaterial3dClass, PhongMaterial3dClass, PhysicallyBasedMaterial3dClass,
+            Material3dClass, BasicMaterial3dClass, LambertMaterial3dClass, PhongMaterial3dClass, PhysicallyBasedMaterial3dClass,
             World3dClass, Object3dClass, Group3dClass, Mesh3dClass, Box3dClass, Sphere3dClass, Icosahedron3dClass,
             Light3dClass, PointLight3dClass, DirectionalLight3dClass, AmbientLight3dClass,
             Matrix4Class, TextureEnum, Cone3dClass, Cylinder3dClass,

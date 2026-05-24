@@ -35,9 +35,11 @@ export class Object3dClass extends ActorClass {
         { type: "method", signature: "abstract void scale(Vector3 v)", native: Object3dClass.prototype.vscale },
         { type: "method", signature: "abstract void scale(double d)", native: Object3dClass.prototype.scaleDouble },
         
-        { type: "method", signature: "double getX()", template: `§1.getObject3d().position.x` },
-        { type: "method", signature: "double getY()", template: `§1.getObject3d().position.y` },
-        { type: "method", signature: "double getZ()", template: `§1.getObject3d().position.z` },
+        { type: "method", signature: "final double getX()", template: `§1.getObject3d().position.x` },
+        { type: "method", signature: "final double getY()", template: `§1.getObject3d().position.y` },
+        { type: "method", signature: "final double getZ()", template: `§1.getObject3d().position.z` },
+
+        { type: "method", signature: "Vector3 getPosition()", native: Object3dClass.prototype._getPosition },
         
         { type: "method", signature: "final World3d getWorld3d()", java: Object3dClass.prototype._mj$getWorld3d$World3d, comment: JRC.getWorld3dComment },
         
@@ -132,5 +134,10 @@ export class Object3dClass extends ActorClass {
         }
     }
 
+    _getPosition(): Vector3Class {
+        const pos = this.getObject3d().position;
+        const vector3 = new Vector3Class(pos.x, pos.y, pos.z);
+        return vector3;
+    }
 
 }

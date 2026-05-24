@@ -13,7 +13,7 @@ import { NonPrimitiveType } from '../../../types/NonPrimitiveType';
 import { ObjectClass } from '../../system/javalang/ObjectClassStringClass';
 import { ActorManager } from '../ActorManager';
 import { ActorType, IActor } from '../IActor';
-import { MouseManager } from '../MouseManager2D';
+import { MouseListenerWorld, MouseManager } from '../MouseManager2D';
 import { IWorld3d } from './IWorld3d';
 import { GraphicSystem } from '../../../../common/interpreter/GraphicsManager';
 import { ColorHelper } from '../../../lexer/ColorHelper';
@@ -27,11 +27,13 @@ import type { Camera3dClass } from './camera/Camera3dClass';
 import { FastSpriteManager3d } from './FastSprite/FastSpriteManager3d';
 import { RuntimeExceptionClass } from '../../system/javalang/RuntimeException';
 import { BaseWorldClass } from '../BaseWorldClass';
+import { VectorClass } from '../../system/collections/VectorClass';
+import { Vector3Class } from './Vector3Class';
 // import { DirectionalLight3dClass } from './lights/DirectionalLight3dClass';
 // import { AmbientLight3dClass } from './lights/AmbientLight3dClass';
 
 
-export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSystem {
+export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSystem, MouseListenerWorld {
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", signature: "class World3d extends BaseWorld" },
 
@@ -55,6 +57,8 @@ export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSys
         { type: "method", signature: "void removeOrbitControls()", native: World3dClass.prototype._removeOrbitControls },
 
         { type: "method", signature: "static World3d getWorld3d()", java: World3dClass._getWorld3d, comment: JRC.getWorld3dComment },
+
+        {type: "method", signature: "Vector3 getVectorFromCameraThroughScreenPoint(double screenXRelative, double screenYRelative)", native: World3dClass.prototype._getVectorPointingfromCameraToScreenPoint, comment: JRC.world3dGetVectorFromCameraThroughScreenPointComment}
 
 
     ]
@@ -82,9 +86,12 @@ export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSys
 
     fastSpriteManager: FastSpriteManager3d;
 
+    interpreter: Interpreter;
+
     _cj$_constructor_$World3d$(t: Thread, callback: CallbackParameter) {
 
         let interpreter = t.scheduler.interpreter;
+        this.interpreter = interpreter;
 
         interpreter.eventManager.once("resetRuntime", () => {
             this.destroyWorld(interpreter);
@@ -170,7 +177,8 @@ export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSys
 
         this.addCallbacks(interpreter);
 
-        // this.mouseManager = new MouseManager(this);
+        this.mouseManager = new MouseManager(this, this.graphicsDiv, interpreter.graphicsManager?.coordinatesDiv);
+        this.mouseManager.registerListeners();
 
 
         this.textureManager3d = new TextureManager3d();
@@ -218,7 +226,7 @@ export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSys
         let onProgramStoppedCallback = () => {
             this.onProgramStopped();
             interpreter.eventManager.off(onProgramStoppedCallback);
-            // this.mouseManager.unregisterListeners();
+            this.mouseManager.unregisterListeners();
         }
 
         interpreter.eventManager.on("resetRuntime", onResetRuntimeCallback)
@@ -227,6 +235,8 @@ export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSys
     }
 
     destroyWorld(interpreter: Interpreter) {
+        this.mouseManager?.unregisterListeners();
+
         while (this.objects.length > 0) this.objects.pop().destroy();
         this.resizeObserver?.disconnect();
         this.renderer?.dispose();
@@ -283,6 +293,25 @@ export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSys
         // this.app!.canvas.style.width = newCanvasWidth + "px";
         // this.app!.canvas.style.height = newCanvasHeight + "px";
 
+    }
+
+    _getVectorPointingfromCameraToScreenPoint(xRelative: number, yRelative: number): Vector3Class {
+        if (!this.currentCamera?.camera3d) return new Vector3Class(0, 0, 0);
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        // Normalize screen position between -1 and 1
+        mouse.x = xRelative * 2 - 1;
+        mouse.y = -yRelative * 2 + 1;  // 0 at top, so invert y
+
+        // Update the ray with the camera and mouse position
+        raycaster.setFromCamera(mouse, this.currentCamera.camera3d);
+
+        // The resulting vector from the camera out into the scene
+        const directionVector = raycaster.ray.direction;
+
+        return new Vector3Class(directionVector.x, directionVector.y, directionVector.z);
     }
 
     onProgramStopped() {
@@ -360,14 +389,14 @@ export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSys
         while (this.lights.length > 0) this.scene.remove(this.lights.pop().light)
     }
 
-    _removeLight(light: Light3dClass){
+    _removeLight(light: Light3dClass) {
         let index = this.lights.indexOf(light);
-        if(index < 0) return;
+        if (index < 0) return;
         this.scene.remove(light.light);
         this.lights.splice(index, 1);
     }
 
-    _addLight(light: Light3dClass){
+    _addLight(light: Light3dClass) {
         this.lights.push(light);
         this.scene.add(light.light);
     }
@@ -401,5 +430,15 @@ export class World3dClass extends BaseWorldClass implements IWorld3d, GraphicSys
         t.s.push(w);
     }
 
+    getInterpreter(): Interpreter {
+        return this.interpreter;
+    }
+
+    normalizedCoordinatesToXY(xNormalized: number, yNormalized: number): { x: number; y: number; } {
+        return {
+            x: xNormalized,
+            y: yNormalized
+        };
+    }
 }
 
