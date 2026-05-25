@@ -10,7 +10,7 @@ export class AssemblerLanguage extends ProgrammingLanguage {
 
     private static instance: AssemblerLanguage;
 
-    private libraryManager: LibraryManager = new AssemblerLibraryManager();
+    private libraryManager: LibraryManager = new AssemblerLibraryManager();  // not used
 
     private constructor() {
         super("Assembler", "asm", "myAssembler");

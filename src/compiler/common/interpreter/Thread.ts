@@ -21,6 +21,8 @@ import { CallbackFunction, KlassObjectRegistry } from "./StepFunction.ts";
 import { SystemException } from "./SystemException.ts";
 import { ThreadState } from "./ThreadState.ts";
 import { IThrowable, Stacktrace } from "./ThrowableType.ts";
+import { Memory } from "../../assembler/Memory.ts";
+import { CPU } from "../../assembler/CPU.ts";
 
 
 export type ThreadStateInfoAfterRun = {
@@ -73,6 +75,13 @@ export class Thread {
      * As long as this counter is > 0, this thread is executing in fullspeed-mode
      */
     fullspeedCounter: number = 0;
+
+    /**
+     * For Assembler programs
+     */
+    memory: Memory; 
+    cpu: CPU;
+
 
     get assertionObservers() {
         return this.scheduler.interpreter.assertionObserverList;

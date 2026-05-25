@@ -17,7 +17,7 @@ export class Program {
     numberOfLocalVariables: number = 0;
 
     stepsSingle: Step[] = [];
-    #stepsMultiple: Step[] = [];
+    #stepsMultiple: Step[] = [];  // not used yet, but maybe later for optimizations 
 
     isReplProgram?: boolean;
 

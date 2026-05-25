@@ -1,4 +1,3 @@
-import { GUIFile } from "../../../client/workspace/File.ts";
 import { Quickfix } from "../../java/monacoproviders/quickfix/Quickfix.ts";
 import { JavaType } from "../../java/types/JavaType.ts";
 import { Error } from "../Error";
