@@ -1,6 +1,6 @@
 import { Compiler } from "../common/Compiler";
 import { IMain } from "../common/IMain";
-import { Language } from "../common/Language";
+import { ProgrammingLanguage } from "../common/programminglanguage/ProgrammingLanguage.ts";
 import { ColorProvider as JavaColorProvider } from "../common/monacoproviders/ColorProvider";
 import { ErrorMarker } from "../common/monacoproviders/ErrorMarker";
 import { JavaCompiler } from "./JavaCompiler";
@@ -17,14 +17,22 @@ import { JavaSymbolAndMethodMarker } from "./monacoproviders/JavaSymbolAndMethod
 import { JavaCodeActionProvider } from "./monacoproviders/quickfix/JavaCodeActionProvider.ts";
 import { JavaRepl as JavaRepl } from "./parser/repl/JavaRepl";
 import * as monaco from 'monaco-editor'
+import { JUnitTestrunner } from "../common/testrunner/JUnitTestrunner.ts";
+import { Disassembler } from "../common/disassembler/Disassembler.ts";
+import type { Main } from "../../client/main/Main.ts";
+import { JavaLibraryManager } from "./runtime/JavaLibraryManager.ts";
+import { LibraryManager } from "../common/programminglanguage/LibraryManager.ts";
 
-export class JavaLanguage extends Language {
+export class JavaLanguage extends ProgrammingLanguage {
 
     private static instance: JavaLanguage;
 
+    private jUnitTestrunner: JUnitTestrunner;
+
+    private libraryManager: LibraryManager = new JavaLibraryManager();
 
     private constructor() {
-        super("Java", ".java", "myJava");
+        super("Java", "java", "myJava");
         this.registerLanguageAtMonacoEditor();
         this.registerProviders();
     }
@@ -38,19 +46,20 @@ export class JavaLanguage extends Language {
     }
 
 
-    public static registerMain(main: IMain, errorMarker: ErrorMarker): JavaLanguage {
+    public registerMain(main: IMain, errorMarker: ErrorMarker) {
         let compiler = new JavaCompiler(main, errorMarker);
         let repl = new JavaRepl(main, compiler);
         let settings = main.getSettings();
 
-        let instance = JavaLanguage.getInstance();
-        instance.registerCompiler(main, compiler);
-        instance.registerRepl(main, repl);
-        instance.registerSettings(main, settings)
+        this.registerCompiler(main, compiler);
+        this.registerRepl(main, repl);
+        this.registerSettings(main, settings)
 
         JavaOnDidTypeProvider.configureEditor(main.getMainEditor());
         new JavaSymbolAndMethodMarker(main);
-        return instance;
+
+        this.jUnitTestrunner = new JUnitTestrunner(main, main.getBottomDiv().jUnitTab.bodyDiv);
+
     }
 
 
@@ -284,7 +293,32 @@ export class JavaLanguage extends Language {
         //@ts-ignore
         monaco.languages.setMonarchTokensProvider('myJava', language);
 
-
     }
 
+    public enable(main: IMain) {
+        let bottomDiv = main.getBottomDiv();
+        bottomDiv.jUnitTab?.setVisible(true);
+        bottomDiv.disassemblerTab?.setVisible(true);
+        bottomDiv.console?.tab?.setVisible(true);
+        let rightDiv = main.getRightDiv();
+        rightDiv.classDiagramTab?.setVisible(true);
+    }
+
+    public disable(main: IMain) {
+        let bottomDiv = main.getBottomDiv();
+        bottomDiv.jUnitTab?.setVisible(false);
+        bottomDiv.disassemblerTab?.setVisible(false);
+        bottomDiv.console?.tab?.setVisible(false);
+        let rightDiv = main.getRightDiv();
+        rightDiv.classDiagramTab?.setVisible(false);
+    }
+
+    public beforeWorkspaceChange(main: IMain) {
+        this.jUnitTestrunner.clearOutput();
+        this.jUnitTestrunner.clearTree();
+    }
+
+    getLibraryManager(): LibraryManager {
+        return this.libraryManager;
+    }
 }

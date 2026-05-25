@@ -1,11 +1,11 @@
 import { IMain } from "../IMain.ts";
 import * as monaco from 'monaco-editor'
-import { Language } from "../Language.ts";
+import { ProgrammingLanguage } from "../programminglanguage/ProgrammingLanguage.ts";
 
 
 export class BaseMonacoProvider {
 
-    constructor(public language: Language){
+    constructor(public language: ProgrammingLanguage){
 
     }
 

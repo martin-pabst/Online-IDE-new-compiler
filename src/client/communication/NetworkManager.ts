@@ -535,7 +535,7 @@ export class NetworkManager {
         let ae: any = null; //AccordionElement
         if (workspace == this.main.getCurrentWorkspace()) {
 
-            let iconClass = FileTypeManager.filenameToFileType(f.name).iconclass;
+            let iconClass = FileTypeManager.filenameToFileType(f.name, this.main.getCurrentProgrammingLanguage()).iconclass;
             
             this.main.projectExplorer.fileTreeview.addNode(false, f.name, iconClass, f)
 

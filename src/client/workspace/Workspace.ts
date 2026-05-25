@@ -47,6 +47,7 @@ export class Workspace extends CompilerWorkspace {
     userSpritesheet: PIXI.Spritesheet; // TODO!
 
     settings: WorkspaceSettings = {
+        language: "Java",
         libraries: []
     };
 
@@ -56,11 +57,7 @@ export class Workspace extends CompilerWorkspace {
     }
 
     setLibraries(compiler: Compiler) {
-
-        let libManager = new JavaLibraryManager();
-        libManager.addLibraries(...this.settings.libraries);
-        libManager.addLibrariesToCompiler(compiler);
-
+        compiler?.setLibraries(this.settings.libraries);
     }
 
 
@@ -238,7 +235,7 @@ export class Workspace extends CompilerWorkspace {
             }
         }
 
-        let replModule = this.main.getRepl().getCurrentModule();
+        let replModule = this.main.getRepl()?.getCurrentModule();
         if (replModule && replModule.file instanceof GUIFile) {
             if (replModule.file.getMonacoModel() == model) {
                 return replModule;

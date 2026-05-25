@@ -23,6 +23,7 @@ import { CompilingProgressManager, CompilingProgressManagerException } from "./C
 import { JavaLibraryModule } from "./module/libraries/JavaLibraryModule.ts";
 import { GenerateGetterAndSetterQuickfixHelper } from "./monacoproviders/quickfix/GenerateGetterAndSetterQuickfix.ts";
 import { SemicolonInserter } from "./monacoproviders/quickfix/SemicolonInserter.ts";
+import { JavaLibraryManager } from "./runtime/JavaLibraryManager.ts";
 
 
 
@@ -79,8 +80,8 @@ export class JavaCompiler implements Compiler {
             if (!currentWorkspace) return;
             this.moduleManager.workspace = currentWorkspace;
             this.#files = currentWorkspace.getFiles()
-            .filter(file => FileTypeManager.filenameToFileType(file.name).language == 'myJava' 
-                && !file.isFolder);
+                .filter(file => FileTypeManager.filenameToFileType(file.name, this.main.getCurrentProgrammingLanguage()).language == 'myJava'
+                    && !file.isFolder);
         }
 
         this.moduleManager.setupModulesBeforeCompiliation(this.#files);
@@ -179,7 +180,7 @@ export class JavaCompiler implements Compiler {
             // this doesn't hurry, so give browser's main thread time to do its chores            
             for (const module of this.#lastCompiledExecutable.moduleManager.modules) {
                 this.errorMarker?.markErrorsOfModule(module);
-                if(this.main?.getSettings().getValue("editor.quickFix.getterAndSetter") == "offer"){
+                if (this.main?.getSettings().getValue("editor.quickFix.getterAndSetter") == "offer") {
                     GenerateGetterAndSetterQuickfixHelper.start(module);
                 }
                 SemicolonInserter.start(module, this.main);
@@ -328,7 +329,7 @@ export class JavaCompiler implements Compiler {
         this.#progressManager.initBeforeCompiling();
         try {
             await this.compileIfDirty(onlyForCodeCompletion);
-        } catch (ex){
+        } catch (ex) {
 
         }
         this.#progressManager.afterCompiling();
@@ -339,6 +340,12 @@ export class JavaCompiler implements Compiler {
         return new Promise((resolve) => {
             this.eventManager.on("compilationFinished", resolve);
         })
+    }
+
+    setLibraries(libraryIds: string[]): void {
+        let libManager = new JavaLibraryManager();
+        libManager.addLibraries(...libraryIds);
+        libManager.addLibrariesToCompiler(this);
     }
 
 }

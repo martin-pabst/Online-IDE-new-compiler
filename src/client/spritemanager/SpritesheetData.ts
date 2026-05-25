@@ -8,6 +8,7 @@ import * as UPNG from 'upng-js'
 import JSZip from 'jszip'
 import { SpritesheetDataMessages } from "./SpriteManagerLanguage.js";
 import { GetSpritesheetIdForWorkspaceRequest, GetSpritesheetIdForWorkspaceResponse } from "../communication/Data.js";
+import { JavaCompiler } from "../../compiler/java/JavaCompiler.js";
 
 
 export class SpritesheetData {
@@ -64,14 +65,16 @@ export class SpritesheetData {
          * See user-defined-spritesheets.md
          */
 
-        let spriteLibraryEnum = <JavaEnum>main.getCompiler().getType("SpriteLibrary");
-
-        /**
-         * object klass is the same for each instance of the embedded ide on a given webpage
-         */
-        let klass = spriteLibraryEnum.runtimeClass;
-        klass.removeUserSpritesheets(spriteLibraryEnum);
-        spriteIdentifiers.forEach(identifier => klass.addEntry(identifier, spriteLibraryEnum));
+        if(main.getCompiler() instanceof JavaCompiler){ 
+            let spriteLibraryEnum = <JavaEnum>main.getCompiler().getType("SpriteLibrary");
+    
+            /**
+             * object klass is the same for each instance of the embedded ide on a given webpage
+             */
+            let klass = spriteLibraryEnum.runtimeClass;
+            klass.removeUserSpritesheets(spriteLibraryEnum);
+            spriteIdentifiers.forEach(identifier => klass.addEntry(identifier, spriteLibraryEnum));
+        }
 
     }
 

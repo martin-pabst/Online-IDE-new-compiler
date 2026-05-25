@@ -9,6 +9,9 @@ export type CompilerEvents = "typesReadyForCodeCompletion" | "compilationFinishe
 
 export interface Compiler {
     setFiles(files: CompilerFile[]): void;
+
+    setLibraries(libraryIds: string[]): void;
+
     updateSingleModuleForCodeCompletion(module: Module): Promise<"success" | "completeCompilingNecessary">;
     findModuleByFile(file: CompilerFile): Module | undefined;
     getAllModules(): Module[];

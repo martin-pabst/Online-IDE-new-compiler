@@ -44,8 +44,8 @@ export class EmbeddedFileExplorer {
 
         this.treeview.newNodeCallback = async (name, node) => {
             let file = this.main.addFile({ text: "", title: name });
-            
-            let fileType = FileTypeManager.filenameToFileType(file.name);
+
+            let fileType = FileTypeManager.filenameToFileType(file.name, this.main.getCurrentProgrammingLanguage());
             node.iconClass = fileType.iconclass;
             node.readOnly = fileType.suffix == ".md";
             node.externalObject = file;
@@ -58,14 +58,18 @@ export class EmbeddedFileExplorer {
             newName = newName.substring(0, 30);
             file.name = newName;
             file.setSaved(false);
-            return {correctedName: newName, success: true};
+            main.saveScripts();
+            let fileType = FileTypeManager.filenameToFileType(newName, this.main.getCurrentProgrammingLanguage());
+            monaco.editor.setModelLanguage(file.getMonacoModel(), fileType.language);
+
+            return { correctedName: newName, success: true };
         }
 
         this.treeview.deleteCallback = async (file, node) => {
             let files = this.treeview.nodes.filter(node => !node.isRootNode() && node.externalObject != file).map(node => node.externalObject);
             this.main.removeFile(file);
-            if(node?.hasFocus){
-                if(files.length > 0){
+            if (node?.hasFocus) {
+                if (files.length > 0) {
                     this.selectFile(files[0], true);
                 } else {
                     this.selectFirstFileIfPresent();
@@ -115,7 +119,7 @@ export class EmbeddedFileExplorer {
 
     addFile(file: GUIFile) {
 
-        let fileType = FileTypeManager.filenameToFileType(file.name);
+        let fileType = FileTypeManager.filenameToFileType(file.name, this.main.getCurrentProgrammingLanguage());
         let iconclass = fileType.iconclass;
         let node = this.treeview.addNode(false, file.name, iconclass, file);
         node.readOnly = fileType.suffix == ".md";
@@ -128,41 +132,13 @@ export class EmbeddedFileExplorer {
         this.treeview.nodes.forEach(node => node.externalObject?.setSaved(false));
     }
 
-    renameElement(fileData: FileData, callback: () => void) {
-        let that = this;
-        let $div = fileData.$fileDiv.find('.jo_filename');
-        let pointPos = fileData.file.name.indexOf('.');
-        let selection = pointPos == null ? null : { start: 0, end: pointPos };
-        makeEditable($div, $div, (newText: string) => {
-            fileData.file.name = newText;
-            $div.html(newText);
-            fileData.$fileDiv.removeClass('jo_java jo_emptyFile jo_xml jo_json jo_text');
-            let fileType = FileTypeManager.filenameToFileType(newText);
-            fileData.$fileDiv.addClass("jo_" + fileType.iconclass);
-            monaco.editor.setModelLanguage(fileData.file?.getMonacoModel(), fileType.language);
-            if (callback != null) callback();
-        }, selection);
-
-    }
-
     selectFile(file: GUIFile, focusEditorSubsequently: boolean = true) {
 
         if (!file) return;
 
-        let type = FileTypeManager.filenameToFileType(file.name);
+        let type = FileTypeManager.filenameToFileType(file.name, this.main.getCurrentProgrammingLanguage());
 
         switch (type.suffix) {
-            case ".java":
-                this.main.$hintDiv.hide();
-                this.main.$monacoDiv.show();
-                this.main.setFileActive(file);
-                if (focusEditorSubsequently) {
-                    setTimeout(() => {
-                        this.main.getMainEditor().focus();
-                    }, 100);
-                }
-                this.main.interpreter.onFileSelected();
-                break;
             case ".md":
                 this.main.$monacoDiv.hide();
                 this.main.$hintDiv.show();
@@ -205,6 +181,18 @@ export class EmbeddedFileExplorer {
                     let html = md2.render(file.getText());
                     this.main.$hintDiv.html(html);
                 });
+                break;
+
+            default:
+                this.main.$hintDiv.hide();
+                this.main.$monacoDiv.show();
+                this.main.setFileActive(file);
+                if (focusEditorSubsequently) {
+                    setTimeout(() => {
+                        this.main.getMainEditor().focus();
+                    }, 100);
+                }
+                this.main.interpreter.onFileSelected();
                 break;
         }
     }

@@ -1,6 +1,7 @@
 import { IMain } from "../../compiler/common/IMain";
 import { CompilerFile } from "../../compiler/common/module/CompilerFile";
 import { FileTypeManager } from "../../compiler/common/module/FileTypeManager";
+import { ProgrammingLanguage } from "../../compiler/common/programminglanguage/ProgrammingLanguage";
 import { FileData } from "../communication/Data";
 import { Main } from "../main/Main";
 import { Patcher } from "./Patcher";
@@ -153,7 +154,7 @@ export class GUIFile extends CompilerFile {
 
         if (uriCounter > 0) path += " (" + uriCounter + ")";
         let uri = monaco.Uri.from({ path: path, scheme: 'inmemory' });
-        let language = FileTypeManager.filenameToFileType(this.name).language;
+        let language = FileTypeManager.filenameToFileType(this.name, this.main.getCurrentProgrammingLanguage()).language;
         let isSaved = this.isSaved();
         this.monacoModel = monaco.editor.createModel(super.getText(), language, uri);
         this.monacoModel.updateOptions({ tabSize: 3, bracketColorizationOptions: { enabled: true, independentColorPoolPerBracketType: false } });

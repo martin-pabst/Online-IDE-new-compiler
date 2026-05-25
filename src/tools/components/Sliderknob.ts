@@ -52,7 +52,7 @@ export class Sliderknob {
                 this.yStart = touch.clientY;
                 this.touchIdentifier = touch.identifier;
             }
-        })
+        }, { passive: true });
 
         this.sliderknobDiv.addEventListener("touchmove", (ev: TouchEvent) => {
             for (let i = 0; i < ev.touches.length; i++) {
@@ -61,7 +61,7 @@ export class Sliderknob {
                     this.dragMove(touch.clientX, touch.clientY);
                 }
             }
-        })
+        }, { passive: true });
 
         this.sliderknobDiv.addEventListener("touchend", (ev: TouchEvent) => {
             for (let i = 0; i < ev.touches.length; i++) {
@@ -72,7 +72,7 @@ export class Sliderknob {
                 }
             }
 
-        })
+        }, { passive: true });
 
 
     }

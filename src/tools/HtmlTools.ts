@@ -48,7 +48,8 @@ export function makeEditable(elementWithText: JQuery<HTMLElement> | HTMLElement,
     $input[0].addEventListener("touchstart", (event) => {
         event.stopPropagation();
         $input[0].focus();
-    })
+    }, { passive: true });
+    
     $input.on("click", (e) => {
         e.stopPropagation();
         $input[0].focus();

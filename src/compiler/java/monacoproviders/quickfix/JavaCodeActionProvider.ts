@@ -1,7 +1,7 @@
 
 import * as monaco from 'monaco-editor'
 import { BaseMonacoProvider } from '../../../common/monacoproviders/BaseMonacoProvider.ts';
-import { Language } from '../../../common/Language.ts';
+import { ProgrammingLanguage } from '../../../common/programminglanguage/ProgrammingLanguage.ts';
 import { Quickfix } from './Quickfix.ts';
 import { JavaCompiler } from '../../JavaCompiler.ts';
 import { GUIFile } from '../../../../client/workspace/File.ts';
@@ -13,7 +13,7 @@ import { IPosition } from '../../../common/range/Position.ts';
 
 export class JavaCodeActionProvider extends BaseMonacoProvider implements monaco.languages.CodeActionProvider {
 
-    constructor(language: Language) {
+    constructor(language: ProgrammingLanguage) {
         super(language);
     }
 
@@ -26,7 +26,7 @@ export class JavaCodeActionProvider extends BaseMonacoProvider implements monaco
 
 
         let _module: JavaCompiledModule | undefined;
-        for (let m of compiler.moduleManager?.modules) {
+        for (let m of compiler.moduleManager?.modules || []) {
             if (!(m.file instanceof GUIFile)) continue;
             if (m.file.getMonacoModel() == model) {
                 _module = m;

@@ -7,7 +7,7 @@ import { ActionManager } from '../../compiler/common/interpreter/ActionManager.j
 import { GraphicsManager } from '../../compiler/common/interpreter/GraphicsManager.js';
 import { Interpreter } from '../../compiler/common/interpreter/Interpreter.js';
 import { KeyboardManager } from '../../compiler/common/interpreter/KeyboardManager.js';
-import { Language } from '../../compiler/common/Language.js';
+import { ProgrammingLanguage } from '../../compiler/common/programminglanguage/ProgrammingLanguage.js';
 import { EditorOpenerProvider } from '../../compiler/common/monacoproviders/EditorOpenerProvider.js';
 import { ErrorMarker } from '../../compiler/common/monacoproviders/ErrorMarker.js';
 import { ProgramPointerManager } from '../../compiler/common/monacoproviders/ProgramPointerManager.js';
@@ -54,6 +54,7 @@ import * as monaco from 'monaco-editor'
 import { LanguageManager } from '../../tools/language/LanguageManager.js';
 import { Settings } from '../settings/Settings.js';
 import { TabletConsoleLog } from '../../tools/TabletConsoleLog.js';
+import { ProgrammingLanguageManager } from '../../compiler/common/programminglanguage/ProgrammingLanguageManager.js';
 
 
 export class Main implements MainBase {
@@ -104,11 +105,10 @@ export class Main implements MainBase {
 
     languagemanager: LanguageManager;
 
-    language: Language;
+    language: ProgrammingLanguage;
     interpreter: Interpreter;
 
     settings: Settings;
-    jUnitTestrunner: JUnitTestrunner;
 
     showFile(file?: CompilerFile): void {
         if (!file || !(file instanceof GUIFile)) return;
@@ -127,7 +127,7 @@ export class Main implements MainBase {
         return this.interpreter;
     }
 
-    getLanguage(): Language {
+    getCurrentProgrammingLanguage(): ProgrammingLanguage {
         return this.language;
     }
 
@@ -259,15 +259,8 @@ export class Main implements MainBase {
         /**
          * Compiler and Repl are fields of language!
         */
-        this.language = JavaLanguage.registerMain(this, errorMarker);
-
-        this.jUnitTestrunner = new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
-
-        this.getCompiler().eventManager.on('compilationFinishedWithNewExecutable', this.onCompilationFinished, this);
-        this.getCompiler().eventManager.on('compilationFinished', () => {
-            this.getInterpreter()?.onFileSelected();
-        }, this);
-        // this.getCompiler().triggerCompile();
+        ProgrammingLanguageManager.getInstance().registerMain(this, errorMarker);
+        this.switchProgrammingLanguage(this.getCurrentWorkspace()?.settings.language || "Java");
 
         this.disassembler = new Disassembler(this.bottomDiv.disassemblerTab.bodyDiv, this);
 
@@ -300,7 +293,7 @@ export class Main implements MainBase {
             sliders.initSliders();
             this.viewModeController.registerSliders(sliders);
 
-//            this.viewModeController = new ViewModeController(jQuery("#view-mode"), sliders, this);
+            //            this.viewModeController = new ViewModeController(jQuery("#view-mode"), sliders, this);
 
         }, 200);
 
@@ -330,7 +323,7 @@ export class Main implements MainBase {
         this.teacherExplorer.initGUI();
     }
 
-    onCompilationFinished(executable: Executable | undefined): void {
+    onCompilationFinishedWithNewExecutable(executable: Executable | undefined): void {
 
         // this is the only time-critical task:
         this.interpreter.setExecutable(executable);
@@ -452,6 +445,23 @@ export class Main implements MainBase {
         this.debugger.show();
         this.projectExplorer.hide();
     }
+
+    switchProgrammingLanguage(languageName: string) {
+        let language = ProgrammingLanguageManager.getInstance().getLanguageByName(languageName);
+        if (language == this.language) return;
+        this.language?.disable(this);
+        this.language = language;
+        this.language.enable(this);
+
+        this.getCompiler()?.eventManager?.on('compilationFinishedWithNewExecutable', this.onCompilationFinishedWithNewExecutable, this);
+        this.getCompiler()?.eventManager?.on('compilationFinished', this.onCompilationFinished, this);
+
+    }
+
+    onCompilationFinished() {
+        this.getInterpreter()?.onFileSelected();
+    }
+
 
 }
 

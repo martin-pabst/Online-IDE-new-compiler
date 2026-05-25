@@ -93,7 +93,7 @@ export class Dialog {
         jQuery('#main').css('visibility', 'visible');
     }
 
-    addCheckbox(description: string, ischecked: boolean, name: string): CheckboxState {
+    addCheckbox(description: string, ischecked: boolean, name: string, $parent: JQuery<HTMLElement> = this.$dialogMain): CheckboxState {
         let cb: string = '<input type="checkbox" name="' + name + '"' + (ischecked ? ' checked' : '') + '>';
         let $checkbox = jQuery(cb);
         let $description = jQuery('<label for="' + name + '">' + description + "</label>");
@@ -103,7 +103,7 @@ export class Dialog {
 
         $description.on('click', () => {$checkbox.prop("checked", !$checkbox.prop("checked"))})
 
-        this.$dialogMain.append($div);
+        $parent.append($div);
         return () => {
             return $checkbox.is(':checked');
         }

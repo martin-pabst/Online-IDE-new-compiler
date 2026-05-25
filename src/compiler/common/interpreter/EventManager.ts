@@ -12,7 +12,7 @@ export class EventManager<EventType extends string> {
 
     private onceMap: Map<CallbackFunction, boolean> = new Map();
 
-    public async waitFor(eventType: EventType): Promise<void>{
+    public async waitFor(eventType: EventType): Promise<void> {
         let promise = new Promise<void>((resolve, reject) => {
 
             this.on(eventType, () => {
@@ -30,11 +30,15 @@ export class EventManager<EventType extends string> {
             callbackList = [];
             this.eventTypeToCallbackMap.set(eventType, callbackList);
         }
-        callbackList.push({
-            f: callback,
-            thisArg: thisArg
-        });
-        this.callbackToEventTypeMap.set(callback, eventType);
+
+        if (!callbackList.find(cbe => cbe.f == callback)) {
+            callbackList.push({
+                f: callback,
+                thisArg: thisArg
+            });
+            this.callbackToEventTypeMap.set(callback, eventType);
+        }
+
     }
 
     public off(callback: CallbackFunction) {

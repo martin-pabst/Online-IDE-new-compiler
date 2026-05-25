@@ -45,11 +45,6 @@ export class Editor {
         }
     }
 
-    currentlyEditedModuleIsJava(): boolean {
-        let name = this.main.getCurrentWorkspace()?.getCurrentlyEditedFile().name;
-        return FileTypeManager.filenameToFileType(name).file_type == 0;
-    }
-
     initGUI($element: JQuery<HTMLElement>) {
 
         let settings = this.main.getSettings();

@@ -1,9 +1,11 @@
-import { Settings } from "../../client/settings/Settings";
-import { JavaRepl } from "../java/parser/repl/JavaRepl";
-import { Compiler } from "./Compiler";
-import { IMain } from "./IMain";
+import { Settings } from "../../../client/settings/Settings";
+import { JavaRepl } from "../../java/parser/repl/JavaRepl";
+import { Compiler } from "../Compiler";
+import { IMain } from "../IMain";
+import { ErrorMarker } from "../monacoproviders/ErrorMarker";
+import { LibraryManager } from "./LibraryManager";
 
-export abstract class Language {
+export abstract class ProgrammingLanguage {
 
     #compilers: Map<IMain, Compiler> = new Map();
     #repls: Map<IMain, JavaRepl> = new Map();
@@ -11,7 +13,7 @@ export abstract class Language {
 
     mains: Set<IMain> = new Set();
 
-    constructor(public name: string, public fileEndingWithDot: string, public monacoLanguageSelector){
+    constructor(public name: string, public fileEndingWithOutDot: string, public monacoLanguageSelector: string){
 
     }
 
@@ -41,4 +43,14 @@ export abstract class Language {
         this.#settings.set(main, settings);
         this.mains.add(main);
     }
-}
+
+    public abstract registerMain(main: IMain, errorMarker: ErrorMarker);
+
+    public abstract enable(main: IMain);
+
+    public abstract disable(main: IMain);
+    
+    public abstract beforeWorkspaceChange(main: IMain);
+
+    public abstract getLibraryManager(): LibraryManager;
+}   

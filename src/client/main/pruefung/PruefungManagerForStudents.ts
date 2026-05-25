@@ -82,8 +82,8 @@ export class PruefungManagerForStudents {
 
         this.main.bottomDiv.errorManager.clearErrors();
         this.main.bottomDiv.console.clear();
-        this.main.jUnitTestrunner.clearOutput();
-        this.main.jUnitTestrunner.clearTree();
+
+        this.main.getCurrentProgrammingLanguage()?.beforeWorkspaceChange(this.main);
         this.main.disassembler.clear();
 
         projectExplorer.setWorkspaceActive(pruefungWorkspace);

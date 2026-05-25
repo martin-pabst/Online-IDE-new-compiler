@@ -7,11 +7,12 @@ import { JavaRepl } from "../java/parser/repl/JavaRepl.ts";
 import { Disassembler } from "./disassembler/Disassembler.ts";
 import { ActionManager } from "./interpreter/ActionManager.ts";
 import { Interpreter } from "./interpreter/Interpreter.ts";
-import { Language } from "./Language.ts";
+import { ProgrammingLanguage } from "./programminglanguage/ProgrammingLanguage.ts";
 import { CompilerFile } from "./module/CompilerFile.ts";
 import { IPosition } from "./range/Position.ts";
 import { IRange } from "./range/Range.ts";
 import type * as monaco from 'monaco-editor'
+import { RightDiv } from "../../client/main/gui/RightDiv.ts";
 
 
 export interface IMain {
@@ -20,7 +21,9 @@ export interface IMain {
 
     getInterpreter(): Interpreter;
 
-    getLanguage(): Language;
+    getCurrentProgrammingLanguage(): ProgrammingLanguage;
+
+    switchProgrammingLanguage(languageName: string): void;
 
     getCompiler(): Compiler;
 
@@ -47,6 +50,7 @@ export interface IMain {
     showJUnitDiv(): void;
 
     getBottomDiv(): BottomDiv;
+    getRightDiv(): RightDiv;
 
     markFilesAsStartable(files: GUIFile[], active: boolean);
 

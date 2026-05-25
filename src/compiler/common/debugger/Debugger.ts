@@ -79,7 +79,7 @@ export class Debugger {
                 for (let file of files) {
 
                     this.fileTreeview.addNode(file.isFolder, file.name,
-                        file.isFolder ? undefined : FileTypeManager.filenameToFileType(file.name).iconclass, file);
+                        file.isFolder ? undefined : FileTypeManager.filenameToFileType(file.name, this.main.getCurrentProgrammingLanguage()).iconclass, file);
 
                 }
 

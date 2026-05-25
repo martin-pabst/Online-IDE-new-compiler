@@ -112,7 +112,7 @@ export class ProjectExplorer {
                 file.parent_folder_id = parentNode.externalObject.id;
             }
 
-            if (!node.isFolder) node.iconClass = FileTypeManager.filenameToFileType(name).iconclass;
+            if (!node.isFolder) node.iconClass = FileTypeManager.filenameToFileType(name, this.main.getCurrentProgrammingLanguage()).iconclass;
 
             this.main.getCurrentWorkspace().addFile(file);
 
@@ -139,7 +139,7 @@ export class ProjectExplorer {
             file.name = newName;
             file.setSaved(false);
             if (!file.isFolder) {
-                let fileType = file.isFolder ? undefined : FileTypeManager.filenameToFileType(newName);
+                let fileType = file.isFolder ? undefined : FileTypeManager.filenameToFileType(newName, this.main.getCurrentProgrammingLanguage());
                 node.iconClass = fileType.iconclass;
                 monaco.editor.setModelLanguage(file.getMonacoModel(), fileType.language);
             }
@@ -205,7 +205,7 @@ export class ProjectExplorer {
                         let success = await this.main.networkManager.sendCreateFile(newFile, workspace, this.main.workspacesOwnerId);
 
                         if (success) {
-                            let newNode = this.fileTreeview.addNode(false, newFile.name, FileTypeManager.filenameToFileType(newFile.name).iconclass,
+                            let newNode = this.fileTreeview.addNode(false, newFile.name, FileTypeManager.filenameToFileType(newFile.name, this.main.getCurrentProgrammingLanguage()).iconclass,
                                 newFile, treeviewNode.parentKey);
                             this.setFileActive(newFile);
                             newNode.renameNode();
@@ -728,7 +728,7 @@ export class ProjectExplorer {
             for (let file of files) {
 
                 this.fileTreeview.addNode(file.isFolder, file.name,
-                    file.isFolder ? undefined : FileTypeManager.filenameToFileType(file.name).iconclass, file);
+                    file.isFolder ? undefined : FileTypeManager.filenameToFileType(file.name, this.main.getCurrentProgrammingLanguage()).iconclass, file);
 
                 this.renderHomeworkButton(file);
             }
@@ -806,9 +806,7 @@ export class ProjectExplorer {
 
         this.main.currentWorkspace = w;
 
-
-        this.renderFiles(w);
-
+        
         if (w == null) {
             this.fileTreeview.addElementsButton.setVisible(false);
             this.fileTreeview.addFolderButton.setVisible(false);
@@ -816,8 +814,12 @@ export class ProjectExplorer {
             this.fileTreeview.setCaption(ProjectExplorerMessages.selectWorkspace());
             this.synchronizedButton.setVisible(false);
             this.setFileActive(null);
+            this.renderFiles(w);
             return;
         }
+        
+        this.main.switchProgrammingLanguage(w.settings.language);
+        this.renderFiles(w);
 
         if (selectElement) this.workspaceTreeview.selectElement(w, false);
 

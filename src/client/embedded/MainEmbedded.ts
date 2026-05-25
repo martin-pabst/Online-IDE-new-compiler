@@ -7,7 +7,7 @@ import { ActionManager } from "../../compiler/common/interpreter/ActionManager.j
 import { GraphicsManager } from "../../compiler/common/interpreter/GraphicsManager.js";
 import { Interpreter } from "../../compiler/common/interpreter/Interpreter.js";
 import { KeyboardManager } from "../../compiler/common/interpreter/KeyboardManager.js";
-import { Language } from "../../compiler/common/Language.js";
+import { ProgrammingLanguage } from "../../compiler/common/programminglanguage/ProgrammingLanguage.js";
 import { CompilerWorkspace } from "../../compiler/common/module/CompilerWorkspace.js";
 import { EditorOpenerProvider } from "../../compiler/common/monacoproviders/EditorOpenerProvider.js";
 import { ErrorMarker } from "../../compiler/common/monacoproviders/ErrorMarker.js";
@@ -45,6 +45,7 @@ import { base64ToBytes } from "../../tools/Base64.js";
 import { Settings } from "../settings/Settings.js";
 import { EmbeddedFullpageController } from "./EmbeddedFullpageController.js";
 import { SettingValues } from "../settings/SettingsMetadata.js";
+import { ProgrammingLanguageManager } from "../../compiler/common/programminglanguage/ProgrammingLanguageManager.js";
 
 /**
  * Configuration options for the Java Online IDE in embedded mode.
@@ -62,6 +63,7 @@ type JavaOnlineConfig = {
     hideStartPanel?: boolean,
     hideEditor?: boolean,
     libraries?: string[],
+    programmingLanguage?: string,
     jsonFilename?: string,
     spritesheetURL?: string,
     enableFileAccess?: boolean,
@@ -79,7 +81,7 @@ export class MainEmbedded implements MainBase {
     currentWorkspace: Workspace;
     actionManager: ActionManager;
 
-    language: Language;
+    language: ProgrammingLanguage;
 
     interpreter: Interpreter;
     $runDiv: JQuery<HTMLElement>;
@@ -155,7 +157,7 @@ export class MainEmbedded implements MainBase {
         // not used
     }
 
-    getLanguage(): Language {
+    getCurrentProgrammingLanguage(): ProgrammingLanguage {
         return this.language;
     }
 
@@ -498,6 +500,7 @@ export class MainEmbedded implements MainBase {
             }
 
             this.indexedDB.writeScript(this.config.id, JSON.stringify(scriptList));
+            console.log("Saved scripts to IndexedDB: " + JSON.stringify(scriptList));
 
         }
 
@@ -539,16 +542,18 @@ export class MainEmbedded implements MainBase {
         this.currentWorkspace = new Workspace("Embedded-Workspace", this, 0);
         this.currentWorkspace.settings.libraries = this.config.libraries;
         this.currentWorkspace.id = 0; // class diagram needs this
+        this.currentWorkspace.settings.language = this.getCurrentProgrammingLanguage().name;
 
         let i = 0;
         for (let script of scriptList) {
             this.addFile(script);
         }
 
+        this.switchProgrammingLanguage(this.currentWorkspace.settings.language);
+
     }
 
     addFile(script: JOScript): GUIFile {
-        let fileType = FileTypeManager.filenameToFileType(script.title);
 
         let file = new GUIFile(this, script.title, script.text);
         file.id = this.currentWorkspace.getFiles().length;
@@ -702,19 +707,16 @@ export class MainEmbedded implements MainBase {
             programPointerManager, inputManager,
             fileManager, new ExceptionMarker(this), this);
 
-
-
         /**
          * Compiler and Repl are fields of language!
         */
         let errorMarker = new ErrorMarker();
-        this.language = JavaLanguage.registerMain(this, errorMarker);
+        ProgrammingLanguageManager.getInstance().registerMain(this, errorMarker);
+        this.switchProgrammingLanguage(this.config.programmingLanguage || "Java");
 
         if (this.config.withBottomPanel) {
             new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
         }
-
-        this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
 
         // this.getCompiler().triggerCompile();
 
@@ -1021,6 +1023,16 @@ export class MainEmbedded implements MainBase {
         this.interpreter.start(file);
     }
 
+    switchProgrammingLanguage(languageName: string) {
+        let language = ProgrammingLanguageManager.getInstance().getLanguageByName(languageName);
+        if (language == this.language) return;
+        this.language?.disable(this);
+        this.language = language;
+        this.language.enable(this);
+
+        this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
+
+    }
 }
 
 

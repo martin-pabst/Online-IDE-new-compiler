@@ -1,21 +1,15 @@
 import { DatabaseModule } from "../../../client/libraries/java/database/DatabaseModule";
-import { CheckboxState } from "../../../client/main/gui/Dialog";
 import { Compiler } from "../../common/Compiler";
+import { LibraryData, LibraryManager } from "../../common/programminglanguage/LibraryManager";
 import { JavaLibraryModule } from "../module/libraries/JavaLibraryModule";
 import { GNGModule } from "./graphics/gng/GNGModule";
 import { NiedersachsenModule } from "./modules/niedersachsen/NiedersachsenModule";
 import { NRWModule } from "./modules/nrw/NRWModule";
 
-export type LibraryData = {
-    identifier: string,
-    description: string,
-    id: string,
-    checkboxState?: CheckboxState
-}
 
-export class JavaLibraryManager {
+export class JavaLibraryManager implements LibraryManager {
 
-     public static libraries: LibraryData[] = [
+    private static libraries: LibraryData[] = [
         {
             identifier: 'Graphics and Games Library',
             description: 'Graphische Klassenbibliothek für die bayerischen Informatikbücher des Cornelsen-Verlages',
@@ -35,35 +29,39 @@ export class JavaLibraryManager {
 
     libraryIds: string[] = [];
 
-    addLibrariesToCompiler(compiler: Compiler){
+    addLibrariesToCompiler(compiler: Compiler) {
         compiler.setAdditionalModules(...this.getAdditionalModules());
     }
 
-    getAdditionalModules(): JavaLibraryModule[]{
+    private getAdditionalModules(): JavaLibraryModule[] {
         let additionalModules: JavaLibraryModule[] = [
             new DatabaseModule()
         ]
 
-        for(let lib of this.libraryIds){
-            switch(lib){
+        for (let lib of this.libraryIds) {
+            switch (lib) {
                 case "gng": additionalModules.push(new GNGModule());
-                break;
+                    break;
                 case "nrw": additionalModules.push(new NRWModule());
-                break;
+                    break;
                 case "niedersachsen": additionalModules.push(new NiedersachsenModule());
-                break;
+                    break;
             }
         }
 
         return additionalModules;
     }
 
-    addLibraries(...libraryIds){
-        for(let libId of libraryIds){
-            if(this.libraryIds.indexOf(libId) < 0){
+    addLibraries(...libraryIds) {
+        for (let libId of libraryIds) {
+            if (this.libraryIds.indexOf(libId) < 0) {
                 this.libraryIds.push(libId);
             }
         }
+    }
+
+    getLibrariesData(): LibraryData[] {
+        return JavaLibraryManager.libraries;
     }
 
 }
