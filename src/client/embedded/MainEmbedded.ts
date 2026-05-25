@@ -500,7 +500,6 @@ export class MainEmbedded implements MainBase {
             }
 
             this.indexedDB.writeScript(this.config.id, JSON.stringify(scriptList));
-            console.log("Saved scripts to IndexedDB: " + JSON.stringify(scriptList));
 
         }
 

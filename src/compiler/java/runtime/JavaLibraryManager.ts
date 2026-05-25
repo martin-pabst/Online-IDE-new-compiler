@@ -1,6 +1,7 @@
 import { DatabaseModule } from "../../../client/libraries/java/database/DatabaseModule";
 import { Compiler } from "../../common/Compiler";
 import { LibraryData, LibraryManager } from "../../common/programminglanguage/LibraryManager";
+import { JavaCompiler } from "../JavaCompiler";
 import { JavaLibraryModule } from "../module/libraries/JavaLibraryModule";
 import { GNGModule } from "./graphics/gng/GNGModule";
 import { NiedersachsenModule } from "./modules/niedersachsen/NiedersachsenModule";
@@ -30,7 +31,7 @@ export class JavaLibraryManager implements LibraryManager {
     libraryIds: string[] = [];
 
     addLibrariesToCompiler(compiler: Compiler) {
-        compiler.setAdditionalModules(...this.getAdditionalModules());
+        (<JavaCompiler>compiler).setAdditionalModules(...this.getAdditionalModules());
     }
 
     private getAdditionalModules(): JavaLibraryModule[] {

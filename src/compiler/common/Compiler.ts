@@ -22,8 +22,6 @@ export interface Compiler {
     forceRecompilation(): void;
     interruptAndStartOverAgain(onlyForCodeCompletion: boolean): Promise<void>;
 
-    setAdditionalModules(...modules: JavaLibraryModule[]): void;
-
     waitTillCompilationFinished(): Promise<void>;
 
     eventManager: EventManager<CompilerEvents>;
