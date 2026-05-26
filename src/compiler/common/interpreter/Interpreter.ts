@@ -162,6 +162,8 @@ export class Interpreter {
 
         }
 
+        if(this.#timerId) clearInterval(this.#timerId);
+
         this.#timerId = setInterval(periodicFunction, this.#timerIntervalMs);
 
     }
