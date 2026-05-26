@@ -55,5 +55,9 @@ export abstract class ProgrammingLanguage {
 
     public abstract getLibraryManager(): LibraryManager;
 
+    /**
+     * This is a bad solution, but returning a Debugger object lead to circular dependencies. 
+     * So instead, the Main creates the Debugger and the ProgrammingLanguage only returns the type of the Debugger.
+     */
     public abstract getDebuggerType(): "java" | "assembler";
 }   
