@@ -6,6 +6,7 @@ import { JavaLanguage } from "../JavaLanguage.ts";
 import { TokenType, TokenTypeReadable } from "../TokenType";
 import { JavaSymbolTable } from "../codegenerator/JavaSymbolTable";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
+import { JavaRepl } from "../parser/repl/JavaRepl.ts";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
 import { JavaAnnotation } from "../types/JavaAnnotation.ts";
 import { JavaAnnotationsArray } from "../types/JavaAnnotations.ts";
@@ -45,7 +46,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
         let onlineIDEConsole = main.getBottomDiv()?.console;
         if (onlineIDEConsole?.editor?.getModel() == model) {
             onlineIDEConsole.compile();
-            module = main.getRepl().getCurrentModule();
+            module = (<JavaRepl>main.getRepl()).getCurrentModule();
         } else {
             module = <JavaCompiledModule>main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
             if (module?.isMoreThanOneVersionAheadOfLastCompilation()) {

@@ -24,6 +24,7 @@ import { JavaLibraryModule } from "./module/libraries/JavaLibraryModule.ts";
 import { GenerateGetterAndSetterQuickfixHelper } from "./monacoproviders/quickfix/GenerateGetterAndSetterQuickfix.ts";
 import { SemicolonInserter } from "./monacoproviders/quickfix/SemicolonInserter.ts";
 import { JavaLibraryManager } from "./runtime/JavaLibraryManager.ts";
+import { JavaExecutable } from "./JavaExecutable.ts";
 
 
 
@@ -43,7 +44,7 @@ export class JavaCompiler implements Compiler {
 
     #errors: Error[] = [];
 
-    #lastCompiledExecutable?: Executable;
+    #lastCompiledExecutable?: JavaExecutable;
 
     #files: CompilerFile[] = [];
 
@@ -165,7 +166,7 @@ export class JavaCompiler implements Compiler {
 
         this.moduleManager.setDependsOnModuleWithErrorsFlag();
 
-        const executable = new Executable(
+        const executable = new JavaExecutable(
             klassObjectRegistry,
             this.moduleManager,
             this.libraryModuleManager,
@@ -178,7 +179,7 @@ export class JavaCompiler implements Compiler {
 
         setTimeout(() => {
             // this doesn't hurry, so give browser's main thread time to do its chores            
-            for (const module of this.#lastCompiledExecutable.moduleManager.modules) {
+            for (const module of this.#lastCompiledExecutable.getModuleManager().getModules()) {
                 this.errorMarker?.markErrorsOfModule(module);
                 if (this.main?.getSettings().getValue("editor.quickFix.getterAndSetter") == "offer") {
                     GenerateGetterAndSetterQuickfixHelper.start(module);
@@ -275,11 +276,11 @@ export class JavaCompiler implements Compiler {
     }
 
     getAllModules(): Module[] {
-        return this.moduleManager.modules;
+        return this.moduleManager.getModules();
     }
 
     forceRecompilation(): void {
-        this.moduleManager.modules.forEach(m => m.setDirty(true));
+        this.moduleManager.getModules().forEach(m => m.setDirty(true));
         this.triggerCompile();
     }
 

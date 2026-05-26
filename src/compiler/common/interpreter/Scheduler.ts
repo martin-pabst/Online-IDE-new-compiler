@@ -31,7 +31,6 @@ export class Scheduler {
 
     #timeStampProgramStarted: number = 0;
     stepCountSinceStartOfProgram: number = 0;
-    #libraryTypeStore?: JavaTypeStore;
 
     #lastTimeDebuggeroutputWritten: number = 0;
     #updateDebuggerEveryMs: number = 1000;
@@ -402,7 +401,6 @@ export class Scheduler {
 
     #initIntern(executable: Executable) {
         this.classObjectRegistry = executable.classObjectRegistry;
-        this.#libraryTypeStore = executable.libraryModuleManager.typestore;
 
         this.runningThreads = [];
         this.#suspendedThreads = [];

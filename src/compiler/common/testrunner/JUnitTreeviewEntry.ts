@@ -72,8 +72,8 @@ export class JUnitTreeviewEntry {
             }
             return;
         }
-        if(this.moduleManager?.modules){
-            for (let module of this.moduleManager.modules) {
+        if(this.moduleManager?.getModules()){
+            for (let module of this.moduleManager.getModules()) {
                 for (let type of module.types.filter(type => type instanceof JavaClass)) {
                     let testMethods = (<JavaClass>type).getOwnMethods()
                         .filter(m => !m.isConstructor && m.hasAnnotation("Test") && m.returnParameterType?.identifier == "void" && m.parameters.length == 0);

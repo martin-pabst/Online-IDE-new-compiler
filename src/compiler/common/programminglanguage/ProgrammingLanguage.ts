@@ -1,14 +1,14 @@
 import { Settings } from "../../../client/settings/Settings";
-import { JavaRepl } from "../../java/parser/repl/JavaRepl";
 import { Compiler } from "../Compiler";
 import { IMain } from "../IMain";
 import { ErrorMarker } from "../monacoproviders/ErrorMarker";
+import { Repl } from "../repl/Repl";
 import { LibraryManager } from "./LibraryManager";
 
 export abstract class ProgrammingLanguage {
 
     #compilers: Map<IMain, Compiler> = new Map();
-    #repls: Map<IMain, JavaRepl> = new Map();
+    #repls: Map<IMain, Repl> = new Map();
     #settings: Map<IMain, Settings> = new Map();
 
     mains: Set<IMain> = new Set();
@@ -21,7 +21,7 @@ export abstract class ProgrammingLanguage {
         return this.#compilers.get(main);
     }
 
-    getRepl(main: IMain): JavaRepl {   // TODO: Base Repl class
+    getRepl(main: IMain): Repl {   // TODO: Base Repl class
         return this.#repls.get(main);
     } 
     
@@ -34,7 +34,7 @@ export abstract class ProgrammingLanguage {
         this.mains.add(main);
     }
     
-    protected registerRepl(main: IMain, repl: JavaRepl){
+    protected registerRepl(main: IMain, repl: Repl){
         this.#repls.set(main, repl);
         this.mains.add(main);
     }

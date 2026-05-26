@@ -1,4 +1,4 @@
-import { ReplReturnValue } from "../../java/parser/repl/ReplReturnValue.ts";
+import { ReplReturnValue } from "../repl/ReplReturnValue.ts";
 import { ArithmeticExceptionClass } from "../../java/runtime/system/javalang/ArithmeticExceptionClass.ts";
 import { ClassCastExceptionClass } from "../../java/runtime/system/javalang/ClassCastExceptionClass.ts";
 import { IndexOutOfBoundsExceptionClass } from "../../java/runtime/system/javalang/IndexOutOfBoundsExceptionClass.ts";

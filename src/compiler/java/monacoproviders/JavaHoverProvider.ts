@@ -7,7 +7,7 @@ import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvi
 import { Range } from "../../common/range/Range.ts";
 import { JavaLanguage } from "../JavaLanguage.ts";
 import { JavaLocalVariable } from "../codegenerator/JavaLocalVariable.ts";
-import { ReplReturnValue } from "../parser/repl/ReplReturnValue.ts";
+import { ReplReturnValue } from "../../common/repl/ReplReturnValue.ts";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType.ts";
 import { JavaField } from "../types/JavaField.ts";
 import { JavaMethod } from "../types/JavaMethod.ts";

@@ -46,6 +46,7 @@ import { Settings } from "../settings/Settings.js";
 import { EmbeddedFullpageController } from "./EmbeddedFullpageController.js";
 import { SettingValues } from "../settings/SettingsMetadata.js";
 import { ProgrammingLanguageManager } from "../../compiler/common/programminglanguage/ProgrammingLanguageManager.js";
+import { Repl } from "../../compiler/common/repl/Repl.js";
 
 /**
  * Configuration options for the Java Online IDE in embedded mode.
@@ -161,7 +162,7 @@ export class MainEmbedded implements MainBase {
         return this.language;
     }
 
-    getRepl(): JavaRepl {
+    getRepl(): Repl {
         return this.language?.getRepl(this);
     }
 

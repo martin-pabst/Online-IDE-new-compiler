@@ -26,7 +26,7 @@ export class JavaCodeActionProvider extends BaseMonacoProvider implements monaco
 
 
         let _module: JavaCompiledModule | undefined;
-        for (let m of compiler.moduleManager?.modules || []) {
+        for (let m of compiler.moduleManager?.getModules() || []) {
             if (!(m.file instanceof GUIFile)) continue;
             if (m.file.getMonacoModel() == model) {
                 _module = m;

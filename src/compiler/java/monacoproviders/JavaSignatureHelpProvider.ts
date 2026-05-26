@@ -2,6 +2,7 @@ import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvi
 import { JavaLanguage } from "../JavaLanguage.ts";
 import { SignatureHelpMessages } from "../language/SignatureHelpMessages.ts";
 import { JavaCompiledModule, JavaMethodCallPosition } from "../module/JavaCompiledModule.ts";
+import { JavaRepl } from "../parser/repl/JavaRepl.ts";
 import { JavaArrayType } from "../types/JavaArrayType.ts";
 import { JavaMethod } from "../types/JavaMethod.ts";
 import * as monaco from 'monaco-editor'
@@ -34,7 +35,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
         let onlineIDEConsole = main.getBottomDiv()?.console;
         if (onlineIDEConsole?.editor?.getModel() == model) {
             onlineIDEConsole.compile();
-            module = main.getRepl().getCurrentModule();
+            module = (<JavaRepl>main.getRepl()).getCurrentModule();
         } else {
             module = <JavaCompiledModule>main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
         }

@@ -1,44 +1,36 @@
 import { ExceptionTree } from "../java/codegenerator/ExceptionTree.ts";
-import { JCM } from "../java/language/JavaCompilerMessages.ts";
-import { JavaModuleManager } from "../java/module/JavaModuleManager";
-import { JavaLibraryModuleManager } from "../java/module/libraries/JavaLibraryModuleManager.ts";
-import { JavaClass } from "../java/types/JavaClass.ts";
-import { JavaMethod } from "../java/types/JavaMethod.ts";
 import { JavaTypeWithInstanceInitializer } from "../java/types/JavaTypeWithInstanceInitializer.ts";
-import { NonPrimitiveType } from "../java/types/NonPrimitiveType";
 import { Error } from "./Error";
 import { Program } from "./interpreter/Program";
 import { Klass, KlassObjectRegistry } from "./interpreter/StepFunction";
-import { CompilerFile } from "./module/CompilerFile";
 import { Module } from "./module/Module";
-import { EmptyRange } from "./range/Range";
+import { ModuleManager } from "./module/ModuleManager.ts";
 
 type StaticInitializationStep = {
     klass: Klass,
     program: Program
 }
 
-export class Executable {
+export abstract class Executable {
 
     staticInitializationSequence: StaticInitializationStep[] = [];
 
-    #testClassToTestMethodMap?: Map<JavaClass, JavaMethod[]>
-
     isCompiledToJavascript: boolean = false;
 
-    constructor(public classObjectRegistry: KlassObjectRegistry,
-        public moduleManager: JavaModuleManager,
-        public libraryModuleManager: JavaLibraryModuleManager,
+    protected constructor(
+        public classObjectRegistry: KlassObjectRegistry,
         public globalErrors: Error[],
         public exceptionTree: ExceptionTree
     ) {
-        this.#setupStaticInitializationSequence(globalErrors);
-        this.#setupDIInitializationSequence();
     }
+
+    public abstract getModuleManager(): ModuleManager;
+
+    public abstract hasTests(): boolean;
 
     compileToJavascript() {
         if (!this.isCompiledToJavascript) {
-            if (this.moduleManager.compileModulesToJavascript()) {
+            if (this.getModuleManager().compileModulesToJavascript()) {
                 this.isCompiledToJavascript = true;
             }
         }
@@ -53,150 +45,12 @@ export class Executable {
         }
     }
 
-    #setupStaticInitializationSequence(errors: Error[]) {
-        const classesToInitialize: NonPrimitiveType[] = [];
-
-        this.staticInitializationSequence = [];
-
-        for (const module of this.moduleManager.modules.filter(m => !m.hasErrors())) {
-            if (!module.ast) continue;
-            for (const cdef of module.ast.innerTypes) {
-                if (cdef.resolvedType)
-                    classesToInitialize.push(cdef.resolvedType);
-            }
-        }
-
-        let done: boolean = false;
-        while (!done && classesToInitialize.length > 0) {
-            done = true;
-
-            for (let i = 0; i < classesToInitialize.length; i++) {
-                const cti = classesToInitialize[i];
-
-                // does class depend on other class whose static initializer hasn't run yet?
-                let dependsOnOthers: boolean = false;
-                for (const cti1 of classesToInitialize) {
-                    if (cti1 != cti && cti.staticConstructorsDependOn.get(cti1)) {
-                        dependsOnOthers = true;
-                        break;
-                    }
-                }
-
-                if (!dependsOnOthers) {
-                    if (cti.staticInitializer && cti.staticInitializer.stepsSingle.length > 0) {
-                        this.staticInitializationSequence.push({
-                            klass: cti.runtimeClass,
-                            program: cti.staticInitializer
-                        })
-                    }
-                    const index = classesToInitialize.indexOf(cti);
-                    if (index >= 0) classesToInitialize.splice(index, 1);
-                    i--;    // i++ follows immediately (end of for-loop)
-                    done = false;
-                }
-            }
-        }
-
-        if (classesToInitialize.length > 0) {
-            // cyclic references! => stop with error message
-            const errorWithId = JCM.cyclicReferencesAmongStaticVariables(classesToInitialize.map(c => c.identifier).join(", "));
-            errors.push({ message: errorWithId.message, id: errorWithId.id, level: "error", range: EmptyRange.instance });
-        }
-    }
-
-    #setupDIInitializationSequence() {
-        const diTypes: NonPrimitiveType[] = [];
-
-        for (const module of this.moduleManager.modules.filter(m => !m.hasErrors())) {
-            if (!module.ast) continue;
-            for (const cdef of module.ast.innerTypes) {
-                const type = cdef.resolvedType;
-                if (type && type.diInitializer && type.diInitializer.stepsSingle.length > 0) {
-                    diTypes.push(type);
-                }
-            }
-        }
-
-        // topological sort based on @Inject dependencies among @Instance classes
-        const sorted = this.#topologicalSortDITypes(diTypes);
-
-        for (const type of sorted) {
-            this.staticInitializationSequence.push({
-                klass: type.runtimeClass!,
-                program: type.diInitializer!
-            });
-        }
-    }
-
-    #topologicalSortDITypes(diTypes: NonPrimitiveType[]): NonPrimitiveType[] {
-        const nameToType = new Map<string, NonPrimitiveType>();
-        for (const type of diTypes) {
-            if (type.diInstanceName) nameToType.set(type.diInstanceName, type);
-        }
-
-        const sorted: NonPrimitiveType[] = [];
-        const visited = new Set<string>();
-
-        const visit = (type: NonPrimitiveType) => {
-            if (!type.diInstanceName || visited.has(type.diInstanceName)) return;
-            visited.add(type.diInstanceName);
-
-            const module = this.moduleManager.modules.find(m => m.types.includes(type));
-            if (module?.ast) {
-                const cdef = module.ast.innerTypes.find(c => c.resolvedType === type);
-                if (cdef) {
-                    for (const fieldOrInit of (cdef as any).fieldsOrInstanceInitializers ?? []) {
-                        const injectAnnotation = fieldOrInit.annotations?.find((a: any) => a.identifier === "Inject");
-                        if (injectAnnotation?.parameter) {
-                            const dep = nameToType.get(injectAnnotation.parameter);
-                            if (dep) visit(dep);
-                        }
-                    }
-                }
-            }
-
-            sorted.push(type);
-        };
-
-        for (const type of diTypes) visit(type);
-        return sorted;
-    }
-
-    hasTests(): boolean {
-        if(!this.#testClassToTestMethodMap) this.getTestMethods();
-        return this.#testClassToTestMethodMap.size > 0;
-    }
-
-    getTestMethods(): Map<JavaClass, JavaMethod[]> {
-        if (this.#testClassToTestMethodMap) return this.#testClassToTestMethodMap;
-        this.#testClassToTestMethodMap = new Map();
-        for (const module of this.moduleManager.modules) {
-            for (const type of module.types) {
-                if (type instanceof JavaClass) {
-                    const testMethods2 = type.getOwnMethods()
-                        .filter(m => !m.isConstructor && m.hasAnnotation("Test") && m.returnParameterType?.identifier == "void" && m.parameters.length == 0);
-
-                    if(testMethods2.length == 0) continue;
-
-                    let list = this.#testClassToTestMethodMap.get(type);
-                    if(!list){
-                        list = [];
-                        this.#testClassToTestMethodMap.set(type, list);
-                    }
-                    list.push(...testMethods2);
-                }
-            }
-        }
-
-        return this.#testClassToTestMethodMap;
-    }
-
     findStartableModule(suggestedModule?: Module) {
         if (suggestedModule?.isStartable()) {
             return suggestedModule
         } else if (!suggestedModule?.hasErrors()) {
             // if there is exactly one startable module, use that
-            const startableModules = this.moduleManager.modules.filter(m => m.isStartable())
+            const startableModules = this.getModuleManager().getModules().filter(m => m.isStartable())
             if (startableModules.length === 1) {
                 return startableModules[0]
             }
@@ -208,7 +62,7 @@ export class Executable {
     getAllErrors(): Error[] {
         let errors: Error[] = this.globalErrors;
 
-        for (const module of this.moduleManager.modules) {
+        for (const module of this.getModuleManager().getModules()) {
             errors = errors.concat(module.errors);
         }
 

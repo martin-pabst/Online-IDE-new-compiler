@@ -182,7 +182,7 @@ export class BreakpointManager {
         let executable = this.main.getInterpreter().executable;
         if (!executable) return;
 
-        for (let module of executable.moduleManager.modules) {
+        for (let module of executable.getModuleManager().getModules()) {
             if (!module) continue;
             let breakpointInfoForModule = this.#getBreakpointInfoForModule(module);
             if (!breakpointInfoForModule) continue;

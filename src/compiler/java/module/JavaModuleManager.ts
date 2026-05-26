@@ -5,37 +5,43 @@ import { NonPrimitiveType } from "../types/NonPrimitiveType";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType";
 import { CompilerWorkspace } from "../../common/module/CompilerWorkspace";
 import type * as monaco from 'monaco-editor'
+import { ModuleManager } from "../../common/module/ModuleManager";
 
 
 /**
  * A JavaModuleManager includes all Modules of a Java Workspace together with all library
  * Modules and thus represents a "Java Program".
  */
-export class JavaModuleManager {
+export class JavaModuleManager extends ModuleManager {
 
-    modules: JavaCompiledModule[] = [];
+    #modules: JavaCompiledModule[] = [];
     typestore: JavaTypeStore;
 
     overriddenOrImplementedMethodPaths: Record<string, boolean> = {};
 
     constructor(public workspace?: CompilerWorkspace){
+        super();
         this.typestore = new JavaTypeStore();
+    }
+
+    getModules(): JavaCompiledModule[] {
+        return this.#modules;
     }
 
     copy(excludeTypesOfModule?: JavaCompiledModule): JavaModuleManager {
         let mm = new JavaModuleManager(this.workspace);
-        mm.modules = this.modules.slice();
+        mm.#modules = this.#modules.slice();
         mm.typestore = this.typestore.copy(excludeTypesOfModule);
 
         return mm;
     }
 
     addModule(module: JavaCompiledModule){
-        this.modules.push(module);
+        this.#modules.push(module);
     }
 
     getModuleFromFile(file: CompilerFile){
-        return this.modules.find(m => m.file == file);
+        return this.#modules.find(m => m.file == file);
     }
 
     setupModulesBeforeCompiliation(files: CompilerFile[]){
@@ -48,12 +54,12 @@ export class JavaModuleManager {
     }
 
     setDependsOnModuleWithErrorsFlag(){
-        this.modules.forEach(m => m.dependsOnModuleWithErrorsFlag = m.hasErrors());
+        this.#modules.forEach(m => m.dependsOnModuleWithErrorsFlag = m.hasErrors());
 
         let done: boolean = false;
         while(!done){
             done = true;
-            for(let module of this.modules){
+            for(let module of this.#modules){
                 if(module.dependsOnModuleWithErrorsFlag) continue;
                 // does module depend on dirty other module?
                 if(module.dependsOnModuleWithErrors()){
@@ -68,14 +74,14 @@ export class JavaModuleManager {
 
     iterativelySetDirtyFlags(){
 
-        for(let module of this.modules){
+        for(let module of this.#modules){
             if(module.hasErrors()) module.setDirty(true);
         }
 
         let done: boolean = false;
         while(!done){
             done = true;
-            for(let module of this.modules){
+            for(let module of this.#modules){
                 if(module.isDirty()) continue;
                 // does module depend on dirty other module?
                 if(module.dependsOnOtherDirtyModule()){
@@ -86,7 +92,7 @@ export class JavaModuleManager {
             }
         }
 
-        for(let module of this.modules){
+        for(let module of this.#modules){
             if(module.isDirty()){
                 module.resetBeforeCompilation();
             }
@@ -104,11 +110,11 @@ export class JavaModuleManager {
     }
 
     removeUnusedModulesAndMarkDependentModulesDirty(files: CompilerFile[]){
-        let unusedModules = this.modules.filter(m => files.indexOf(m.file) < 0);
-        this.modules = this.modules.filter(m => files.indexOf(m.file) >= 0);
+        let unusedModules = this.#modules.filter(m => files.indexOf(m.file) < 0);
+        this.#modules = this.#modules.filter(m => files.indexOf(m.file) >= 0);
 
         for(let unusedModule of unusedModules){
-            for(let usedModule of this.modules){
+            for(let usedModule of this.#modules){
                 if(usedModule.dependsOnModule(unusedModule)){
                     usedModule.setDirty(true);
                 }
@@ -117,35 +123,19 @@ export class JavaModuleManager {
     }
 
     getNewOrDirtyModules(log: boolean = false): JavaCompiledModule[] {
-//        if(log) console.log("Module-versions: " + this.modules.map(m => m.file.name + ": " + m.getLastCompiledMonacoVersion()).join(", "));
+//        if(log) console.log("Module-versions: " + this.#modules.map(m => m.file.name + ": " + m.getLastCompiledMonacoVersion()).join(", "));
 
-        return this.modules.filter(
+        return this.#modules.filter(
             m => m.isDirty()
         );
     }
 
     getUnChangedModules(): JavaCompiledModule[] {
-        return this.modules.filter(m => !m.isDirty());
+        return this.#modules.filter(m => !m.isDirty());
     }
-
-    compileModulesToJavascript(): boolean {
-        for(let module of this.modules){
-            if(!module.hasErrors()){
-                for(let program of module.programsToCompileToFunctions){
-                    let error = program.compileToJavascriptFunctions();
-                    if(error != null){
-                        module.errors.push(error)
-                        return false;
-                    } 
-                }
-            }
-        }
-        return true;
-    }
-
 
     findModuleByFile(file: CompilerFile){
-        return this.modules.find(m => m.file == file);
+        return this.#modules.find(m => m.file == file);
     }
 
     getTypeCompletionItems(module: JavaCompiledModule, rangeToReplace: monaco.IRange, classContext: NonPrimitiveType | StaticNonPrimitiveType| undefined): monaco.languages.CompletionItem[] {
@@ -153,7 +143,7 @@ export class JavaModuleManager {
     }
 
     correctUsagePositionsOfAbstractAndInterfaceMethods(){
-        for(let m of this.modules){
+        for(let m of this.#modules){
             m.getUsagePositionsForSymbol
         }
     }

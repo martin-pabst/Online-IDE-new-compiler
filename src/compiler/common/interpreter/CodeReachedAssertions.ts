@@ -19,7 +19,7 @@ export class CodeReachedAssertions {
 
     init(moduleManager: JavaModuleManager) {
         this.assertions.clear();
-        moduleManager.modules.forEach( m => {
+        moduleManager.getModules().forEach( m => {
             this.addAll(m.codeReachedAssertions);
         })
     }

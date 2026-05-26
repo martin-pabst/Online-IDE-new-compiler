@@ -13,6 +13,7 @@ import { IPosition } from "./range/Position.ts";
 import { IRange } from "./range/Range.ts";
 import type * as monaco from 'monaco-editor'
 import { RightDiv } from "../../client/main/gui/RightDiv.ts";
+import { Repl } from "./repl/Repl.ts";
 
 
 export interface IMain {
@@ -27,7 +28,7 @@ export interface IMain {
 
     getCompiler(): Compiler;
 
-    getRepl(): JavaRepl;
+    getRepl(): Repl;
 
 
     getMainEditor(): monaco.editor.IStandaloneCodeEditor;

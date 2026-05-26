@@ -3,7 +3,6 @@ import { Treeview } from "../../../tools/components/treeview/Treeview";
 import { DOM } from "../../../tools/DOM";
 import { JavaClass } from "../../java/types/JavaClass";
 import { JavaMethod } from "../../java/types/JavaMethod";
-import { Executable } from "../Executable";
 import { IMain } from "../IMain";
 import { Module } from "../module/Module";
 import { AssertionResult } from "./AggregatingAssertionObserver";
@@ -17,6 +16,7 @@ import * as monaco from 'monaco-editor';
 // see https://vite.dev/guide/assets
 import compileGifUrl from '/assets/graphics/compile.gif'
 import { GUIFile } from "../../../client/workspace/File";
+import { JavaExecutable } from "../../java/JavaExecutable";
 
 
 
@@ -123,13 +123,13 @@ export class JUnitTestrunner {
         }
     }
 
-    onAfterExecutableInitialized(executable: Executable) {
+    onAfterExecutableInitialized(executable: JavaExecutable) {
         this.markTestsInEditor(executable);
         this.testTreeview.clear();
-        new JUnitTreeviewEntry(this, undefined, executable.moduleManager, undefined, undefined);
+        new JUnitTreeviewEntry(this, undefined, executable.getModuleManager(), undefined, undefined);
     }
 
-    markTestsInEditor(executable: Executable) {
+    markTestsInEditor(executable: JavaExecutable) {
 
         this.decorationInfoList.forEach(decorationInfo => {
             if (!decorationInfo.model.isDisposed()) decorationInfo.model.deltaDecorations(decorationInfo.decorations, []);

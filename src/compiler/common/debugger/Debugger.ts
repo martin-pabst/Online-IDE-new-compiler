@@ -21,6 +21,7 @@ import { IRange } from "monaco-editor";
 import { GUIFile } from "../../../client/workspace/File.ts";
 import { FileTypeManager } from "../module/FileTypeManager.ts";
 import { Main } from "../../../client/main/Main.ts";
+import { JavaRepl } from "../../java/parser/repl/JavaRepl.ts";
 
 export class Debugger {
 
@@ -239,7 +240,7 @@ export class Debugger {
     }
 
     showCurrentThreadState() {
-        let repl = this.main.getRepl();
+        let repl = <JavaRepl> this.main.getRepl();
         let currentThread = this.main.getInterpreter().scheduler.getCurrentThread();
         if (currentThread?.currentProgramState?.program && !currentThread.currentProgramState.program.isReplProgram || repl.state != "standalone") {
             this.showThreadState(this.main.getInterpreter().scheduler.getCurrentThread());
@@ -247,7 +248,7 @@ export class Debugger {
         }
 
         // Show repl thread:
-        let thread = this.main.getRepl().standaloneThread;
+        let thread = repl.standaloneThread;
         this.showVariablesOfStandaloneRepl(thread, repl.standaloneSymbolTable);
         this.showCallstack(thread);
         this.showThreads(thread.scheduler);

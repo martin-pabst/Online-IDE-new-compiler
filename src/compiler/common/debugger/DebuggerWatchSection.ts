@@ -28,7 +28,7 @@ export class DebuggerWatchSection {
     }
 
     update(interpreter: Interpreter){
-        let repl: JavaRepl | undefined = this.debugger_.main.getRepl();
+        let repl: JavaRepl | undefined = <JavaRepl> this.debugger_.main.getRepl();
         if(!repl){
             repl = this.lastRepl;
         }

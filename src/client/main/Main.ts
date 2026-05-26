@@ -55,6 +55,7 @@ import { LanguageManager } from '../../tools/language/LanguageManager.js';
 import { Settings } from '../settings/Settings.js';
 import { TabletConsoleLog } from '../../tools/TabletConsoleLog.js';
 import { ProgrammingLanguageManager } from '../../compiler/common/programminglanguage/ProgrammingLanguageManager.js';
+import { Repl } from '../../compiler/common/repl/Repl.js';
 
 
 export class Main implements MainBase {
@@ -135,7 +136,7 @@ export class Main implements MainBase {
         return this.language.getCompiler(this);
     }
 
-    getRepl(): JavaRepl {
+    getRepl(): Repl {
         return this.language?.getRepl(this);
     }
 

@@ -26,6 +26,7 @@ import { InterpreterMessages } from './InterpreterMessages.ts';
 import { GUIFile } from "../../../client/workspace/File.ts";
 import { GuiMessages } from "../../../client/main/gui/language/GuiMessages.ts";
 import { ArrayClassSimulator } from "../../java/runtime/system/javalang/ArrayClassSimulator.ts";
+import { JavaExecutable } from "../../java/JavaExecutable.ts";
 
 
 type InterpreterEvents = "stop" | "done" | "resetRuntime" | "stateChanged" |
@@ -567,7 +568,7 @@ export class Interpreter {
 
         let startableFiles: GUIFile[] = [];
         if (this.executable) {
-            for (let module of this.executable.moduleManager.modules) {
+            for (let module of this.executable.getModuleManager().getModules()) {
                 if (module.isStartable()) startableFiles.push(<GUIFile>module.file);
             }
         }
@@ -607,7 +608,7 @@ export class Interpreter {
 
         let mainModule = this.#findStartableModule();
         if (fileToStart) {
-            for (let module of executable.moduleManager.modules) {
+            for (let module of executable.getModuleManager().getModules()) {
                 if (module.file == fileToStart) mainModule = module;
             }
         }
@@ -616,7 +617,9 @@ export class Interpreter {
         this.#mainThread = this.scheduler.init(executable, mainModule, setOneTimeBreakpointAtFirstVisibleLine);
 
         if (this.#mainThread) {
-            this.codeReachedAssertions.init(executable.moduleManager);
+            if(executable instanceof JavaExecutable) {
+                this.codeReachedAssertions.init(executable.getModuleManager());
+            }
             this.#mainThread.maxStepsPerSecond = this.stepsPerSecondGoal;
             this.#mainThread.state = ThreadState.running; // this statement actually makes the program run
         }

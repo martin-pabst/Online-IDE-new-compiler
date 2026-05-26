@@ -1,5 +1,5 @@
-import { BaseType } from "../../../common/BaseType";
-import { Error } from "../../../common/Error";
+import { BaseType } from "../BaseType";
+import { Error } from "../Error";
 
 export type ReplReturnValue = {
     value: any,

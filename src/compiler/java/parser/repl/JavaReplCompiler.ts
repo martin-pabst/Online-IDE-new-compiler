@@ -1,5 +1,6 @@
 import { Executable } from "../../../common/Executable.ts";
 import { Program } from "../../../common/interpreter/Program.ts";
+import { JavaExecutable } from "../../JavaExecutable.ts";
 import { TypeResolver } from "../../TypeResolver/TypeResolver.ts";
 import { JavaSymbolTable } from "../../codegenerator/JavaSymbolTable.ts";
 import { Lexer } from "../../lexer/Lexer.ts";
@@ -9,7 +10,7 @@ import { JavaReplParser } from "./JavaReplParser.ts";
 
 export class JavaReplCompiler {
 
-    compile(code: string, symbolTable: JavaSymbolTable, executable: Executable, withToStringCall: boolean, isStandalone: boolean)
+    compile(code: string, symbolTable: JavaSymbolTable, executable: JavaExecutable, withToStringCall: boolean, isStandalone: boolean)
         :{module: JavaReplCompiledModule, program: Program | undefined} {
         let replCompiledModule: JavaReplCompiledModule = new JavaReplCompiledModule(code);
 
@@ -20,9 +21,9 @@ export class JavaReplCompiler {
         replParser.parse();
 
         let libraryTypestore = executable.libraryModuleManager.typestore;
-        let compiledTypesTypestore = executable.moduleManager.typestore;
+        let compiledTypesTypestore = executable.getModuleManager().typestore;
 
-        let typeResolver = new TypeResolver(executable.moduleManager, executable.libraryModuleManager);
+        let typeResolver = new TypeResolver(executable.getModuleManager(), executable.libraryModuleManager);
         typeResolver.dirtyModules = [replCompiledModule];
 
         if(typeResolver.resolve()){

@@ -1,6 +1,5 @@
-import { Error } from "../../../common/Error.ts";
-import { Executable } from "../../../common/Executable.ts";
 import { IMain } from "../../../common/IMain.ts";
+import { ProgramAndModule, Repl } from "../../../common/repl/Repl.ts";
 import { DebuggerCallstackEntry } from "../../../common/debugger/DebuggerCallstackEntry.ts";
 import { DummyPrintManager } from "../../../common/interpreter/IPrintManager.ts";
 import { Interpreter } from "../../../common/interpreter/Interpreter.ts";
@@ -9,26 +8,21 @@ import { SchedulerState } from "../../../common/interpreter/SchedulerState.ts";
 import { Thread } from "../../../common/interpreter/Thread.ts";
 import { ThreadState } from "../../../common/interpreter/ThreadState.ts";
 import { CompilerFile } from "../../../common/module/CompilerFile.ts";
-import { ErrorMarker } from "../../../common/monacoproviders/ErrorMarker.ts";
 import { EmptyRange } from "../../../common/range/Range.ts";
 import { JavaCompiler } from "../../JavaCompiler.ts";
+import { JavaExecutable } from "../../JavaExecutable.ts";
 import { ExceptionTree } from "../../codegenerator/ExceptionTree.ts";
 import { JavaSymbolTable } from "../../codegenerator/JavaSymbolTable.ts";
 import { JavaCompiledModule } from "../../module/JavaCompiledModule.ts";
 import { JavaModuleManager } from "../../module/JavaModuleManager.ts";
-import { JavaLibraryModuleManager } from "../../module/libraries/JavaLibraryModuleManager.ts";
 import { JavaReplCompiledModule } from "./JavaReplCompiledModule.ts";
 import { JavaReplCompiler } from "./JavaReplCompiler.ts";
-import { ReplReturnValue } from "./ReplReturnValue.ts";
+import { ReplReturnValue } from "../../../common/repl/ReplReturnValue.ts";
 
-type ProgramAndModule = { module: JavaReplCompiledModule, program: Program | undefined };
-
-type ReplState = "standalone" | "none";
-
-export class JavaRepl {
+export class JavaRepl extends Repl {
 
     standaloneModule: JavaCompiledModule;
-    standaloneExecutable: Executable;
+    standaloneExecutable: JavaExecutable;
     standaloneModuleManager: JavaModuleManager;
 
     /**
@@ -45,12 +39,10 @@ export class JavaRepl {
 
     lastCompiledModule?: JavaCompiledModule;
 
-    state: ReplState = "none";
-
     constructor(private main: IMain, private compiler: JavaCompiler) {
-
+        super();
         this.replCompiler = new JavaReplCompiler();
-        this.compiler.eventManager.on("compilationFinishedWithNewExecutable", (executable: Executable) => {
+        this.compiler.eventManager.on("compilationFinishedWithNewExecutable", (executable: JavaExecutable) => {
             setTimeout(() => {
                 this.init(executable);
             }, 100);
@@ -58,12 +50,12 @@ export class JavaRepl {
 
         this.getInterpreter().eventManager.on("resetRuntime", () => {
             this.state = "none";
-            let executable = this.getInterpreter().executable;
+            let executable = <JavaExecutable> this.getInterpreter().executable;
             if (executable) this.init(executable);
         })
     }
 
-    init(executable: Executable) {
+    init(executable: JavaExecutable) {
         if (!executable) {
             this.state = "none";
             this.main.hideDebugger();
@@ -83,12 +75,12 @@ export class JavaRepl {
         this.standaloneModuleManager = new JavaModuleManager();
         this.standaloneModuleManager.addModule(this.standaloneModule);
 
-        for (let module of executable.moduleManager.modules) {
+        for (let module of executable.getModuleManager().getModules()) {
             this.standaloneModuleManager.addModule(module);
             module.registerTypesAtTypestore(this.standaloneModuleManager.typestore);
         }
 
-        this.standaloneExecutable = new Executable(executable.classObjectRegistry, this.standaloneModuleManager,
+        this.standaloneExecutable = new JavaExecutable(executable.classObjectRegistry, this.standaloneModuleManager,
             this.compiler.libraryModuleManager, [], new ExceptionTree(executable.libraryModuleManager.typestore, this.standaloneModuleManager.typestore)
         )
 
@@ -129,7 +121,7 @@ export class JavaRepl {
                 if (symbolTable) {
                     let oldNumberOfChildTables = symbolTable.childTables.length;
 
-                    programAndModule = this.replCompiler.compile(statement, symbolTable, interpreter.executable, withToStringCall, false);
+                    programAndModule = this.replCompiler.compile(statement, symbolTable, <JavaExecutable>interpreter.executable, withToStringCall, false);
 
                     symbolTable.childTables.splice(oldNumberOfChildTables, symbolTable.childTables.length - oldNumberOfChildTables);
                 }

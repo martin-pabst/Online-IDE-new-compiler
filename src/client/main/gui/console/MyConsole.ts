@@ -1,6 +1,6 @@
 import { Error } from "../../../../compiler/common/Error.js";
 import { ErrorMarker } from "../../../../compiler/common/monacoproviders/ErrorMarker.js";
-import { ReplReturnValue } from "../../../../compiler/java/parser/repl/ReplReturnValue.js";
+import { ReplReturnValue } from "../../../../compiler/common/repl/ReplReturnValue.js";
 import { DOM } from "../../../../tools/DOM.js";
 import { copyTextToClipboard } from "../../../../tools/HtmlTools.js";
 import { Tab, TabManager } from "../../../../tools/TabManager.js";
