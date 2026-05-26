@@ -10,7 +10,7 @@ import { NRWModule } from "./modules/nrw/NRWModule";
 
 export class JavaLibraryManager implements LibraryManager {
 
-    private static libraries: LibraryData[] = [
+    static libraries: LibraryData[] = [
         {
             identifier: 'Graphics and Games Library',
             description: 'Graphische Klassenbibliothek für die bayerischen Informatikbücher des Cornelsen-Verlages',
@@ -34,7 +34,7 @@ export class JavaLibraryManager implements LibraryManager {
         (<JavaCompiler>compiler).setAdditionalModules(...this.getAdditionalModules());
     }
 
-    private getAdditionalModules(): JavaLibraryModule[] {
+    public getAdditionalModules(): JavaLibraryModule[] {
         let additionalModules: JavaLibraryModule[] = [
             new DatabaseModule()
         ]

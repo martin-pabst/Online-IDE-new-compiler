@@ -25,7 +25,8 @@ import { Button } from '../../tools/Button.js';
 import { downloadFile, setSelectItems } from '../../tools/HtmlTools.js';
 import { JavaSyntaxAPIPrinter } from './JavaSyntaxAPIPrinter.js';
 import { DatabaseModule } from '../libraries/java/database/DatabaseModule.js';
-import { JavaLibraryManager, LibraryData } from '../../compiler/java/runtime/JavaLibraryManager.js';
+import { JavaLibraryManager } from '../../compiler/java/runtime/JavaLibraryManager.js';
+import { LibraryData } from '../../compiler/common/programminglanguage/LibraryManager.js';
 
 
 declare global {
