@@ -1,7 +1,7 @@
 import jQuery from "jquery";
 import { BreakpointManager } from "../../compiler/common/BreakpointManager.js";
 import { Compiler } from "../../compiler/common/Compiler.js";
-import { Debugger } from "../../compiler/common/debugger/Debugger.js";
+import { JavaDebugger } from "../../compiler/java/debugger/JavaDebugger.js";
 import { Executable } from "../../compiler/common/Executable.js";
 import { ActionManager } from "../../compiler/common/interpreter/ActionManager.js";
 import { GraphicsManager } from "../../compiler/common/interpreter/GraphicsManager.js";
@@ -87,7 +87,7 @@ export class MainEmbedded implements MainBase {
     interpreter: Interpreter;
     $runDiv: JQuery<HTMLElement>;
 
-    debugger: Debugger;
+    debugger: JavaDebugger;
     $debuggerDiv: JQuery<HTMLElement>;
     $alternativeDebuggerDiv: JQuery<HTMLElement>;
 
@@ -135,7 +135,7 @@ export class MainEmbedded implements MainBase {
     getCurrentWorkspace(): Workspace {
         return this.currentWorkspace;
     }
-    getDebugger(): Debugger {
+    getDebugger(): JavaDebugger {
         return this.debugger;
     }
     getMonacoEditor(): monaco.editor.IStandaloneCodeEditor {
@@ -419,7 +419,7 @@ export class MainEmbedded implements MainBase {
             f.setSaved(true);
         })
 
-        if (!this.config.cacheUserEdits){
+        if (!this.config.cacheUserEdits) {
             callback();
             return;
         }
@@ -691,7 +691,6 @@ export class MainEmbedded implements MainBase {
         let graphicsDiv = this.$rightDivInner.find('.jo_graphics')[0];
         let coordinatesDiv = <HTMLDivElement>this.$rightDivInner.find('.jo_coordinates')[0];
 
-        this.debugger = new Debugger(<HTMLDivElement>this.$debuggerDiv[0], false, this);
         let breakpointManager = new BreakpointManager(this);
         let inputManager = new InputManager(this.$runDiv, this);
         let printManager = new PrintManager(this.$runDiv, this);
@@ -703,7 +702,7 @@ export class MainEmbedded implements MainBase {
         this.interpreter = new Interpreter(
             printManager, this.actionManager,
             new GraphicsManager(graphicsDiv, coordinatesDiv), keyboardManager,
-            breakpointManager, this.debugger,
+            breakpointManager,
             programPointerManager, inputManager,
             fileManager, new ExceptionMarker(this), this);
 
@@ -1031,6 +1030,20 @@ export class MainEmbedded implements MainBase {
         this.language.enable(this);
 
         this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
+
+        if (this.$debuggerDiv) {
+            this.$debuggerDiv[0].innerHTML = "";
+            switch (this.language.getDebuggerType()) {
+                case "java":
+                    this.debugger = new JavaDebugger(<HTMLDivElement>this.$debuggerDiv[0], !this.isEmbedded(), this);
+                    break;
+                case "assembler":
+                    // this.debugger = this.language.setupDebugger(this, this.debuggerDiv);
+                    break;
+            }
+
+            this.debugger.hide();
+        }
 
     }
 }

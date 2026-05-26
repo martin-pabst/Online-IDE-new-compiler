@@ -18,8 +18,6 @@ import { JavaCodeActionProvider } from "./monacoproviders/quickfix/JavaCodeActio
 import { JavaRepl as JavaRepl } from "./parser/repl/JavaRepl";
 import * as monaco from 'monaco-editor'
 import { JUnitTestrunner } from "../common/testrunner/JUnitTestrunner.ts";
-import { Disassembler } from "../common/disassembler/Disassembler.ts";
-import type { Main } from "../../client/main/Main.ts";
 import { JavaLibraryManager } from "./runtime/JavaLibraryManager.ts";
 import { LibraryManager } from "../common/programminglanguage/LibraryManager.ts";
 
@@ -331,4 +329,9 @@ export class JavaLanguage extends ProgrammingLanguage {
     getLibraryManager(): LibraryManager {
         return this.libraryManager;
     }
+
+    getDebuggerType(): "java" | "assembler" {
+        return "java";
+    }
+    
 }

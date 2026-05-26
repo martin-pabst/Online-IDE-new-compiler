@@ -1,5 +1,6 @@
 import { Settings } from "../../../client/settings/Settings";
 import { Compiler } from "../Compiler";
+import { Debugger } from "../debugger/Debugger";
 import { IMain } from "../IMain";
 import { ErrorMarker } from "../monacoproviders/ErrorMarker";
 import { Repl } from "../repl/Repl";
@@ -53,4 +54,6 @@ export abstract class ProgrammingLanguage {
     public abstract beforeWorkspaceChange(main: IMain);
 
     public abstract getLibraryManager(): LibraryManager;
+
+    public abstract getDebuggerType(): "java" | "assembler";
 }   

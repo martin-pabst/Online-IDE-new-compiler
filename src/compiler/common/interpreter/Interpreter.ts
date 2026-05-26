@@ -2,7 +2,7 @@ import { ActorManager } from "../../java/runtime/graphics/ActorManager.ts";
 import { IWorld } from "../../java/runtime/graphics/IWorld.ts";
 import { IAssertionObserver } from "../../java/runtime/unittests/IAssertionObserver.ts";
 import { BreakpointManager } from "../BreakpointManager.ts";
-import { Debugger } from "../debugger/Debugger.ts";
+import { JavaDebugger } from "../../java/debugger/JavaDebugger.ts";
 import { Executable } from "../Executable.ts";
 import { IMain } from "../IMain.ts";
 import { Module } from "../module/Module.ts";
@@ -27,6 +27,7 @@ import { GUIFile } from "../../../client/workspace/File.ts";
 import { GuiMessages } from "../../../client/main/gui/language/GuiMessages.ts";
 import { ArrayClassSimulator } from "../../java/runtime/system/javalang/ArrayClassSimulator.ts";
 import { JavaExecutable } from "../../java/JavaExecutable.ts";
+import { Debugger } from "../debugger/Debugger.ts";
 
 
 type InterpreterEvents = "stop" | "done" | "resetRuntime" | "stateChanged" |
@@ -97,7 +98,6 @@ export class Interpreter {
         public graphicsManager?: GraphicsManager,
         public keyboardManager?: KeyboardManager,
         public breakpointManager?: BreakpointManager,
-        public _debugger?: Debugger,
         public programPointerManager?: ProgramPointerManager,
         public inputManager?: IInputManager,
         public fileManager?: IFileManager,
@@ -262,7 +262,7 @@ export class Interpreter {
     }
 
     updateDebugger() {
-        this._debugger?.showCurrentThreadState();
+        this.main.getDebugger()?.updateView();
     }
 
     /**
