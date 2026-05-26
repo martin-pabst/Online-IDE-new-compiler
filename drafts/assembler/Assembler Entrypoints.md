@@ -76,7 +76,7 @@ export class Thread {
 to class [Thread](../../src/compiler/common/interpreter/Thread.ts) and initialize them before starting an assembler program. Then use these fields inside the step functions.
 
 
-#### Example: ####
+### Example of compiled code: ###
 The statement
 ```
 start: LOAD 100
@@ -166,6 +166,20 @@ export class CPU {
 
 }
 ```
+
+### Executable ###
+To start a program you need to provide the [`Interpreter`](../../src/compiler/common/interpreter/Interpreter.ts) with
+  * an [`AssemblerExecutable`](../../src/compiler/assembler/AssemblerExecutable.ts) object which in turn has 
+  * an [`AssemblerModuleManager`](../../src/compiler/assembler/AssemblerModuleManager.ts) object this holds a
+  * an [`AssemblerModule`](../../src/compiler/assembler/AssemblerModule.ts) object which holds 
+  * the compiled [`Program`](../../src/compiler/common/interpreter/Program.ts) object which consists of several
+  * [`Step`](../../src/compiler/common/interpreter/Step.ts) objects
+
+#### Why is this so akward? ####
+In a java program each Module object represents a source code file, each Program object represents a Method. The ModuleManager tracks source files, their dependencies and their compilation status. In Assember there is only one method (the main method), therefore only one program and only one module.
+
+
+
 
 
 

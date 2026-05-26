@@ -40,10 +40,18 @@ export abstract class Module {
 
     abstract hasMainProgram(): boolean;
 
+    /**
+     * Push first program onto given thread's program stack
+     * @param thread inject program to start into this thread
+     * @param setOneTimeBreakpointAtFirstVisibleLine if program is started via "Step Over" or "Step Into" action then this parameter is true
+     */
     abstract startMainProgram(thread: Thread, setOneTimeBreakpointAtFirstVisibleLine: boolean): boolean;
 
     abstract isReplModule(): boolean;
 
+    /**
+     * Used by Disassembler
+     */
     abstract getCodeFragments(): CodeFragment[];
 
     isStartable(): boolean {
