@@ -58,7 +58,9 @@ export class JavaLanguage extends ProgrammingLanguage {
         JavaOnDidTypeProvider.configureEditor(main.getMainEditor());
         new JavaSymbolAndMethodMarker(main);
 
-        this.jUnitTestrunner = new JUnitTestrunner(main, main.getBottomDiv().jUnitTab.bodyDiv);
+        if (main.getBottomDiv()?.jUnitTab.bodyDiv) {
+            this.jUnitTestrunner = new JUnitTestrunner(main, main.getBottomDiv().jUnitTab.bodyDiv);
+        }
 
     }
 
@@ -297,20 +299,28 @@ export class JavaLanguage extends ProgrammingLanguage {
 
     public enable(main: IMain) {
         let bottomDiv = main.getBottomDiv();
-        bottomDiv.jUnitTab?.setVisible(true);
-        bottomDiv.disassemblerTab?.setVisible(true);
-        bottomDiv.console?.tab?.setVisible(true);
+        if (bottomDiv) {
+            bottomDiv.jUnitTab?.setVisible(true);
+            bottomDiv.disassemblerTab?.setVisible(true);
+            bottomDiv.console?.tab?.setVisible(true);
+        }
         let rightDiv = main.getRightDiv();
-        rightDiv.classDiagramTab?.setVisible(true);
+        if (rightDiv) {
+            rightDiv.classDiagramTab?.setVisible(true);
+        }
     }
 
     public disable(main: IMain) {
         let bottomDiv = main.getBottomDiv();
-        bottomDiv.jUnitTab?.setVisible(false);
-        bottomDiv.disassemblerTab?.setVisible(false);
-        bottomDiv.console?.tab?.setVisible(false);
+        if (bottomDiv) {
+            bottomDiv.jUnitTab?.setVisible(false);
+            bottomDiv.disassemblerTab?.setVisible(false);
+            bottomDiv.console?.tab?.setVisible(false);
+        }
         let rightDiv = main.getRightDiv();
-        rightDiv.classDiagramTab?.setVisible(false);
+        if (rightDiv) {
+            rightDiv.classDiagramTab?.setVisible(false);
+        }
     }
 
     public beforeWorkspaceChange(main: IMain) {
