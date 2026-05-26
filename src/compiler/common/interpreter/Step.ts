@@ -8,8 +8,7 @@ import { ThreadState } from "./ThreadState";
 
 
 
-export class 
-Step {
+export class Step {
     // compiled function returns new programposition
     run?: StepFunction;
 

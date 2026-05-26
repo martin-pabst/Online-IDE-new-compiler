@@ -92,8 +92,8 @@ __t.cpu.load(100); return 1;    // step 0
 __t.cpu.addi(1); return 2;      // step 1
 __t.cpu.store(100); return 3;   // step 2
 __t.cpu.cmpi(20); return 4;     // step 4
-return __t.cpu.jlt(0, 6);  // step 5
-__t.return()                // step 6
+return __t.cpu.jlt(0, 6);       // step 5
+__t.return(0)                   // step 6
 ```
 
 ### Example implementations for classes Memory and CPU ###
