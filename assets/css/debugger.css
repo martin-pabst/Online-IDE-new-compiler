@@ -11,10 +11,42 @@
 }
 
 .joeCssFence {
+
+
+
     /* Debugger */
 
     --debugger-fieldIdentifier: #e6e92c;
     --debugger-localVariableIdentifier: #4ffa2c;
+
+    .jo_register-div {
+        color: var(--fontColorNormal);
+    }
+
+    .jo_register-name-div {
+        color: var(--debugger-localVariableIdentifier);
+        font-weight: bold;
+    }
+
+    .jo_register-value-div {
+        color: var(--fontColorLight);
+    }
+
+    .jo_flagdiv {
+        color: var(--fontColorNormal);
+        display: flex;
+        flex-direction: row;
+    }
+
+    .jo_flag-name-div {
+        color: var(--debugger-localVariableIdentifier);
+        font-weight: bold;
+        width: 30px;
+    }
+
+    .jo_flag-value-div {
+        color: var(--fontColorLight);
+    }
 
     .jo_debugger_type {
         color:#6cbfe6;

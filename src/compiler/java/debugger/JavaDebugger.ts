@@ -26,8 +26,6 @@ import { Debugger } from "../../common/debugger/Debugger.ts";
 
 export class JavaDebugger extends Debugger {
 
-    private treeviewAccordion: TreeviewAccordion;
-
     private currentlyVisibleSymbolTableSections: SymbolTableSection[] = [];
     private showVariablesTreeview!: Treeview<DebuggerSymbolEntry, DebuggerSymbolEntry>;
 
@@ -37,17 +35,15 @@ export class JavaDebugger extends Debugger {
 
     private watchTreeview!: Treeview<DebuggerWatchEntry, DebuggerWatchEntry>;
 
-    private fileTreeview: Treeview<GUIFile, number>;
-
     private maxCallstackEntries: number = 15;
 
     private lastThread?: Thread;
 
     private watchSection: DebuggerWatchSection;
 
-    constructor(private debuggerDiv: HTMLDivElement, private withFileTreeview: boolean, 
-        public main: IMain) {
-        super();
+    constructor(debuggerDiv: HTMLDivElement, withFileTreeview: boolean, 
+        main: IMain) {
+        super(debuggerDiv, main);
 
         this.treeviewAccordion = new TreeviewAccordion(debuggerDiv, debuggerDiv.parentElement.parentElement);
         this.initShowVariablesTreeview();
@@ -68,75 +64,7 @@ export class JavaDebugger extends Debugger {
 
     }
 
-    public hide() {
-        this.debuggerDiv.style.display = "none";
-        this.fileTreeview?.clear();
-    }
 
-    public show() {
-
-        if (this.withFileTreeview) {
-            let currentWorkspace = this.main.getCurrentWorkspace();
-            this.fileTreeview.clear();
-            if (currentWorkspace) {
-                let files = currentWorkspace.getFiles().slice();
-                for (let file of files) {
-
-                    this.fileTreeview.addNode(file.isFolder, file.name,
-                        file.isFolder ? undefined : FileTypeManager.filenameToFileType(file.name, this.main.getCurrentProgrammingLanguage()).iconclass, file);
-
-                }
-
-                this.fileTreeview.sort();
-
-            }
-
-        }
-
-        this.debuggerDiv.style.display = "block";
-    }
-
-    private initFileTreeview() {
-        this.fileTreeview = new Treeview(this.treeviewAccordion, {
-            captionLine: {
-                enabled: true,
-                text: DebM.files()
-            },
-            buttonAddElements: false,
-            flexWeight: "1",
-            withDeleteButtons: false,
-            isDragAndDropSource: false,
-            buttonAddFolders: false,
-            withSelection: true,
-            minHeight: 50,
-            defaultIconClass: "img_file-dark-java",
-            comparator: (a, b) => {
-                return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
-            },
-            keyExtractor: (file) => file.id,
-            parentKeyExtractor: (file) => file.parent_folder_id,
-
-            orderExtractor: (file) => file?.sorting_order || 0,
-            orderSetter(file, order) {
-                file.sorting_order = order;
-            },
-            orderBy: this.main.getSettings().getValue("explorer.fileOrder") as ("user-defined" | "comparator")
-        });
-
-        this.fileTreeview.nodeClickedCallback =
-            (file: GUIFile) => {
-                if (!file.isFolder) {
-                    let editor = this.main.getMainEditor();
-
-                    (<Main>this.main).projectExplorer.lastOpenFile?.saveViewState(editor);
-
-                    editor.updateOptions({ readOnly: this.main.getCurrentWorkspace()?.readonly });
-                    editor.setModel(file.getMonacoModel());
-                    file.restoreViewState(editor);
-                }
-            }
-
-    }
 
     private initWatchTreeview() {
         this.watchTreeview = new Treeview(this.treeviewAccordion, {

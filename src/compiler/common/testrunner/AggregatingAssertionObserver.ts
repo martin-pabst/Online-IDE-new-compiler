@@ -73,7 +73,7 @@ export class AggregatingAssertionObserver implements IAssertionObserver {
         let messageHtml =
             `<div class="jo_junitFailBlock">` +
             `<div><span class="jo_junitError">${notifyMethodIdentifier} ${JUnitTestrunnerLanguage.failed()}${positionHtml}: </span> </div>\n` +
-            `<div>Details: ${message}</div>` +
+            `<div>Details: <span class="jo_junitDetails">${message}</span></div>` +
             `<div>${JUnitTestrunnerLanguage.expectedValue()}<span class="jo_junitExpected">${expected}</span></div>\n` +
             `<div>${JUnitTestrunnerLanguage.actualValue()}<span class="jo_junitActual">${actual}</span></div>\n` +
             `</div>`;

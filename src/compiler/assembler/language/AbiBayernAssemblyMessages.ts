@@ -1,6 +1,6 @@
 import { lm } from "../../../tools/language/LanguageManager";
 
-export class AbiBayernLanguage {
+export class AbiBayernAssemblyMessages {
     static AbiBayernCPUName = () => lm({
         'de': `Bayern-CPU`,
         'en': `Bavaria-CPU`,
@@ -14,4 +14,3 @@ export class AbiBayernLanguage {
     });
     
 }
-

@@ -137,6 +137,12 @@ export class ThemeManager {
 
                 //console
                 "--console-fieldidentifier": "#e6e92c",
+
+                //junit
+                "--junit-details-color": "#a0a0a0",
+                "--junit-expected-color": "#2fed4f",
+                "--junit-actual-color": "#e06d4d",
+
             }
         });
 
@@ -237,6 +243,11 @@ export class ThemeManager {
 
                 //console
                 "--console-fieldidentifier": "#b37c35ff",
+
+                //junit
+                "--junit-details-color": "#6d6c6c",
+                "--junit-expected-color": "#1a8f2e",
+                "--junit-actual-color": "#964731",
 
             }
         });

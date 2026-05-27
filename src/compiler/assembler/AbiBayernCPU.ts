@@ -1,12 +1,12 @@
 import { AbiBayernMemory } from "./AbiBayernMemory";
 import { CPU } from "./CPU";
-import { AbiBayernLanguage } from "./language/AbiBayernLanguage";
+import { AbiBayernAssemblyMessages } from "./language/AbiBayernAssemblyMessages";
 import { Memory } from "./Memory";
 
 export class AbiBayernCPU extends CPU {
 
-    name = AbiBayernLanguage.AbiBayernCPUName();
-    description = AbiBayernLanguage.AbiBayernCPUDescription();
+    name = AbiBayernAssemblyMessages.AbiBayernCPUName();
+    description = AbiBayernAssemblyMessages.AbiBayernCPUDescription();
 
     accumulator: number = 0;
     programCounter: number = 0;
@@ -38,7 +38,7 @@ export class AbiBayernCPU extends CPU {
         return this.flags;
     }
 
-    getRegisters(): { [registerName: string]: number; } {
+    getRegisterValues(): { [registerName: string]: number; } {
         return {
             'Accumulator': this.accumulator,
             'Program Counter': this.programCounter

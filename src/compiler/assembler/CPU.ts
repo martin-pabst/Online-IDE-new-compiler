@@ -11,7 +11,7 @@ export abstract class CPU {
 
     abstract registerNames: string[];
     abstract registerNamesShort: string[];
-    abstract getRegisters(): { [registerName: string]: number };
+    abstract getRegisterValues(): { [registerName: string]: number };
 
     abstract getProgramCounter(): number;
 

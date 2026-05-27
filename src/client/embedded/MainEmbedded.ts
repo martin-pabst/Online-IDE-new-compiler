@@ -47,6 +47,8 @@ import { EmbeddedFullpageController } from "./EmbeddedFullpageController.js";
 import { SettingValues } from "../settings/SettingsMetadata.js";
 import { ProgrammingLanguageManager } from "../../compiler/common/programminglanguage/ProgrammingLanguageManager.js";
 import { Repl } from "../../compiler/common/repl/Repl.js";
+import { AssemblyLanguageDebugger } from "../../compiler/assembler/debugger/AssemblyLanguageDebugger.js";
+import { Debugger } from "../../compiler/common/debugger/Debugger.js";
 
 /**
  * Configuration options for the Java Online IDE in embedded mode.
@@ -87,7 +89,7 @@ export class MainEmbedded implements MainBase {
     interpreter: Interpreter;
     $runDiv: JQuery<HTMLElement>;
 
-    debugger: JavaDebugger;
+    debugger: Debugger;
     $debuggerDiv: JQuery<HTMLElement>;
     $alternativeDebuggerDiv: JQuery<HTMLElement>;
 
@@ -135,7 +137,7 @@ export class MainEmbedded implements MainBase {
     getCurrentWorkspace(): Workspace {
         return this.currentWorkspace;
     }
-    getDebugger(): JavaDebugger {
+    getDebugger(): Debugger {
         return this.debugger;
     }
     getMonacoEditor(): monaco.editor.IStandaloneCodeEditor {
@@ -1032,13 +1034,14 @@ export class MainEmbedded implements MainBase {
         this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
 
         if (this.$debuggerDiv) {
-            this.$debuggerDiv[0].innerHTML = "";
+            let dd = <HTMLDivElement>this.$debuggerDiv[0];
+            dd.innerHTML = "";
             switch (this.language.getDebuggerType()) {
                 case "java":
-                    this.debugger = new JavaDebugger(<HTMLDivElement>this.$debuggerDiv[0], !this.isEmbedded(), this);
+                    this.debugger = new JavaDebugger(dd, !this.isEmbedded(), this);
                     break;
                 case "assembly":
-                    // this.debugger = this.language.setupDebugger(this, this.debuggerDiv);
+                    this.debugger = new AssemblyLanguageDebugger(dd, !this.isEmbedded(), this);
                     break;
             }
 

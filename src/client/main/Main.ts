@@ -55,6 +55,7 @@ import { TabletConsoleLog } from '../../tools/TabletConsoleLog.js';
 import { ProgrammingLanguageManager } from '../../compiler/common/programminglanguage/ProgrammingLanguageManager.js';
 import { Repl } from '../../compiler/common/repl/Repl.js';
 import { Debugger } from '../../compiler/common/debugger/Debugger.js';
+import { AssemblyLanguageDebugger } from '../../compiler/assembler/debugger/AssemblyLanguageDebugger.js';
 
 
 export class Main implements MainBase {
@@ -462,7 +463,7 @@ export class Main implements MainBase {
                 this.debugger = new JavaDebugger(this.debuggerDiv, !this.isEmbedded(), this);
                 break;
             case "assembly":
-                // this.debugger = this.language.setupDebugger(this, this.debuggerDiv);
+                this.debugger = new AssemblyLanguageDebugger(this.debuggerDiv, !this.isEmbedded(), this);
                 break;
         }
 

@@ -4,7 +4,6 @@ import { CompilerWorkspace } from "../../compiler/common/module/CompilerWorkspac
 import { GUIFile } from "../workspace/File.js";
 import { BottomDiv } from "./gui/BottomDiv.js";
 import { RightDiv } from "./gui/RightDiv.js";
-import { Debugger } from "../../compiler/common/debugger/Debugger.js";
 
 export interface MainBase extends IMain {
     drawClassDiagrams(onlyUpdateIdentifiers: boolean);
