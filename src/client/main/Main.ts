@@ -461,7 +461,7 @@ export class Main implements MainBase {
             case "java":
                 this.debugger = new JavaDebugger(this.debuggerDiv, !this.isEmbedded(), this);
                 break;
-            case "assembler":
+            case "assembly":
                 // this.debugger = this.language.setupDebugger(this, this.debuggerDiv);
                 break;
         }

@@ -69,7 +69,7 @@ export class TreeviewAccordion {
         }
     }
 
-    addTreeview(treeview: Treeview<any, any>) {
+    addTreeview(treeview: AccordionElementInterface) {
         this.ElementList.push(treeview);
         if (this.ElementList.length > 1) {
             this.splitterList.push(new TreeviewSplitter(this, this.ElementList.length - 1));

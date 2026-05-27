@@ -1,4 +1,6 @@
 import { DOM } from "../../DOM";
+import { AccordionElement } from "./AccordionElement";
+import { AccordionElementInterface } from "./AccordionElementInterface";
 import { Treeview } from "./Treeview";
 import { TreeviewAccordion } from "./TreeviewAccordion";
 
@@ -12,7 +14,7 @@ export class TreeviewSplitter {
     transparentOverlay: HTMLDivElement | undefined;
 
     constructor(private accordion: TreeviewAccordion, private treeviewBelowIndex: number){
-        let parentDiv = accordion.ElementList[treeviewBelowIndex].outerDiv;
+        let parentDiv = accordion.ElementList[treeviewBelowIndex].getOuterDiv();
         this.div = DOM .makeDiv(parentDiv, 'jo_treeview_splitter');
         this.div.style.display = 'none';
         this.enable();
@@ -26,14 +28,14 @@ export class TreeviewSplitter {
             this.div.style.backgroundColor = '#800000';
 
             this.yStart = ev.pageY;
-            let treeviewList: Treeview<any, any>[] = this.accordion.ElementList;
+            let treeviewList: AccordionElementInterface[] = this.accordion.ElementList;
 
             this.divsStartHeights = [];
             for(let tv of treeviewList){
-                let height = tv.outerDiv.getBoundingClientRect().height;
+                let height = tv.getOuterDiv().getBoundingClientRect().height;
                 this.divsStartHeights.push(height);
-                tv.outerDiv.style.height = height + "px";
-                tv.outerDiv.style.flex = "none";
+                tv.getOuterDiv().style.height = height + "px";
+                tv.getOuterDiv().style.flex = "none";
             }
 
             // .jo_treeview_splitter_overlay{
@@ -73,7 +75,7 @@ export class TreeviewSplitter {
 
     onPointerMove(newY: number){
         let dyCursor = newY - this.yStart!;
-        let treeviewList: Treeview<any, any>[] = this.accordion.ElementList;
+        let treeviewList: AccordionElementInterface[] = this.accordion.ElementList;
 
         let targetHeights: number[] = this.divsStartHeights.slice();
 
@@ -88,7 +90,7 @@ export class TreeviewSplitter {
             for(let i = this.treeviewBelowIndex; i < treeviewList.length; i++){
                 let treeview = treeviewList[i];
                 if(treeview.isCollapsed()) continue;
-                let achievable = targetHeights[i] - treeview.config.minHeight!;
+                let achievable = targetHeights[i] - treeview.getMinHeight();
                 if(achievable <= 0) continue;
                 if(achievable >= dyTodo){
                     targetHeights[i] -= dyTodo;
@@ -105,7 +107,7 @@ export class TreeviewSplitter {
             for(let i = this.treeviewBelowIndex - 1; i >= 0; i--){
                 let treeview = treeviewList[i];
                 if(treeview.isCollapsed()) continue;
-                let achievable = treeviewList[i].config.minHeight! - targetHeights[i];
+                let achievable = treeview.getMinHeight() - targetHeights[i];
                 if(achievable >= 0) continue;
                 if(achievable <= dyTodo){
                     targetHeights[i] += dyTodo;
@@ -120,7 +122,7 @@ export class TreeviewSplitter {
         }
 
         for(let i = 0; i < treeviewList.length; i++){
-            let od = treeviewList[i].outerDiv;
+            let od = treeviewList[i].getOuterDiv();
             od.style.height = targetHeights[i] + "px";
             od.style.flexBasis = "";
             od.style.flexGrow = "";

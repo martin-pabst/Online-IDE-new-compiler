@@ -3,6 +3,7 @@ import { ExpandCollapseComponent, ExpandCollapseState } from "../ExpandCollapseC
 import { IconButtonComponent } from "../IconButtonComponent";
 import { AccordionElementInterface } from "./AccordionElementInterface";
 import { TreeviewAccordion } from "./TreeviewAccordion";
+import { TreeviewMessages } from "./TreeviewMessages";
 
 export type AccordionElementConfig = {
     captionLine: {
@@ -19,9 +20,9 @@ export type AccordionElementConfig = {
 export class AccordionElement implements AccordionElementInterface {
 
     _lastExpandedHeight: number = 0;
-    private parentDiv: HTMLDivElement;
+    protected parentElement: HTMLDivElement;
 
-    private _outerDiv!: HTMLDivElement;
+    protected _outerDiv!: HTMLDivElement;
     get outerDiv(): HTMLElement {
         return this._outerDiv;
     }
@@ -31,34 +32,62 @@ export class AccordionElement implements AccordionElementInterface {
     }
 
     // div with nodes
-    private _nodeDiv!: HTMLDivElement;
-    get nodeDiv(): HTMLDivElement {
-        return this._nodeDiv;
+    protected _innerDiv!: HTMLDivElement;
+    get innerDiv(): HTMLDivElement {
+        return this._innerDiv;
     }
 
 
     // caption
-    private captionLineDiv!: HTMLDivElement;
-    private captionLineExpandCollapseDiv!: HTMLDivElement;
-    private captionLineTextDiv!: HTMLDivElement;
-    private captionLineButtonsLeftDiv!: HTMLDivElement;
-    private captionLineButtonsRightDiv!: HTMLDivElement;
+    protected captionLineDiv!: HTMLDivElement;
+    protected captionLineExpandCollapseDiv!: HTMLDivElement;
+    protected captionLineTextDiv!: HTMLDivElement;
+    protected captionLineButtonsLeftDiv!: HTMLDivElement;
+    protected captionLineButtonsRightDiv!: HTMLDivElement;
 
     captionLineExpandCollapseComponent!: ExpandCollapseComponent;
 
+    protected treeviewAccordion: TreeviewAccordion;
 
+    constructor(parent: HTMLDivElement | TreeviewAccordion, private accordionElementConfig?: AccordionElementConfig) {
+        if (parent instanceof TreeviewAccordion) {
+            this.treeviewAccordion = parent;
+            this.parentElement = this.treeviewAccordion.mainDiv;
+        } else {
+            this.parentElement = parent;
+        }
 
-    constructor(private treeviewAccordion: TreeviewAccordion, private config: AccordionElementConfig) {
-        this.parentDiv = this.treeviewAccordion.mainDiv;
+        let standardConfig: AccordionElementConfig = {
+
+            captionLine: {
+                enabled: true,
+                text: TreeviewMessages.caption()
+            },
+            minHeight: 150,
+            initialExpandCollapseState: "expanded"
+        }
+
+        if (!accordionElementConfig) accordionElementConfig = standardConfig;
+        accordionElementConfig = Object.assign(standardConfig, accordionElementConfig);
+
+        this.buildHtmlScaffolding();
+        if (accordionElementConfig?.flexWeight) this.setFlexWeight(accordionElementConfig.flexWeight);
+
+        if (this.treeviewAccordion) this.treeviewAccordion.addTreeview(this);
+
     }
 
     public getTargetVariableHeight(): number {
-        return Math.max(this.config.minHeight, 100, this._lastExpandedHeight - this.getFixedHeight(), this.getCurrentVariableHeight());
+        return Math.max(this.accordionElementConfig.minHeight, 100, this._lastExpandedHeight - this.getFixedHeight(), this.getCurrentVariableHeight());
     }
 
     protected getCurrentVariableHeight(): number {
-        if (this.isCollapsed) return 0;
+        if (this.isCollapsed()) return 0;
         return this._outerDiv.getBoundingClientRect().height - this.getFixedHeight();
+    }
+
+    public getMinHeight(): number {
+        return this.accordionElementConfig.minHeight || 20;
     }
 
     public getFixedHeight(): number {
@@ -72,36 +101,37 @@ export class AccordionElement implements AccordionElementInterface {
     }
 
     private buildHtmlScaffolding() {
-        this._outerDiv = DOM.makeDiv(this.parentDiv, 'jo_treeview_outer');
+        this._outerDiv = DOM.makeDiv(this.parentElement, 'jo_treeview_outer');
 
-        this.buildCaption();
-        this._nodeDiv = DOM.makeDiv(this._outerDiv, "jo_treeview_nodediv", "jo_scrollable");
-        if (this.config.initialExpandCollapseState == "collapsed") {
+        this.ae_buildCaption();
+
+        this._innerDiv = DOM.makeDiv(this._outerDiv, "jo_treeview_nodediv", "jo_scrollable");
+        if (this.accordionElementConfig.initialExpandCollapseState == "collapsed") {
             // this._nodeDiv.style.display = "none";
             this.captionLineExpandCollapseComponent.setState("collapsed", false);
         }
 
     }
 
-    private buildCaption() {
+    private ae_buildCaption() {
         this.captionLineDiv = DOM.makeDiv(this._outerDiv, 'jo_treeview_caption');
         this.captionLineExpandCollapseDiv = DOM.makeDiv(this.captionLineDiv, 'jo_treevew_caption_expandcollapse')
         this.captionLineButtonsLeftDiv = DOM.makeDiv(this.captionLineDiv, 'jo_treeview_caption_buttons')
         this.captionLineTextDiv = DOM.makeDiv(this.captionLineDiv, 'jo_treeview_caption_text')
         this.captionLineButtonsRightDiv = DOM.makeDiv(this.captionLineDiv, 'jo_treeview_caption_buttons')
-        this.captionLineDiv.style.display = this.config.captionLine.enabled ? "flex" : "none";
-        this.captionLineTextDiv.textContent = this.config.captionLine.text || "";
-        if (this.config.captionLine.element) {
-            this.captionLineTextDiv.appendChild(this.config.captionLine.element);
+        this.captionLineDiv.style.display = this.accordionElementConfig.captionLine.enabled ? "flex" : "none";
+        this.captionLineTextDiv.textContent = this.accordionElementConfig.captionLine.text || "";
+        if (this.accordionElementConfig.captionLine.element) {
+            this.captionLineTextDiv.appendChild(this.accordionElementConfig.captionLine.element);
         }
 
 
         this.captionLineExpandCollapseComponent = new ExpandCollapseComponent(this.captionLineExpandCollapseDiv, (newState: ExpandCollapseState) => {
             if (this.isCollapsed()) {
                 this._lastExpandedHeight = this._outerDiv.getBoundingClientRect().height;
-                this.nodeDiv.style.display = 'none';
+                this.innerDiv.style.display = 'none';
             } else {
-                this.nodeDiv.style.display = '';
+                this.innerDiv.style.display = '';
             }
             if (this.treeviewAccordion) this.treeviewAccordion.onResize(false);
 
@@ -130,8 +160,20 @@ export class AccordionElement implements AccordionElementInterface {
         }
     }
 
+    setCaption(text: string) {
+        this.captionLineTextDiv.textContent = text;
+    }
+
+
     isCollapsed(): boolean {
         return this.captionLineExpandCollapseComponent.state == "collapsed";
+    }
+
+    setFlexWeight(flex: string) {
+        this._outerDiv.style.flexGrow = flex;
+        if (this.accordionElementConfig.minHeight! > 0) {
+            this._outerDiv.style.flexBasis = this.accordionElementConfig.minHeight + "px";
+        }
     }
 
 }

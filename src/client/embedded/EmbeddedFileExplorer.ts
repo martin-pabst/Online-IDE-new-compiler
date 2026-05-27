@@ -23,7 +23,7 @@ export class EmbeddedFileExplorer {
 
     constructor(private $fileListDiv: JQuery<HTMLElement>, private main: MainEmbedded) {
 
-        this.treeview = new Treeview($fileListDiv[0], {
+        this.treeview = new Treeview(<HTMLDivElement>$fileListDiv[0], {
             captionLine: {
                 enabled: true,
                 text: "Programmdateien"

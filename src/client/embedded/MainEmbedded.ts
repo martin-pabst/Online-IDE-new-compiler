@@ -1037,7 +1037,7 @@ export class MainEmbedded implements MainBase {
                 case "java":
                     this.debugger = new JavaDebugger(<HTMLDivElement>this.$debuggerDiv[0], !this.isEmbedded(), this);
                     break;
-                case "assembler":
+                case "assembly":
                     // this.debugger = this.language.setupDebugger(this, this.debuggerDiv);
                     break;
             }
