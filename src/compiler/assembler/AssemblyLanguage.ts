@@ -1,34 +1,34 @@
-import { IMain } from "../common/IMain";
+import { IMain } from "../common/IMain.ts";
 import { ProgrammingLanguage } from "../common/programminglanguage/ProgrammingLanguage.ts";
-import { ErrorMarker } from "../common/monacoproviders/ErrorMarker";
+import { ErrorMarker } from "../common/monacoproviders/ErrorMarker.ts";
 import * as monaco from 'monaco-editor'
 import { LibraryManager } from "../common/programminglanguage/LibraryManager.ts";
-import { AssemblerLibraryManager } from "./AssemblerLibraryManager.ts";
-import { AssemblerCompiler } from "./AssemblerCompiler.ts";
+import { AssemblyLibraryManager } from "./AssemblyLibraryManager.ts";
+import { AssemblyCompiler } from "./AssemblyCompiler.ts";
 
-export class AssemblerLanguage extends ProgrammingLanguage {
+export class AssemblyLanguage extends ProgrammingLanguage {
 
-    private static instance: AssemblerLanguage;
+    private static instance: AssemblyLanguage;
 
-    private libraryManager: LibraryManager = new AssemblerLibraryManager();  // not used
+    private libraryManager: LibraryManager = new AssemblyLibraryManager();  // not used
 
     private constructor() {
-        super("Assembler", "asm", "myAssembler");
+        super("Assembly", "asm", "myAssembler");
         this.registerLanguageAtMonacoEditor();
         this.registerProviders();
     }
 
-    static getInstance(): AssemblerLanguage {
-        if (!AssemblerLanguage.instance) {
-            AssemblerLanguage.instance = new AssemblerLanguage();
+    static getInstance(): AssemblyLanguage {
+        if (!AssemblyLanguage.instance) {
+            AssemblyLanguage.instance = new AssemblyLanguage();
         }
 
-        return AssemblerLanguage.instance;
+        return AssemblyLanguage.instance;
     }
 
 
     public registerMain(main: IMain, errorMarker: ErrorMarker) {
-        let compiler = new AssemblerCompiler();
+        let compiler = new AssemblyCompiler();
         // let compiler = new JavaCompiler(main, errorMarker);
         // let repl = new JavaRepl(main, compiler);
         let settings = main.getSettings();
@@ -247,6 +247,10 @@ export class AssemblerLanguage extends ProgrammingLanguage {
 
     getLibraryManager(): LibraryManager {
         return this.libraryManager;
+    }
+
+    public getDebuggerType(): "java" | "assembly" {
+        return 'assembly';
     }
 
 }

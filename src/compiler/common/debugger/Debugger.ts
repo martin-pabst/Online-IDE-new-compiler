@@ -1,3 +1,5 @@
+export type DebuggerType = "java" | "assembly";
+
 export abstract class Debugger {
     public abstract hide(): void;
     public abstract show(): void;

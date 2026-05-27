@@ -8,6 +8,7 @@ import { TreeviewNode, TreeviewNodeOnClickHandler } from './TreeviewNode.ts';
 import { makeEditable } from '../../HtmlTools.ts';
 import { TreeviewMessages } from './TreeviewMessages.ts';
 import { enableDragDropTouch } from "@dragdroptouch/drag-drop-touch";
+import { AccordionElementInterface } from './AccordionElementInterface.ts';
 
 export type TreeviewConfig<E, K> = {
     keyExtractor?: (object: E) => K,
@@ -76,7 +77,7 @@ export type TreeviewContextMenuProvider<E, K> = (element: E, node: TreeviewNode<
 export type DropEventCallback<E, K> = (sourceTreeview: Treeview<any, any>, destinationNode: TreeviewNode<E, K>, destinationChildIndex: number, dragKind: DragKind) => void;
 export type OrderChangedCallback<E, K> = (nodesWithNewOrder: TreeviewNode<E, K>[]) => Promise<boolean>;
 
-export class Treeview<E, K> {
+export class Treeview<E, K> implements AccordionElementInterface {
 
     public static currentDragSource: Treeview<any, any> | null = null;
 
@@ -101,6 +102,10 @@ export class Treeview<E, K> {
 
     private _outerDiv!: HTMLDivElement;
     get outerDiv(): HTMLElement {
+        return this._outerDiv;
+    }
+
+    public getOuterDiv(): HTMLDivElement {
         return this._outerDiv;
     }
 

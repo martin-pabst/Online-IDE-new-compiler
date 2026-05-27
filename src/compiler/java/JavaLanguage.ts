@@ -20,6 +20,7 @@ import * as monaco from 'monaco-editor'
 import { JUnitTestrunner } from "../common/testrunner/JUnitTestrunner.ts";
 import { JavaLibraryManager } from "./runtime/JavaLibraryManager.ts";
 import { LibraryManager } from "../common/programminglanguage/LibraryManager.ts";
+import { DebuggerType } from "../common/debugger/Debugger.ts";
 
 export class JavaLanguage extends ProgrammingLanguage {
 
@@ -330,7 +331,7 @@ export class JavaLanguage extends ProgrammingLanguage {
         return this.libraryManager;
     }
 
-    getDebuggerType(): "java" | "assembler" {
+    getDebuggerType(): DebuggerType {
         return "java";
     }
     

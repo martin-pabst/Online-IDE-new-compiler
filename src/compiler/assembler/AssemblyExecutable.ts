@@ -1,10 +1,10 @@
 import { Executable } from "../common/Executable";
 import { ModuleManager } from "../common/module/ModuleManager";
-import { AssemblerModuleManager } from "./AssemblerModuleManager";
+import { AssemblyModuleManager as AssemblyModuleManager } from "./AssemblyModuleManager";
 
-export class AssemblerExecutable extends Executable {
+export class AssemblyExecutable extends Executable {
 
-    moduleManager: AssemblerModuleManager = new AssemblerModuleManager();
+    moduleManager: AssemblyModuleManager = new AssemblyModuleManager();
 
     public getModuleManager(): ModuleManager {
         return this.moduleManager;

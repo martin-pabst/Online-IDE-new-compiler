@@ -12,7 +12,7 @@ export class TreeviewSplitter {
     transparentOverlay: HTMLDivElement | undefined;
 
     constructor(private accordion: TreeviewAccordion, private treeviewBelowIndex: number){
-        let parentDiv = accordion.treeviewList[treeviewBelowIndex].outerDiv;
+        let parentDiv = accordion.ElementList[treeviewBelowIndex].outerDiv;
         this.div = DOM .makeDiv(parentDiv, 'jo_treeview_splitter');
         this.div.style.display = 'none';
         this.enable();
@@ -26,7 +26,7 @@ export class TreeviewSplitter {
             this.div.style.backgroundColor = '#800000';
 
             this.yStart = ev.pageY;
-            let treeviewList: Treeview<any, any>[] = this.accordion.treeviewList;
+            let treeviewList: Treeview<any, any>[] = this.accordion.ElementList;
 
             this.divsStartHeights = [];
             for(let tv of treeviewList){
@@ -73,7 +73,7 @@ export class TreeviewSplitter {
 
     onPointerMove(newY: number){
         let dyCursor = newY - this.yStart!;
-        let treeviewList: Treeview<any, any>[] = this.accordion.treeviewList;
+        let treeviewList: Treeview<any, any>[] = this.accordion.ElementList;
 
         let targetHeights: number[] = this.divsStartHeights.slice();
 

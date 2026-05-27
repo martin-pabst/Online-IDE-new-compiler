@@ -4,10 +4,11 @@ import '/assets/css/icons.css';
 import { DOM } from '../../DOM.ts';
 import { ExpandCollapseState } from '../ExpandCollapseComponent.ts';
 import { TreeviewSplitter } from './TreeviewSplitter.ts';
+import { AccordionElementInterface } from './AccordionElementInterface.ts';
 
 export class TreeviewAccordion {
 
-    treeviewList: Treeview<any, any>[] = [];
+    ElementList: AccordionElementInterface[] = [];
     splitterList: TreeviewSplitter[] = [];
 
     debounceTimer: any;
@@ -42,11 +43,11 @@ export class TreeviewAccordion {
     }
 
     onResize(initial: boolean) {
-        let overallHeight = this.outerElementWithCorrectSize.getBoundingClientRect().height - (this.treeviewList.length * 1.0);
+        let overallHeight = this.outerElementWithCorrectSize.getBoundingClientRect().height - (this.ElementList.length * 1.0);
 
         let fixedHeight: number = 0;
         let variableHeight: number = 0;
-        for (let tv of this.treeviewList) {
+        for (let tv of this.ElementList) {
             if (!tv.isCollapsed()) {
                 variableHeight += tv.getTargetVariableHeight();
             }
@@ -55,23 +56,23 @@ export class TreeviewAccordion {
 
         let factor = variableHeight == 0 ? 0 : (overallHeight - fixedHeight) / variableHeight;
 
-        for (let tv of this.treeviewList) {
-            tv.outerDiv.style.flexBasis = "";
-            tv.outerDiv.style.flexGrow = "";
+        for (let tv of this.ElementList) {
+            tv.getOuterDiv().style.flexBasis = "";
+            tv.getOuterDiv().style.flexGrow = "";
         }
 
-        for (let tv of this.treeviewList) {
+        for (let tv of this.ElementList) {
 
             let height = (tv.isCollapsed() ? 0 : tv.getTargetVariableHeight()) * factor + tv.getFixedHeight();
-            tv.outerDiv.style.height = height + "px";
+            tv.getOuterDiv().style.height = height + "px";
             if (initial && !tv.isCollapsed()) tv._lastExpandedHeight = height;
         }
     }
 
     addTreeview(treeview: Treeview<any, any>) {
-        this.treeviewList.push(treeview);
-        if (this.treeviewList.length > 1) {
-            this.splitterList.push(new TreeviewSplitter(this, this.treeviewList.length - 1));
+        this.ElementList.push(treeview);
+        if (this.ElementList.length > 1) {
+            this.splitterList.push(new TreeviewSplitter(this, this.ElementList.length - 1));
         }
         let dummyElements = this._mainDiv.getElementsByClassName('jo_treeview_dummy');
         for (let i = 0; i < dummyElements.length; i++) {

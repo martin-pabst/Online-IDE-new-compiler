@@ -6,7 +6,7 @@ import { CompilerFile } from "../common/module/CompilerFile";
 import { Module } from "../common/module/Module";
 import { JavaLibraryModule } from "../java/module/libraries/JavaLibraryModule";
 
-export class AssemblerCompiler implements Compiler {
+export class AssemblyCompiler implements Compiler {
     eventManager: EventManager<CompilerEvents> = new EventManager<CompilerEvents>();
 
     #files: CompilerFile[] = [];

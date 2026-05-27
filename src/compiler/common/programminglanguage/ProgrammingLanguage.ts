@@ -1,6 +1,6 @@
 import { Settings } from "../../../client/settings/Settings";
 import { Compiler } from "../Compiler";
-import { Debugger } from "../debugger/Debugger";
+import { Debugger, DebuggerType } from "../debugger/Debugger";
 import { IMain } from "../IMain";
 import { ErrorMarker } from "../monacoproviders/ErrorMarker";
 import { Repl } from "../repl/Repl";
@@ -59,5 +59,5 @@ export abstract class ProgrammingLanguage {
      * This is a bad solution, but returning a Debugger object lead to circular dependencies. 
      * So instead, the Main creates the Debugger and the ProgrammingLanguage only returns the type of the Debugger.
      */
-    public abstract getDebuggerType(): "java" | "assembler";
+    public abstract getDebuggerType(): DebuggerType;
 }   
