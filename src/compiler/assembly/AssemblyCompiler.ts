@@ -90,10 +90,10 @@ export class AssemblyCompiler implements Compiler {
             let text: string = file.getText();
 
             let tokens = lexer.tokenize(text, parser.getTokenSet());
-            let parserResult = parser.parse(tokens.tokens);
+            let parserResult = parser.parse(tokens.tokens, file);
             parserResult.errors = [...tokens.errors, ...parserResult.errors];
 
-            const cpu = new AbiBayernCPU(parserResult);
+            const cpu = new AbiBayernCPU(parserResult, this.main!);
             module.cpu = cpu;
             module.setDirty(false);
             atLeastOneModuleCompiled = true;

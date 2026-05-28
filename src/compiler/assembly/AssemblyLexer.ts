@@ -89,7 +89,7 @@ export class AssemblyLexer {
                 case '\n':
                     this.pushToken(AssemblyTokenType.lineBreak, char);
                     this.line++;
-                    this.column = 1;
+                    this.column = 0;
                     this.isBeginningOfLine = true;
                     this.next();
                     break;
@@ -120,7 +120,7 @@ export class AssemblyLexer {
                             }
                             if (this.currentChar === '\n') {
                                 this.line++;
-                                this.column = 1;
+                                this.column = 0;
                                 this.isBeginningOfLine = true;
                             }
                             this.next();

@@ -1,11 +1,13 @@
 import { Error, ErrorLevel } from "../common/Error";
 import { Step } from "../common/interpreter/Step";
+import { CompilerFile } from "../common/module/CompilerFile";
 import { IRange } from "../common/range/Range";
 import { AssemblyToken } from "./AssemblyLexer";
 import { AssemblyTokenType, AssemblyTokenTypeReadable } from "./AssemblyTokens";
 import { AssemblyParserMessages } from "./language/AssemblyParserMessages";
 
 export type AssemblyParserResult = {
+    file: CompilerFile;
     startAddress: number;
     offsetAddress: number;
     compiledInMemory: number[];
@@ -34,6 +36,9 @@ export abstract class AssemblyParser {
     labels: Map<string, Label>;
 
     private programCounterRelative: number;
+    
+    constructor() {
+    }
 
     initBeforeParsing(): void {
         this.steps = [];
@@ -46,8 +51,9 @@ export abstract class AssemblyParser {
         this.labels = new Map();
     }
 
-    makeParserResult(): AssemblyParserResult {
+    makeParserResult(file: CompilerFile): AssemblyParserResult {
         return {
+            file: file,
             startAddress: this.startAddress ?? 0x200,
             offsetAddress: this.offsetAddress,
             compiledInMemory: this.compiledCode,
@@ -224,7 +230,7 @@ export abstract class AssemblyParser {
         }
     }
 
-    abstract parse(tokens: AssemblyToken[]): AssemblyParserResult;
+    abstract parse(tokens: AssemblyToken[], file: CompilerFile): AssemblyParserResult;
     abstract getTokenSet(): Set<AssemblyTokenType>;
 
 }

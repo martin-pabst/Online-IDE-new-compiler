@@ -1,4 +1,7 @@
 import { Error } from "../common/Error";
+import { IMain } from "../common/IMain";
+import { CompilerFile } from "../common/module/CompilerFile";
+import { IRange } from "../common/range/Range";
 import { AssemblyParserResult } from "./AssemblyParser";
 import { AssemblyTokenType } from "./AssemblyTokens";
 import { Memory } from "./Memory";
@@ -36,7 +39,7 @@ export abstract class CPU {
     // returns true on program end
     abstract executeNextStep(): boolean;
 
-    constructor(protected assemblyParserResult: AssemblyParserResult) {
+    constructor(protected assemblyParserResult: AssemblyParserResult, protected main: IMain) {
     }
 
     getErrors(): Error[] {
@@ -45,6 +48,21 @@ export abstract class CPU {
 
     hasMainProgram(): boolean {
         return typeof this.assemblyParserResult.startAddress === "number";
+    }
+
+    getCurrentPosition(): {programOrmoduleOrFile: CompilerFile, range: IRange} | undefined {
+        let pc = this.getProgramCounter();
+        let sourceMapEntry = this.assemblyParserResult.sourceMap[pc];
+        if(!sourceMapEntry) return undefined;
+        return {
+            programOrmoduleOrFile: this.assemblyParserResult.file,
+            range: {
+                startLineNumber: sourceMapEntry.lineNumber,
+                startColumn: sourceMapEntry.column,
+                endLineNumber: sourceMapEntry.lineNumber,
+                endColumn: sourceMapEntry.column + 1
+            }
+        }
     }
 
 }

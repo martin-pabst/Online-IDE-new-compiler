@@ -388,6 +388,15 @@ export class Scheduler {
     getNextStepPosition(currentThread?: Thread): ProgramPointerPositionInfo | undefined {
         currentThread = currentThread || this.runningThreads[this.#currentThreadIndex];
         if (!currentThread) return undefined;
+
+        if(currentThread.__cpu){
+            let cpu = currentThread.__cpu;
+            let position = cpu.getCurrentPosition();
+            if(position) return position;
+            return undefined;
+        }
+
+
         let programState = currentThread.currentProgramState;
         let step = programState?.currentStepList[programState.stepIndex];
         if (!step) return undefined;

@@ -6,6 +6,7 @@ export enum AssemblyTokenType {
     mul,
     div,
     mod,
+    cmp,
     
     loadi,
     storei,
@@ -14,6 +15,7 @@ export enum AssemblyTokenType {
     muli,
     divi,
     modi,
+    cmpi,
 
     jmp,
     jeq,

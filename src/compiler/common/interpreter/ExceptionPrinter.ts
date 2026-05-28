@@ -1,6 +1,8 @@
 import { DOM } from "../../../tools/DOM";
 import { JavaCompilerStringConstants } from "../../java/JavaCompilerStringConstants";
 import { IMain } from "../IMain";
+import { CompilerFile } from "../module/CompilerFile";
+import { IRange } from "../range/Range";
 import { Exception } from "./ExceptionInfo";
 import { IPrintManager } from "./IPrintManager";
 import { Stacktrace } from "./ThrowableType";
@@ -75,4 +77,22 @@ export class ExceptionPrinter {
         return outerDiv;
     }
 
+    static getHTMLWithLinksForMessage(message: string, range: IRange|undefined, file: CompilerFile, main: IMain): HTMLDivElement {
+        let outerDiv = DOM.makeDiv(undefined, 'jo_exceptionPrinter_outer');
+
+        let headingDiv = DOM.makeDiv(outerDiv, 'jo_exceptionPrinter_heading');
+        headingDiv.textContent = message;
+
+        if(range){
+            let stacktraceDiv = DOM.makeDiv(outerDiv, 'jo_exceptionPrinter_stacktrace');
+            stacktraceDiv.innerHTML = `at <span class="jo_stacktraceLink">File ${file.name} ${range.startLineNumber}:${range.startColumn}</span>`;
+    
+            let linkSpan = stacktraceDiv.getElementsByClassName("jo_stacktraceLink")[0];
+            linkSpan.addEventListener("click", () => {
+                main.showProgramPosition(file, range);
+            })
+        }
+
+        return outerDiv;
+    }
 }

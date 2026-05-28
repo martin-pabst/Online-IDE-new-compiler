@@ -6,6 +6,11 @@ import { AssemblyTokenType } from "../AssemblyTokens";
 import { AssemblyParser, AssemblyParserResult } from "../AssemblyParser";
 import { AssemblyToken } from "../AssemblyLexer";
 import { AssemblyParserMessages } from "../language/AssemblyParserMessages";
+import { IMain } from "../../common/IMain";
+import { ExceptionClass } from "../../java/runtime/system/javalang/ExceptionClass";
+import { ExceptionPrinter } from "../../common/interpreter/ExceptionPrinter";
+import { IRange } from "monaco-editor";
+import { CompilerFile } from "../../common/module/CompilerFile";
 
 enum AddressingMode {
     None = 0b00000000,
@@ -29,7 +34,8 @@ enum BaseOpCode {
     jge = 0x14,
     jlt = 0x15,
     jle = 0x16,
-    hold = 0x20,
+    hold = 0x17,
+    cmp = 0x18
 }
 
 enum OpCode {
@@ -40,20 +46,22 @@ enum OpCode {
     mul = BaseOpCode.mul | AddressingMode.Address,
     div = BaseOpCode.div | AddressingMode.Address,
     mod = BaseOpCode.mod | AddressingMode.Address,
+    cmp = BaseOpCode.cmp | AddressingMode.Address,
     loadIndirect = BaseOpCode.load | AddressingMode.Indirect,
     storeIndirect = BaseOpCode.store | AddressingMode.Indirect,
+    cmpIndirect = BaseOpCode.cmp | AddressingMode.Indirect,
     addIndirect = BaseOpCode.add | AddressingMode.Indirect,
     subIndirect = BaseOpCode.sub | AddressingMode.Indirect,
     mulIndirect = BaseOpCode.mul | AddressingMode.Indirect,
     divIndirect = BaseOpCode.div | AddressingMode.Indirect,
     modIndirect = BaseOpCode.mod | AddressingMode.Indirect,
     loadi = BaseOpCode.load | AddressingMode.Immediate,
-    storei = BaseOpCode.store | AddressingMode.Immediate,
     addi = BaseOpCode.add | AddressingMode.Immediate,
     subi = BaseOpCode.sub | AddressingMode.Immediate,
     muli = BaseOpCode.mul | AddressingMode.Immediate,
     divi = BaseOpCode.div | AddressingMode.Immediate,
     modi = BaseOpCode.mod | AddressingMode.Immediate,
+    cmpi = BaseOpCode.cmp | AddressingMode.Immediate,
     jeq = BaseOpCode.jeq | AddressingMode.Address,
     jne = BaseOpCode.jne | AddressingMode.Address,
     jgt = BaseOpCode.jgt | AddressingMode.Address,
@@ -63,38 +71,137 @@ enum OpCode {
     jmp = BaseOpCode.jmp | AddressingMode.Address,
     hold = BaseOpCode.hold | AddressingMode.None,
 }
-type Instruction = { type: AssemblyTokenType, jumpType: "branch" | "jump" | "nojump", argumentType: "Address" | "Immediate" | "Indirect" | "None", OpCode: OpCode, description: string };
+type Instruction = {
+    type: AssemblyTokenType, jumpType: "branch" | "jump" | "nojump", argumentType: "Address" | "Immediate" | "Indirect" | "None", OpCode: OpCode, description: string,
+    exec: (cpu: AbiBayernCPU) => boolean // returns true on program end
+};
 
 var instructions: Instruction[] = [
-    { type: AssemblyTokenType.load, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.load, description: 'load($0)' },
-    { type: AssemblyTokenType.store, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.store, description: 'store($0)' },
-    { type: AssemblyTokenType.add, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.add, description: 'add($0)' },
-    { type: AssemblyTokenType.sub, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.sub, description: 'sub($0)' },
-    { type: AssemblyTokenType.mul, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.mul, description: 'mul($0)' },
-    { type: AssemblyTokenType.div, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.div, description: 'div($0)' },
-    { type: AssemblyTokenType.mod, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.mod, description: 'mod($0)' },
-    { type: AssemblyTokenType.load, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.loadIndirect, description: 'loadIndirect($0)' },
-    { type: AssemblyTokenType.store, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.storeIndirect, description: 'storeIndirect($0)' },
-    { type: AssemblyTokenType.add, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.addIndirect, description: 'addIndirect($0)' },
-    { type: AssemblyTokenType.sub, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.subIndirect, description: 'subIndirect($0)' },
-    { type: AssemblyTokenType.mul, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.mulIndirect, description: 'mulIndirect($0)' },
-    { type: AssemblyTokenType.div, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.divIndirect, description: 'divIndirect($0)' },
-    { type: AssemblyTokenType.mod, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.mod, description: 'mod($0)' },
-    { type: AssemblyTokenType.jmp, jumpType: "jump", argumentType: "Address", OpCode: OpCode.jmp, description: 'jmp($0)' },
-    { type: AssemblyTokenType.jeq, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jeq, description: 'jeq($0, $next)' },
-    { type: AssemblyTokenType.jne, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jne, description: 'jne($0, $next)' },
-    { type: AssemblyTokenType.jgt, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jgt, description: 'jgt($0, $next)' },
-    { type: AssemblyTokenType.jge, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jge, description: 'jge($0, $next)' },
-    { type: AssemblyTokenType.jlt, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jlt, description: 'jlt($0, $next)' },
-    { type: AssemblyTokenType.jle, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jle, description: 'jle($0, $next)' },
-    { type: AssemblyTokenType.loadi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.loadi, description: 'loadi($0)' },
-    { type: AssemblyTokenType.storei, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.storei, description: 'storei($0)' },
-    { type: AssemblyTokenType.addi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.addi, description: 'addi($0)' },
-    { type: AssemblyTokenType.subi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.subi, description: 'subi($0)' },
-    { type: AssemblyTokenType.muli, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.muli, description: 'muli($0)' },
-    { type: AssemblyTokenType.divi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.divi, description: 'divi($0)' },
-    { type: AssemblyTokenType.modi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.modi, description: 'modi($0)' },
-    { type: AssemblyTokenType.hold, jumpType: "nojump", argumentType: "None", OpCode: OpCode.hold, description: 'hold()' },
+    {
+        type: AssemblyTokenType.load, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.load, description: 'load($0)', 
+        exec: (cpu: AbiBayernCPU) => { cpu.accumulator = cpu.memory.read(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.store, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.store, description: 'store($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.memory.write(cpu.readOperand(), cpu.accumulator); return false; }
+    },
+    {
+        type: AssemblyTokenType.add, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.add, description: 'add($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator + cpu.memory.read(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.sub, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.sub, description: 'sub($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator - cpu.memory.read(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.mul, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.mul, description: 'mul($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator * cpu.memory.read(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.div, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.div, description: 'div($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator / cpu.memory.read(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.mod, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.mod, description: 'mod($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator % cpu.memory.read(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.cmp, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.cmp, description: 'cmp($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.cmp(cpu.memory.read(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.load, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.loadIndirect, description: 'loadIndirect($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.accumulator = cpu.memory.readIndirect(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.store, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.storeIndirect, description: 'storeIndirect($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.memory.writeIndirect(cpu.readOperand(), cpu.accumulator); return false; }
+    },
+    {
+        type: AssemblyTokenType.add, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.addIndirect, description: 'addIndirect($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator + cpu.memory.readIndirect(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.sub, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.subIndirect, description: 'subIndirect($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator - cpu.memory.readIndirect(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.mul, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.mulIndirect, description: 'mulIndirect($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator * cpu.memory.readIndirect(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.div, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.divIndirect, description: 'divIndirect($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator / cpu.memory.readIndirect(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.mod, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.modIndirect, description: 'modIndirect($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator % cpu.memory.readIndirect(cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.cmp, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.cmpIndirect, description: 'cmpIndirect($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.cmp(cpu.memory.readIndirect(cpu.readOperand())); return false; }
+    },
+
+    {
+        type: AssemblyTokenType.jmp, jumpType: "jump", argumentType: "Address", OpCode: OpCode.jmp, description: 'jmp($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setProgramCounter(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.jeq, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jeq, description: 'jeq($0, $next)',
+        exec: (cpu: AbiBayernCPU) => { cpu.jeq(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.jne, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jne, description: 'jne($0, $next)',
+        exec: (cpu: AbiBayernCPU) => { cpu.jne(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.jgt, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jgt, description: 'jgt($0, $next)',
+        exec: (cpu: AbiBayernCPU) => { cpu.jgt(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.jge, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jge, description: 'jge($0, $next)',
+        exec: (cpu: AbiBayernCPU) => { cpu.jge(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.jlt, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jlt, description: 'jlt($0, $next)',
+        exec: (cpu: AbiBayernCPU) => { cpu.jlt(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.jle, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jle, description: 'jle($0, $next)',
+        exec: (cpu: AbiBayernCPU) => { cpu.jle(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.loadi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.loadi, description: 'loadi($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.addi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.addi, description: 'addi($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator + cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.subi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.subi, description: 'subi($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator - cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.muli, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.muli, description: 'muli($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator * cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.divi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.divi, description: 'divi($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(Math.floor(cpu.accumulator / cpu.readOperand())); return false; }
+    },
+    {
+        type: AssemblyTokenType.modi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.modi, description: 'modi($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator % cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.cmpi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.cmpi, description: 'cmpi($0)',
+        exec: (cpu: AbiBayernCPU) => { cpu.cmp(cpu.readOperand()); return false; }
+    },
+    {
+        type: AssemblyTokenType.hold, jumpType: "nojump", argumentType: "None", OpCode: OpCode.hold, description: 'hold()',
+        exec: (cpu: AbiBayernCPU) => { return true; }
+    }
 ];
 
 export class AbiBayernCPU extends CPU {
@@ -119,9 +226,18 @@ export class AbiBayernCPU extends CPU {
 
     memory: AbiBayernMemory;
 
-    constructor(assemblyParserResult: AssemblyParserResult) {
-        super(assemblyParserResult);
+    opcodeToInstructionMap: { [opcode: number]: Instruction } = {};
+
+    constructor(assemblyParserResult: AssemblyParserResult, main: IMain) {
+        super(assemblyParserResult, main);
         this.memory = new AbiBayernMemory(0x10000); // 64 * 2 KB of memory
+        this.initOpcodeToInstructionMap();
+    }
+
+    initOpcodeToInstructionMap(): void {
+        for (let instruction of instructions) {
+            this.opcodeToInstructionMap[instruction.OpCode] = instruction;
+        }
     }
 
     getMemory(): Memory {
@@ -155,7 +271,92 @@ export class AbiBayernCPU extends CPU {
     }
 
     executeNextStep(): boolean {
-        throw new Error("Method not implemented.");
+        try {
+        let opcode = this.memory.read(this.programCounter++);
+        let instruction = this.opcodeToInstructionMap[opcode];
+        if (instruction) {
+            return instruction.exec(this);
+        } else {
+            throw new Error(AbiBayernAssemblyMessages.UnknownOpCode(opcode, --this.programCounter));
+        }
+        } catch (error) {
+            let range = this.assemblyParserResult.sourceMap[this.programCounter];
+            let irange: IRange | undefined = range ? { startLineNumber: range.lineNumber, startColumn: range.column, endLineNumber: range.lineNumber, endColumn: range.column } : undefined;
+            let html = ExceptionPrinter.getHTMLWithLinksForMessage(error instanceof Error ? error.message : String(error), irange, this.assemblyParserResult.file, this.main);
+            this.main.getInterpreter().printManager?.printHtmlElement(html);
+            if(irange) {
+                this.main.showProgramPosition(this.assemblyParserResult.file, irange, false);
+                this.main.getInterpreter().exceptionMarker?.markExceptionByFileAndRange(this.assemblyParserResult.file, irange);
+            }
+            return true; // Stop execution on error
+        }
+
+    }
+
+    readOperand(): number {
+        return this.memory.read(this.programCounter++);
+    }
+
+    setAccu(value: number): void {
+        if (value > 0x7FFF || value < -0x8000) {
+            this.flags.overflow = true;
+            value = (value + 0x10000) & 0x8000 - 0x8000;
+        } else {
+            this.flags.overflow = false;
+        }
+        this.flags.zero = value === 0;
+        this.flags.negative = value < 0;
+        this.accumulator = value;
+    }
+
+    cmp(value: number): void {
+        let result = this.accumulator - value;
+        this.flags.zero = result === 0;
+        this.flags.negative = result < 0;
+        this.flags.overflow = result > 0x7FFF || result < -0x8000;
+    }
+
+    setProgramCounter(address: number): void {
+        if (address < 0 || address >= this.memory.size()) {
+            throw new Error(`Program Counter set error: Address ${address} out of bounds (valid adresses: 0-${this.memory.size() - 1})`);
+        }
+        this.programCounter = address;
+    }
+
+    jeq(address: number): void {
+        if (this.flags.zero) {
+            this.setProgramCounter(address);
+        }
+    }
+
+    jne(address: number): void {
+        if (!this.flags.zero) {
+            this.setProgramCounter(address);
+        }
+    }
+
+    jgt(address: number): void {
+        if (!this.flags.negative && !this.flags.zero) {
+            this.setProgramCounter(address);
+        }
+    }
+
+    jge(address: number): void {
+        if (!this.flags.negative) {
+            this.setProgramCounter(address);
+        }
+    }
+
+    jlt(address: number): void {
+        if (this.flags.negative) {
+            this.setProgramCounter(address);
+        }
+    }
+
+    jle(address: number): void {
+        if (this.flags.negative || this.flags.zero) {
+            this.setProgramCounter(address);
+        }
     }
 
 
@@ -172,7 +373,7 @@ export class AbiBayernParser extends AssemblyParser {
         this.initTokenToInstructionMap();
     }
 
-    parse(tokens: AssemblyToken[]): AssemblyParserResult {
+    parse(tokens: AssemblyToken[], file: CompilerFile): AssemblyParserResult {
         this.tokens = tokens;
         this.initBeforeParsing();
 
@@ -182,7 +383,7 @@ export class AbiBayernParser extends AssemblyParser {
 
         this.checkForUnresolvedLabelsAtEndOfParsing();
 
-        return this.makeParserResult();
+        return this.makeParserResult(file);
     }
 
     parseInstructionOrData(): void {

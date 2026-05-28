@@ -31,14 +31,32 @@ export class AssemblyModule extends Module {
     }
 
     startMainProgram(thread: Thread, setOneTimeBreakpointAtFirstVisibleLine: boolean): boolean {
-        let codeAsString =
+        let codeAsString1 =
+            `if(${Helpers.cpu}.executeNextStep()) {
+    ${Helpers.return}(0);
+}
+return 1; // infinite loop`;
+        let codeAsString2 =
             `if(${Helpers.cpu}.executeNextStep()) {
     ${Helpers.return}(0);
 }
 return 0; // infinite loop`;
 
         let program = new Program(this, undefined, "Main.main");
-        program.addStep(codeAsString);
+        program.addStep(codeAsString1);
+        program.addStep(codeAsString2);
+        program.stepsSingle[0].range = {
+            startLineNumber: 1,
+            startColumn: 1,
+            endLineNumber: 1,
+            endColumn: 1
+        };
+        program.stepsSingle[1].range = {
+            startLineNumber: 2,
+            startColumn: 2,
+            endLineNumber: 2,
+            endColumn: 2
+        };
         program.compileToJavascriptFunctions();
 
         thread.__cpu = this._cpu;
@@ -47,14 +65,10 @@ return 0; // infinite loop`;
         thread.pushProgram(program);
 
         if (setOneTimeBreakpointAtFirstVisibleLine) {
-            let programState = thread.programStack[thread.programStack.length - 1];
-            if (programState) {
-                let firstVisibleStep = programState.currentStepList.find(s => s.range.startLineNumber >= 0);
-                if (firstVisibleStep) {
-                    firstVisibleStep.setBreakpoint(true);
-                }
-            }
+            let step = program.stepsSingle[0];
+            step.setBreakpoint(true);
         }
+
 
         return true;
     }

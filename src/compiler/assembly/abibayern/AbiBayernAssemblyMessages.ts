@@ -42,4 +42,10 @@ export class AbiBayernAssemblyMessages {
         'en': `In indirect addressing (in brackets) after mnemonic "${instruction}", a number or label is expected.`,
         'fr': `Dans l'adressage indirect (entre parenthèses) après le mnémonique "${instruction}", un nombre ou un label est attendu.`
     });
+
+    static UnknownOpCode = (opcode: number, address: number) => lm({
+        'de': `Unbekannter Opcode: ${opcode} an Adresse ${address}`,
+        'en': `Unknown opcode: ${opcode} at address ${address}`,
+        'fr': `Opcode inconnu : ${opcode} à l'adresse ${address}`
+    });
 }

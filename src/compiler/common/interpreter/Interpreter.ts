@@ -423,7 +423,7 @@ export class Interpreter {
 
         this.actionManager.registerAction("interpreter.stop", [], InterpreterMessages.stop(),
             () => {
-                if (this.main?.getRepl().state == "standalone") {
+                if (this.main?.getRepl()?.state == "standalone") {
                     this.main?.getRepl().init(this.executable);
                     this.setState(SchedulerState.stopped);
                 } else {

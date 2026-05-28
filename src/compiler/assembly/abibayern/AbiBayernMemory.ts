@@ -16,11 +16,34 @@ export class AbiBayernMemory extends Memory {
         return this.memory[address];
     }
 
+    readIndirect(address: number): number {
+        if (address < 0 || address >= this.memory.length) {
+            throw new Error(`Memory read error: Address ${address} out of bounds (valid adresses: 0-${this.memory.length - 1})`);
+        }
+        let address2 = this.memory[address];
+        if (address2 < 0 || address2 >= this.memory.length) {
+            throw new Error(`Memory read error: Indirect address ${address2} (from address ${address}) out of bounds (valid adresses: 0-${this.memory.length - 1})`);
+        }
+        return this.memory[address2];
+    }
+
+    writeIndirect(address: number, value: number): void {
+        if (address < 0 || address >= this.memory.length) {
+            throw new Error(`Memory write error: Address ${address} out of bounds (valid adresses: 0-${this.memory.length - 1})`);
+        }
+        let address2 = this.memory[address];
+        if (address2 < 0 || address2 >= this.memory.length) {
+            throw new Error(`Memory write error: Indirect address ${address2} (from address ${address}) out of bounds (valid adresses: 0-${this.memory.length - 1})`);
+        }
+        this.memory[address2] = (Math.floor(value) + 0x10000) & 0x8000 - 0x8000; // Ensure value is a signed 16-bit integer
+    }
+
+
     write(address: number, value: number): void {
         if (address < 0 || address >= this.memory.length) {
             throw new Error(`Memory write error: Address ${address} out of bounds (valid adresses: 0-${this.memory.length - 1})`);
         }
-        this.memory[address] = (Math.floor(value) + 0x8000) & 0x10000 - 0x8000; // Ensure value is a signed 16-bit integer
+        this.memory[address] = (Math.floor(value) + 0x10000) & 0x8000 - 0x8000; // Ensure value is a signed 16-bit integer
     }
 
     dump(): number[] {
