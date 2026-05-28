@@ -55,7 +55,7 @@ import { TabletConsoleLog } from '../../tools/TabletConsoleLog.js';
 import { ProgrammingLanguageManager } from '../../compiler/common/programminglanguage/ProgrammingLanguageManager.js';
 import { Repl } from '../../compiler/common/repl/Repl.js';
 import { Debugger } from '../../compiler/common/debugger/Debugger.js';
-import { AssemblyLanguageDebugger } from '../../compiler/assembler/debugger/AssemblyLanguageDebugger.js';
+import { AssemblyLanguageDebugger } from '../../compiler/assembly/debugger/AssemblyLanguageDebugger.js';
 
 
 export class Main implements MainBase {

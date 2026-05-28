@@ -21,8 +21,8 @@ import { CallbackFunction, KlassObjectRegistry } from "./StepFunction.ts";
 import { SystemException } from "./SystemException.ts";
 import { ThreadState } from "./ThreadState.ts";
 import { IThrowable, Stacktrace } from "./ThrowableType.ts";
-import { CPU } from "../../assembler/CPU.ts";
-import { Memory } from "../../assembler/Memory.ts";
+import { CPU } from "../../assembly/CPU.ts";
+import { Memory } from "../../assembly/Memory.ts";
 
 
 export type ThreadStateInfoAfterRun = {

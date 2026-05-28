@@ -144,76 +144,93 @@ export class AssemblyLanguage extends ProgrammingLanguage {
 
         };
         let language: monaco.languages.IMonarchLanguage = {
+            // Set defaultToken to invalid to see what you do not tokenize yet
+            // defaultToken: 'invalid',
             ignoreCase: true,
-            defaultToken: '',
-            tokenPostfix: '.asm',
+
             keywords: [
-                'load', 'store', 'add', 'sub', 'mul', 'div', 'mod', 'jmp', 'jeq', 'jne', 'jgt', 'jge', 'jlt', 'jle'
+                'load', 'store',
+                'add', 'sub', 'mul', 'div', 'mod',
+                'jmp', 'jeq', 'jne', 'jgt', 'jge', 'jlt', 'jle',
+                'hold', 'word'
             ],
+
+            immediateKeywords: [
+                'loadi', 'storei',
+                'addi', 'subi', 'muli', 'divi', 'modi'
+            ],
+
+            operators: [
+
+            ],
+
+            // we include these common regular expressions
+            symbols: /[=><!~?:&|+\-*\/\^%]+/,
+
+            // C# style strings
             escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
-            digits: /\d+(_+\d+)*/,
-            octaldigits: /[0-7]+(_+[0-7]+)*/,
-            binarydigits: /[0-1]+(_+[0-1]+)*/,
-            hexdigits: /[[0-9a-fA-F]+(_+[0-9a-fA-F]+)*/,
+
             // The main tokenizer for our languages
             tokenizer: {
                 root: [
-                    [/\w*:/, 'label'],
-                    [
-                        /[.a-zA-Z_]\w*/,
-                        {
-                            cases: {
-                                '@keywords': { token: 'keyword.$0' },
-                                '@default': ''
-                            }
+                    [/[a-zA-Z_]*:/, 'identifier.tag'],
+                    // identifiers and keywords
+                    [/[a-z_$][\w$]*/, {
+                        cases: {
+                            '@immediateKeywords': { token: 'keyword', next: '@immediateOperand' },
+                            '@keywords': 'keyword',
+                            '@default': 'identifier'
                         }
-                    ],
-
-                    //technically not correct as it includes the spaces
-                    [/\s+(\*|;).*$/, 'comment'],
-                    // whitespace
-                    [/[ \t\r\n]+/, ''],
-                    // Comments
-                    [/^(\*|;).*$/, 'comment'],
+                    }],
 
                     // whitespace
                     { include: '@whitespace' },
 
+                    // delimiters and operators
+                    [/[{}()\[\]]/, '@brackets'],
+                    [/[<>](?!@symbols)/, '@brackets'],
+                    [/@symbols/, {
+                        cases: {
+                            '@operators': 'operator',
+                            '@default': ''
+                        }
+                    }],
+
                     // numbers
-                    [/(@digits)[eE]([\-+]?(@digits))?[fFdD]?/, 'number.float'],
-                    [/(@digits)\.(@digits)([eE][\-+]?(@digits))?[fFdD]?/, 'number.float'],
-                    [/0[xX](@hexdigits)[Ll]?/, 'number.hex'],
-                    [/0(@octaldigits)[Ll]?/, 'number.octal'],
-                    [/0[bB](@binarydigits)[Ll]?/, 'number.binary'],
-                    [/(@digits)[fFdD]/, 'number.float'],
-                    [/(@digits)[lL]?/, 'number'],
+                    { include: '@number' },
+
                     // delimiter: after number because of .\d floats
                     [/[;,.]/, 'delimiter'],
+
                 ],
+
+                immediateOperand: [
+                    { include: '@whitespace' },
+                    [/0[xX][0-9a-fA-F]+/, 'number.immediate', '@pop'],
+                    [/\d+/, 'number.immediate', '@pop'],
+                    [/.*$/, 'invalid', '@pop']
+                ],
+
+                comment: [
+                    [/[^\/*]+/, 'comment'],
+                    [/\/\*/, 'comment', '@push'],    // nested comment
+                    ["\\*/", 'comment', '@pop'],
+                    [/[\/*]/, 'comment']
+                ],
+
+                number: [
+                    [/0[xX][0-9a-fA-F]+/, 'number.hex'],
+                    [/\d+/, 'number']
+                ],
+
                 whitespace: [
-                    [/[ \t\r\n]+/, ''],
-                    [/\/\*\*(?!\/)/, 'comment.doc', '@javadoc'],
+                    [/[ \t\r\n]+/, 'white'],
                     [/\/\*/, 'comment', '@comment'],
                     [/\/\/.*$/, 'comment'],
                 ],
-                comment: [
-                    [/[^\/*]+/, 'comment'],
-                    // [/\/\*/, 'comment', '@push' ],    // nested comment not allowed :-(
-                    // [/\/\*/,    'comment.invalid' ],    // this breaks block comments in the shape of /* //*/
-                    [/\*\//, 'comment', '@pop'],
-                    [/[\/*]/, 'comment']
-                ],
-                //Identical copy of comment above, except for the addition of .doc
-                javadoc: [
-                    [/[^\/*]+/, 'comment.doc'],
-                    // [/\/\*/, 'comment.doc', '@push' ],    // nested comment not allowed :-(
-                    [/\/\*/, 'comment.doc.invalid'],
-                    [/\*\//, 'comment.doc', '@pop'],
-                    [/[\/*]/, 'comment.doc']
-                ],
-
             },
         };
+
 
         //@ts-ignore
         monaco.languages.setLanguageConfiguration(this.monacoLanguageSelector, conf);

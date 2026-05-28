@@ -2,7 +2,7 @@ import { JavaLanguage } from "../../java/JavaLanguage";
 import { IMain } from "../IMain";
 import { ProgrammingLanguage } from "./ProgrammingLanguage";
 import { ErrorMarker } from "../monacoproviders/ErrorMarker";
-import { AssemblyLanguage } from "../../assembler/AssemblyLanguage";
+import { AssemblyLanguage } from "../../assembly/AssemblyLanguage";
 
 export class ProgrammingLanguageManager {
     private languages: ProgrammingLanguage[] = [];

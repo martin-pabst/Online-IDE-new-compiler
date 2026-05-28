@@ -1,4 +1,4 @@
-import { Memory } from "./Memory";
+import { Memory } from "../Memory";
 
 export class AbiBayernMemory extends Memory {
     private memory: number[] = [];     // signed 16-bit integers

@@ -5,6 +5,9 @@ import { EventManager } from "../common/interpreter/EventManager";
 import { CompilerFile } from "../common/module/CompilerFile";
 import { Module } from "../common/module/Module";
 import { JavaLibraryModule } from "../java/module/libraries/JavaLibraryModule";
+import { AbiBayernCPU } from "./abibayern/AbiBayernCPU";
+import { AssemblyLexer } from "./AssemblyLexer";
+import { AssemblyLexerMessages } from "./language/AssemblyLexerMessages";
 
 export class AssemblyCompiler implements Compiler {
     eventManager: EventManager<CompilerEvents> = new EventManager<CompilerEvents>();
@@ -42,8 +45,20 @@ export class AssemblyCompiler implements Compiler {
     }
 
     triggerCompile(): void {
-        console.log("Compilation triggered");
-        console.log("Files to compile:", this.#files);
+        // console.log("Compilation triggered");
+         console.log("Files to compile:", this.#files);
+         if(this.#files.length === 0) return;
+
+        let text: string = this.#files[0].getText();
+        let lexer = new AssemblyLexer();
+        let cpu = new AbiBayernCPU();
+
+        let tokens = lexer.tokenize(text, cpu.keywordMap);
+        // lexer.debugOutputTokens();
+        // console.log("Errors:", ret.errors);
+
+        
+
     }
 
     forceRecompilation(): void {
