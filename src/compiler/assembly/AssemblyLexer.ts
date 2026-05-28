@@ -1,5 +1,6 @@
 import { Error } from "../common/Error";
 import { IRange } from "../common/range/Range";
+import { TokenType } from "../java/TokenType";
 import { AssemblyTokenType } from "./AssemblyTokens";
 import { AssemblyLexerMessages } from "./language/AssemblyLexerMessages";
 
@@ -7,6 +8,7 @@ export type AssemblyToken = {
     type: AssemblyTokenType;
     value: string | number;
     range: IRange;
+    text: string;
 }
 
 export type AssemblyLexerOutput = {
@@ -29,12 +31,12 @@ export class AssemblyLexer {
 
     currentChar: string = '';
     nextChar: string = '';
-    keywordMap: { [keyword: string]: AssemblyTokenType };
+    tokenSet: Set<AssemblyTokenType>;
 
-    tokenize(input: string, keywordMap: { [keyword: string]: AssemblyTokenType }): AssemblyLexerOutput {
-        this.keywordMap = keywordMap;
+    tokenize(input: string, tokenSet: Set<AssemblyTokenType>): AssemblyLexerOutput {
         this.tokens = [];
         this.errors = [];
+        this.tokenSet = tokenSet;
 
         this.pos = 0;
         this.line = 1;
@@ -61,7 +63,8 @@ export class AssemblyLexer {
                 startColumn: this.column,
                 endLineNumber: this.line,
                 endColumn: this.column
-            }
+            },
+            text: ""
         });
 
         return { tokens: this.tokens, errors: this.errors };
@@ -84,6 +87,7 @@ export class AssemblyLexer {
             // console.log(`Next 10 chars: '${this.input.substring(this.pos, this.pos + 10)}' (Line: ${this.line}, Column: ${this.column})`);
             switch (char) {
                 case '\n':
+                    this.pushToken(AssemblyTokenType.lineBreak, char);
                     this.line++;
                     this.column = 1;
                     this.isBeginningOfLine = true;
@@ -231,6 +235,7 @@ export class AssemblyLexer {
         this.tokens.push({
             type: AssemblyTokenType.number,
             value: value,
+            text: sign == 1 ? numberString : `-${numberString}`,
             range: {
                 startLineNumber,
                 startColumn,
@@ -251,6 +256,7 @@ export class AssemblyLexer {
         let t: AssemblyToken = {
             type: tt,
             value: text,
+            text: typeof text === "string" ? text : `${text}`,
             range: {
                 startLineNumber: startLineNumber,
                 startColumn: startColumn,
@@ -272,8 +278,10 @@ export class AssemblyLexer {
             this.next();
         }
 
-        if (this.keywordMap[identifier]) {
-            this.pushToken(this.keywordMap[identifier], identifier, startLineNumber, startColumn);
+        let tokenType = AssemblyTokenType[identifier];
+
+        if (this.tokenSet.has(tokenType)) {
+            this.pushToken(tokenType, identifier, startLineNumber, startColumn);
         } else {
             this.pushToken(AssemblyTokenType.identifier, identifier, startLineNumber, startColumn);
         }

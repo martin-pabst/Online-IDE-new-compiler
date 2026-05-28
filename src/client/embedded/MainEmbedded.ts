@@ -715,9 +715,9 @@ export class MainEmbedded implements MainBase {
         ProgrammingLanguageManager.getInstance().registerMain(this, errorMarker);
         this.switchProgrammingLanguage(this.config.programmingLanguage || "Java");
 
-        if (this.config.withBottomPanel) {
-            new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
-        }
+        // if (this.config.withBottomPanel) {
+        //     new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
+        // }
 
         // this.getCompiler().triggerCompile();
 

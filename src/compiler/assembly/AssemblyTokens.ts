@@ -32,6 +32,7 @@ export enum AssemblyTokenType {
     invalid,
     endOfSourcecode,
 
+    lineBreak,      // \n
     leftBracket,
     rightBracket,
     colon,          // :
@@ -39,21 +40,11 @@ export enum AssemblyTokenType {
     hash,            // #
 }
 
-export var AssemblyKeywordList: { [keyword: string]: AssemblyTokenType } = {
-    'load': AssemblyTokenType.load,
-    'store': AssemblyTokenType.store,
-    'add': AssemblyTokenType.add,
-    'sub': AssemblyTokenType.sub,
-    'mul': AssemblyTokenType.mul,
-    'div': AssemblyTokenType.div,
-    'mod': AssemblyTokenType.mod,
-    'jmp': AssemblyTokenType.jmp,
-    'jeq': AssemblyTokenType.jeq,
-    'jne': AssemblyTokenType.jne,
-    'jgt': AssemblyTokenType.jgt,
-    'jge': AssemblyTokenType.jge,
-    'jlt': AssemblyTokenType.jlt,
-    'jle': AssemblyTokenType.jle,
-    'hold': AssemblyTokenType.hold,
-    'word': AssemblyTokenType.word
+export var AssemblyTokenTypeReadable: { [key in AssemblyTokenType]?: string } = {
+    [AssemblyTokenType.colon]: ":",
+    [AssemblyTokenType.comma]: ",",
+    [AssemblyTokenType.hash]: "#",
+    [AssemblyTokenType.lineBreak]: "\\n",
+    [AssemblyTokenType.leftBracket]: "(",
+    [AssemblyTokenType.rightBracket]: ")",
 }

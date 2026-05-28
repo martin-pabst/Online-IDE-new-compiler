@@ -1,4 +1,6 @@
-import { AssemblyKeywordList as AssemblyKeywordMap, AssemblyTokenType } from "./AssemblyTokens";
+import { Error } from "../common/Error";
+import { AssemblyParserResult } from "./AssemblyParser";
+import { AssemblyTokenType } from "./AssemblyTokens";
 import { Memory } from "./Memory";
 
 export type AssemblyArgumentType = "Address" | "Immediate" | "Register";
@@ -13,8 +15,6 @@ export type AssemblyInstruction = {
 export var _cpu: string = "__t.cpu.";
 
 export abstract class CPU {
-
-    keywordMap: { [keyword: string]: AssemblyTokenType } = {};
 
     abstract name: string;
     abstract description: string;
@@ -33,12 +33,18 @@ export abstract class CPU {
 
     abstract reset(): void;
 
-    constructor() {
+    // returns true on program end
+    abstract executeNextStep(): boolean;
+
+    constructor(protected assemblyParserResult: AssemblyParserResult) {
     }
 
-    initializeKeywordMap(keywords: string[]): void {
-        for (let keyword of keywords) {
-            this.keywordMap[keyword] = AssemblyKeywordMap[keyword];
-        }
+    getErrors(): Error[] {
+        return this.assemblyParserResult ? this.assemblyParserResult.errors : [];
     }
+
+    hasMainProgram(): boolean {
+        return typeof this.assemblyParserResult.startAddress === "number";
+    }
+
 }

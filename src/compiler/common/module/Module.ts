@@ -1,13 +1,13 @@
 import { Quickfix } from "../../java/monacoproviders/quickfix/Quickfix.ts";
 import { JavaType } from "../../java/types/JavaType.ts";
-import { Error } from "../Error";
+import { Error, ErrorLevel } from "../Error";
 import { UsagePosition, UsageTracker } from "../UsagePosition";
 import { CodeFragment } from "../disassembler/CodeFragment.ts";
 import { Program } from "../interpreter/Program";
 import { Step } from "../interpreter/Step.ts";
 import { Thread } from "../interpreter/Thread";
 import { Position } from "../range/Position.ts";
-import { IRange } from "../range/Range.ts";
+import { IRange, Range } from "../range/Range.ts";
 import { CompilerFile } from "./CompilerFile";
 import type * as monaco from 'monaco-editor'
 
@@ -66,7 +66,7 @@ export abstract class Module {
         return this.errors.find(error => error.level == "error") ? true : false;
     }
 
-    getLastCompiledMonacoVersion(){
+    getLastCompiledMonacoVersion() {
         return this.lastCompiledMonacoVersion;
     }
 
@@ -89,11 +89,11 @@ export abstract class Module {
     findStep(lineNumber: number): Step | undefined {
         let nearestStep: Step | undefined;
 
-        for(let program of this.programsToCompileToFunctions){
+        for (let program of this.programsToCompileToFunctions) {
             let step = program.findStep(lineNumber);
-            if(step){
-                if(nearestStep){
-                    if(Math.abs(step.range.startLineNumber! - lineNumber) < Math.abs(nearestStep.range.startLineNumber! - lineNumber)){
+            if (step) {
+                if (nearestStep) {
+                    if (Math.abs(step.range.startLineNumber! - lineNumber) < Math.abs(nearestStep.range.startLineNumber! - lineNumber)) {
                         nearestStep = step;
                     }
                 } else {
@@ -120,11 +120,43 @@ export abstract class Module {
      * Set this modules' dirty-status"
      */
     setDirty(dirty: boolean) {
-        if(dirty){
+        if (dirty) {
             this.lastCompiledMonacoVersion = this.file.getLocalVersion() - 1;
         } else {
             this.lastCompiledMonacoVersion = this.file.getLocalVersion();
         }
+    }
+
+    getSortedAndFilteredErrors(): Error[] {
+
+        const list: Error[] = this.errors.slice();
+
+        list.sort((a, b) => {
+            return Range.compareRangesUsingStarts(a.range, b.range);
+        });
+
+        for (let i = 0; i < list.length - 1; i++) {
+            const e1 = list[i];
+            const e2 = list[i + 1];
+            if (e1.range.startLineNumber == e2.range.startLineNumber && e1.range.startColumn + 10 > e2.range.startColumn) {
+                if (this.#errorLevelCompare(e1.level, e2.level) == 1) {
+                    list.splice(i + 1, 1);
+                } else {
+                    list.splice(i, 1);
+                }
+                i--;
+            }
+        }
+
+        return list;
+    }
+
+    #errorLevelCompare(level1: ErrorLevel, level2: ErrorLevel): number {
+        if (level1 == "error") return 1;
+        if (level2 == "error") return -1;
+        if (level1 == "warning") return 1;
+        if (level2 == "warning") return -1;
+        return 1;
     }
 
 }

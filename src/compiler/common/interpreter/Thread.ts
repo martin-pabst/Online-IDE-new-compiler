@@ -79,8 +79,7 @@ export class Thread {
     /**
      * For Assembler programs
      */
-    memory: Memory; 
-    cpu: CPU;
+    __cpu: CPU;
 
 
     get assertionObservers() {

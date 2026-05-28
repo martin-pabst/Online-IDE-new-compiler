@@ -275,7 +275,7 @@ export class Editor {
             module = <JavaCompiledModule>this.main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
         }
 
-        if (!module) return;
+        if (!module || !module.methodCallPositions) return;
 
         let mcps = module.methodCallPositions[event.position.lineNumber];
         if (!mcps) return;

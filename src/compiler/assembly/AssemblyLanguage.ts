@@ -28,7 +28,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
 
 
     public registerMain(main: IMain, errorMarker: ErrorMarker) {
-        let compiler = new AssemblyCompiler();
+        let compiler = new AssemblyCompiler(main, errorMarker);
         // let compiler = new JavaCompiler(main, errorMarker);
         // let repl = new JavaRepl(main, compiler);
         let settings = main.getSettings();

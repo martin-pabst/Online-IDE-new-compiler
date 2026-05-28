@@ -124,6 +124,7 @@ export class JUnitTestrunner {
     }
 
     onAfterExecutableInitialized(executable: JavaExecutable) {
+        if(!(executable instanceof JavaExecutable)) return;
         this.markTestsInEditor(executable);
         this.testTreeview.clear();
         new JUnitTreeviewEntry(this, undefined, executable.getModuleManager(), undefined, undefined);

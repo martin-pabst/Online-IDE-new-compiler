@@ -15,14 +15,9 @@ export class ErrorManager {
     oldDecorations: Map<monaco.editor.ITextModel, string[]> = new Map();
     $errorDiv: JQuery<HTMLElement>;
 
-    minimapColor: { [key: string]: string } = {};
-
     tab: Tab;
 
     constructor(private main: MainBase, tabManager: TabManager) {
-        this.minimapColor["error"] = "#bc1616";
-        this.minimapColor["warning"] = "#cca700";
-        this.minimapColor["info"] = "#75beff";
 
         this.tab = new Tab(ErrorManagerMessages.errors(), ["jo_active", "jo_scrollable", "jo_editorFontSize", "jo_errorsTab"])
         tabManager.addTab(this.tab);

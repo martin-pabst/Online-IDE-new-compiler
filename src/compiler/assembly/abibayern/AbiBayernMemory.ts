@@ -3,7 +3,8 @@ import { Memory } from "../Memory";
 export class AbiBayernMemory extends Memory {
     private memory: number[] = [];     // signed 16-bit integers
 
-    constructor(size: number) {
+    // 0x100000 = 1 MB
+    constructor(size: number, private maximumSize: number = 0x100000) {
         super();
         this.memory = new Array(size).fill(0);
     }
@@ -33,5 +34,22 @@ export class AbiBayernMemory extends Memory {
     clear(): void {
         this.memory.fill(0);
     }
+
+    loadProgram(program: number[], offsetAddress: number): void {
+        let sizeNeeded = offsetAddress + program.length;
+        if (sizeNeeded > this.maximumSize) {
+            throw new Error(`Program load error: Program size (${program.length} words) with offset (${offsetAddress}) exceeds maximum memory size (0x${this.maximumSize.toString(16)}) words).`);
+        }
+        if (sizeNeeded > this.memory.length) {
+            this.memory = new Array(sizeNeeded);
+        }
+        
+        this.memory.fill(0);
+
+        for (let i = 0; i < program.length; i++) {
+            this.memory[offsetAddress + i] = program[i];
+        }
+    }
+
 
 }
