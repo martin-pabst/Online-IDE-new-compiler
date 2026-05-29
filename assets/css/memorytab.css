@@ -1,0 +1,78 @@
+@keyframes jo_memory_pulse_keyframes_red {
+    0% {
+    background-color: transparent;
+    }
+    50% {
+    background-color: #df621a;
+    }
+    to {
+    background-color: transparent;
+    }
+}
+
+@keyframes jo_memory_pulse_keyframes_green {
+    0% {
+    background-color: transparent;
+    }
+    50% {
+    background-color: #4ffa2c;
+    }
+    to {
+    background-color: transparent;
+    }
+}
+
+.joeCssFence {
+
+    --memorytab-codebackground: #1c6de78f;
+
+    .jo_memorytab {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+    }
+
+    .jo_memorytab_heading1 {
+        height: 20px;
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        padding: 3px 5px;
+    }
+
+    .jo_memorytab_registername {
+        color: var(--debugger-localVariableIdentifier);
+        font-weight: bold;
+    }
+
+    .jo_memorytab_registervalue {
+        color: var(--fontColorLight);   
+        width: 30px;     
+    }
+
+    .jo_memorytab_flagname {
+        color: var(--debugger-fieldIdentifier);
+        font-weight: bold;
+    }
+
+    .jo_memorytab_flagvalue {
+        color: var(--fontColorLight);   
+        width: 30px;     
+    }
+
+    .jo_memorytab_heading2 {
+        height: 20px;
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        padding: 3px 5px;
+    }
+
+    .jo_memorytab_heading2text {
+        color: var(--fontColorNormal);
+        font-weight: bold;
+    }
+    
+
+}

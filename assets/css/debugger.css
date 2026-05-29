@@ -96,4 +96,12 @@
         background-color: #ffffff38;
     }
 
+    .jo_memoryView {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 5px;
+        overflow-y: auto;
+    }
+
 }
