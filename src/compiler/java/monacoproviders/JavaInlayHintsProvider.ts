@@ -25,7 +25,7 @@ export class JavaInlayHintsProvider extends BaseMonacoProvider implements monaco
         if (editor.getModel()?.getLanguageId() != 'myJava') return undefined;
 
         let module = <JavaCompiledModule>main.getCurrentWorkspace()?.getModuleForMonacoModel(editor.getModel());
-        if (!module) return;
+        if (!module || !(module instanceof JavaCompiledModule)) return;
 
         return {
             hints: module.inlayHints,

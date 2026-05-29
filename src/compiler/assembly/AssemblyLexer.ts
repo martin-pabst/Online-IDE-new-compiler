@@ -45,15 +45,14 @@ export class AssemblyLexer {
 
         this.input = input;
 
-        if (!input || input.length === 0) {
-            return { tokens: this.tokens, errors: this.errors };
+        if (input && input.length > 0) {
+
+            this.currentChar = this.input.charAt(0);
+
+            this.nextChar = this.input.length > 1 ? this.input.charAt(1) : this.endChar;
+
+            this.main();
         }
-
-        this.currentChar = this.input.charAt(0);
-
-        this.nextChar = this.input.length > 1 ? this.input.charAt(1) : this.endChar;
-
-        this.main();
 
         this.tokens.push({
             type: AssemblyTokenType.endOfSourcecode,
@@ -190,7 +189,7 @@ export class AssemblyLexer {
         }
 
         let sign = 1;
-        if (base === 10 &&this.currentChar === '-') {
+        if (base === 10 && this.currentChar === '-') {
             sign = -1;
             this.next();
         }

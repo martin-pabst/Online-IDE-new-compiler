@@ -71,6 +71,7 @@ export class JavaSymbolAndMethodMarker {
     private markMethodUnderCursor(editor: monaco.editor.IStandaloneCodeEditor,
         module: JavaCompiledModule, position: monaco.Position, decorations: monaco.editor.IModelDeltaDecoration[]) {
 
+        if(!(module instanceof JavaCompiledModule)) return;    
         let methodRange = module.methodDeclarationRanges.find(range => Range.containsPosition(range, position));
 
         if (methodRange) {

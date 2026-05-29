@@ -55,7 +55,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
             }
         }
 
-        if (module == null) {
+        if (module == null || !(module instanceof JavaCompiledModule)) {
             return null;
         }
 

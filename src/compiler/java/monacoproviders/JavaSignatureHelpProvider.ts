@@ -61,6 +61,8 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
         structureHelpEnabled: boolean):
         monaco.languages.SignatureHelpResult {
 
+        if(!(module instanceof JavaCompiledModule)) return { value: { activeParameter: 0, activeSignature: 0, signatures: [] }, dispose: () => { } };
+
         let methodCallPositions = module.methodCallPositions[position.lineNumber];
 
         if (methodCallPositions == null) return null;
