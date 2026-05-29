@@ -11,6 +11,7 @@ import { ExceptionClass } from "../../java/runtime/system/javalang/ExceptionClas
 import { ExceptionPrinter } from "../../common/interpreter/ExceptionPrinter";
 import { IRange } from "monaco-editor";
 import { CompilerFile } from "../../common/module/CompilerFile";
+import { Thread } from "../../common/interpreter/Thread";
 
 enum AddressingMode {
     None = 0b00000000,
@@ -270,7 +271,15 @@ export class AbiBayernCPU extends CPU {
         this.memory.loadProgram(this.assemblyParserResult.compiledInMemory, this.assemblyParserResult.offsetAddress);
     }
 
-    executeNextStep(): boolean {
+    executeNextStep(thread: Thread): boolean {
+
+        let breakpoint = this.breakpointAddresses.get(this.programCounter);
+        if(breakpoint) {
+            if(!this.breakpointReachedShouldIExecute(breakpoint, thread)) {
+                return false;
+            }
+        }
+
         try {
         let opcode = this.memory.read(this.programCounter++);
         let instruction = this.opcodeToInstructionMap[opcode];
@@ -280,7 +289,7 @@ export class AbiBayernCPU extends CPU {
             throw new Error(AbiBayernAssemblyMessages.UnknownOpCode(opcode, --this.programCounter));
         }
         } catch (error) {
-            let range = this.assemblyParserResult.sourceMap[this.programCounter];
+            let range = this.assemblyParserResult.sourceMap.get(this.programCounter);
             let irange: IRange | undefined = range ? { startLineNumber: range.lineNumber, startColumn: range.column, endLineNumber: range.lineNumber, endColumn: range.column } : undefined;
             let html = ExceptionPrinter.getHTMLWithLinksForMessage(error instanceof Error ? error.message : String(error), irange, this.assemblyParserResult.file, this.main);
             this.main.getInterpreter().printManager?.printHtmlElement(html);

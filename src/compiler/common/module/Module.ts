@@ -54,6 +54,8 @@ export abstract class Module {
      */
     abstract getCodeFragments(): CodeFragment[];
 
+    abstract clearAllBreakpoints(): void;
+
     isStartable(): boolean {
         if (this.hasMainProgram()) {
             return !this.hasErrors() && !this.isDirty() && !this.dependsOnModuleWithErrorsFlag;
@@ -159,4 +161,5 @@ export abstract class Module {
         return 1;
     }
 
+    
 }

@@ -310,7 +310,7 @@ export class Interpreter {
             this.resetRuntime();
         }
 
-        step.setBreakpoint(true);
+        step.setBreakpoint(lineNo,true);
 
 
         this.start(undefined, false);

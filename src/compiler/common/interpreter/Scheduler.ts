@@ -441,7 +441,7 @@ export class Scheduler {
                 let ps = mainThread.programStack[i]!;
                 for (let step of ps.currentStepList) {
                     if (step.range?.startLineNumber >= 0) {
-                        step.setBreakpoint(true);
+                        step.setBreakpoint(step.range.startLineNumber, true);
                         i = -1; // break outer loop
                         break;
                     }
@@ -476,16 +476,16 @@ export class Scheduler {
                           return 1;\n`;
         // let statement1 = `new ${Helpers.classes}["${klass.identifier}"]().${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, ${StepParams.stack}, undefined);
         //                   return 1;\n`;
-        program.addStep(statement1);
+        program.createAndAddStep(statement1);
 
         // Step 2: call test method
         let statement2 = `${Helpers.elementRelativeToStackbase(0)}.${method.getInternalName("java")}(${StepParams.thread}, undefined);
                           return 2; `;
-        program.addStep(statement2);
+        program.createAndAddStep(statement2);
 
         // Step 3: return
         let statement3 = `${Helpers.return}(); `;
-        program.addStep(statement3);
+        program.createAndAddStep(statement3);
 
         if (program.compileToJavascriptFunctions() != null) {
             // this error should be impossible:

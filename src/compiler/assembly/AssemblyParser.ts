@@ -12,7 +12,7 @@ export type AssemblyParserResult = {
     offsetAddress: number;
     compiledInMemory: number[];
     errors: Error[];
-    sourceMap: { [address: number]: { lineNumber: number, column: number } };
+    sourceMap: Map<number, { lineNumber: number, column: number }>;
 }
 
 export type Label = {
@@ -28,7 +28,7 @@ export abstract class AssemblyParser {
     offsetAddress: number;
     compiledCode: number[] = [];
     errors: Error[] = [];
-    sourceMap: { [address: number]: { lineNumber: number, column: number } } = {};
+    sourceMap: Map<number, { lineNumber: number, column: number }>;
 
     tokens: AssemblyToken[];
     tokenIndex: number = 0;
@@ -44,7 +44,7 @@ export abstract class AssemblyParser {
         this.steps = [];
         this.errors = [];
         this.compiledCode = [];
-        this.sourceMap = {};
+        this.sourceMap = new Map();
         this.startAddress = undefined;
         this.offsetAddress = 0x200;
         this.programCounterRelative = 0;
@@ -166,10 +166,10 @@ export abstract class AssemblyParser {
 
     addSourceMapEntry(range: IRange, address?: number): void {
         let _address = address !== undefined ? address : this.programCounterRelative;
-        this.sourceMap[_address] = {
+        this.sourceMap.set(_address, {
             lineNumber: range.startLineNumber,
             column: range.startColumn
-        };
+        });
     }
 
     writeToMemory(...values: (number | undefined)[]): void {

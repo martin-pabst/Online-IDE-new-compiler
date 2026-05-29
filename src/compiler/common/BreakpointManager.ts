@@ -143,7 +143,7 @@ export class BreakpointManager {
 
         breakpointInfoForModule.breakpoints.push(breakpoint);
 
-        breakpoint.step?.setBreakpoint();
+        breakpoint.step?.setBreakpoint(line);
 
         return breakpoint;
 
@@ -156,7 +156,7 @@ export class BreakpointManager {
             let b = breakpointInfoForModule.breakpoints[i];
             if (b.lineNumber == lineNumber) {
                 breakpointInfoForModule.breakpoints.splice(i, 1);
-                b.step?.clearBreakpoint();
+                b.step?.clearBreakpoint(lineNumber);
                 return b;
             }
         }
@@ -186,20 +186,19 @@ export class BreakpointManager {
             if (!module) continue;
             let breakpointInfoForModule = this.#getBreakpointInfoForModule(module);
             if (!breakpointInfoForModule) continue;
-            for (let program of module.programsToCompileToFunctions) {
-                for (let step of program.stepsSingle) {
-                    step.clearBreakpoint();
-                }
-            }
+
+            module.clearAllBreakpoints();
 
             this.#getBreakpointPositionsFromEditor(breakpointInfoForModule);
 
             for (let breakpoint of breakpointInfoForModule.breakpoints) {
                 let step = module.findStep(breakpoint.lineNumber);
                 if(step){
-                    breakpoint.lineNumber = step.range.startLineNumber!;
+                    if(!(step.carriesFakeLineNumbers())){
+                        breakpoint.lineNumber = step.range.startLineNumber!;
+                    }
                     breakpoint.step = step;
-                    step.setBreakpoint();
+                    step.setBreakpoint(breakpoint.lineNumber);
                 }
             }
         }

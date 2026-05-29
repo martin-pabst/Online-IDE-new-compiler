@@ -8,9 +8,28 @@ import { CompilerFile } from "../common/module/CompilerFile";
 import { Module } from "../common/module/Module";
 import { CPU } from "./CPU";
 
+export class AssemblyStep extends Step {
+    constructor(index: number, module: Module, public codeAsString: string) {
+        super(index, module);
+    }
+    setBreakpoint(lineNumber: number, clearBreakpointAfterReached: boolean = false) {
+        let m = <AssemblyModule>this.module;
+        m.cpu.setBreakpointAtLine(lineNumber, clearBreakpointAfterReached);
+    }
+    clearBreakpoint(lineNumber: number) {
+        let m = <AssemblyModule>this.module;
+        m.cpu.clearBreakpointAtLine(lineNumber);
+    }
+    carriesFakeLineNumbers(): boolean {
+        return true; 
+    }
+}
+
+
 export class AssemblyModule extends Module {
 
     private _cpu: CPU;
+    private steps: AssemblyStep[] = [];
 
     constructor(file: CompilerFile) {
         super(file, false);
@@ -32,26 +51,31 @@ export class AssemblyModule extends Module {
 
     startMainProgram(thread: Thread, setOneTimeBreakpointAtFirstVisibleLine: boolean): boolean {
         let codeAsString1 =
-            `if(${Helpers.cpu}.executeNextStep()) {
+            `if(${Helpers.cpu}.executeNextStep(${StepParams.thread})) {
     ${Helpers.return}(0);
 }
 return 1; // infinite loop`;
         let codeAsString2 =
-            `if(${Helpers.cpu}.executeNextStep()) {
+            `if(${Helpers.cpu}.executeNextStep(${StepParams.thread})) {
     ${Helpers.return}(0);
 }
 return 0; // infinite loop`;
 
         let program = new Program(this, undefined, "Main.main");
-        program.addStep(codeAsString1);
-        program.addStep(codeAsString2);
-        program.stepsSingle[0].range = {
+        this.steps = [
+                new AssemblyStep(0, this, codeAsString1),
+                new AssemblyStep(1, this, codeAsString2)
+        ];
+        program.addStep(this.steps[0]);
+        program.addStep(this.steps[1]);
+
+        this.steps[0].range = {
             startLineNumber: 1,
             startColumn: 1,
             endLineNumber: 1,
             endColumn: 1
         };
-        program.stepsSingle[1].range = {
+        this.steps[1].range = {
             startLineNumber: 2,
             startColumn: 2,
             endLineNumber: 2,
@@ -65,8 +89,7 @@ return 0; // infinite loop`;
         thread.pushProgram(program);
 
         if (setOneTimeBreakpointAtFirstVisibleLine) {
-            let step = program.stepsSingle[0];
-            step.setBreakpoint(true);
+            this._cpu.setBreakpointAtFirstProgramStatement(true);
         }
 
 
@@ -81,4 +104,12 @@ return 0; // infinite loop`;
         return [];
     }
 
+    clearAllBreakpoints(): void {
+        this._cpu.breakpointAddresses.clear();
+    }
+
+    findStep(lineNumber: number): Step | undefined {
+        if(this.steps[0]) return this.steps[0];
+        return undefined;
+    }
 }
