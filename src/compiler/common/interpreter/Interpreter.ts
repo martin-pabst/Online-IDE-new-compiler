@@ -163,7 +163,7 @@ export class Interpreter {
 
         }
 
-        if(this.#timerId) clearInterval(this.#timerId);
+        if (this.#timerId) clearInterval(this.#timerId);
 
         this.#timerId = setInterval(periodicFunction, this.#timerIntervalMs);
 
@@ -310,7 +310,7 @@ export class Interpreter {
             this.resetRuntime();
         }
 
-        step.setBreakpoint(lineNo,true);
+        step.setBreakpoint(lineNo, true);
 
 
         this.start(undefined, false);
@@ -614,10 +614,12 @@ export class Interpreter {
         }
 
         this.setState(SchedulerState.stopped);
+        this.programPointerManager?.hideAll();
+
         this.#mainThread = this.scheduler.init(executable, mainModule, setOneTimeBreakpointAtFirstVisibleLine);
 
         if (this.#mainThread) {
-            if(executable instanceof JavaExecutable) {
+            if (executable instanceof JavaExecutable) {
                 this.codeReachedAssertions.init(executable.getModuleManager());
             }
             this.#mainThread.maxStepsPerSecond = this.stepsPerSecondGoal;
@@ -626,8 +628,8 @@ export class Interpreter {
     }
 
     hideProgrampointerPosition(tag?: string) {
-        this.programPointerManager?.hideAll();
-        // this.programPointerManager?.hide(tag || Interpreter.#ProgramPointerIndentifier);
+        // this.programPointerManager?.hideAll();
+        this.programPointerManager?.hide(tag || Interpreter.#ProgramPointerIndentifier);
         this.eventManager.fire("hideProgramPointer");
     }
 

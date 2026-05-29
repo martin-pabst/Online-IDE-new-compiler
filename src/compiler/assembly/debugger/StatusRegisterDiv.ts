@@ -6,11 +6,12 @@ export class StatusRegisterDiv {
 
     private registerNameDiv: HTMLDivElement;
     private valueDivs: { [flagName: string]: HTMLDivElement };
+    private registerDiv: HTMLDivElement;
 
     constructor(parentDiv: HTMLDivElement, cpu: CPU) {
-        let registerDiv = DOM.makeDiv(parentDiv, "jo_register-div");
+        this.registerDiv = DOM.makeDiv(parentDiv, "jo_register-div");
 
-        this.registerNameDiv = DOM.makeDiv(registerDiv, "jo_register-name-div");
+        this.registerNameDiv = DOM.makeDiv(this.registerDiv, "jo_register-name-div");
         this.registerNameDiv.textContent = AssemblyDebuggerMessages.StatusRegisterCaption();
 
     }
@@ -31,7 +32,7 @@ export class StatusRegisterDiv {
         for(let i = 0; i < cpu.flagNames.length; i++) {
             let flagName = cpu.flagNames[i];
             let flagNameShort = cpu.flagNamesShort[i];
-            let flagDiv = DOM.makeDiv(this.registerNameDiv, "jo_flagdiv");
+            let flagDiv = DOM.makeDiv(this.registerDiv, "jo_flagdiv");
             let flagNameDiv = DOM.makeDiv(flagDiv, "jo_flag-name-div");
             flagNameDiv.textContent = AssemblyDebuggerMessages.FlagString(flagNameShort);
             let valueDiv = DOM.makeDiv(flagDiv, "jo_flag-value-div");

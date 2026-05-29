@@ -12,6 +12,7 @@ import { ExceptionPrinter } from "../../common/interpreter/ExceptionPrinter";
 import { IRange } from "monaco-editor";
 import { CompilerFile } from "../../common/module/CompilerFile";
 import { Thread } from "../../common/interpreter/Thread";
+import { SchedulerState } from "../../common/interpreter/SchedulerState";
 
 enum AddressingMode {
     None = 0b00000000,
@@ -79,7 +80,7 @@ type Instruction = {
 
 var instructions: Instruction[] = [
     {
-        type: AssemblyTokenType.load, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.load, description: 'load($0)', 
+        type: AssemblyTokenType.load, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.load, description: 'load($0)',
         exec: (cpu: AbiBayernCPU) => { cpu.accumulator = cpu.memory.read(cpu.readOperand()); return false; }
     },
     {
@@ -272,31 +273,32 @@ export class AbiBayernCPU extends CPU {
     }
 
     executeNextStep(thread: Thread): boolean {
-
         let breakpoint = this.breakpointAddresses.get(this.programCounter);
-        if(breakpoint) {
-            if(!this.breakpointReachedShouldIExecute(breakpoint, thread)) {
+        if (breakpoint) {
+            if (!this.breakpointReachedShouldIExecute(breakpoint, thread)) {
                 return false;
             }
         }
-
+        
         try {
-        let opcode = this.memory.read(this.programCounter++);
-        let instruction = this.opcodeToInstructionMap[opcode];
-        if (instruction) {
-            return instruction.exec(this);
-        } else {
-            throw new Error(AbiBayernAssemblyMessages.UnknownOpCode(opcode, --this.programCounter));
-        }
+            let opcode = this.memory.read(this.programCounter++);
+            let instruction = this.opcodeToInstructionMap[opcode];
+            if (instruction) {
+                return instruction.exec(this);
+            } else {
+                throw new Error(AbiBayernAssemblyMessages.UnknownOpCode(opcode, --this.programCounter));
+            }
         } catch (error) {
             let range = this.assemblyParserResult.sourceMap.get(this.programCounter);
             let irange: IRange | undefined = range ? { startLineNumber: range.lineNumber, startColumn: range.column, endLineNumber: range.lineNumber, endColumn: range.column } : undefined;
-            let html = ExceptionPrinter.getHTMLWithLinksForMessage(error instanceof Error ? error.message : String(error), irange, this.assemblyParserResult.file, this.main);
+            let errorMessage = error instanceof Error ? error.message : String(error);
+            let html = ExceptionPrinter.getHTMLWithLinksForMessage(errorMessage, irange, this.assemblyParserResult.file, this.main);
             this.main.getInterpreter().printManager?.printHtmlElement(html);
-            if(irange) {
+            if (irange) {
                 this.main.showProgramPosition(this.assemblyParserResult.file, irange, false);
                 this.main.getInterpreter().exceptionMarker?.markExceptionByFileAndRange(this.assemblyParserResult.file, irange);
             }
+            alert(errorMessage + "\n\n Details siehe Reiter 'Ausgabe'.");
             return true; // Stop execution on error
         }
 

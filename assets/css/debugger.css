@@ -21,7 +21,7 @@
 
     .jo_register-div {
         color: var(--fontColorNormal);
-        margin-bottom: 5px;
+        margin: 2px 0 5px 5px;
     }
 
     .jo_register-name-div {
@@ -41,7 +41,6 @@
 
     .jo_flag-name-div {
         color: var(--debugger-fieldIdentifier);
-        font-weight: bold;
         width: 50px;
     }
 

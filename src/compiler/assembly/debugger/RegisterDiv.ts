@@ -16,10 +16,11 @@ export class RegisterDiv {
     }
 
     setValue(value: number, base: number = 10) {
-        if (base === 16) {
-            this.valueDiv.textContent = "0x" + value.toString(16).toUpperCase();
-        } else {
-            this.valueDiv.textContent = value.toString();
-        }
+        // if (base === 16) {
+        //     this.valueDiv.textContent = "0x" + value.toString(16).toUpperCase();
+        // } else {
+        //     this.valueDiv.textContent = value.toString();
+        // }
+        this.valueDiv.textContent = value.toString() + " (hex: 0x" + value.toString(16).toUpperCase() + ")";
     }
 }
