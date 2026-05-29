@@ -63,13 +63,13 @@ export class SettingsGUI {
 
         let tabManager = new TabManager($tabDiv[0], true);
 
-        let userSettingsTab = new Tab(SettingsMessages.UserSettingsTabHeading(), []);
+        let userSettingsTab = new Tab('User Settings',SettingsMessages.UserSettingsTabHeading(), []);
         userSettingsTab.onShow = () => { this.showSettingsData("user"); };
         tabManager.addTab(userSettingsTab);
         tabManager.setActive(userSettingsTab);
 
         if (this.main.user.is_teacher && this.classSettings && this.classSettings.length > 0) {
-            let classSettingsTab = new Tab(SettingsMessages.ClassSettingsTabHeading(), []);
+            let classSettingsTab = new Tab('Class Settings', SettingsMessages.ClassSettingsTabHeading(), []);
             classSettingsTab.onShow = () => {
                 this.showSettingsData("class");
             };
@@ -97,7 +97,7 @@ export class SettingsGUI {
         }
 
         if (this.main.user.is_schooladmin && this.schoolSettings) {
-            let schoolSettingsTab = new Tab(SettingsMessages.SchoolSettingsTabHeading(), []);
+            let schoolSettingsTab = new Tab('School Settings', SettingsMessages.SchoolSettingsTabHeading(), []);
             schoolSettingsTab.onShow = () => { this.showSettingsData("school"); };
             tabManager.addTab(schoolSettingsTab);
         }

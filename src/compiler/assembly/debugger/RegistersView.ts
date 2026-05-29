@@ -7,7 +7,7 @@ import { StatusRegisterDiv } from "./StatusRegisterDiv";
 
 export class RegistersView extends AccordionElement {
 
-    registerDivs: { [registerName: string]: RegisterDiv } = {};
+    registerDivs: { [registerName: string]: RegisterDiv };
     statusRegisterDiv: StatusRegisterDiv;
 
     constructor(debuggerAccordion: TreeviewAccordion) {
@@ -22,7 +22,7 @@ export class RegistersView extends AccordionElement {
 
     updateView(cpu: CPU) {
         this.initRegisterDivs(cpu);
-        for(let registerName of cpu.registerNamesShort) {
+        for(let registerName of cpu.registerNames) {
             let registerValue = cpu.getRegisterValues()[registerName];
             this.registerDivs[registerName].setValue(registerValue, 16);
         }
@@ -31,6 +31,7 @@ export class RegistersView extends AccordionElement {
 
     initRegisterDivs(cpu: CPU) {
         if(this.registerDivs) return;
+        this.registerDivs = {};
         for(let registerName of cpu.registerNames) {
             this.registerDivs[registerName] = new RegisterDiv(this.innerDiv, registerName);
         }

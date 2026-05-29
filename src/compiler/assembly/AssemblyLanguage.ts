@@ -241,11 +241,13 @@ export class AssemblyLanguage extends ProgrammingLanguage {
 
     public enable(main: IMain) {
         let bottomDiv = main.getBottomDiv();
-        // bottomDiv.jUnitTab?.setVisible(true);
-        // bottomDiv.disassemblerTab?.setVisible(true);
-        // bottomDiv.console?.tab?.setVisible(true);
+        bottomDiv.jUnitTab?.setVisible(false);
+        bottomDiv.disassemblerTab?.setVisible(false);
+        bottomDiv.console?.tab?.setVisible(false);
         let rightDiv = main.getRightDiv();
-        // rightDiv.classDiagramTab?.setVisible(true);
+        rightDiv.classDiagramTab?.setVisible(false);
+        let debuggerTab = rightDiv.tabManager.getTabByName("Debugger");
+        debuggerTab?.show();
     }
 
     public disable(main: IMain) {

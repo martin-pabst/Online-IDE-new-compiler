@@ -968,7 +968,7 @@ export class MainEmbedded implements MainBase {
             `);
 
         if (!this.config.hideEditor) {
-            let debuggerTab = new Tab('Debugger', ['jo_scrollable', 'jo_editorFontSize', 'jo_variablesTab']);
+            let debuggerTab = new Tab('Debugger','Debugger', ['jo_scrollable', 'jo_editorFontSize', 'jo_variablesTab']);
             this.rightDiv.tabManager.addTab(debuggerTab);
 
             let $vd = jQuery(debuggerTab.bodyDiv);

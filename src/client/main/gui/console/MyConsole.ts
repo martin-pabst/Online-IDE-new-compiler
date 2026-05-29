@@ -38,7 +38,7 @@ export class MyConsole {
     constructor(private main: MainBase, private tabManager: TabManager | null) {
         if (tabManager == null) return; // Console is only used to highlight exceptions
 
-        this.tab = new Tab(ConsoleMessages.console(), ["jo_editorFontSize", "jo_consoleTab"]);
+        this.tab = new Tab('Console',ConsoleMessages.console(), ["jo_editorFontSize", "jo_consoleTab"]);
         tabManager.addTab(this.tab);
 
         // <div class="jo_editorFontSize jo_consoleTab">

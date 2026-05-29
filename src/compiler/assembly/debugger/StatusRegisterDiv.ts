@@ -5,7 +5,7 @@ import { AssemblyDebuggerMessages } from "../language/AssemblyDebuggerMessages";
 export class StatusRegisterDiv {
 
     private registerNameDiv: HTMLDivElement;
-    private valueDivs: { [flagName: string]: HTMLDivElement } = {};
+    private valueDivs: { [flagName: string]: HTMLDivElement };
 
     constructor(parentDiv: HTMLDivElement, cpu: CPU) {
         let registerDiv = DOM.makeDiv(parentDiv, "jo_register-div");
@@ -17,7 +17,8 @@ export class StatusRegisterDiv {
 
     updateValues(cpu: CPU) {
         this.initValueDivs(cpu);
-        for(let flagName of cpu.flagNamesShort) {
+        for(let i = 0; i < cpu.flagNames.length; i++) {
+            let flagName = cpu.flagNames[i];
             let flagValue = cpu.getFlags()[flagName];
             let valueDiv = this.valueDivs[flagName];
             valueDiv.textContent = flagValue ? "1" : "0";
@@ -26,10 +27,13 @@ export class StatusRegisterDiv {
 
     initValueDivs(cpu: CPU) {
         if(this.valueDivs) return;
-        for(let flagName of cpu.flagNamesShort) {
+        this.valueDivs = {};
+        for(let i = 0; i < cpu.flagNames.length; i++) {
+            let flagName = cpu.flagNames[i];
+            let flagNameShort = cpu.flagNamesShort[i];
             let flagDiv = DOM.makeDiv(this.registerNameDiv, "jo_flagdiv");
             let flagNameDiv = DOM.makeDiv(flagDiv, "jo_flag-name-div");
-            flagNameDiv.textContent = AssemblyDebuggerMessages.FlagString(flagName);
+            flagNameDiv.textContent = AssemblyDebuggerMessages.FlagString(flagNameShort);
             let valueDiv = DOM.makeDiv(flagDiv, "jo_flag-value-div");
             valueDiv.textContent = "0";
             this.valueDivs[flagName] = valueDiv;

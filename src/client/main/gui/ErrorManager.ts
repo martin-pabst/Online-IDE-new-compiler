@@ -19,7 +19,7 @@ export class ErrorManager {
 
     constructor(private main: MainBase, tabManager: TabManager) {
 
-        this.tab = new Tab(ErrorManagerMessages.errors(), ["jo_active", "jo_scrollable", "jo_editorFontSize", "jo_errorsTab"])
+        this.tab = new Tab('Errors',ErrorManagerMessages.errors(), ["jo_active", "jo_scrollable", "jo_editorFontSize", "jo_errorsTab"])
         tabManager.addTab(this.tab);
         this.$errorDiv = jQuery(this.tab.bodyDiv);
     }

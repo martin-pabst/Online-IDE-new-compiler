@@ -20,7 +20,7 @@ export class AssemblyLanguageDebugger extends Debugger {
     public updateView(): void {
         let currentThread = this.main.getInterpreter().scheduler.getCurrentThread();
         if (!currentThread) return;
-        let cpu = currentThread.cpu;
+        let cpu = currentThread.__cpu;
         if(!cpu) return;
 
         this.registerView.updateView(cpu);

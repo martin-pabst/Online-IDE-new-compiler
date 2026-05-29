@@ -56,11 +56,11 @@ export class BottomDiv {
         }
 
         if (withPCode) {
-            this.disassemblerTab = new Tab(BottomDivMessages.code(), ["jo_scrollable", "jo_pcodeTab"]);
+        this.disassemblerTab = new Tab('Disassembler', BottomDivMessages.code(), ["jo_scrollable", "jo_pcodeTab"]);
             this.tabManager.addTab(this.disassemblerTab);
         }
 
-        this.jUnitTab = new Tab(BottomDivMessages.testRunner(), ["jo_testrunnerTab"]);
+        this.jUnitTab = new Tab('JUnit', BottomDivMessages.testRunner(), ["jo_testrunnerTab"]);
         this.tabManager.addTab(this.jUnitTab);
 
         //         <img class="jo_db-busy" title="Warten auf Datenbank..."

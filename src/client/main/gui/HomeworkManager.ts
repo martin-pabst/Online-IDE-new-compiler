@@ -33,7 +33,7 @@ export class HomeworkManager {
     tab: Tab;
 
     constructor(private main: Main, public tabManager: TabManager) {
-        this.tab = new Tab(HomeworkManagerMessages.homework(), ["jo_homeworkTab"]);
+        this.tab = new Tab('Homework',HomeworkManagerMessages.homework(), ["jo_homeworkTab"]);
         tabManager.addTab(this.tab);
     }
 
