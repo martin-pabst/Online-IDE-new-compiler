@@ -64,5 +64,7 @@ export interface IMain {
 
     getSettings(): Settings;
 
+    setHorizontalSliderPosition(fraction: number): void;
+
 
 }

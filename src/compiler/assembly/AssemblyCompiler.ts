@@ -99,6 +99,7 @@ export class AssemblyCompiler implements Compiler {
             atLeastOneModuleCompiled = true;
         }
 
+        this.eventManager.fire("compilationFinished");
         if (!atLeastOneModuleCompiled) return;
 
         let executable = new AssemblyExecutable(this.#moduleManager);

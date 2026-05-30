@@ -5,6 +5,7 @@ import * as monaco from 'monaco-editor'
 import { LibraryManager } from "../common/programminglanguage/LibraryManager.ts";
 import { AssemblyLibraryManager } from "./AssemblyLibraryManager.ts";
 import { AssemblyCompiler } from "./AssemblyCompiler.ts";
+import { MemoryTab } from "./debugger/MemoryTab.ts";
 
 export class AssemblyLanguage extends ProgrammingLanguage {
 
@@ -246,8 +247,26 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         bottomDiv.console?.tab?.setVisible(false);
         let rightDiv = main.getRightDiv();
         rightDiv.classDiagramTab?.setVisible(false);
-        let debuggerTab = rightDiv.tabManager.getTabByName("Debugger");
-        debuggerTab?.show();
+        
+        rightDiv.memoryTab?.setVisible(true);
+        (<MemoryTab>rightDiv.memoryTab)?.listenToCompiler(this.getCompiler(main) as AssemblyCompiler);
+
+        // let debuggerTab = rightDiv.tabManager.getTabByName("Debugger");
+        // debuggerTab?.show();
+
+        let memoryTab = rightDiv.tabManager.getTabByName("Memory Tab");
+        memoryTab?.show();
+
+        main.setHorizontalSliderPosition(0.6);
+        main.getInterpreter().showTriangleAtProgramPointer = false;
+
+        setTimeout(() => {
+            main.getActionManager().setVisible("interpreter.stepInto", false);
+            main.getActionManager().setVisible("interpreter.stepOut", false);
+            main.getActionManager().setVisible("interpreter.restart", false);            
+            main.getActionManager().setVisible("interpreter.startTests", false);            
+        }, 800);
+
     }
 
     public disable(main: IMain) {

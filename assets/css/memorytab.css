@@ -1,36 +1,41 @@
 @keyframes jo_memory_pulse_keyframes_red {
     0% {
-    background-color: transparent;
+        background-color: transparent;
     }
+
     50% {
-    background-color: #df621a;
+        background-color: #df621a;
     }
+
     to {
-    background-color: transparent;
+        background-color: transparent;
     }
 }
 
 @keyframes jo_memory_pulse_keyframes_green {
     0% {
-    background-color: transparent;
+        background-color: transparent;
     }
+
     50% {
-    background-color: #4ffa2c;
+        background-color: #4ffa2c;
     }
+
     to {
-    background-color: transparent;
+        background-color: transparent;
     }
 }
 
 .joeCssFence {
 
     --memorytab-codebackground: #1c6de78f;
-
+    
     .jo_memorytab {
         display: flex;
         flex-direction: column;
         width: 100%;
         height: 100%;
+        user-select: none;
     }
 
     .jo_memorytab_heading1 {
@@ -41,14 +46,18 @@
         padding: 3px 5px;
     }
 
+    .jo_memorytab_hamburger {
+        margin-right: 10px;
+    }
+
     .jo_memorytab_registername {
         color: var(--debugger-localVariableIdentifier);
         font-weight: bold;
     }
 
     .jo_memorytab_registervalue {
-        color: var(--fontColorLight);   
-        width: 30px;     
+        color: var(--fontColorLight);
+        width: 60px;
     }
 
     .jo_memorytab_flagname {
@@ -57,8 +66,8 @@
     }
 
     .jo_memorytab_flagvalue {
-        color: var(--fontColorLight);   
-        width: 30px;     
+        color: var(--fontColorLight);
+        width: 30px;
     }
 
     .jo_memorytab_heading2 {
@@ -73,6 +82,50 @@
         color: var(--fontColorNormal);
         font-weight: bold;
     }
+
+    .jo_memorytab_memoryOuter {
+        width: 100%;
+        flex: 1;
+        position: relative;
+    }
+
+    .jo_memorytab_regulartable {
+        scrollbar-width: auto !important;
+        padding: 3px 0;
+    }
+
+    .jo_memorytab_regulartable tbody tr td,
+    .jo_memorytab_regulartable th {
+        user-select: none;
+        text-align: right;
+    }
+
+    .jo_memorytab_regulartable th {
+        color: var(--memorytab-tableheadings);
+    }
+
+
+    .jo_memorytab_regulartable table {
+        scrollbar-width: auto !important;
+        color: var(--fontColorNormal) !important;
+    }
+
+    .jo_memorytab_currentstatement {
+        background-color: var(--reveal-programpointer);
+    }
+
+    .jo_memorytab_programlocation {
+        background-color: var(--memorytab-codebackground);
+    }
+
+    .jo_memorytab_addressoperand {
+        border: 2px solid var(--reveal-programpointer);
+        box-sizing: border-box;
+    }
     
+    .jo_memorytab_indirectoperand {
+        border: 2px dashed var(--reveal-programpointer);
+        box-sizing: border-box;
+    }
 
 }

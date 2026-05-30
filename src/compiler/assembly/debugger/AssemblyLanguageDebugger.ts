@@ -1,5 +1,6 @@
 import { Debugger } from "../../common/debugger/Debugger";
 import { IMain } from "../../common/IMain";
+import { MemoryTab } from "./MemoryTab";
 import { RegistersView } from "./RegistersView";
 
 export class AssemblyLanguageDebugger extends Debugger {
@@ -24,6 +25,11 @@ export class AssemblyLanguageDebugger extends Debugger {
         if(!cpu) return;
 
         this.registerView.updateView(cpu);
+
+        let memoryTab = <MemoryTab>this.main.getRightDiv().memoryTab;
+        if (memoryTab) {
+            memoryTab.update(cpu);
+        }
     }
 
 }

@@ -214,8 +214,8 @@ export class AbiBayernCPU extends CPU {
     accumulator: number = 0;
     programCounter: number = 0;
 
-    flagNames = ['zero', 'negative', 'overflow'];
-    flagNamesShort = ['Z', 'N', 'V'];
+    flagNames = ['zero', 'negative', 'overflow', 'carry'];
+    flagNamesShort = ['Z', 'N', 'V', 'C'];
 
     registerNames = ['Accumulator', 'Program Counter'];
     registerNamesShort = ['A', 'PC'];
@@ -224,6 +224,7 @@ export class AbiBayernCPU extends CPU {
         zero: boolean;
         negative: boolean;
         overflow: boolean;
+        carry: boolean;
     }
 
     memory: AbiBayernMemory;
@@ -232,8 +233,9 @@ export class AbiBayernCPU extends CPU {
 
     constructor(assemblyParserResult: AssemblyParserResult, main: IMain) {
         super(assemblyParserResult, main);
-        this.memory = new AbiBayernMemory(0x10000); // 64 * 2 KB of memory
+        this.memory = new AbiBayernMemory(0x1000); // 64 * 4 KB of memory
         this.initOpcodeToInstructionMap();
+        this.reset();
     }
 
     initOpcodeToInstructionMap(): void {
@@ -261,15 +263,53 @@ export class AbiBayernCPU extends CPU {
         return this.programCounter;
     }
 
+    getStatementLengthAtProgramCounter(): number {
+        let opcode = this.memory.dump()[this.programCounter];
+        let instruction = this.opcodeToInstructionMap[opcode];
+        if (instruction) {
+            switch (instruction.argumentType) {
+                case "None": return 1;
+                case "Immediate":
+                case "Address":
+                case "Indirect": return 2;
+            }
+        }
+        return 1; // In case of invalid opcode
+    }
+
+    getAddressOperandLocationOfCurrentStatement(): { location: number | undefined; indirectLocation: number | undefined; } {
+        let opcode = this.memory.dump()[this.programCounter];
+        let instruction = this.opcodeToInstructionMap[opcode];
+        if(!instruction) return { location: undefined, indirectLocation: undefined };
+        if(instruction.argumentType === "None" || instruction.argumentType === "Immediate"){
+            return { location: undefined, indirectLocation: undefined };
+        }
+        let mem = this.memory.dump();
+        let operandAddress = mem[this.programCounter + 1];
+        if(operandAddress < 0 || operandAddress >= mem.length) return { location: undefined, indirectLocation: undefined };
+        if(instruction.argumentType === "Address"){
+            return { location: operandAddress, indirectLocation: undefined };
+        } else { // Indirect
+            let indirectLocation = mem[operandAddress];
+            if(indirectLocation < 0 || indirectLocation >= mem.length) return { location: undefined, indirectLocation: undefined };
+            return { location: operandAddress, indirectLocation: indirectLocation };
+        }
+    }
+
+
     reset(): void {
         this.accumulator = 0;
-        this.programCounter = this.assemblyParserResult.startAddress ?? this.assemblyParserResult.offsetAddress;
+        this.programCounter = 0;
         this.flags = {
             'zero': false,
             'negative': false,
-            'overflow': false
+            'overflow': false,
+            'carry': false
         };
-        this.memory.loadProgram(this.assemblyParserResult.compiledInMemory, this.assemblyParserResult.offsetAddress);
+        if (this.assemblyParserResult) {
+            this.programCounter = this.assemblyParserResult.startAddress ?? this.assemblyParserResult.offsetAddress;
+            this.memory.loadProgram(this.assemblyParserResult.compiledInMemory, this.assemblyParserResult.offsetAddress);
+        }
     }
 
     executeNextStep(thread: Thread): boolean {
@@ -279,7 +319,7 @@ export class AbiBayernCPU extends CPU {
                 return false;
             }
         }
-        
+
         try {
             let opcode = this.memory.read(this.programCounter++);
             let instruction = this.opcodeToInstructionMap[opcode];
@@ -311,7 +351,7 @@ export class AbiBayernCPU extends CPU {
     setAccu(value: number): void {
         if (value > 0x7FFF || value < -0x8000) {
             this.flags.overflow = true;
-            value = (value + 0x10000) & 0x8000 - 0x8000;
+            value = (value + 0x8000) & 0xffff - 0x8000; // Ensure value is a signed 16-bit integer
         } else {
             this.flags.overflow = false;
         }
@@ -325,6 +365,7 @@ export class AbiBayernCPU extends CPU {
         this.flags.zero = result === 0;
         this.flags.negative = result < 0;
         this.flags.overflow = result > 0x7FFF || result < -0x8000;
+        this.flags.carry = this.flags.overflow;
     }
 
     setProgramCounter(address: number): void {
@@ -455,14 +496,14 @@ export class AbiBayernParser extends AssemblyParser {
                     this.writeToMemory(instruction.OpCode, address);
                 }
                 this.next();
-                this.expect(AssemblyTokenType.rightBracket);
+                if(this.expect(AssemblyTokenType.rightBracket)) this.next();
             } else if (addressToken.type === AssemblyTokenType.identifier) {
                 this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
                 this.writeToMemory(instruction.OpCode);
                 let labelAddress = this.getLabelAddressAbsolute(addressToken, this.getProgramCounterAbsolute());
                 this.writeToMemory(labelAddress, labelAddress);
                 this.next();
-                this.expect(AssemblyTokenType.rightBracket);
+                if(this.expect(AssemblyTokenType.rightBracket)) this.next();
             } else {
                 this.pushError(AbiBayernAssemblyMessages.NumberOrLabelExpectedInIndirectAdress(token.text), "error", token.range);
                 this.next();

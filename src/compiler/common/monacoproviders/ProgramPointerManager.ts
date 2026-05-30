@@ -18,7 +18,7 @@ export type ProgramPointerStyle = {
     className: string,
     rulerColor: string, // "#6fd61b"
     minimapColor: string, // "#6fd61b"
-    beforeContentClassName?: string
+    beforeContentClassName?: string,
 }
 
 export class ProgramPointerManager {

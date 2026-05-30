@@ -35,7 +35,7 @@ export class AbiBayernMemory extends Memory {
         if (address2 < 0 || address2 >= this.memory.length) {
             throw new Error(`Memory write error: Indirect address ${address2} (from address ${address}) out of bounds (valid adresses: 0-${this.memory.length - 1})`);
         }
-        this.memory[address2] = (Math.floor(value) + 0x10000) & 0x8000 - 0x8000; // Ensure value is a signed 16-bit integer
+        this.memory[address2] = (Math.floor(value) + 0x8000) & 0xffff - 0x8000; // Ensure value is a signed 16-bit integer
     }
 
 
@@ -43,7 +43,7 @@ export class AbiBayernMemory extends Memory {
         if (address < 0 || address >= this.memory.length) {
             throw new Error(`Memory write error: Address ${address} out of bounds (valid adresses: 0-${this.memory.length - 1})`);
         }
-        this.memory[address] = (Math.floor(value) + 0x10000) & 0x8000 - 0x8000; // Ensure value is a signed 16-bit integer
+        this.memory[address] = (Math.floor(value) + 0x8000) & 0xffff - 0x8000; // Ensure value is a signed 16-bit integer
     }
 
     dump(): number[] {

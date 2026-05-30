@@ -11,6 +11,7 @@ import { IconButtonComponent } from '../../../tools/components/IconButtonCompone
 import '/assets/css/wholewindow.css';
 import { transferElements } from '../../../tools/HtmlTools.js';
 import { MainEmbedded } from '../../embedded/MainEmbedded.js';
+import { MemoryTab } from '../../../compiler/assembly/debugger/MemoryTab.js';
 
 
 export class RightDiv {
@@ -25,6 +26,7 @@ export class RightDiv {
 
     outputTab: Tab;
     classDiagramTab: Tab;
+    memoryTab: Tab;
 
     rightDivElement: HTMLElement;
     originalControlsContainer: HTMLElement;
@@ -36,7 +38,8 @@ export class RightDiv {
 
     rightdiv_width: string = "100%";
 
-    constructor(private main: MainBase, private mainElement: HTMLElement, private withClassDiagram: boolean) {
+    constructor(private main: MainBase, private mainElement: HTMLElement, 
+        private withClassDiagram: boolean) {
         if (main.isEmbedded()) {
             this.findElementsEmbedded();
         } else {
@@ -174,6 +177,8 @@ export class RightDiv {
             true, "append"
         )
 
+        this.memoryTab = new MemoryTab(this.main);
+        this.tabManager.addTab(this.memoryTab);
     }
 
     isClassDiagramActive(): boolean {

@@ -53,4 +53,10 @@ export class AssemblyDebuggerMessages {
         'fr': `Hexadécimal`
     });
 
+    static MemoryTabShowProgramLocation = () => lm({
+        'de': `Lage des Programms im Speicher  anzeigen`,
+        'en': `Show program location in memory`,
+        'fr': `Afficher l'emplacement du programme dans la mémoire`
+    });
+
 }

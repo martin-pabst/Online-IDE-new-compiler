@@ -26,7 +26,7 @@ export class EmbeddedFileExplorer {
         this.treeview = new Treeview(<HTMLDivElement>$fileListDiv[0], {
             captionLine: {
                 enabled: true,
-                text: "Programmdateien"
+                text: "Dateien"
             },
             withSelection: true,
             selectMultiple: false,

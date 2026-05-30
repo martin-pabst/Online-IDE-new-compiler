@@ -46,7 +46,7 @@ export abstract class AssemblyParser {
         this.compiledCode = [];
         this.sourceMap = new Map();
         this.startAddress = undefined;
-        this.offsetAddress = 0x200;
+        this.offsetAddress = 128;
         this.programCounterRelative = 0;
         this.labels = new Map();
     }
@@ -95,7 +95,9 @@ export abstract class AssemblyParser {
     parseSetLabel(token: AssemblyToken): void {
         let labelName = token.value as string;
 
-        if (this.expect(AssemblyTokenType.colon)) {
+        if(this.currentToken().type !== AssemblyTokenType.colon){
+            this.pushError(AssemblyParserMessages.StatementUnknown(labelName), "error", token.range);
+        } else {
             this.next();
         }
 

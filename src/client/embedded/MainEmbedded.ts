@@ -729,7 +729,7 @@ export class MainEmbedded implements MainBase {
 
         new EditorOpenerProvider(this);
 
-        let $infoButton = jQuery('<div class="jo_button jo_active img_ellipsis-dark" style="margin-left: 16px"></div>');
+        let $infoButton = jQuery('<div class="jo_button jo_active img_ellipsis-dark" style="margin-left: 8px"></div>');
         $infoButton[0].title = 'Über die Online-IDE...';
         $controlsDiv.append($infoButton);
 
@@ -1048,6 +1048,10 @@ export class MainEmbedded implements MainBase {
             this.debugger.hide();
         }
 
+    }
+
+    setHorizontalSliderPosition(fraction: number): void {
+        this.horizontalSlider?.setPosition(fraction);
     }
 }
 

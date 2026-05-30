@@ -45,4 +45,10 @@ export class AssemblyParserMessages {
         'fr': `Le label "${labelName}" n'est défini nulle part. Pour le définir, écrivez "${labelName}:" au début de la ligne à laquelle vous voulez que le label fasse référence.`
     });
 
+    static StatementUnknown = (statement: string) => lm({
+        'de': `Unbekannte Anweisung: ${statement}`,
+        'en': `Unknown statement: ${statement}`,
+        'fr': `Instruction inconnue : ${statement}`
+    });
+
 }

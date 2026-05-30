@@ -1,0 +1,6 @@
+:host ::slotted(table) {
+    --regular-table--transform-x: 0px;
+    --regular-table--transform-y: 0px;
+    --regular-table--clip-x: 0px;
+    --regular-table--clip-y: 0px;
+}

@@ -306,7 +306,19 @@ export class JavaLanguage extends ProgrammingLanguage {
         let rightDiv = main.getRightDiv();
         if (rightDiv) {
             rightDiv.classDiagramTab?.setVisible(true);
+            rightDiv.memoryTab?.setVisible(false);
         }
+        main.getInterpreter().showTriangleAtProgramPointer = true;
+
+        setTimeout(() => {            
+            main.getActionManager().setVisible("interpreter.stepOver", true);
+            main.getActionManager().setVisible("interpreter.stepInto", true);
+            main.getActionManager().setVisible("interpreter.stepOut", true);
+            main.getActionManager().setVisible("interpreter.restart", true);
+            main.getActionManager().setVisible("interpreter.startTests", true);
+        }, 800);
+
+
     }
 
     public disable(main: IMain) {
@@ -334,5 +346,5 @@ export class JavaLanguage extends ProgrammingLanguage {
     getDebuggerType(): DebuggerType {
         return "java";
     }
-    
+
 }

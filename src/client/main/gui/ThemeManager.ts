@@ -118,6 +118,7 @@ export class ThemeManager {
                 "--deValue": "white",
                 "--debugger-fieldIdentifier": "#e6e92c",
                 "--debugger-localVariableIdentifier": "#4ffa2c",
+                "--memorytab-tableheadings": "#41dd65",
 
 
                 // Helper
@@ -224,7 +225,7 @@ export class ThemeManager {
                 "--deValue": "#0000a0",
                 "--debugger-fieldIdentifier": "#855c27ff",
                 "--debugger-localVariableIdentifier": "#25940fff",
-
+                "--memorytab-tableheadings": "#257738",
 
                 // Helper
                 "--helper-background-color": "#f3f3f3",

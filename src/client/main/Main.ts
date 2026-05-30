@@ -475,6 +475,8 @@ export class Main implements MainBase {
         this.getInterpreter()?.onFileSelected();
     }
 
-
+    setHorizontalSliderPosition(fraction: number): void {
+        this.viewModeController.sliders.sliderRight.setPosition(fraction);
+    }
 }
 

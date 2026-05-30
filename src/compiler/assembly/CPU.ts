@@ -41,6 +41,15 @@ export abstract class CPU {
     abstract getRegisterValues(): { [registerName: string]: number };
 
     abstract getProgramCounter(): number;
+    abstract getStatementLengthAtProgramCounter(): number;
+    abstract getAddressOperandLocationOfCurrentStatement(): { location: number | undefined; indirectLocation: number | undefined; };
+    
+    getProgramLocation(): { from: number, to: number } {
+        return {
+            from: this.assemblyParserResult.startAddress,
+            to: this.assemblyParserResult.startAddress + this.assemblyParserResult.compiledInMemory.length - 1
+        }
+    };
 
     abstract getMemory(): Memory;
 
@@ -110,9 +119,10 @@ export abstract class CPU {
     breakpointReachedShouldIExecute(breakpoint: AssemblyBreakpoint, thread: Thread): boolean {
         if(thread.haltAtNextBreakpoint) {
             thread.state = ThreadState.stoppedAtBreakpoint;
-            thread.haltAtNextBreakpoint = false;
             if(breakpoint.isOneTime) {
                 this.removeBreakpoint(breakpoint.programCounter);
+            } else {
+                thread.haltAtNextBreakpoint = false;
             }
             return false;
         } else {

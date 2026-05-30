@@ -177,6 +177,25 @@ export class Slider {
         }
     }
 
+    setPosition(fraction: number) {
+        let ownRectangle = this.container.getBoundingClientRect();
+        let otherRectangle = this.otherDiv.getBoundingClientRect();
+
+        let ownSize: number = this.vertHor ? ownRectangle.height : ownRectangle.width;
+        let otherSize: number = this.vertHor ? otherRectangle.height : otherRectangle.width;
+        let totalSize = ownSize + otherSize;
+
+        let newOwnSize = totalSize * fraction;
+        let newOtherSize = totalSize - newOwnSize;  
+        if (this.vertHor) {
+            this.container.style.height = newOwnSize + "px";
+            this.otherDiv.style.height = newOtherSize + "px";
+        } else {
+            this.container.style.width = newOwnSize + "px";
+            this.otherDiv.style.width = newOtherSize + "px";
+        }
+    }
+
     toggleVisibility(visible: boolean) {
         this.sliderDiv.style.display = visible ? "" : "none";
     }

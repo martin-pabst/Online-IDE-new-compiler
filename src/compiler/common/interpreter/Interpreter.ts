@@ -62,12 +62,13 @@ export class Interpreter {
 
     #actions: string[] = ["start", "pause", "stop", "stepOver",
         "stepInto", "stepOut", "restart"];
-    //SchedulerLstatus { done, running, paused, not_initialized }
 
-    // buttonActiveMatrix[button][i] tells if button is active at
-    // SchedulerState i
-    // export enum SchedulerState { not_initialized, running, paused, stopped, error }
 
+    /*
+     * SchedulerState: not_initialized, running, paused, stopped, error
+     * buttonActiveMatrix[button][i] tells if button is active at
+     * SchedulerState i
+     */
     #buttonActiveMatrix: { [buttonName: string]: boolean[] } = {
         "start": [false, false, true, true, true],
         "pause": [false, true, false, false, false],
@@ -85,6 +86,8 @@ export class Interpreter {
     #mainThread?: Thread;
     public stepsPerSecondGoal: number | undefined = 1e8;
     public isMaxSpeed: boolean = true;
+
+    public showTriangleAtProgramPointer: boolean = true;
 
     private speedBeforeProgramStart: {
         stepsPerSecond: number | undefined,
@@ -230,7 +233,7 @@ export class Interpreter {
                         className: "jo_revealProgramPointer",
                         rulerColor: "#6fd61b",
                         minimapColor: "#6fd61b",
-                        beforeContentClassName: "jo_revealProgramPointerBefore"
+                        beforeContentClassName: this.showTriangleAtProgramPointer ? "jo_revealProgramPointerBefore" : undefined
                     })
 
                 }

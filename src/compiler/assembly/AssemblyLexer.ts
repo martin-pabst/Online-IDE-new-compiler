@@ -124,6 +124,8 @@ export class AssemblyLexer {
                             }
                             this.next();
                         }
+                    } else {
+                        this.lexInvalidToken();
                     }
                     break;
                 case '0':
@@ -277,7 +279,7 @@ export class AssemblyLexer {
             this.next();
         }
 
-        let tokenType = AssemblyTokenType[identifier];
+        let tokenType = AssemblyTokenType[identifier.toLowerCase()];
 
         if (this.tokenSet.has(tokenType)) {
             this.pushToken(tokenType, identifier, startLineNumber, startColumn);
@@ -290,7 +292,7 @@ export class AssemblyLexer {
         let startLineNumber = this.line;
         let startColumn = this.column;
         let invalidToken = "";
-        while (this.currentChar !== this.endChar && !/\s\n/.test(this.currentChar)) {
+        while (this.currentChar !== this.endChar && !["\n", " ", "\t"].includes(this.currentChar)) {
             invalidToken += this.currentChar;
             this.next();
         }
@@ -310,7 +312,7 @@ export class AssemblyLexer {
                 startLineNumber,
                 startColumn,
                 endLineNumber: this.line,
-                endColumn: this.column - 1
+                endColumn: this.column
             },
             level: "error",
             id: ""
