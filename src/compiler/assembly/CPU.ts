@@ -3,19 +3,10 @@ import { IMain } from "../common/IMain";
 import { Thread } from "../common/interpreter/Thread";
 import { ThreadState } from "../common/interpreter/ThreadState";
 import { CompilerFile } from "../common/module/CompilerFile";
-import { IRange } from "../common/range/Range";
+import { IRange, Range } from "../common/range/Range";
 import { AssemblyParserResult } from "./AssemblyParser";
-import { AssemblyTokenType } from "./AssemblyTokens";
 import { Memory } from "./Memory";
 
-export type AssemblyArgumentType = "Address" | "Immediate" | "Register";
-
-export type AssemblyInstruction = {
-    type: AssemblyTokenType;
-    argumentTypes: AssemblyArgumentType[];
-    jumpType?: "branch" | "jump";
-    compiled: string;
-}
 
 export type AssemblyBreakpoint = {
     programCounter: number;
@@ -38,18 +29,19 @@ export abstract class CPU {
 
     breakpointAddresses: Map<number, AssemblyBreakpoint> = new Map();
 
+    /* This field is used to quickly check if a certain address is a code location, 
+     * which is needed for the MemoryTab.
+     */
+    codeLocationsField: Uint8Array;
+
     abstract getRegisterValues(): { [registerName: string]: number };
 
     abstract getProgramCounter(): number;
     abstract getStatementLengthAtProgramCounter(): number;
     abstract getAddressOperandLocationOfCurrentStatement(): { location: number | undefined; indirectLocation: number | undefined; };
-    
-    getProgramLocation(): { from: number, to: number } {
-        return {
-            from: this.assemblyParserResult.startAddress,
-            to: this.assemblyParserResult.startAddress + this.assemblyParserResult.compiledInMemory.length - 1
-        }
-    };
+
+    abstract getTokensWithDescription(): { tokenIdentifier: string, description: string }[];
+    abstract getPseudoDirectivesWithDescription(): { directiveIdentifier: string, description: string }[];
 
     abstract getMemory(): Memory;
 
@@ -59,6 +51,43 @@ export abstract class CPU {
     abstract executeNextStep(thread: Thread): boolean;
 
     constructor(protected assemblyParserResult: AssemblyParserResult, protected main: IMain) {
+        this.initCodeLocationsField();
+    }
+
+    initCodeLocationsField(): void {
+        let codeParts = this.assemblyParserResult.codeParts;
+        let size = 0;
+        for (const codePart of codeParts) {
+            let lastCodeIndex = codePart.offset + codePart.code.length;
+            if (lastCodeIndex + 1 > size) {
+                size = lastCodeIndex + 1;
+            }
+        }
+
+        this.codeLocationsField = new Uint8Array(size);
+        this.codeLocationsField.fill(0);
+
+        for (const codePart of codeParts) {
+            for (let i = 0; i < codePart.code.length; i++) {
+                let address = codePart.offset + i;
+                this.codeLocationsField[address] = 1;
+            }
+        }
+    }
+
+    getLabels(): { identifier: string, address: number }[]{
+        return this.assemblyParserResult.labels;
+    }
+
+    isCodeLocation(address: number): boolean {
+        return this.codeLocationsField[address] === 1;
+    }
+
+    getStartOfFirstCodePart(): number | undefined {
+        if (this.assemblyParserResult.codeParts.length > 0) {
+            return this.assemblyParserResult.codeParts[0].offset;
+        }
+        return undefined;
     }
 
     getErrors(): Error[] {
@@ -69,10 +98,10 @@ export abstract class CPU {
         return typeof this.assemblyParserResult.startAddress === "number";
     }
 
-    getCurrentPosition(): {programOrmoduleOrFile: CompilerFile, range: IRange} | undefined {
+    getCurrentPosition(): { programOrmoduleOrFile: CompilerFile, range: IRange } | undefined {
         let pc = this.getProgramCounter();
         let sourceMapEntry = this.assemblyParserResult.sourceMap.get(pc);
-        if(!sourceMapEntry) return undefined;
+        if (!sourceMapEntry) return undefined;
         return {
             programOrmoduleOrFile: this.assemblyParserResult.file,
             range: {
@@ -94,14 +123,14 @@ export abstract class CPU {
 
     setBreakpointAtFirstProgramStatement(isOneTime: boolean) {
         let firstAddress = this.assemblyParserResult.startAddress;
-        if(typeof firstAddress === "number") {
+        if (typeof firstAddress === "number") {
             this.setBreakpoint(firstAddress, isOneTime);
         }
     }
 
     setBreakpointAtLine(lineNumber: number, isOneTime: boolean) {
         this.assemblyParserResult.sourceMap.forEach((value, address) => {
-            if(value.lineNumber === lineNumber) {
+            if (value.lineNumber === lineNumber) {
                 this.setBreakpoint(address, isOneTime);
                 return;
             }
@@ -110,16 +139,16 @@ export abstract class CPU {
 
     clearBreakpointAtLine(lineNumber: number) {
         this.assemblyParserResult.sourceMap.forEach((value, address) => {
-            if(value.lineNumber === lineNumber) {
+            if (value.lineNumber === lineNumber) {
                 this.removeBreakpoint(address);
             }
         });
     }
 
     breakpointReachedShouldIExecute(breakpoint: AssemblyBreakpoint, thread: Thread): boolean {
-        if(thread.haltAtNextBreakpoint) {
+        if (thread.haltAtNextBreakpoint) {
             thread.state = ThreadState.stoppedAtBreakpoint;
-            if(breakpoint.isOneTime) {
+            if (breakpoint.isOneTime) {
                 this.removeBreakpoint(breakpoint.programCounter);
             } else {
                 thread.haltAtNextBreakpoint = false;
@@ -131,4 +160,13 @@ export abstract class CPU {
         }
     }
 
+    positionIsInsideComment(position: { lineNumber: number, column: number }): boolean {
+        for (const commentRange of this.assemblyParserResult.commentRanges) {
+            if(Range.containsPosition(commentRange, position)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
 }

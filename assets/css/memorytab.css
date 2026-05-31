@@ -29,6 +29,7 @@
 .joeCssFence {
 
     --memorytab-codebackground: #1c6de78f;
+    --memorytab-revealoperand: #22ff00;
     
     .jo_memorytab {
         display: flex;
@@ -119,12 +120,12 @@
     }
 
     .jo_memorytab_addressoperand {
-        border: 2px solid var(--reveal-programpointer);
+        border: 2px dashed var(--memorytab-revealoperand);
         box-sizing: border-box;
     }
     
     .jo_memorytab_indirectoperand {
-        border: 2px dashed var(--reveal-programpointer);
+        border: 2px solid var(--memorytab-revealoperand);
         box-sizing: border-box;
     }
 

@@ -1,6 +1,5 @@
 import { Error } from "../common/Error";
 import { IRange } from "../common/range/Range";
-import { TokenType } from "../java/TokenType";
 import { AssemblyTokenType } from "./AssemblyTokens";
 import { AssemblyLexerMessages } from "./language/AssemblyLexerMessages";
 
@@ -13,6 +12,7 @@ export type AssemblyToken = {
 
 export type AssemblyLexerOutput = {
     tokens: AssemblyToken[];
+    commentRanges: IRange[];
     errors: Error[];
 }
 
@@ -25,6 +25,7 @@ export class AssemblyLexer {
     static spaceCharacters: string[] = [" ", "\t", "\uc2a0", "\u00a0",];
     input: string;
     tokens: AssemblyToken[];
+    commentRanges: IRange[];
     errors: Error[];
 
     endChar = "►"; // \u10000
@@ -35,6 +36,7 @@ export class AssemblyLexer {
 
     tokenize(input: string, tokenSet: Set<AssemblyTokenType>): AssemblyLexerOutput {
         this.tokens = [];
+        this.commentRanges = [];
         this.errors = [];
         this.tokenSet = tokenSet;
 
@@ -66,7 +68,7 @@ export class AssemblyLexer {
             text: ""
         });
 
-        return { tokens: this.tokens, errors: this.errors };
+        return { tokens: this.tokens, commentRanges: this.commentRanges, errors: this.errors };
     }
 
     next() {
@@ -101,11 +103,19 @@ export class AssemblyLexer {
                     this.next();
                     break;
                 case '/':
+                    let startLineNumber = this.line;
+                    let startColumn = this.column;
                     if (this.nextChar === '/') {
                         this.next(); this.next();
                         while (this.currentChar !== '\n' && this.currentChar !== this.endChar) {
                             this.next();
                         }
+                        this.commentRanges.push({
+                            startLineNumber,
+                            startColumn,
+                            endLineNumber: this.line,
+                            endColumn: this.column
+                        });
                     } else if (this.nextChar === '*') {
                         this.next(); this.next();
                         while (true) {
@@ -124,6 +134,13 @@ export class AssemblyLexer {
                             }
                             this.next();
                         }
+                        this.commentRanges.push({
+                            startLineNumber,
+                            startColumn,
+                            endLineNumber: this.line,
+                            endColumn: this.column
+                        });
+
                     } else {
                         this.lexInvalidToken();
                     }
@@ -153,8 +170,29 @@ export class AssemblyLexer {
                     this.pushToken(AssemblyTokenType.comma, char);
                     this.next();
                     break;
+                case '.':
+                    this.pushToken(AssemblyTokenType.dot, char);
+                    this.next();
+                    break;
                 case '#':
-                    this.pushToken(AssemblyTokenType.hash, char);
+                    if (this.nextChar === '$' || this.nextChar >= '0' && this.nextChar <= '9') {    // 6502 assemby uses # for immediate values, e.g. LDA #10; LDA #$ff
+                        this.pushToken(AssemblyTokenType.hash, char);
+                        this.next();
+                    } else {
+                        // comment until end of line
+                        let startLineNumber = this.line;
+                        let startColumn = this.column;
+                        this.next();
+                        while (this.currentChar !== '\n' && this.currentChar !== this.endChar) {
+                            this.next();
+                        }
+                        this.commentRanges.push({
+                            startLineNumber,
+                            startColumn,
+                            endLineNumber: this.line,
+                            endColumn: this.column
+                        });
+                    }
                     this.next();
                     break;
                 default:

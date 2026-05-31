@@ -102,10 +102,12 @@ export class MemoryTab extends Tab {
             contextMenuItems.push({
                 caption: AssemblyDebuggerMessages.MemoryTabShowProgramLocation(),
                 callback() {
-                    let programLocation = cpu.getProgramLocation();
-                    let x = programLocation.from % that.columnsPerRow;
-                    let y =Math.floor(programLocation.from / that.columnsPerRow);
-                    that.regularTableElement.scrollToCell(x, y);
+                    let firstCodePartStart = cpu.getStartOfFirstCodePart();
+                    if (typeof firstCodePartStart === "number") {
+                        let x = firstCodePartStart % that.columnsPerRow;
+                        let y = Math.floor(firstCodePartStart / that.columnsPerRow);
+                        that.regularTableElement.scrollToCell(x, y);
+                    }
                 }
             });
 
@@ -172,9 +174,6 @@ export class MemoryTab extends Tab {
         let statementStartAddress = this.lastDisplayedCPU.getProgramCounter();
         let statementEndAddress = statementStartAddress + this.lastDisplayedCPU.getStatementLengthAtProgramCounter();
 
-        let programLocationFrom = this.lastDisplayedCPU.getProgramLocation().from;
-        let programLocationTo = this.lastDisplayedCPU.getProgramLocation().to;
-
         let { location, indirectLocation } = this.lastDisplayedCPU.getAddressOperandLocationOfCurrentStatement();
 
         for (let column = x0; column < x1; column++) {
@@ -187,7 +186,7 @@ export class MemoryTab extends Tab {
                 let metadataEntry: RegularTableMetadata = { classes: [] };
                 if (address >= statementStartAddress && address < statementEndAddress) {
                     metadataEntry.classes.push("jo_memorytab_currentstatement");
-                } else if (address >= programLocationFrom && address <= programLocationTo) {
+                } else if (this.lastDisplayedCPU.isCodeLocation(address)) {
                     metadataEntry.classes.push("jo_memorytab_programlocation");
                 }
 
@@ -250,7 +249,9 @@ export class MemoryTab extends Tab {
     }
 
     num(value: number): string {
-        if (typeof value !== "number") return "---";
+        if (typeof value !== "number") {
+            return "---";
+        }
         if (this.base === 16) {
             let v = value >= 0 ? value : 0x10000 + value; // Convert to unsigned for display
             return v.toString(16);

@@ -1,3 +1,4 @@
+import { CompiledCodePart } from "../AssemblyParser";
 import { Memory } from "../Memory";
 
 export class AbiBayernMemory extends Memory {
@@ -58,10 +59,13 @@ export class AbiBayernMemory extends Memory {
         this.memory.fill(0);
     }
 
-    loadProgram(program: number[], offsetAddress: number): void {
-        let sizeNeeded = offsetAddress + program.length;
+    loadProgram(codeParts: CompiledCodePart[]): void {
+        let sizeNeeded = 0;
+        for (let codePart of codeParts) {
+            sizeNeeded = Math.max(sizeNeeded, codePart.offset + codePart.code.length);
+        }
         if (sizeNeeded > this.maximumSize) {
-            throw new Error(`Program load error: Program size (${program.length} words) with offset (${offsetAddress}) exceeds maximum memory size (0x${this.maximumSize.toString(16)}) words).`);
+            throw new Error(`Program load error: Program size (${sizeNeeded} words) exceeds maximum memory size (0x${this.maximumSize.toString(16)}) words).`);
         }
         if (sizeNeeded > this.memory.length) {
             this.memory = new Array(sizeNeeded);
@@ -69,8 +73,10 @@ export class AbiBayernMemory extends Memory {
         
         this.memory.fill(0);
 
-        for (let i = 0; i < program.length; i++) {
-            this.memory[offsetAddress + i] = program[i];
+        for (let codePart of codeParts) {
+            for (let i = 0; i < codePart.code.length; i++) {
+                this.memory[codePart.offset + i] = codePart.code[i];
+            }
         }
     }
 

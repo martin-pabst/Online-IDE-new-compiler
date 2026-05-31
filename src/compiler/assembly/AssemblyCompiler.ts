@@ -92,6 +92,7 @@ export class AssemblyCompiler implements Compiler {
             let tokens = lexer.tokenize(text, parser.getTokenSet());
             let parserResult = parser.parse(tokens.tokens, file);
             parserResult.errors = [...tokens.errors, ...parserResult.errors];
+            parserResult.commentRanges = tokens.commentRanges;
 
             const cpu = new AbiBayernCPU(parserResult, this.main!);
             module.cpu = cpu;

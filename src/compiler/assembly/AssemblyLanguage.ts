@@ -6,6 +6,7 @@ import { LibraryManager } from "../common/programminglanguage/LibraryManager.ts"
 import { AssemblyLibraryManager } from "./AssemblyLibraryManager.ts";
 import { AssemblyCompiler } from "./AssemblyCompiler.ts";
 import { MemoryTab } from "./debugger/MemoryTab.ts";
+import { AssemblyCompletionItemProvider } from "./monacoproviders/AssemblyCompletionItemProvider.ts";
 
 export class AssemblyLanguage extends ProgrammingLanguage {
 
@@ -47,6 +48,8 @@ export class AssemblyLanguage extends ProgrammingLanguage {
 
 
     private registerProviders() {
+
+        new AssemblyCompletionItemProvider(this);
 
         // new JavaHoverProvider(this);
         // new JavaCompletionItemProvider(this);
@@ -174,6 +177,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
             // The main tokenizer for our languages
             tokenizer: {
                 root: [
+                    [/\.[a-zA-Z_]*/, 'identifier.pseudodirective'],
                     [/[a-zA-Z_]*:/, 'identifier.tag'],
                     // identifiers and keywords
                     [/[a-z_$][\w$]*/, {
@@ -266,9 +270,9 @@ export class AssemblyLanguage extends ProgrammingLanguage {
             main.getActionManager().setVisible("interpreter.restart", false);            
             main.getActionManager().setVisible("interpreter.startTests", false);            
         }, 800);
-
     }
-
+    
+    
     public disable(main: IMain) {
         let bottomDiv = main.getBottomDiv();
         // bottomDiv.jUnitTab?.setVisible(false);
@@ -276,6 +280,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         // bottomDiv.console?.tab?.setVisible(false);
         let rightDiv = main.getRightDiv();
         // rightDiv.classDiagramTab?.setVisible(false);
+
     }
 
     public beforeWorkspaceChange(main: IMain) {

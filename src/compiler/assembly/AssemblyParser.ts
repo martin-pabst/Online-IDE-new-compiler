@@ -6,27 +6,36 @@ import { AssemblyToken } from "./AssemblyLexer";
 import { AssemblyTokenType, AssemblyTokenTypeReadable } from "./AssemblyTokens";
 import { AssemblyParserMessages } from "./language/AssemblyParserMessages";
 
+export type CompiledCodePart = {
+    offset: number;
+    code: number[];
+}
+
 export type AssemblyParserResult = {
     file: CompilerFile;
     startAddress: number;
-    offsetAddress: number;
-    compiledInMemory: number[];
+    codeParts: CompiledCodePart[];
     errors: Error[];
     sourceMap: Map<number, { lineNumber: number, column: number }>;
+    labels: { identifier: string, address: number }[];
+    commentRanges: IRange[];
 }
 
 export type Label = {
     name: string;
     address: number | undefined;
-    unresolvedReferences: { absoluteAddress: number, range: IRange }[];
+    unresolvedReferences: { absoluteAddress: number, codePart: CompiledCodePart, range: IRange }[];
 }
 
 export abstract class AssemblyParser {
 
     steps: Step[] = [];
     startAddress: number | undefined;
-    offsetAddress: number;
-    compiledCode: number[] = [];
+
+    codeParts: CompiledCodePart[] = [];
+
+    currentCodePart: CompiledCodePart;
+
     errors: Error[] = [];
     sourceMap: Map<number, { lineNumber: number, column: number }>;
 
@@ -36,17 +45,16 @@ export abstract class AssemblyParser {
     labels: Map<string, Label>;
 
     private programCounterRelative: number;
-    
+
     constructor() {
     }
 
     initBeforeParsing(): void {
         this.steps = [];
         this.errors = [];
-        this.compiledCode = [];
+        this.codeParts = [{ offset: 0, code: [] }];
         this.sourceMap = new Map();
         this.startAddress = undefined;
-        this.offsetAddress = 128;
         this.programCounterRelative = 0;
         this.labels = new Map();
     }
@@ -55,10 +63,11 @@ export abstract class AssemblyParser {
         return {
             file: file,
             startAddress: this.startAddress ?? 0x200,
-            offsetAddress: this.offsetAddress,
-            compiledInMemory: this.compiledCode,
+            codeParts: this.codeParts,
             errors: this.errors,
-            sourceMap: this.sourceMap
+            sourceMap: this.sourceMap,
+            labels: [...this.labels.values()].map(label => ({ identifier: label.name, address: label.address ?? -1 })) ,
+            commentRanges: []
         }
     }
 
@@ -95,8 +104,9 @@ export abstract class AssemblyParser {
     parseSetLabel(token: AssemblyToken): void {
         let labelName = token.value as string;
 
-        if(this.currentToken().type !== AssemblyTokenType.colon){
+        if (this.currentToken().type !== AssemblyTokenType.colon) {
             this.pushError(AssemblyParserMessages.StatementUnknown(labelName), "error", token.range);
+            return;
         } else {
             this.next();
         }
@@ -109,7 +119,8 @@ export abstract class AssemblyParser {
             } else {
                 label.address = this.getProgramCounterAbsolute();
                 for (let referenceAddress of label.unresolvedReferences) {
-                    this.compiledCode[referenceAddress.absoluteAddress - this.offsetAddress] = label.address;
+                    let codePart = referenceAddress.codePart;
+                    codePart.code[referenceAddress.absoluteAddress - codePart.offset] = label.address;
                 }
                 label.unresolvedReferences = [];
             }
@@ -124,20 +135,20 @@ export abstract class AssemblyParser {
         this.skip(AssemblyTokenType.lineBreak);
     }
 
-    getLabelAddressAbsolute(labelToken: AssemblyToken, referenceAddress: number): number | undefined {
+    getLabelAddressAbsolute(labelToken: AssemblyToken, absoluteReferenceAddress: number): number | undefined {
         let labelName = labelToken.value as string;
         let label = this.labels.get(labelName);
         if (!label) {
             this.labels.set(labelName, {
                 name: labelName,
                 address: undefined,
-                unresolvedReferences: [{ absoluteAddress: referenceAddress, range: labelToken.range }]
+                unresolvedReferences: [{ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range }]
             });
             return undefined;
         }
 
         if (label.address === undefined) {
-            label.unresolvedReferences.push({ absoluteAddress: referenceAddress, range: labelToken.range });
+            label.unresolvedReferences.push({ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range });
             return undefined;
         }
 
@@ -176,7 +187,7 @@ export abstract class AssemblyParser {
 
     writeToMemory(...values: (number | undefined)[]): void {
         for (let value of values) {
-            this.compiledCode[this.programCounterRelative] = value;
+            this.currentCodePart.code[this.programCounterRelative] = value;
             this.programCounterRelative++;
         }
     }
@@ -219,7 +230,7 @@ export abstract class AssemblyParser {
     }
 
     getProgramCounterAbsolute(): number {
-        return this.offsetAddress + this.programCounterRelative;
+        return this.currentCodePart.offset + this.programCounterRelative;
     }
 
     checkForUnresolvedLabelsAtEndOfParsing(): void {
@@ -230,6 +241,16 @@ export abstract class AssemblyParser {
                 }
             }
         }
+    }
+
+    setOrigin(origin: number): void {
+        if (this.currentCodePart?.code.length === 0) {
+            this.currentCodePart.offset = origin;
+        } else {
+            this.currentCodePart = { offset: origin, code: [] };
+            this.codeParts.push(this.currentCodePart);
+        }
+        this.programCounterRelative = 0;
     }
 
     abstract parse(tokens: AssemblyToken[], file: CompilerFile): AssemblyParserResult;

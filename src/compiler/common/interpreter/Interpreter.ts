@@ -347,7 +347,7 @@ export class Interpreter {
 
     }
 
-    start(fileToStart?: GUIFile, resetRuntime: boolean = true) {
+    start(fileToStart?: GUIFile, resetRuntime: boolean = true, showProgramPointerBeforeFirstStep: boolean = false) {
         // this.main.getBottomDiv()?.console?.clearErrors();
 
         this.main?.getBottomDiv()?.errorManager?.hideAllErrorDecorations();
@@ -365,7 +365,11 @@ export class Interpreter {
             isMaxSpeed: this.isMaxSpeed
         };
 
-        this.hideProgrampointerPosition();
+        if (showProgramPointerBeforeFirstStep && this.stepsPerSecondGoal < 20) {
+            this.showProgramPointer(this.scheduler.getNextStepPosition());
+        } else {
+            this.hideProgrampointerPosition();
+        }
 
         this.scheduler.keepThread = false;
         this.scheduler.resetLastTimeExecutedTimestamps();
@@ -407,7 +411,8 @@ export class Interpreter {
         this.actionManager.registerAction("interpreter.start", ['F5'], InterpreterMessages.runProgram(),
             () => {
                 if (this.actionManager!.isActive("interpreter.start")) {
-                    this.start();
+
+                    this.start(undefined, true, true);
                 } else {
                     this.pause();
                 }

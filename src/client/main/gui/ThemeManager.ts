@@ -118,7 +118,7 @@ export class ThemeManager {
                 "--deValue": "white",
                 "--debugger-fieldIdentifier": "#e6e92c",
                 "--debugger-localVariableIdentifier": "#4ffa2c",
-                "--memorytab-tableheadings": "#41dd65",
+                "--memorytab-tableheadings": "#a7afe2",
 
 
                 // Helper
@@ -225,7 +225,7 @@ export class ThemeManager {
                 "--deValue": "#0000a0",
                 "--debugger-fieldIdentifier": "#855c27ff",
                 "--debugger-localVariableIdentifier": "#25940fff",
-                "--memorytab-tableheadings": "#257738",
+                "--memorytab-tableheadings": "#5364d8",
 
                 // Helper
                 "--helper-background-color": "#f3f3f3",
@@ -268,7 +268,9 @@ export class ThemeManager {
                 { token: 'number', foreground: 'b5cea8' },
                 { token: 'number.immediate', foreground: 'e0e0e0', fontStyle: 'italic' },
                 { token: 'type', foreground: '499cd6' },
-                { token: 'identifier', foreground: '668aff' },
+                { token: 'identifier', foreground: '#668aff' },
+                { token: 'identifier.pseudodirective', foreground: '#92929294' },
+                { token: 'identifier.tag', foreground: '#a566cd' },
                 { token: 'statement', foreground: 'bb96c0', fontStyle: 'bold' },
                 { token: 'keyword', foreground: '68bed4', fontStyle: 'bold' },
                 { token: 'string3', foreground: 'ff0000' },
@@ -297,6 +299,8 @@ export class ThemeManager {
                 { token: 'number.immediate', foreground: '202020', fontStyle: 'italic' },
                 { token: 'type', foreground: '0000ff', fontStyle: 'bold' },
                 { token: 'identifier', foreground: '001080' },
+                { token: 'identifier.pseudodirective', foreground: '#85858594' },
+                { token: 'identifier.tag', foreground: '#7c34a9' },
                 { token: 'statement', foreground: '8000e0', fontStyle: 'bold' },
                 { token: 'keyword', foreground: '00a000', fontStyle: 'bold' },
                 { token: 'comment', foreground: '808080', fontStyle: 'italic' },

@@ -117,7 +117,7 @@ export class Scheduler {
                 let msPerStep = 1000 / currentThread.maxStepsPerSecond;
                 let elapsedTimeSinceLastThreadRun = t - currentThread.lastTimeThreadWasRun;
                 let numberOfSteps = Math.min(elapsedTimeSinceLastThreadRun / msPerStep, stepsPerThread);
-                if (numberOfSteps > 0) {
+                if (numberOfSteps >= 0.5) {
 
                     // run!
                     threadState = currentThread.run(numberOfSteps);
@@ -150,6 +150,10 @@ export class Scheduler {
                     case ThreadState.terminated:
                     case ThreadState.terminatedWithException:
                         // TODO: Print Exception if present
+
+                        if(currentThread.__cpu){
+                            this.interpreter.updateDebugger();
+                        }
 
                         this.runningThreads.splice(this.#currentThreadIndex, 1);
                         if (this.#currentThreadIndex > this.runningThreads.length - 1) {
