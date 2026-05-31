@@ -4,7 +4,7 @@ import { Thread } from "../common/interpreter/Thread";
 import { ThreadState } from "../common/interpreter/ThreadState";
 import { CompilerFile } from "../common/module/CompilerFile";
 import { IRange, Range } from "../common/range/Range";
-import { AssemblyParserResult } from "./AssemblyParser";
+import { AssemblyInstruction, AssemblyLabel, AssemblyParserResult } from "./AssemblyParser";
 import { Memory } from "./Memory";
 
 
@@ -40,8 +40,12 @@ export abstract class CPU {
     abstract getStatementLengthAtProgramCounter(): number;
     abstract getAddressOperandLocationOfCurrentStatement(): { location: number | undefined; indirectLocation: number | undefined; };
 
+    /*
+     * For code completion
+     */
     abstract getTokensWithDescription(): { tokenIdentifier: string, description: string }[];
     abstract getPseudoDirectivesWithDescription(): { directiveIdentifier: string, description: string }[];
+    abstract getInstructions(): AssemblyInstruction[];
 
     abstract getMemory(): Memory;
 
@@ -77,6 +81,18 @@ export abstract class CPU {
 
     getLabels(): { identifier: string, address: number }[]{
         return this.assemblyParserResult.labels;
+    }
+
+    getLabelMap(): Map<number, { label: AssemblyLabel, range: IRange }[]>{
+        return this.assemblyParserResult.labelMap;
+    }
+
+    getHoverEntries(): Map<number, {range: IRange, text: string}[]> {
+        return this.assemblyParserResult.hoverEntries;
+    }
+
+    getInstructionMap(): Map<number, { instruction: AssemblyInstruction, range: IRange }[]> {
+        return this.assemblyParserResult.instructionMap;
     }
 
     isCodeLocation(address: number): boolean {

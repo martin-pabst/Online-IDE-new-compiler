@@ -7,6 +7,11 @@ import { AssemblyLibraryManager } from "./AssemblyLibraryManager.ts";
 import { AssemblyCompiler } from "./AssemblyCompiler.ts";
 import { MemoryTab } from "./debugger/MemoryTab.ts";
 import { AssemblyCompletionItemProvider } from "./monacoproviders/AssemblyCompletionItemProvider.ts";
+import { AssemblyReferenceProvider } from "./monacoproviders/AssemblyReferenceProvider.ts";
+import { AssemblyDefinitionProvider } from "./monacoproviders/AssemblyDefinitionProvider.ts";
+import { AssemblyHoverProvider } from "./monacoproviders/AssemblyHoverProvider.ts";
+import { AssemblyRenameProvider } from "./monacoproviders/AssemblyRenameProvider.ts";
+import { AssemblySymbolAndMethodMarker } from "./monacoproviders/AssemblySymbolAndMethodMarker.ts";
 
 export class AssemblyLanguage extends ProgrammingLanguage {
 
@@ -15,7 +20,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
     private libraryManager: LibraryManager = new AssemblyLibraryManager();  // not used
 
     private constructor() {
-        super("Assembly", "asm", "myAssembler");
+        super("Assembly", "asm", "myAssembly");
         this.registerLanguageAtMonacoEditor();
         this.registerProviders();
     }
@@ -39,6 +44,8 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         // this.registerRepl(main, repl);
         this.registerSettings(main, settings)
 
+        new AssemblySymbolAndMethodMarker(main);    
+
         // JavaOnDidTypeProvider.configureEditor(main.getMainEditor());
 
 
@@ -50,12 +57,13 @@ export class AssemblyLanguage extends ProgrammingLanguage {
     private registerProviders() {
 
         new AssemblyCompletionItemProvider(this);
+        new AssemblyReferenceProvider(this);
+        new AssemblyDefinitionProvider(this);
+        new AssemblyHoverProvider(this);
+        new AssemblyRenameProvider(this);
 
         // new JavaHoverProvider(this);
-        // new JavaCompletionItemProvider(this);
         // new JavaRenameProvider(this);
-        // new JavaDefinitionProvider(this);
-        // new JavaReferenceProvider(this);
         // new JavaSignatureHelpProvider(this);
         // new JavaInlayHintsProvider(this);
 
@@ -67,7 +75,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
 
     private registerLanguageAtMonacoEditor(): void {
         monaco.languages.register({
-            id: 'myAssembler',
+            id: this.monacoLanguageSelector,
             extensions: ['.asm'],
             //  mimetypes: ["text/x-java-source", "text/x-java"]
         });

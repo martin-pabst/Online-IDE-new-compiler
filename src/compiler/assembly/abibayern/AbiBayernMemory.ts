@@ -1,4 +1,4 @@
-import { CompiledCodePart } from "../AssemblyParser";
+import { AssemblyCompiledCodePart } from "../AssemblyParser";
 import { Memory } from "../Memory";
 
 export class AbiBayernMemory extends Memory {
@@ -59,7 +59,7 @@ export class AbiBayernMemory extends Memory {
         this.memory.fill(0);
     }
 
-    loadProgram(codeParts: CompiledCodePart[]): void {
+    loadProgram(codeParts: AssemblyCompiledCodePart[]): void {
         let sizeNeeded = 0;
         for (let codePart of codeParts) {
             sizeNeeded = Math.max(sizeNeeded, codePart.offset + codePart.code.length);

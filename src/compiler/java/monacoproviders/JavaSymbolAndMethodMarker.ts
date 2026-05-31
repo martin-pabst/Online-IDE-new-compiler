@@ -9,7 +9,7 @@ export class JavaSymbolAndMethodMarker {
 
     constructor(private main: IMain) {
         if (!main.getMainEditor()) {
-            console.error("Call construction of JavaSymbolMarker before creation of monaco editor.");
+            console.error("Call of construction of JavaSymbolMarker after creation of monaco editor.");
             return;
         }
 

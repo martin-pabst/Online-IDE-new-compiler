@@ -6,57 +6,107 @@ import { AssemblyToken } from "./AssemblyLexer";
 import { AssemblyTokenType, AssemblyTokenTypeReadable } from "./AssemblyTokens";
 import { AssemblyParserMessages } from "./language/AssemblyParserMessages";
 
-export type CompiledCodePart = {
+export type AssemblyCompiledCodePart = {
     offset: number;
     code: number[];
 }
 
+
 export type AssemblyParserResult = {
     file: CompilerFile;
     startAddress: number;
-    codeParts: CompiledCodePart[];
+    codeParts: AssemblyCompiledCodePart[];
     errors: Error[];
+
+
+    /**
+     * Map absolute addresses to source code positions:
+     */
     sourceMap: Map<number, { lineNumber: number, column: number }>;
-    labels: { identifier: string, address: number }[];
+
+    /**
+     * Map line numbers to used instructions:
+     */
+    instructionMap: Map<number, { instruction: AssemblyInstruction, range: IRange }[]>;
+    labels: AssemblyLabel[];
+
+    /**
+     * Map line numbers to labels declared or used on this line.
+     */
+    labelMap: Map<number, { label: AssemblyLabel, range: IRange }[]>;
+
+    /**
+     * Map line numbers to hover entries:
+     */
+    hoverEntries: Map<number, {range: IRange, text: string}[]>;
+
     commentRanges: IRange[];
 }
 
-export type Label = {
-    name: string;
+export type AssemblyLabel = {
+    identifier: string;
     address: number | undefined;
-    unresolvedReferences: { absoluteAddress: number, codePart: CompiledCodePart, range: IRange }[];
+    declaration: IRange;
+    unresolvedReferences: { absoluteAddress: number, codePart: AssemblyCompiledCodePart, range: IRange }[];
+    usages: IRange[];
 }
+
+export type AssemblyInstruction = {
+    tokenType: AssemblyTokenType;
+    description: string;
+}
+
+export type AssemblySymbol = {
+    identifier: string;
+    type: "label";
+    declaration: IRange;
+}
+
+
+
 
 export abstract class AssemblyParser {
 
     steps: Step[] = [];
     startAddress: number | undefined;
 
-    codeParts: CompiledCodePart[] = [];
+    codeParts: AssemblyCompiledCodePart[] = [];
 
-    currentCodePart: CompiledCodePart;
+    currentCodePart: AssemblyCompiledCodePart;
 
     errors: Error[] = [];
     sourceMap: Map<number, { lineNumber: number, column: number }>;
+    // Map line numbers to used instructions:
+    instructionMap: Map<number, { instruction: AssemblyInstruction, range: IRange }[]>;
 
     tokens: AssemblyToken[];
     tokenIndex: number = 0;
 
-    labels: Map<string, Label>;
+    labels: Map<string, AssemblyLabel>;
+    // Map line numbers to labels declared or used on this line.
+    labelMap: Map<number, { label: AssemblyLabel, range: IRange }[]>;
+
+    hoverEntries: Map<number, {range: IRange, text: string}[]>;
 
     private programCounterRelative: number;
 
     constructor() {
     }
 
+    abstract parse(tokens: AssemblyToken[], file: CompilerFile): AssemblyParserResult;
+    abstract getTokenSet(): Set<AssemblyTokenType>;
+
     initBeforeParsing(): void {
         this.steps = [];
         this.errors = [];
         this.codeParts = [{ offset: 0, code: [] }];
         this.sourceMap = new Map();
+        this.instructionMap = new Map();
         this.startAddress = undefined;
         this.programCounterRelative = 0;
         this.labels = new Map();
+        this.labelMap = new Map();
+        this.hoverEntries = new Map();
     }
 
     makeParserResult(file: CompilerFile): AssemblyParserResult {
@@ -66,7 +116,10 @@ export abstract class AssemblyParser {
             codeParts: this.codeParts,
             errors: this.errors,
             sourceMap: this.sourceMap,
-            labels: [...this.labels.values()].map(label => ({ identifier: label.name, address: label.address ?? -1 })) ,
+            instructionMap: this.instructionMap,
+            labelMap: this.labelMap,
+            labels: Array.from(this.labels.values()),
+            hoverEntries: this.hoverEntries,
             commentRanges: []
         }
     }
@@ -118,6 +171,7 @@ export abstract class AssemblyParser {
                 return;
             } else {
                 label.address = this.getProgramCounterAbsolute();
+                label.declaration = token.range;
                 for (let referenceAddress of label.unresolvedReferences) {
                     let codePart = referenceAddress.codePart;
                     codePart.code[referenceAddress.absoluteAddress - codePart.offset] = label.address;
@@ -125,27 +179,49 @@ export abstract class AssemblyParser {
                 label.unresolvedReferences = [];
             }
         } else {
-            this.labels.set(labelName, {
-                name: labelName,
+            label = {
+                identifier: labelName,
                 address: this.getProgramCounterAbsolute(),
-                unresolvedReferences: []
-            });
+                declaration: token.range,
+                unresolvedReferences: [],
+                usages: []
+            }
+            this.labels.set(labelName, label);
         }
 
+        this.setLabelMapEntry(label, token.range);
+
         this.skip(AssemblyTokenType.lineBreak);
+    }
+
+    setLabelMapEntry(label: AssemblyLabel, range: IRange): void {
+        let labelMapEntry = this.labelMap.get(range.startLineNumber);
+        if (!labelMapEntry) {
+            labelMapEntry = [];
+            this.labelMap.set(range.startLineNumber, labelMapEntry);
+        }
+        labelMapEntry.push({ label: label, range: range });
     }
 
     getLabelAddressAbsolute(labelToken: AssemblyToken, absoluteReferenceAddress: number): number | undefined {
         let labelName = labelToken.value as string;
         let label = this.labels.get(labelName);
         if (!label) {
-            this.labels.set(labelName, {
-                name: labelName,
+            label = {
+                identifier: labelName,
                 address: undefined,
-                unresolvedReferences: [{ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range }]
-            });
+                declaration: labelToken.range,
+                unresolvedReferences: [{ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range }],
+                usages: [labelToken.range]
+            };
+            this.labels.set(labelName, label);
+            this.setLabelMapEntry(label, labelToken.range);
             return undefined;
         }
+
+        this.setLabelMapEntry(label, labelToken.range);
+
+        label.usages.push(labelToken.range);
 
         if (label.address === undefined) {
             label.unresolvedReferences.push({ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range });
@@ -237,7 +313,7 @@ export abstract class AssemblyParser {
         for (let label of this.labels.values()) {
             if (label.address === undefined) {
                 for (let unresolvedReference of label.unresolvedReferences) {
-                    this.pushError(AssemblyParserMessages.UnresolvedLabel(label.name), "error", unresolvedReference.range);
+                    this.pushError(AssemblyParserMessages.UnresolvedLabel(label.identifier), "error", unresolvedReference.range);
                 }
             }
         }
@@ -253,7 +329,21 @@ export abstract class AssemblyParser {
         this.programCounterRelative = 0;
     }
 
-    abstract parse(tokens: AssemblyToken[], file: CompilerFile): AssemblyParserResult;
-    abstract getTokenSet(): Set<AssemblyTokenType>;
+    registerInstruction(instruction: AssemblyInstruction, range: IRange): void {
+        let instructionsAtLine = this.instructionMap.get(range.startLineNumber);
+        if (!instructionsAtLine) {
+            instructionsAtLine = [];
+            this.instructionMap.set(range.startLineNumber, instructionsAtLine);
+        }
+        instructionsAtLine.push({ instruction, range });
+    }
 
+    addHoverEntry(range: IRange, text: string): void {
+        let hoverEntriesAtLine = this.hoverEntries.get(range.startLineNumber);
+        if (!hoverEntriesAtLine) {
+            hoverEntriesAtLine = [];
+            this.hoverEntries.set(range.startLineNumber, hoverEntriesAtLine);
+        }
+        hoverEntriesAtLine.push({ range: range, text: text });
+    }
 }
