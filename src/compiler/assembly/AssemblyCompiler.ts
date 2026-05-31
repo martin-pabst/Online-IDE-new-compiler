@@ -4,6 +4,7 @@ import { Error } from "../common/Error";
 import { IMain } from "../common/IMain";
 import { EventManager } from "../common/interpreter/EventManager";
 import { CompilerFile } from "../common/module/CompilerFile";
+import { FileTypeManager } from "../common/module/FileTypeManager";
 import { Module } from "../common/module/Module";
 import { ErrorMarker } from "../common/monacoproviders/ErrorMarker";
 import { AbiBayernCPU, AbiBayernParser } from "./abibayern/AbiBayernCPU";
@@ -12,11 +13,17 @@ import { AssemblyLexer } from "./AssemblyLexer";
 import { AssemblyModule } from "./AssemblyModule";
 import { AssemblyModuleManager } from "./AssemblyModuleManager";
 
+const compileTimeout = 800
+
 export class AssemblyCompiler implements Compiler {
     eventManager: EventManager<CompilerEvents> = new EventManager<CompilerEvents>();
 
     #files: CompilerFile[] = [];
     #moduleManager: AssemblyModuleManager = new AssemblyModuleManager();
+
+    #compileTimer: number;
+    lastTimeCompilationStarted: number = 0;
+
 
     constructor(public main?: IMain, private errorMarker?: ErrorMarker) {
 
@@ -72,9 +79,19 @@ export class AssemblyCompiler implements Compiler {
         return undefined;
     }
 
-    triggerCompile(): void {
-        // console.log("Compilation triggered");
-        // console.log("Files to compile:", this.#files);
+    compileIfDirty(): void {
+
+        // if we're not in test mode
+        if (this.main) {
+            if (this.main.getInterpreter().isRunningOrPaused()) return;
+            const currentWorkspace = this.main?.getCurrentWorkspace();
+            if (!currentWorkspace) return;
+            let files = currentWorkspace.getFiles()
+                .filter(file => FileTypeManager.filenameToFileType(file.name, this.main.getCurrentProgrammingLanguage()).language == 'myAssembly'
+                    && !file.isFolder);
+            this.setFiles(files);
+        }
+
         if (this.#files.length === 0) return;
 
         let lexer = new AssemblyLexer();
@@ -121,7 +138,7 @@ export class AssemblyCompiler implements Compiler {
 
     forceRecompilation(): void {
         this.#moduleManager.getModules().forEach(m => m.setDirty(true));
-        this.triggerCompile();
+        this.compileIfDirty();
     }
 
     interruptAndStartOverAgain(onlyForCodeCompletion: boolean): Promise<void> {
@@ -130,6 +147,31 @@ export class AssemblyCompiler implements Compiler {
 
     waitTillCompilationFinished(): Promise<void> {
         return new Promise<void>(resolve => resolve());
+    }
+
+    /**
+     * Schedules a compilation in the near future and returns.
+     * Cancels a previously scheduled compilation.
+     */
+    triggerCompile() {
+        if (this.#compileTimer) {
+            clearTimeout(this.#compileTimer)
+        }
+
+        // ensure that there's at least compileTimeout ms between two compilation runs
+        let timeout: number = compileTimeout - (performance.now() - this.lastTimeCompilationStarted);
+        if (timeout < 0) timeout = 0;
+
+
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        this.#compileTimer = window.setTimeout(async () => {
+            try {
+                this.lastTimeCompilationStarted = performance.now();
+                this.compileIfDirty();
+            } catch (exception) {
+                console.log(exception);
+            }
+        }, timeout)
     }
 
 }

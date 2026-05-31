@@ -99,7 +99,8 @@ export abstract class AssemblyParser {
     initBeforeParsing(): void {
         this.steps = [];
         this.errors = [];
-        this.codeParts = [{ offset: 0, code: [] }];
+        this.codeParts = [{ offset: 200, code: [] }];
+        this.currentCodePart = this.codeParts[0];
         this.sourceMap = new Map();
         this.instructionMap = new Map();
         this.startAddress = undefined;

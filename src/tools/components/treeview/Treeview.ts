@@ -4,7 +4,7 @@ import '/assets/css/icons.css';
 import { ExpandCollapseState } from '../ExpandCollapseComponent.ts';
 import { IconButtonComponent } from '../IconButtonComponent.ts';
 import { TreeviewNode, TreeviewNodeOnClickHandler } from './TreeviewNode.ts';
-import { makeEditable } from '../../HtmlTools.ts';
+import { ContextMenuItem, makeEditable, openContextMenu } from '../../HtmlTools.ts';
 import { TreeviewMessages } from './TreeviewMessages.ts';
 import { enableDragDropTouch } from "@dragdroptouch/drag-drop-touch";
 import { AccordionElement } from './AccordionElement.ts';
@@ -44,6 +44,8 @@ export type TreeviewConfig<E, K> = {
 
     buttonAddElements?: boolean,
     buttonAddElementsCaption?: string,
+    addElementsOptions?: { object: any, caption: string }[],
+
     defaultIconClass?: string,
 
     initialExpandCollapseState?: ExpandCollapseState,
@@ -71,7 +73,7 @@ export type DragAndDropSource = { treeview: Treeview<any, any>, dropInsertKind: 
 export type TreeviewRenameCallback<E, K> = (element: E, newName: string, node: TreeviewNode<E, K>) =>
     Promise<{ correctedName: string, success: boolean }>;
 export type TreeviewDeleteCallback<E, K> = (element: E | null, node: TreeviewNode<E, K>) => Promise<boolean>;
-export type TreeviewNewNodeCallback<E, K> = (name: string, node: TreeviewNode<E, K>) => Promise<E | null>;
+export type TreeviewNewNodeCallback<E, K> = (name: string, node: TreeviewNode<E, K>, optionObject?: any) => Promise<E | null>;
 export type TreeviewContextMenuProvider<E, K> = (element: E, node: TreeviewNode<E, K>) => TreeviewContextMenuItem<E, K>[];
 export type DropEventCallback<E, K> = (sourceTreeview: Treeview<any, any>, destinationNode: TreeviewNode<E, K>, destinationChildIndex: number, dragKind: DragKind) => void;
 export type OrderChangedCallback<E, K> = (nodesWithNewOrder: TreeviewNode<E, K>[]) => Promise<boolean>;
@@ -292,7 +294,8 @@ export class Treeview<E, K> extends AccordionElement {
         if (this.config.buttonAddElements) {
             this.addElementsButton =
                 this.captionLineAddIconButton("img_add-dark", "right", () => {
-                    this.addNewNode(false);
+                    let buttonBottomRight = this.addElementsButton.getBottomRight();
+                    this.buttonAddElementsClicked(buttonBottomRight.right, buttonBottomRight.bottom);
                 }, this.config.buttonAddElementsCaption);
         }
 
@@ -304,7 +307,30 @@ export class Treeview<E, K> extends AccordionElement {
 
     }
 
-    addNewNode(isFolder: boolean, parentFolder?: TreeviewNode<E, K>) {
+    buttonAddElementsClicked(x: number, y: number) {
+        let menuItems: ContextMenuItem[] = [];
+        let optionObjectd: any = null;
+
+        if (this.config.addElementsOptions && this.config.addElementsOptions.length > 1) {
+            for (let option of this.config.addElementsOptions) {
+                menuItems.push({
+                    caption: option.caption,
+                    callback: () => {
+                        optionObjectd = option.object;
+                        this.addNewNode(false, undefined, option.object);
+                    }
+                });
+            }
+
+            openContextMenu(menuItems, x, y);
+
+        } else {
+            this.addNewNode(false);
+        }
+
+    }
+
+    addNewNode(isFolder: boolean, parentFolder?: TreeviewNode<E, K>, optionObject?: any) {
 
         if (!parentFolder && !isFolder) {
             let selectedNodes = this.getCurrentlySelectedNodes();
@@ -322,7 +348,7 @@ export class Treeview<E, K> extends AccordionElement {
         makeEditable(node.captionDiv, node.captionDiv, async (newContent: string) => {
             node.caption = newContent;
             if (this.newNodeCallback) {
-                let externalObject = await this.newNodeCallback(newContent, node);
+                let externalObject = await this.newNodeCallback(newContent, node, optionObject);
                 if (externalObject == null) {
                     // cancel!
                     this.removeNodeAndItsFolderContents(node);
@@ -431,7 +457,7 @@ export class Treeview<E, K> extends AccordionElement {
         node.setFocus(true);
         this.lastSelectedElement = node;
         node.expand();
-        if (typeof this.config.scrollToSelectedElement === undefined || this.config.scrollToSelectedElement) {
+        if (typeof this.config.scrollToSelectedElement === "undefined" || this.config.scrollToSelectedElement) {
             node.scrollIntoView();
         }
     }

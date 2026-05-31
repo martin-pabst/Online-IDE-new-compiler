@@ -261,7 +261,6 @@ export class Main implements MainBase {
          * Compiler and Repl are fields of language!
         */
         ProgrammingLanguageManager.getInstance().registerMain(this, errorMarker);
-        this.switchProgrammingLanguage(this.getCurrentWorkspace()?.settings.language || "Java");
 
         this.disassembler = new Disassembler(this.bottomDiv.disassemblerTab.bodyDiv, this);
 
@@ -312,6 +311,8 @@ export class Main implements MainBase {
 
 
         TabletConsoleLog.registerProvider((message) => { printManager.print(message, false, 0x5050ff) });
+
+        this.switchProgrammingLanguage(this.getCurrentWorkspace()?.settings.language || "Java");
 
 
     }
@@ -475,8 +476,9 @@ export class Main implements MainBase {
         this.getInterpreter()?.onFileSelected();
     }
 
-    setHorizontalSliderPosition(fraction: number): void {
-        this.viewModeController.sliders.sliderRight.setPosition(fraction);
+    async setHorizontalSliderPosition(fraction: number): Promise<void> {
+        let sliders = await this.viewModeController.getSliders();
+        sliders.sliderRight.setPosition(fraction);
     }
 }
 

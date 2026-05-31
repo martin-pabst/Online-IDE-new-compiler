@@ -33,19 +33,18 @@ export class WorkspaceSettingsDialog {
         let $selectElement: JQuery<HTMLSelectElement> = jQuery('<select class="jo_settingsSelect"></select>');
 
         setSelectItems($selectElement, ProgrammingLanguageManager.getInstance().getLanguages().map(
-            l => ({ value: l.fileEndingWithOutDot, caption: l.name, object: l })
+            l => ({ value: l.name, caption: l.getTranslatedName(), object: l })
         ), this.workspace.settings.language);
+
+
         $selectLanguageDiv.append($selectElement);
 
         dialog.addDiv($selectLanguageDiv);
 
         $selectElement.on('change', () => {
             let selectedLanguage = <ProgrammingLanguage>getSelectedObject($selectElement);
-            let languageChanged = selectedLanguage.name != this.main.getCurrentProgrammingLanguage()?.name;
-            if (languageChanged) {
-                this.workspace.settings.language = selectedLanguage.name;
-                this.setupLibraryDiv();
-            }
+            this.workspace.settings.language = selectedLanguage.name;
+            this.setupLibraryDiv();
         });
 
         this.$libraryDiv = jQuery("<div></div>");
@@ -114,7 +113,7 @@ export class WorkspaceSettingsDialog {
         let currentLibraries = this.workspace.settings.libraries;
 
         if (libraryManager.getLibrariesData().length > 0) {
-            this.$libraryDiv.append(jQuery('<div class="dialog-subheading">' + WorkspaceSettingsDialogMessages.usedLibraries() + "</div>"));
+            this.$libraryDiv.append(jQuery('<div class="dialog-subheading languagesettings">' + WorkspaceSettingsDialogMessages.usedLibraries() + "</div>"));
             for (let library of libraryManager.getLibrariesData()) {
                 let cbs = this.dialog.addCheckbox(library.identifier + " (" + library.description + ")", currentLibraries.indexOf(library.id) >= 0, library.id, this.$libraryDiv);
                 library.checkboxState = cbs;

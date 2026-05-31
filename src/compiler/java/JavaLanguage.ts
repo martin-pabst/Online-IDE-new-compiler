@@ -44,6 +44,9 @@ export class JavaLanguage extends ProgrammingLanguage {
         return JavaLanguage.instance;
     }
 
+    getTranslatedName(): string {
+        return "Java";
+    }
 
     public registerMain(main: IMain, errorMarker: ErrorMarker) {
         let compiler = new JavaCompiler(main, errorMarker);
@@ -317,7 +320,6 @@ export class JavaLanguage extends ProgrammingLanguage {
             main.getActionManager().setVisible("interpreter.restart", true);
             main.getActionManager().setVisible("interpreter.startTests", true);
         }, 800);
-
 
     }
 

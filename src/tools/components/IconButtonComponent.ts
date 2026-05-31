@@ -68,6 +68,11 @@ export class IconButtonComponent {
         this.divElement.title = title;
     }
 
+    getBottomRight(): { bottom: number, right: number } {
+        const rect = this.divElement.getBoundingClientRect();
+        return { bottom: rect.bottom, right: rect.right };
+    }
+
     private stripDark(className: string): string {
         if (className.endsWith("-dark")) {
             return className.substring(0, className.length - "-dark".length);

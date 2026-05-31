@@ -18,6 +18,8 @@ export abstract class ProgrammingLanguage {
 
     }
 
+    abstract getTranslatedName(): string;
+
     getCompiler(main: IMain): Compiler {
         return this.#compilers.get(main);
     }

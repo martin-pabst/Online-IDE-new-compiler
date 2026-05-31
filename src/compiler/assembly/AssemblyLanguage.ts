@@ -12,6 +12,7 @@ import { AssemblyDefinitionProvider } from "./monacoproviders/AssemblyDefinition
 import { AssemblyHoverProvider } from "./monacoproviders/AssemblyHoverProvider.ts";
 import { AssemblyRenameProvider } from "./monacoproviders/AssemblyRenameProvider.ts";
 import { AssemblySymbolAndMethodMarker } from "./monacoproviders/AssemblySymbolAndMethodMarker.ts";
+import { lm } from "../../tools/language/LanguageManager.ts";
 
 export class AssemblyLanguage extends ProgrammingLanguage {
 
@@ -33,6 +34,15 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         return AssemblyLanguage.instance;
     }
 
+    getTranslatedName(): string {
+        
+       return lm({
+            "de": "Assembler-Sprache",
+            "en": "Assembly language",
+            "fr": "Langage d'assemblage"
+        })
+
+    }
 
     public registerMain(main: IMain, errorMarker: ErrorMarker) {
         let compiler = new AssemblyCompiler(main, errorMarker);
@@ -252,7 +262,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
 
     }
 
-    public enable(main: IMain) {
+    public async enable(main: IMain) {
         let bottomDiv = main.getBottomDiv();
         bottomDiv.jUnitTab?.setVisible(false);
         bottomDiv.disassemblerTab?.setVisible(false);
@@ -269,7 +279,8 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         let memoryTab = rightDiv.tabManager.getTabByName("Memory Tab");
         memoryTab?.show();
 
-        main.setHorizontalSliderPosition(0.6);
+        main.setHorizontalSliderPosition(main.isEmbedded() ? 0.6 : 0.4);
+        
         main.getInterpreter().showTriangleAtProgramPointer = false;
 
         setTimeout(() => {

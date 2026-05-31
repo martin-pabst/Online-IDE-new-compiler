@@ -177,6 +177,8 @@ export class JavaCompiler implements Compiler {
 
         this.eventManager.fire("compilationFinishedWithNewExecutable", this.#lastCompiledExecutable);
 
+        this.main.getDisassembler()?.disassemble();
+
         setTimeout(() => {
             // this doesn't hurry, so give browser's main thread time to do its chores            
             for (const module of this.#lastCompiledExecutable.getModuleManager().getModules()) {

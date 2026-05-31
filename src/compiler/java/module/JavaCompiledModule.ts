@@ -177,7 +177,7 @@ export class JavaCompiledModule extends JavaBaseModule {
     clearAllBreakpoints() {
         for (let program of this.programsToCompileToFunctions) {
             for (let step of program.stepsSingle) {
-                step.clearBreakpoint(step.range.startLineNumber!);
+                step.clearBreakpoint(step.range?.startLineNumber!);
             }
         }
 
