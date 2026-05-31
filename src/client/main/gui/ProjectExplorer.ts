@@ -344,6 +344,13 @@ export class ProjectExplorer {
      */
     initWorkspacelistPanel() {
 
+        let addElementsOptions = () => {
+            let programmingLanguageSelection = ProgrammingLanguageManager.getInstance().getLanguagesSelection(this.main);
+            return programmingLanguageSelection.length > 1 ? programmingLanguageSelection.map(lang => {
+                return { object: lang, caption: lang.getTranslatedName() };
+            }) : [];
+        };
+
         this.workspaceTreeview = new Treeview(this.accordion, {
             captionLine: {
                 enabled: true,
@@ -357,10 +364,7 @@ export class ProjectExplorer {
             confirmDelete: true,
             buttonAddElements: true,
             buttonAddElementsCaption: ProjectExplorerMessages.newWorkspace() + "...",
-            addElementsOptions: ProgrammingLanguageManager.getInstance().getLanguages()
-                .map(lang => {
-                    return { object: lang, caption: lang.getTranslatedName() };
-                }),
+            addElementsOptions: addElementsOptions,
             buttonAddFolders: true,
             minHeight: 150,
             flexWeight: "1",
@@ -386,7 +390,11 @@ export class ProjectExplorer {
             let w: Workspace = new Workspace(name, this.main, owner_id);
             w.isFolder = node.isFolder;
             w.parent_folder_id = node.getParent().externalObject?.id ?? null;
-            w.settings.language = language.name;
+            if(language){
+                w.settings.language = language.name;
+            } else {
+                w.settings.language = "Java";
+            }
             this.main.workspaceList.push(w);
 
             let success = this.main.user.is_testuser || await this.main.networkManager.sendCreateWorkspace(w, this.main.workspacesOwnerId);

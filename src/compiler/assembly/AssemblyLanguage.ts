@@ -37,9 +37,9 @@ export class AssemblyLanguage extends ProgrammingLanguage {
     getTranslatedName(): string {
         
        return lm({
-            "de": "Assembler-Sprache",
-            "en": "Assembly language",
-            "fr": "Langage d'assemblage"
+            "de": "Maschinensprache (Assembler)",
+            "en": "Machine language (Assembler)",
+            "fr": "Langage machine (assembleur)"
         })
 
     }

@@ -628,4 +628,16 @@ export class SettingsMessages {
         'en': `No`,
         'fr': `Non`
     });
+
+    static AddWorkspaceAssemblyName = () => lm({
+        'de': `Assembler zur Sprachauswahl hinzufügen`,
+        'en': `Add assembly to language selection`,
+        'fr': `Ajouter l'assembleur à la sélection de langue`
+    });
+
+    static AddWorkspaceAssemblyDescription = () => lm({
+        'de': `Hier können Sie einstellen, ob die Sprache "Assembler" in der Sprachauswahl hinzugefügt werden soll.`,
+        'en': `Here you can set whether the language "Assembler" should be added to the language selection.`,
+        'fr': `Ici, vous pouvez définir si le langage "Assembler" doit être ajouté à la sélection de langue.`
+    });
 }

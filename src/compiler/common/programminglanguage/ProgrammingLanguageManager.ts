@@ -39,4 +39,15 @@ export class ProgrammingLanguageManager {
         return JavaLanguage.getInstance();
     }
 
+    public getLanguagesSelection(main: IMain): ProgrammingLanguage[] {
+        let settings = main.getSettings();
+        let languages: ProgrammingLanguage[] = [
+            this.getLanguageByName("Java")
+        ];
+        if(settings.getValue("explorer.addWorkspace.assembly") == "yes"){
+            languages.push(this.getLanguageByName("Assembly"));
+        }
+        return languages;
+    }
+
 }

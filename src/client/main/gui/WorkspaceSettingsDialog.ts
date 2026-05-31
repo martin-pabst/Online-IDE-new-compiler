@@ -32,7 +32,8 @@ export class WorkspaceSettingsDialog {
         let $selectLanguageDiv = jQuery("<div><span>Sprache: </span></div>");
         let $selectElement: JQuery<HTMLSelectElement> = jQuery('<select class="jo_settingsSelect"></select>');
 
-        setSelectItems($selectElement, ProgrammingLanguageManager.getInstance().getLanguages().map(
+        setSelectItems($selectElement, ProgrammingLanguageManager.getInstance()
+        .getLanguagesSelection(this.main).map(
             l => ({ value: l.name, caption: l.getTranslatedName(), object: l })
         ), this.workspace.settings.language);
 
