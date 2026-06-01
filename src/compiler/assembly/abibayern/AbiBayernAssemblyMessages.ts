@@ -95,43 +95,43 @@ export class AbiBayernAssemblyMessages {
         'fr': `sub address: soustrait la valeur à l'adresse de l'accumulateur et stocke le résultat dans l'accumulateur.`
     });
 
-        static MulAddress = () => lm({  
+    static MulAddress = () => lm({
         'de': `mul address: multipliziert den Wert an der Adresse address mit dem Akkumulator und speichert das Ergebnis im Akkumulator.`,
         'en': `mul address: multiplies the value at address with the accumulator and stores the result in the accumulator.`,
         'fr': `mul address: multiplie la valeur à l'adresse avec l'accumulateur et stocke le résultat dans l'accumulateur.`
     });
 
-        static DivAddress = () => lm({
+    static DivAddress = () => lm({
         'de': `div address: dividiert den Akkumulator durch den Wert an der Adresse address und speichert das Ergebnis im Akkumulator (ganzzahliger Quotient).`,
         'en': `div address: divides the accumulator by the value at address and stores the result in the accumulator (integer quotient).`,
         'fr': `div address: divise l'accumulateur par la valeur à l'adresse et stocke le résultat dans l'accumulateur (quotient entier).`
     });
 
-        static ModAddress = () => lm({
+    static ModAddress = () => lm({
         'de': `mod address: dividiert den Akkumulator durch den Wert an der Adresse address und speichert den Rest der Division im Akkumulator.`,
         'en': `mod address: divides the accumulator by the value at address and stores the remainder of the division in the accumulator.`,
         'fr': `mod address: divise l'accumulateur par la valeur à l'adresse et stocke le reste de la division dans l'accumulateur.`
     });
 
-        static AndAddress = () => lm({
+    static AndAddress = () => lm({
         'de': `and address: führt eine bitweise Und-Verknüpfung zwischen dem Akkumulator und dem Wert an der Adresse address durch und speichert das Ergebnis im Akkumulator.`,
         'en': `and address: performs a bitwise AND operation between the accumulator and the value at address and stores the result in the accumulator.`,
         'fr': `and address: effectue une opération ET binaire entre l'accumulateur et la valeur à l'adresse et stocke le résultat dans l'accumulateur.`
     });
 
-        static OrAddress = () => lm({
+    static OrAddress = () => lm({
         'de': `or address: führt eine bitweise Oder-Verknüpfung zwischen dem Akkumulator und dem Wert an der Adresse address durch und speichert das Ergebnis im Akkumulator.`,
         'en': `or address: performs a bitwise OR operation between the accumulator and the value at address and stores the result in the accumulator.`,
         'fr': `or address: effectue une opération OU binaire entre l'accumulateur et la valeur à l'adresse et stocke le résultat dans l'accumulateur.`
     });
 
-        static XorAddress = () => lm({
+    static XorAddress = () => lm({
         'de': `xor address: führt eine bitweise Exklusiv-Oder-Verknüpfung zwischen dem Akkumulator und dem Wert an der Adresse address durch und speichert das Ergebnis im Akkumulator.`,
         'en': `xor address: performs a bitwise exclusive OR operation between the accumulator and the value at address and stores the result in the accumulator.`,
         'fr': `xor address: effectue une opération OU exclusif binaire entre l'accumulateur et la valeur à l'adresse et stocke le résultat dans l'accumulateur.`
     });
 
-        static CmpAddress = () => lm({
+    static CmpAddress = () => lm({
         'de': `cmp address: subtrahiert den Wert an der Adresse address vom Akkumulator (ohne diesen zu verändern!) und setzt die Flags entsprechend (zero, negative, overflow).`,
         'en': `cmp address: subtracts the value at address from the accumulator (without changing it!) and sets the flags accordingly (zero, negative, overflow).`,
         'fr': `cmp address: soustrait la valeur à l'adresse de l'accumulateur (sans le changer !) et définit les drapeaux en conséquence (zéro, négatif, dépassement).`
@@ -155,7 +155,7 @@ export class AbiBayernAssemblyMessages {
         'fr': `add (address): ajoute la valeur à l'adresse stockée à l'adresse à l'accumulateur et stocke le résultat dans l'accumulateur.`
     });
 
-        static SubIndirect = () => lm({
+    static SubIndirect = () => lm({
         'de': `sub (address): subtrahiert den Wert an der Adresse, die an address gespeichert ist, vom Akkumulator und speichert das Ergebnis im Akkumulator.`,
         'en': `sub (address): subtracts the value at the address stored at address from the accumulator and stores the result in the accumulator.`,
         'fr': `sub (address): soustrait la valeur à l'adresse stockée à l'adresse de l'accumulateur et stocke le résultat dans l'accumulateur.`
@@ -209,13 +209,13 @@ export class AbiBayernAssemblyMessages {
         'fr': `jmp label: saute à l'adresse spécifiée par le label. Cela est réalisé en stockant l'adresse dans le compteur de programme.`
     });
 
-        static Jeq = () => lm({
+    static Jeq = () => lm({
         'de': `jeq label: springt zu der Adresse, die durch label angegeben ist, wenn das zero-Flag gesetzt ist. Nach einem Vergleich (cmp-Befehl) wird das zero-Flag gesetzt, wenn die Werte gleich sind.`,
         'en': `jeq label: jumps to the address specified by label if the zero flag is set. After a comparison (cmp command), the zero flag is set if the values are equal.`,
         'fr': `jeq label: saute à l'adresse spécifiée par le label si le drapeau zéro est défini. Après une comparaison (commande cmp), le drapeau zéro est défini si les valeurs sont égales.`
     });
 
-        static Jne = () => lm({
+    static Jne = () => lm({
         'de': `jne label: springt zu der Adresse, die durch label angegeben ist, wenn das zero-Flag nicht gesetzt ist. Nach einem Vergleich (cmp-Befehl) wird das zero-Flag gesetzt, wenn die Werte gleich sind.`,
         'en': `jne label: jumps to the address specified by label if the zero flag is not set. After a comparison (cmp command), the zero flag is set if the values are equal.`,
         'fr': `jne label: saute à l'adresse spécifiée par le label si le drapeau zéro n'est pas défini. Après une comparaison (commande cmp), le drapeau zéro est défini si les valeurs sont égales.`
@@ -233,13 +233,13 @@ export class AbiBayernAssemblyMessages {
         'fr': `jge label: saute à l'adresse spécifiée par le label si le drapeau négatif n'est pas défini et que soit le drapeau zéro est défini, soit le drapeau de dépassement est défini. Après une comparaison (commande cmp), le drapeau négatif est défini si la valeur dans l'accumulateur est inférieure à la valeur à l'adresse dont elle est soustraite, et le drapeau de dépassement est défini s'il y a un dépassement dans la soustraction.`
     });
 
-        static Jlt = () => lm({
+    static Jlt = () => lm({
         'de': `jlt label: springt zu der Adresse, die durch label angegeben ist, wenn das negative-Flag gesetzt ist und entweder das zero-Flag nicht gesetzt ist oder das overflow-Flag nicht gesetzt ist. Nach einem Vergleich (cmp-Befehl) wird das negative-Flag gesetzt, wenn der Wert im Akkumulator kleiner als der Wert an der Adresse ist, von der subtrahiert wird, und das overflow-Flag wird gesetzt, wenn es bei der Subtraktion zu einem Überlauf kommt.`,
         'en': `jlt label: jumps to the address specified by label if the negative flag is set and either the zero flag is not set or the overflow flag is not set. After a comparison (cmp command), the negative flag is set if the value in the accumulator is less than the value at the address being subtracted from, and the overflow flag is set if there is an overflow in the subtraction.`,
         'fr': `jlt label: saute à l'adresse spécifiée par le label si le drapeau négatif est défini et que soit le drapeau zéro n'est pas défini, soit le drapeau de dépassement n'est pas défini. Après une comparaison (commande cmp), le drapeau négatif est défini si la valeur dans l'accumulateur est inférieure à la valeur à l'adresse dont elle est soustraite, et le drapeau de dépassement est défini s'il y a un dépassement dans la soustraction.`
     });
 
-        static Jle = () => lm({
+    static Jle = () => lm({
         'de': `jle label: springt zu der Adresse, die durch label angegeben ist, wenn das negative-Flag gesetzt ist und entweder das zero-Flag gesetzt ist oder das overflow-Flag gesetzt ist. Nach einem Vergleich (cmp-Befehl) wird das negative-Flag gesetzt, wenn der Wert im Akkumulator kleiner als der Wert an der Adresse ist, von der subtrahiert wird, und das overflow-Flag wird gesetzt, wenn es bei der Subtraktion zu einem Überlauf kommt.`,
         'en': `jle label: jumps to the address specified by label if the negative flag is set and either the zero flag is set or the overflow flag is set. After a comparison (cmp command), the negative flag is set if the value in the accumulator is less than the value at the address being subtracted from, and the overflow flag is set if there is an overflow in the subtraction.`,
         'fr': `jle label: saute à l'adresse spécifiée par le label si le drapeau négatif est défini et que soit le drapeau zéro est défini, soit le drapeau de dépassement est défini. Après une comparaison (commande cmp), le drapeau négatif est défini si la valeur dans l'accumulateur est inférieure à la valeur à l'adresse dont elle est soustraite, et le drapeau de dépassement est défini s'il y a un dépassement dans la soustraction.`
@@ -278,7 +278,7 @@ export class AbiBayernAssemblyMessages {
     static Jmpnp = () => lm({
         'de': `jmpnp label: springt zu der Adresse, die durch label angegeben ist, wenn negative-Flag oder das zero-Flag gesetzt ist.`,
         'en': `jmpnp label: jumps to the address specified by label if the negative flag or the zero flag is set.`,
-        'fr': `jmpnp label: saute à l'adresse spécifiée par le label si le drapeau négatif ou le drapeau zéro est défini.` 
+        'fr': `jmpnp label: saute à l'adresse spécifiée par le label si le drapeau négatif ou le drapeau zéro est défini.`
     });
 
     static Jmpnn = () => lm({
@@ -293,7 +293,7 @@ export class AbiBayernAssemblyMessages {
         'fr': `jmpnz label: saute à l'adresse spécifiée par le label si le drapeau zéro n'est pas défini.`
     });
 
-        static Jmpnv = () => lm({
+    static Jmpnv = () => lm({
         'de': `jmpnv label: springt zu der Adresse, die durch label angegeben ist, wenn das overflow-Flag nicht gesetzt ist.`,
         'en': `jmpnv label: jumps to the address specified by label if the overflow flag is not set.`,
         'fr': `jmpnv label: saute à l'adresse spécifiée par le label si le drapeau de dépassement n'est pas défini.`
@@ -389,4 +389,69 @@ export class AbiBayernAssemblyMessages {
         'fr': "```\n" + `word ${value}\n// Stocke le nombre ${value} à l'adresse actuelle. Il est également possible de spécifier plusieurs nombres séparés par des virgules.`
     });
 
+    static LoadCompletionComment = () => lm({
+        'de': `Lädt einen Wert in den Akkumulator.`,
+        'en': `Loads a value into the accumulator.`,
+        'fr': `Charge une valeur dans l'accumulateur.`
+    });
+
+    static StoreCompletionComment = () => lm({
+        'de': `Schreibt den Wert des Akkumulators in den Speicher.`,
+        'en': `Stores the value of the accumulator in the memory.`,
+        'fr': `Stocke la valeur de l'accumulateur dans la mémoire.`
+    });
+
+    static AddCompletionComment = () => lm({
+        'de': `Addiert einen Wert zum Akkumulator.`,
+        'en': `Adds a value to the accumulator.`,
+        'fr': `Ajoute une valeur à l'accumulateur.`
+    });
+
+    static SubCompletionComment = () => lm({
+        'de': `Subtrahiert einen Wert vom Akkumulator.`,
+        'en': `Subtracts a value from the accumulator.`,
+        'fr': `Soustrait une valeur de l'accumulateur.`
+    });
+
+    static MulCompletionComment = () => lm({
+        'de': `Multipliziert den Akkumulator mit einem Wert.`,
+        'en': `Multiplies the accumulator with a value.`,
+        'fr': `Multiplie l'accumulateur avec une valeur.`
+    });
+
+    static DivCompletionComment = () => lm({
+        'de': `Dividiert den Akkumulator durch einen Wert.`,
+        'en': `Divides the accumulator by a value.`,
+        'fr': `Divise l'accumulateur par une valeur.`
+    });
+
+    static ModCompletionComment = () => lm({
+        'de': `Dividiert den Akkumulator durch einen Wert und speichert den Rest der Division im Akkumulator.`,
+        'en': `Divides the accumulator by a value and stores the remainder of the division in the accumulator.`,
+        'fr': `Divise l'accumulateur par une valeur et stocke le reste de la division dans l'accumulateur.`
+    });
+
+    static AndCompletionComment = () => lm({
+        'de': `Führt eine bitweise Und-Verknüpfung zwischen dem Akkumulator und einem Wert durch und speichert das Ergebnis im Akkumulator.`,
+        'en': `Performs a bitwise AND operation between the accumulator and a value and stores the result in the accumulator.`,
+        'fr': `Effectue une opération ET binaire entre l'accumulateur et une valeur et stocke le résultat dans l'accumulateur.`
+    });
+
+    static OrCompletionComment = () => lm({
+        'de': `Führt eine bitweise Oder-Verknüpfung zwischen dem Akkumulator und einem Wert durch und speichert das Ergebnis im Akkumulator.`,
+        'en': `Performs a bitwise OR operation between the accumulator and a value and stores the result in the accumulator.`,
+        'fr': `Effectue une opération OU binaire entre l'accumulateur et une valeur et stocke le résultat dans l'accumulateur.`
+    });
+
+    static XorCompletionComment = () => lm({
+        'de': `Führt eine bitweise Exklusiv-Oder-Verknüpfung zwischen dem Akkumulator und einem Wert durch und speichert das Ergebnis im Akkumulator.`,
+        'en': `Performs a bitwise exclusive OR operation between the accumulator and a value and stores the result in the accumulator.`,
+        'fr': `Effectue une opération OU exclusif binaire entre l'accumulateur et une valeur et stocke le résultat dans l'accumulateur.`
+    });
+
+    static CmpCompletionComment = () => lm({
+        'de': `Subtrahiert einen Wert vom Akkumulator (ohne diesen zu verändern!) und setzt die Flags entsprechend (zero, negative, overflow).`,
+        'en': `Subtracts a value from the accumulator (without changing it!) and sets the flags accordingly (zero, negative, overflow).`,
+        'fr': `Soustrait une valeur de l'accumulateur (sans le changer !) et définit les drapeaux en conséquence (zéro, négatif, dépassement).`
+    });
 }

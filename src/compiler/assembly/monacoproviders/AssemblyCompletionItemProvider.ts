@@ -78,7 +78,7 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
                 label: token.tokenIdentifier,
                 kind: monaco.languages.CompletionItemKind.Keyword,
                 documentation: {
-                    value: token.description
+                    value: token.description()
                 },
                 insertText: token.tokenIdentifier + " ",
                 range: rangeToReplace
@@ -90,7 +90,7 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
                 label: directive.directiveIdentifier,
                 kind: monaco.languages.CompletionItemKind.Keyword,
                 documentation: {
-                    value: directive.description
+                    value: directive.description()
                 },
                 insertText: directive.directiveIdentifier,
                 range: rangeToReplace

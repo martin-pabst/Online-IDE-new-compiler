@@ -43,6 +43,8 @@ export class AssemblySymbolAndMethodMarker {
 
     markSymbolUnderCursor(editor: monaco.editor.IStandaloneCodeEditor, module: AssemblyModule, position: monaco.Position, decorations: monaco.editor.IModelDeltaDecoration[]) {
         let cpu = module.cpu;
+        if(!cpu) return;
+        
         let labelMap = cpu.getLabelMap();
         let labelEntries = labelMap.get(position.lineNumber);
         if (!labelEntries) return undefined;

@@ -53,7 +53,7 @@ export type AssemblyLabel = {
 
 export type AssemblyInstruction = {
     tokenType: AssemblyTokenType;
-    description: string;
+    description: () => string;
     OpCode:number;
 }
 

@@ -62,9 +62,6 @@ export class AssemblyLanguage extends ProgrammingLanguage {
 
     }
 
-
-
-
     private registerProviders() {
 
         new AssemblyCompletionItemProvider(this);

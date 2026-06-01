@@ -43,8 +43,8 @@ export abstract class CPU {
     /*
      * For code completion
      */
-    abstract getTokensWithDescription(): { tokenIdentifier: string, description: string }[];
-    abstract getPseudoDirectivesWithDescription(): { directiveIdentifier: string, description: string }[];
+    abstract getTokensWithDescription(): { tokenIdentifier: string, description: () => string }[];
+    abstract getPseudoDirectivesWithDescription(): { directiveIdentifier: string, description: () => string }[];
     abstract getInstructions(): AssemblyInstruction[];
 
     abstract getMemory(): Memory;

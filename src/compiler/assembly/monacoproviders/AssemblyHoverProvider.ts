@@ -27,7 +27,7 @@ export class AssemblyHoverProvider extends BaseMonacoProvider implements monaco.
 
         let instruction = cpu.getInstructionMap().get(position.lineNumber)?.find(i => Range.containsPosition(i.range, position))?.instruction;
         if(instruction){
-            let description = instruction.description;
+            let description = instruction.description();
             let colonIndex = description.indexOf(':');
             if(colonIndex > 0 && colonIndex < 30){
                 let descriptionRight = description.substring(colonIndex + 1).trim();
