@@ -100,6 +100,7 @@ export abstract class AssemblyParser {
 
     initBeforeParsing(tokens: AssemblyToken[]): void {
         this.tokens = tokens;
+        this.tokenIndex = 0;
         this.errors = [];
         this.codeParts = [{ offset: 200, code: [] }];
         this.currentCodePart = this.codeParts[0];
