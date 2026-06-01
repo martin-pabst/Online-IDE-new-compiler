@@ -3,6 +3,8 @@
 All meta information about assembler language is collected in class  [`AssemblyLanguage.ts`](../../src/compiler/assembly/AssemblyLanguage.ts)
   * Compiler (instantiated in method `registerMain`), one for each Main class-object\
   (N.B. There are multiple Main class-objects in embedded mode if there are several black online-ide divs.)
+  * Method `enable` is called when switching from other programming langugages to Assembly language.
+  * Method `disable` is called before switching from Assembly language to another programming language.
   *  Method `registerProviders` registers Providers for 
      * Code completion (**done**)
      * Hover (**done**)
