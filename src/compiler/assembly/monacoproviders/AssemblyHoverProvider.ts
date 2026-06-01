@@ -2,9 +2,8 @@ import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvi
 import * as monaco from 'monaco-editor'
 import { AssemblyLanguage } from "../AssemblyLanguage";
 import { AssemblyModule } from "../AssemblyModule";
-import { IRange, Range } from "../../common/range/Range";
-import { IMain } from "../../common/IMain";
-import { CPU } from "../CPU";
+import { Range } from "../../common/range/Range";
+import { AssemblyMonacoProvidersMessages } from "./AssemblyMonacoProvidersMessages";
 
 export class AssemblyHoverProvider extends BaseMonacoProvider implements monaco.languages.HoverProvider {
 
@@ -33,7 +32,7 @@ export class AssemblyHoverProvider extends BaseMonacoProvider implements monaco.
             if(colonIndex > 0 && colonIndex < 30){
                 let descriptionRight = description.substring(colonIndex + 1).trim();
                 let descriptionLeft = description.substring(0, colonIndex).trim();
-                description = "```\n" + descriptionLeft + "\n//" + descriptionRight;
+                description = "```\n" + descriptionLeft + "\n//" + descriptionRight + "\n//" + AssemblyMonacoProvidersMessages.Opcode(instruction.OpCode);
             }
 
             return {
@@ -51,7 +50,7 @@ export class AssemblyHoverProvider extends BaseMonacoProvider implements monaco.
             if(label){
                 return {
                     contents: [{ 
-                        value: "```\n" + `Label ${label.identifier}\n// at address ${label.address != undefined ? '0x' + label.address.toString(16) : 'unknown'}` + "\n```"
+                        value: AssemblyMonacoProvidersMessages.LabelHoverDescription(label.identifier,label.address)
                     }]
                 };
             }

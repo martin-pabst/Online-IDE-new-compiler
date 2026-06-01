@@ -54,6 +54,7 @@ export type AssemblyLabel = {
 export type AssemblyInstruction = {
     tokenType: AssemblyTokenType;
     description: string;
+    OpCode:number;
 }
 
 export type AssemblySymbol = {
