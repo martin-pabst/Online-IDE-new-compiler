@@ -151,6 +151,8 @@ export type AssemblyParserResult = {
   * call `registerInstruction(instruction: AssemblyInstruction, range: IRange): void` and `addHoverEntry(range: IRange, text: string): void` to generate hover information.
 
 ##  Debugger
+Class [`AssemblyLanguageDebugger`](src\compiler\assembly\debugger\AssemblyLanguageDebugger.ts) manages the debugger tab and the memory tab (class [`MemoryTab`](src\compiler\assembly\debugger\MemoryTab.ts)). Entrypoint `AssemblyLanguageDebugger.updateView()` is called by the framework each time when a refresh is needed.
+
 
 
 
