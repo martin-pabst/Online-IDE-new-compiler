@@ -359,7 +359,7 @@ export class AbiBayernAssemblyMessages {
         'fr': `xori nombre: effectue une opération OU exclusif binaire entre l'accumulateur et le nombre immédiat et stocke le résultat dans l'accumulateur.`
     });
 
-        static CmpImmediate = () => lm({
+    static CmpImmediate = () => lm({
         'de': `cmpi 70: subtrahiert die Zahl 70 vom Akkumulator (ohne diesen zu verändern!) und setzt die Flags entsprechend (zero, negative, overflow).`,
         'en': `cmpi number: subtracts the immediate number from the accumulator (without changing it!) and sets the flags accordingly (zero, negative, overflow).`,
         'fr': `cmpi nombre: soustrait le nombre immédiat de l'accumulateur (sans le changer !) et définit les drapeaux en conséquence (zéro, négatif, dépassement).`

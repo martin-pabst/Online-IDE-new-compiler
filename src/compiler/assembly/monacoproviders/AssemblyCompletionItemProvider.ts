@@ -5,6 +5,7 @@ import { AssemblyModule } from "../AssemblyModule.ts";
 import { IRange, Range } from "../../common/range/Range.ts";
 import { IMain } from "../../common/IMain.ts";
 import { CPU } from "../CPU.ts";
+import { AssemblyMonacoProvidersMessages } from "./AssemblyMonacoProvidersMessages.ts";
 
 export class AssemblyCompletionItemProvider extends BaseMonacoProvider implements monaco.languages.CompletionItemProvider {
     public triggerCharacters: string[] = ' .abcdefghijklmnopqrstuvwxyzäöüß_ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ@'.split('');
@@ -106,7 +107,7 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
                     filterText: label.identifier,
                     kind: monaco.languages.CompletionItemKind.Variable,
                     documentation: {
-                        value: `Label at address 0x${label.address.toString(16)}`
+                        value: AssemblyMonacoProvidersMessages.LabelCompletionDescription(label.address)
                     },
                     insertText: label.identifier,
                     range: rangeToReplace
