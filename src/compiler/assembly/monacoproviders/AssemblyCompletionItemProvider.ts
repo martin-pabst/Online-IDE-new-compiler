@@ -55,6 +55,7 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
             let line: string = model.getLineContent(position.lineNumber);
 
             let text = identifierMatch[1];
+            if(identifierMatch[0] && identifierMatch[0].endsWith('.')) text = '.' + text;
 
             let rangeToReplace: monaco.IRange =
             {

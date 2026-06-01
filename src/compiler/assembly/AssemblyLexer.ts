@@ -39,7 +39,13 @@ export class AssemblyLexer {
     nextChar: string = '';
     keywordTokens: Set<AssemblyTokenType>;
 
-    tokenize(input: string, keywordTokens: Set<AssemblyTokenType>): AssemblyLexerOutput {
+    withWithspaceAndCommentTokens: boolean;
+
+    tokenize(input: string, keywordTokens: Set<AssemblyTokenType>,
+        withWithspaceAndCommentTokens: boolean = false
+    ): AssemblyLexerOutput {
+        this.withWithspaceAndCommentTokens = withWithspaceAndCommentTokens;
+
         this.tokens = [];
         this.commentRanges = [];
         this.errors = [];
@@ -105,31 +111,35 @@ export class AssemblyLexer {
                 case '\t':
                 case '\uc2a0':
                 case '\u00a0':
-                    this.next();
+                    if(this.withWithspaceAndCommentTokens){
+                        this.lexWhitespace();
+                    } else {
+                        this.next();
+                    }
                     break;
                 case '/':
                     let startLineNumber = this.line;
                     let startColumn = this.column;
                     if (this.nextChar === '/') {
                         this.next(); this.next();
+                        let commentText: string = "//";
                         while (this.currentChar !== '\n' && this.currentChar !== this.endChar) {
+                            commentText += this.currentChar;
                             this.next();
                         }
-                        this.commentRanges.push({
-                            startLineNumber,
-                            startColumn,
-                            endLineNumber: this.line,
-                            endColumn: this.column
-                        });
+                        this.saveComment(startLineNumber, startColumn, commentText);
                     } else if (this.nextChar === '*') {
                         this.next(); this.next();
+                        let commentText: string = "/*";
                         while (true) {
                             //@ts-ignore
                             if (this.currentChar === this.endChar || (this.currentChar === '*' && this.nextChar === '/')) {
                                 if (this.currentChar === '*') {
                                     this.next(); // skip *
                                     this.next(); // skip *
+                                    commentText += "*/";
                                 }
+                                this.saveComment(startLineNumber, startColumn, commentText);
                                 break;
                             }
                             if (this.currentChar === '\n') {
@@ -137,15 +147,9 @@ export class AssemblyLexer {
                                 this.column = 0;
                                 this.isBeginningOfLine = true;
                             }
+                            commentText += this.currentChar;
                             this.next();
                         }
-                        this.commentRanges.push({
-                            startLineNumber,
-                            startColumn,
-                            endLineNumber: this.line,
-                            endColumn: this.column
-                        });
-
                     } else {
                         this.lexInvalidToken();
                     }
@@ -187,16 +191,13 @@ export class AssemblyLexer {
                         // comment until end of line
                         let startLineNumber = this.line;
                         let startColumn = this.column;
+                        let commentText = "#";
                         this.next();
                         while (this.currentChar !== '\n' && this.currentChar !== this.endChar) {
+                            commentText += this.currentChar;
                             this.next();
                         }
-                        this.commentRanges.push({
-                            startLineNumber,
-                            startColumn,
-                            endLineNumber: this.line,
-                            endColumn: this.column
-                        });
+                        this.saveComment(startLineNumber, startColumn, commentText);
                     }
                     this.next();
                     break;
@@ -211,6 +212,29 @@ export class AssemblyLexer {
                     break;
             }
         }
+    }
+
+    saveComment(startLineNumber: number, startColumn: number, commentText: string) {
+        this.commentRanges.push({
+            startLineNumber,
+            startColumn,
+            endLineNumber: this.line,
+            endColumn: this.column
+        });
+        if(this.withWithspaceAndCommentTokens){
+            this.pushToken(AssemblyTokenType.comment, commentText, startLineNumber, startColumn, this.line, this.column);
+        }
+    }
+
+    lexWhitespace() {
+        let startLineNumber = this.line;
+        let startColumn = this.column;
+        let whitespace = "";
+        while (AssemblyLexer.spaceCharacters.includes(this.currentChar)) {
+            whitespace += this.currentChar;
+            this.next();
+        }
+        this.pushToken(AssemblyTokenType.whitespace, whitespace, startLineNumber, startColumn);
     }
 
     isDigit(a: string, base: number) {

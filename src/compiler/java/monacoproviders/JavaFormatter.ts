@@ -8,7 +8,8 @@ import type { JavaLanguage } from "../JavaLanguage";
 import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider";
 
 
-export class JavaFormatter extends BaseMonacoProvider implements monaco.languages.DocumentFormattingEditProvider,
+export class JavaFormatter extends BaseMonacoProvider
+    implements monaco.languages.DocumentFormattingEditProvider,
     monaco.languages.OnTypeFormattingEditProvider {
 
     autoFormatTriggerCharacters: string[] = ['\n'];
@@ -17,6 +18,10 @@ export class JavaFormatter extends BaseMonacoProvider implements monaco.language
 
     constructor(public language: JavaLanguage) {
         super(language);
+
+        monaco.languages.registerDocumentFormattingEditProvider(language.monacoLanguageSelector, this);
+        monaco.languages.registerOnTypeFormattingEditProvider(language.monacoLanguageSelector, this);
+
     }
 
     provideOnTypeFormattingEdits(model: monaco.editor.ITextModel, position: monaco.Position, ch: string, options: monaco.languages.FormattingOptions, token: monaco.CancellationToken): monaco.languages.ProviderResult<monaco.languages.TextEdit[]> {
@@ -195,8 +200,8 @@ export class JavaFormatter extends BaseMonacoProvider implements monaco.language
                     if (i > 1) {
                         let lastToken1 = tokenlist[i - 1];
                         let lastToken2 = tokenlist[i - 2];
-                        if (lastToken1.tt == TokenType.space && 
-                            [TokenType.newline, TokenType.keywordFor, TokenType.keywordWhile, TokenType.keywordIf, TokenType.keywordElse, TokenType.keywordDo].indexOf(lastToken2.tt) < 0 && 
+                        if (lastToken1.tt == TokenType.space &&
+                            [TokenType.newline, TokenType.keywordFor, TokenType.keywordWhile, TokenType.keywordIf, TokenType.keywordElse, TokenType.keywordDo].indexOf(lastToken2.tt) < 0 &&
                             !this.isBinaryOperator(lastToken2.tt)) {
                             if (this.lengthOfRange(lastToken1.range) == 1) {
                                 this.deleteSpaces(edits, lastToken1.range.startLineNumber, lastToken1.range.startColumn, 1);
@@ -219,7 +224,7 @@ export class JavaFormatter extends BaseMonacoProvider implements monaco.language
                     if (i < tokenlist.length - 2) {
 
                         let nextNonSpaceToken = this.getNextNonSpaceToken(i, tokenlist);
-                        if(nextNonSpaceToken.tt == TokenType.leftCurlyBracket){
+                        if (nextNonSpaceToken.tt == TokenType.leftCurlyBracket) {
                             oneTimeIndent = false;
                         }
 
@@ -292,15 +297,15 @@ export class JavaFormatter extends BaseMonacoProvider implements monaco.language
                 case TokenType.keywordWhile:
                 case TokenType.keywordIf:
                 case TokenType.keywordDo:
-                    if(settings.getValue("formatter.forceSpacesAfterIfForWhileDo") != "no"){
+                    if (settings.getValue("formatter.forceSpacesAfterIfForWhileDo") != "no") {
                         let numberOfSpaces = parseInt(<string>settings.getValue("formatter.forceSpacesAfterIfForWhileDo") || "0");
                         this.forceSpacesBeforeOpeningBracket(edits, i + 1, tokenlist, t.range.startLineNumber, t.range.startColumn, numberOfSpaces);
                     }
                     oneTimeIndent = true;
                     break;
-                    case TokenType.keywordElse:
-                        this.forceSpacesBeforeOpeningBracket(edits, i + 1, tokenlist, t.range.startLineNumber, t.range.startColumn, 1);
-                        oneTimeIndent = true;
+                case TokenType.keywordElse:
+                    this.forceSpacesBeforeOpeningBracket(edits, i + 1, tokenlist, t.range.startLineNumber, t.range.startColumn, 1);
+                    oneTimeIndent = true;
                     break;
                 case TokenType.comma:
                 case TokenType.semicolon:
@@ -444,17 +449,17 @@ export class JavaFormatter extends BaseMonacoProvider implements monaco.language
     forceSpacesBeforeOpeningBracket(edits: monaco.languages.TextEdit[], fromIndex: number, tokenList: TokenList, line: number, column: number, numberOfSpaces: number) {
         let currentNumberOfSpaces = 0;
         let nextTokenIndex = fromIndex;
-        if(tokenList[fromIndex].tt == TokenType.space){
+        if (tokenList[fromIndex].tt == TokenType.space) {
             currentNumberOfSpaces = this.lengthOfRange(tokenList[fromIndex].range);
             nextTokenIndex++;
         }
 
-        if([TokenType.leftBracket, TokenType.leftCurlyBracket].indexOf(tokenList[nextTokenIndex].tt) < 0) return;
+        if ([TokenType.leftBracket, TokenType.leftCurlyBracket].indexOf(tokenList[nextTokenIndex].tt) < 0) return;
 
-        if(currentNumberOfSpaces == numberOfSpaces) return;
+        if (currentNumberOfSpaces == numberOfSpaces) return;
 
-        
-        if(currentNumberOfSpaces > numberOfSpaces){
+
+        if (currentNumberOfSpaces > numberOfSpaces) {
             let firstSpaceToken = tokenList[fromIndex];
             this.deleteSpaces(edits, firstSpaceToken.range.startLineNumber, firstSpaceToken.range.startColumn, currentNumberOfSpaces - numberOfSpaces);
         } else {

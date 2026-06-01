@@ -82,8 +82,7 @@ export class JavaLanguage extends ProgrammingLanguage {
         new JavaColorProvider(this);
 
         let formatter = new JavaFormatter(this);
-        monaco.languages.registerDocumentFormattingEditProvider(this.monacoLanguageSelector, formatter);
-        monaco.languages.registerOnTypeFormattingEditProvider(this.monacoLanguageSelector, formatter);
+
         monaco.languages.registerCodeActionProvider(this.monacoLanguageSelector, new JavaCodeActionProvider(this));
     }
 

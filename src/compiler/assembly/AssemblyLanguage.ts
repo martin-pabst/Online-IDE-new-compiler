@@ -13,6 +13,7 @@ import { AssemblyHoverProvider } from "./monacoproviders/AssemblyHoverProvider.t
 import { AssemblyRenameProvider } from "./monacoproviders/AssemblyRenameProvider.ts";
 import { AssemblySymbolAndMethodMarker } from "./monacoproviders/AssemblySymbolAndMethodMarker.ts";
 import { lm } from "../../tools/language/LanguageManager.ts";
+import { AssemblyFormatter } from "./monacoproviders/AssemblyFormatter.ts";
 
 export class AssemblyLanguage extends ProgrammingLanguage {
 
@@ -77,9 +78,8 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         // new JavaSignatureHelpProvider(this);
         // new JavaInlayHintsProvider(this);
 
-        // let formatter = new JavaFormatter(this);
-        // monaco.languages.registerDocumentFormattingEditProvider(this.monacoLanguageSelector, formatter);
-        // monaco.languages.registerOnTypeFormattingEditProvider(this.monacoLanguageSelector, formatter);
+        new AssemblyFormatter(this);
+
         // monaco.languages.registerCodeActionProvider(this.monacoLanguageSelector, new JavaCodeActionProvider(this));
     }
 
