@@ -13,8 +13,8 @@ export class AssemblyMonacoProvidersMessages{
     });
 
     static LabelHoverDescription = (identifier:string,address: number) => lm({
-        'de': "```\n" + `Label ${identifier}\n// an Addresse ${address != undefined ? '0x' + address.toString(16) : 'unbekannt'}` + "\n```",
-        'en': "```\n" + `Label ${identifier}\n// at address ${address != undefined ? '0x' + address.toString(16) : 'unknown'}` + "\n```",
-        'fr': "```\n" + `Label ${identifier}\n// à l'adresse ${address != undefined ? '0x' + address.toString(16) : 'inconnu'}` + "\n```"
+        'de': "```\n" + `Label ${identifier}\n// an Addresse ${address != undefined ? ('0x' + address.toString(16) + ' = ' + address) : 'unbekannt'}` + "\n```",
+        'en': "```\n" + `Label ${identifier}\n// at address ${address != undefined ? ('0x' + address.toString(16) + ' = ' + address) : 'unknown'}` + "\n```",
+        'fr': "```\n" + `Label ${identifier}\n// à l'adresse ${address != undefined ? ('0x' + address.toString(16) + ' = ' + address) : 'inconnu'}` + "\n```"
     });
 }
