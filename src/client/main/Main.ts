@@ -478,7 +478,7 @@ export class Main implements MainBase {
 
     async setHorizontalSliderPosition(fraction: number): Promise<void> {
         let sliders = await this.viewModeController.getSliders();
-        sliders.sliderRight.setPosition(fraction);
+        sliders.setSliderRightPosition(fraction);
     }
 }
 
