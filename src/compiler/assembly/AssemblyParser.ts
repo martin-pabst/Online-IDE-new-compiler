@@ -3,7 +3,7 @@ import { Step } from "../common/interpreter/Step";
 import { CompilerFile } from "../common/module/CompilerFile";
 import { IRange } from "../common/range/Range";
 import { AssemblyToken } from "./AssemblyLexer";
-import { AssemblyTokenType, AssemblyTokenTypeReadable } from "./AssemblyTokens";
+import { AssemblyTokenType, AssemblyTokenTypeReadable } from "./AssemblyTokenType";
 import { AssemblyParserMessages } from "./language/AssemblyParserMessages";
 
 export type AssemblyCompiledCodePart = {
@@ -38,7 +38,7 @@ export type AssemblyParserResult = {
     /**
      * Map line numbers to hover entries:
      */
-    hoverEntries: Map<number, {range: IRange, text: string}[]>;
+    hoverEntries: Map<number, { range: IRange, text: string }[]>;
 
     commentRanges: IRange[];
 }
@@ -63,11 +63,8 @@ export type AssemblySymbol = {
 }
 
 
-
-
 export abstract class AssemblyParser {
 
-    steps: Step[] = [];
     startAddress: number | undefined;
 
     codeParts: AssemblyCompiledCodePart[] = [];
@@ -86,7 +83,7 @@ export abstract class AssemblyParser {
     // Map line numbers to labels declared or used on this line.
     labelMap: Map<number, { label: AssemblyLabel, range: IRange }[]>;
 
-    hoverEntries: Map<number, {range: IRange, text: string}[]>;
+    hoverEntries: Map<number, { range: IRange, text: string }[]>;
 
     private programCounterRelative: number;
 
@@ -94,10 +91,14 @@ export abstract class AssemblyParser {
     }
 
     abstract parse(tokens: AssemblyToken[], file: CompilerFile): AssemblyParserResult;
-    abstract getTokenSet(): Set<AssemblyTokenType>;
 
-    initBeforeParsing(): void {
-        this.steps = [];
+    /**
+     * Returns the subset of token types that are relevant for the lexer
+     */
+    abstract getKeywordTokens(): Set<AssemblyTokenType>;
+
+    initBeforeParsing(tokens: AssemblyToken[]): void {
+        this.tokens = tokens;
         this.errors = [];
         this.codeParts = [{ offset: 200, code: [] }];
         this.currentCodePart = this.codeParts[0];
@@ -125,17 +126,61 @@ export abstract class AssemblyParser {
         }
     }
 
+    /**
+     * Returns the current token without advancing the token index.
+     * @returns current token
+     */
     currentToken(): AssemblyToken {
         return this.tokens[this.tokenIndex];
     }
 
+    /**
+     * Advances to the next token. Does nothing if the end of the token list 
+     * has already been reached.
+     */
     next(): void {
         if (this.tokenIndex < this.tokens.length - 1) {
             this.tokenIndex++;
         }
     }
 
-    programEndReached(): boolean {
+    expectLineBreakOrEndOfSourcecode(): void {
+        let token = this.currentToken();
+        if (token.type !== AssemblyTokenType.lineBreak && token.type !== AssemblyTokenType.endOfSourcecode) {
+            this.pushError(AssemblyParserMessages.LineBreakOrEndOfSourcecodeExpected(), "error", token.range);
+        }
+
+        while (![AssemblyTokenType.lineBreak, AssemblyTokenType.endOfSourcecode].includes(this.currentToken().type)) {
+            this.next();
+        }
+
+        this.next();    // consume line break; doesn't move past endOfSourcecode token, so it's safe
+
+        while (this.currentToken().type === AssemblyTokenType.lineBreak) {
+            this.next();
+        }
+
+    }
+
+    expect(...tokenTypes: AssemblyTokenType[]): boolean {
+        let token = this.currentToken();
+        if (!tokenTypes.includes(token.type)) {
+            this.pushError(AssemblyParserMessages.TokensExpected(tokenTypes.map(t => AssemblyTokenTypeReadable[t] || AssemblyTokenType[t])), "error", token.range);
+            return false;
+        }
+        return true;
+    }
+
+    skip(...tokenTypes: AssemblyTokenType[]): void {
+        while (tokenTypes.includes(this.currentToken().type)) {
+            this.next();
+        }
+    }
+
+    /**
+     * @returns true, if end of token list is reached
+     */
+    isProgramEndReached(): boolean {
         // The lexer adds an endOfSourcecode token at the end of the token list at position tokens.length - 1.
         return this.tokenIndex >= this.tokens.length - 1;
     }
@@ -155,7 +200,7 @@ export abstract class AssemblyParser {
         });
     }
 
-    parseSetLabel(token: AssemblyToken): void {
+    resolveLabel(token: AssemblyToken): void {
         let labelName = token.value as string;
 
         if (this.currentToken().type !== AssemblyTokenType.colon) {
@@ -219,17 +264,27 @@ export abstract class AssemblyParser {
             this.setLabelMapEntry(label, labelToken.range);
             return undefined;
         }
-
+        
         this.setLabelMapEntry(label, labelToken.range);
-
+        
         label.usages.push(labelToken.range);
 
         if (label.address === undefined) {
             label.unresolvedReferences.push({ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range });
             return undefined;
         }
-
+        
         return label.address;
+    }
+    
+    checkForUnresolvedLabelsAtEndOfParsing(): void {
+        for (let label of this.labels.values()) {
+            if (label.address === undefined) {
+                for (let unresolvedReference of label.unresolvedReferences) {
+                    this.pushError(AssemblyParserMessages.UnresolvedLabel(label.identifier), "error", unresolvedReference.range);
+                }
+            }
+        }
     }
 
     checkIfTokenIs16BitUnsignedNumber(token: AssemblyToken): boolean {
@@ -269,39 +324,9 @@ export abstract class AssemblyParser {
         }
     }
 
-    expectLineBreakOrEndOfSourcecode(): void {
-        let token = this.currentToken();
-        if (token.type !== AssemblyTokenType.lineBreak && token.type !== AssemblyTokenType.endOfSourcecode) {
-            this.pushError(AssemblyParserMessages.LineBreakOrEndOfSourcecodeExpected(), "error", token.range);
-        }
-
-        while (![AssemblyTokenType.lineBreak, AssemblyTokenType.endOfSourcecode].includes(this.currentToken().type)) {
-            this.next();
-        }
-
-        this.next();    // consume line break; doesn't move past endOfSourcecode token, so it's safe
-
-        while (this.currentToken().type === AssemblyTokenType.lineBreak) {
-            this.next();
-        }
-
-    }
-
-    expect(...tokenTypes: AssemblyTokenType[]): boolean {
-        let token = this.currentToken();
-        if (!tokenTypes.includes(token.type)) {
-            this.pushError(AssemblyParserMessages.TokensExpected(tokenTypes.map(t => AssemblyTokenTypeReadable[t] || AssemblyTokenType[t])), "error", token.range);
-            return false;
-        }
-        return true;
-    }
-
-    skip(...tokenTypes: AssemblyTokenType[]): void {
-        while (tokenTypes.includes(this.currentToken().type)) {
-            this.next();
-        }
-    }
-
+    /**
+     * @returns program pointer relative to start of current code part. 
+     */
     getProgramCounterRelative(): number {
         return this.programCounterRelative;
     }
@@ -310,16 +335,9 @@ export abstract class AssemblyParser {
         return this.currentCodePart.offset + this.programCounterRelative;
     }
 
-    checkForUnresolvedLabelsAtEndOfParsing(): void {
-        for (let label of this.labels.values()) {
-            if (label.address === undefined) {
-                for (let unresolvedReference of label.unresolvedReferences) {
-                    this.pushError(AssemblyParserMessages.UnresolvedLabel(label.identifier), "error", unresolvedReference.range);
-                }
-            }
-        }
-    }
-
+    /**
+     * Starts new code part
+     */
     setOrigin(origin: number): void {
         if (this.currentCodePart?.code.length === 0) {
             this.currentCodePart.offset = origin;

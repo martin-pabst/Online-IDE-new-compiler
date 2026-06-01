@@ -2,7 +2,7 @@ import { CPU } from "../CPU";
 import { AbiBayernAssemblyMessages } from "./AbiBayernAssemblyMessages";
 import { Memory } from "../Memory";
 import { AbiBayernMemory } from "./AbiBayernMemory";
-import { AssemblyTokenType } from "../AssemblyTokens";
+import { AssemblyTokenType } from "../AssemblyTokenType";
 import { AssemblyInstruction, AssemblyParser, AssemblyParserResult } from "../AssemblyParser";
 import { AssemblyToken } from "../AssemblyLexer";
 import { AssemblyParserMessages } from "../language/AssemblyParserMessages";
@@ -623,12 +623,11 @@ export class AbiBayernParser extends AssemblyParser {
     }
 
     parse(tokens: AssemblyToken[], file: CompilerFile): AssemblyParserResult {
-        this.tokens = tokens;
-        this.initBeforeParsing();
+        this.initBeforeParsing(tokens);
 
         this.skip(AssemblyTokenType.lineBreak);
 
-        while (!this.programEndReached()) this.parseInstructionOrData();
+        while (!this.isProgramEndReached()) this.parseInstructionOrData();
 
         this.checkForUnresolvedLabelsAtEndOfParsing();
 
@@ -646,7 +645,7 @@ export class AbiBayernParser extends AssemblyParser {
             switch (token.type) {
                 case AssemblyTokenType.identifier:
                     this.next();
-                    this.parseSetLabel(token);
+                    this.resolveLabel(token);
                     break;
                 case AssemblyTokenType.word:
                     this.next();
@@ -814,7 +813,7 @@ export class AbiBayernParser extends AssemblyParser {
         this.expectLineBreakOrEndOfSourcecode();
     }
 
-    getTokenSet(): Set<AssemblyTokenType> {
+    getKeywordTokens(): Set<AssemblyTokenType> {
         return this.tokenSet;
     }
 

@@ -1,6 +1,6 @@
 import { Error } from "../common/Error";
 import { IRange } from "../common/range/Range";
-import { AssemblyTokenType } from "./AssemblyTokens";
+import { AssemblyTokenType } from "./AssemblyTokenType";
 import { AssemblyLexerMessages } from "./language/AssemblyLexerMessages";
 
 export type AssemblyToken = {
@@ -11,6 +11,11 @@ export type AssemblyToken = {
 }
 
 export type AssemblyLexerOutput = {
+    /**
+     * list tokens doesn't contain 
+     *  - whitespace (except: \n)
+     *  - comments
+     */
     tokens: AssemblyToken[];
     commentRanges: IRange[];
     errors: Error[];
@@ -32,13 +37,13 @@ export class AssemblyLexer {
 
     currentChar: string = '';
     nextChar: string = '';
-    tokenSet: Set<AssemblyTokenType>;
+    keywordTokens: Set<AssemblyTokenType>;
 
-    tokenize(input: string, tokenSet: Set<AssemblyTokenType>): AssemblyLexerOutput {
+    tokenize(input: string, keywordTokens: Set<AssemblyTokenType>): AssemblyLexerOutput {
         this.tokens = [];
         this.commentRanges = [];
         this.errors = [];
-        this.tokenSet = tokenSet;
+        this.keywordTokens = keywordTokens;
 
         this.pos = 0;
         this.line = 1;
@@ -319,7 +324,7 @@ export class AssemblyLexer {
 
         let tokenType = AssemblyTokenType[identifier.toLowerCase()];
 
-        if (this.tokenSet.has(tokenType)) {
+        if (this.keywordTokens.has(tokenType)) {
             this.pushToken(tokenType, identifier, startLineNumber, startColumn);
         } else {
             this.pushToken(AssemblyTokenType.identifier, identifier, startLineNumber, startColumn);

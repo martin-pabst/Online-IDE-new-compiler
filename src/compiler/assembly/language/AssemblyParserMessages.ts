@@ -1,5 +1,5 @@
 import { lm } from "../../../tools/language/LanguageManager";
-import { AssemblyTokenType } from "../AssemblyTokens";
+import { AssemblyTokenType } from "../AssemblyTokenType";
 
 export class AssemblyParserMessages {
 

@@ -106,7 +106,7 @@ export class AssemblyCompiler implements Compiler {
 
             let text: string = file.getText();
 
-            let tokens = lexer.tokenize(text, parser.getTokenSet());
+            let tokens = lexer.tokenize(text, parser.getKeywordTokens());
             let parserResult = parser.parse(tokens.tokens, file);
             parserResult.errors = [...tokens.errors, ...parserResult.errors];
             parserResult.commentRanges = tokens.commentRanges;
