@@ -14,9 +14,40 @@ export class AssemblyDebuggerMessages {
     });
 
     static FlagString = (flagName: string) => lm({
-        'de': `${flagName}-Flag:`,
-        'en': `${flagName} Flag:`,
-        'fr': `${flagName}-Flag:`
+        'de': `${flagName}-flag:`,
+        'en': `${flagName} flag:`,
+        'fr': `${flagName}-flag:`
+    });
+
+
+    static AssemblyDebuggerCurrentInstructionCaption = () => lm({
+        'de': `Aktuelle Anweisung`,
+        'en': `Current Instruction`,
+        'fr': `Instruction actuelle`
+    });
+
+    static NoInstructionAtCurrentPosition = () => lm({
+        'de': `Keine Anweisung an aktueller Position`,
+        'en': `No instruction at current position`,
+        'fr': `Aucune instruction à la position actuelle`
+    });
+
+    static InMemory = () => lm({
+        'de': `Im Speicher:`,
+        'en': `In memory:`,
+        'fr': `En mémoire:`
+    });
+
+    static Assembly = () => lm({
+        'de': `Assembler:`,
+        'en': `Assembly:`,
+        'fr': `Assembleur:`
+    });
+
+    static Description = () => lm({
+        'de': `Beschreibung:`,
+        'en': `Description:`,
+        'fr': `Description:`
     });
 
     /**

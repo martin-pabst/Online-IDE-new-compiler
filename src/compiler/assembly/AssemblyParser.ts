@@ -11,7 +11,6 @@ export type AssemblyCompiledCodePart = {
     code: number[];
 }
 
-
 export type AssemblyParserResult = {
     file: CompilerFile;
     startAddress: number;
@@ -27,7 +26,7 @@ export type AssemblyParserResult = {
     /**
      * Map line numbers to used instructions:
      */
-    instructionMap: Map<number, { instruction: AssemblyInstruction, range: IRange }[]>;
+    instructionMap: AssemblyInstructionMap;
     labels: AssemblyLabel[];
 
     /**
@@ -53,9 +52,12 @@ export type AssemblyLabel = {
 
 export type AssemblyInstruction = {
     tokenType: AssemblyTokenType;
-    description: () => string;
+    description: (...parameterValues: (string | number)[]) => string,
+    parameterCount: number,
     OpCode:number;
 }
+
+export type AssemblyInstructionMap = Map<number, { instruction: AssemblyInstruction, range: IRange, operands?: any[] }[]>
 
 export type AssemblySymbol = {
     identifier: string;
@@ -75,7 +77,7 @@ export abstract class AssemblyParser {
     errors: Error[] = [];
     sourceMap: Map<number, { lineNumber: number, column: number }>;
     // Map line numbers to used instructions:
-    instructionMap: Map<number, { instruction: AssemblyInstruction, range: IRange }[]>;
+    instructionMap: AssemblyInstructionMap;
 
     tokens: AssemblyToken[];
     tokenIndex: number = 0;
@@ -350,13 +352,13 @@ export abstract class AssemblyParser {
         this.programCounterRelative = 0;
     }
 
-    registerInstruction(instruction: AssemblyInstruction, range: IRange): void {
+    registerInstruction(instruction: AssemblyInstruction, range: IRange, operands?: (string | number)[]): void {
         let instructionsAtLine = this.instructionMap.get(range.startLineNumber);
         if (!instructionsAtLine) {
             instructionsAtLine = [];
             this.instructionMap.set(range.startLineNumber, instructionsAtLine);
         }
-        instructionsAtLine.push({ instruction, range });
+        instructionsAtLine.push({ instruction, range, operands });
     }
 
     addHoverEntry(range: IRange, text: string): void {

@@ -225,6 +225,7 @@ export class MemoryTab extends Tab {
 
     regularTableStyleListener(event) {
         let cells = this.regularTableElement.querySelectorAll("td");
+        //@ts-ignore
         for (const td of cells) {
             let meta = this.regularTableElement.getMeta(td).user as RegularTableMetadata;
             td.setAttribute("class", "");

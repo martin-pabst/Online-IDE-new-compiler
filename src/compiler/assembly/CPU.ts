@@ -4,7 +4,7 @@ import { Thread } from "../common/interpreter/Thread";
 import { ThreadState } from "../common/interpreter/ThreadState";
 import { CompilerFile } from "../common/module/CompilerFile";
 import { IRange, Range } from "../common/range/Range";
-import { AssemblyInstruction, AssemblyLabel, AssemblyParserResult } from "./AssemblyParser";
+import { AssemblyInstruction, AssemblyInstructionMap, AssemblyLabel, AssemblyParserResult } from "./AssemblyParser";
 import { Memory } from "./Memory";
 
 
@@ -16,7 +16,7 @@ export type AssemblyBreakpoint = {
 export var _cpu: string = "__t.cpu.";
 
 export abstract class CPU {
-
+    
     abstract name: string;
     abstract description: string;
 
@@ -41,18 +41,20 @@ export abstract class CPU {
     abstract getAddressOperandLocationOfCurrentStatement(): { location: number | undefined; indirectLocation: number | undefined; };
 
     /*
-     * For code completion
+    * For code completion
      */
     abstract getTokensWithDescription(): { tokenIdentifier: string, description: () => string }[];
     abstract getPseudoDirectivesWithDescription(): { directiveIdentifier: string, description: () => string }[];
     abstract getInstructions(): AssemblyInstruction[];
-
+    
     abstract getMemory(): Memory;
-
+    
     abstract reset(): void;
-
+    
     // returns true on program end
     abstract executeNextStep(thread: Thread): boolean;
+    
+    abstract getDescriptionForCurrentInstruction(): string | undefined;
 
     constructor(protected assemblyParserResult: AssemblyParserResult, protected main: IMain) {
         this.initCodeLocationsField();
@@ -91,7 +93,7 @@ export abstract class CPU {
         return this.assemblyParserResult.hoverEntries;
     }
 
-    getInstructionMap(): Map<number, { instruction: AssemblyInstruction, range: IRange }[]> {
+    getInstructionMap(): AssemblyInstructionMap {
         return this.assemblyParserResult.instructionMap;
     }
 
@@ -184,5 +186,6 @@ export abstract class CPU {
         }
         return false;
     }
+
     
 }

@@ -1,5 +1,4 @@
 import { CPU } from "../CPU";
-import { AbiBayernAssemblyMessages } from "./AbiBayernAssemblyMessages";
 import { Memory } from "../Memory";
 import { AbiBayernMemory } from "./AbiBayernMemory";
 import { AssemblyTokenType } from "../AssemblyTokenType";
@@ -12,6 +11,7 @@ import { IRange } from "monaco-editor";
 import { CompilerFile } from "../../common/module/CompilerFile";
 import { Thread } from "../../common/interpreter/Thread";
 import { Range } from "../../common/range/Range";
+import { AbiBayernAssemblyMessages } from "./AbiBayernAssemblyMessages";
 
 enum AddressingMode {
     None = 0b00000000,
@@ -117,216 +117,220 @@ enum OpCode {
     hold = BaseOpCode.hold | AddressingMode.None,
 }
 type Instruction = {
-    tokenType: AssemblyTokenType, jumpType: "branch" | "jump" | "nojump", argumentType: "Address" | "Immediate" | "Indirect" | "None", OpCode: OpCode, description: () => string,
+    tokenType: AssemblyTokenType, jumpType: "branch" | "jump" | "nojump",
+    adressMode: "Address" | "Immediate" | "Indirect" | "None",
+    OpCode: OpCode,
+    description: (...parameterValues: (string | number)[]) => string,
+    parameterCount: number,
     exec: (cpu: AbiBayernCPU) => boolean // returns true on program end
 };
 
 var instructions: Instruction[] = [
     {
-        tokenType: AssemblyTokenType.load, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.load, description: AbiBayernAssemblyMessages.LoadAddress,
+        tokenType: AssemblyTokenType.load, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.load, description: AbiBayernAssemblyMessages.LoadAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.accumulator = cpu.memory.read(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.store, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.store, description: AbiBayernAssemblyMessages.StoreAddress,
+        tokenType: AssemblyTokenType.store, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.store, description: AbiBayernAssemblyMessages.StoreAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.memory.write(cpu.readOperand(), cpu.accumulator); return false; }
     },
     {
-        tokenType: AssemblyTokenType.add, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.add, description: AbiBayernAssemblyMessages.AddAddress,
+        tokenType: AssemblyTokenType.add, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.add, description: AbiBayernAssemblyMessages.AddAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator + cpu.memory.read(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.sub, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.sub, description: AbiBayernAssemblyMessages.SubAddress,
+        tokenType: AssemblyTokenType.sub, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.sub, description: AbiBayernAssemblyMessages.SubAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator - cpu.memory.read(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.mul, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.mul, description: AbiBayernAssemblyMessages.MulAddress,
+        tokenType: AssemblyTokenType.mul, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.mul, description: AbiBayernAssemblyMessages.MulAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator * cpu.memory.read(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.div, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.div, description: AbiBayernAssemblyMessages.DivAddress,
+        tokenType: AssemblyTokenType.div, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.div, description: AbiBayernAssemblyMessages.DivAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator / cpu.memory.read(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.mod, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.mod, description: AbiBayernAssemblyMessages.ModAddress,
+        tokenType: AssemblyTokenType.mod, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.mod, description: AbiBayernAssemblyMessages.ModAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator % cpu.memory.read(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.and, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.and, description: AbiBayernAssemblyMessages.AndAddress,
+        tokenType: AssemblyTokenType.and, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.and, description: AbiBayernAssemblyMessages.AndAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator & cpu.memory.read(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.or, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.or, description: AbiBayernAssemblyMessages.OrAddress,
+        tokenType: AssemblyTokenType.or, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.or, description: AbiBayernAssemblyMessages.OrAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator | cpu.memory.read(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.xor, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.xor, description: AbiBayernAssemblyMessages.XorAddress,
+        tokenType: AssemblyTokenType.xor, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.xor, description: AbiBayernAssemblyMessages.XorAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator ^ cpu.memory.read(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.cmp, jumpType: "nojump", argumentType: "Address", OpCode: OpCode.cmp, description: AbiBayernAssemblyMessages.CmpAddress,
+        tokenType: AssemblyTokenType.cmp, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.cmp, description: AbiBayernAssemblyMessages.CmpAddress, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.cmp(cpu.memory.read(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.load, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.loadIndirect, description: AbiBayernAssemblyMessages.LoadIndirect,
+        tokenType: AssemblyTokenType.load, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.loadIndirect, description: AbiBayernAssemblyMessages.LoadIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.accumulator = cpu.memory.readIndirect(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.store, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.storeIndirect, description: AbiBayernAssemblyMessages.StoreIndirect,
+        tokenType: AssemblyTokenType.store, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.storeIndirect, description: AbiBayernAssemblyMessages.StoreIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.memory.writeIndirect(cpu.readOperand(), cpu.accumulator); return false; }
     },
     {
-        tokenType: AssemblyTokenType.add, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.addIndirect, description: AbiBayernAssemblyMessages.AddIndirect,
+        tokenType: AssemblyTokenType.add, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.addIndirect, description: AbiBayernAssemblyMessages.AddIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator + cpu.memory.readIndirect(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.sub, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.subIndirect, description: AbiBayernAssemblyMessages.SubIndirect,
+        tokenType: AssemblyTokenType.sub, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.subIndirect, description: AbiBayernAssemblyMessages.SubIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator - cpu.memory.readIndirect(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.mul, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.mulIndirect, description: AbiBayernAssemblyMessages.MulIndirect,
+        tokenType: AssemblyTokenType.mul, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.mulIndirect, description: AbiBayernAssemblyMessages.MulIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator * cpu.memory.readIndirect(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.div, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.divIndirect, description: AbiBayernAssemblyMessages.DivIndirect,
+        tokenType: AssemblyTokenType.div, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.divIndirect, description: AbiBayernAssemblyMessages.DivIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator / cpu.memory.readIndirect(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.mod, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.modIndirect, description: AbiBayernAssemblyMessages.ModIndirect,
+        tokenType: AssemblyTokenType.mod, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.modIndirect, description: AbiBayernAssemblyMessages.ModIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator % cpu.memory.readIndirect(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.and, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.andIndirect, description: AbiBayernAssemblyMessages.AndIndirect,
+        tokenType: AssemblyTokenType.and, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.andIndirect, description: AbiBayernAssemblyMessages.AndIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator & cpu.memory.readIndirect(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.or, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.orIndirect, description: AbiBayernAssemblyMessages.OrIndirect,
+        tokenType: AssemblyTokenType.or, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.orIndirect, description: AbiBayernAssemblyMessages.OrIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator | cpu.memory.readIndirect(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.xor, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.xorIndirect, description: AbiBayernAssemblyMessages.XorIndirect,
+        tokenType: AssemblyTokenType.xor, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.xorIndirect, description: AbiBayernAssemblyMessages.XorIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator ^ cpu.memory.readIndirect(cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.cmp, jumpType: "nojump", argumentType: "Indirect", OpCode: OpCode.cmpIndirect, description: AbiBayernAssemblyMessages.CmpIndirect,
+        tokenType: AssemblyTokenType.cmp, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.cmpIndirect, description: AbiBayernAssemblyMessages.CmpIndirect, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.cmp(cpu.memory.readIndirect(cpu.readOperand())); return false; }
     },
 
     {
-        tokenType: AssemblyTokenType.jmp, jumpType: "jump", argumentType: "Address", OpCode: OpCode.jmp, description: AbiBayernAssemblyMessages.Jmp,
+        tokenType: AssemblyTokenType.jmp, jumpType: "jump", adressMode: "Address", OpCode: OpCode.jmp, description: AbiBayernAssemblyMessages.Jmp, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setProgramCounter(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jeq, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jeq, description: AbiBayernAssemblyMessages.Jeq,
+        tokenType: AssemblyTokenType.jeq, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jeq, description: AbiBayernAssemblyMessages.Jeq, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jeq(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jne, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jne, description: AbiBayernAssemblyMessages.Jne,
+        tokenType: AssemblyTokenType.jne, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jne, description: AbiBayernAssemblyMessages.Jne, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jne(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jgt, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jgt, description: AbiBayernAssemblyMessages.Jgt,
+        tokenType: AssemblyTokenType.jgt, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jgt, description: AbiBayernAssemblyMessages.Jgt, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jgt(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jge, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jge, description: AbiBayernAssemblyMessages.Jge,
+        tokenType: AssemblyTokenType.jge, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jge, description: AbiBayernAssemblyMessages.Jge, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jge(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jlt, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jlt, description: AbiBayernAssemblyMessages.Jlt,
+        tokenType: AssemblyTokenType.jlt, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jlt, description: AbiBayernAssemblyMessages.Jlt, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jlt(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jle, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jle, description: AbiBayernAssemblyMessages.Jle,
+        tokenType: AssemblyTokenType.jle, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jle, description: AbiBayernAssemblyMessages.Jle, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jle(cpu.readOperand()); return false; }
     },
 
     {
-        tokenType: AssemblyTokenType.jmpp, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jmpp, description: AbiBayernAssemblyMessages.Jmpp,
+        tokenType: AssemblyTokenType.jmpp, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jmpp, description: AbiBayernAssemblyMessages.Jmpp, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jmpp(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jmpn, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jmpn, description: AbiBayernAssemblyMessages.Jmpn,
+        tokenType: AssemblyTokenType.jmpn, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jmpn, description: AbiBayernAssemblyMessages.Jmpn, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jmpn(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jmpz, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jmpz, description: AbiBayernAssemblyMessages.Jmpz,
+        tokenType: AssemblyTokenType.jmpz, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jmpz, description: AbiBayernAssemblyMessages.Jmpz, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jmpz(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jmpv, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jmpv, description: AbiBayernAssemblyMessages.Jmpv,
+        tokenType: AssemblyTokenType.jmpv, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jmpv, description: AbiBayernAssemblyMessages.Jmpv, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jmpv(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jmpc, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jmpc, description: AbiBayernAssemblyMessages.Jmpc,
+        tokenType: AssemblyTokenType.jmpc, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jmpc, description: AbiBayernAssemblyMessages.Jmpc, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jmpc(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jmpnp, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jmpnp, description: AbiBayernAssemblyMessages.Jmpnp,
+        tokenType: AssemblyTokenType.jmpnp, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jmpnp, description: AbiBayernAssemblyMessages.Jmpnp, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jmpnp(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jmpnn, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jmpnn, description: AbiBayernAssemblyMessages.Jmpnn,
+        tokenType: AssemblyTokenType.jmpnn, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jmpnn, description: AbiBayernAssemblyMessages.Jmpnn, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jmpnn(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jmpnz, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jmpnz, description: AbiBayernAssemblyMessages.Jmpnz,
+        tokenType: AssemblyTokenType.jmpnz, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jmpnz, description: AbiBayernAssemblyMessages.Jmpnz, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jmpnz(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jmpnv, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jmpnv, description: AbiBayernAssemblyMessages.Jmpnv,
+        tokenType: AssemblyTokenType.jmpnv, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jmpnv, description: AbiBayernAssemblyMessages.Jmpnv, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jmpnv(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.jmpnc, jumpType: "branch", argumentType: "Address", OpCode: OpCode.jmpnc, description: AbiBayernAssemblyMessages.Jmpnc,
+        tokenType: AssemblyTokenType.jmpnc, jumpType: "branch", adressMode: "Address", OpCode: OpCode.jmpnc, description: AbiBayernAssemblyMessages.Jmpnc, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.jmpnc(cpu.readOperand()); return false; }
     },
 
     {
-        tokenType: AssemblyTokenType.loadi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.loadi, description: AbiBayernAssemblyMessages.LoadImmediate,
+        tokenType: AssemblyTokenType.loadi, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.loadi, description: AbiBayernAssemblyMessages.LoadImmediate, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.addi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.addi, description: AbiBayernAssemblyMessages.AddImmediate,
+        tokenType: AssemblyTokenType.addi, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.addi, description: AbiBayernAssemblyMessages.AddImmediate, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator + cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.subi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.subi, description: AbiBayernAssemblyMessages.SubImmediate,
+        tokenType: AssemblyTokenType.subi, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.subi, description: AbiBayernAssemblyMessages.SubImmediate, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator - cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.muli, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.muli, description: AbiBayernAssemblyMessages.MulImmediate,
+        tokenType: AssemblyTokenType.muli, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.muli, description: AbiBayernAssemblyMessages.MulImmediate, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator * cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.divi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.divi, description: AbiBayernAssemblyMessages.DivImmediate,
+        tokenType: AssemblyTokenType.divi, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.divi, description: AbiBayernAssemblyMessages.DivImmediate, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(Math.floor(cpu.accumulator / cpu.readOperand())); return false; }
     },
     {
-        tokenType: AssemblyTokenType.modi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.modi, description: AbiBayernAssemblyMessages.ModImmediate,
+        tokenType: AssemblyTokenType.modi, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.modi, description: AbiBayernAssemblyMessages.ModImmediate, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator % cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.andi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.andi, description: AbiBayernAssemblyMessages.AndImmediate,
+        tokenType: AssemblyTokenType.andi, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.andi, description: AbiBayernAssemblyMessages.AndImmediate, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator & cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.ori, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.ori, description: AbiBayernAssemblyMessages.OrImmediate,
+        tokenType: AssemblyTokenType.ori, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.ori, description: AbiBayernAssemblyMessages.OrImmediate, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator | cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.xori, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.xori, description: AbiBayernAssemblyMessages.XorImmediate,
+        tokenType: AssemblyTokenType.xori, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.xori, description: AbiBayernAssemblyMessages.XorImmediate, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.setAccu(cpu.accumulator ^ cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.cmpi, jumpType: "nojump", argumentType: "Immediate", OpCode: OpCode.cmpi, description: AbiBayernAssemblyMessages.CmpImmediate,
+        tokenType: AssemblyTokenType.cmpi, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.cmpi, description: AbiBayernAssemblyMessages.CmpImmediate, parameterCount: 1,
         exec: (cpu: AbiBayernCPU) => { cpu.cmp(cpu.readOperand()); return false; }
     },
     {
-        tokenType: AssemblyTokenType.hold, jumpType: "nojump", argumentType: "None", OpCode: OpCode.hold, description: AbiBayernAssemblyMessages.Hold,
+        tokenType: AssemblyTokenType.hold, jumpType: "nojump", adressMode: "None", OpCode: OpCode.hold, description: AbiBayernAssemblyMessages.Hold, parameterCount: 0,
         exec: (cpu: AbiBayernCPU) => { return true; }
     },
     {
-        tokenType: AssemblyTokenType.halt, jumpType: "nojump", argumentType: "None", OpCode: OpCode.hold, description: AbiBayernAssemblyMessages.Hold,
+        tokenType: AssemblyTokenType.halt, jumpType: "nojump", adressMode: "None", OpCode: OpCode.hold, description: AbiBayernAssemblyMessages.Hold, parameterCount: 0,
         exec: (cpu: AbiBayernCPU) => { return true; }
     }
 ];
@@ -385,10 +389,43 @@ export class AbiBayernCPU extends CPU {
     }
 
     getTokensWithDescription(): { tokenIdentifier: string; description: () => string; }[] {
+        const getPlaceholderOperands = (instruction: Instruction): (string | number)[] => {
+            if (instruction.parameterCount === 0) {
+                return [];
+            }
+
+            if (instruction.adressMode === "Immediate") {
+                return [70];
+            }
+
+            if (instruction.jumpType !== "nojump") {
+                return ["label"];
+            }
+
+            return ["address"];
+        };
+
         return instructions.filter(instr => !this.specialCompletionCommentTokens.has(instr.tokenType))
-        .map(instr => ({ tokenIdentifier: AssemblyTokenType[instr.tokenType], description: instr.description }))
-        .concat(specialCompletionComments.map(item => ({ tokenIdentifier: AssemblyTokenType[item.tokenType], description: item.description })));
+            .map(instr => ({
+                tokenIdentifier: AssemblyTokenType[instr.tokenType],
+                description: () => instr.description(...getPlaceholderOperands(instr))
+            }))
+            .concat(specialCompletionComments.map(item => ({ tokenIdentifier: AssemblyTokenType[item.tokenType], description: item.description })));
     }
+
+    getDescriptionForCurrentInstruction(): string | undefined {
+        let mem = this.memory.dump();
+        let opcode = mem[this.programCounter];
+        let instruction = this.opcodeToInstructionMap[opcode];
+        if (instruction) {
+            let operandValues: (string | number)[] = [];
+            for (let i = 1; i < instruction.parameterCount + 1; i++) {
+                operandValues.push(mem[this.programCounter + i]);
+            }
+            return instruction.description(...operandValues);
+        }
+    }
+
 
     getPseudoDirectivesWithDescription(): { directiveIdentifier: string; description: () => string; }[] {
         return [
@@ -428,7 +465,7 @@ export class AbiBayernCPU extends CPU {
         let opcode = this.memory.dump()[this.programCounter];
         let instruction = this.opcodeToInstructionMap[opcode];
         if (instruction) {
-            switch (instruction.argumentType) {
+            switch (instruction.adressMode) {
                 case "None": return 1;
                 case "Immediate":
                 case "Address":
@@ -442,13 +479,13 @@ export class AbiBayernCPU extends CPU {
         let opcode = this.memory.dump()[this.programCounter];
         let instruction = this.opcodeToInstructionMap[opcode];
         if (!instruction) return { location: undefined, indirectLocation: undefined };
-        if (instruction.argumentType === "None" || instruction.argumentType === "Immediate") {
+        if (instruction.adressMode === "None" || instruction.adressMode === "Immediate") {
             return { location: undefined, indirectLocation: undefined };
         }
         let mem = this.memory.dump();
         let operandAddress = mem[this.programCounter + 1];
         if (operandAddress < 0 || operandAddress >= mem.length) return { location: undefined, indirectLocation: undefined };
-        if (instruction.argumentType === "Address") {
+        if (instruction.adressMode === "Address") {
             return { location: operandAddress, indirectLocation: undefined };
         } else { // Indirect
             let indirectLocation = mem[operandAddress];
@@ -707,20 +744,21 @@ export class AbiBayernParser extends AssemblyParser {
     }
 
     parseInstructionWithIndirectArgument(token: AssemblyToken, instructionsForToken: Instruction[]) {
-        let instruction = instructionsForToken.find(instr => instr.argumentType === "Indirect");
+        let instruction = instructionsForToken.find(instr => instr.adressMode === "Indirect");
         if (instruction) {
-            this.registerInstruction(instruction, token.range);
             this.next();
             let addressToken = this.currentToken();
             if (addressToken.type === AssemblyTokenType.number) {
                 if (this.checkIfTokenIs16BitUnsignedNumber(addressToken)) {
                     let address = addressToken.value as number;
+                    this.registerInstruction(instruction, token.range, [address]);
                     this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
                     this.writeToMemory(instruction.OpCode, address);
                 }
                 this.next();
                 if (this.expect(AssemblyTokenType.rightBracket)) this.next();
             } else if (addressToken.type === AssemblyTokenType.identifier) {
+                this.registerInstruction(instruction, token.range, [addressToken.text]);
                 this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
                 this.writeToMemory(instruction.OpCode);
                 let labelAddress = this.getLabelAddressAbsolute(addressToken, this.getProgramCounterAbsolute());
@@ -741,28 +779,38 @@ export class AbiBayernParser extends AssemblyParser {
     }
 
     parseInstructionWithNoArgument(token: AssemblyToken, instructionsForToken: Instruction[]) {
-        let instruction = instructionsForToken.find(instr => instr.argumentType === "None");
+        let instruction = instructionsForToken.find(instr => instr.adressMode === "None");
         if (instruction) {
             this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
-            this.registerInstruction(instruction, token.range);
+            this.registerInstruction(instruction, token.range, []);
             this.writeToMemory(instruction.OpCode);
         } else {
-            this.pushError(AbiBayernAssemblyMessages.NoArgumentAfterInstructionExpected(token.text), "error", token.range);
+            this.pushError(AbiBayernAssemblyMessages.NoArgumentAfterInstructionFound(token.text), "error", token.range);
+            let specialCompletionComment = specialCompletionComments.find(item => item.tokenType === token.type);
+            if (specialCompletionComment) {
+                this.addHoverEntry(token.range, specialCompletionComment.description());
+            }
         }
     }
 
     parseInstructionWithNumberArgument(token: AssemblyToken, instructionsForToken: Instruction[]) {
         let numberToken = this.currentToken();
         this.next();
-        if (this.checkIfTokenIs16BitSignedNumber(numberToken)) {
-            let instruction = instructionsForToken.find(instr => instr.argumentType === "Immediate" || instr.argumentType === "Address");
-            if (instruction) {
-                this.registerInstruction(instruction, token.range);
+        let instruction = instructionsForToken.find(instr => instr.adressMode === "Immediate" || instr.adressMode === "Address");
+        if (instruction) {
+            if (this.checkIfTokenIs16BitSignedNumber(numberToken)) {
                 let value = numberToken.value as number;
+                this.registerInstruction(instruction, token.range, [value]);
                 this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
                 this.writeToMemory(instruction.OpCode, value);
             } else {
-                this.pushError(AbiBayernAssemblyMessages.NumberAfterInstructionNotExpected(token.text), "error", numberToken.range);
+                this.registerInstruction(instruction, token.range, instruction.adressMode === "Immediate" ? [70] : ["address"]);
+            }
+        } else {
+            this.pushError(AbiBayernAssemblyMessages.NumberAfterInstructionNotExpected(token.text), "error", numberToken.range);
+            let specialCompletionComment = specialCompletionComments.find(item => item.tokenType === token.type);
+            if (specialCompletionComment) {
+                this.addHoverEntry(token.range, specialCompletionComment.description());
             }
         }
     }
@@ -770,15 +818,19 @@ export class AbiBayernParser extends AssemblyParser {
     parseInstructionWithLabelArgument(token: AssemblyToken, instructionsForToken: Instruction[]) {
         let labelToken = this.currentToken();
         this.next();
-        let instruction = instructionsForToken.find(instr => instr.argumentType === "Address");
+        let instruction = instructionsForToken.find(instr => instr.adressMode === "Address");
         if (instruction) {
-            this.registerInstruction(instruction, token.range);
+            this.registerInstruction(instruction, token.range, [labelToken.text]);
             this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
             this.writeToMemory(instruction.OpCode);
             let labelAddress = this.getLabelAddressAbsolute(labelToken, this.getProgramCounterAbsolute());
             this.writeToMemory(labelAddress);
         } else {
             this.pushError(AbiBayernAssemblyMessages.LabelAfterInstructionNotExpected(token.text), "error", labelToken.range);
+            let specialCompletionComment = specialCompletionComments.find(item => item.tokenType === token.type);
+            if (specialCompletionComment) {
+                this.addHoverEntry(token.range, specialCompletionComment.description());
+            }
         }
     }
 
@@ -857,4 +909,6 @@ export class AbiBayernParser extends AssemblyParser {
         this.tokenSet.add(AssemblyTokenType.word);
     }
 
+
 }
+

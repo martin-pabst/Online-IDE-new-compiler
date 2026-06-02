@@ -3,7 +3,7 @@ import { lm } from "../../../tools/language/LanguageManager";
 export class AssemblyMonacoProvidersMessages{
         
     static Opcode = (opcode: number) => lm({
-        'en': `opcode: 0x${opcode.toString(16)}`,
+        'en': `opcode: 0x${opcode.toString(16)} = ${opcode}`,
     });
 
     static LabelCompletionDescription = (address: number) => lm({

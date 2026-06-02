@@ -34,7 +34,7 @@ export class StatusRegisterDiv {
             let flagNameShort = cpu.flagNamesShort[i];
             let flagDiv = DOM.makeDiv(this.registerDiv, "jo_flagdiv");
             let flagNameDiv = DOM.makeDiv(flagDiv, "jo_flag-name-div");
-            flagNameDiv.textContent = AssemblyDebuggerMessages.FlagString(flagNameShort);
+            flagNameDiv.textContent = AssemblyDebuggerMessages.FlagString(flagName);
             let valueDiv = DOM.makeDiv(flagDiv, "jo_flag-value-div");
             valueDiv.textContent = "0";
             this.valueDivs[flagName] = valueDiv;

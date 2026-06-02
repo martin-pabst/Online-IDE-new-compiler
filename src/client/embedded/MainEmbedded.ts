@@ -785,6 +785,7 @@ export class MainEmbedded implements MainBase {
     showDebugger() {
         this.$debuggerDiv.show();
         this.$alternativeDebuggerDiv.hide();
+        this.debugger?.show();
     }
 
     // makeBracketErrorDiv(): JQuery<HTMLElement> {
@@ -968,7 +969,7 @@ export class MainEmbedded implements MainBase {
             `);
 
         if (!this.config.hideEditor) {
-            let debuggerTab = new Tab('Debugger','Debugger', ['jo_scrollable', 'jo_editorFontSize', 'jo_variablesTab']);
+            let debuggerTab = new Tab('Debugger', 'Debugger', ['jo_scrollable', 'jo_editorFontSize', 'jo_variablesTab']);
             this.rightDiv.tabManager.addTab(debuggerTab);
 
             let $vd = jQuery(debuggerTab.bodyDiv);
@@ -1035,6 +1036,8 @@ export class MainEmbedded implements MainBase {
 
         if (this.$debuggerDiv) {
             let dd = <HTMLDivElement>this.$debuggerDiv[0];
+            
+            this.debugger?.remove();
             dd.innerHTML = "";
             switch (this.language.getDebuggerType()) {
                 case "java":
