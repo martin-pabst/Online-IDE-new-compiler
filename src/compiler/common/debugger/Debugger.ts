@@ -22,9 +22,13 @@ export abstract class Debugger {
 
     public abstract updateView(): void;
 
+    public remove(){
+        this.treeviewAccordion.remove();
+    }
 
     public hide() {
         this.debuggerDiv.style.display = "none";
+        this.treeviewAccordion.hide();
         this.fileTreeview?.clear();
     }
 
@@ -49,6 +53,7 @@ export abstract class Debugger {
         }
 
         this.debuggerDiv.style.display = "block";
+        this.treeviewAccordion.show();
     }
 
     protected initFileTreeview() {

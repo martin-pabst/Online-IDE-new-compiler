@@ -67,11 +67,11 @@ export class AccordionElement implements AccordionElementInterface {
             initialExpandCollapseState: "expanded"
         }
 
-        if (!accordionElementConfig) accordionElementConfig = standardConfig;
-        accordionElementConfig = Object.assign(standardConfig, accordionElementConfig);
+        if (!this.accordionElementConfig) this.accordionElementConfig = standardConfig;
+        this.accordionElementConfig = Object.assign(standardConfig, this.accordionElementConfig);
 
         this.buildHtmlScaffolding();
-        if (accordionElementConfig?.flexWeight) this.setFlexWeight(accordionElementConfig.flexWeight);
+        if (this.accordionElementConfig?.flexWeight) this.setFlexWeight(this.accordionElementConfig.flexWeight);
 
         if (this.treeviewAccordion) this.treeviewAccordion.addTreeview(this);
 

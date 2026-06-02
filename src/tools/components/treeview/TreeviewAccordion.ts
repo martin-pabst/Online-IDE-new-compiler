@@ -42,6 +42,19 @@ export class TreeviewAccordion {
 
     }
 
+    remove(){
+        this._mainDiv.remove();
+    }
+
+    hide(){
+        this._mainDiv.style.display = "none";
+    }
+
+    show(){
+        this._mainDiv.style.display = "";
+        this.onResize(true);
+    }
+
     onResize(initial: boolean) {
         let overallHeight = this.outerElementWithCorrectSize.getBoundingClientRect().height - (this.ElementList.length * 1.0);
 

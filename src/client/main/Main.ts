@@ -458,6 +458,8 @@ export class Main implements MainBase {
         this.getCompiler()?.eventManager?.on('compilationFinishedWithNewExecutable', this.onCompilationFinishedWithNewExecutable, this);
         this.getCompiler()?.eventManager?.on('compilationFinished', this.onCompilationFinished, this);
 
+        
+        this.debugger?.remove();
         this.debuggerDiv.innerHTML = "";
         switch (this.language.getDebuggerType()) {
             case "java":

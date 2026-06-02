@@ -18,9 +18,6 @@ import { IPosition } from "../../common/range/Position.ts";
 import { Range } from "../../common/range/Range.ts";
 import { JavaSymbolTable } from "../codegenerator/JavaSymbolTable.ts";
 import { IRange } from "monaco-editor";
-import { GUIFile } from "../../../client/workspace/File.ts";
-import { FileTypeManager } from "../../common/module/FileTypeManager.ts";
-import { Main } from "../../../client/main/Main.ts";
 import { JavaRepl } from "../parser/repl/JavaRepl.ts";
 import { Debugger } from "../../common/debugger/Debugger.ts";
 
@@ -45,7 +42,6 @@ export class JavaDebugger extends Debugger {
         main: IMain) {
         super(debuggerDiv, main);
 
-        this.treeviewAccordion = new TreeviewAccordion(debuggerDiv, debuggerDiv.parentElement.parentElement);
         this.initShowVariablesTreeview();
         this.initWatchTreeview();
 
@@ -63,8 +59,6 @@ export class JavaDebugger extends Debugger {
         }, 100);
 
     }
-
-
 
     private initWatchTreeview() {
         this.watchTreeview = new Treeview(this.treeviewAccordion, {
