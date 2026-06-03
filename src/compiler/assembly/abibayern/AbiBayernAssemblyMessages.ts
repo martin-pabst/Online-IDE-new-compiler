@@ -67,6 +67,12 @@ export class AbiBayernAssemblyMessages {
         'fr': `Directive pseudo inconnue: ${pseudoDirective}`
     });
 
+    static Assert = () => lm({
+        'de': `.assert: Fügt eine Assertion ein, die überprüft, ob der Speicher zum Zeitpunkt der Ausführung der Assertion den erwarteten Wert hat. Syntax: .assert <address> (expectedMemoryValue,[ ])*["message"], z.B. .assert 100 42, 37, 58 "Falsche Sortierreihenfolge!"`,
+        'en': `.assert: Adds an assertion that checks if the memory has the expected value at the time of assertion execution. Syntax: .assert <address> (expectedMemoryValue,[ ])*["message"], e.g., .assert 100 42, 37, 58 "Wrong sort order!"`,
+        'fr': `.assert: Ajoute une assertion qui vérifie si la mémoire a la valeur attendue au moment de l'exécution de l'assertion. Syntaxe: .assert <address> (expectedMemoryValue,[ ])*["message"], par exemple .assert 100 42, 37, 58 "Mauvaise ordre de tri!"`
+    });
+
     /**
      * Descriptions for assembly instructions and pseudo directives
      */
@@ -123,6 +129,18 @@ export class AbiBayernAssemblyMessages {
         'de': `or ${parameterValue[0]}: Führt eine bitweise Oder-Verknüpfung zwischen dem Akkumulator und dem Wert an der Adresse ${parameterValue[0]} durch und speichert das Ergebnis im Akkumulator.`,
         'en': `or ${parameterValue[0]}: Performs a bitwise OR opération between the accumulator and the value at ${parameterValue[0]} and stores the result in the accumulator.`,
         'fr': `or ${parameterValue[0]}: Effectue une opération OU binaire entre l'accumulateur et la valeur à l'adresse ${parameterValue[0]} et stocke le résultat dans l'accumulateur.`
+    });
+
+    static ShlAddress = (...parameterValue: (string | number)[]) => lm({
+        'de': `shl ${parameterValue[0]}: Führt eine bitweise Verschiebung nach links des Akkumulators um die Anzahl der Bits, die durch den Wert an der Adresse ${parameterValue[0]} angegeben ist, durch und speichert das Ergebnis im Akkumulator. Falls der Wert des Akkumulators negativ ist, werden nur die rechten 15 Bits verschoben, da die Architektur eine vorzeichenbehaftete 16-Bit-Architektur ist.`,
+        'en': `shl ${parameterValue[0]}: Performs a bitwise left shift of the accumulator by the number of bits specified by ${parameterValue[0]} and stores the result in the accumulator. If the value of the accumulator is negative, only the rightmost 15 bits are shifted, since the architecture is a signed 16-bit architecture.`,
+        'fr': `shl ${parameterValue[0]}: Effectue une opération de décalage vers la gauche de l'accumulateur du nombre de bits spécifié par ${parameterValue[0]} et stocke le résultat dans l'accumulateur. Si la valeur de l'accumulateur est négative, seuls les 15 bits les plus à droite sont décalés, car l'architecture est une architecture 16 bits signée.`
+    });
+
+    static ShrAddress = (...parameterValue: (string | number)[]) => lm({
+        'de': `shr ${parameterValue[0]}: Führt eine bitweise Verschiebung nach rechts des Akkumulators um die Anzahl der Bits, die durch den Wert an der Adresse ${parameterValue[0]} angegeben ist, durch und speichert das Ergebnis im Akkumulator. Falls der Wert des Akkumulators negativ ist, werden nur die rechten 15 Bits verschoben, da die Architektur eine vorzeichenbehaftete 16-Bit-Architektur ist.`,
+        'en': `shr ${parameterValue[0]}: Performs a bitwise right shift of the accumulator by the number of bits specified by ${parameterValue[0]} and stores the result in the accumulator. If the value of the accumulator is negative, only the rightmost 15 bits are shifted, since the architecture is a signed 16-bit architecture.`,
+        'fr': `shr ${parameterValue[0]}: Effectue une opération de décalage vers la droite de l'accumulateur du nombre de bits spécifié par ${parameterValue[0]} et stocke le résultat dans l'accumulateur. Si la valeur de l'accumulateur est négative, seuls les 15 bits les plus à droite sont décalés, car l'architecture est une architecture 16 bits signée.`
     });
 
     static XorAddress = (...parameterValue: (string | number)[]) => lm({
@@ -363,6 +381,24 @@ export class AbiBayernAssemblyMessages {
         'de': `cmpi ${parameterValue[0]}: Subtrahiert die Zahl ${parameterValue[0]} vom Akkumulator (ohne diesen zu verändern!) und setzt die Flags entsprechend (zero, negative, overflow).`,
         'en': `cmpi ${parameterValue[0]}: Subtracts the immédiate number ${parameterValue[0]} from the accumulator (without changing it!) and sets the flags accordingly (zero, negative, overflow).`,
         'fr': `cmpi ${parameterValue[0]}: Soustrait le nombre immédiat ${parameterValue[0]} de l'accumulateur (sans le changer !) et définit les drapeaux en conséquence (zero, négatif, dépassement).`
+    });
+
+    static ShrImmediate = (...parameterValue: (string | number)[]) => lm({
+        'de': `shri ${parameterValue[0]}: Führt eine logische Rechtsverschiebung des Akkumulators um die Anzahl der Bits, die durch ${parameterValue[0]} angegeben ist, durch und speichert das Ergebnis im Akkumulator. Es werden Nullen von links aufgefüllt. Falls der Wert im Akkumulator negativ ist, werden nur die rechten 15 Bit verschoben und das linke Bit (Vorzeichenbit) bleibt erhalten.`,
+        'en': `shri ${parameterValue[0]}: Performs a logical right shift of the accumulator by the number of bits specified by ${parameterValue[0]} and stores the result in the accumulator. Zeros are filled in from the left. If the value in the accumulator is negative, only the rightmost 15 bits are shifted and the left bit (sign bit) remains unchanged.`,
+        'fr': `shri ${parameterValue[0]}: Effectue un décalage logique à droite de l'accumulateur du nombre de bits spécifié par ${parameterValue[0]} et stocke le résultat dans l'accumulateur. Des zéros sont remplis à partir de la gauche. Si la valeur dans l'accumulateur est négative, seuls les 15 bits les plus à droite sont décalés et le bit de gauche (bit de signe) reste inchangé.`
+    });
+
+    static ShlImmediate = (...parameterValue: (string | number)[]) => lm({
+        'de': `shli ${parameterValue[0]}: Führt eine logische Linksverschiebung des Akkumulators um die Anzahl der Bits, die durch ${parameterValue[0]} angegeben ist, durch und speichert das Ergebnis im Akkumulator. Es werden Nullen von rechts aufgefüllt. Falls der Wert im Akkumulator negativ ist, werden nur die rechten 15 Bit verschoben und das linke Bit (Vorzeichenbit) bleibt erhalten.`,
+        'en': `shli ${parameterValue[0]}: Performs a logical left shift of the accumulator by the number of bits specified by ${parameterValue[0]} and stores the result in the accumulator. Zeros are filled in from the right. If the value in the accumulator is negative, only the rightmost 15 bits are shifted and the left bit (sign bit) remains unchanged.`,
+        'fr': `shli ${parameterValue[0]}: Effectue un décalage logique à gauche de l'accumulateur du nombre de bits spécifié par ${parameterValue[0]} et stocke le résultat dans l'accumulateur. Des zéros sont remplis à partir de la droite. Si la valeur dans l'accumulateur est négative, seuls les 15 bits les plus à droite sont décalés et le bit de gauche (bit de signe) reste inchangé.`
+    });
+
+    static Not = () => lm({
+        'de': `not: Führt eine bitweise Negation des Akkumulators durch und speichert das Ergebnis im Akkumulator. Falls der Wert im Akkumulator kleiner als 0 ist, werden nur die rechten 15 Bit negiert.`,
+        'en': `not: Performs a bitwise negation of the accumulator and stores the result in the accumulator. If the value in the accumulator is less than 0, only the rightmost 15 bits are negated.`,
+        'fr': `not: Effectue une négation binaire de l'accumulateur et stocke le résultat dans l'accumulateur. Si la valeur dans l'accumulateur est inférieure à 0, seuls les 15 bits les plus à droite sont négatifs.`
     });
 
     static Hold = () => lm({

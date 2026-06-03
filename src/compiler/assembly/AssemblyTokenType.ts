@@ -10,6 +10,9 @@ export enum AssemblyTokenType {
     and,
     or,
     xor,
+
+    shr,
+    shl,
     
     loadi,
     storei,
@@ -22,6 +25,11 @@ export enum AssemblyTokenType {
     ori,
     xori,
     cmpi,
+
+    not,
+
+    shri,
+    shli,
 
     jmp,
     jeq,
@@ -48,6 +56,7 @@ export enum AssemblyTokenType {
     hold,
     halt,
     word,
+    assert,
 
     identifier,
     number,
@@ -63,6 +72,7 @@ export enum AssemblyTokenType {
     comma,           // ,
     hash,            // #
     dot,             // .
+    stringLiteral,   // "abc"
 }
 
 export var AssemblyTokenTypeReadable: { [key in AssemblyTokenType]?: string } = {

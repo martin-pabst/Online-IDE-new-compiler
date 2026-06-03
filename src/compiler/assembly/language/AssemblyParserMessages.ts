@@ -8,7 +8,7 @@ export class AssemblyParserMessages {
         'en': `Unexpected token: ${text}`,
         'fr': `Token inattendu : ${text}`
     });
-    
+
     static LabelAlreadyDefined = (labelName: string) => lm({
         'de': `Label "${labelName}" ist bereits definiert.`,
         'en': `Label "${labelName}" is already defined.`,
@@ -49,6 +49,30 @@ export class AssemblyParserMessages {
         'de': `Unbekannte Anweisung: ${statement}`,
         'en': `Unknown statement: ${statement}`,
         'fr': `Instruction inconnue : ${statement}`
+    });
+
+    static AddressExpectedAfterAssertion = () => lm({
+        'de': `Nach .assert wird eine Adresse erwartet, auf die sich die Assertion bezieht. Syntax: .assert <address> (expectedMemoryValue,[ ])*["message"], z.B. .assert 100 42, 37, 58 "Falsche Sortierreihenfolge!"`,
+        'en': `After an assertion, an address is expected that the assertion refers to. Syntax: .assert <address> (expectedMemoryValue,[ ])*["message"], e.g. .assert 100 42, 37, 58 "Wrong sorting order!"`,
+        'fr': `Après une assertion, une adresse est attendue à laquelle l'assertion se réfère. Syntaxe : .assert <address> (expectedMemoryValue,[ ])*["message"], ex. .assert 100 42, 37, 58 "Mauvais ordre de tri!"`
+    });
+
+    static MemoryFrom = (address: number) => lm({
+        'de': `Speicherbelegung ab ${address}: `,
+        'en': `Memory from ${address}: `,
+        'fr': `Mémoire à partir de ${address}: `
+    });
+
+    static DataOrErrorMessageExpected = () => lm({
+        'de': `Hier werden entweder weitere Speicherwerte oder eine Fehlermeldung erwartet. Syntax: .assert <address> (expectedMemoryValue,[ ])*["message"], z.B. .assert 100 42, 37, 58 "Falsche Sortierreihenfolge!"`,
+        'en': `Either more memory values or an error message is expected here. Syntax: .assert <address> (expectedMemoryValue,[ ])*["message"], e.g. .assert 100 42, 37, 58 "Wrong sorting order!"`,
+        'fr': `Soit d'autres valeurs de mémoire soit un message d'erreur est attendu ici. Syntaxe : .assert <address> (expectedMemoryValue,[ ])*["message"], ex. .assert 100 42, 37, 58 "Mauvais ordre de tri!"`
+    });
+
+    static MemoryAssertionFailed = (expectedMemoryState: string, actualMemoryState: string, message: string) => lm({
+        'de': `Speicher-Assertion fehlgeschlagen!\nErwarteter Speicherzustand: ${expectedMemoryState}, \naktueller Speicherzustand: ${actualMemoryState}.\nMeldung: ${message}`,
+        'en': `Memory assertion failed!\nExpected memory state: ${expectedMemoryState}, \nactual memory state: ${actualMemoryState}.\nMessage: ${message}`,
+        'fr': `Assertion de mémoire échouée!\nÉtat de mémoire attendu: ${expectedMemoryState}, \nétat de mémoire actuel: ${actualMemoryState}.\nMessage: ${message}`
     });
 
 }

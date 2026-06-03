@@ -111,7 +111,7 @@ export class AssemblyLexer {
                 case '\t':
                 case '\uc2a0':
                 case '\u00a0':
-                    if(this.withWithspaceAndCommentTokens){
+                    if (this.withWithspaceAndCommentTokens) {
                         this.lexWhitespace();
                     } else {
                         this.next();
@@ -201,6 +201,20 @@ export class AssemblyLexer {
                     }
                     this.next();
                     break;
+                case '"':
+                    let startLineNumber1 = this.line;
+                    let startColumn1 = this.column;
+                    let stringLiteral = "";
+                    this.next(); // skip starting "
+                    while (this.currentChar !== '"' && this.currentChar !== this.endChar) {
+                        stringLiteral += this.currentChar;
+                        this.next();
+                    }
+                    this.pushToken(AssemblyTokenType.stringLiteral, stringLiteral, startLineNumber1, startColumn1);
+                    if (this.currentChar === '"') {
+                        this.next(); // skip ending "
+                    }
+                    break;
                 default:
                     if (/[a-zA-Z_\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]/.test(char)) {
                         this.lexIdentifierOrKeyword();
@@ -221,7 +235,7 @@ export class AssemblyLexer {
             endLineNumber: this.line,
             endColumn: this.column
         });
-        if(this.withWithspaceAndCommentTokens){
+        if (this.withWithspaceAndCommentTokens) {
             this.pushToken(AssemblyTokenType.comment, commentText, startLineNumber, startColumn, this.line, this.column);
         }
     }

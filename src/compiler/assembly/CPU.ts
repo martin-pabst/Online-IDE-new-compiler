@@ -5,6 +5,7 @@ import { ThreadState } from "../common/interpreter/ThreadState";
 import { CompilerFile } from "../common/module/CompilerFile";
 import { IRange, Range } from "../common/range/Range";
 import { AssemblyInstruction, AssemblyInstructionMap, AssemblyLabel, AssemblyParserResult } from "./AssemblyParser";
+import { AssemblyParserMessages } from "./language/AssemblyParserMessages";
 import { Memory } from "./Memory";
 
 
@@ -16,7 +17,7 @@ export type AssemblyBreakpoint = {
 export var _cpu: string = "__t.cpu.";
 
 export abstract class CPU {
-    
+
     abstract name: string;
     abstract description: string;
 
@@ -46,14 +47,14 @@ export abstract class CPU {
     abstract getTokensWithDescription(): { tokenIdentifier: string, description: () => string }[];
     abstract getPseudoDirectivesWithDescription(): { directiveIdentifier: string, description: () => string }[];
     abstract getInstructions(): AssemblyInstruction[];
-    
+
     abstract getMemory(): Memory;
-    
+
     abstract reset(): void;
-    
+
     // returns true on program end
     abstract executeNextStep(thread: Thread): boolean;
-    
+
     abstract getDescriptionForCurrentInstruction(): string | undefined;
 
     constructor(protected assemblyParserResult: AssemblyParserResult, protected main: IMain) {
@@ -81,15 +82,15 @@ export abstract class CPU {
         }
     }
 
-    getLabels(): { identifier: string, address: number }[]{
+    getLabels(): { identifier: string, address: number }[] {
         return this.assemblyParserResult.labels;
     }
 
-    getLabelMap(): Map<number, { label: AssemblyLabel, range: IRange }[]>{
+    getLabelMap(): Map<number, { label: AssemblyLabel, range: IRange }[]> {
         return this.assemblyParserResult.labelMap;
     }
 
-    getHoverEntries(): Map<number, {range: IRange, text: string}[]> {
+    getHoverEntries(): Map<number, { range: IRange, text: string }[]> {
         return this.assemblyParserResult.hoverEntries;
     }
 
@@ -180,12 +181,52 @@ export abstract class CPU {
 
     positionIsInsideComment(position: { lineNumber: number, column: number }): boolean {
         for (const commentRange of this.assemblyParserResult.commentRanges) {
-            if(Range.containsPosition(commentRange, position)) {
+            if (Range.containsPosition(commentRange, position)) {
                 return true;
             }
         }
         return false;
     }
 
-    
+    getRangeOfCurrentInstruction(): IRange | undefined {
+        let pc = this.getProgramCounter();
+        let sourceMapEntry = this.assemblyParserResult.sourceMap.get(pc);
+        if (!sourceMapEntry) return undefined;
+        return {
+            startLineNumber: sourceMapEntry.lineNumber,
+            startColumn: sourceMapEntry.column,
+            endLineNumber: sourceMapEntry.lineNumber,
+            endColumn: sourceMapEntry.column + 1
+        }
+    }
+
+    assertMemory(): void {
+        let assertion = this.assemblyParserResult.assertionMap.get(this.getProgramCounter() - 1);
+        if (assertion) {
+            let mem = this.getMemory().dump();
+            let allWell = true;
+            for (let i = 0; i < assertion.expectedMemoryValues.length; i++) {
+                if (mem[assertion.startAddress + i] !== assertion.expectedMemoryValues[i]) {
+                    allWell = false;
+                    break;
+                }
+            }
+            if (!allWell) {
+                let interpreter = this.main.getInterpreter();
+                let memoryFrom = AssemblyParserMessages.MemoryFrom(assertion.startAddress);
+                let expectedMemoryStateString = assertion.expectedMemoryValues.map(val => val.toString(10).padStart(4, '0')).join(', ');
+                let actualMemoryStateString = mem.slice(assertion.startAddress, assertion.startAddress + assertion.expectedMemoryValues.length).map(val => val.toString(10).padStart(4, '0')).join(', ');
+                for (let assertionObserver of interpreter.assertionObserverList) {
+                    assertionObserver.notifyOnMemoryAssertion(interpreter.scheduler.getCurrentThread(), null, memoryFrom + expectedMemoryStateString, memoryFrom + actualMemoryStateString, assertion.message ?? "");
+                }
+
+                if(interpreter.assertionObserverList.length === 0){
+                    let message = AssemblyParserMessages.MemoryAssertionFailed( memoryFrom + expectedMemoryStateString, memoryFrom + actualMemoryStateString, assertion.message ?? "");
+                    interpreter.printManager?.print(message, false, undefined);
+                }
+            }
+        }
+    }
+
+
 }

@@ -11,11 +11,25 @@ export type AssemblyCompiledCodePart = {
     code: number[];
 }
 
+export type AssemblyAssertion = {
+    startAddress: number;
+    expectedMemoryValues: number[];
+    message: string;
+}
+
+/**
+ * Maps memory addresses to assertions that should be checked when the program counter is at that address.
+ */
+export type AssemblyAssertionMap = Map<number, AssemblyAssertion>;
+
+
 export type AssemblyParserResult = {
     file: CompilerFile;
     startAddress: number;
     codeParts: AssemblyCompiledCodePart[];
     errors: Error[];
+
+    assertionMap: AssemblyAssertionMap;
 
 
     /**
@@ -79,6 +93,8 @@ export abstract class AssemblyParser {
     // Map line numbers to used instructions:
     instructionMap: AssemblyInstructionMap;
 
+    assertionMap: AssemblyAssertionMap;
+
     tokens: AssemblyToken[];
     tokenIndex: number = 0;
 
@@ -100,6 +116,13 @@ export abstract class AssemblyParser {
      */
     abstract getKeywordTokens(): Set<AssemblyTokenType>;
 
+    /**
+     * @returns the opcode that is used for assertions in this assembly language. 
+     * This is needed to distinguish assertion statements from normal instructions.
+     */
+    abstract getAssertionOpcode(): number;
+
+
     initBeforeParsing(tokens: AssemblyToken[]): void {
         this.tokens = tokens;
         this.tokenIndex = 0;
@@ -113,6 +136,7 @@ export abstract class AssemblyParser {
         this.labels = new Map();
         this.labelMap = new Map();
         this.hoverEntries = new Map();
+        this.assertionMap = new Map();
     }
 
     makeParserResult(file: CompilerFile): AssemblyParserResult {
@@ -126,6 +150,7 @@ export abstract class AssemblyParser {
             labelMap: this.labelMap,
             labels: Array.from(this.labels.values()),
             hoverEntries: this.hoverEntries,
+            assertionMap: this.assertionMap,
             commentRanges: []
         }
     }
@@ -291,9 +316,9 @@ export abstract class AssemblyParser {
         }
     }
 
-    checkIfTokenIs16BitUnsignedNumber(token: AssemblyToken): boolean {
+    checkIfTokenIs16BitUnsignedNumber(token: AssemblyToken, errorMessage?: () => string): boolean {
         if (token.type !== AssemblyTokenType.number) {
-            this.pushError(AssemblyParserMessages.NumberExpected(), "error", token.range);
+            this.pushError((errorMessage || AssemblyParserMessages.NumberExpected)(), "error", token.range);
             return false;
         }
         const value = token.value as number;
@@ -314,7 +339,7 @@ export abstract class AssemblyParser {
     }
 
     addSourceMapEntry(range: IRange, address?: number): void {
-        let _address = address !== undefined ? address : this.programCounterRelative;
+        let _address = address !== undefined ? address : this.getProgramCounterAbsolute();
         this.sourceMap.set(_address, {
             lineNumber: range.startLineNumber,
             column: range.startColumn
@@ -368,5 +393,63 @@ export abstract class AssemblyParser {
             this.hoverEntries.set(range.startLineNumber, hoverEntriesAtLine);
         }
         hoverEntriesAtLine.push({ range: range, text: text });
+    }
+
+    readTillBeginOfNextLine(): void{
+        while (this.currentToken().type !== AssemblyTokenType.lineBreak && this.currentToken().type !== AssemblyTokenType.endOfSourcecode) {
+            this.next();
+        }
+    }
+
+    /**
+     * Parses an assertion of the form
+     * .assert <address> (expectedMemoryValue,[ ])*["message"]
+     * e.g. .assert 0x300 42, 38, "incorrect order of values in memory"
+     */
+    parseAssertion(assertionToken: AssemblyToken): void {
+        this.next();   // consume .assert token
+        let addressToken = this.currentToken();
+        if (!this.checkIfTokenIs16BitUnsignedNumber(addressToken, AssemblyParserMessages.AddressExpectedAfterAssertion)) {
+            this.readTillBeginOfNextLine();
+            return;
+        }
+
+        let address = addressToken.value as number;
+        this.next();
+        let expectedMemoryValues: number[] = [];
+        while (this.currentToken().type === AssemblyTokenType.number) {
+            if(this.checkIfTokenIs16BitUnsignedNumber(this.currentToken())) {
+                expectedMemoryValues.push(this.currentToken().value as number);
+            }
+            this.next();
+            if (this.currentToken().type === AssemblyTokenType.comma) {
+                this.next();
+            } else {
+                break;
+            }
+        }
+
+        if([AssemblyTokenType.stringLiteral, AssemblyTokenType.lineBreak, AssemblyTokenType.endOfSourcecode].indexOf(this.currentToken().type) === -1) {
+            this.pushError(AssemblyParserMessages.DataOrErrorMessageExpected(), "error", this.currentToken().range);
+            this.readTillBeginOfNextLine();
+            return;
+        }
+
+        let message = "";
+        if (this.currentToken().type === AssemblyTokenType.stringLiteral) {
+            message = this.currentToken().value as string;
+            this.next();
+        }
+
+        let assertion: AssemblyAssertion = {
+            startAddress: address,
+            expectedMemoryValues: expectedMemoryValues,
+            message: message
+        };
+
+        this.assertionMap.set(this.getProgramCounterAbsolute(), assertion);
+        this.writeToMemory(this.getAssertionOpcode());
+        this.addSourceMapEntry(assertionToken.range);
+
     }
 }

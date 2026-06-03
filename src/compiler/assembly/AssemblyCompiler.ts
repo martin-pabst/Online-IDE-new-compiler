@@ -79,7 +79,7 @@ export class AssemblyCompiler implements Compiler {
         return undefined;
     }
 
-    compileIfDirty(): void {
+    compileIfDirty(): AssemblyExecutable | undefined {
 
         // if we're not in test mode
         if (this.main) {
@@ -130,6 +130,7 @@ export class AssemblyCompiler implements Compiler {
             }
         }, 10);
 
+        return executable;
         // console.log(parserResult);
 
         // lexer.debugOutputTokens();

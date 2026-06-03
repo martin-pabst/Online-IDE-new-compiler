@@ -1,10 +1,8 @@
-import exp from "constants";
 import { IAssertionObserver } from "../../java/runtime/unittests/IAssertionObserver";
 import { Step } from "../interpreter/Step";
 import { Thread } from "../interpreter/Thread";
 import { JUnitTestrunnerLanguage } from "./JUnitTestrunnerLanguage";
 import { DOM } from "../../../tools/DOM";
-import { IRange } from "../range/Range";
 import { IMain } from "../IMain";
 
 export type AssertionResultState = "passed" | "failed" | "error";
@@ -18,6 +16,12 @@ export class AggregatingAssertionObserver implements IAssertionObserver {
 
     constructor(private main: IMain) {
 
+    }
+
+    notifyOnMemoryAssertion(thread: Thread, step: Step, expectedMemoryState: string, actualMemoryState: string, message: string): void {
+        if (expectedMemoryState !== actualMemoryState) {
+            this.addFailedResult(thread, step, "notifyOnMemoryAssertion", expectedMemoryState, actualMemoryState, message);
+        }
     }
 
     public assertionResults: AssertionResult[] = [];
@@ -64,10 +68,23 @@ export class AggregatingAssertionObserver implements IAssertionObserver {
 
     addFailedResult(thread: Thread, step: Step, notifyMethodIdentifier: string, expected: string, actual: string, message: string) {
 
-        let positionHtml = "";
-        let range = step.getValidRangeOrUndefined();
-        if (range) {
-            positionHtml = ` <span class="jo_junitLink">(${JUnitTestrunnerLanguage.line(range.startLineNumber, range.startColumn)})</span>`;
+        let positionHtml: string | null = null;
+        let range = null;
+
+        if (thread.hasCPU()) {
+            range = thread.__cpu.getRangeOfCurrentInstruction();
+            if (range) {
+                positionHtml = ` <span class="jo_junitLink">(${JUnitTestrunnerLanguage.line(range.startLineNumber, range.startColumn)})</span>`;
+            }
+        } else {
+            range = step.getValidRangeOrUndefined();
+            if (range) {
+                positionHtml = ` <span class="jo_junitLink">(${JUnitTestrunnerLanguage.line(range.startLineNumber, range.startColumn)})</span>`;
+            }
+        }
+
+        if (!positionHtml) {
+            positionHtml = ` <span>(no position available)</span>`;
         }
 
         let messageHtml =

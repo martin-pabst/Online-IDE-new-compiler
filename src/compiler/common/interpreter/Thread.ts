@@ -867,4 +867,8 @@ export class Thread {
         return index;
     }
 
+    hasCPU(){
+        return !!this.__cpu;
+    }
+
 }

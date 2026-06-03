@@ -8,15 +8,17 @@ import { ViteTestAssertions } from "./ViteTestAssertions";
 import { JavaLibraryManager } from "../compiler/java/runtime/JavaLibraryManager";
 import { CompilerFile } from "../compiler/common/module/CompilerFile";
 import { StoreOutputPrintManager } from "./StoreOutputPrintManager";
+import { AssemblyCompiler } from "../compiler/assembly/AssemblyCompiler";
+
 
 try {
-    let javaDir: string = __dirname + "/java";
+    let assemblyDir: string = __dirname + "/assembly";
 
-    let files = fs.readdirSync(javaDir);
+    let files = fs.readdirSync(assemblyDir);
     for (let i = 0; i < files.length; i++) {
         let file = files[i];
-        if (file && file.endsWith(".java")) {
-            let data = fs.readFileSync(javaDir + '/' + file, 'utf8');
+        if (file && file.endsWith(".asm")) {
+            let data = fs.readFileSync(assemblyDir + '/' + file, 'utf8');
             test1(data, file);
         }
     }
@@ -28,10 +30,7 @@ try {
 type ExpectedError = { id: string, line?: number, found?: boolean }
 
 type TestInfo = {
-    expectedOutput?: string,
-    expectedCompilationError?: ExpectedError,
-    expectedCompilationErrors?: ExpectedError[],
-    libraries?: string[]
+    expectedCompilationErrors?: ExpectedError[]
 }
 
 function test1(sourcecode: string, file: string) {
@@ -56,9 +55,7 @@ function test1(sourcecode: string, file: string) {
 
         let headerEnd = sourcecode.indexOf("*/", testBegin);
 
-        let expectedOutput: string | undefined;
         let expectedErrors: ExpectedError[] = [];
-        let libraries: string[] = [];
 
         let leftCurlyBraceIndex = sourcecode.indexOf("{", testBegin);
         if (leftCurlyBraceIndex >= 0 && leftCurlyBraceIndex < headerEnd) {
@@ -67,14 +64,11 @@ function test1(sourcecode: string, file: string) {
 
             let testInfo: TestInfo = JSON.parse(infoText);
             if (testInfo) {
-                expectedOutput = testInfo.expectedOutput;
-                if (testInfo.expectedCompilationError) expectedErrors.push(testInfo.expectedCompilationError);
                 if (testInfo.expectedCompilationErrors) expectedErrors = expectedErrors.concat(testInfo.expectedCompilationErrors);
-                if (testInfo.libraries) libraries = testInfo.libraries;
             }
         }
 
-        compileAndTest(title, code, lineOffset, expectedOutput, expectedErrors, libraries);
+        compileAndTest(title, code, lineOffset, expectedErrors);
 
         testBegin = sourcecode.indexOf("/**::", testBegin + 1);
     }
@@ -84,19 +78,14 @@ function test1(sourcecode: string, file: string) {
 }
 
 function compileAndTest(name: string, program: string, lineOffset: number,
-    expectedOutput: string | undefined, expectedCompiliationErrors: ExpectedError[],
-    libraries: string[]) {
+    expectedCompilationErrors: ExpectedError[]) {
 
     test(name, async (context) => {
         let file = new CompilerFile();
 
         file.setText(program);
 
-        let compiler = new JavaCompiler();
-
-        let libManager = new JavaLibraryManager();
-        libManager.addLibraries(...libraries);
-        libManager.addLibrariesToCompiler(compiler);
+        let compiler = new AssemblyCompiler();
 
         compiler.setFiles([<any>file]);
         let executable = await compiler.compileIfDirty();
@@ -108,7 +97,7 @@ function compileAndTest(name: string, program: string, lineOffset: number,
         let allErrors = executable.getAllErrors().filter(error => error.level == "error");
 
         let allNotExpectedErrors = allErrors.filter(error => {
-            let expectedError = expectedCompiliationErrors.find(expectedError => expectedError.id == error.id && (!expectedError.line || expectedError.line == error.range.startLineNumber));
+            let expectedError = expectedCompilationErrors.find(expectedError => expectedError.id == error.id && (!expectedError.line || expectedError.line == error.range.startLineNumber));
             if (expectedError) expectedError.found = true;
             return !expectedError;
         })
@@ -117,7 +106,7 @@ function compileAndTest(name: string, program: string, lineOffset: number,
             console.log(chalk.red("Compilation errors ") + "in " + name);
             for (let error of allNotExpectedErrors) {
 
-                let expectedError = expectedCompiliationErrors.find(expectedError => expectedError.id == error.id && (!expectedError.line || expectedError.line == error.range.startLineNumber + lineOffset));
+                let expectedError = expectedCompilationErrors.find(expectedError => expectedError.id == error.id && (!expectedError.line || expectedError.line == error.range.startLineNumber + lineOffset));
                 if (expectedError) {
                     expectedError.found = true;
                 } else {
@@ -167,22 +156,9 @@ function compileAndTest(name: string, program: string, lineOffset: number,
                 context.task.fails = 1;
             }
 
-            if (expectedOutput) {
-                let actualOutput = printManager.output; // printManager.output.replace(/\n/g, "\\n");
-                if (expectedOutput != actualOutput) {
-                    console.log(chalk.gray("Position:    ") + chalk.white("Test beginning with Line ") + chalk.blue(lineOffset));
-                    console.log(chalk.red("Test failed: ") + "Output doesn't match expected output.");
-                    console.log(chalk.gray("Details:     ") + "Expected: " + chalk.green(expectedOutput) + " Actual: " + chalk.yellow(actualOutput));
-                    //@ts-ignore
-                    context.task.fails = 1;
-                }
-
-            }
-
-
         }
 
-        for (let expectedError of expectedCompiliationErrors.filter(e => !e.found)) {
+        for (let expectedError of expectedCompilationErrors.filter(e => !e.found)) {
             let message = chalk.red("Expected Error") + " with id " + chalk.blue(expectedError.id);
             if (expectedError.line) {
                 message += " on line " + chalk.blue(expectedError.line);
