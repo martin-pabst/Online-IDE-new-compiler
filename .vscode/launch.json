@@ -9,7 +9,6 @@
             "request": "launch",
             "type": "msedge",
             "url": "http://localhost:3000",
-          
             "webRoot": "${workspaceFolder}"
         },
         {
@@ -53,6 +52,5 @@
             "request": "launch",
             "type": "node"
         }
-
     ]
 }

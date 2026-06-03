@@ -565,9 +565,9 @@ export class AbiBayernCPU extends CPU {
             if (instruction) {
                 return instruction.exec(this);
             } else {
-                switch (opcode) {                    
+                switch (opcode) {
                     case OpCode.assertion:
-                        this.assertMemory();
+                        this.assert(thread.scheduler.interpreter);
                         return false;
                     default:
                         throw new Error(AbiBayernAssemblyMessages.UnknownOpCode(opcode, --this.programCounter));
@@ -577,13 +577,15 @@ export class AbiBayernCPU extends CPU {
             let range = this.assemblyParserResult.sourceMap.get(this.programCounter);
             let irange: IRange | undefined = range ? { startLineNumber: range.lineNumber, startColumn: range.column, endLineNumber: range.lineNumber, endColumn: range.column } : undefined;
             let errorMessage = error instanceof Error ? error.message : String(error);
-            let html = ExceptionPrinter.getHTMLWithLinksForMessage(errorMessage, irange, this.assemblyParserResult.file, this.main);
-            this.main.getInterpreter().printManager?.printHtmlElement(html);
-            if (irange) {
-                this.main.showProgramPosition(this.assemblyParserResult.file, irange, false);
-                this.main.getInterpreter().exceptionMarker?.markExceptionByFileAndRange(this.assemblyParserResult.file, irange);
+            if (this.main) {
+                let html = ExceptionPrinter.getHTMLWithLinksForMessage(errorMessage, irange, this.assemblyParserResult.file, this.main);
+                this.main.getInterpreter().printManager?.printHtmlElement(html);
+                if (irange) {
+                    this.main.showProgramPosition(this.assemblyParserResult.file, irange, false);
+                    this.main.getInterpreter().exceptionMarker?.markExceptionByFileAndRange(this.assemblyParserResult.file, irange);
+                }
+                alert(errorMessage + "\n\n Details siehe Reiter 'Ausgabe'.");
             }
-            alert(errorMessage + "\n\n Details siehe Reiter 'Ausgabe'.");
             return true; // Stop execution on error
         }
 
@@ -715,7 +717,7 @@ export class AbiBayernCPU extends CPU {
     }
 
     not(): void {
-        if(this.accumulator < 0){
+        if (this.accumulator < 0) {
             this.setAccu(-(~(-this.accumulator)));
         } else {
             this.setAccu(~this.accumulator);
@@ -723,8 +725,8 @@ export class AbiBayernCPU extends CPU {
     }
 
     shr(shiftAmount: number): void {
-        if(shiftAmount == 0) return;
-        if(shiftAmount < 0){
+        if (shiftAmount == 0) return;
+        if (shiftAmount < 0) {
             this.shl(-shiftAmount);
             return;
         }
@@ -738,8 +740,8 @@ export class AbiBayernCPU extends CPU {
     }
 
     shl(shiftAmount: number): void {
-        if(shiftAmount == 0) return;
-        if(shiftAmount < 0){
+        if (shiftAmount == 0) return;
+        if (shiftAmount < 0) {
             this.shr(-shiftAmount);
             return;
         }
@@ -998,6 +1000,10 @@ export class AbiBayernParser extends AssemblyParser {
 
     getAssertionOpcode(): number {
         return OpCode.assertion;
+    }
+
+    getFlagNamesShort(): string[] {
+        return ["z", "n", "v", "c"];
     }
 
 }

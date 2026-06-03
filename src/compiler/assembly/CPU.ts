@@ -1,10 +1,11 @@
 import { Error } from "../common/Error";
 import { IMain } from "../common/IMain";
+import type { Interpreter } from "../common/interpreter/Interpreter";
 import { Thread } from "../common/interpreter/Thread";
 import { ThreadState } from "../common/interpreter/ThreadState";
 import { CompilerFile } from "../common/module/CompilerFile";
 import { IRange, Range } from "../common/range/Range";
-import { AssemblyInstruction, AssemblyInstructionMap, AssemblyLabel, AssemblyParserResult } from "./AssemblyParser";
+import { AssemblyInstruction, AssemblyInstructionMap, AssemblyLabel, AssemblyParserResult, type AssemblyAssertion } from "./AssemblyParser";
 import { AssemblyParserMessages } from "./language/AssemblyParserMessages";
 import { Memory } from "./Memory";
 
@@ -200,33 +201,69 @@ export abstract class CPU {
         }
     }
 
-    assertMemory(): void {
+
+
+    assert(interpreter: Interpreter): void {
         let assertion = this.assemblyParserResult.assertionMap.get(this.getProgramCounter() - 1);
         if (assertion) {
-            let mem = this.getMemory().dump();
-            let allWell = true;
-            for (let i = 0; i < assertion.expectedMemoryValues.length; i++) {
-                if (mem[assertion.startAddress + i] !== assertion.expectedMemoryValues[i]) {
-                    allWell = false;
+            switch (assertion.type) {
+                case "memory":
+                    this.assertMemory(interpreter, assertion);
                     break;
-                }
-            }
-            if (!allWell) {
-                let interpreter = this.main.getInterpreter();
-                let memoryFrom = AssemblyParserMessages.MemoryFrom(assertion.startAddress);
-                let expectedMemoryStateString = assertion.expectedMemoryValues.map(val => val.toString(10).padStart(4, '0')).join(', ');
-                let actualMemoryStateString = mem.slice(assertion.startAddress, assertion.startAddress + assertion.expectedMemoryValues.length).map(val => val.toString(10).padStart(4, '0')).join(', ');
-                for (let assertionObserver of interpreter.assertionObserverList) {
-                    assertionObserver.notifyOnMemoryAssertion(interpreter.scheduler.getCurrentThread(), null, memoryFrom + expectedMemoryStateString, memoryFrom + actualMemoryStateString, assertion.message ?? "");
-                }
-
-                if(interpreter.assertionObserverList.length === 0){
-                    let message = AssemblyParserMessages.MemoryAssertionFailed( memoryFrom + expectedMemoryStateString, memoryFrom + actualMemoryStateString, assertion.message ?? "");
-                    interpreter.printManager?.print(message, false, undefined);
-                }
+                case "flag":
+                    this.assertFlag(interpreter, assertion);
+                    break;
             }
         }
     }
 
+    assertFlag(interpreter: Interpreter, assertion: AssemblyAssertion): void {
+        let flags = this.getFlags();
+        let allWell = true;
+        for (let i = 0; i < assertion.flagValues.length; i++) {
+            let flagName = assertion.shortFlagNames[i];
+            if (flags[flagName] !== assertion.flagValues[i]) {
+                allWell = false;
+                break;
+            }
+        }
+        if (!allWell) {
+            let expectedFlagStateString = assertion.shortFlagNames.map((flagName, index) => flagName + "=" + (assertion.flagValues[index] ? "1" : "0")).join(', ');
+            let actualFlagStateString = assertion.shortFlagNames.map(flagName => flagName + "=" + (flags[flagName] ? "1" : "0")).join(', ');
+            for (let assertionObserver of interpreter.assertionObserverList) {
+                assertionObserver.notifyOnFlagAssertion(interpreter.scheduler.getCurrentThread(), null, expectedFlagStateString, actualFlagStateString, assertion.message ?? "");
+            }
+
+            if (interpreter.assertionObserverList.length === 0) {
+                let message = AssemblyParserMessages.FlagAssertionFailed(expectedFlagStateString, actualFlagStateString, assertion.message ?? "");
+                interpreter.printManager?.print(message, true, undefined);
+            }
+        }
+    }
+
+    assertMemory(interpreter: Interpreter, assertion: AssemblyAssertion): void {
+        let mem = this.getMemory().dump();
+        let allWell = true;
+        for (let i = 0; i < assertion.expectedMemoryValues.length; i++) {
+            if (mem[assertion.startAddress + i] !== assertion.expectedMemoryValues[i]) {
+                allWell = false;
+                break;
+            }
+        }
+        if (!allWell) {
+            let memoryFrom = AssemblyParserMessages.MemoryFrom(assertion.startAddress);
+            let expectedMemoryStateString = assertion.expectedMemoryValues.map(val => val.toString(10)).join(', ');
+            let actualMemoryStateString = mem.slice(assertion.startAddress, assertion.startAddress + assertion.expectedMemoryValues.length).map(val => val.toString(10)).join(', ');
+            for (let assertionObserver of interpreter.assertionObserverList) {
+                assertionObserver.notifyOnMemoryAssertion(interpreter.scheduler.getCurrentThread(), null, memoryFrom + expectedMemoryStateString, memoryFrom + actualMemoryStateString, assertion.message ?? "");
+            }
+
+            if (interpreter.assertionObserverList.length === 0) {
+                let message = AssemblyParserMessages.MemoryAssertionFailed(memoryFrom + expectedMemoryStateString, memoryFrom + actualMemoryStateString, assertion.message ?? "");
+                interpreter.printManager?.print(message, true, undefined);
+            }
+        }
+
+    }
 
 }

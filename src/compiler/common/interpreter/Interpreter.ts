@@ -265,7 +265,7 @@ export class Interpreter {
     }
 
     updateDebugger() {
-        this.main.getDebugger()?.updateView();
+        this.main?.getDebugger()?.updateView();
     }
 
     /**

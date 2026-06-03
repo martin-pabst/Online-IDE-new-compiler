@@ -24,6 +24,12 @@ export class AggregatingAssertionObserver implements IAssertionObserver {
         }
     }
 
+    notifyOnFlagAssertion(thread: Thread, step: Step, expectedFlagState: string, actualFlagState: string, message: string): void {
+        if (expectedFlagState !== actualFlagState) {
+            this.addFailedResult(thread, step, "notifyOnFlagAssertion", expectedFlagState, actualFlagState, message);
+        }
+    }
+
     public assertionResults: AssertionResult[] = [];
 
     notifyOnAssertTrue(thread: Thread, step: Step, condition: boolean, message: string): void {

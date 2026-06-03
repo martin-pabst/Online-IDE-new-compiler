@@ -2,14 +2,11 @@ import chalk from "chalk";
 import fs from "fs";
 import { test } from "vitest";
 import { Interpreter } from "../compiler/common/interpreter/Interpreter";
-import { JavaCompiler } from "../compiler/java/JavaCompiler";
-import { getLine, getLineNumber, threeDez } from "../tools/StringTools";
-import { ViteTestAssertions } from "./ViteTestAssertions";
-import { JavaLibraryManager } from "../compiler/java/runtime/JavaLibraryManager";
-import { CompilerFile } from "../compiler/common/module/CompilerFile";
-import { StoreOutputPrintManager } from "./StoreOutputPrintManager";
 import { AssemblyCompiler } from "../compiler/assembly/AssemblyCompiler";
-
+import { CompilerFile } from "../compiler/common/module/CompilerFile";
+import { getLine, getLineNumber, threeDez } from "../tools/StringTools";
+import { StoreOutputPrintManager } from "./StoreOutputPrintManager";
+import { ViteTestAssertions } from "./ViteTestAssertions";
 
 try {
     let assemblyDir: string = __dirname + "/assembly";
@@ -38,7 +35,6 @@ function test1(sourcecode: string, file: string) {
      * Test switch case with constant
      * {expectedOutput: "Here!", expectedError: { id: "id13", line: 10 }}
      */
-
     sourcecode = sourcecode.replace(/\r\n/g, "\n");
     let testBegin = sourcecode.indexOf("/**::");
     while (testBegin >= 0) {
@@ -92,7 +88,6 @@ function compileAndTest(name: string, program: string, lineOffset: number,
         if (!executable) {
             return;
         }
-
 
         let allErrors = executable.getAllErrors().filter(error => error.level == "error");
 

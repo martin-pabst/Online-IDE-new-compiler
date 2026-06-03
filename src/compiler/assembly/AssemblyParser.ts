@@ -12,8 +12,13 @@ export type AssemblyCompiledCodePart = {
 }
 
 export type AssemblyAssertion = {
-    startAddress: number;
-    expectedMemoryValues: number[];
+    type: "memory" | "flag";
+    startAddress?: number;
+    expectedMemoryValues?: number[];
+
+    shortFlagNames?: string[];
+    flagValues?: boolean[];
+
     message: string;
 }
 
@@ -68,7 +73,7 @@ export type AssemblyInstruction = {
     tokenType: AssemblyTokenType;
     description: (...parameterValues: (string | number)[]) => string,
     parameterCount: number,
-    OpCode:number;
+    OpCode: number;
 }
 
 export type AssemblyInstructionMap = Map<number, { instruction: AssemblyInstruction, range: IRange, operands?: any[] }[]>
@@ -121,6 +126,8 @@ export abstract class AssemblyParser {
      * This is needed to distinguish assertion statements from normal instructions.
      */
     abstract getAssertionOpcode(): number;
+
+    abstract getFlagNamesShort(): string[];
 
 
     initBeforeParsing(tokens: AssemblyToken[]): void {
@@ -293,19 +300,19 @@ export abstract class AssemblyParser {
             this.setLabelMapEntry(label, labelToken.range);
             return undefined;
         }
-        
+
         this.setLabelMapEntry(label, labelToken.range);
-        
+
         label.usages.push(labelToken.range);
 
         if (label.address === undefined) {
             label.unresolvedReferences.push({ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range });
             return undefined;
         }
-        
+
         return label.address;
     }
-    
+
     checkForUnresolvedLabelsAtEndOfParsing(): void {
         for (let label of this.labels.values()) {
             if (label.address === undefined) {
@@ -395,7 +402,7 @@ export abstract class AssemblyParser {
         hoverEntriesAtLine.push({ range: range, text: text });
     }
 
-    readTillBeginOfNextLine(): void{
+    readTillBeginOfNextLine(): void {
         while (this.currentToken().type !== AssemblyTokenType.lineBreak && this.currentToken().type !== AssemblyTokenType.endOfSourcecode) {
             this.next();
         }
@@ -409,16 +416,26 @@ export abstract class AssemblyParser {
     parseAssertion(assertionToken: AssemblyToken): void {
         this.next();   // consume .assert token
         let addressToken = this.currentToken();
+
+        if (addressToken.type === AssemblyTokenType.identifier) {
+            this.parseFlagAssertion(assertionToken, addressToken);
+            return;
+        }
+
         if (!this.checkIfTokenIs16BitUnsignedNumber(addressToken, AssemblyParserMessages.AddressExpectedAfterAssertion)) {
             this.readTillBeginOfNextLine();
             return;
         }
 
         let address = addressToken.value as number;
+
         this.next();
+
+        if(this.expect(AssemblyTokenType.colon)) this.next();
+
         let expectedMemoryValues: number[] = [];
         while (this.currentToken().type === AssemblyTokenType.number) {
-            if(this.checkIfTokenIs16BitUnsignedNumber(this.currentToken())) {
+            if (this.checkIfTokenIs16BitUnsignedNumber(this.currentToken())) {
                 expectedMemoryValues.push(this.currentToken().value as number);
             }
             this.next();
@@ -429,7 +446,7 @@ export abstract class AssemblyParser {
             }
         }
 
-        if([AssemblyTokenType.stringLiteral, AssemblyTokenType.lineBreak, AssemblyTokenType.endOfSourcecode].indexOf(this.currentToken().type) === -1) {
+        if ([AssemblyTokenType.stringLiteral, AssemblyTokenType.lineBreak, AssemblyTokenType.endOfSourcecode].indexOf(this.currentToken().type) === -1) {
             this.pushError(AssemblyParserMessages.DataOrErrorMessageExpected(), "error", this.currentToken().range);
             this.readTillBeginOfNextLine();
             return;
@@ -442,8 +459,71 @@ export abstract class AssemblyParser {
         }
 
         let assertion: AssemblyAssertion = {
+            type: "memory",
             startAddress: address,
             expectedMemoryValues: expectedMemoryValues,
+            message: message
+        };
+
+        this.assertionMap.set(this.getProgramCounterAbsolute(), assertion);
+        this.writeToMemory(this.getAssertionOpcode());
+        this.addSourceMapEntry(assertionToken.range);
+
+    }
+
+    /**
+     * .assert <flagName>[01][,[ ]<flagName>[01]]* ["message"]
+     */
+    parseFlagAssertion(assertionToken: AssemblyToken, firstFlagToken: AssemblyToken) {
+        let flagToken = firstFlagToken;
+        let shortFlagNames: string[] = [];
+        let flagValues: boolean[] = [];
+        while (true) {
+            let flagNameAndValue = flagToken.value as string;
+            let flagName = flagNameAndValue.slice(0, -1);
+            let flagValue = flagNameAndValue.slice(-1);
+            if (flagValue !== "0" && flagValue !== "1") {
+                this.pushError(AssemblyParserMessages.FlagValuesShouldBe0Or1(), "error", flagToken.range);
+                this.readTillBeginOfNextLine();
+                return;
+            }
+
+            let flagNamesShort = this.getFlagNamesShort().map(name => name.toLowerCase());
+            if (!flagNamesShort.includes(flagName?.toLowerCase())) {
+                this.pushError(AssemblyParserMessages.UnknownFlag(flagName, flagNamesShort), "error", flagToken.range);
+                this.readTillBeginOfNextLine();
+                return;
+            }
+
+            shortFlagNames.push(flagName.toLowerCase());
+            flagValues.push(flagValue === "1");
+
+            this.next();
+            if (this.currentToken().type === AssemblyTokenType.comma) {
+                this.next();
+                if(this.currentToken().type == AssemblyTokenType.stringLiteral) break;
+                flagToken = this.currentToken();
+            } else {
+                break;
+            }
+        }
+
+        if ([AssemblyTokenType.stringLiteral, AssemblyTokenType.lineBreak, AssemblyTokenType.endOfSourcecode].indexOf(this.currentToken().type) === -1) {
+            this.pushError(AssemblyParserMessages.DataOrErrorMessageExpectedInFlagAssertion(), "error", this.currentToken().range);
+            this.readTillBeginOfNextLine();
+            return;
+        }
+
+        let message = "";
+        if (this.currentToken().type === AssemblyTokenType.stringLiteral) {
+            message = this.currentToken().value as string;
+            this.next();
+        }
+
+        let assertion: AssemblyAssertion = {
+            type: "flag",
+            shortFlagNames: shortFlagNames,
+            flagValues: flagValues,
             message: message
         };
 
