@@ -1,32 +1,32 @@
-import { Error } from "../common/Error";
-import { Executable } from "../common/Executable";
-import { KlassObjectRegistry } from "../common/interpreter/StepFunction";
-import { EmptyRange } from "../common/range/Range";
-import { ExceptionTree } from "./codegenerator/ExceptionTree";
-import { JCM } from "./language/JavaCompilerMessages";
-import { JavaModuleManager } from "./module/JavaModuleManager";
-import { JavaLibraryModuleManager } from "./module/libraries/JavaLibraryModuleManager";
-import { JavaMethod } from "./types/JavaMethod";
-import { JavaClass } from "./types/JavaClass";
-import { NonPrimitiveType } from "./types/NonPrimitiveType";
+import { ExceptionTree } from "./codegenerator/ExceptionTree.ts";
+import { JCM } from "./language/JavaCompilerMessages.ts";
+import { JavaModuleManager } from "./module/JavaModuleManager.ts";
+import { JavaLibraryModuleManager } from "./module/libraries/JavaLibraryModuleManager.ts";
+import { JavaClass } from "./types/JavaClass.ts";
+import { JavaMethod } from "./types/JavaMethod.ts";
+import { NonPrimitiveType } from "./types/NonPrimitiveType.ts";
+import { Error } from "../common/Error.ts";
+import { KlassObjectRegistry } from "../common/interpreter/StepFunction.ts";
+import { EmptyRange } from "../common/range/Range.ts";
+import { Executable } from "../common/Executable.ts";
+
 
 export class JavaExecutable extends Executable {
-
+    
+    
     #testClassToTestMethodMap?: Map<JavaClass, JavaMethod[]>
-
-    constructor(classObjectRegistry: KlassObjectRegistry,
-        private moduleManager: JavaModuleManager,
+    
+    constructor(public classObjectRegistry: KlassObjectRegistry,
+        public moduleManager: JavaModuleManager,
         public libraryModuleManager: JavaLibraryModuleManager,
-        globalErrors: Error[],
-        exceptionTree: ExceptionTree) {
-
+        public globalErrors: Error[],
+        public exceptionTree: ExceptionTree
+    ) {
         super(classObjectRegistry, globalErrors, exceptionTree);
-
         this.#setupStaticInitializationSequence(globalErrors);
         this.#setupDIInitializationSequence();
-
     }
-
+    
     public getModuleManager(): JavaModuleManager {
         return this.moduleManager;
     }
@@ -36,7 +36,7 @@ export class JavaExecutable extends Executable {
 
         this.staticInitializationSequence = [];
 
-        for (const module of this.getModuleManager().getModules().filter(m => !m.hasErrors())) {
+        for (const module of this.moduleManager.getModules().filter(m => !m.hasErrors())) {
             if (!module.ast) continue;
             for (const cdef of module.ast.innerTypes) {
                 if (cdef.resolvedType)
@@ -85,7 +85,7 @@ export class JavaExecutable extends Executable {
     #setupDIInitializationSequence() {
         const diTypes: NonPrimitiveType[] = [];
 
-        for (const module of this.getModuleManager().getModules().filter(m => !m.hasErrors())) {
+        for (const module of this.moduleManager.getModules().filter(m => !m.hasErrors())) {
             if (!module.ast) continue;
             for (const cdef of module.ast.innerTypes) {
                 const type = cdef.resolvedType;
@@ -119,7 +119,7 @@ export class JavaExecutable extends Executable {
             if (!type.diInstanceName || visited.has(type.diInstanceName)) return;
             visited.add(type.diInstanceName);
 
-            const module = this.getModuleManager().getModules().find(m => m.types.includes(type));
+            const module = this.moduleManager.getModules().find(m => m.types.includes(type));
             if (module?.ast) {
                 const cdef = module.ast.innerTypes.find(c => c.resolvedType === type);
                 if (cdef) {
@@ -141,23 +141,23 @@ export class JavaExecutable extends Executable {
     }
 
     hasTests(): boolean {
-        if (!this.#testClassToTestMethodMap) this.getTestMethods();
+        if(!this.#testClassToTestMethodMap) this.getTestMethods();
         return this.#testClassToTestMethodMap.size > 0;
     }
 
     getTestMethods(): Map<JavaClass, JavaMethod[]> {
         if (this.#testClassToTestMethodMap) return this.#testClassToTestMethodMap;
         this.#testClassToTestMethodMap = new Map();
-        for (const module of this.getModuleManager().getModules()) {
+        for (const module of this.moduleManager.getModules()) {
             for (const type of module.types) {
                 if (type instanceof JavaClass) {
                     const testMethods2 = type.getOwnMethods()
                         .filter(m => !m.isConstructor && m.hasAnnotation("Test") && m.returnParameterType?.identifier == "void" && m.parameters.length == 0);
 
-                    if (testMethods2.length == 0) continue;
+                    if(testMethods2.length == 0) continue;
 
                     let list = this.#testClassToTestMethodMap.get(type);
-                    if (!list) {
+                    if(!list){
                         list = [];
                         this.#testClassToTestMethodMap.set(type, list);
                     }
@@ -168,6 +168,5 @@ export class JavaExecutable extends Executable {
 
         return this.#testClassToTestMethodMap;
     }
-
 
 }
