@@ -68,6 +68,10 @@ export enum AssemblyTokenType {
     lineBreak,      // \n
     leftBracket,
     rightBracket,
+    leftCurlyBracket,  // {
+    rightCurlyBracket,  // }
+    leftSquareBracket, // [
+    rightSquareBracket, // ]
     colon,          // :
     comma,           // ,
     hash,            // #
@@ -83,4 +87,8 @@ export var AssemblyTokenTypeReadable: { [key in AssemblyTokenType]?: string } = 
     [AssemblyTokenType.lineBreak]: "\\n",
     [AssemblyTokenType.leftBracket]: "(",
     [AssemblyTokenType.rightBracket]: ")",
+    [AssemblyTokenType.leftCurlyBracket]: "{",
+    [AssemblyTokenType.rightCurlyBracket]: "}",
+    [AssemblyTokenType.leftSquareBracket]: "[",
+    [AssemblyTokenType.rightSquareBracket]: "]",
 }

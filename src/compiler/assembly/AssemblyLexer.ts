@@ -215,6 +215,22 @@ export class AssemblyLexer {
                         this.next(); // skip ending "
                     }
                     break;
+                case '{':
+                    this.pushToken(AssemblyTokenType.leftCurlyBracket, char);
+                    this.next();
+                    break;
+                case '}':
+                    this.pushToken(AssemblyTokenType.rightCurlyBracket, char);
+                    this.next();
+                    break;
+                case '[':
+                    this.pushToken(AssemblyTokenType.leftSquareBracket, char);
+                    this.next();
+                    break;
+                case ']':
+                    this.pushToken(AssemblyTokenType.rightSquareBracket, char);
+                    this.next();
+                    break;
                 default:
                     if (/[a-zA-Z_\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]/.test(char)) {
                         this.lexIdentifierOrKeyword();

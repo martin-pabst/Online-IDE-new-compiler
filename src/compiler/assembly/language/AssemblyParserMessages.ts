@@ -63,40 +63,46 @@ export class AssemblyParserMessages {
         'fr': `Mémoire à partir de ${address}: `
     });
 
-    static DataOrErrorMessageExpected = () => lm({
-        'de': `Hier werden entweder weitere Speicherwerte oder eine Fehlermeldung erwartet. Syntax: .assert <address>: (expectedMemoryValue,[ ])*["message"], z.B. .assert 100: 42, 37, 58 "Falsche Sortierreihenfolge!"`,
-        'en': `Either more memory values or an error message is expected here. Syntax: .assert <address>: (expectedMemoryValue,[ ])*["message"], e.g. .assert 100: 42, 37, 58 "Wrong sorting order!"`,
-        'fr': `Soit d'autres valeurs de mémoire soit un message d'erreur est attendu ici. Syntaxe : .assert <address>: (expectedMemoryValue,[ ])*["message"], ex. .assert 100: 42, 37, 58 "Mauvais ordre de tri!"`
+    static TokenExpectedInAssertion = (token: string) => lm({
+        'de': `An dieser Stelle in einer Assertion wird das Zeichen ${token} erwartet. Hier ein Beispiel für die Syntax einer Assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
+        'en': `At this position in an assertion, the character ${token} is expected. Here is an example of the syntax of an assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
+        'fr': `À cette position dans une assertion, le caractère ${token} est attendu. Voici un exemple de la syntaxe d'une assertion : .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`
     });
 
-    static MemoryAssertionFailed = (expectedMemoryState: string, actualMemoryState: string, message: string) => lm({
-        'de': `Speicher-Assertion fehlgeschlagen!\nErwarteter Speicherzustand: ${expectedMemoryState}, \naktueller Speicherzustand: ${actualMemoryState}.\nMeldung: ${message}`,
-        'en': `Memory assertion failed!\nExpected memory state: ${expectedMemoryState}, \nactual memory state: ${actualMemoryState}.\nMessage: ${message}`,
-        'fr': `Assertion de mémoire échouée!\nÉtat de mémoire attendu: ${expectedMemoryState}, \nétat de mémoire actuel: ${actualMemoryState}.\nMessage: ${message}`
+    static UnknownFlagInAssertion = (flagName: string, validFlagNames: string[]) => lm({
+        'de': `Unbekannte Flagge in Assertion: ${flagName}. Gültige Flaggen sind: ${validFlagNames.join(", ")}. Hier ein Beispiel für die Syntax einer Assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
+        'en': `Unknown flag in assertion: ${flagName}. Valid flags are: ${validFlagNames.join(", ")}. Here is an example of the syntax of an assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
+        'fr': `Drapeau inconnu dans l'assertion : ${flagName}. Les drapeaux valides sont : ${validFlagNames.join(", ")}. Voici un exemple de la syntaxe d'une assertion : .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`
     });
 
-    static FlagValuesShouldBe0Or1 = () => lm({
-        'de': `Die Werte von Flags sollten 0 oder 1 sein. Syntax in der Art: .assert Z1, N0, "message"`,
-        'en': `Flag values should be 0 or 1. Syntax of kind: .assert Z1, N0, "message"`,
-        'fr': `Les valeurs de drapeaux doivent être 0 ou 1. Syntaxe du genre : .assert Z1, N0, "message"`
-    });
-    
-    static FlagAssertionFailed = (expectedFlagState: string, actualFlagState: string, message: string) => lm({
-        'de': `Flag-Assertion fehlgeschlagen!\nErwarteter Flag-Zustand: ${expectedFlagState}, \naktueller Flag-Zustand: ${actualFlagState}.\nMeldung: ${message}`,
-        'en': `Flag assertion failed!\nExpected flag state: ${expectedFlagState}, \nactual flag state: ${actualFlagState}.\nMessage: ${message}`,
-        'fr': `Assertion de drapeau échouée!\nÉtat de drapeau attendu: ${expectedFlagState}, \nétat de drapeau actuel: ${actualFlagState}.\nMessage: ${message}`
+    static ZeroOrOneExpectedInAssertion = (flagName: string) => lm({
+        'de': `Nach der Flagge ${flagName} in einer Assertion wird eine 0 oder 1 erwartet. Hier ein Beispiel für die Syntax einer Assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
+        'en': `After the flag ${flagName} in an assertion, a 0 or 1 is expected. Here is an example of the syntax of an assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
+        'fr': `Après le drapeau ${flagName} dans une assertion, un 0 ou un 1 est attendu. Voici un exemple de la syntaxe d'une assertion : .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`
     });
 
-    static UnknownFlag = (flagName: string, validFlagNames: string[]) => lm({
-        'de': `Unbekannter Flag-Name: ${flagName}. Gültige Flag-Namen sind: ${validFlagNames.join(", ")}. Syntax in der Art: .assert Z1, N0, "message"`,
-        'en': `Unknown flag name: ${flagName}. Valid flag names are: ${validFlagNames.join(", ")}. Syntax of kind: .assert Z1, N0, "message"`,
-        'fr': `Nom de drapeau inconnu : ${flagName}. Les noms de drapeaux valides sont : ${validFlagNames.join(", ")}. Syntaxe du genre : .assert Z1, N0, "message"`
+
+    static AssertionFailed = (message: string) => lm({
+        'de': `Assertion fehlgeschlagen: ${message}`,
+        'en': `Assertion failed: ${message}`,
+        'fr': `Assertion échouée : ${message}`
     });
 
-    static DataOrErrorMessageExpectedInFlagAssertion = () => lm({
-        'de': `Hier werden entweder weitere Flag-Zuordnungen oder eine Fehlermeldung erwartet. Syntax: .assert Z1, N0, "message"`,
-        'en': `Either more flag assignments or an error message is expected here. Syntax: .assert Z1, N0, "message"`,
-        'fr': `Soit d'autres affectations de drapeaux soit un message d'erreur est attendu ici. Syntaxe : .assert Z1, N0, "message"`
+    static at = () => lm({
+        'de': `bei: `,
+        'en': `at `,
+        'fr': `à `
     });
 
+    static Expected = () => lm({
+        'de': `Erwartet: `,
+        'en': `Expected: `,
+        'fr': `Attendu : `
+    });
+
+    static Actual = () => lm({
+        'de': `Tatsächlich: `,
+        'en': `Actual: `,
+        'fr': `Réel : `
+    });
 }

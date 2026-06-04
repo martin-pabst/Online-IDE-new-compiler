@@ -18,15 +18,9 @@ export class AggregatingAssertionObserver implements IAssertionObserver {
 
     }
 
-    notifyOnMemoryAssertion(thread: Thread, step: Step, expectedMemoryState: string, actualMemoryState: string, message: string): void {
+    notifyOnAssemblyAssertion(thread: Thread, step: Step, expectedMemoryState: string, actualMemoryState: string, message: string): void {
         if (expectedMemoryState !== actualMemoryState) {
-            this.addFailedResult(thread, step, "notifyOnMemoryAssertion", expectedMemoryState, actualMemoryState, message);
-        }
-    }
-
-    notifyOnFlagAssertion(thread: Thread, step: Step, expectedFlagState: string, actualFlagState: string, message: string): void {
-        if (expectedFlagState !== actualFlagState) {
-            this.addFailedResult(thread, step, "notifyOnFlagAssertion", expectedFlagState, actualFlagState, message);
+            this.addFailedResult(thread, step, "notifyOnAssemblyAssertion", expectedMemoryState, actualMemoryState, message);
         }
     }
 

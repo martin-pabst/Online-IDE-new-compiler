@@ -1,3 +1,4 @@
+import { DOM } from "../../tools/DOM";
 import { Error } from "../common/Error";
 import { IMain } from "../common/IMain";
 import type { Interpreter } from "../common/interpreter/Interpreter";
@@ -205,64 +206,106 @@ export abstract class CPU {
 
     assert(interpreter: Interpreter): void {
         let assertion = this.assemblyParserResult.assertionMap.get(this.getProgramCounter() - 1);
-        if (assertion) {
-            switch (assertion.type) {
-                case "memory":
-                    this.assertMemory(interpreter, assertion);
-                    break;
+        if (!assertion || assertion.assertionParts.length === 0) return;
+
+        let allWell = true;
+        for (let assertionPart of assertion.assertionParts) {
+            switch (assertionPart.type) {
                 case "flag":
-                    this.assertFlag(interpreter, assertion);
+                    let flags = this.getFlags();
+
+                    let flagIndex = this.flagNamesShort.indexOf(assertionPart.shortFlagName.toLowerCase());
+                    if (flagIndex === -1) {
+                        flagIndex = this.flagNamesShort.indexOf(assertionPart.shortFlagName.toUpperCase());
+                    }
+
+                    let currentFlagValue = flags[this.flagNames[flagIndex]];
+                    if (currentFlagValue !== assertionPart.flagValue) {
+                        allWell = false;
+                    }
+                    break;
+                case "memory":
+                    let mem = this.getMemory().dump();
+                    for (let i = 0; i < assertionPart.expectedMemoryValues.length; i++) {
+                        if (mem[assertionPart.startAddress + i] !== assertionPart.expectedMemoryValues[i]) {
+                            allWell = false;
+                            break;
+                        }
+                    }
                     break;
             }
+            if (!allWell) break;
         }
+
+        if (!allWell) {
+            let valuesExpected = "{ " + assertion.assertionParts.map(part => {
+                switch (part.type) {
+                    case "flag":
+                        return part.shortFlagName + ": " + (part.flagValue ? "1" : "0");
+                    case "memory":
+                        return part.startAddress + ": [" + part.expectedMemoryValues.join(", ") + "]";
+                }
+            }).join(', ') + " }";
+
+            let valuesActual = "{ " + assertion.assertionParts.map(part => {
+                switch (part.type) {
+                    case "flag":
+                        let flags = this.getFlags();
+                        let currentFlagValue = flags[part.shortFlagName.toUpperCase()] ?? flags[part.shortFlagName.toLowerCase()];
+                        return part.shortFlagName.toUpperCase() + ": " + (currentFlagValue ? "1" : "0");
+                    case "memory":
+                        let mem = this.getMemory().dump();
+                        return part.startAddress + ": [" + mem.slice(part.startAddress, part.startAddress + part.expectedMemoryValues.length).join(", ") + "]";
+                }
+            }).join(', ') + " }";
+
+            for (let assertionObserver of interpreter.assertionObserverList) {
+                assertionObserver.notifyOnAssemblyAssertion(interpreter.scheduler.getCurrentThread(), null, valuesExpected, valuesActual, assertion.message ?? "");
+            }
+
+            if (interpreter.getMain()) {
+                this.printAssertionFailureInOutputTab(interpreter.getMain()!, valuesExpected, valuesActual, assertion.message ?? "");
+            }
+
+        }
+
     }
 
-    assertFlag(interpreter: Interpreter, assertion: AssemblyAssertion): void {
-        let flags = this.getFlags();
-        let allWell = true;
-        for (let i = 0; i < assertion.flagValues.length; i++) {
-            let flagName = assertion.shortFlagNames[i];
-            if (flags[flagName] !== assertion.flagValues[i]) {
-                allWell = false;
-                break;
-            }
-        }
-        if (!allWell) {
-            let expectedFlagStateString = assertion.shortFlagNames.map((flagName, index) => flagName + "=" + (assertion.flagValues[index] ? "1" : "0")).join(', ');
-            let actualFlagStateString = assertion.shortFlagNames.map(flagName => flagName + "=" + (flags[flagName] ? "1" : "0")).join(', ');
-            for (let assertionObserver of interpreter.assertionObserverList) {
-                assertionObserver.notifyOnFlagAssertion(interpreter.scheduler.getCurrentThread(), null, expectedFlagStateString, actualFlagStateString, assertion.message ?? "");
-            }
+    printAssertionFailureInOutputTab(main: IMain, valuesExpected: string, valuesActual: string, message: string): void {
+        let outerDiv = DOM.makeDiv(undefined, 'jo_exceptionPrinter_outer');
+        let headingDiv = DOM.makeDiv(outerDiv, 'jo_exceptionPrinter_heading');
+        let headingDivLeftSpan = DOM.makeSpan(headingDiv);
+        let headingDivRightSpan = DOM.makeSpan(headingDiv);
+        headingDivLeftSpan.textContent = AssemblyParserMessages.AssertionFailed("");
+        headingDivRightSpan.textContent = message;
+        headingDivRightSpan.style.fontStyle = "italic";
+        headingDivRightSpan.style.marginLeft = "5px";
 
-            if (interpreter.assertionObserverList.length === 0) {
-                let message = AssemblyParserMessages.FlagAssertionFailed(expectedFlagStateString, actualFlagStateString, assertion.message ?? "");
-                interpreter.printManager?.print(message, true, undefined);
-            }
+        let range = this.assemblyParserResult.sourceMap.get(this.getProgramCounter() - 1);
+        if (range) {
+            let atLineDiv = DOM.makeDiv(outerDiv, 'jo_exceptionPrinter_stacktrace');
+            DOM.makeSpan(atLineDiv).textContent = "at ";
+            DOM.makeSpan(atLineDiv, "jo_stacktraceLink").textContent = `File ${this.assemblyParserResult.file.name} (${range.lineNumber}:${range.column})`;
+            atLineDiv.addEventListener("click", () => {
+                main.showProgramPosition(this.assemblyParserResult.file, {
+                    startLineNumber: range.lineNumber,
+                    startColumn: range.column,
+                    endLineNumber: range.lineNumber,
+                    endColumn: range.column + 1
+                });
+            });
         }
-    }
 
-    assertMemory(interpreter: Interpreter, assertion: AssemblyAssertion): void {
-        let mem = this.getMemory().dump();
-        let allWell = true;
-        for (let i = 0; i < assertion.expectedMemoryValues.length; i++) {
-            if (mem[assertion.startAddress + i] !== assertion.expectedMemoryValues[i]) {
-                allWell = false;
-                break;
-            }
-        }
-        if (!allWell) {
-            let memoryFrom = AssemblyParserMessages.MemoryFrom(assertion.startAddress);
-            let expectedMemoryStateString = assertion.expectedMemoryValues.map(val => val.toString(10)).join(', ');
-            let actualMemoryStateString = mem.slice(assertion.startAddress, assertion.startAddress + assertion.expectedMemoryValues.length).map(val => val.toString(10)).join(', ');
-            for (let assertionObserver of interpreter.assertionObserverList) {
-                assertionObserver.notifyOnMemoryAssertion(interpreter.scheduler.getCurrentThread(), null, memoryFrom + expectedMemoryStateString, memoryFrom + actualMemoryStateString, assertion.message ?? "");
-            }
+        let detailsDiv = DOM.makeDiv(outerDiv, 'jo_exceptionPrinter_stacktrace');
+        DOM.makeSpan(detailsDiv).textContent = AssemblyParserMessages.Expected();
+        DOM.makeSpan(detailsDiv, 'jo_junitExpected').textContent = valuesExpected;
+        DOM.makeElement( detailsDiv, 'br');
+        DOM.makeSpan(detailsDiv).textContent = AssemblyParserMessages.Actual();
+        DOM.makeSpan(detailsDiv, 'jo_junitActual').textContent = valuesActual;
+        detailsDiv.style.marginBottom = "5px";
 
-            if (interpreter.assertionObserverList.length === 0) {
-                let message = AssemblyParserMessages.MemoryAssertionFailed(memoryFrom + expectedMemoryStateString, memoryFrom + actualMemoryStateString, assertion.message ?? "");
-                interpreter.printManager?.print(message, true, undefined);
-            }
-        }
+
+        main.getInterpreter().printManager.printHtmlElement(outerDiv);
 
     }
 

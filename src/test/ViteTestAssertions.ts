@@ -59,9 +59,9 @@ export class ViteTestAssertions implements DummyAssertionObserver {
         this.logFailedTest(thread, step, "Intentional fail", message);
     }
 
-    notifyOnMemoryAssertion(thread: Thread, step: Step, expectedMemoryState: string, actualMemoryState: string, message: string): void {
-        if (expectedMemoryState !== actualMemoryState) {
-            this.logFailedTest(thread, step, message, "Expected: " + chalk.green(expectedMemoryState) + ", actual: " + chalk.yellow(actualMemoryState));
+    notifyOnAssemblyAssertion(thread: Thread, step: Step, expected: string, actual: string, message: string): void {
+        if (expected !== actual) {
+            this.logFailedTest(thread, step, message, "Expected: " + chalk.green(expected) + ", actual: " + chalk.yellow(actual));
         }
     }
 

@@ -150,12 +150,12 @@ export class AssemblyFormatter extends BaseMonacoProvider
 
             switch (this.currentToken.type) {
                 case AssemblyTokenType.comment:
-                    this.readTillEndOfLine();
+                    this.readTillEndOfLineOrCurlyBracket();
                     continue;
                 case AssemblyTokenType.dot:
                     currentLineInfo = { lineNumber: this.currentToken.range.startLineNumber, instructionIdentifierOrDot: this.currentToken };
                     lineInfos.push(currentLineInfo);
-                    this.readTillEndOfLine();
+                    this.readTillEndOfLineOrCurlyBracket();
                     continue;
                 case AssemblyTokenType.identifier:
                     currentLineInfo = { lineNumber: this.currentToken.range.startLineNumber, instructionIdentifierOrDot: this.currentToken };
@@ -182,10 +182,26 @@ export class AssemblyFormatter extends BaseMonacoProvider
                         if (this.currentToken.type == AssemblyTokenType.dot) continue;
                     }
                     // We are now at the instruction identifier.
-                    this.readTillEndOfLine();
+                    this.readTillEndOfLineOrCurlyBracket();
                     continue;
 
-                    break;
+                case AssemblyTokenType.leftCurlyBracket:
+                    // skip till right curly bracket
+                    let openBrackets = 1;
+                    this.next();
+                    while (openBrackets > 0 && !this.lastTokenReached()) {
+                        if (this.currentToken.type == AssemblyTokenType.leftCurlyBracket) {
+                            openBrackets++;
+                        } else if (this.currentToken.type == AssemblyTokenType.rightCurlyBracket) {
+                            openBrackets--;
+                        }
+                        this.next();
+                    }
+                    this.readTillEndOfLineOrCurlyBracket();
+                    continue;
+                default:
+                    this.readTillEndOfLineOrCurlyBracket();
+                    continue;
             }
 
         }
@@ -200,11 +216,11 @@ export class AssemblyFormatter extends BaseMonacoProvider
         }
     }
 
-    readTillEndOfLine() {
+    readTillEndOfLineOrCurlyBracket() {
         let lineNumber = this.currentToken.range.endLineNumber;
         do {
             this.next();
-        } while (!this.lastTokenReached() && this.currentToken.range.startLineNumber == lineNumber);
+        } while (!this.lastTokenReached() && this.currentToken.range.startLineNumber == lineNumber && this.currentToken.type != AssemblyTokenType.leftCurlyBracket);
     }
 
     next() {

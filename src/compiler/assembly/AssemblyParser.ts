@@ -11,14 +11,21 @@ export type AssemblyCompiledCodePart = {
     code: number[];
 }
 
+type AssemblyAssertionPartMemory = {
+    type: "memory";
+    startAddress: number;
+    expectedMemoryValues: number[];
+}
+
+type AssemblyAssertionPartFlag = {
+    type: "flag";
+    shortFlagName: string;
+    flagValue: boolean;
+}
+
+
 export type AssemblyAssertion = {
-    type: "memory" | "flag";
-    startAddress?: number;
-    expectedMemoryValues?: number[];
-
-    shortFlagNames?: string[];
-    flagValues?: boolean[];
-
+    assertionParts: (AssemblyAssertionPartMemory | AssemblyAssertionPartFlag)[];
     message: string;
 }
 
@@ -205,6 +212,21 @@ export abstract class AssemblyParser {
             return false;
         }
         return true;
+    }
+
+    expectOneToken(tokenType: AssemblyTokenType, message: string, skip: boolean): boolean {
+        let token = this.currentToken();
+        if (token.type !== tokenType) {
+            this.pushError(message, "error", token.range);
+            return false;
+        } else if (skip) {
+            this.next();
+        }
+        return true;
+    }
+
+    isToken(...tokenTypes: AssemblyTokenType[]): boolean {
+        return tokenTypes.includes(this.currentToken().type);
     }
 
     skip(...tokenTypes: AssemblyTokenType[]): void {
@@ -410,126 +432,153 @@ export abstract class AssemblyParser {
 
     /**
      * Parses an assertion of the form
-     * .assert <address> (expectedMemoryValue,[ ])*["message"]
-     * e.g. .assert 0x300 42, 38, "incorrect order of values in memory"
+     * .assert {  100: [42, 38],
+     *            110: 20,
+     *              N: 1,
+     *              Z: 0,
+     *              message: "incorrect cpu state after some instruction"
+     *             }
      */
     parseAssertion(assertionToken: AssemblyToken): void {
         this.next();   // consume .assert token
-        let addressToken = this.currentToken();
-
-        if (addressToken.type === AssemblyTokenType.identifier) {
-            this.parseFlagAssertion(assertionToken, addressToken);
-            return;
-        }
-
-        if (!this.checkIfTokenIs16BitUnsignedNumber(addressToken, AssemblyParserMessages.AddressExpectedAfterAssertion)) {
+        if (!this.expectOneToken(AssemblyTokenType.leftCurlyBracket, AssemblyParserMessages.TokenExpectedInAssertion("{"), true)) {
             this.readTillBeginOfNextLine();
             return;
         }
 
-        let address = addressToken.value as number;
+        let assertion: AssemblyAssertion = {
+            assertionParts: [],
+            message: "Assertion failed!"
+        };
 
+        this.skip(AssemblyTokenType.lineBreak);
+
+        while (this.isToken(AssemblyTokenType.number, AssemblyTokenType.identifier, AssemblyTokenType.stringLiteral)) {
+            if (this.currentToken().type === AssemblyTokenType.number) {
+                this.parseMemoryAssertion(assertion);
+            } else if (("" + this.currentToken().value).toLowerCase() === "message") {
+                this.parseAssertionMessage(assertion);
+            } else {
+                this.parseFlagAssertion(assertion);
+            }
+
+            
+            this.skip(AssemblyTokenType.lineBreak);
+            if (this.currentToken().type === AssemblyTokenType.rightCurlyBracket) {
+                break;
+            }
+            if (!this.expectOneToken(AssemblyTokenType.comma, AssemblyParserMessages.TokenExpectedInAssertion(","), true)) {
+                this.readTillBeginOfNextLine();
+                return;
+            }
+
+            this.skip(AssemblyTokenType.lineBreak);
+        }
+
+        this.addSourceMapEntry(assertionToken.range);
+        this.assertionMap.set(this.getProgramCounterAbsolute(), assertion);
+        this.writeToMemory(this.getAssertionOpcode());
+
+        if (!this.expectOneToken(AssemblyTokenType.rightCurlyBracket, AssemblyParserMessages.TokenExpectedInAssertion("}"), true)) {
+            this.readTillBeginOfNextLine();
+            return;
+        }
+
+    }
+
+    private parseFlagAssertion(assertion: AssemblyAssertion): void {
+        let flagName = (this.currentToken().value as string).toLowerCase();
+        if (!this.getFlagNamesShort().includes(flagName)) {
+            this.pushError(AssemblyParserMessages.UnknownFlagInAssertion(flagName, this.getFlagNamesShort()), "error", this.currentToken().range);
+            this.readTillBeginOfNextLine();
+            return;
+        }
         this.next();
+        if (!this.expectOneToken(AssemblyTokenType.colon, AssemblyParserMessages.TokenExpectedInAssertion(":"), true)) {
+            this.readTillBeginOfNextLine();
+            return;
+        }
+        if (!this.isToken(AssemblyTokenType.number) || [0, 1].indexOf(this.currentToken().value as number) === -1) {
+            this.pushError(AssemblyParserMessages.ZeroOrOneExpectedInAssertion(flagName), "error", this.currentToken().range);
+            this.readTillBeginOfNextLine();
+            return;
+        }
 
-        if(this.expect(AssemblyTokenType.colon)) this.next();
+        let flagValue = (this.currentToken().value as number) === 1;
+        assertion.assertionParts.push({
+            type: "flag",
+            shortFlagName: flagName,
+            flagValue: flagValue
+        });
+        this.next();
+    }
 
+    private parseAssertionMessage(assertion: AssemblyAssertion): void {
+        this.next(); // skip "message" identifier token
+        if (!this.expectOneToken(AssemblyTokenType.colon, AssemblyParserMessages.TokenExpectedInAssertion(":"), true)) {
+            this.readTillBeginOfNextLine();
+            return;
+        }
+        if (!this.expectOneToken(AssemblyTokenType.stringLiteral, AssemblyParserMessages.TokenExpectedInAssertion("string literal"), false)) {
+            this.readTillBeginOfNextLine();
+            return;
+        }
+        assertion.message = this.currentToken().value as string;
+        this.next();
+    }
+
+
+    private parseMemoryAssertion(assertion: AssemblyAssertion): void {
+        let address = this.currentToken().value as number;
+        this.next();
+        if (!this.expectOneToken(AssemblyTokenType.colon, AssemblyParserMessages.TokenExpectedInAssertion(":"), true)) {
+            this.readTillBeginOfNextLine();
+            return;
+        }
+
+        if (this.isToken(AssemblyTokenType.number)) {
+            // short syntax for single memory value, e.g. "100: 42"
+            if (this.checkIfTokenIs16BitUnsignedNumber(this.currentToken())) {
+                let expectedValue = this.currentToken().value as number;
+                this.next();
+                assertion.assertionParts.push({
+                    type: "memory",
+                    startAddress: address,
+                    expectedMemoryValues: [expectedValue]
+                });
+                return;
+            }
+        }
+
+        if (!this.expectOneToken(AssemblyTokenType.leftSquareBracket, AssemblyParserMessages.TokenExpectedInAssertion("["), true)) {
+            this.readTillBeginOfNextLine();
+            return;
+        }
         let expectedMemoryValues: number[] = [];
         while (this.currentToken().type === AssemblyTokenType.number) {
             if (this.checkIfTokenIs16BitUnsignedNumber(this.currentToken())) {
                 expectedMemoryValues.push(this.currentToken().value as number);
+            } else {
+                this.readTillBeginOfNextLine();
+                return;
             }
-            this.next();
+            this.next();    // skip number token
             if (this.currentToken().type === AssemblyTokenType.comma) {
-                this.next();
+                this.next();    // skip comma
             } else {
                 break;
             }
         }
 
-        if ([AssemblyTokenType.stringLiteral, AssemblyTokenType.lineBreak, AssemblyTokenType.endOfSourcecode].indexOf(this.currentToken().type) === -1) {
-            this.pushError(AssemblyParserMessages.DataOrErrorMessageExpected(), "error", this.currentToken().range);
+        if (!this.expectOneToken(AssemblyTokenType.rightSquareBracket, AssemblyParserMessages.TokenExpectedInAssertion("]"), true)) {
             this.readTillBeginOfNextLine();
             return;
         }
 
-        let message = "";
-        if (this.currentToken().type === AssemblyTokenType.stringLiteral) {
-            message = this.currentToken().value as string;
-            this.next();
-        }
-
-        let assertion: AssemblyAssertion = {
+        assertion.assertionParts.push({
             type: "memory",
             startAddress: address,
-            expectedMemoryValues: expectedMemoryValues,
-            message: message
-        };
-
-        this.assertionMap.set(this.getProgramCounterAbsolute(), assertion);
-        this.writeToMemory(this.getAssertionOpcode());
-        this.addSourceMapEntry(assertionToken.range);
-
-    }
-
-    /**
-     * .assert <flagName>[01][,[ ]<flagName>[01]]* ["message"]
-     */
-    parseFlagAssertion(assertionToken: AssemblyToken, firstFlagToken: AssemblyToken) {
-        let flagToken = firstFlagToken;
-        let shortFlagNames: string[] = [];
-        let flagValues: boolean[] = [];
-        while (true) {
-            let flagNameAndValue = flagToken.value as string;
-            let flagName = flagNameAndValue.slice(0, -1);
-            let flagValue = flagNameAndValue.slice(-1);
-            if (flagValue !== "0" && flagValue !== "1") {
-                this.pushError(AssemblyParserMessages.FlagValuesShouldBe0Or1(), "error", flagToken.range);
-                this.readTillBeginOfNextLine();
-                return;
-            }
-
-            let flagNamesShort = this.getFlagNamesShort().map(name => name.toLowerCase());
-            if (!flagNamesShort.includes(flagName?.toLowerCase())) {
-                this.pushError(AssemblyParserMessages.UnknownFlag(flagName, flagNamesShort), "error", flagToken.range);
-                this.readTillBeginOfNextLine();
-                return;
-            }
-
-            shortFlagNames.push(flagName.toLowerCase());
-            flagValues.push(flagValue === "1");
-
-            this.next();
-            if (this.currentToken().type === AssemblyTokenType.comma) {
-                this.next();
-                if(this.currentToken().type == AssemblyTokenType.stringLiteral) break;
-                flagToken = this.currentToken();
-            } else {
-                break;
-            }
-        }
-
-        if ([AssemblyTokenType.stringLiteral, AssemblyTokenType.lineBreak, AssemblyTokenType.endOfSourcecode].indexOf(this.currentToken().type) === -1) {
-            this.pushError(AssemblyParserMessages.DataOrErrorMessageExpectedInFlagAssertion(), "error", this.currentToken().range);
-            this.readTillBeginOfNextLine();
-            return;
-        }
-
-        let message = "";
-        if (this.currentToken().type === AssemblyTokenType.stringLiteral) {
-            message = this.currentToken().value as string;
-            this.next();
-        }
-
-        let assertion: AssemblyAssertion = {
-            type: "flag",
-            shortFlagNames: shortFlagNames,
-            flagValues: flagValues,
-            message: message
-        };
-
-        this.assertionMap.set(this.getProgramCounterAbsolute(), assertion);
-        this.writeToMemory(this.getAssertionOpcode());
-        this.addSourceMapEntry(assertionToken.range);
-
+            expectedMemoryValues: expectedMemoryValues
+        });
     }
 }
