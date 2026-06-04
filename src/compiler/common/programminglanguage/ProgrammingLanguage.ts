@@ -1,10 +1,11 @@
 import { Settings } from "../../../client/settings/Settings";
 import { Compiler } from "../Compiler";
-import { Debugger, DebuggerType } from "../debugger/Debugger";
+import { DebuggerType } from "../debugger/Debugger";
 import { IMain } from "../IMain";
 import { ErrorMarker } from "../monacoproviders/ErrorMarker";
 import { Repl } from "../repl/Repl";
 import { LibraryManager } from "./LibraryManager";
+import { ProgrammingLanguageData } from "./ProgrammingLanguageData";
 
 export abstract class ProgrammingLanguage {
 
@@ -18,7 +19,9 @@ export abstract class ProgrammingLanguage {
 
     }
 
-    abstract getTranslatedName(): string;
+    getTranslatedName(): string {
+        return ProgrammingLanguageData[this.name].translatedName();
+    }
 
     getCompiler(main: IMain): Compiler {
         return this.#compilers.get(main);

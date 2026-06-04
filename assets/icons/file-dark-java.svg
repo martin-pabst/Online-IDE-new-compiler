@@ -7,7 +7,7 @@
    version="1.1"
    id="svg4"
    sodipodi:docname="file-dark-java.svg"
-   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,8 +25,8 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="true"
      inkscape:zoom="32.09375"
-     inkscape:cx="-2.6484907"
-     inkscape:cy="10.453749"
+     inkscape:cx="5.8734177"
+     inkscape:cy="10.438169"
      inkscape:window-width="1743"
      inkscape:window-height="1271"
      inkscape:window-x="823"
@@ -35,7 +35,12 @@
      inkscape:current-layer="svg4">
     <inkscape:grid
        type="xygrid"
-       id="grid291" />
+       id="grid291"
+       originx="0"
+       originy="0"
+       spacingy="1"
+       spacingx="1"
+       units="px" />
   </sodipodi:namedview>
   <path
      fill-rule="evenodd"
@@ -45,16 +50,16 @@
      id="path2" />
   <g
      id="g2133"
-     style="fill:#7485e2;fill-opacity:1">
+     style="fill:#f58219;fill-opacity:1">
     <rect
-       style="fill:#7485e2;fill-opacity:1;stroke:none;stroke-width:2.13545;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+       style="fill:#f58219;fill-opacity:1;stroke:none;stroke-width:2.13545;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
        id="rect345"
        width="4"
        height="1"
        x="6"
        y="7" />
     <rect
-       style="fill:#7485e2;fill-opacity:1;stroke:none;stroke-width:2.13544;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
+       style="fill:#f58219;fill-opacity:1;stroke:none;stroke-width:2.13544;stroke-linecap:round;stroke-linejoin:round;stop-color:#000000"
        id="rect1214"
        width="3"
        height="1"
@@ -62,7 +67,7 @@
        y="-10"
        transform="rotate(90)" />
     <path
-       style="color:#000000;fill:#7485e2;fill-opacity:1;-inkscape-stroke:none"
+       style="color:#000000;fill:#f58219;fill-opacity:1;-inkscape-stroke:none"
        d="m 5.9614433,11 c 1e-7,0.779603 0.3546631,1.514174 0.9824219,1.931641 0.6277589,0.417466 1.4464599,0.417466 2.0742188,0 C 9.6458428,12.514174 10.000506,11.779603 10.000506,11 H 9.0005059 c -1e-7,0.470825 -0.2247115,0.891861 -0.5371094,1.099609 -0.312398,0.207748 -0.6524458,0.207748 -0.9648438,0 C 7.1861548,11.891861 6.9614434,11.470825 6.9614433,11 Z"
        id="path1268" />
   </g>

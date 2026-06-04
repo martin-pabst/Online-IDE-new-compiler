@@ -137,7 +137,7 @@ export class SynchronizationListElement {
 
     createRightFileModel() {
         if (this.rightSynchroFile != null) {
-            this.rightSynchroFile.monacoModel = monaco.editor.createModel(this.rightSynchroFile.text, "myJava");
+            this.rightSynchroFile.monacoModel = monaco.editor.createModel(this.rightSynchroFile.text, this.manager.monacoLanguageSelector);
         }
     }
 
@@ -151,13 +151,13 @@ export class SynchronizationListElement {
     }
 
     getEmptyMonacoModel(): monaco.editor.ITextModel {
-        return monaco.editor.createModel("", "myJava")
+        return monaco.editor.createModel("", this.manager.monacoLanguageSelector)
     }
 
     pending: boolean = false;
     createLeftFileModel() {
         if (this.leftSynchroFile != null) {
-            this.leftSynchroFile.monacoModel = monaco.editor.createModel(this.leftSynchroFile.text, "myJava");
+            this.leftSynchroFile.monacoModel = monaco.editor.createModel(this.leftSynchroFile.text, this.manager.monacoLanguageSelector);
             this.leftSynchroFile.monacoModel.onDidChangeContent((event) => {
 
                 // throttle comparison to avoid editor-slowdown

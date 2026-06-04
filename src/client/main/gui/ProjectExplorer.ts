@@ -28,6 +28,7 @@ import '/assets/css/projectexplorer.css';
 import { RepositoryExporter } from '../../workspace/RepositoryImporterExporter.js';
 import { ProgrammingLanguageManager } from '../../../compiler/common/programminglanguage/ProgrammingLanguageManager.js';
 import { ProgrammingLanguage } from '../../../compiler/common/programminglanguage/ProgrammingLanguage.js';
+import { ProgrammingLanguageData } from '../../../compiler/common/programminglanguage/ProgrammingLanguageData.js';
 
 
 export class ProjectExplorer {
@@ -396,6 +397,7 @@ export class ProjectExplorer {
                 w.settings.language = "Java";
             }
             this.main.workspaceList.push(w);
+            node.iconClass = ProgrammingLanguageData[w.settings.language]?.workspaceCssClass(false) ?? "img_workspace-dark";
 
             let success = this.main.user.is_testuser || await this.main.networkManager.sendCreateWorkspace(w, this.main.workspacesOwnerId);
             if (success) {
@@ -758,7 +760,7 @@ export class ProjectExplorer {
         this.workspaceTreeview.clear();
 
         for (let ws of workspaceList) {
-            let iconClass = ws.repository_id == null ? 'img_workspace-dark' : 'img_workspace-dark-repository';
+            let iconClass = (ProgrammingLanguageData[ws.settings.language]??ProgrammingLanguageData.Java).workspaceCssClass(ws.repository_id != null);
             if (ws.isFolder) iconClass = undefined;
             let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, iconClass, ws)
 

@@ -14,6 +14,7 @@ import { AssemblyRenameProvider } from "./monacoproviders/AssemblyRenameProvider
 import { AssemblySymbolAndMethodMarker } from "./monacoproviders/AssemblySymbolAndMethodMarker.ts";
 import { lm } from "../../tools/language/LanguageManager.ts";
 import { AssemblyFormatter } from "./monacoproviders/AssemblyFormatter.ts";
+import { ProgrammingLanguageData } from "../common/programminglanguage/ProgrammingLanguageData.ts";
 
 export class AssemblyLanguage extends ProgrammingLanguage {
 
@@ -22,7 +23,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
     private libraryManager: LibraryManager = new AssemblyLibraryManager();  // not used
 
     private constructor() {
-        super("Assembly", "asm", "myAssembly");
+        super(ProgrammingLanguageData.Assembly.name, ProgrammingLanguageData.Assembly.fileEndingWithOutDot, ProgrammingLanguageData.Assembly.monacoLanguageSelector);
         this.registerLanguageAtMonacoEditor();
         this.registerProviders();
     }
@@ -33,16 +34,6 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         }
 
         return AssemblyLanguage.instance;
-    }
-
-    getTranslatedName(): string {
-        
-       return lm({
-            "de": "Maschinensprache (Assembler)",
-            "en": "Machine language (Assembler)",
-            "fr": "Langage machine (assembleur)"
-        })
-
     }
 
     public registerMain(main: IMain, errorMarker: ErrorMarker) {

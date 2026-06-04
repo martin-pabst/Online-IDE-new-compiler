@@ -7,6 +7,7 @@ import { GUIFile } from '../../workspace/File.js';
 import * as monaco from 'monaco-editor'
 import { Tab, TabManager } from '../../../tools/TabManager.js';
 import { HomeworkManagerMessages } from './language/GUILanguage.js';
+import { ProgrammingLanguageData } from '../../../compiler/common/programminglanguage/ProgrammingLanguageData.js';
 
 
 type FileWithWorkspace = {
@@ -69,8 +70,8 @@ export class HomeworkManager {
         jQuery('#editor').hide();
         jQuery('#diffEditor').show();
 
-        var originalModel = monaco.editor.createModel(file.text_before_revision, "myJava");
-        var modifiedModel = monaco.editor.createModel(file.getText(), "myJava");
+        var originalModel = monaco.editor.createModel(file.text_before_revision, ProgrammingLanguageData.Java.monacoLanguageSelector);
+        var modifiedModel = monaco.editor.createModel(file.getText(), ProgrammingLanguageData.Java.monacoLanguageSelector);
 
         this.diffEditor = monaco.editor.createDiffEditor(document.getElementById("diffEditor"), {
             // You can optionally disable the resizing

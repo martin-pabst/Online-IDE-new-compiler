@@ -1,6 +1,7 @@
 import { AccordionElement } from "../../../tools/components/treeview/AccordionElement";
 import { TreeviewAccordion } from "../../../tools/components/treeview/TreeviewAccordion";
 import { DOM } from "../../../tools/DOM";
+import { ProgrammingLanguageData } from "../../common/programminglanguage/ProgrammingLanguageData";
 import { CPU } from "../CPU";
 import { AssemblyDebuggerMessages } from "../language/AssemblyDebuggerMessages";
 import * as monaco from 'monaco-editor'
@@ -50,7 +51,7 @@ export class CurrentInstructionView extends AccordionElement {
             let descriptionLeft = description.substring(0, colonIndex).trim();
             this.descriptionDiv.textContent = descriptionRight;
 
-            monaco.editor.colorize(descriptionLeft, "myAssembly", {}).then(
+            monaco.editor.colorize(descriptionLeft, ProgrammingLanguageData.Assembly.monacoLanguageSelector, {}).then(
             (html) => {this.assemblyDiv.innerHTML = html;}
         );
 

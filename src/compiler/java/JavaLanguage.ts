@@ -21,6 +21,7 @@ import { JUnitTestrunner } from "../common/testrunner/JUnitTestrunner.ts";
 import { JavaLibraryManager } from "./runtime/JavaLibraryManager.ts";
 import { LibraryManager } from "../common/programminglanguage/LibraryManager.ts";
 import { DebuggerType } from "../common/debugger/Debugger.ts";
+import { ProgrammingLanguageData } from "../common/programminglanguage/ProgrammingLanguageData.ts";
 
 export class JavaLanguage extends ProgrammingLanguage {
 
@@ -31,7 +32,7 @@ export class JavaLanguage extends ProgrammingLanguage {
     private libraryManager: LibraryManager = new JavaLibraryManager();
 
     private constructor() {
-        super("Java", "java", "myJava");
+        super(ProgrammingLanguageData.Java.name, ProgrammingLanguageData.Java.fileEndingWithOutDot, ProgrammingLanguageData.Java.monacoLanguageSelector);
         this.registerLanguageAtMonacoEditor();
         this.registerProviders();
     }
@@ -42,10 +43,6 @@ export class JavaLanguage extends ProgrammingLanguage {
         }
 
         return JavaLanguage.instance;
-    }
-
-    getTranslatedName(): string {
-        return "Java";
     }
 
     public registerMain(main: IMain, errorMarker: ErrorMarker) {
