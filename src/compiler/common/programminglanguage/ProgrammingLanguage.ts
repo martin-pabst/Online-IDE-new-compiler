@@ -39,6 +39,10 @@ export abstract class ProgrammingLanguage {
         this.#compilers.set(main, compiler);
         this.mains.add(main);
     }
+
+    getWorkspaceCssClass(withRepository: boolean): string {
+        return ProgrammingLanguageData[this.name].workspaceCssClass(withRepository);
+    }
     
     protected registerRepl(main: IMain, repl: Repl){
         this.#repls.set(main, repl);

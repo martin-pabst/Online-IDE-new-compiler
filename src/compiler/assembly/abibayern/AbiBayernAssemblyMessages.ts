@@ -413,6 +413,18 @@ export class AbiBayernAssemblyMessages {
         'fr': `origin address: définit l'adresse où la prochaine instruction ou le prochain nombre sera stocké à address. Cette directive ne peut être utilisée qu'une seule fois au début du programme.`
     });
 
+    static AssertPseudoDirective = () => lm({
+        'de': `Mit .assert kann überprüft werden, ob der Zustand des Speichers, der Register oder der Flags den Erwartungen entspricht. Beispielsyntax: .assert { 100: [10, 200, 30], N: 1, Z: 0, A: 20, message: "Fehlermeldung" } überprüft, ob an Adresse 100 die Werte 10, 200 und 30 gespeichert sind, das negative-Flag gesetzt ist, das zero-Flag nicht gesetzt ist und der Wert im Akkumulator 20 ist.`,
+        'en': `.assert can be used to check if the state of the memory, the registers or the flags meets the expectations. Example syntax: .assert { 100: [10, 200, 30], N: 1, Z: 0, A: 20, message: "Error message" } checks if the values 10, 200 and 30 are stored at address 100, the negative flag is set, the zero flag is not set and the value in the accumulator is 20.`,
+        'fr': `Avec .assert, il est possible de vérifier si l'état de la mémoire, des registres ou des drapeaux correspond aux attentes. Syntaxe d'exemple : .assert { 100: [10, 200, 30], N: 1, Z: 0, A: 20, message: "Message d'erreur" } vérifie si les valeurs 10, 200 et 30 sont stockées à l'adresse 100, le drapeau négatif est défini, le drapeau zero n'est pas défini et la valeur dans l'accumulateur est 20.`
+    });
+
+    static AssertHoverComment = () => lm({
+        'de': "```\n//Beispiel:\n" + `.assert { 100: [10, 200, 30], N: 1, Z: 0, A: 20, message: "Error message" }\n// Mit .assert kann überprüft werden, ob der Zustand des Speichers, der Register oder der Flags den Erwartungen entspricht. Beispielsyntax: .assert { 100: [10, 200, 30], N: 1, Z: 0, A: 20, message: "Fehlermeldung" } überprüft, ob an Adresse 100 die Werte 10, 200 und 30 gespeichert sind, das negative-Flag gesetzt ist, das zero-Flag nicht gesetzt ist und der Wert im Akkumulator 20 ist.`,
+        'en': "```\n// Example:\n" + `.assert { 100: [10, 200, 30], N: 1, Z: 0, A: 20, message: "Error message" }\n// .assert can be used to check if the state of the memory, the registers or the flags meets the expectations. Example syntax: .assert { 100: [10, 200, 30], N: 1, Z: 0, A: 20, message: "Error message" } checks if the values 10, 200 and 30 are stored at address 100, the negative flag is set, the zero flag is not set and the value in the accumulator is 20.`,
+        'fr': "```\n// Exemple:\n" + `.assert { 100: [10, 200, 30], N: 1, Z: 0, A: 20, message: "Message d'erreur" }\n// Avec .assert, il est possible de vérifier si l'état de la mémoire, des registres ou des drapeaux correspond aux attentes. Syntaxe d'exemple : .assert { 100: [10, 200, 30], N: 1, Z: 0, A: 20, message: "Message d'erreur" } vérifie si les valeurs 10, 200 et 30 sont stockées à l'adresse 100, le drapeau négatif est défini, le drapeau zero n'est pas défini et la valeur dans l'accumulateur est 20.`
+    });
+
     static OriginHoverMessage = (address: number) => lm({
         'de': "```\n" + `origin ${address}\n// Setzt die Adresse, an der der nächste Befehl oder die nächste Zahl gespeichert wird, auf ${address}.`,
         'en': "```\n" + `origin ${address}\n// Sets the address where the next instruction or number will be stored to ${address}.`,

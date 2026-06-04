@@ -2,6 +2,7 @@ import { Error, ErrorLevel } from "../common/Error";
 import { Step } from "../common/interpreter/Step";
 import { CompilerFile } from "../common/module/CompilerFile";
 import { IRange } from "../common/range/Range";
+import { AbiBayernAssemblyMessages } from "./abibayern/AbiBayernAssemblyMessages";
 import { AssemblyToken } from "./AssemblyLexer";
 import { AssemblyTokenType, AssemblyTokenTypeReadable } from "./AssemblyTokenType";
 import { AssemblyParserMessages } from "./language/AssemblyParserMessages";
@@ -462,7 +463,7 @@ export abstract class AssemblyParser {
                 this.parseFlagAssertion(assertion);
             }
 
-            
+
             this.skip(AssemblyTokenType.lineBreak);
             if (this.currentToken().type === AssemblyTokenType.rightCurlyBracket) {
                 break;
@@ -478,6 +479,8 @@ export abstract class AssemblyParser {
         this.addSourceMapEntry(assertionToken.range);
         this.assertionMap.set(this.getProgramCounterAbsolute(), assertion);
         this.writeToMemory(this.getAssertionOpcode());
+        this.addHoverEntry(assertionToken.range,
+            AbiBayernAssemblyMessages.AssertHoverComment());
 
         if (!this.expectOneToken(AssemblyTokenType.rightCurlyBracket, AssemblyParserMessages.TokenExpectedInAssertion("}"), true)) {
             this.readTillBeginOfNextLine();

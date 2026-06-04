@@ -468,9 +468,10 @@ export class AbiBayernCPU extends CPU {
     }
 
 
-    getPseudoDirectivesWithDescription(): { directiveIdentifier: string; description: () => string; }[] {
+    getPseudoDirectivesWithDescription(): { directiveIdentifier: string; description: () => string; insertText?: string }[] {
         return [
-            { directiveIdentifier: ".origin", description: AbiBayernAssemblyMessages.OriginPseudoDirective }];
+            { directiveIdentifier: ".origin", description: AbiBayernAssemblyMessages.OriginPseudoDirective, insertText: '.origin $0' },
+            { directiveIdentifier: ".assert", description: AbiBayernAssemblyMessages.AssertPseudoDirective, insertText: '.assert { $1 }\n$0' },];
     }
 
     getInstructions(): AssemblyInstruction[] {

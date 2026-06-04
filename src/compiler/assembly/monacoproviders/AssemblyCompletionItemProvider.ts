@@ -92,7 +92,8 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
                 documentation: {
                     value: directive.description()
                 },
-                insertText: directive.directiveIdentifier,
+                insertText: directive.insertText || directive.directiveIdentifier,
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                 range: rangeToReplace
             } as monaco.languages.CompletionItem;
         });

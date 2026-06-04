@@ -44,7 +44,7 @@ export type TreeviewConfig<E, K> = {
 
     buttonAddElements?: boolean,
     buttonAddElementsCaption?: string,
-    addElementsOptions?: () => { object: any, caption: string }[],
+    addElementsOptions?: () => { object: any, caption: string, iconClass?: string }[],
 
     defaultIconClass?: string,
 
@@ -315,6 +315,7 @@ export class Treeview<E, K> extends AccordionElement {
             for (let option of this.config.addElementsOptions()) {
                 menuItems.push({
                     caption: option.caption,
+                    iconClass: option.iconClass,
                     callback: () => {
                         optionObjectd = option.object;
                         this.addNewNode(false, undefined, option.object);

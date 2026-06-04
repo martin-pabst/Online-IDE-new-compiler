@@ -348,7 +348,7 @@ export class ProjectExplorer {
         let addElementsOptions = () => {
             let programmingLanguageSelection = ProgrammingLanguageManager.getInstance().getLanguagesSelection(this.main);
             return programmingLanguageSelection.length > 1 ? programmingLanguageSelection.map(lang => {
-                return { object: lang, caption: lang.getTranslatedName() };
+                return { object: lang, caption: lang.getTranslatedName(), iconClass: lang.getWorkspaceCssClass(false) };
             }) : [];
         };
 
