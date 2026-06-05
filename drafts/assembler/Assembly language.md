@@ -1,3 +1,8 @@
+#TODO:
+  * .assert with registers, e.g. .assert { A: 20, SP: 200, message: "Message"}
+  * Labels should be feasible as memory locations in assert pseudo directives, e.g. .assert { list: [10, 20, 30], message: "Message"}
+  * Unit-Tests for the compiler in src/test/assembly
+
 # Assembly language
 ## Meta information about assembler language
 All meta information about assembler language is collected in class  [`AssemblyLanguage.ts`](../../src/compiler/assembly/AssemblyLanguage.ts)

@@ -848,7 +848,7 @@ export class AbiBayernParser extends AssemblyParser {
                 this.registerInstruction(instruction, token.range, [addressToken.text]);
                 this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
                 this.writeToMemory(instruction.OpCode);
-                let labelAddress = this.getLabelAddressAbsolute(addressToken, this.getProgramCounterAbsolute());
+                let labelAddress = this.getLabelAddressAbsolute(addressToken, this.getProgramCounterAbsolute(), undefined);
                 this.writeToMemory(labelAddress, labelAddress);
                 this.next();
                 if (this.expect(AssemblyTokenType.rightBracket)) this.next();
@@ -910,7 +910,7 @@ export class AbiBayernParser extends AssemblyParser {
             this.registerInstruction(instruction, token.range, [labelToken.text]);
             this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
             this.writeToMemory(instruction.OpCode);
-            let labelAddress = this.getLabelAddressAbsolute(labelToken, this.getProgramCounterAbsolute());
+            let labelAddress = this.getLabelAddressAbsolute(labelToken, this.getProgramCounterAbsolute(), undefined);
             this.writeToMemory(labelAddress);
         } else {
             this.pushError(AbiBayernAssemblyMessages.LabelAfterInstructionNotExpected(token.text), "error", labelToken.range);
@@ -1005,6 +1005,10 @@ export class AbiBayernParser extends AssemblyParser {
 
     getFlagNamesShort(): string[] {
         return ["z", "n", "v", "c"];
+    }
+
+    getRegisterNamesShort(): string[] {
+        return ["a", "pc"];
     }
 
 }

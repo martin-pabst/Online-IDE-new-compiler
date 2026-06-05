@@ -46,7 +46,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         // this.registerRepl(main, repl);
         this.registerSettings(main, settings)
 
-        new AssemblySymbolAndMethodMarker(main);    
+        new AssemblySymbolAndMethodMarker(main);
 
         // JavaOnDidTypeProvider.configureEditor(main.getMainEditor());
 
@@ -183,10 +183,10 @@ export class AssemblyLanguage extends ProgrammingLanguage {
             // The main tokenizer for our languages
             tokenizer: {
                 root: [
-                    [/\.[a-zA-Z_]*/, 'identifier.pseudodirective'],
-                    [/[a-zA-Z_]*:/, 'identifier.tag'],
+                    [/\.[a-zäöüßA-ZÄÖÜ_]*/, 'identifier.pseudodirective'],
+                    [/[a-zäöüßA-ZÄÖÜ_][a-zäöüßA-ZÄÖÜ_0-9]*:/, 'identifier.tag'],
                     // identifiers and keywords
-                    [/[a-z_$][\w$]*/, {
+                    [/[a-zäöüßA-ZÄÖÜ_$][\w$]*/, {
                         cases: {
                             '@immediateKeywords': { token: 'keyword', next: '@immediateOperand' },
                             '@keywords': 'keyword',
@@ -212,6 +212,15 @@ export class AssemblyLanguage extends ProgrammingLanguage {
 
                     // delimiter: after number because of .\d floats
                     [/[;,.]/, 'delimiter'],
+
+                    // strings
+                    [/"([^"\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
+                    [/"/, { token: 'string.quote', bracket: '@open', next: '@string' }],
+
+                    // characters
+                    [/'[^\\']'/, 'string'],
+                    [/(')(@escapes)(')/, ['string', 'string.escape', 'string']],
+                    [/'/, 'string.invalid']
 
                 ],
 
@@ -239,6 +248,13 @@ export class AssemblyLanguage extends ProgrammingLanguage {
                     [/\/\*/, 'comment', '@comment'],
                     [/\/\/.*$/, 'comment'],
                 ],
+
+                string: [
+                    [/[^\\"]+/, 'string'],
+                    [/@escapes/, 'string.escape'],
+                    [/\\./, 'string.escape.invalid'],
+                    [/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }]
+                ],
             },
         };
 
@@ -257,7 +273,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         bottomDiv.console?.tab?.setVisible(false);
         let rightDiv = main.getRightDiv();
         rightDiv.classDiagramTab?.setVisible(false);
-        
+
         rightDiv.memoryTab?.setVisible(true);
         (<MemoryTab>rightDiv.memoryTab)?.listenToCompiler(this.getCompiler(main) as AssemblyCompiler);
 
@@ -268,18 +284,18 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         memoryTab?.show();
 
         main.setHorizontalSliderPosition(main.isEmbedded() ? 0.6 : 0.4);
-        
+
         main.getInterpreter().showTriangleAtProgramPointer = false;
 
         setTimeout(() => {
             main.getActionManager().setVisible("interpreter.stepInto", false);
             main.getActionManager().setVisible("interpreter.stepOut", false);
-            main.getActionManager().setVisible("interpreter.restart", false);            
-            main.getActionManager().setVisible("interpreter.startTests", false);            
+            main.getActionManager().setVisible("interpreter.restart", false);
+            main.getActionManager().setVisible("interpreter.startTests", false);
         }, 800);
     }
-    
-    
+
+
     public disable(main: IMain) {
         let bottomDiv = main.getBottomDiv();
         // bottomDiv.jUnitTab?.setVisible(false);

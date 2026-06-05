@@ -6,7 +6,7 @@ import { Thread } from "../common/interpreter/Thread";
 import { ThreadState } from "../common/interpreter/ThreadState";
 import { CompilerFile } from "../common/module/CompilerFile";
 import { IRange, Range } from "../common/range/Range";
-import { AssemblyInstruction, AssemblyInstructionMap, AssemblyLabel, AssemblyParserResult, type AssemblyAssertion } from "./AssemblyParser";
+import { AssemblyInstruction, AssemblyInstructionMap, AssemblyLabel, AssemblyParserResult, type AssemblyAssertion, type AssemblyCompletionItemRange } from "./AssemblyParser";
 import { AssemblyParserMessages } from "./language/AssemblyParserMessages";
 import { Memory } from "./Memory";
 
@@ -49,6 +49,7 @@ export abstract class CPU {
     abstract getTokensWithDescription(): { tokenIdentifier: string, description: () => string }[];
     abstract getPseudoDirectivesWithDescription(): { directiveIdentifier: string, description: () => string, insertText?: string }[];
     abstract getInstructions(): AssemblyInstruction[];
+    
 
     abstract getMemory(): Memory;
 
@@ -213,12 +214,7 @@ export abstract class CPU {
             switch (assertionPart.type) {
                 case "flag":
                     let flags = this.getFlags();
-
-                    let flagIndex = this.flagNamesShort.indexOf(assertionPart.shortFlagName.toLowerCase());
-                    if (flagIndex === -1) {
-                        flagIndex = this.flagNamesShort.indexOf(assertionPart.shortFlagName.toUpperCase());
-                    }
-
+                    let flagIndex = this.flagNamesShort.findIndex(name => name.toLocaleLowerCase() === assertionPart.shortFlagName.toLocaleLowerCase());
                     let currentFlagValue = flags[this.flagNames[flagIndex]];
                     if (currentFlagValue !== assertionPart.flagValue) {
                         allWell = false;
@@ -233,6 +229,14 @@ export abstract class CPU {
                         }
                     }
                     break;
+                case "register":
+                    let registers = this.getRegisterValues();
+                    let registerIndex = this.registerNamesShort.findIndex(name => name.toLocaleLowerCase() === assertionPart.shortRegisterName.toLocaleLowerCase());
+                    let currentRegisterValue = registers[this.registerNames[registerIndex]];
+                    if (currentRegisterValue !== assertionPart.registerValue) {
+                        allWell = false;
+                    }
+                    break;
             }
             if (!allWell) break;
         }
@@ -244,6 +248,8 @@ export abstract class CPU {
                         return part.shortFlagName + ": " + (part.flagValue ? "1" : "0");
                     case "memory":
                         return part.startAddress + ": [" + part.expectedMemoryValues.join(", ") + "]";
+                    case "register":
+                        return part.shortRegisterName + ": " + part.registerValue;
                 }
             }).join(', ') + " }";
 
@@ -251,11 +257,17 @@ export abstract class CPU {
                 switch (part.type) {
                     case "flag":
                         let flags = this.getFlags();
-                        let currentFlagValue = flags[part.shortFlagName.toUpperCase()] ?? flags[part.shortFlagName.toLowerCase()];
+                        let flagIndex = this.flagNamesShort.findIndex(name => name.toLocaleLowerCase() === part.shortFlagName.toLocaleLowerCase());
+                        let currentFlagValue = flags[this.flagNames[flagIndex]];
                         return part.shortFlagName.toUpperCase() + ": " + (currentFlagValue ? "1" : "0");
                     case "memory":
                         let mem = this.getMemory().dump();
                         return part.startAddress + ": [" + mem.slice(part.startAddress, part.startAddress + part.expectedMemoryValues.length).join(", ") + "]";
+                    case "register":
+                        let registers = this.getRegisterValues();
+                        let registerIndex = this.registerNamesShort.findIndex(name => name.toLocaleLowerCase() === part.shortRegisterName.toLocaleLowerCase());
+                        let currentRegisterValue = registers[this.registerNames[registerIndex]];
+                        return part.shortRegisterName + ": " + currentRegisterValue;
                 }
             }).join(', ') + " }";
 
@@ -309,4 +321,7 @@ export abstract class CPU {
 
     }
 
+    getCompletionItemRanges(): AssemblyCompletionItemRange[] {
+        return this.assemblyParserResult.completionItemRanges;
+    }
 }

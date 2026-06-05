@@ -51,36 +51,47 @@ export class AssemblyParserMessages {
         'fr': `Instruction inconnue : ${statement}`
     });
 
-    static AddressExpectedAfterAssertion = () => lm({
-        'de': `Nach .assert wird eine Adresse erwartet, auf die sich die Assertion bezieht. Syntax: .assert <address>: (expectedMemoryValue,[ ])*["message"], z.B. .assert 100: 42, 37, 58 "Falsche Sortierreihenfolge!"`,
-        'en': `After an assertion, an address is expected that the assertion refers to. Syntax: .assert <address>: (expectedMemoryValue,[ ])*["message"], e.g. .assert 100: 42, 37, 58 "Wrong sorting order!"`,
-        'fr': `Après une assertion, une adresse est attendue à laquelle l'assertion se réfère. Syntaxe : .assert <address>: (expectedMemoryValue,[ ])*["message"], ex. .assert 100: 42, 37, 58 "Mauvais ordre de tri!"`
-    });
-
     static MemoryFrom = (address: number) => lm({
         'de': `Speicherbelegung ab ${address}: `,
         'en': `Memory from ${address}: `,
         'fr': `Mémoire à partir de ${address}: `
     });
 
+    static AssertionExample = () => lm({
+        'de': `Hier ein Beispiel für die Syntax einer Assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, A: 120, message: "incorrect cpu state after some instruction" }`,
+        'en': `Here is an example of the syntax of an assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, A: 120, message: "incorrect cpu state after some instruction" }`,
+        'fr': `Voici un exemple de la syntaxe d'une assertion : .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, A: 120, message: "incorrect cpu state after some instruction" }`
+    });
+
     static TokenExpectedInAssertion = (token: string) => lm({
-        'de': `An dieser Stelle in einer Assertion wird das Zeichen ${token} erwartet. Hier ein Beispiel für die Syntax einer Assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
-        'en': `At this position in an assertion, the character ${token} is expected. Here is an example of the syntax of an assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
-        'fr': `À cette position dans une assertion, le caractère ${token} est attendu. Voici un exemple de la syntaxe d'une assertion : .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`
+        'de': `An dieser Stelle in einer Assertion wird das Zeichen ${token} erwartet. ${this.AssertionExample()}`,
+        'en': `At this position in an assertion, the character ${token} is expected. ${this.AssertionExample()}`,
+        'fr': `À cette position dans une assertion, le caractère ${token} est attendu. ${this.AssertionExample()}`
     });
 
     static UnknownFlagInAssertion = (flagName: string, validFlagNames: string[]) => lm({
-        'de': `Unbekannte Flagge in Assertion: ${flagName}. Gültige Flaggen sind: ${validFlagNames.join(", ")}. Hier ein Beispiel für die Syntax einer Assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
-        'en': `Unknown flag in assertion: ${flagName}. Valid flags are: ${validFlagNames.join(", ")}. Here is an example of the syntax of an assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
-        'fr': `Drapeau inconnu dans l'assertion : ${flagName}. Les drapeaux valides sont : ${validFlagNames.join(", ")}. Voici un exemple de la syntaxe d'une assertion : .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`
+        'de': `Unbekannte Flagge in Assertion: ${flagName}. Gültige Flaggen sind: ${validFlagNames.join(", ")}. ${this.AssertionExample()}`,
+        'en': `Unknown flag in assertion: ${flagName}. Valid flags are: ${validFlagNames.join(", ")}. ${this.AssertionExample()}`,
+        'fr': `Drapeau inconnu dans l'assertion : ${flagName}. Les drapeaux valides sont : ${validFlagNames.join(", ")}. ${this.AssertionExample()}`
+    });
+
+    static UnknownRegisterInAssertion = (registerName: string, validRegisterNames: string[]) => lm({
+        'de': `Unbekanntes Register in Assertion: ${registerName}. Gültige Register sind: ${validRegisterNames.join(", ")}. ${this.AssertionExample()}`,
+        'en': `Unknown register in assertion: ${registerName}. Valid registers are: ${validRegisterNames.join(", ")}. ${this.AssertionExample()}`,
+        'fr': `Registre inconnu dans l'assertion : ${registerName}. Les registres valides sont : ${validRegisterNames.join(", ")}. ${this.AssertionExample()}`
     });
 
     static ZeroOrOneExpectedInAssertion = (flagName: string) => lm({
-        'de': `Nach der Flagge ${flagName} in einer Assertion wird eine 0 oder 1 erwartet. Hier ein Beispiel für die Syntax einer Assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
-        'en': `After the flag ${flagName} in an assertion, a 0 or 1 is expected. Here is an example of the syntax of an assertion: .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`,
-        'fr': `Après le drapeau ${flagName} dans une assertion, un 0 ou un 1 est attendu. Voici un exemple de la syntaxe d'une assertion : .assert { 100: [42, 38], 110: 20, N: 1, Z: 0, message: "incorrect cpu state after some instruction" }`
+        'de': `Nach der Flagge ${flagName} in einer Assertion wird eine 0 oder 1 erwartet. ${this.AssertionExample()}`,
+        'en': `After the flag ${flagName} in an assertion, a 0 or 1 is expected. ${this.AssertionExample()}`,
+        'fr': `Après le drapeau ${flagName} dans une assertion, un 0 ou un 1 est attendu. ${this.AssertionExample()}`
     });
 
+    static NumberExpectedAfterRegisterInAssertion = (registerName: string) => lm({
+        'de': `Nach dem Register ${registerName} in einer Assertion wird eine Zahl erwartet. ${this.AssertionExample()}`,
+        'en': `After the register ${registerName} in an assertion, a number is expected. ${this.AssertionExample()}`,
+        'fr': `Après le registre ${registerName} dans une assertion, un nombre est attendu. ${this.AssertionExample()}`
+    });
 
     static AssertionFailed = (message: string) => lm({
         'de': `Assertion fehlgeschlagen: ${message}`,

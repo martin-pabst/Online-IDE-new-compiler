@@ -6,6 +6,8 @@ import { IRange, Range } from "../../common/range/Range.ts";
 import { IMain } from "../../common/IMain.ts";
 import { CPU } from "../CPU.ts";
 import { AssemblyMonacoProvidersMessages } from "./AssemblyMonacoProvidersMessages.ts";
+import type { Completer } from "readline";
+import type { AssemblyCompletionItemRange } from "../AssemblyParser.ts";
 
 export class AssemblyCompletionItemProvider extends BaseMonacoProvider implements monaco.languages.CompletionItemProvider {
     public triggerCharacters: string[] = ' .abcdefghijklmnopqrstuvwxyzäöüß_ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ@'.split('');
@@ -38,6 +40,16 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
         }
 
         let zeroLengthRange: IRange = Range.fromPositions(position);
+
+        let completionItemRange = cpu.getCompletionItemRanges().find(r => Range.containsPosition(r.range, position)) ?? {
+            range: zeroLengthRange,         // not used in this case
+            withLabelCompletionAfterStatements: true,
+            withLabelCompletionAtLineStart: false,
+            withInstructionCompletion: true,
+            withDirectiveCompletion: true,
+            additionalCompletionItems: []
+        };
+
         let suggestions: monaco.languages.CompletionItem[] = [];
 
         let textUntilPosition = model.getValueInRange({ startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column });
@@ -55,7 +67,7 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
             let line: string = model.getLineContent(position.lineNumber);
 
             let text = identifierMatch[1];
-            if(identifierMatch[0] && identifierMatch[0].endsWith('.')) text = '.' + text;
+            if (identifierMatch[0] && identifierMatch[0].endsWith('.')) text = '.' + text;
 
             let rangeToReplace: monaco.IRange =
             {
@@ -63,7 +75,7 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
                 endLineNumber: position.lineNumber, endColumn: position.column
             }
 
-            return this.getCompletionItemsInsideIdentifier(cpu, main, identifierMatch, line, position, rangeToReplace, module);
+            return this.getCompletionItemsInsideIdentifier(cpu, main, identifierMatch, line, position, rangeToReplace, module, completionItemRange);
 
         }
 
@@ -71,21 +83,26 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
     }
 
     getCompletionItemsInsideIdentifier(cpu: CPU, main: IMain, identifierMatch: RegExpMatchArray, line: string,
-        position: monaco.Position, rangeToReplace: monaco.IRange, module: AssemblyModule): monaco.languages.ProviderResult<monaco.languages.CompletionList> {
+        position: monaco.Position, rangeToReplace: monaco.IRange, module: AssemblyModule, 
+        completionItemRange: AssemblyCompletionItemRange): monaco.languages.ProviderResult<monaco.languages.CompletionList> {
 
-        let completionItems: monaco.languages.CompletionItem[] = cpu.getTokensWithDescription().map(token => {
-            return {
-                label: token.tokenIdentifier,
-                kind: monaco.languages.CompletionItemKind.Keyword,
-                documentation: {
-                    value: token.description()
-                },
-                insertText: token.tokenIdentifier + " ",
-                range: rangeToReplace
-            } as monaco.languages.CompletionItem;
-        });
+        let completionItems: monaco.languages.CompletionItem[] = [];
 
-        let pseudoDirectiveCompletionItems: monaco.languages.CompletionItem[] = cpu.getPseudoDirectivesWithDescription().map(directive => {
+        if (completionItemRange.withInstructionCompletion) completionItems = completionItems.concat(
+            cpu.getTokensWithDescription().map(token => {
+                return {
+                    label: token.tokenIdentifier,
+                    kind: monaco.languages.CompletionItemKind.Keyword,
+                    documentation: {
+                        value: token.description()
+                    },
+                    insertText: token.tokenIdentifier + " ",
+                    range: rangeToReplace
+                } as monaco.languages.CompletionItem;
+            }));
+
+        if (completionItemRange.withDirectiveCompletion) completionItems = completionItems.concat(
+        cpu.getPseudoDirectivesWithDescription().map(directive => {
             return {
                 label: directive.directiveIdentifier,
                 kind: monaco.languages.CompletionItemKind.Keyword,
@@ -96,29 +113,44 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
                 insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                 range: rangeToReplace
             } as monaco.languages.CompletionItem;
-        });
+        }));
 
         let labelCompletionItems: monaco.languages.CompletionItem[] = [];
 
         let textUntilPosition = line.substring(0, position.column - 1);
+        let trimmedTextUntilPosition = textUntilPosition.trimStart();
 
-        if (textUntilPosition.trim().length > 0 && textUntilPosition.endsWith(" ")) {
+        if ( (completionItemRange.withLabelCompletionAtLineStart && (trimmedTextUntilPosition.length === 0 || trimmedTextUntilPosition.indexOf(" ") < 0)) ||
+             ( completionItemRange.withLabelCompletionAfterStatements && trimmedTextUntilPosition.length > 0 && (trimmedTextUntilPosition.indexOf(" ") >= 0))) {
             labelCompletionItems = cpu.getLabels().map(label => {
                 return {
-                    label: ":" + label.identifier + (" (0x" + label.address.toString(16) + ")"),
+                    label: ":" + label.identifier + (typeof label.address === "number" ? " (0x" + label.address.toString(16) + ")" : ""),
                     filterText: label.identifier,
                     kind: monaco.languages.CompletionItemKind.Variable,
                     documentation: {
                         value: AssemblyMonacoProvidersMessages.LabelCompletionDescription(label.address)
                     },
+                    detail: "(label)",
                     insertText: label.identifier,
                     range: rangeToReplace
                 } as monaco.languages.CompletionItem;
             });
         }
 
-        return { suggestions: [...completionItems, ...pseudoDirectiveCompletionItems, ...labelCompletionItems] };
+        completionItems = completionItems.concat(labelCompletionItems);
 
+        for(let additionalCompletionItem of completionItemRange.additionalCompletionItems) {
+            completionItems.push({
+                label: additionalCompletionItem.label,
+                kind: monaco.languages.CompletionItemKind.Variable,
+                insertText: additionalCompletionItem.insertText,
+                range: rangeToReplace,
+                detail: additionalCompletionItem.detail,
+                documentation: additionalCompletionItem.documentation
+            } as monaco.languages.CompletionItem);
+        }
+
+        return { suggestions: completionItems };
 
     }
 

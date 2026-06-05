@@ -1,7 +1,7 @@
 import { Error, ErrorLevel } from "../common/Error";
 import { Step } from "../common/interpreter/Step";
 import { CompilerFile } from "../common/module/CompilerFile";
-import { IRange } from "../common/range/Range";
+import { IRange, Range } from "../common/range/Range";
 import { AbiBayernAssemblyMessages } from "./abibayern/AbiBayernAssemblyMessages";
 import { AssemblyToken } from "./AssemblyLexer";
 import { AssemblyTokenType, AssemblyTokenTypeReadable } from "./AssemblyTokenType";
@@ -14,7 +14,8 @@ export type AssemblyCompiledCodePart = {
 
 type AssemblyAssertionPartMemory = {
     type: "memory";
-    startAddress: number;
+    startAddress: number | undefined;
+    range: IRange;      // to mark unresolved labels in assertions
     expectedMemoryValues: number[];
 }
 
@@ -24,9 +25,14 @@ type AssemblyAssertionPartFlag = {
     flagValue: boolean;
 }
 
+type AssemblyAssertionPartRegister = {
+    type: "register";
+    shortRegisterName: string;
+    registerValue: number;
+}
 
 export type AssemblyAssertion = {
-    assertionParts: (AssemblyAssertionPartMemory | AssemblyAssertionPartFlag)[];
+    assertionParts: (AssemblyAssertionPartMemory | AssemblyAssertionPartFlag | AssemblyAssertionPartRegister)[];
     message: string;
 }
 
@@ -35,6 +41,21 @@ export type AssemblyAssertion = {
  */
 export type AssemblyAssertionMap = Map<number, AssemblyAssertion>;
 
+type AdditionalCompletionItem = {
+    label: string;
+    insertText: string;
+    detail?: string;
+    documentation?: string;
+}
+
+export type AssemblyCompletionItemRange = {
+    range: IRange;
+    withLabelCompletionAfterStatements: boolean;
+    withLabelCompletionAtLineStart: boolean;
+    withInstructionCompletion: boolean;
+    withDirectiveCompletion: boolean;
+    additionalCompletionItems: AdditionalCompletionItem[];
+}
 
 export type AssemblyParserResult = {
     file: CompilerFile;
@@ -43,7 +64,6 @@ export type AssemblyParserResult = {
     errors: Error[];
 
     assertionMap: AssemblyAssertionMap;
-
 
     /**
      * Map absolute addresses to source code positions:
@@ -67,6 +87,8 @@ export type AssemblyParserResult = {
     hoverEntries: Map<number, { range: IRange, text: string }[]>;
 
     commentRanges: IRange[];
+
+    completionItemRanges: AssemblyCompletionItemRange[];
 }
 
 export type AssemblyLabel = {
@@ -74,6 +96,7 @@ export type AssemblyLabel = {
     address: number | undefined;
     declaration: IRange;
     unresolvedReferences: { absoluteAddress: number, codePart: AssemblyCompiledCodePart, range: IRange }[];
+    unresolvedAssertionParts: AssemblyAssertionPartMemory[];
     usages: IRange[];
 }
 
@@ -117,6 +140,12 @@ export abstract class AssemblyParser {
 
     hoverEntries: Map<number, { range: IRange, text: string }[]>;
 
+    /**
+     * Ranges in the source code where default code completion is 
+     * unappropriate, e.g. inside directives
+     */
+    completionItemRanges: AssemblyCompletionItemRange[];           
+
     private programCounterRelative: number;
 
     constructor() {
@@ -136,6 +165,7 @@ export abstract class AssemblyParser {
     abstract getAssertionOpcode(): number;
 
     abstract getFlagNamesShort(): string[];
+    abstract getRegisterNamesShort(): string[];
 
 
     initBeforeParsing(tokens: AssemblyToken[]): void {
@@ -152,6 +182,7 @@ export abstract class AssemblyParser {
         this.labelMap = new Map();
         this.hoverEntries = new Map();
         this.assertionMap = new Map();
+        this.completionItemRanges = [];
     }
 
     makeParserResult(file: CompilerFile): AssemblyParserResult {
@@ -166,7 +197,8 @@ export abstract class AssemblyParser {
             labels: Array.from(this.labels.values()),
             hoverEntries: this.hoverEntries,
             assertionMap: this.assertionMap,
-            commentRanges: []
+            commentRanges: [],
+            completionItemRanges: this.completionItemRanges
         }
     }
 
@@ -281,7 +313,11 @@ export abstract class AssemblyParser {
                     let codePart = referenceAddress.codePart;
                     codePart.code[referenceAddress.absoluteAddress - codePart.offset] = label.address;
                 }
+                for (let assertionPart of label.unresolvedAssertionParts) {
+                    assertionPart.startAddress = label.address;
+                }
                 label.unresolvedReferences = [];
+                label.unresolvedAssertionParts = [];
             }
         } else {
             label = {
@@ -289,6 +325,7 @@ export abstract class AssemblyParser {
                 address: this.getProgramCounterAbsolute(),
                 declaration: token.range,
                 unresolvedReferences: [],
+                unresolvedAssertionParts: [],
                 usages: []
             }
             this.labels.set(labelName, label);
@@ -308,7 +345,7 @@ export abstract class AssemblyParser {
         labelMapEntry.push({ label: label, range: range });
     }
 
-    getLabelAddressAbsolute(labelToken: AssemblyToken, absoluteReferenceAddress: number): number | undefined {
+    getLabelAddressAbsolute(labelToken: AssemblyToken, absoluteReferenceAddress: number | undefined, assertionPart: AssemblyAssertionPartMemory | undefined): number | undefined {
         let labelName = labelToken.value as string;
         let label = this.labels.get(labelName);
         if (!label) {
@@ -316,7 +353,8 @@ export abstract class AssemblyParser {
                 identifier: labelName,
                 address: undefined,
                 declaration: labelToken.range,
-                unresolvedReferences: [{ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range }],
+                unresolvedReferences: (typeof absoluteReferenceAddress === "number") ? [{ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range }] : [],
+                unresolvedAssertionParts: assertionPart ? [assertionPart] : [],
                 usages: [labelToken.range]
             };
             this.labels.set(labelName, label);
@@ -329,7 +367,12 @@ export abstract class AssemblyParser {
         label.usages.push(labelToken.range);
 
         if (label.address === undefined) {
-            label.unresolvedReferences.push({ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range });
+            if (typeof absoluteReferenceAddress === "number") {
+                label.unresolvedReferences.push({ absoluteAddress: absoluteReferenceAddress, codePart: this.currentCodePart, range: labelToken.range });
+            }
+            if (assertionPart) {
+                label.unresolvedAssertionParts.push(assertionPart);
+            }
             return undefined;
         }
 
@@ -341,6 +384,9 @@ export abstract class AssemblyParser {
             if (label.address === undefined) {
                 for (let unresolvedReference of label.unresolvedReferences) {
                     this.pushError(AssemblyParserMessages.UnresolvedLabel(label.identifier), "error", unresolvedReference.range);
+                }
+                for (let unresolvedAssertionPart of label.unresolvedAssertionParts) {
+                    this.pushError(AssemblyParserMessages.UnresolvedLabel(label.identifier), "error", unresolvedAssertionPart.range);
                 }
             }
         }
@@ -442,6 +488,8 @@ export abstract class AssemblyParser {
      */
     parseAssertion(assertionToken: AssemblyToken): void {
         this.next();   // consume .assert token
+        let assertionStart = this.currentToken().range;
+
         if (!this.expectOneToken(AssemblyTokenType.leftCurlyBracket, AssemblyParserMessages.TokenExpectedInAssertion("{"), true)) {
             this.readTillBeginOfNextLine();
             return;
@@ -459,8 +507,12 @@ export abstract class AssemblyParser {
                 this.parseMemoryAssertion(assertion);
             } else if (("" + this.currentToken().value).toLowerCase() === "message") {
                 this.parseAssertionMessage(assertion);
-            } else {
+            } else if (this.getFlagNamesShort().includes(("" + this.currentToken().value).toLowerCase())) {
                 this.parseFlagAssertion(assertion);
+            } else if (this.getRegisterNamesShort().includes(("" + this.currentToken().value).toLowerCase())) {
+                this.parseRegisterAssertion(assertion);
+            } else {
+                this.parseMemoryAssertion(assertion);
             }
 
 
@@ -470,7 +522,6 @@ export abstract class AssemblyParser {
             }
             if (!this.expectOneToken(AssemblyTokenType.comma, AssemblyParserMessages.TokenExpectedInAssertion(","), true)) {
                 this.readTillBeginOfNextLine();
-                return;
             }
 
             this.skip(AssemblyTokenType.lineBreak);
@@ -482,11 +533,39 @@ export abstract class AssemblyParser {
         this.addHoverEntry(assertionToken.range,
             AbiBayernAssemblyMessages.AssertHoverComment());
 
+        this.completionItemRanges.push({
+            range: Range.plusRange(assertionStart, this.currentToken().range),
+            withLabelCompletionAfterStatements: false,
+            withLabelCompletionAtLineStart: true,
+            withInstructionCompletion: false,
+            withDirectiveCompletion: false,
+            additionalCompletionItems: this.getAdditionalCompletionItemsRegistersAndFlags()
+        });
+
         if (!this.expectOneToken(AssemblyTokenType.rightCurlyBracket, AssemblyParserMessages.TokenExpectedInAssertion("}"), true)) {
             this.readTillBeginOfNextLine();
             return;
         }
 
+    }
+
+    protected getAdditionalCompletionItemsRegistersAndFlags(): AdditionalCompletionItem[] {
+        let items: AdditionalCompletionItem[] = [];
+        for (let register of this.getRegisterNamesShort()) {
+            items.push({
+                label: register,
+                insertText: register + ": ",
+                detail: "(register)"
+            });
+        }
+        for (let flag of this.getFlagNamesShort()) {
+            items.push({
+                label: flag,
+                insertText: flag + ": ",
+                detail: "(flag)"
+            });
+        }
+        return items;
     }
 
     private parseFlagAssertion(assertion: AssemblyAssertion): void {
@@ -516,6 +595,34 @@ export abstract class AssemblyParser {
         this.next();
     }
 
+    private parseRegisterAssertion(assertion: AssemblyAssertion): void {
+        let registerName = (this.currentToken().value as string).toLowerCase();
+        if (!this.getRegisterNamesShort().some(r => r.toLowerCase() === registerName)) {
+            this.pushError(AssemblyParserMessages.UnknownRegisterInAssertion(registerName, this.getRegisterNamesShort()), "error", this.currentToken().range);
+            this.readTillBeginOfNextLine();
+            return;
+        }
+        this.next();
+        if (!this.expectOneToken(AssemblyTokenType.colon, AssemblyParserMessages.TokenExpectedInAssertion(":"), true)) {
+            this.readTillBeginOfNextLine();
+            return;
+        }
+        if (!this.isToken(AssemblyTokenType.number)) {
+            this.pushError(AssemblyParserMessages.NumberExpectedAfterRegisterInAssertion(registerName), "error", this.currentToken().range);
+            this.readTillBeginOfNextLine();
+            return;
+        }
+
+        let registerValue = (this.currentToken().value as number);
+
+        assertion.assertionParts.push({
+            type: "register",
+            shortRegisterName: registerName,
+            registerValue: registerValue
+        });
+        this.next();
+    }
+
     private parseAssertionMessage(assertion: AssemblyAssertion): void {
         this.next(); // skip "message" identifier token
         if (!this.expectOneToken(AssemblyTokenType.colon, AssemblyParserMessages.TokenExpectedInAssertion(":"), true)) {
@@ -532,7 +639,23 @@ export abstract class AssemblyParser {
 
 
     private parseMemoryAssertion(assertion: AssemblyAssertion): void {
-        let address = this.currentToken().value as number;
+        let addressToken = this.currentToken();
+
+        let assertionPart: AssemblyAssertionPartMemory = {
+            type: "memory",
+            startAddress: undefined,   // will be set later; needs to be initialized to satisfy type checker
+            range: addressToken.range,
+            expectedMemoryValues: []
+        };
+
+        if (addressToken.type === AssemblyTokenType.number) {
+            if (this.checkIfTokenIs16BitUnsignedNumber(addressToken)) {
+                assertionPart.startAddress = addressToken.value as number;
+            }
+        } else if (addressToken.type === AssemblyTokenType.identifier) {
+            assertionPart.startAddress = this.getLabelAddressAbsolute(addressToken, undefined, assertionPart);
+        }
+
         this.next();
         if (!this.expectOneToken(AssemblyTokenType.colon, AssemblyParserMessages.TokenExpectedInAssertion(":"), true)) {
             this.readTillBeginOfNextLine();
@@ -544,11 +667,8 @@ export abstract class AssemblyParser {
             if (this.checkIfTokenIs16BitUnsignedNumber(this.currentToken())) {
                 let expectedValue = this.currentToken().value as number;
                 this.next();
-                assertion.assertionParts.push({
-                    type: "memory",
-                    startAddress: address,
-                    expectedMemoryValues: [expectedValue]
-                });
+                assertionPart.expectedMemoryValues.push(expectedValue);
+                assertion.assertionParts.push(assertionPart);
                 return;
             }
         }
@@ -578,10 +698,9 @@ export abstract class AssemblyParser {
             return;
         }
 
-        assertion.assertionParts.push({
-            type: "memory",
-            startAddress: address,
-            expectedMemoryValues: expectedMemoryValues
-        });
+        assertionPart.expectedMemoryValues = expectedMemoryValues;
+        assertion.assertionParts.push(assertionPart);
     }
+
+    
 }
