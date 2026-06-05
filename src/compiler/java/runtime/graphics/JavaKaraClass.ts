@@ -22,7 +22,7 @@ type Position = {
 }
 
 enum DirectionDelta {
-    left = 1, right = -1, front = 0, none
+    left = 1, right = -1, front = 0, none = 2
 }
 
 export class JavaKaraWorldClass extends FilledShapeClass {
