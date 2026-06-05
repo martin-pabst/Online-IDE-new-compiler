@@ -1,0 +1,29 @@
+name: Push PR to Preview Branch
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Prevent concurrent runs from colliding when pushing to the same preview branch
+concurrency:
+  group: push-preview
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  push-to-preview:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Push to preview branch
+        run: |
+          git fetch origin
+          git push origin HEAD:refs/heads/preview --force
