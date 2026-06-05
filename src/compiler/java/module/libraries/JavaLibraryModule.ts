@@ -36,4 +36,8 @@ export abstract class JavaLibraryModule extends JavaBaseModule {
 
         return '';
     }
+
+    clearAllBreakpoints(): void {
+        // Nothing to do   
+    }
 }

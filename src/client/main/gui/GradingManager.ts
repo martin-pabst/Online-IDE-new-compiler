@@ -25,7 +25,7 @@ export class GradingManager {
 
     constructor(private main: Main, tabManager: TabManager) {
 
-        this.tab = new Tab(GradingManagerMessages.evaluation(), ["jo_gradingTab"]);
+        this.tab = new Tab('Grading',GradingManagerMessages.evaluation(), ["jo_gradingTab"]);
         tabManager.addTab(this.tab);
         this.$gradingTab = jQuery(this.tab.bodyDiv);
 

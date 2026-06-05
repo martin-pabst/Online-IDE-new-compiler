@@ -51,7 +51,7 @@ export class JavaRepl extends Repl {
         this.getInterpreter().eventManager.on("resetRuntime", () => {
             this.state = "none";
             let executable = <JavaExecutable> this.getInterpreter().executable;
-            if (executable) this.init(executable);
+            if (executable && executable instanceof JavaExecutable) this.init(executable);
         })
     }
 

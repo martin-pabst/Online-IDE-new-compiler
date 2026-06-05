@@ -37,13 +37,6 @@ export class Disassembler {
     constructor(parentElement: HTMLElement, private main: IMain) {
         parentElement.innerHTML = "";
         this.disassemblerDiv = DOM.makeDiv(parentElement, 'jo_disassemblerDiv', 'jo_scrollable');
-        let compiler = this.main.getCompiler();
-        compiler.eventManager.on("compilationFinishedWithNewExecutable", (executable: Executable) => {
-            setTimeout(() => {
-                this.currentModule = undefined;
-                this.disassemble();
-            }, 300);
-        });
 
         this.main.getInterpreter().eventManager.on("showProgramPointer", () => {
             let step = this.main.getInterpreter().scheduler.getNextStep();
@@ -73,7 +66,7 @@ export class Disassembler {
 
     disassembleModule(module: Module | undefined) {
         if (!module) return;
-        if (module == this.currentModule) return;
+        // if (module == this.currentModule) return;
 
         this.clear();
         this.currentModule = module;

@@ -18,10 +18,10 @@ import { JavaCodeActionProvider } from "./monacoproviders/quickfix/JavaCodeActio
 import { JavaRepl as JavaRepl } from "./parser/repl/JavaRepl";
 import * as monaco from 'monaco-editor'
 import { JUnitTestrunner } from "../common/testrunner/JUnitTestrunner.ts";
-import { Disassembler } from "../common/disassembler/Disassembler.ts";
-import type { Main } from "../../client/main/Main.ts";
 import { JavaLibraryManager } from "./runtime/JavaLibraryManager.ts";
 import { LibraryManager } from "../common/programminglanguage/LibraryManager.ts";
+import { DebuggerType } from "../common/debugger/Debugger.ts";
+import { ProgrammingLanguageData } from "../common/programminglanguage/ProgrammingLanguageData.ts";
 
 export class JavaLanguage extends ProgrammingLanguage {
 
@@ -32,7 +32,7 @@ export class JavaLanguage extends ProgrammingLanguage {
     private libraryManager: LibraryManager = new JavaLibraryManager();
 
     private constructor() {
-        super("Java", "java", "myJava");
+        super(ProgrammingLanguageData.Java.name, ProgrammingLanguageData.Java.fileEndingWithOutDot, ProgrammingLanguageData.Java.monacoLanguageSelector);
         this.registerLanguageAtMonacoEditor();
         this.registerProviders();
     }
@@ -44,7 +44,6 @@ export class JavaLanguage extends ProgrammingLanguage {
 
         return JavaLanguage.instance;
     }
-
 
     public registerMain(main: IMain, errorMarker: ErrorMarker) {
         let compiler = new JavaCompiler(main, errorMarker);
@@ -80,8 +79,7 @@ export class JavaLanguage extends ProgrammingLanguage {
         new JavaColorProvider(this);
 
         let formatter = new JavaFormatter(this);
-        monaco.languages.registerDocumentFormattingEditProvider(this.monacoLanguageSelector, formatter);
-        monaco.languages.registerOnTypeFormattingEditProvider(this.monacoLanguageSelector, formatter);
+
         monaco.languages.registerCodeActionProvider(this.monacoLanguageSelector, new JavaCodeActionProvider(this));
     }
 
@@ -307,7 +305,18 @@ export class JavaLanguage extends ProgrammingLanguage {
         let rightDiv = main.getRightDiv();
         if (rightDiv) {
             rightDiv.classDiagramTab?.setVisible(true);
+            rightDiv.memoryTab?.setVisible(false);
         }
+        main.getInterpreter().showTriangleAtProgramPointer = true;
+
+        setTimeout(() => {            
+            main.getActionManager().setVisible("interpreter.stepOver", true);
+            main.getActionManager().setVisible("interpreter.stepInto", true);
+            main.getActionManager().setVisible("interpreter.stepOut", true);
+            main.getActionManager().setVisible("interpreter.restart", true);
+            main.getActionManager().setVisible("interpreter.startTests", true);
+        }, 800);
+
     }
 
     public disable(main: IMain) {
@@ -331,4 +340,9 @@ export class JavaLanguage extends ProgrammingLanguage {
     getLibraryManager(): LibraryManager {
         return this.libraryManager;
     }
+
+    getDebuggerType(): DebuggerType {
+        return "java";
+    }
+
 }

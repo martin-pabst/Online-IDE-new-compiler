@@ -59,20 +59,32 @@ export class ViteTestAssertions implements DummyAssertionObserver {
         this.logFailedTest(thread, step, "Intentional fail", message);
     }
 
+    notifyOnAssemblyAssertion(thread: Thread, step: Step, expected: string, actual: string, message: string): void {
+        if (expected !== actual) {
+            this.logFailedTest(thread, step, message, "Expected: " + chalk.green(expected) + ", actual: " + chalk.yellow(actual));
+        }
+    }
+
 
     logFailedTest(thread: Thread, step: Step, message: string, detail: string) {
         console.log(chalk.red("Test failed: ") + message);
         console.log(chalk.gray("Details:     ") + detail);
-        if (step && step.range) {
+
+        let range = step.range;
+        if(thread.hasCPU()){
+            range = thread.__cpu.getRangeOfCurrentInstruction();
+        }
+
+        if (step && range) {
             console.log(chalk.gray("Position:    ") + chalk.white("Line ") +
-                chalk.blue(step.range.startLineNumber! + this.lineOffset) + chalk.white(", Column ") +
-                chalk.blue(step.range.startColumn))
+                chalk.blue(range.startLineNumber! + this.lineOffset) + chalk.white(", Column ") +
+                chalk.blue(range.startColumn))
 
             let fileText = thread.currentProgramState.program.module.file.getText();
             // console.log(chalk.gray("Context:"));
 
             for (let i = -4; i <= 2; i++) {
-                let line = step.range.startLineNumber! + i;
+                let line = range.startLineNumber! + i;
                 if (i == 0) {
                     console.log(chalk.blue(threeDez(line + this.lineOffset) + ": ") + chalk.italic.white(getLine(fileText, line)))
                 } else {

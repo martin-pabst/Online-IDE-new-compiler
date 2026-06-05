@@ -118,6 +118,7 @@ export class ThemeManager {
                 "--deValue": "white",
                 "--debugger-fieldIdentifier": "#e6e92c",
                 "--debugger-localVariableIdentifier": "#4ffa2c",
+                "--memorytab-tableheadings": "#a7afe2",
 
 
                 // Helper
@@ -137,6 +138,12 @@ export class ThemeManager {
 
                 //console
                 "--console-fieldidentifier": "#e6e92c",
+
+                //junit
+                "--junit-details-color": "#a0a0a0",
+                "--junit-expected-color": "#2fed4f",
+                "--junit-actual-color": "#e06d4d",
+
             }
         });
 
@@ -218,7 +225,7 @@ export class ThemeManager {
                 "--deValue": "#0000a0",
                 "--debugger-fieldIdentifier": "#855c27ff",
                 "--debugger-localVariableIdentifier": "#25940fff",
-
+                "--memorytab-tableheadings": "#5364d8",
 
                 // Helper
                 "--helper-background-color": "#f3f3f3",
@@ -238,6 +245,11 @@ export class ThemeManager {
                 //console
                 "--console-fieldidentifier": "#b37c35ff",
 
+                //junit
+                "--junit-details-color": "#6d6c6c",
+                "--junit-expected-color": "#1a8f2e",
+                "--junit-actual-color": "#964731",
+
             }
         });
 
@@ -254,8 +266,11 @@ export class ThemeManager {
                 { token: 'print', foreground: 'dcdcaa', fontStyle: 'italic bold' },
                 { token: 'class', foreground: '3DC9B0' },
                 { token: 'number', foreground: 'b5cea8' },
+                { token: 'number.immediate', foreground: 'e0e0e0', fontStyle: 'italic' },
                 { token: 'type', foreground: '499cd6' },
-                { token: 'identifier', foreground: '9cdcfe' },
+                { token: 'identifier', foreground: '#668aff' },
+                { token: 'identifier.pseudodirective', foreground: '#92929294' },
+                { token: 'identifier.tag', foreground: '#a566cd' },
                 { token: 'statement', foreground: 'bb96c0', fontStyle: 'bold' },
                 { token: 'keyword', foreground: '68bed4', fontStyle: 'bold' },
                 { token: 'string3', foreground: 'ff0000' },
@@ -280,9 +295,12 @@ export class ThemeManager {
                 { token: 'method', foreground: '694E16', fontStyle: 'italic bold' },
                 { token: 'print', foreground: '811f3f', fontStyle: 'italic bold' },
                 { token: 'class', foreground: 'a03030' },
-                { token: 'number', foreground: '404040' },
+                { token: 'number', foreground: '505050' },
+                { token: 'number.immediate', foreground: '202020', fontStyle: 'italic' },
                 { token: 'type', foreground: '0000ff', fontStyle: 'bold' },
                 { token: 'identifier', foreground: '001080' },
+                { token: 'identifier.pseudodirective', foreground: '#85858594' },
+                { token: 'identifier.tag', foreground: '#7c34a9' },
                 { token: 'statement', foreground: '8000e0', fontStyle: 'bold' },
                 { token: 'keyword', foreground: '00a000', fontStyle: 'bold' },
                 { token: 'comment', foreground: '808080', fontStyle: 'italic' },

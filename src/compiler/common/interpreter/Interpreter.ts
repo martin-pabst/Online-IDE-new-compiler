@@ -2,7 +2,7 @@ import { ActorManager } from "../../java/runtime/graphics/ActorManager.ts";
 import { IWorld } from "../../java/runtime/graphics/IWorld.ts";
 import { IAssertionObserver } from "../../java/runtime/unittests/IAssertionObserver.ts";
 import { BreakpointManager } from "../BreakpointManager.ts";
-import { Debugger } from "../debugger/Debugger.ts";
+import { JavaDebugger } from "../../java/debugger/JavaDebugger.ts";
 import { Executable } from "../Executable.ts";
 import { IMain } from "../IMain.ts";
 import { Module } from "../module/Module.ts";
@@ -27,6 +27,7 @@ import { GUIFile } from "../../../client/workspace/File.ts";
 import { GuiMessages } from "../../../client/main/gui/language/GuiMessages.ts";
 import { ArrayClassSimulator } from "../../java/runtime/system/javalang/ArrayClassSimulator.ts";
 import { JavaExecutable } from "../../java/JavaExecutable.ts";
+import { Debugger } from "../debugger/Debugger.ts";
 
 
 type InterpreterEvents = "stop" | "done" | "resetRuntime" | "stateChanged" |
@@ -61,12 +62,13 @@ export class Interpreter {
 
     #actions: string[] = ["start", "pause", "stop", "stepOver",
         "stepInto", "stepOut", "restart"];
-    //SchedulerLstatus { done, running, paused, not_initialized }
 
-    // buttonActiveMatrix[button][i] tells if button is active at
-    // SchedulerState i
-    // export enum SchedulerState { not_initialized, running, paused, stopped, error }
 
+    /*
+     * SchedulerState: not_initialized, running, paused, stopped, error
+     * buttonActiveMatrix[button][i] tells if button is active at
+     * SchedulerState i
+     */
     #buttonActiveMatrix: { [buttonName: string]: boolean[] } = {
         "start": [false, false, true, true, true],
         "pause": [false, true, false, false, false],
@@ -85,6 +87,8 @@ export class Interpreter {
     public stepsPerSecondGoal: number | undefined = 1e8;
     public isMaxSpeed: boolean = true;
 
+    public showTriangleAtProgramPointer: boolean = true;
+
     private speedBeforeProgramStart: {
         stepsPerSecond: number | undefined,
         isMaxSpeed: boolean
@@ -97,7 +101,6 @@ export class Interpreter {
         public graphicsManager?: GraphicsManager,
         public keyboardManager?: KeyboardManager,
         public breakpointManager?: BreakpointManager,
-        public _debugger?: Debugger,
         public programPointerManager?: ProgramPointerManager,
         public inputManager?: IInputManager,
         public fileManager?: IFileManager,
@@ -163,7 +166,7 @@ export class Interpreter {
 
         }
 
-        if(this.#timerId) clearInterval(this.#timerId);
+        if (this.#timerId) clearInterval(this.#timerId);
 
         this.#timerId = setInterval(periodicFunction, this.#timerIntervalMs);
 
@@ -230,7 +233,7 @@ export class Interpreter {
                         className: "jo_revealProgramPointer",
                         rulerColor: "#6fd61b",
                         minimapColor: "#6fd61b",
-                        beforeContentClassName: "jo_revealProgramPointerBefore"
+                        beforeContentClassName: this.showTriangleAtProgramPointer ? "jo_revealProgramPointerBefore" : undefined
                     })
 
                 }
@@ -262,7 +265,7 @@ export class Interpreter {
     }
 
     updateDebugger() {
-        this._debugger?.showCurrentThreadState();
+        this.main?.getDebugger()?.updateView();
     }
 
     /**
@@ -310,7 +313,7 @@ export class Interpreter {
             this.resetRuntime();
         }
 
-        step.setBreakpoint(true);
+        step.setBreakpoint(lineNo, true);
 
 
         this.start(undefined, false);
@@ -344,7 +347,7 @@ export class Interpreter {
 
     }
 
-    start(fileToStart?: GUIFile, resetRuntime: boolean = true) {
+    start(fileToStart?: GUIFile, resetRuntime: boolean = true, showProgramPointerBeforeFirstStep: boolean = false) {
         // this.main.getBottomDiv()?.console?.clearErrors();
 
         this.main?.getBottomDiv()?.errorManager?.hideAllErrorDecorations();
@@ -362,7 +365,11 @@ export class Interpreter {
             isMaxSpeed: this.isMaxSpeed
         };
 
-        this.hideProgrampointerPosition();
+        if (showProgramPointerBeforeFirstStep && this.stepsPerSecondGoal < 20) {
+            this.showProgramPointer(this.scheduler.getNextStepPosition());
+        } else {
+            this.hideProgrampointerPosition();
+        }
 
         this.scheduler.keepThread = false;
         this.scheduler.resetLastTimeExecutedTimestamps();
@@ -404,7 +411,8 @@ export class Interpreter {
         this.actionManager.registerAction("interpreter.start", ['F5'], InterpreterMessages.runProgram(),
             () => {
                 if (this.actionManager!.isActive("interpreter.start")) {
-                    this.start();
+
+                    this.start(undefined, true, true);
                 } else {
                     this.pause();
                 }
@@ -423,7 +431,7 @@ export class Interpreter {
 
         this.actionManager.registerAction("interpreter.stop", [], InterpreterMessages.stop(),
             () => {
-                if (this.main?.getRepl().state == "standalone") {
+                if (this.main?.getRepl()?.state == "standalone") {
                     this.main?.getRepl().init(this.executable);
                     this.setState(SchedulerState.stopped);
                 } else {
@@ -508,7 +516,7 @@ export class Interpreter {
         let runningStates: SchedulerState[] = [SchedulerState.paused, SchedulerState.running];
         if (runningStates.indexOf(this.scheduler.state) >= 0 && runningStates.indexOf(state) < 0) {
             this.keyboardManager?.unsubscribeAllListeners();
-            if (this.main?.getRepl().state != "standalone") {
+            if (this.main?.getRepl()?.state != "standalone") {
                 this.main?.hideDebugger();
             }
         }
@@ -614,10 +622,12 @@ export class Interpreter {
         }
 
         this.setState(SchedulerState.stopped);
+        this.programPointerManager?.hideAll();
+
         this.#mainThread = this.scheduler.init(executable, mainModule, setOneTimeBreakpointAtFirstVisibleLine);
 
         if (this.#mainThread) {
-            if(executable instanceof JavaExecutable) {
+            if (executable instanceof JavaExecutable) {
                 this.codeReachedAssertions.init(executable.getModuleManager());
             }
             this.#mainThread.maxStepsPerSecond = this.stepsPerSecondGoal;
@@ -626,8 +636,8 @@ export class Interpreter {
     }
 
     hideProgrampointerPosition(tag?: string) {
-        this.programPointerManager?.hideAll();
-        // this.programPointerManager?.hide(tag || Interpreter.#ProgramPointerIndentifier);
+        // this.programPointerManager?.hideAll();
+        this.programPointerManager?.hide(tag || Interpreter.#ProgramPointerIndentifier);
         this.eventManager.fire("hideProgramPointer");
     }
 

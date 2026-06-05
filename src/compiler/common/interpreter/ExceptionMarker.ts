@@ -14,12 +14,9 @@ export class ExceptionMarker {
   constructor(private main: IMain) {
   }
 
-  markException(exception: IThrowable | { file: CompilerFile, range: IRange | undefined }, step: Step) {
+  markExceptionByFileAndRange(file: CompilerFile, range: IRange | undefined) {
 
     this.removeExceptionMarker();
-
-    let file = exception.file;
-    let range = exception.range;
 
     if (!file || !range) return;
 
@@ -43,13 +40,25 @@ export class ExceptionMarker {
     })
 
     setTimeout(() => {
-      this.main.getDisassembler()?.markException(step);
-
       // event stop is also fired when compiler sends new Executable to interpreter!
       this.main.getInterpreter().eventManager.once("stop", () => {
         this.removeExceptionMarker();
       })
 
+    }, 1100);
+
+  }
+
+  markException(exception: IThrowable | { file: CompilerFile, range: IRange | undefined }, step: Step) {
+
+
+    let file = exception.file;
+    let range = exception.range;
+
+    this.markExceptionByFileAndRange(file!, range);
+
+    setTimeout(() => {
+      this.main.getDisassembler()?.markException(step);
     }, 1000);
 
   }

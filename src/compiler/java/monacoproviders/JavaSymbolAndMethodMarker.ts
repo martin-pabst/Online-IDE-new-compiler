@@ -9,7 +9,7 @@ export class JavaSymbolAndMethodMarker {
 
     constructor(private main: IMain) {
         if (!main.getMainEditor()) {
-            console.error("Call construction of JavaSymbolMarker before creation of monaco editor.");
+            console.error("Call of construction of JavaSymbolMarker after creation of monaco editor.");
             return;
         }
 
@@ -71,6 +71,7 @@ export class JavaSymbolAndMethodMarker {
     private markMethodUnderCursor(editor: monaco.editor.IStandaloneCodeEditor,
         module: JavaCompiledModule, position: monaco.Position, decorations: monaco.editor.IModelDeltaDecoration[]) {
 
+        if(!(module instanceof JavaCompiledModule)) return;    
         let methodRange = module.methodDeclarationRanges.find(range => Range.containsPosition(range, position));
 
         if (methodRange) {

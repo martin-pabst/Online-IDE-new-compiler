@@ -9,6 +9,8 @@ export interface IAssertionObserver {
     notifyOnAssertEqualsString(thread: Thread, step: Step, expected: string, actual: string, message: string): void;
     notifyOnAssertEqualsObject(thread: Thread, step: Step, expected: string, actual: string, message: string): void;
     notifyOnFail(thread: Thread, step: Step, message: string): void;
+
+    notifyOnAssemblyAssertion(thread: Thread, step: Step, expectedMemoryState: string, actualMemoryState: string, message: string): void;
 }
 
 export class DummyAssertionObserver implements IAssertionObserver {
@@ -32,6 +34,9 @@ export class DummyAssertionObserver implements IAssertionObserver {
     }
 
     notifyOnFail(thread: Thread, step: Step, message: string): void {
+    }
+
+    notifyOnAssemblyAssertion(thread: Thread, step: Step, expectedMemoryState: string, actualMemoryState: string, message: string): void {
     }
 
 }

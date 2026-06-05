@@ -559,17 +559,20 @@ export class SettingsMessages {
 
     static ContextSensitiveHelpDescription = () => lm({
         'de': `Hier können Sie einstellen, ob in bestimmten Bereichen der Anwendung kontextsensitive Hilfetexte angezeigt werden sollen.`,
-        'en': `Here you can set whether context-sensitive help texts should be displayed in certain areas of the application.`
+        'en': `Here you can set whether context-sensitive help texts should be displayed in certain areas of the application.`, 
+        'fr': `Ici, vous pouvez définir si des textes d'aide contextuels doivent être affichés dans certaines zones de l'application.`
     });
 
     static ContextSensitiveHelpParameterHintsName = () => lm({
         'de': `Parameterhinweise`,
-        'en': `Parameter hints`
+        'en': `Parameter hints`,
+        'fr': `Indications de paramètres`
     });
 
     static ContextSensitiveHelpParameterHintsDescription = () => lm({
         'de': `Hier können Sie einstellen, ob dann, wenn sich der Cursor in einem Methodenaufruf befindet, Hinweise zu den Parametern dieser Methode angezeigt werden sollen. <br>`,
-        'en': `Here you can set whether hints about the parameters of a method should be displayed whenever the cursor is inside a method call.`
+        'en': `Here you can set whether hints about the parameters of a method should be displayed whenever the cursor is inside a method call.`,
+        'fr': `Ici, vous pouvez définir si des indications sur les paramètres d'une méthode doivent être affichées lorsque le curseur est à l'intérieur d'un appel de méthode.`
     });
     static ClassDiagramDrawCompositionDiamond = () => lm({
         'de': `Kompositionsbeziehungen mit Raute darstellen`,
@@ -627,5 +630,17 @@ export class SettingsMessages {
         'de': `Nein`,
         'en': `No`,
         'fr': `Non`
+    });
+
+    static AddWorkspaceAssemblyName = () => lm({
+        'de': `Assembler zur Sprachauswahl hinzufügen`,
+        'en': `Add assembly to language selection`,
+        'fr': `Ajouter l'assembleur à la sélection de langue`
+    });
+
+    static AddWorkspaceAssemblyDescription = () => lm({
+        'de': `Hier können Sie einstellen, ob die Sprache "Assembler" in der Sprachauswahl hinzugefügt werden soll.`,
+        'en': `Here you can set whether the language "Assembler" should be added to the language selection.`,
+        'fr': `Ici, vous pouvez définir si le langage "Assembler" doit être ajouté à la sélection de langue.`
     });
 }

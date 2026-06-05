@@ -205,7 +205,7 @@ export class Sliderknob {
         }
     }
 
-    private initSliderknobPosition() {
+    public initSliderknobPosition() {
 
         let left = 0;
         let top = 0;

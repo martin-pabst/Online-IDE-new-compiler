@@ -18,7 +18,7 @@ export class ViewModeController {
     rightDivWidth: number;
     editorWidth: number;
 
-    sliders: Sliders;
+    private sliders: Sliders;
 
     constructor(private $buttonsContainer: JQuery<HTMLElement>, private main: Main) {
 
@@ -179,8 +179,18 @@ export class ViewModeController {
         this.setMode(settings.viewModes.viewModeChosen, false);
     }
 
+    callbacksWhenSlidersRegistered: ((value: Sliders | PromiseLike<Sliders>) => void)[] = [];
     registerSliders(sliders: Sliders) {
         this.sliders = sliders;
+        this.callbacksWhenSlidersRegistered.forEach((callback) => callback(sliders));
+    }
+
+    async getSliders(): Promise<Sliders> {
+        if(this.sliders) return this.sliders;
+
+        return new Promise((resolve) => {
+            this.callbacksWhenSlidersRegistered.push(resolve);
+        });
     }
 
 }

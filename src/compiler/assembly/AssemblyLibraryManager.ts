@@ -1,7 +1,7 @@
 import { Compiler } from "../common/Compiler";
 import { LibraryData, LibraryManager } from "../common/programminglanguage/LibraryManager";
 
-export class AssemblerLibraryManager implements LibraryManager {
+export class AssemblyLibraryManager implements LibraryManager {
 
     addLibrariesToCompiler(compiler: Compiler): void {
     }

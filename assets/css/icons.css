@@ -370,6 +370,13 @@
       background-image: url('../icons/file-dark-java.svg');
    }
 
+   .img_file-dark-assembly {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/file-dark-assembly.svg');
+   }
+
    .img_file-dark-json {
       width: 16px;
       height: 16px;
@@ -860,11 +867,11 @@
       background-image: url('../icons/whole-window.svg');
    }
 
-   .img_workspace-dark-repository {
+   .img_workspace-repository-dark {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/workspace-dark-repository.svg');
+      background-image: url('../icons/workspace-repository-dark.svg');
    }
 
    .img_workspace-dark {
@@ -872,6 +879,48 @@
       height: 16px;
       background-repeat: no-repeat;
       background-image: url('../icons/workspace-dark.svg');
+   }
+
+   .img_workspace-java-repository-dark {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/workspace-java-repository-dark.svg');
+   }
+
+   .img_workspace-java-dark {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/workspace-java-dark.svg');
+   }
+
+   .img_workspace-assembly-repository-dark {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/workspace-assembly-repository-dark.svg');
+   }
+
+   .img_workspace-assembly-dark {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/workspace-assembly-dark.svg');
+   }
+
+   .img_workspace-python-repository-dark {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/workspace-python-repository-dark.svg');
+   }
+
+   .img_workspace-python-dark {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/workspace-python-dark.svg');
    }
 
 

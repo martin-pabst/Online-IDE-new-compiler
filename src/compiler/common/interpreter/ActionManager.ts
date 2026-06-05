@@ -161,6 +161,20 @@ export class ActionManager {
 
     }
 
+    public setVisible(actionIdentifier: string, visible: boolean){
+        let buttons = this.buttons[actionIdentifier];
+        if(buttons != null){
+            for(let button of buttons){
+                if(visible){
+                    button.show();
+                } else {
+                    button.hide();
+                }
+            }
+        }
+
+    }
+
     public executeKeyDownEvent(event: JQuery.KeyDownEvent) {
 
         if(document.activeElement?.tagName.toLowerCase() == "input"){

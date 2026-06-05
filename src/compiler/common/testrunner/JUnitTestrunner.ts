@@ -17,6 +17,7 @@ import * as monaco from 'monaco-editor';
 import compileGifUrl from '/assets/graphics/compile.gif'
 import { GUIFile } from "../../../client/workspace/File";
 import { JavaExecutable } from "../../java/JavaExecutable";
+import { ProgrammingLanguageData } from "../programminglanguage/ProgrammingLanguageData";
 
 
 
@@ -124,6 +125,7 @@ export class JUnitTestrunner {
     }
 
     onAfterExecutableInitialized(executable: JavaExecutable) {
+        if(!(executable instanceof JavaExecutable)) return;
         this.markTestsInEditor(executable);
         this.testTreeview.clear();
         new JUnitTreeviewEntry(this, undefined, executable.getModuleManager(), undefined, undefined);
@@ -147,7 +149,7 @@ export class JUnitTestrunner {
 
             if (size == 0) {
                 let example = JUnitTestrunnerLanguage.noTestsAvailableExampleProgram();
-                monaco.editor.colorize(example, "myJava", {}).then(
+                monaco.editor.colorize(example, ProgrammingLanguageData.Java.monacoLanguageSelector, {}).then(
                     (html) => {
                         this.outputDiv.setHTMLUnsafe(JUnitTestrunnerLanguage.noTestsAvailableHtml(html));
                     }

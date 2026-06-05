@@ -5,7 +5,7 @@ import { CodeTemplate } from "../codegenerator/CodeTemplate";
 import { JavaBaseModule } from "../module/JavaBaseModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { BinaryOperator, UnaryPrefixOperator } from "../parser/AST";
-import { GenericTypeParameters, GenericTypeParameter } from "./GenericTypeParameter";
+import { GenericTypeParameter } from "./GenericTypeParameter";
 import { GenericVariantOfJavaClass } from "./JavaClass";
 import { GenericVariantOfJavaInterface } from "./JavaInterface";
 import { JavaType } from "./JavaType";

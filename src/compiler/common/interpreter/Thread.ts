@@ -21,8 +21,8 @@ import { CallbackFunction, KlassObjectRegistry } from "./StepFunction.ts";
 import { SystemException } from "./SystemException.ts";
 import { ThreadState } from "./ThreadState.ts";
 import { IThrowable, Stacktrace } from "./ThrowableType.ts";
-import { CPU } from "../../assembler/CPU.ts";
-import { Memory } from "../../assembler/Memory.ts";
+import { CPU } from "../../assembly/CPU.ts";
+import { Memory } from "../../assembly/Memory.ts";
 
 
 export type ThreadStateInfoAfterRun = {
@@ -79,8 +79,7 @@ export class Thread {
     /**
      * For Assembler programs
      */
-    memory: Memory; 
-    cpu: CPU;
+    __cpu: CPU;
 
 
     get assertionObservers() {
@@ -866,6 +865,10 @@ export class Thread {
         let array = this.#lastCheckedArrays.pop();
         if (index < 0 || index >= array!.length) throw new IndexOutOfBoundsExceptionClass(InterpreterMessages.ArrayIndexOutOfBoundsException(index, array!.length, dimension));
         return index;
+    }
+
+    hasCPU(){
+        return !!this.__cpu;
     }
 
 }

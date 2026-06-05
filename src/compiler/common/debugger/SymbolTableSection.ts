@@ -2,7 +2,7 @@ import { Treeview } from "../../../tools/components/treeview/Treeview";
 import { JavaSymbolTable } from "../../java/codegenerator/JavaSymbolTable";
 import { BaseSymbol, BaseSymbolTable } from "../BaseSymbolTable";
 import { IPosition } from "../range/Position";
-import { Debugger } from "./Debugger";
+import { JavaDebugger } from "../../java/debugger/JavaDebugger";
 import { DebuggerSymbolEntry, StackElementDebuggerEntry, StaticFieldDebuggerEntry } from "./DebuggerSymbolEntry";
 import { DebuggerWatchEntry } from "./DebuggerWatchEntry";
 
@@ -12,7 +12,7 @@ export class SymbolTableSection {
     staticFieldChildren: StaticFieldDebuggerEntry[] = [];
 
     constructor(public treeview: Treeview<DebuggerSymbolEntry, DebuggerSymbolEntry>,
-        public symbolTable: BaseSymbolTable, public debugger1: Debugger) {
+        public symbolTable: BaseSymbolTable, public debugger1: JavaDebugger) {
 
         // divToRenderInto.prepend(this.treeview.outerDiv);
 

@@ -73,8 +73,8 @@ export class JavaCompiledModule extends JavaBaseModule {
             this.getCodeFragmentsForType(mainClassType, fragments);
         }
 
-        for(let type of this.types){
-            if(type instanceof NonPrimitiveType) this.getCodeFragmentsForType(type, fragments);
+        for (let type of this.types) {
+            if (type instanceof NonPrimitiveType) this.getCodeFragmentsForType(type, fragments);
         }
 
         return fragments;
@@ -137,17 +137,6 @@ export class JavaCompiledModule extends JavaBaseModule {
 
     }
 
-
-    setBreakpoint(line: number) {
-        let steps = this.findSteps(line);
-        steps.forEach(step => step.setBreakpoint());
-    }
-
-    clearBreakpoint(line: number) {
-        let steps = this.findSteps(line);
-        steps.forEach(step => step.clearBreakpoint());
-    }
-
     findSteps(line: number): Step[] {
 
         let types = this.types;
@@ -185,6 +174,15 @@ export class JavaCompiledModule extends JavaBaseModule {
 
     }
 
+    clearAllBreakpoints() {
+        for (let program of this.programsToCompileToFunctions) {
+            for (let step of program.stepsSingle) {
+                step.clearBreakpoint(step.range?.startLineNumber!);
+            }
+        }
+
+    }
+
     resetBeforeCompilation() {
         this.tokens = undefined;
         this.ast = undefined;
@@ -206,21 +204,21 @@ export class JavaCompiledModule extends JavaBaseModule {
     }
 
     getClassWithStartableMainMethod(): JavaClass | undefined {
-        if(this.mainClass){
+        if (this.mainClass) {
             let mainMethod = this.mainClass.methods.find(m => m.identifier == JavaCompilerStringConstants.mainMethodIdentifier)
 
             if (mainMethod) {
                 let statements = mainMethod.statement as ASTBlockNode;
-                if(statements.statements.length > 1) return this.mainClass.resolvedType;
+                if (statements.statements.length > 1) return this.mainClass.resolvedType;
             }
 
         }
 
-        if(!this.ast) return undefined;
+        if (!this.ast) return undefined;
 
-        for(let innerType of this.ast.innerTypes){
-            if(innerType.kind != TokenType.keywordClass || innerType.isMainClass || !innerType.resolvedType) continue;
-            if(innerType.resolvedType.getMainMethod()) return innerType.resolvedType;
+        for (let innerType of this.ast.innerTypes) {
+            if (innerType.kind != TokenType.keywordClass || innerType.isMainClass || !innerType.resolvedType) continue;
+            if (innerType.resolvedType.getMainMethod()) return innerType.resolvedType;
         }
 
         return undefined;
@@ -228,7 +226,7 @@ export class JavaCompiledModule extends JavaBaseModule {
 
     startMainProgram(thread: Thread, setOneTimeBreakpointAtFirstVisibleLine: boolean): boolean {
         let startableMainClass = this.getClassWithStartableMainMethod();
-        if(!startableMainClass) return false;
+        if (!startableMainClass) return false;
         let mainRuntimeClass: Klass = startableMainClass.runtimeClass;
         if (!mainRuntimeClass) return false;
 
@@ -242,12 +240,12 @@ export class JavaCompiledModule extends JavaBaseModule {
         let THIS = mainRuntimeClass;
 
         methodStub.call(THIS, thread, thread.s);
-        if(setOneTimeBreakpointAtFirstVisibleLine){
+        if (setOneTimeBreakpointAtFirstVisibleLine) {
             let programState = thread.programStack[thread.programStack.length - 1];
-            if(programState){
+            if (programState) {
                 let firstVisibleStep = programState.currentStepList.find(s => s.range.startLineNumber >= 0);
-                if(firstVisibleStep){
-                    firstVisibleStep.setBreakpoint(true);
+                if (firstVisibleStep) {
+                    firstVisibleStep.setBreakpoint(firstVisibleStep.range.startLineNumber, true);
                 }
             }
         }
@@ -320,11 +318,11 @@ export class JavaCompiledModule extends JavaBaseModule {
 
     }
 
-    addInlayHint(kind: monaco.languages.InlayHintKind, positionOrRange: monaco.IPosition|monaco.IRange, label: string, 
+    addInlayHint(kind: monaco.languages.InlayHintKind, positionOrRange: monaco.IPosition | monaco.IRange, label: string,
         paddingLeft: boolean, paddingRight: boolean, tooltip: string
-    ){
+    ) {
         let position1: monaco.IPosition = <any>positionOrRange;
-        if(positionOrRange["startLineNumber"]){
+        if (positionOrRange["startLineNumber"]) {
             position1 = {
                 lineNumber: (<monaco.IRange>positionOrRange).startLineNumber,
                 column: (<monaco.IRange>positionOrRange).startColumn

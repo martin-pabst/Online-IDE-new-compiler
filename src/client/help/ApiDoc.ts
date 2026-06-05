@@ -27,6 +27,7 @@ import { JavaSyntaxAPIPrinter } from './JavaSyntaxAPIPrinter.js';
 import { DatabaseModule } from '../libraries/java/database/DatabaseModule.js';
 import { JavaLibraryManager } from '../../compiler/java/runtime/JavaLibraryManager.js';
 import { LibraryData } from '../../compiler/common/programminglanguage/LibraryManager.js';
+import { ProgrammingLanguageData } from '../../compiler/common/programminglanguage/ProgrammingLanguageData.js';
 
 
 declare global {
@@ -91,7 +92,7 @@ export class ApiDoc {
         monaco.editor.setTheme('myCustomThemeDark');
 
         monaco.editor.create(jQuery('#editordiv')[0], {
-            language: "myJava"
+            language: ProgrammingLanguageData.Java.monacoLanguageSelector
         });
 
 
@@ -166,7 +167,7 @@ export class ApiDoc {
         
         let $caption = jQuery('<div class="jo_type"></div>');
         $mainHeading.append($caption);
-        monaco.editor.colorize(type.getDeclaration(), "myJava", {}).then(
+        monaco.editor.colorize(type.getDeclaration(), ProgrammingLanguageData.Java.monacoLanguageSelector, {}).then(
             (html) => {$caption.append(jQuery(html))}
         );
         
@@ -194,7 +195,7 @@ export class ApiDoc {
             for(let method of methods){
                 let $caption = jQuery(jQuery('<div class="jo_method"></div>'));
                 $mainBody.append($caption);
-                monaco.editor.colorize(method.getDeclaration(), "myJava", {}).then(
+                monaco.editor.colorize(method.getDeclaration(), ProgrammingLanguageData.Java.monacoLanguageSelector, {}).then(
                     (html) => {$caption.append(jQuery(html))}
                 );
 
@@ -224,7 +225,7 @@ export class ApiDoc {
             for(let method of methods){
                 let $caption = jQuery(jQuery('<div class="jo_method"></div>'));
                 $mainBody.append($caption);
-                monaco.editor.colorize(method.getDeclaration(t.identifier), "myJava", {}).then(
+                monaco.editor.colorize(method.getDeclaration(t.identifier), ProgrammingLanguageData.Java.monacoLanguageSelector, {}).then(
                     (html) => {$caption.append(jQuery(html))}
                 );
 
@@ -258,7 +259,7 @@ export class ApiDoc {
             for(let attribute of attributes){
                 let $caption = jQuery(jQuery('<div class="jo_method"></div>'));
                 $mainBody.append($caption);
-                monaco.editor.colorize(attribute.getDeclaration(), "myJava", {}).then(
+                monaco.editor.colorize(attribute.getDeclaration(), ProgrammingLanguageData.Java.monacoLanguageSelector, {}).then(
                     (html) => {$caption.append(jQuery(html))}
                 );
 

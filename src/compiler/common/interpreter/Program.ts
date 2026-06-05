@@ -113,9 +113,14 @@ export class Program {
         }
     }
 
-    addStep(statement: string) {
+    createAndAddStep(statement: string) {
         let step = new Step(this.stepsSingle.length, this.module);
         step.codeAsString = statement;
+        this.stepsSingle.push(step);
+    }
+
+    addStep(step: Step) {
+        step.index = this.stepsSingle.length;
         this.stepsSingle.push(step);
     }
 

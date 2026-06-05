@@ -25,6 +25,9 @@ export class DatabaseModule extends JavaLibraryModule {
         return [];
     }
 
+    clearAllBreakpoints(): void {
+        
+    }
 
 
 

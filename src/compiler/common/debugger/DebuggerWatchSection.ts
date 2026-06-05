@@ -2,7 +2,7 @@ import { Treeview } from "../../../tools/components/treeview/Treeview.ts";
 import { TreeviewNode } from "../../../tools/components/treeview/TreeviewNode.ts";
 import { JavaRepl } from "../../java/parser/repl/JavaRepl.ts";
 import { Interpreter } from "../interpreter/Interpreter.ts";
-import { Debugger } from "./Debugger.ts";
+import { JavaDebugger } from "../../java/debugger/JavaDebugger.ts";
 import { DebuggerWatchEntry } from "./DebuggerWatchEntry.ts";
 import { ValueRenderer } from "./ValueRenderer.ts";
 import * as monaco from 'monaco-editor'
@@ -12,7 +12,7 @@ export class DebuggerWatchSection {
 
     private lastRepl?: JavaRepl;
 
-    constructor(private treeview: Treeview<DebuggerWatchEntry, DebuggerWatchEntry>, private debugger_: Debugger){
+    constructor(private treeview: Treeview<DebuggerWatchEntry, DebuggerWatchEntry>, private debugger_: JavaDebugger){
 
         treeview.newNodeCallback = async (text: string, node: TreeviewNode<DebuggerWatchEntry, DebuggerWatchEntry>) => {
             let dwe = new DebuggerWatchEntry(text);

@@ -22,15 +22,21 @@ export type SettingsType = {
     "editor.quickFix.generateConstructor": "offer" | "dontOffer",
 
     "formatter.forceSpacesAfterIfForWhileDo": "0" | "1" | "no"
+
     "classDiagram.typeConvention": "java" | "pascal",
     "classDiagram.background": "transparent" | "white",
     "classDiagram.omitVoidReturnType": "omit" | "show",
     "classDiagram.drawCompositionDiamond": "yes" | "no",
+
     "explorer.fileOrder": "user-defined" | "comparator",
     "explorer.workspaceOrder": "user-defined" | "comparator",
+    "explorer.addWorkspace.java": "yes" | "no",
+    "explorer.addWorkspace.assembly": "yes" | "no",
+
     "compiler.shadowedSymbolErrorLevel": "ignore" | "info" | "warning" | "error",
 
-    "output.clearOutputAfterWorkspaceChange": "yes" | "no"
+    "output.clearOutputAfterWorkspaceChange": "yes" | "no",
+
 }
 
 export type SettingKey = keyof SettingsType;
@@ -54,10 +60,16 @@ export var SettingDefaultValues: SettingsType = {
     "classDiagram.background": "transparent",
     "classDiagram.omitVoidReturnType": "omit",
     "classDiagram.drawCompositionDiamond": "yes",
+    
     "explorer.fileOrder": "user-defined",
     "explorer.workspaceOrder": "user-defined",
+    "explorer.addWorkspace.java": "yes",
+    "explorer.addWorkspace.assembly": "no",
+
     "compiler.shadowedSymbolErrorLevel": "warning",
-    "output.clearOutputAfterWorkspaceChange": "no"
+    
+    "output.clearOutputAfterWorkspaceChange": "no",
+
 };
 
 export var SettingPrecedenceValues: Partial<{ [key in SettingKey]: SettingPrecedence }> = {

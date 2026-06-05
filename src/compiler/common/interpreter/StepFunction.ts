@@ -12,6 +12,8 @@ export class StepParams {
 }
 
 export class Helpers {
+    static cpu = StepParams.thread + ".__cpu";
+
     static classes = StepParams.thread + ".classes";
     static newArray = StepParams.thread + "." + Thread.prototype.newArray.name;
     static print = StepParams.thread + "." + Thread.prototype.print.name;
@@ -44,7 +46,7 @@ export class Helpers {
     static toString = StepParams.thread + "." + Thread.prototype.ToString.name;
     static exit = StepParams.thread + "." + Thread.prototype.exit.name;
     static enterFullspeedMode = StepParams.thread + "." + Thread.prototype.EnterFullspeedMode.name;
-    static exitFullspeedMode = StepParams.thread + "." + Thread.prototype.ExitFullspeedMode.name;    
+    static exitFullspeedMode = StepParams.thread + "." + Thread.prototype.ExitFullspeedMode.name;
     static assertionObservers = StepParams.thread + ".assertionObservers";
     static registerCodeReached = StepParams.thread + "." + Thread.prototype.registerCodeReached.name;
     static nullstringIfNull = StepParams.thread + "." + Thread.prototype.NullstringIfNull.name;
@@ -60,7 +62,7 @@ export class Helpers {
         return StepParams.stack + "[" + StepParams.stackBase + (index != 0 ? " + " + index : "") + "]";
     }
 
-    static checkNPE(object: string, range: IRange){
+    static checkNPE(object: string, range: IRange) {
         return `(${object} ?? ${Helpers.throwNPE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}))`;
     }
 

@@ -275,7 +275,7 @@ export class Editor {
             module = <JavaCompiledModule>this.main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
         }
 
-        if (!module) return;
+        if (!module || !module.methodCallPositions) return;
 
         let mcps = module.methodCallPositions[event.position.lineNumber];
         if (!mcps) return;
@@ -423,8 +423,8 @@ export class Editor {
 
             let model = that.editor.getModel();
             let text = model.getValueInRange(that.editor.getSelection());
-            if (text != null && text.length > 0) {
-                let repl = this.main.getRepl();
+            let repl = this.main.getRepl();
+            if (text != null && text.length > 0 && repl) {
                 let result = await repl.executeAsync(text, true);
                 if (typeof result != "undefined") {
 

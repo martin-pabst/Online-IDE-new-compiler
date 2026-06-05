@@ -5,14 +5,12 @@ import { SpritesheetData } from "../spritemanager/SpritesheetData";
 import { GUIFile } from "./File";
 import { Workspace } from "./Workspace";
 import { Treeview } from "../../tools/components/treeview/Treeview";
-import { IMain } from "../../compiler/common/IMain";
 import { MainBase } from "../main/MainBase";
 import { TreeviewNode } from "../../tools/components/treeview/TreeviewNode";
 import { WorkspaceImportMessages } from "../main/gui/language/WorkspaceImportMessages";
 import { NetworkManager } from "../communication/NetworkManager";
 import { SpriteManager } from "../spritemanager/SpriteManager";
 import { ProgressIndicator } from "../main/gui/ProgressIndicator";
-import exp from "constants";
 
 export type ExportedWorkspace = {
     name: string;

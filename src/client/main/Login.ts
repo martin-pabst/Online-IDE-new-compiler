@@ -16,6 +16,7 @@ import * as monaco from 'monaco-editor';
 import * as PIXI from 'pixi.js';
 import { LoginMessages } from './language/MainLanguage.js';
 import { Settings } from '../settings/Settings.js';
+import { ProgrammingLanguageData } from '../../compiler/common/programminglanguage/ProgrammingLanguageData.js';
 
 export class Login {
 
@@ -294,7 +295,7 @@ export class Login {
         jQuery('#bitteWarten').css('display', 'none');
         jQuery('#login-message').empty();
         this.main.interpreter.setState(SchedulerState.not_initialized);
-        this.main.getMainEditor().setModel(monaco.editor.createModel("", "myJava"));
+        this.main.getMainEditor().setModel(monaco.editor.createModel("", ProgrammingLanguageData.Java.monacoLanguageSelector));
         this.main.projectExplorer.fileTreeview.clear();
         this.main.projectExplorer.fileTreeview.setCaption('');
         this.main.projectExplorer.workspaceTreeview.clear();

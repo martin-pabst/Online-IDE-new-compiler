@@ -6,14 +6,15 @@ import * as monaco from 'monaco-editor'
 
 export class JavaInlayHintsProvider extends BaseMonacoProvider implements monaco.languages.InlayHintsProvider {
 
+    
+    displayName?: string = "JavaOnline-InlayHints";
+    
+    onDidChangeInlayHints?: monaco.IEvent<void>;
+
     constructor(language: JavaLanguage) {
         super(language);
         monaco.languages.registerInlayHintsProvider(language.monacoLanguageSelector, this);
     }
-
-    displayName?: string = "JavaOnline-InlayHints";
-
-    onDidChangeInlayHints?: monaco.IEvent<void>;
     
     provideInlayHints(model: monaco.editor.ITextModel, range: monaco.Range, token: monaco.CancellationToken): monaco.languages.ProviderResult<monaco.languages.InlayHintList> {
         let editor = monaco.editor.getEditors().find(e => e.getModel() == model);
@@ -25,7 +26,7 @@ export class JavaInlayHintsProvider extends BaseMonacoProvider implements monaco
         if (editor.getModel()?.getLanguageId() != 'myJava') return undefined;
 
         let module = <JavaCompiledModule>main.getCurrentWorkspace()?.getModuleForMonacoModel(editor.getModel());
-        if (!module) return;
+        if (!module || !(module instanceof JavaCompiledModule)) return;
 
         return {
             hints: module.inlayHints,

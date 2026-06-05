@@ -14,6 +14,7 @@ import { IRange } from "./range/Range.ts";
 import type * as monaco from 'monaco-editor'
 import { RightDiv } from "../../client/main/gui/RightDiv.ts";
 import { Repl } from "./repl/Repl.ts";
+import type { Debugger } from "./debugger/Debugger.ts";
 
 
 export interface IMain {
@@ -57,10 +58,13 @@ export interface IMain {
 
     onStartFileClicked(file: GUIFile);
 
+    getDebugger(): Debugger;
     hideDebugger(): void;
     showDebugger(): void;
 
     getSettings(): Settings;
+
+    setHorizontalSliderPosition(fraction: number): void;
 
 
 }

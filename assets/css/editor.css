@@ -125,6 +125,7 @@
     /*debugger*/
     --debugger-classidentifier: #2a709e;
     --console-fieldidentifier: #e6e92c;
+    --memorytab-tableheadings: #41dd65;
 
     /* Sorgt für eine bessere Schriftart unter Linux: */
     .monaco-editor {

@@ -4,37 +4,10 @@ import { test } from "vitest";
 import { Interpreter } from "../compiler/common/interpreter/Interpreter";
 import { JavaCompiler } from "../compiler/java/JavaCompiler";
 import { getLine, getLineNumber, threeDez } from "../tools/StringTools";
-import { IPrintManager } from "../compiler/common/interpreter/IPrintManager";
 import { ViteTestAssertions } from "./ViteTestAssertions";
 import { JavaLibraryManager } from "../compiler/java/runtime/JavaLibraryManager";
 import { CompilerFile } from "../compiler/common/module/CompilerFile";
-
-class StoreOutputPrintManager extends IPrintManager {
-
-    output: string = "";
-
-    isTestPrintManager(): boolean {
-        return true;
-    }
-
-    printHtmlElement(htmlElement: HTMLElement): void {
-
-    }
-
-    printIntern(text: string | undefined, withNewline: boolean, color: number | undefined): void {
-        if (!text) return;
-        if (text.startsWith("Execution")) return;
-        this.output += text;
-        if (withNewline) this.output += "\n";
-    }
-    clear(): void {
-        this.output = "";
-    }
-
-    flush(): void {
-
-    }
-}
+import { StoreOutputPrintManager } from "./StoreOutputPrintManager";
 
 try {
     let javaDir: string = __dirname + "/java";

@@ -2,7 +2,7 @@ import { JavaLanguage } from "../../java/JavaLanguage";
 import { IMain } from "../IMain";
 import { ProgrammingLanguage } from "./ProgrammingLanguage";
 import { ErrorMarker } from "../monacoproviders/ErrorMarker";
-import { AssemblerLanguage } from "../../assembler/AssemblerLanguage";
+import { AssemblyLanguage } from "../../assembly/AssemblyLanguage";
 
 export class ProgrammingLanguageManager {
     private languages: ProgrammingLanguage[] = [];
@@ -11,7 +11,7 @@ export class ProgrammingLanguageManager {
     private constructor(){
         ProgrammingLanguageManager.instance = this;
         this.languages.push(JavaLanguage.getInstance());
-        this.languages.push(AssemblerLanguage.getInstance());
+        this.languages.push(AssemblyLanguage.getInstance());
     }
 
     public static getInstance(): ProgrammingLanguageManager {
@@ -37,6 +37,17 @@ export class ProgrammingLanguageManager {
             console.error("No language found with name " + name);
         }
         return JavaLanguage.getInstance();
+    }
+
+    public getLanguagesSelection(main: IMain): ProgrammingLanguage[] {
+        let settings = main.getSettings();
+        let languages: ProgrammingLanguage[] = [
+            this.getLanguageByName("Java")
+        ];
+        if(settings.getValue("explorer.addWorkspace.assembly") == "yes"){
+            languages.push(this.getLanguageByName("Assembly"));
+        }
+        return languages;
     }
 
 }

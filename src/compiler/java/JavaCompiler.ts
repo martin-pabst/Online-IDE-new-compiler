@@ -177,6 +177,8 @@ export class JavaCompiler implements Compiler {
 
         this.eventManager.fire("compilationFinishedWithNewExecutable", this.#lastCompiledExecutable);
 
+        this.main?.getDisassembler()?.disassemble();
+
         setTimeout(() => {
             // this doesn't hurry, so give browser's main thread time to do its chores            
             for (const module of this.#lastCompiledExecutable.getModuleManager().getModules()) {
@@ -293,36 +295,9 @@ export class JavaCompiler implements Compiler {
         const module = this.findModuleByFile(file);
         if (!module) return [];
 
-        const list: Error[] = module.errors.slice();
-
-        list.sort((a, b) => {
-            return Range.compareRangesUsingStarts(a.range, b.range);
-        });
-
-        for (let i = 0; i < list.length - 1; i++) {
-            const e1 = list[i];
-            const e2 = list[i + 1];
-            if (e1.range.startLineNumber == e2.range.startLineNumber && e1.range.startColumn + 10 > e2.range.startColumn) {
-                if (this.#errorLevelCompare(e1.level, e2.level) == 1) {
-                    list.splice(i + 1, 1);
-                } else {
-                    list.splice(i, 1);
-                }
-                i--;
-            }
-        }
-
-        return list;
+        return module.getSortedAndFilteredErrors();
     }
-
-    #errorLevelCompare(level1: ErrorLevel, level2: ErrorLevel): number {
-        if (level1 == "error") return 1;
-        if (level2 == "error") return -1;
-        if (level1 == "warning") return 1;
-        if (level2 == "warning") return -1;
-        return 1;
-    }
-
+    
     async interruptAndStartOverAgain(onlyForCodeCompletion: boolean): Promise<void> {
         if (this.#progressManager.isInsideCompilationRun) {
             this.#progressManager.interruptCompilerIfRunning(false);

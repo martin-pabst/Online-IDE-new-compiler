@@ -200,6 +200,9 @@ export class Sliders {
 
     }
 
-
+    setSliderRightPosition(fraction: number) {
+        this.sliderRight.setPosition(fraction);
+        this.sliderKnobRight.initSliderknobPosition();
+    }
 
 }

@@ -1,7 +1,7 @@
 import jQuery from 'jquery';
 import { BreakpointManager } from '../../compiler/common/BreakpointManager.js';
 import { Compiler } from '../../compiler/common/Compiler.js';
-import { Debugger } from '../../compiler/common/debugger/Debugger.js';
+import { JavaDebugger } from '../../compiler/java/debugger/JavaDebugger.js';
 import { Executable } from '../../compiler/common/Executable.js';
 import { ActionManager } from '../../compiler/common/interpreter/ActionManager.js';
 import { GraphicsManager } from '../../compiler/common/interpreter/GraphicsManager.js';
@@ -12,8 +12,6 @@ import { EditorOpenerProvider } from '../../compiler/common/monacoproviders/Edit
 import { ErrorMarker } from '../../compiler/common/monacoproviders/ErrorMarker.js';
 import { ProgramPointerManager } from '../../compiler/common/monacoproviders/ProgramPointerManager.js';
 import { IRange, Range } from '../../compiler/common/range/Range.js';
-import { JavaLanguage } from '../../compiler/java/JavaLanguage.js';
-import { JavaRepl } from '../../compiler/java/parser/repl/JavaRepl.js';
 import { DatabaseNewLongPollingListener } from '../../tools/database/DatabaseNewLongPollingListener.js';
 import { checkIfMousePresent, findGetParameter, getCookieValue } from "../../tools/HtmlTools.js";
 import { ClassData, UserData, WorkspaceData, Workspaces } from "../communication/Data.js";
@@ -56,6 +54,8 @@ import { Settings } from '../settings/Settings.js';
 import { TabletConsoleLog } from '../../tools/TabletConsoleLog.js';
 import { ProgrammingLanguageManager } from '../../compiler/common/programminglanguage/ProgrammingLanguageManager.js';
 import { Repl } from '../../compiler/common/repl/Repl.js';
+import { Debugger } from '../../compiler/common/debugger/Debugger.js';
+import { AssemblyLanguageDebugger } from '../../compiler/assembly/debugger/AssemblyLanguageDebugger.js';
 
 
 export class Main implements MainBase {
@@ -110,6 +110,7 @@ export class Main implements MainBase {
     interpreter: Interpreter;
 
     settings: Settings;
+    debuggerDiv: HTMLDivElement;
 
     showFile(file?: CompilerFile): void {
         if (!file || !(file instanceof GUIFile)) return;
@@ -238,8 +239,7 @@ export class Main implements MainBase {
         this.themeManager.switchTheme("dark");
 
         let breakpointManager = new BreakpointManager(this);
-        this.debugger = new Debugger(<HTMLDivElement>jQuery('#leftpanel>.jo_debugger')[0], true, this);
-        this.debugger.hide();
+        this.debuggerDiv = <HTMLDivElement>jQuery('#leftpanel>.jo_debugger')[0];
         let inputManager = new InputManager(jQuery('#rightdiv-inner .jo_run'), this);
         let printManager = new PrintManager(jQuery('#rightdiv-inner .jo_run'), this);
         let fileManager = new FileManager(this);
@@ -251,7 +251,7 @@ export class Main implements MainBase {
         this.interpreter = new Interpreter(
             printManager, this.actionManager,
             graphicsManager, keyboardManager,
-            breakpointManager, this.debugger,
+            breakpointManager,
             programPointerManager, inputManager,
             fileManager, exceptionMarker, this);
 
@@ -261,7 +261,6 @@ export class Main implements MainBase {
          * Compiler and Repl are fields of language!
         */
         ProgrammingLanguageManager.getInstance().registerMain(this, errorMarker);
-        this.switchProgrammingLanguage(this.getCurrentWorkspace()?.settings.language || "Java");
 
         this.disassembler = new Disassembler(this.bottomDiv.disassemblerTab.bodyDiv, this);
 
@@ -312,6 +311,8 @@ export class Main implements MainBase {
 
 
         TabletConsoleLog.registerProvider((message) => { printManager.print(message, false, 0x5050ff) });
+
+        this.switchProgrammingLanguage(this.getCurrentWorkspace()?.settings.language || "Java");
 
 
     }
@@ -457,12 +458,29 @@ export class Main implements MainBase {
         this.getCompiler()?.eventManager?.on('compilationFinishedWithNewExecutable', this.onCompilationFinishedWithNewExecutable, this);
         this.getCompiler()?.eventManager?.on('compilationFinished', this.onCompilationFinished, this);
 
+        
+        this.debugger?.remove();
+        this.debuggerDiv.innerHTML = "";
+        switch (this.language.getDebuggerType()) {
+            case "java":
+                this.debugger = new JavaDebugger(this.debuggerDiv, !this.isEmbedded(), this);
+                break;
+            case "assembly":
+                this.debugger = new AssemblyLanguageDebugger(this.debuggerDiv, !this.isEmbedded(), this);
+                break;
+        }
+
+        this.debugger.hide();
+
     }
 
     onCompilationFinished() {
         this.getInterpreter()?.onFileSelected();
     }
 
-
+    async setHorizontalSliderPosition(fraction: number): Promise<void> {
+        let sliders = await this.viewModeController.getSliders();
+        sliders.setSliderRightPosition(fraction);
+    }
 }
 

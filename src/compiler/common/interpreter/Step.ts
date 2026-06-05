@@ -26,6 +26,10 @@ export class Step {
         this.range = { startLineNumber: undefined, startColumn: undefined, endLineNumber: undefined, endColumn: undefined };
     }
 
+    carriesFakeLineNumbers(): boolean {
+        return false; // AssemblySteps carry fake line numbers;
+    }
+
     getValidRangeOrUndefined(): IRange | undefined {
         const r = this.range;
         if (!r) return undefined;
@@ -35,13 +39,13 @@ export class Step {
         return undefined;
     }
 
-    setBreakpoint(clearBreakpointAfterReached: boolean = false) {
+    setBreakpoint(lineNumber: number, clearBreakpointAfterReached: boolean = false) {
         const breakpointRunFunction = (thread: Thread, stack: any[], stackBase: number): number => {
             if (thread.haltAtNextBreakpoint) {
                 thread.state = ThreadState.stoppedAtBreakpoint;
                 thread.haltAtNextBreakpoint = false;
                 if(clearBreakpointAfterReached){
-                    this.clearBreakpoint();
+                    this.clearBreakpoint(lineNumber);
                 }
                 return this.index;
             } else {
@@ -55,7 +59,7 @@ export class Step {
         this.run = breakpointRunFunction;
     }
 
-    clearBreakpoint() {
+    clearBreakpoint(lineNumber: number) {
         if (this.#originalRun) {
             this.run = this.#originalRun;
             this.#originalRun = undefined;

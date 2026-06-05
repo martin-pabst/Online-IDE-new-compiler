@@ -384,6 +384,23 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     treeview.sort();
                 }
             },
+            {
+                key: "explorer.addWorkspace.assembly",
+                settingType: 'setting',
+                name: SettingsMessages.AddWorkspaceAssemblyName,
+                description: SettingsMessages.AddWorkspaceAssemblyDescription,
+                type: 'enumeration',
+                optionValues: ["yes", "no"],
+                optionTexts: [
+                    SettingsMessages.yes,
+                    SettingsMessages.no
+                ],
+                action: (main, value) => {
+                    let treeview = main.projectExplorer.workspaceTreeview;
+                    treeview.config.orderBy = value as 'comparator' | 'user-defined';
+                    treeview.sort();
+                }
+            },
         ]
     },
     {

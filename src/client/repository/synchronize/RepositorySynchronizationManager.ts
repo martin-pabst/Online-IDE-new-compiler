@@ -13,6 +13,7 @@ import { SynchroFile, SynchroWorkspace } from "./SynchroWorkspace.js";
 import * as monaco from 'monaco-editor'
 import { RepoSMessages } from '../language/RepositoryMessages.js';
 import { enableDragDropTouch } from "@dragdroptouch/drag-drop-touch";
+import { ProgrammingLanguageData } from '../../../compiler/common/programminglanguage/ProgrammingLanguageData.js';
 
 
 type FileElement = {
@@ -85,10 +86,15 @@ export class SynchronizationManager {
 
     repositoryIsWritable: boolean;
 
+    monacoLanguageSelector: string;
+
     constructor(public main: Main) {
     }
 
     synchronizeWithWorkspace(workspace: Workspace) {
+
+        let language = workspace.settings.language ?? "Java";
+        this.monacoLanguageSelector = ProgrammingLanguageData[language]?.monacoLanguageSelector ?? "myJava";
 
         this.gainRepositoryLock(workspace.repository_id, (success) => {
             if (success) {
@@ -242,8 +248,8 @@ export class SynchronizationManager {
         });
 
         this.diffEditor.setModel({
-            original: monaco.editor.createModel(RepoSMessages.chooseFile(), "myJava"),
-            modified: monaco.editor.createModel(RepoSMessages.chooseFile(), "myJava")
+            original: monaco.editor.createModel(RepoSMessages.chooseFile(), this.monacoLanguageSelector),
+            modified: monaco.editor.createModel(RepoSMessages.chooseFile(), this.monacoLanguageSelector)
         });
 
         this.diffEditor.updateOptions({

@@ -26,6 +26,9 @@ import * as monaco from 'monaco-editor'
 import '/assets/css/icons.css';
 import '/assets/css/projectexplorer.css';
 import { RepositoryExporter } from '../../workspace/RepositoryImporterExporter.js';
+import { ProgrammingLanguageManager } from '../../../compiler/common/programminglanguage/ProgrammingLanguageManager.js';
+import { ProgrammingLanguage } from '../../../compiler/common/programminglanguage/ProgrammingLanguage.js';
+import { ProgrammingLanguageData } from '../../../compiler/common/programminglanguage/ProgrammingLanguageData.js';
 
 
 export class ProjectExplorer {
@@ -342,6 +345,13 @@ export class ProjectExplorer {
      */
     initWorkspacelistPanel() {
 
+        let addElementsOptions = () => {
+            let programmingLanguageSelection = ProgrammingLanguageManager.getInstance().getLanguagesSelection(this.main);
+            return programmingLanguageSelection.length > 1 ? programmingLanguageSelection.map(lang => {
+                return { object: lang, caption: lang.getTranslatedName(), iconClass: lang.getWorkspaceCssClass(false) };
+            }) : [];
+        };
+
         this.workspaceTreeview = new Treeview(this.accordion, {
             captionLine: {
                 enabled: true,
@@ -355,6 +365,7 @@ export class ProjectExplorer {
             confirmDelete: true,
             buttonAddElements: true,
             buttonAddElementsCaption: ProjectExplorerMessages.newWorkspace() + "...",
+            addElementsOptions: addElementsOptions,
             buttonAddFolders: true,
             minHeight: 150,
             flexWeight: "1",
@@ -371,7 +382,7 @@ export class ProjectExplorer {
             orderSetter: (workspace, order) => workspace.sorting_order = order
         })
 
-        this.workspaceTreeview.newNodeCallback = async (name, node) => {
+        this.workspaceTreeview.newNodeCallback = async (name, node, language: ProgrammingLanguage) => {
             let owner_id: number = this.main.user.id;
             if (this.main.workspacesOwnerId != null) {
                 owner_id = this.main.workspacesOwnerId;
@@ -380,7 +391,13 @@ export class ProjectExplorer {
             let w: Workspace = new Workspace(name, this.main, owner_id);
             w.isFolder = node.isFolder;
             w.parent_folder_id = node.getParent().externalObject?.id ?? null;
+            if(language){
+                w.settings.language = language.name;
+            } else {
+                w.settings.language = "Java";
+            }
             this.main.workspaceList.push(w);
+            node.iconClass = ProgrammingLanguageData[w.settings.language]?.workspaceCssClass(false) ?? "img_workspace-dark";
 
             let success = this.main.user.is_testuser || await this.main.networkManager.sendCreateWorkspace(w, this.main.workspacesOwnerId);
             if (success) {
@@ -743,7 +760,7 @@ export class ProjectExplorer {
         this.workspaceTreeview.clear();
 
         for (let ws of workspaceList) {
-            let iconClass = ws.repository_id == null ? 'img_workspace-dark' : 'img_workspace-dark-repository';
+            let iconClass = (ProgrammingLanguageData[ws.settings.language]??ProgrammingLanguageData.Java).workspaceCssClass(ws.repository_id != null);
             if (ws.isFolder) iconClass = undefined;
             let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, iconClass, ws)
 
@@ -806,7 +823,7 @@ export class ProjectExplorer {
 
         this.main.currentWorkspace = w;
 
-        
+
         if (w == null) {
             this.fileTreeview.addElementsButton.setVisible(false);
             this.fileTreeview.addFolderButton.setVisible(false);
@@ -817,7 +834,7 @@ export class ProjectExplorer {
             this.renderFiles(w);
             return;
         }
-        
+
         this.main.switchProgrammingLanguage(w.settings.language);
         this.renderFiles(w);
 
@@ -851,11 +868,12 @@ export class ProjectExplorer {
                 this.main.getCompiler().setFileDirty(file);
             }
             this.main.bottomDiv.gradingManager?.setValues(w);
+            this.main.getCompiler().setFiles(files);
             this.main.getCompiler().triggerCompile();
         });
 
 
-        if(this.main.getSettings().getValue("output.clearOutputAfterWorkspaceChange") == "yes"){
+        if (this.main.getSettings().getValue("output.clearOutputAfterWorkspaceChange") == "yes") {
             this.main.getInterpreter()?.printManager?.clear();
         }
 

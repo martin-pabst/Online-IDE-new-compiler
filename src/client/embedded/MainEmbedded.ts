@@ -1,7 +1,7 @@
 import jQuery from "jquery";
 import { BreakpointManager } from "../../compiler/common/BreakpointManager.js";
 import { Compiler } from "../../compiler/common/Compiler.js";
-import { Debugger } from "../../compiler/common/debugger/Debugger.js";
+import { JavaDebugger } from "../../compiler/java/debugger/JavaDebugger.js";
 import { Executable } from "../../compiler/common/Executable.js";
 import { ActionManager } from "../../compiler/common/interpreter/ActionManager.js";
 import { GraphicsManager } from "../../compiler/common/interpreter/GraphicsManager.js";
@@ -47,6 +47,8 @@ import { EmbeddedFullpageController } from "./EmbeddedFullpageController.js";
 import { SettingValues } from "../settings/SettingsMetadata.js";
 import { ProgrammingLanguageManager } from "../../compiler/common/programminglanguage/ProgrammingLanguageManager.js";
 import { Repl } from "../../compiler/common/repl/Repl.js";
+import { AssemblyLanguageDebugger } from "../../compiler/assembly/debugger/AssemblyLanguageDebugger.js";
+import { Debugger } from "../../compiler/common/debugger/Debugger.js";
 
 /**
  * Configuration options for the Java Online IDE in embedded mode.
@@ -419,7 +421,7 @@ export class MainEmbedded implements MainBase {
             f.setSaved(true);
         })
 
-        if (!this.config.cacheUserEdits){
+        if (!this.config.cacheUserEdits) {
             callback();
             return;
         }
@@ -691,7 +693,6 @@ export class MainEmbedded implements MainBase {
         let graphicsDiv = this.$rightDivInner.find('.jo_graphics')[0];
         let coordinatesDiv = <HTMLDivElement>this.$rightDivInner.find('.jo_coordinates')[0];
 
-        this.debugger = new Debugger(<HTMLDivElement>this.$debuggerDiv[0], false, this);
         let breakpointManager = new BreakpointManager(this);
         let inputManager = new InputManager(this.$runDiv, this);
         let printManager = new PrintManager(this.$runDiv, this);
@@ -703,7 +704,7 @@ export class MainEmbedded implements MainBase {
         this.interpreter = new Interpreter(
             printManager, this.actionManager,
             new GraphicsManager(graphicsDiv, coordinatesDiv), keyboardManager,
-            breakpointManager, this.debugger,
+            breakpointManager,
             programPointerManager, inputManager,
             fileManager, new ExceptionMarker(this), this);
 
@@ -714,9 +715,9 @@ export class MainEmbedded implements MainBase {
         ProgrammingLanguageManager.getInstance().registerMain(this, errorMarker);
         this.switchProgrammingLanguage(this.config.programmingLanguage || "Java");
 
-        if (this.config.withBottomPanel) {
-            new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
-        }
+        // if (this.config.withBottomPanel) {
+        //     new JUnitTestrunner(this, this.bottomDiv.jUnitTab.bodyDiv);
+        // }
 
         // this.getCompiler().triggerCompile();
 
@@ -728,7 +729,7 @@ export class MainEmbedded implements MainBase {
 
         new EditorOpenerProvider(this);
 
-        let $infoButton = jQuery('<div class="jo_button jo_active img_ellipsis-dark" style="margin-left: 16px"></div>');
+        let $infoButton = jQuery('<div class="jo_button jo_active img_ellipsis-dark" style="margin-left: 8px"></div>');
         $infoButton[0].title = 'Über die Online-IDE...';
         $controlsDiv.append($infoButton);
 
@@ -784,6 +785,7 @@ export class MainEmbedded implements MainBase {
     showDebugger() {
         this.$debuggerDiv.show();
         this.$alternativeDebuggerDiv.hide();
+        this.debugger?.show();
     }
 
     // makeBracketErrorDiv(): JQuery<HTMLElement> {
@@ -967,7 +969,7 @@ export class MainEmbedded implements MainBase {
             `);
 
         if (!this.config.hideEditor) {
-            let debuggerTab = new Tab('Debugger', ['jo_scrollable', 'jo_editorFontSize', 'jo_variablesTab']);
+            let debuggerTab = new Tab('Debugger', 'Debugger', ['jo_scrollable', 'jo_editorFontSize', 'jo_variablesTab']);
             this.rightDiv.tabManager.addTab(debuggerTab);
 
             let $vd = jQuery(debuggerTab.bodyDiv);
@@ -1032,6 +1034,27 @@ export class MainEmbedded implements MainBase {
 
         this.getCompiler().eventManager.on("compilationFinishedWithNewExecutable", this.onCompilationFinished, this);
 
+        if (this.$debuggerDiv) {
+            let dd = <HTMLDivElement>this.$debuggerDiv[0];
+            
+            this.debugger?.remove();
+            dd.innerHTML = "";
+            switch (this.language.getDebuggerType()) {
+                case "java":
+                    this.debugger = new JavaDebugger(dd, !this.isEmbedded(), this);
+                    break;
+                case "assembly":
+                    this.debugger = new AssemblyLanguageDebugger(dd, !this.isEmbedded(), this);
+                    break;
+            }
+
+            this.debugger.hide();
+        }
+
+    }
+
+    setHorizontalSliderPosition(fraction: number): void {
+        this.horizontalSlider?.setPosition(fraction);
     }
 }
 

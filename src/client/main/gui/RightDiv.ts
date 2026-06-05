@@ -11,6 +11,7 @@ import { IconButtonComponent } from '../../../tools/components/IconButtonCompone
 import '/assets/css/wholewindow.css';
 import { transferElements } from '../../../tools/HtmlTools.js';
 import { MainEmbedded } from '../../embedded/MainEmbedded.js';
+import { MemoryTab } from '../../../compiler/assembly/debugger/MemoryTab.js';
 
 
 export class RightDiv {
@@ -25,6 +26,7 @@ export class RightDiv {
 
     outputTab: Tab;
     classDiagramTab: Tab;
+    memoryTab: Tab;
 
     rightDivElement: HTMLElement;
     originalControlsContainer: HTMLElement;
@@ -36,7 +38,8 @@ export class RightDiv {
 
     rightdiv_width: string = "100%";
 
-    constructor(private main: MainBase, private mainElement: HTMLElement, private withClassDiagram: boolean) {
+    constructor(private main: MainBase, private mainElement: HTMLElement, 
+        private withClassDiagram: boolean) {
         if (main.isEmbedded()) {
             this.findElementsEmbedded();
         } else {
@@ -123,7 +126,7 @@ export class RightDiv {
         this.newControlsContainer = DOM.makeDiv(undefined, 'jo_control-container');
         this.tabManager.insertIntoRightDiv(this.newControlsContainer);
 
-        this.tabManager.addTab(this.outputTab = new Tab(RightDivMessages.output(), ['jo_run']));
+        this.tabManager.addTab(this.outputTab = new Tab('Output',RightDivMessages.output(), ['jo_run']));
         DOM.makeDiv(this.outputTab.bodyDiv, 'jo_run-programend').textContent = RightDivMessages.programEnd();
 
         let $inputDiv = jQuery(`
@@ -153,7 +156,7 @@ export class RightDiv {
         this.outputTab.bodyDiv.appendChild($runInnerDiv[0]);
 
         if (this.withClassDiagram) {
-            this.tabManager.addTab(this.classDiagramTab = new Tab(RightDivMessages.classDiagram(), ['jo_classdiagram']));
+            this.tabManager.addTab(this.classDiagramTab = new Tab('Class Diagram',RightDivMessages.classDiagram(), ['jo_classdiagram']));
             this.classDiagramTab.bodyDiv.appendChild(jQuery(`<img src="${ballTriangleSVG}" class="jo_classdiagram-spinner">`)[0]);
             this.classDiagramTab.onShow = () => {
                 this.main.drawClassDiagrams(false);
@@ -174,6 +177,8 @@ export class RightDiv {
             true, "append"
         )
 
+        this.memoryTab = new MemoryTab(this.main);
+        this.tabManager.addTab(this.memoryTab);
     }
 
     isClassDiagramActive(): boolean {
