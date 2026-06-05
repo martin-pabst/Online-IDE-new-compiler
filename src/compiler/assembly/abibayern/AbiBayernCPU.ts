@@ -599,7 +599,7 @@ export class AbiBayernCPU extends CPU {
     setAccu(value: number): void {
         if (value > 0x7FFF || value < -0x8000) {
             this.flags.overflow = true;
-            value = (value + 0x8000) & 0xffff - 0x8000; // Ensure value is a signed 16-bit integer
+            value = (value + 0x8000) % 0x10000 - 0x8000; // Ensure value is a signed 16-bit integer
         } else {
             this.flags.overflow = false;
         }
@@ -748,7 +748,7 @@ export class AbiBayernCPU extends CPU {
         }
         let sign = this.accumulator < 0 ? -1 : 1;
         let absoluteValue = Math.abs(this.accumulator);
-        let shiftedValue = (absoluteValue << shiftAmount) & 0x8000;
+        let shiftedValue = (absoluteValue << shiftAmount) % 0x10000 - 0x8000;
         this.flags.carry = (absoluteValue & (0x8000 >> (shiftAmount - 1))) !== 0; // Capture the last bit shifted out for carry flag
         this.flags.zero = shiftedValue === 0;
         this.flags.negative = sign === -1 && shiftedValue !== 0;

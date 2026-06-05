@@ -80,7 +80,7 @@ export class AssemblyFormatter extends BaseMonacoProvider
             }
         }
 
-        let indentLevel = indentLevelAfterLabel != -1 ? indentLevelAfterLabel : leftMostInstructionColumn;
+        let indentLevel = indentLevelAfterLabel != -1 ? indentLevelAfterLabel + 1 : leftMostInstructionColumn;
         if (indentLevel == Number.MAX_SAFE_INTEGER) indentLevel = 3;
 
         for (let lineInfo of lineInfos) {
@@ -237,14 +237,7 @@ export class AssemblyFormatter extends BaseMonacoProvider
                             currentLineInfo.labelColon = this.currentToken;
                             this.next();
                             this.skipWhitespaceWhileOnLine(lineNumber);
-                            if (this.currentToken.range.endLineNumber != lineNumber) {
-                                continue;
-                            }
-                            if (this.currentToken.type != AssemblyTokenType.identifier && this.currentToken.type != AssemblyTokenType.dot) {
-                                continue;
-                            }
                             currentLineInfo.tokenAfterColon = this.currentToken;
-                            if (this.currentToken.type == AssemblyTokenType.dot) continue;
                         }
                         // We are now at the instruction identifier.
                         this.readTillEndOfLineOrLeftCurlyBracket();
