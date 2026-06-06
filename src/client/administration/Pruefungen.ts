@@ -160,7 +160,7 @@ export class Pruefungen extends AdminMenuItem {
                     $timerBar.append(`<span class="joe_pruefung_timerspan"></span>`)
                 }
 
-                if (this.counter % 5 == 0) {
+                if (this.counter % 5 == 0 && this.currentPruefung != null) {
                     let request: GetPruefungStudentStatesRequest = { pruefungId: this.currentPruefung.id }
 
                     let pruefungStates: GetPruefungStudentStatesResponse = await ajaxAsync("/servlet/getPruefungStates", request);
@@ -516,6 +516,9 @@ export class Pruefungen extends AdminMenuItem {
     }
 
     async deletePruefung(pruefungId: number) {
+        if(this.currentPruefung?.id == pruefungId){
+            this.currentPruefung = null;
+        }
         let request: CRUDPruefungRequest = { requestType: "delete", pruefung: this.pruefungen.find(p => p.id = pruefungId) }
         let response: CRUDPruefungResponse = await ajaxAsync('/servlet/crudPruefung', request);
         if (response.success) {
