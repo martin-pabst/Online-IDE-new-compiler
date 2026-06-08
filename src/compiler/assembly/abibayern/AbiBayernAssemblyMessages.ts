@@ -2,9 +2,9 @@
 
 export class AbiBayernAssemblyMessages {
     static CPUName = () => lm({
-        'de': `Bayern-CPU`,
-        'en': `Bavaria-CPU`,
-        'fr': `CPU de Bavière`
+        'de': `Einfach CPU (wie im bayerischen Abitur)`,
+        'en': `Simple CPU (as in the Bavarian A-level examination)`,
+        'fr': `Simple CPU (comme dans le bac de Bavière)`
     });
 
     static CPUDescription = () => lm({
@@ -501,6 +501,30 @@ export class AbiBayernAssemblyMessages {
         'de': `Subtrahiert einen Wert vom Akkumulator (ohne diesen zu verändern!) und setzt die Flags entsprechend (zero, negative, overflow).`,
         'en': `Subtracts a value from the accumulator (without changing it!) and sets the flags accordingly (zero, negative, overflow).`,
         'fr': `Soustrait une valeur de l'accumulateur (sans le changer !) et définit les drapeaux en conséquence (zero, négatif, dépassement).`
+    });
+
+    static Architecture16BitSigned = () => lm({
+        'de': `Daten: 16 Bit mit Vorzeichen, Adressen: 16 Bit ohne Vorzeichen`,
+        'en': `Data: 16-bit signed, addresses: 16-bit unsigned`,
+        'fr': `Données: 16 bits avec signe, adresses: 16 bits sans signe`
+    });
+
+    static Architecture16BitUnsigned = () => lm({
+        'de': `Daten und Adressen: 16 Bit ohne Vorzeichen`,
+        'en': `Data and addresses: 16-bit unsigned`,
+        'fr': `Données et adresses: 16 bits sans signe`
+    });
+
+    static Architecture8BitUnsigned = () => lm({
+        'de': `Daten: 8 Bit ohne Vorzeichen, Adressen: 16 Bit ohne Vorzeichen`,
+        'en': `Data: 8-bit unsigned, addresses: 16-bit unsigned`,
+        'fr': `Données: 8 bits sans signe, adresses: 16 bits sans signe`
+    });
+
+    static Architecture8BitSigned = () => lm({
+        'de': `Daten: 8 Bit mit Vorzeichen, Adressen: 16 Bit ohne Vorzeichen`,
+        'en': `Data: 8-bit signed, addresses: 16-bit unsigned`,
+        'fr': `Données: 8 bits avec signe, adresses: 16 bits sans signe`
     });
 }
 

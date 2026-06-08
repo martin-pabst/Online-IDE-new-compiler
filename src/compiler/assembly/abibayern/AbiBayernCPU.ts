@@ -1,4 +1,4 @@
-import { CPU } from "../CPU";
+import { CPU, type Architecture } from "../CPU";
 import { Memory } from "../Memory";
 import { AbiBayernMemory } from "./AbiBayernMemory";
 import { AssemblyTokenType } from "../AssemblyTokenType";
@@ -12,6 +12,7 @@ import { CompilerFile } from "../../common/module/CompilerFile";
 import { Thread } from "../../common/interpreter/Thread";
 import { Range } from "../../common/range/Range";
 import { AbiBayernAssemblyMessages } from "./AbiBayernAssemblyMessages";
+import { AbiBayernArchitecture } from "./AbiBayernArchitecture";
 
 enum AddressingMode {
     None = 0b00000000,
@@ -394,7 +395,6 @@ var specialCompletionComments: { tokenType: AssemblyTokenType, description: () =
 
 export class AbiBayernCPU extends CPU {
 
-    name = AbiBayernAssemblyMessages.CPUName();
     description = AbiBayernAssemblyMessages.CPUDescription();
 
     accumulator: number = 0;
@@ -418,7 +418,9 @@ export class AbiBayernCPU extends CPU {
     opcodeToInstructionMap: { [opcode: number]: Instruction } = {};
     specialCompletionCommentTokens: Set<AssemblyTokenType>;
 
-    constructor(assemblyParserResult: AssemblyParserResult, main: IMain) {
+    architecture: AbiBayernArchitecture;
+
+    constructor(assemblyParserResult: AssemblyParserResult, main: IMain, architectureIdentifier?: string) {
         super(assemblyParserResult, main);
         this.memory = new AbiBayernMemory(0x1000); // 64 * 4 KB of memory
         this.initOpcodeToInstructionMap();
@@ -426,7 +428,16 @@ export class AbiBayernCPU extends CPU {
         for (let item of specialCompletionComments) {
             this.specialCompletionCommentTokens.add(item.tokenType);
         }
+        this.architecture = AbiBayernArchitecture.getArchitectureByName(architectureIdentifier);
         this.reset();
+    }
+
+    getArchitectureIdentifiers(): Architecture[] {
+        return AbiBayernArchitecture.getArchitectures().map(arch => ({ identifier: arch.identifier, localizedName: arch.getLocalizedName() }));
+    }
+
+    getName(): string {
+            return AbiBayernAssemblyMessages.CPUName();
     }
 
     getTokensWithDescription(): { tokenIdentifier: string; description: () => string; }[] {
@@ -762,11 +773,13 @@ export class AbiBayernParser extends AssemblyParser {
 
     tokenToInstructionMap: { [type: number]: Instruction[] } = {};
     tokenSet: Set<AssemblyTokenType> = new Set();
+    architecture: AbiBayernArchitecture;
 
-    constructor() {
+    constructor(architectureIdentifier?: string) {
         super();
         this.initTokenSet();
         this.initTokenToInstructionMap();
+        this.architecture = AbiBayernArchitecture.getArchitectureByName(architectureIdentifier);
     }
 
     parse(tokens: AssemblyToken[], file: CompilerFile): AssemblyParserResult {

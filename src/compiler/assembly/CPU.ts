@@ -16,11 +16,15 @@ export type AssemblyBreakpoint = {
     isOneTime: boolean;
 }
 
+export type Architecture = {
+    identifier: string;
+    localizedName: string;
+}
+
 export var _cpu: string = "__t.cpu.";
 
 export abstract class CPU {
 
-    abstract name: string;
     abstract description: string;
 
     abstract flagNames: string[];
@@ -59,6 +63,10 @@ export abstract class CPU {
     abstract executeNextStep(thread: Thread): boolean;
 
     abstract getDescriptionForCurrentInstruction(): string | undefined;
+
+    abstract getArchitectureIdentifiers(): Architecture[];
+
+    abstract getName(): string;
 
     constructor(protected assemblyParserResult: AssemblyParserResult, protected main: IMain) {
         this.initCodeLocationsField();

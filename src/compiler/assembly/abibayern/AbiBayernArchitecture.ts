@@ -1,11 +1,8 @@
-import type { AbiBayernMemory } from "./AbiBayernMemory";
-
-
-
+import { AbiBayernAssemblyMessages } from "./AbiBayernAssemblyMessages";
 
 export abstract class AbiBayernArchitecture {
 
-    constructor(public name: string, public bitsPerCell: number, public signed: boolean, public valueRangeMin: number, public valueRangeMax: number) {
+    constructor(public identifier: string, public bitsPerCell: number, public signed: boolean, public valueRangeMin: number, public valueRangeMax: number) {
     }
 
     abstract sanitizeValue(value: number): number;
@@ -16,12 +13,14 @@ export abstract class AbiBayernArchitecture {
      */
     abstract storeAddressOperand(pc: number, memory: number[], value: number): number;
 
+    abstract getLocalizedName(): string;
+
     valueIsInsideRange(value: number): boolean {
         return value >= this.valueRangeMin && value <= this.valueRangeMax;
     }
 
     static getArchitectureByName(name: string): AbiBayernArchitecture {
-        return this.getArchitectures().find(arch => arch.name === name) ?? this.getArchitectures()[0];
+        return this.getArchitectures().find(arch => arch.identifier === name) ?? this.getArchitectures()[0];
     }
 
     static getArchitectures(): AbiBayernArchitecture[] {
@@ -92,6 +91,10 @@ class AbiBayernArchitecture16BitSigned extends AbiBayernArchitecture {
         super("16-bit signed", 16, true, -0x8000, 0x7FFF);
     }
 
+    getLocalizedName(): string {
+        return AbiBayernAssemblyMessages.Architecture16BitSigned();
+    }
+
     sanitizeValue(value: number): number {
         return (Math.floor(value) + 0x8000) % 0x10000 - 0x8000; // Ensure value is a signed 16-bit integer
     }
@@ -116,6 +119,10 @@ class AbiBayernArchitecture16BitSigned extends AbiBayernArchitecture {
 class AbiBayernArchitecture16BitUnsigned extends AbiBayernArchitecture {
     constructor() {
         super("16-bit unsigned", 16, false, 0, 0xFFFF);
+    }
+
+    getLocalizedName(): string {
+        return AbiBayernAssemblyMessages.Architecture16BitUnsigned();
     }
 
     sanitizeValue(value: number): number {
@@ -144,6 +151,10 @@ class AbiBayernArchitecture8BitUnsigned extends AbiBayernArchitecture {
         super("8-bit unsigned", 8, false, 0, 0xFF);
     }
 
+    getLocalizedName(): string {
+        return AbiBayernAssemblyMessages.Architecture8BitUnsigned();
+    }
+
     sanitizeValue(value: number): number {
         return Math.floor(Math.abs(value)) % 0x100; // Ensure value is an unsigned 8-bit integer
     }
@@ -169,6 +180,10 @@ class AbiBayernArchitecture8BitUnsigned extends AbiBayernArchitecture {
 class AbiBayernArchitecture8BitSigned extends AbiBayernArchitecture {
     constructor() {
         super("8-bit signed", 8, true, -0x80, 0x7F);
+    }
+
+    getLocalizedName(): string {
+        return AbiBayernAssemblyMessages.Architecture8BitSigned();
     }
 
     sanitizeValue(value: number): number {
