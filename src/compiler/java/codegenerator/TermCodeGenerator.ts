@@ -231,6 +231,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         //     return objectSnippet;
         // }
 
+        if(sourceType.identifier == destType.identifier) {
+            return objectSnippet;
+        }
+
         if (destType instanceof GenericTypeParameter) {
             this.pushError(JCM.cantCastFromTo(sourceType.identifier, destType.identifier), "error", node);
 
@@ -349,7 +353,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 }
             }
 
-            castParameters.push(this.compileCast(parameterValues[i]!, destinationType, "implicit"));
+            castParameters.
+            push(this.compileCast(parameterValues[i]!, destinationType, "implicit"));
         }
 
         if (!ellipsisType) return castParameters;
@@ -1635,6 +1640,17 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             //     this.module.errors.push(...errors);
             //     return { best: undefined, possible: possibleMethods };
             // }
+
+            for(let gtp of bestMethodSoFar.genericTypeParameters) {
+                if(gtp.catches){
+                    gtp.catches = gtp.catches.map(c => {
+                        if(c == this.primitiveStringClass.type){
+                            return this.stringNonPrimitiveType;
+                        }
+                        return c;
+                    })                    
+                }
+            }
 
             return { best: bestMethodSoFar.getNonGenericCopyWithConcreteTypes(), possible: possibleMethods };
 
