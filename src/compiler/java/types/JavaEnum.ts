@@ -206,7 +206,7 @@ export class JavaEnum extends JavaTypeWithInstanceInitializer {
         this.methods.push(valuesMethod);
 
         klass["_valueOf"] = (klass["_mn$valueOf$" + this.identifier + "$string"] = (name: string) => {
-            let value = klass[name];
+            let value = klass["$f_" + name];
             if (!value) return null;
             return value;
         })
