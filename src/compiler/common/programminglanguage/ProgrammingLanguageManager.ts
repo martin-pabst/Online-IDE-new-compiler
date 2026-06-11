@@ -11,7 +11,7 @@ export class ProgrammingLanguageManager {
     private constructor(){
         ProgrammingLanguageManager.instance = this;
         this.languages.push(JavaLanguage.getInstance());
-        this.languages.push(AssemblyLanguage.getInstance());
+        // this.languages.push(AssemblyLanguage.getInstance());
     }
 
     public static getInstance(): ProgrammingLanguageManager {
