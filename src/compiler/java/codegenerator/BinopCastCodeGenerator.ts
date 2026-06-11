@@ -919,7 +919,7 @@ export abstract class BinopCastCodeGenerator {
 
         } else {
 
-            return new OneParameterTemplate(operator + "§1").applyToSnippet(resultType, range, snippet);
+            return new OneParameterTemplate(operator + "(§1)").applyToSnippet(resultType, range, snippet);
 
         }
 
