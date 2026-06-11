@@ -255,6 +255,8 @@ export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem,
 
         interpreter.graphicsManager?.resizeGraphicsDivHeight();
 
+        this.computeCurrentWorldBounds();
+
     }
 
     onProgramStopped() {
