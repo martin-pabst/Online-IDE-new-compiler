@@ -10,7 +10,7 @@ export default {
         ...commonConfig.build,
         rollupOptions: {
             input: {
-                embedded: './embedded.html',
+                embedded: './embedded_java.html',
             },
             output: {
                 entryFileNames: _assetInfo => {
