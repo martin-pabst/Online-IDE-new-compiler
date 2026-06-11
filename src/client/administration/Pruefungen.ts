@@ -622,7 +622,16 @@ export class Pruefungen extends AdminMenuItem {
     }
 
     insertCodeIntoDiv(code: string, div: JQuery<HTMLElement>) {
+        let code1 = code;
+       
         let lines = code.split("\n");
+        let length = lines.length;
+
+        if(lines.length > 10000){
+            lines = lines.slice(0, 10000);
+            lines.unshift("Der Code war " + length + " Zeilen lang und wurde auf 10000 Zeilen gekürzt, da er zu lang für die Anzeige ist. Den vollständigen Code finden Sie in der Korrekturansicht.");
+        }
+
         for (let line of lines) {
             makeDiv(null, null, line, null, div);
         }
