@@ -15,7 +15,7 @@
             "name": "Debug Embedded Edge",
             "request": "launch",
             "type": "msedge",
-            "url": "http://localhost:3000/embedded.html",
+            "url": "http://localhost:3000/embedded_java.html",
             "webRoot": "${workspaceFolder}"
         },
         {
@@ -36,7 +36,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Debug Embedded Chrome",
-            "url": "http://localhost:3000/embedded.html",
+            "url": "http://localhost:3000/embedded_java.html",
             "webRoot": "${workspaceFolder}"
         },
         {
