@@ -49,6 +49,8 @@ import { ProgrammingLanguageManager } from "../../compiler/common/programminglan
 import { Repl } from "../../compiler/common/repl/Repl.js";
 import { AssemblyLanguageDebugger } from "../../compiler/assembly/debugger/AssemblyLanguageDebugger.js";
 import { Debugger } from "../../compiler/common/debugger/Debugger.js";
+import * as PIXI from 'pixi.js';
+import { LoginMessages } from "../main/language/MainLanguage.js";
 
 /**
  * Configuration options for the Java Online IDE in embedded mode.
@@ -764,6 +766,11 @@ export class MainEmbedded implements MainBase {
             }
         }
 
+        if (!PIXI.isWebGLSupported()) {
+            printManager?.print(LoginMessages.webGLNotSupported(), true, 0xff2020);
+        }
+
+
         // this.interpreter.eventManager.on("stateChanged", (oldState: SchedulerState, newState: SchedulerState) => {
         //     if (newState == SchedulerState.paused) {
         //         this.$debuggerDiv.show();
@@ -1036,7 +1043,7 @@ export class MainEmbedded implements MainBase {
 
         if (this.$debuggerDiv) {
             let dd = <HTMLDivElement>this.$debuggerDiv[0];
-            
+
             this.debugger?.remove();
             dd.innerHTML = "";
             switch (this.language.getDebuggerType()) {
