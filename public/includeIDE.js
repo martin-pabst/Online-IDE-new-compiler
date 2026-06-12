@@ -45,6 +45,8 @@ function initScripts(jo_doc) {
     jo_doc = jo_doc.replace(/&lt;script/g, '<script');
     jo_doc = jo_doc.replace(/&lt;\/script&gt;/g, '</script>');
     jo_doc = jo_doc.replace(/"&gt;/g, '">');
+    jo_doc = jo_doc.replace(/&gt;/g, '>'); // bugfix: using text formula and online-ide embedded in same textfield leads to &gt; and &lt; inside sourcecodes
+    jo_doc = jo_doc.replace(/&lt;/g, '<');
 
     let scriptPosition = jo_doc.indexOf('<script');
     let scripts = jo_doc.substr(scriptPosition);
