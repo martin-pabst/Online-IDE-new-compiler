@@ -632,15 +632,52 @@ export class SettingsMessages {
         'fr': `Non`
     });
 
-    static AddWorkspaceAssemblyName = () => lm({
+    static AssemblyEnabledName = () => lm({
         'de': `Assembler zur Sprachauswahl hinzufügen`,
         'en': `Add assembly to language selection`,
         'fr': `Ajouter l'assembleur à la sélection de langue`
     });
 
-    static AddWorkspaceAssemblyDescription = () => lm({
+    static AssemblyEnabledDescription = () => lm({
         'de': `Hier können Sie einstellen, ob die Sprache "Assembler" in der Sprachauswahl hinzugefügt werden soll.`,
         'en': `Here you can set whether the language "Assembler" should be added to the language selection.`,
         'fr': `Ici, vous pouvez définir si le langage "Assembler" doit être ajouté à la sélection de langue.`
     });
+
+    static AssemblyName = () => lm({
+        'de': `Assembler`,
+        'en': `Assembler`,
+        'fr': `Assembleur`
+    });
+
+    static AssemblyDescription = () => lm({
+        'de': `Einstellungen zur Programmiersprache Assembler.`,
+        'en': `Settings for assembly language.`,
+        'fr': `Paramètres pour le langage de programmation Assembleur.`
+    });
+
+    static ProgrammingLanguagesSettingsName = () => lm({
+        'de': `Programmiersprachen`,
+        'en': `Programming Languages`,
+        'fr': `Langages de programmation`
+    });
+
+    static ProgrammingLanguagesSettingsDescription = () => lm({
+        'de': `Hier können Sie Einstellungen vornehmen, die sich auf die unterstützten Programmiersprachen beziehen.`,
+        'en': `Here you can adjust settings related to the supported programming languages.`,
+        'fr': `Ici, vous pouvez ajuster les paramètres liés aux langages de programmation pris en charge.`
+    });
+
+    static AssemblyDefaultArchitectureName = () => lm({
+        'de': `Standard-Speicherarchitektur für Assembler`,
+        'en': `Default memory architecture for assembly language`,
+        'fr': `Architecture mémoire par défaut pour le langage assembleur`
+    });
+
+    static AssemblyDefaultArchitectureDescription = () => lm({
+        'de': `Hier können Sie einstellen, wie viel Bit die Speicherzellen standardmäßig haben sollen und ob ihr Wert vorzeichenbehaftet oder vorzeichenlos interpretiert werden soll.`,
+        'en': `Here you can set how many bits the memory cells should have by default and whether their value should be interpreted as signed or unsigned.`,
+        'fr': `Ici, vous pouvez définir combien de bits les cellules de mémoire doivent avoir par défaut et si leur valeur doit être interprétée comme signée ou non signée.`
+    });
+
 }

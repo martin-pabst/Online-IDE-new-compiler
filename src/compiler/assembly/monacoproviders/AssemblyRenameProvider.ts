@@ -1,13 +1,13 @@
 import * as monaco from 'monaco-editor'
 import { BaseMonacoProvider } from '../../common/monacoproviders/BaseMonacoProvider.ts';
-import { AssemblyLanguage } from '../AssemblyLanguage.ts';
+import { ByAssemblyLanguage } from '../byassembly/ByAssemblyLanguage.ts';
 import { AssemblyModule } from '../AssemblyModule.ts';
 import { Range } from '../../common/range/Range.ts';
 
 
 export class AssemblyRenameProvider extends BaseMonacoProvider implements monaco.languages.RenameProvider {
 
-    constructor(language: AssemblyLanguage) {
+    constructor(language: ByAssemblyLanguage) {
         super(language);
         monaco.languages.registerRenameProvider(language.monacoLanguageSelector, this);
     }

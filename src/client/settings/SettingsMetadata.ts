@@ -14,6 +14,7 @@ import showHelpForKeywords from '/assets/graphics/settings/show_help_for_keyword
 
 import type * as monaco from 'monaco-editor'
 import { SettingKey, SettingsScope, SettingValue } from "./SettingsStore";
+import { ByArchitecture } from "../../compiler/assembly/byassembly/ByArchitecture";
 
 
 export type SettingValues = Partial<Record<SettingKey, SettingValue>>;
@@ -384,23 +385,6 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     treeview.sort();
                 }
             },
-            {
-                key: "explorer.addWorkspace.assembly",
-                settingType: 'setting',
-                name: SettingsMessages.AddWorkspaceAssemblyName,
-                description: SettingsMessages.AddWorkspaceAssemblyDescription,
-                type: 'enumeration',
-                optionValues: ["yes", "no"],
-                optionTexts: [
-                    SettingsMessages.yes,
-                    SettingsMessages.no
-                ],
-                action: (main, value) => {
-                    let treeview = main.projectExplorer.workspaceTreeview;
-                    treeview.config.orderBy = value as 'comparator' | 'user-defined';
-                    treeview.sort();
-                }
-            },
         ]
     },
     {
@@ -443,6 +427,48 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                 optionTexts: [
                     SettingsMessages.yes,
                     SettingsMessages.no,
+                ]
+            }
+        ]
+    },
+    {
+        settingType: 'group',
+        name: SettingsMessages.ProgrammingLanguagesSettingsName,
+        description: SettingsMessages.ProgrammingLanguagesSettingsDescription,
+        settings: [
+            {
+                settingType: 'group',
+                name: SettingsMessages.AssemblyName,
+                description: SettingsMessages.AssemblyDescription,
+                settings: [
+                    {
+                        key: "programmingLanguages.assembly.enabled",
+                        settingType: 'setting',
+                        name: SettingsMessages.AssemblyEnabledName,
+                        description: SettingsMessages.AssemblyEnabledDescription,
+                        type: 'enumeration',
+                        optionValues: ["yes", "no"],
+                        optionTexts: [
+                            SettingsMessages.yes,
+                            SettingsMessages.no
+                        ],
+                        action: (main, value) => {
+                            let treeview = main.projectExplorer.workspaceTreeview;
+                            treeview.config.orderBy = value as 'comparator' | 'user-defined';
+                            treeview.sort();
+                        }
+                    },
+                    {
+                        key: "programmingLanguages.assembly.defaultArchitecture",
+                        settingType: 'setting',
+                        name: SettingsMessages.AssemblyDefaultArchitectureName,
+                        description: SettingsMessages.AssemblyDefaultArchitectureDescription,
+                        type: 'enumeration',
+                        optionValues: ByArchitecture.getArchitectures().map(arch => arch.identifier),
+                        optionTexts: ByArchitecture.getArchitectures().map(arch => arch.getLocalizedName()),
+                        
+                    }
+
                 ]
             }
         ]

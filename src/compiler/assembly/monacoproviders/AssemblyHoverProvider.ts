@@ -1,13 +1,13 @@
 import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider";
 import * as monaco from 'monaco-editor'
-import { AssemblyLanguage } from "../AssemblyLanguage";
+import { ByAssemblyLanguage } from "../byassembly/ByAssemblyLanguage";
 import { AssemblyModule } from "../AssemblyModule";
 import { Range } from "../../common/range/Range";
 import { AssemblyMonacoProvidersMessages } from "./AssemblyMonacoProvidersMessages";
 
 export class AssemblyHoverProvider extends BaseMonacoProvider implements monaco.languages.HoverProvider {
 
-    constructor(language: AssemblyLanguage) {
+    constructor(language: ByAssemblyLanguage) {
         super(language);
         monaco.languages.registerHoverProvider(language.monacoLanguageSelector, this);
     }

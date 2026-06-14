@@ -1,4 +1,6 @@
+import type { Dialog } from "../../../client/main/gui/Dialog";
 import { Settings } from "../../../client/settings/Settings";
+import type { Workspace } from "../../../client/workspace/Workspace";
 import { Compiler } from "../Compiler";
 import { DebuggerType } from "../debugger/Debugger";
 import { IMain } from "../IMain";
@@ -69,4 +71,11 @@ export abstract class ProgrammingLanguage {
      * So instead, the Main creates the Debugger and the ProgrammingLanguage only returns the type of the Debugger.
      */
     public abstract getDebuggerType(): DebuggerType;
+
+    public abstract setupWorkspaceSettings(dialog: Dialog, main: IMain, languageSpecificDiv: HTMLDivElement, 
+        workspace: Workspace);
+
+    public abstract retrieveWorkspaceSettings(main: IMain, $languageSpecificDiv: HTMLDivElement, workspace: Workspace): boolean;
+
+
 }   

@@ -22,6 +22,10 @@ import { JavaLibraryManager } from "./runtime/JavaLibraryManager.ts";
 import { LibraryManager } from "../common/programminglanguage/LibraryManager.ts";
 import { DebuggerType } from "../common/debugger/Debugger.ts";
 import { ProgrammingLanguageData } from "../common/programminglanguage/ProgrammingLanguageData.ts";
+import type { Workspace } from "../../client/workspace/Workspace.ts";
+import { DOM } from "../../tools/DOM.ts";
+import { WorkspaceSettingsDialogMessages } from "../../client/main/gui/language/GUILanguage.ts";
+import type { Dialog } from "../../client/main/gui/Dialog.ts";
 
 export class JavaLanguage extends ProgrammingLanguage {
 
@@ -309,7 +313,7 @@ export class JavaLanguage extends ProgrammingLanguage {
         }
         main.getInterpreter().showTriangleAtProgramPointer = true;
 
-        setTimeout(() => {            
+        setTimeout(() => {
             main.getActionManager().setVisible("interpreter.stepOver", true);
             main.getActionManager().setVisible("interpreter.stepInto", true);
             main.getActionManager().setVisible("interpreter.stepOut", true);
@@ -343,6 +347,46 @@ export class JavaLanguage extends ProgrammingLanguage {
 
     getDebuggerType(): DebuggerType {
         return "java";
+    }
+
+    public setupWorkspaceSettings(dialog: Dialog, main: IMain, languageSpecificDiv: HTMLDivElement, workspace: Workspace) {
+        let libraryManager = this.getLibraryManager();
+        
+        let currentLibraries = workspace.settings.libraries;
+        
+        if (libraryManager.getLibrariesData().length > 0) {
+            DOM.makeDiv(languageSpecificDiv, "dialog-subheading", "languagesettings").textContent = WorkspaceSettingsDialogMessages.usedLibraries();
+            for (let library of libraryManager.getLibrariesData()) {
+                let cbs = dialog.addCheckbox(library.identifier + " (" + library.description + ")", currentLibraries.indexOf(library.id) >= 0, library.id, languageSpecificDiv);
+                library.checkboxState = cbs;
+            }
+            
+        }
+
+    }
+    
+    public retrieveWorkspaceSettings(main: IMain, $languageSpecificDiv: HTMLDivElement, workspace: Workspace): boolean {
+        let currentLibraries = workspace.settings.libraries;
+        let libraryManager = this.getLibraryManager();
+
+        let librariesChanged: boolean = false;
+        let newLibs: string[] = [];
+        for (let lib of libraryManager.getLibrariesData()) {
+            let used = lib.checkboxState();
+            librariesChanged = librariesChanged || (used != (currentLibraries.indexOf(lib.id) >= 0));
+            if (used) newLibs.push(lib.id);
+        }
+
+        if (librariesChanged) {
+            workspace.settings.libraries = newLibs;
+            workspace.saved = false;
+            workspace.getFiles().forEach(f => main.getCompiler().setFileDirty(f));
+            main.getCompiler().triggerCompile();
+
+            workspace.setLibraries(main.getCompiler());
+        }
+
+        return librariesChanged;
     }
 
 }

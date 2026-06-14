@@ -184,9 +184,14 @@ export class NetworkManager {
                             that.updateWorkspaces(request, response, alertIfNewWorkspacesFound);
                         }
 
-                        if (response.filesToForceUpdate != null) {
-                            that.updateFiles(response.filesToForceUpdate);
-                        }
+
+                        /**
+                         * 13.06.2026: filesToForceUpdate was used to to update student's file if
+                         * a teacher was editing them concurrently.
+                         */
+                        // if (response.filesToForceUpdate != null) {
+                        //     that.updateFiles(response.filesToForceUpdate);
+                        // }
 
                         // if(response.activePruefung != null){
                         //     that.main.pruefungManagerForStudents.startPruefung(response.activePruefung);

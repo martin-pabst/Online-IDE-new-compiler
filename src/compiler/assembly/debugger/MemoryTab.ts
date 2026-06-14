@@ -4,7 +4,7 @@ import { CPU } from "../CPU";
 import { AssemblyDebuggerMessages } from "../language/AssemblyDebuggerMessages";
 import '/assets/css/debugger.css';
 import { IMain } from "../../common/IMain";
-import { AssemblyCompiler } from "../AssemblyCompiler";
+import { ByAssemblyCompiler } from "../byassembly/ByAssemblyCompiler";
 import { AssemblyModule } from "../AssemblyModule";
 import "regular-table";
 import '/assets/css/regular-table/material.css';
@@ -34,7 +34,7 @@ export class MemoryTab extends Tab {
     columnsPerRow: number = 10;
     base: number = 10;
 
-    compiler: AssemblyCompiler;
+    compiler: ByAssemblyCompiler;
 
     constructor(private main: IMain) {
         super("Memory Tab", AssemblyDebuggerMessages.MemoryTabCaption(),
@@ -48,7 +48,7 @@ export class MemoryTab extends Tab {
         this.updateMemoryView(cpu);
     }
 
-    listenToCompiler(compiler: AssemblyCompiler) {
+    listenToCompiler(compiler: ByAssemblyCompiler) {
         this.compiler = compiler;
         compiler.eventManager.on("compilationFinished", this.onCompilationFinished, this);
     }
@@ -118,7 +118,10 @@ export class MemoryTab extends Tab {
         for (let i = 0; i < cpu.registerNames.length; i++) {
             let registerName = cpu.registerNames[i];
             let registerNameShort = cpu.registerNamesShort[i];
-            let registerNameDiv = DOM.makeDiv(this.heading1Div, "jo_memorytab_registername");
+
+            let additionalClass = "jo_memorytab_register-" + registerNameShort.toLowerCase();
+
+            let registerNameDiv = DOM.makeDiv(this.heading1Div, "jo_memorytab_registername", additionalClass);
             registerNameDiv.textContent = registerNameShort + ":";
 
             let registerDiv = DOM.makeDiv(this.heading1Div, "jo_memorytab_registervalue");
@@ -173,6 +176,7 @@ export class MemoryTab extends Tab {
 
         let statementStartAddress = this.lastDisplayedCPU.getProgramCounter();
         let statementEndAddress = statementStartAddress + this.lastDisplayedCPU.getStatementLengthAtProgramCounter();
+        let stackPointer = this.lastDisplayedCPU.getStackPointer();
 
         let { location, indirectLocation } = this.lastDisplayedCPU.getAddressOperandLocationOfCurrentStatement();
 
@@ -195,6 +199,9 @@ export class MemoryTab extends Tab {
                 }
                 if (indirectLocation === address) {
                     metadataEntry.classes.push("jo_memorytab_indirectoperand");
+                }
+                if (stackPointer === address) {
+                    metadataEntry.classes.push("jo_memorytab_reveal-sp");
                 }
 
                 columnMetadata.push(metadataEntry);

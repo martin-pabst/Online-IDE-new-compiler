@@ -51,6 +51,20 @@
             "program": "${workspaceFolder}/src/development/spritesheetgenerator.js",
             "request": "launch",
             "type": "node"
-        }
+        },
+        {
+            "name": "Debug Embedded Edge Ass",
+            "request": "launch",
+            "type": "msedge",
+            "url": "http://localhost:3000/embedded_assembly.html",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Debug Embedded Chrome Ass",
+            "url": "http://localhost:3000/embedded_assembly.html",
+            "webRoot": "${workspaceFolder}"
+        },
     ]
 }

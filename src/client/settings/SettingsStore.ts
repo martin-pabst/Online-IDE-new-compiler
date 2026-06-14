@@ -1,3 +1,4 @@
+import { ByArchitecture } from "../../compiler/assembly/byassembly/ByArchitecture";
 
 export type SettingsScope = 'user' | 'class' | 'school' | 'default';
 
@@ -30,12 +31,14 @@ export type SettingsType = {
 
     "explorer.fileOrder": "user-defined" | "comparator",
     "explorer.workspaceOrder": "user-defined" | "comparator",
-    "explorer.addWorkspace.java": "yes" | "no",
-    "explorer.addWorkspace.assembly": "yes" | "no",
+    "programmingLanguages.java.enabled": "yes" | "no",
+    "programmingLanguages.assembly.enabled": "yes" | "no",
 
     "compiler.shadowedSymbolErrorLevel": "ignore" | "info" | "warning" | "error",
 
     "output.clearOutputAfterWorkspaceChange": "yes" | "no",
+
+    "programmingLanguages.assembly.defaultArchitecture": string;
 
 }
 
@@ -63,12 +66,14 @@ export var SettingDefaultValues: SettingsType = {
     
     "explorer.fileOrder": "user-defined",
     "explorer.workspaceOrder": "user-defined",
-    "explorer.addWorkspace.java": "yes",
-    "explorer.addWorkspace.assembly": "no",
+    "programmingLanguages.java.enabled": "yes",
+    "programmingLanguages.assembly.enabled": "no",
 
     "compiler.shadowedSymbolErrorLevel": "warning",
     
     "output.clearOutputAfterWorkspaceChange": "no",
+
+    "programmingLanguages.assembly.defaultArchitecture": ByArchitecture.getArchitectures()[0].identifier
 
 };
 

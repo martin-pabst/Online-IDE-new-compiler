@@ -1,21 +1,23 @@
-import { BaseType } from "../common/BaseType";
-import { Compiler, CompilerEvents } from "../common/Compiler";
-import { Error } from "../common/Error";
-import { IMain } from "../common/IMain";
-import { EventManager } from "../common/interpreter/EventManager";
-import { CompilerFile } from "../common/module/CompilerFile";
-import { FileTypeManager } from "../common/module/FileTypeManager";
-import { Module } from "../common/module/Module";
-import { ErrorMarker } from "../common/monacoproviders/ErrorMarker";
-import { AbiBayernCPU, AbiBayernParser } from "./abibayern/AbiBayernCPU";
-import { AssemblyExecutable } from "./AssemblyExecutable";
-import { AssemblyLexer } from "./AssemblyLexer";
-import { AssemblyModule } from "./AssemblyModule";
-import { AssemblyModuleManager } from "./AssemblyModuleManager";
+import { BaseType } from "../../common/BaseType";
+import { Compiler, CompilerEvents } from "../../common/Compiler";
+import { Error } from "../../common/Error";
+import { IMain } from "../../common/IMain";
+import { EventManager } from "../../common/interpreter/EventManager";
+import { CompilerFile } from "../../common/module/CompilerFile";
+import { FileTypeManager } from "../../common/module/FileTypeManager";
+import { Module } from "../../common/module/Module";
+import { ErrorMarker } from "../../common/monacoproviders/ErrorMarker";
+import { ByCPU, ByParser } from "./ByCPU";
+import { AssemblyExecutable } from "../AssemblyExecutable";
+import { AssemblyLexer } from "../AssemblyLexer";
+import { AssemblyModule } from "../AssemblyModule";
+import { AssemblyModuleManager } from "../AssemblyModuleManager";
+import { ProgrammingLanguageData } from "../../common/programminglanguage/ProgrammingLanguageData";
+import { ByArchitecture } from "./ByArchitecture";
 
 const compileTimeout = 800
 
-export class AssemblyCompiler implements Compiler {
+export class ByAssemblyCompiler implements Compiler {
     eventManager: EventManager<CompilerEvents> = new EventManager<CompilerEvents>();
 
     #files: CompilerFile[] = [];
@@ -81,21 +83,29 @@ export class AssemblyCompiler implements Compiler {
 
     compileIfDirty(): AssemblyExecutable | undefined {
 
+        let architectureName: string|undefined = undefined;
+
         // if we're not in test mode
         if (this.main) {
             if (this.main.getInterpreter().isRunningOrPaused()) return;
             const currentWorkspace = this.main?.getCurrentWorkspace();
             if (!currentWorkspace) return;
             let files = currentWorkspace.getFiles()
-                .filter(file => FileTypeManager.filenameToFileType(file.name, this.main.getCurrentProgrammingLanguage()).language == 'myAssembly'
+                .filter(file => FileTypeManager.filenameToFileType(file.name, this.main.getCurrentProgrammingLanguage()).language == ProgrammingLanguageData.ByAssembly.name
                     && !file.isFolder);
             this.setFiles(files);
+
+            architectureName = currentWorkspace.settings.assemblyArchitecture;
+        }
+
+        if(!architectureName) {
+            architectureName = <string>this.main?.getSettings().getValue("programmingLanguages.assembly.defaultArchitecture") ?? ByArchitecture.getArchitectures()[0].identifier;
         }
 
         if (this.#files.length === 0) return;
 
         let lexer = new AssemblyLexer();
-        let parser = new AbiBayernParser();
+        let parser = new ByParser(architectureName);
 
         let atLeastOneModuleCompiled = false;
 
@@ -111,7 +121,7 @@ export class AssemblyCompiler implements Compiler {
             parserResult.errors = [...tokens.errors, ...parserResult.errors];
             parserResult.commentRanges = tokens.commentRanges;
 
-            const cpu = new AbiBayernCPU(parserResult, this.main!);
+            const cpu = new ByCPU(parserResult, this.main!, architectureName);
             module.cpu = cpu;
             module.setDirty(false);
             atLeastOneModuleCompiled = true;

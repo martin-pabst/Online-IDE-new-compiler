@@ -1,13 +1,13 @@
 import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import { Range } from "../../common/range/Range.ts";
-import { AssemblyLanguage } from "../AssemblyLanguage.ts";
+import { ByAssemblyLanguage } from "../byassembly/ByAssemblyLanguage.ts";
 import { AssemblyModule } from "../AssemblyModule.ts";
 import * as monaco from 'monaco-editor'
 
 
 export class AssemblyReferenceProvider extends BaseMonacoProvider implements monaco.languages.ReferenceProvider {
 
-    constructor(language: AssemblyLanguage) {
+    constructor(language: ByAssemblyLanguage) {
         super(language);
         monaco.languages.registerReferenceProvider(language.monacoLanguageSelector, this);
     }

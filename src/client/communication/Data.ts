@@ -38,7 +38,8 @@ export type ViewMode = {
 
 export type WorkspaceSettings = {
     language: string,
-    libraries: string[]
+    libraries?: string[],
+    assemblyArchitecture?: string
 }
 
 export type FileData = {

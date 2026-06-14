@@ -30,6 +30,7 @@
 
     --memorytab-codebackground: #1c6de78f;
     --memorytab-revealoperand: #22ff00;
+    --memorytab-revealstackpointer: #802020;
     
     .jo_memorytab {
         display: flex;
@@ -54,6 +55,8 @@
     .jo_memorytab_registername {
         color: var(--debugger-localVariableIdentifier);
         font-weight: bold;
+        height: fit-content;
+        padding: 0 2px;
     }
 
     .jo_memorytab_registervalue {
@@ -127,6 +130,18 @@
     .jo_memorytab_indirectoperand {
         border: 2px solid var(--memorytab-revealoperand);
         box-sizing: border-box;
+    }
+
+    .jo_memorytab_register-pc {
+        background-color: var(--reveal-programpointer);
+    }
+    
+    .jo_memorytab_register-sp {
+        border: 2px solid var(--memorytab-revealstackpointer);
+    }
+    
+    .jo_memorytab_reveal-sp {
+        border: 2px solid var(--memorytab-revealstackpointer);
     }
 
 }

@@ -29,6 +29,7 @@ import { RepositoryExporter } from '../../workspace/RepositoryImporterExporter.j
 import { ProgrammingLanguageManager } from '../../../compiler/common/programminglanguage/ProgrammingLanguageManager.js';
 import { ProgrammingLanguage } from '../../../compiler/common/programminglanguage/ProgrammingLanguage.js';
 import { ProgrammingLanguageData } from '../../../compiler/common/programminglanguage/ProgrammingLanguageData.js';
+import { ByArchitecture } from '../../../compiler/assembly/byassembly/ByArchitecture.js';
 
 
 export class ProjectExplorer {
@@ -393,6 +394,10 @@ export class ProjectExplorer {
             w.parent_folder_id = node.getParent().externalObject?.id ?? null;
             if(language){
                 w.settings.language = language.name;
+                if(language.name == ProgrammingLanguageData.ByAssembly.name){
+                    let defaultArchitecture = <string>this.main.getSettings().getValue("programmingLanguages.assembly.defaultArchitecture");
+                    w.settings.assemblyArchitecture = defaultArchitecture ?? ByArchitecture.getArchitectures()[0].identifier;
+                }
             } else {
                 w.settings.language = "Java";
             }

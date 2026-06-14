@@ -2,7 +2,7 @@ import { AssemblyCompiledCodePart } from "../AssemblyParser";
 import { Memory } from "../Memory";
 
 
-export class AbiBayernMemory extends Memory {
+export class ByMemory extends Memory {
     private memory: number[] = [];     // signed 16-bit integers
 
     // 0x100000 = 1 MB

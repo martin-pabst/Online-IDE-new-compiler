@@ -2,7 +2,7 @@ import chalk from "chalk";
 import fs from "fs";
 import { test } from "vitest";
 import { Interpreter } from "../compiler/common/interpreter/Interpreter";
-import { AssemblyCompiler } from "../compiler/assembly/AssemblyCompiler";
+import { ByAssemblyCompiler } from "../compiler/assembly/byassembly/ByAssemblyCompiler";
 import { CompilerFile } from "../compiler/common/module/CompilerFile";
 import { getLine, getLineNumber, threeDez } from "../tools/StringTools";
 import { StoreOutputPrintManager } from "./StoreOutputPrintManager";
@@ -81,7 +81,7 @@ function compileAndTest(name: string, program: string, lineOffset: number,
 
         file.setText(program);
 
-        let compiler = new AssemblyCompiler();
+        let compiler = new ByAssemblyCompiler();
 
         compiler.setFiles([<any>file]);
         let executable = await compiler.compileIfDirty();

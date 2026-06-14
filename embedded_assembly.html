@@ -19,24 +19,26 @@
         'hideEditor': false,
         'hideStartPanel': false,
         'libraries': [],
-        'programmingLanguage': 'Assembly',
+        'programmingLanguage': 'ByAssembly',
         'settings': {
             'compiler.shadowedSymbolErrorLevel': 'error'
         },
         'withClassDiagram': true
 
     }">
-        <script type="text/plain" title="Test1.java" data-type="java">
+        <script type="text/plain" title="Test1.asm" data-type="java">
 
-            String test(){
-                println("test() wurde aufgerufen");
-                return "x";
-            }
+           start: load b 
+       subi 1
+       store b
+       jne start
+       .assert { 
+          a:  0,
+          b:  1
+          }
+       hold 
 
-            boolean b = true;
-            String a = b ? "true" : test();
-
-            println(a);
+b:     word 10
             
         </script>
     </div>

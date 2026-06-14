@@ -2,7 +2,8 @@ import { JavaLanguage } from "../../java/JavaLanguage";
 import { IMain } from "../IMain";
 import { ProgrammingLanguage } from "./ProgrammingLanguage";
 import { ErrorMarker } from "../monacoproviders/ErrorMarker";
-import { AssemblyLanguage } from "../../assembly/AssemblyLanguage";
+import { ByAssemblyLanguage } from "../../assembly/byassembly/ByAssemblyLanguage";
+import { ProgrammingLanguageData } from "./ProgrammingLanguageData";
 
 export class ProgrammingLanguageManager {
     private languages: ProgrammingLanguage[] = [];
@@ -11,7 +12,7 @@ export class ProgrammingLanguageManager {
     private constructor(){
         ProgrammingLanguageManager.instance = this;
         this.languages.push(JavaLanguage.getInstance());
-        // this.languages.push(AssemblyLanguage.getInstance());
+        this.languages.push(ByAssemblyLanguage.getInstance());
     }
 
     public static getInstance(): ProgrammingLanguageManager {
@@ -42,10 +43,10 @@ export class ProgrammingLanguageManager {
     public getLanguagesSelection(main: IMain): ProgrammingLanguage[] {
         let settings = main.getSettings();
         let languages: ProgrammingLanguage[] = [
-            this.getLanguageByName("Java")
+            this.getLanguageByName(ProgrammingLanguageData.Java.name)
         ];
-        if(settings.getValue("explorer.addWorkspace.assembly") == "yes"){
-            languages.push(this.getLanguageByName("Assembly"));
+        if(settings.getValue("programmingLanguages.assembly.enabled") == "yes"){
+            languages.push(this.getLanguageByName(ProgrammingLanguageData.ByAssembly.name));
         }
         return languages;
     }

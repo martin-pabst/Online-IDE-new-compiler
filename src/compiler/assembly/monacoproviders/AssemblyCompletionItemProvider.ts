@@ -1,6 +1,6 @@
 import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider.ts";
 import * as monaco from 'monaco-editor'
-import { AssemblyLanguage } from "../AssemblyLanguage.ts";
+import { ByAssemblyLanguage } from "../byassembly/ByAssemblyLanguage.ts";
 import { AssemblyModule } from "../AssemblyModule.ts";
 import { IRange, Range } from "../../common/range/Range.ts";
 import { IMain } from "../../common/IMain.ts";
@@ -12,7 +12,7 @@ import type { AssemblyCompletionItemRange } from "../AssemblyParser.ts";
 export class AssemblyCompletionItemProvider extends BaseMonacoProvider implements monaco.languages.CompletionItemProvider {
     public triggerCharacters: string[] = ' .abcdefghijklmnopqrstuvwxyzäöüß_ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ@'.split('');
 
-    constructor(public language: AssemblyLanguage) {
+    constructor(public language: ByAssemblyLanguage) {
         super(language);
         monaco.languages.registerCompletionItemProvider(language.monacoLanguageSelector, this);
     }
@@ -102,7 +102,7 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
                     documentation: {
                         value: token.description()
                     },
-                    insertText: token.tokenIdentifier + " ",
+                    insertText:  token.insertText || token.tokenIdentifier + " ",
                     range: rangeToReplace
                 } as monaco.languages.CompletionItem;
             }));

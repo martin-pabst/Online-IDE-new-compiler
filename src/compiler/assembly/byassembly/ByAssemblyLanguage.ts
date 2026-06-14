@@ -1,43 +1,51 @@
-import { IMain } from "../common/IMain.ts";
-import { ProgrammingLanguage } from "../common/programminglanguage/ProgrammingLanguage.ts";
-import { ErrorMarker } from "../common/monacoproviders/ErrorMarker.ts";
+import { IMain } from "../../common/IMain.ts";
+import { ProgrammingLanguage } from "../../common/programminglanguage/ProgrammingLanguage.ts";
+import { ErrorMarker } from "../../common/monacoproviders/ErrorMarker.ts";
 import * as monaco from 'monaco-editor'
-import { LibraryManager } from "../common/programminglanguage/LibraryManager.ts";
-import { AssemblyLibraryManager } from "./AssemblyLibraryManager.ts";
-import { AssemblyCompiler } from "./AssemblyCompiler.ts";
-import { MemoryTab } from "./debugger/MemoryTab.ts";
-import { AssemblyCompletionItemProvider } from "./monacoproviders/AssemblyCompletionItemProvider.ts";
-import { AssemblyReferenceProvider } from "./monacoproviders/AssemblyReferenceProvider.ts";
-import { AssemblyDefinitionProvider } from "./monacoproviders/AssemblyDefinitionProvider.ts";
-import { AssemblyHoverProvider } from "./monacoproviders/AssemblyHoverProvider.ts";
-import { AssemblyRenameProvider } from "./monacoproviders/AssemblyRenameProvider.ts";
-import { AssemblySymbolAndMethodMarker } from "./monacoproviders/AssemblySymbolAndMethodMarker.ts";
-import { lm } from "../../tools/language/LanguageManager.ts";
-import { AssemblyFormatter } from "./monacoproviders/AssemblyFormatter.ts";
-import { ProgrammingLanguageData } from "../common/programminglanguage/ProgrammingLanguageData.ts";
+import { LibraryManager } from "../../common/programminglanguage/LibraryManager.ts";
+import { AssemblyLibraryManager } from "../AssemblyLibraryManager.ts";
+import { ByAssemblyCompiler } from "./ByAssemblyCompiler.ts";
+import { MemoryTab } from "../debugger/MemoryTab.ts";
+import { AssemblyCompletionItemProvider } from "../monacoproviders/AssemblyCompletionItemProvider.ts";
+import { AssemblyReferenceProvider } from "../monacoproviders/AssemblyReferenceProvider.ts";
+import { AssemblyDefinitionProvider } from "../monacoproviders/AssemblyDefinitionProvider.ts";
+import { AssemblyHoverProvider } from "../monacoproviders/AssemblyHoverProvider.ts";
+import { AssemblyRenameProvider } from "../monacoproviders/AssemblyRenameProvider.ts";
+import { AssemblySymbolAndMethodMarker } from "../monacoproviders/AssemblySymbolAndMethodMarker.ts";
+import { lm } from "../../../tools/language/LanguageManager.ts";
+import { AssemblyFormatter } from "../monacoproviders/AssemblyFormatter.ts";
+import { ProgrammingLanguageData } from "../../common/programminglanguage/ProgrammingLanguageData.ts";
+import type { Dialog } from "../../../client/main/gui/Dialog.ts";
+import type { Workspace } from "../../../client/workspace/Workspace.ts";
+import jQuery from 'jquery';
+import { getSelectedObject, setSelectItems } from "../../../tools/HtmlTools.ts";
+import { ByArchitecture } from "./ByArchitecture.ts";
+import { DOM } from "../../../tools/DOM.ts";
+import { ByAssemblyMessages } from "./ByAssemblyMessages.ts";
 
-export class AssemblyLanguage extends ProgrammingLanguage {
 
-    private static instance: AssemblyLanguage;
+export class ByAssemblyLanguage extends ProgrammingLanguage {
+
+    private static instance: ByAssemblyLanguage;
 
     private libraryManager: LibraryManager = new AssemblyLibraryManager();  // not used
 
     private constructor() {
-        super(ProgrammingLanguageData.Assembly.name, ProgrammingLanguageData.Assembly.fileEndingWithOutDot, ProgrammingLanguageData.Assembly.monacoLanguageSelector);
+        super(ProgrammingLanguageData.ByAssembly.name, ProgrammingLanguageData.ByAssembly.fileEndingWithOutDot, ProgrammingLanguageData.ByAssembly.monacoLanguageSelector);
         this.registerLanguageAtMonacoEditor();
         this.registerProviders();
     }
 
-    static getInstance(): AssemblyLanguage {
-        if (!AssemblyLanguage.instance) {
-            AssemblyLanguage.instance = new AssemblyLanguage();
+    static getInstance(): ByAssemblyLanguage {
+        if (!ByAssemblyLanguage.instance) {
+            ByAssemblyLanguage.instance = new ByAssemblyLanguage();
         }
 
-        return AssemblyLanguage.instance;
+        return ByAssemblyLanguage.instance;
     }
 
     public registerMain(main: IMain, errorMarker: ErrorMarker) {
-        let compiler = new AssemblyCompiler(main, errorMarker);
+        let compiler = new ByAssemblyCompiler(main, errorMarker);
         // let compiler = new JavaCompiler(main, errorMarker);
         // let repl = new JavaRepl(main, compiler);
         let settings = main.getSettings();
@@ -162,12 +170,19 @@ export class AssemblyLanguage extends ProgrammingLanguage {
                 'load', 'store',
                 'add', 'sub', 'mul', 'div', 'mod',
                 'jmp', 'jeq', 'jne', 'jgt', 'jge', 'jlt', 'jle',
-                'hold', 'word'
+                'hold', 'halt', 'word',
+                'push', 'pop',
+                'call', 'return',
+                'jsr', 'rts', 'rsv', 'rel',
+                'cmp', 'and', 'or', 'xor', 'not',
+                'shr', 'shl',
             ],
 
             immediateKeywords: [
                 'loadi', 'storei',
-                'addi', 'subi', 'muli', 'divi', 'modi'
+                'addi', 'subi', 'muli', 'divi', 'modi',
+                'andi', 'ori', 'xori', 'cmpi',
+                'shri', 'shli'
             ],
 
             operators: [
@@ -200,13 +215,15 @@ export class AssemblyLanguage extends ProgrammingLanguage {
                     // delimiters and operators
                     [/[{}()\[\]]/, '@brackets'],
                     [/[<>](?!@symbols)/, '@brackets'],
+
+                    
                     [/@symbols/, {
                         cases: {
                             '@operators': 'operator',
                             '@default': ''
                         }
                     }],
-
+                    
                     // numbers
                     { include: '@number' },
 
@@ -227,7 +244,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
                 immediateOperand: [
                     { include: '@whitespace' },
                     [/0[xX][0-9a-fA-F]+/, 'number.immediate', '@pop'],
-                    [/\d+/, 'number.immediate', '@pop'],
+                    [/-?\d+/, 'number.immediate', '@pop'],
                     [/.*$/, 'invalid', '@pop']
                 ],
 
@@ -275,7 +292,7 @@ export class AssemblyLanguage extends ProgrammingLanguage {
         rightDiv.classDiagramTab?.setVisible(false);
 
         rightDiv.memoryTab?.setVisible(true);
-        (<MemoryTab>rightDiv.memoryTab)?.listenToCompiler(this.getCompiler(main) as AssemblyCompiler);
+        (<MemoryTab>rightDiv.memoryTab)?.listenToCompiler(this.getCompiler(main) as ByAssemblyCompiler);
 
         // let debuggerTab = rightDiv.tabManager.getTabByName("Debugger");
         // debuggerTab?.show();
@@ -318,5 +335,37 @@ export class AssemblyLanguage extends ProgrammingLanguage {
     public getDebuggerType(): "java" | "assembly" {
         return 'assembly';
     }
+
+    public setupWorkspaceSettings(dialog: Dialog, main: IMain, languageSpecificDiv: HTMLDivElement, workspace: Workspace) {
+        DOM.makeDiv(languageSpecificDiv, "dialog-subheading", "languagesettings").textContent = ByAssemblyMessages.ArchitectureHeading();
+
+
+        let selectElement = document.createElement("select");
+        selectElement.classList.add("jo_settingsSelect");
+
+        let currentArchitecture: string | undefined = workspace.settings.assemblyArchitecture;
+
+        let defaultArchitecture = <string>main.getSettings().getValue("programmingLanguages.assembly.defaultArchitecture");
+
+        setSelectItems(jQuery(selectElement), ByArchitecture.getArchitectures().map(arch => ({ value: arch.identifier, object: arch, caption: arch.getLocalizedName()() })),
+            currentArchitecture ?? defaultArchitecture ?? ByArchitecture.getArchitectures()[0].identifier);
+
+        languageSpecificDiv.appendChild(selectElement);
+
+    }
+
+    public retrieveWorkspaceSettings(main: IMain, languageSpecificDiv: HTMLDivElement, workspace: Workspace): boolean {
+        let selectElement = languageSpecificDiv.getElementsByClassName("jo_settingsSelect")[0];
+
+        let selectedArchitecture = <ByArchitecture>getSelectedObject(<JQuery<HTMLSelectElement>>jQuery(selectElement));
+        if (workspace.settings.assemblyArchitecture != selectedArchitecture.identifier) {
+            workspace.settings.assemblyArchitecture = selectedArchitecture.identifier;
+            main.getCompiler().forceRecompilation();
+            return true;
+        }
+
+        return false;
+    }
+
 
 }

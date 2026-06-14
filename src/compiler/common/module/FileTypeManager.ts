@@ -18,7 +18,7 @@ export class FileTypeManager {
         { name: "XML-Datei", file_type: 1, iconclass: "img_file-dark-xml", language: "xml", suffix: ".xml" },
         { name: "CSV-Datei", file_type: 1, iconclass: "img_file-dark-csv", language: "csv", suffix: ".csv" },
         { name: "Markup", file_type: 1, iconclass: "img_file-dark-md", language: "md", suffix: ".md" },
-        { name: "Assembler-Quelltext", file_type: 0, iconclass: "img_file-dark-assembly", language: ProgrammingLanguageData.Assembly.monacoLanguageSelector, suffix: "." + ProgrammingLanguageData.Assembly.fileEndingWithOutDot }
+        { name: "Assembler-Quelltext", file_type: 0, iconclass: "img_file-dark-assembly", language: ProgrammingLanguageData.ByAssembly.monacoLanguageSelector, suffix: "." + ProgrammingLanguageData.ByAssembly.fileEndingWithOutDot }
     ];
 
     static fileTypeToIconClass(file_type: number): string {

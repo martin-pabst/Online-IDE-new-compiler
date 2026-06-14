@@ -1,6 +1,6 @@
 ﻿import { lm } from "../../../tools/language/LanguageManager";
 
-export class AbiBayernAssemblyMessages {
+export class ByAssemblyMessages {
     static CPUName = () => lm({
         'de': `Einfach CPU (wie im bayerischen Abitur)`,
         'en': `Simple CPU (as in the Bavarian A-level examination)`,
@@ -401,6 +401,54 @@ export class AbiBayernAssemblyMessages {
         'fr': `not: Effectue une négation binaire de l'accumulateur et stocke le résultat dans l'accumulateur. Si la valeur dans l'accumulateur est inférieure à 0, seuls les 15 bits les plus à droite sont négatifs.`
     });
 
+    static Jsr = (...parameterValue: (string | number)[]) => lm({
+        'de': `jsr ${parameterValue[0]}: Springt zu der Adresse ${parameterValue[0]} und speichert die Rücksprungadresse (die Adresse des nächsten Befehls) auf dem Stack.`,
+        'en': `jsr ${parameterValue[0]}: Jumps to address ${parameterValue[0]} and stores the return address (the address of the next instruction) on the stack.`,
+        'fr': `jsr ${parameterValue[0]}: Saute à l'adresse ${parameterValue[0]} et stocke l'adresse de retour (l'adresse de la prochaine instruction) sur la pile.`
+    });
+
+    static Rts = () => lm({
+        'de': `rts: Holt eine Adresse vom Stack und springt zu ihr. In der Regel handelt es sich um eine Adresse, die zuvor mittels jsr auf den Stack gelegt wurde.`,
+        'en': `rts: Retrieves an address from the stack and jumps to it. Typically, this is an address that was previously pushed onto the stack using jsr.`,
+        'fr': `rts: Récupère une adresse de la pile et saute à celle-ci. En général, il s'agit d'une adresse qui a été précédemment poussée sur la pile à l'aide de jsr.`
+    });
+
+    static Rsv = (...parameterValue: (string | number)[]) => lm({
+        'de': `rsv ${parameterValue[0]}: Reserviert ${parameterValue[0]} viele Plätze auf dem Stack, indem es den Stack Pointer um ${parameterValue[0]} erniedrigt.`,
+        'en': `rsv ${parameterValue[0]}: Reserves ${parameterValue[0]} many slots on the stack by decrementing the stack pointer by ${parameterValue[0]}.`,
+        'fr': `rsv ${parameterValue[0]}: Réserve ${parameterValue[0]} emplacements sur la pile en décrémentant le pointeur de pile de ${parameterValue[0]}.`
+    });
+
+    static Rel = (...parameterValue: (string | number)[]) => lm({
+        'de': `rel ${parameterValue[0]}: Gibt ${parameterValue[0]} Plätze auf dem Stack frei, indem es den Stack Pointer um ${parameterValue[0]} erhöht.`,
+        'en': `rel ${parameterValue[0]}: Frees ${parameterValue[0]} many slots on the stack by incrementing the stack pointer by ${parameterValue[0]}.`,
+        'fr': `rel ${parameterValue[0]}: Libère ${parameterValue[0]} emplacements sur la pile en incrémentant le pointeur de pile de ${parameterValue[0]}.`
+    });
+
+    static Push = (...parameterValue: (string | number)[]) => lm({
+        'de': `push ${parameterValue[0]}: Legt die Zahl ${parameterValue[0]} auf den Stack, indem es den Stack Pointer erniedrigt und die Zahl an der neuen Adresse des Stack Pointers speichert.`,
+        'en': `push ${parameterValue[0]}: Pushes the number ${parameterValue[0]} onto the stack by decrementing the stack pointer and storing the number at the new address of the stack pointer.`,
+        'fr': `push ${parameterValue[0]}: Pousse le nombre ${parameterValue[0]} sur la pile en décrémentant le pointeur de pile et en stockant le nombre à la nouvelle adresse du pointeur de pile.`
+    });
+
+    static Pop = (...parameterValue: (string | number)[]) => lm({
+        'de': `pop ${parameterValue[0]}: Holt eine Zahl vom Stack, indem es die Zahl an der aktuellen Adresse des Stack Pointers in den Akkumulator lädt und den Stack Pointer erhöht.`,
+        'en': `pop ${parameterValue[0]}: Pops a number from the stack by loading the number at the current address of the stack pointer into the accumulator and incrementing the stack pointer.`,
+        'fr': `pop ${parameterValue[0]}: Récupère un nombre de la pile en chargeant le nombre à l'adresse actuelle du pointeur de pile dans l'accumulateur et en incrémentant le pointeur de pile.`
+    });
+
+    static LoadSpRelative = (...parameterValue: (string | number)[]) => lm({
+        'de': `loadsp ${parameterValue[0]}: Lädt die Zahl an der Adresse, die durch die Summe aus dem Stack Pointer und ${parameterValue[0]} angegeben ist, in den Akkumulator.`,
+        'en': `loadsp ${parameterValue[0]}: Loads the number at the address specified by the sum of the stack pointer and ${parameterValue[0]} into the accumulator.`,
+        'fr': `loadsp ${parameterValue[0]}: Charge le nombre à l'adresse spécifiée par la somme du pointeur de pile et de ${parameterValue[0]} dans l'accumulateur.`
+    });
+
+    static StoreSpRelative = (...parameterValue: (string | number)[]) => lm({
+        'de': `storesp ${parameterValue[0]}: Speichert die Zahl im Akkumulator an der Adresse, die durch die Summe aus dem Stack Pointer und ${parameterValue[0]} angegeben ist.`,
+        'en': `storesp ${parameterValue[0]}: Stores the number in the accumulator at the address specified by the sum of the stack pointer and ${parameterValue[0]}.`,
+        'fr': `storesp ${parameterValue[0]}: Stocke le nombre dans l'accumulateur à l'adresse spécifiée par la somme du pointeur de pile et de ${parameterValue[0]}.`
+    });
+
     static Hold = () => lm({
         'de': `hold: hält die Ausführung des Programms an.`,
         'en': `hold: halts the exécution of the program.`,
@@ -525,6 +573,24 @@ export class AbiBayernAssemblyMessages {
         'de': `Daten: 8 Bit mit Vorzeichen, Adressen: 16 Bit ohne Vorzeichen`,
         'en': `Data: 8-bit signed, addresses: 16-bit unsigned`,
         'fr': `Données: 8 bits avec signe, adresses: 16 bits sans signe`
+    });
+
+    static ArchitectureHeading = () => lm({
+        'de': `Speicherarchitektur:`,
+        'en': `Memory architecture:`,
+        'fr': `Architecture de la mémoire:`
+    });
+
+    static SpExpectedInStackRelativeAddress = () => lm({
+        'de': `Um Stack-relative Adressierung zu erhalten, wird hier in Klammern SP erwartet.`,
+        'en': `To obtain stack-relative addressing, SP is expected here in parentheses.`,
+        'fr': `Pour obtenir une adressage relative à la pile, SP est attendu ici entre parenthèses.`
+    });
+
+    static StackRelativeAddressingOnlySupportedForLoadAndStore = (tokenText: string) => lm({
+        'de': `Stack-relative Adressierung wird nur für Load- und Store-Befehle unterstützt, nicht für ${tokenText}.`,
+        'en': `Stack-relative addressing is only supported for load and store instructions, not for ${tokenText}.`,
+        'fr': `L'adressage relative à la pile n'est pris en charge que pour les instructions de chargement et de stockage, et non pour ${tokenText}.`
     });
 }
 

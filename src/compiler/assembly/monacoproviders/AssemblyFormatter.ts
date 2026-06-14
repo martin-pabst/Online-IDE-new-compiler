@@ -1,6 +1,6 @@
 import * as monaco from 'monaco-editor'
 import { BaseMonacoProvider } from '../../common/monacoproviders/BaseMonacoProvider';
-import { AssemblyLanguage } from '../AssemblyLanguage';
+import { ByAssemblyLanguage } from '../byassembly/ByAssemblyLanguage';
 import { AssemblyLexer, AssemblyToken } from '../AssemblyLexer';
 import { AssemblyTokenType } from '../AssemblyTokenType';
 
@@ -26,7 +26,7 @@ export class AssemblyFormatter extends BaseMonacoProvider
     currentTokenIndex: number;
     currentToken: AssemblyToken;
 
-    constructor(language: AssemblyLanguage) {
+    constructor(language: ByAssemblyLanguage) {
         super(language);
 
         monaco.languages.registerDocumentFormattingEditProvider(language.monacoLanguageSelector, this);

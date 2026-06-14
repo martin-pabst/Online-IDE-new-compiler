@@ -2,7 +2,7 @@ import { Error, ErrorLevel } from "../common/Error";
 import { Step } from "../common/interpreter/Step";
 import { CompilerFile } from "../common/module/CompilerFile";
 import { IRange, Range } from "../common/range/Range";
-import { AbiBayernAssemblyMessages } from "./abibayern/AbiBayernAssemblyMessages";
+import { ByAssemblyMessages } from "./byassembly/ByAssemblyMessages";
 import { AssemblyToken } from "./AssemblyLexer";
 import { AssemblyTokenType, AssemblyTokenTypeReadable } from "./AssemblyTokenType";
 import { AssemblyParserMessages } from "./language/AssemblyParserMessages";
@@ -60,6 +60,7 @@ export type AssemblyCompletionItemRange = {
 export type AssemblyParserResult = {
     file: CompilerFile;
     startAddress: number;
+    initialStackPointer: number;
     codeParts: AssemblyCompiledCodePart[];
     errors: Error[];
 
@@ -120,6 +121,8 @@ export abstract class AssemblyParser {
 
     startAddress: number | undefined;
 
+    initialStackPointer: number | undefined;
+
     codeParts: AssemblyCompiledCodePart[] = [];
 
     currentCodePart: AssemblyCompiledCodePart;
@@ -167,16 +170,19 @@ export abstract class AssemblyParser {
     abstract getFlagNamesShort(): string[];
     abstract getRegisterNamesShort(): string[];
 
+    abstract addressToCellValues(address: number): number[];
+
 
     initBeforeParsing(tokens: AssemblyToken[]): void {
         this.tokens = tokens;
         this.tokenIndex = 0;
         this.errors = [];
-        this.codeParts = [{ offset: 200, code: [] }];
+        this.codeParts = [{ offset: 150, code: [] }];
         this.currentCodePart = this.codeParts[0];
         this.sourceMap = new Map();
         this.instructionMap = new Map();
         this.startAddress = undefined;
+        this.initialStackPointer = undefined;
         this.programCounterRelative = 0;
         this.labels = new Map();
         this.labelMap = new Map();
@@ -188,7 +194,8 @@ export abstract class AssemblyParser {
     makeParserResult(file: CompilerFile): AssemblyParserResult {
         return {
             file: file,
-            startAddress: this.startAddress ?? 0x200,
+            startAddress: this.startAddress ?? 150,
+            initialStackPointer: this.initialStackPointer ?? 150,
             codeParts: this.codeParts,
             errors: this.errors,
             sourceMap: this.sourceMap,
@@ -311,7 +318,10 @@ export abstract class AssemblyParser {
                 label.declaration = token.range;
                 for (let referenceAddress of label.unresolvedReferences) {
                     let codePart = referenceAddress.codePart;
-                    codePart.code[referenceAddress.absoluteAddress - codePart.offset] = label.address;
+                    let cellValues = this.addressToCellValues(label.address);
+                    for (let i = 0; i < cellValues.length; i++) {
+                        codePart.code[referenceAddress.absoluteAddress - codePart.offset + i] = cellValues[i];
+                    }
                 }
                 for (let assertionPart of label.unresolvedAssertionParts) {
                     assertionPart.startAddress = label.address;
@@ -531,7 +541,7 @@ export abstract class AssemblyParser {
         this.assertionMap.set(this.getProgramCounterAbsolute(), assertion);
         this.writeToMemory(this.getAssertionOpcode());
         this.addHoverEntry(assertionToken.range,
-            AbiBayernAssemblyMessages.AssertHoverComment());
+            ByAssemblyMessages.AssertHoverComment());
 
         this.completionItemRanges.push({
             range: Range.plusRange(assertionStart, this.currentToken().range),

@@ -21,6 +21,18 @@ export class AssemblyParserMessages {
         'fr': `Un nombre est attendu ici.`
     });
 
+    static AddressOutOfRange = (address: number, from: number, to: number) => lm({
+        'de': `Die Adresse ${address} liegt außerhalb des gültigen Bereichs von ${from} bis ${to}.`,
+        'en': `The address ${address} is out of range. Valid range is from ${from} to ${to}.`,
+        'fr': `L'adresse ${address} est hors de portée. La plage valide est de ${from} à ${to}.`
+    });
+
+    static ValueOutOfRange = (value: number, from: number, to: number) => lm({
+        'de': `Der Wert ${value} liegt außerhalb des gültigen Bereichs von ${from} bis ${to}.`,
+        'en': `The value ${value} is out of range. Valid range is from ${from} to ${to}.`,
+        'fr': `La valeur ${value} est hors de portée. La plage valide est de ${from} à ${to}.`
+    });
+
     static NumberOutOfRange = (number: number, min: number, max: number) => lm({
         'de': `Die Zahl ${number} liegt außerhalb des gültigen Bereichs von ${min} bis ${max}.`,
         'en': `The number ${number} is out of range. Valid range is from ${min} to ${max}.`,

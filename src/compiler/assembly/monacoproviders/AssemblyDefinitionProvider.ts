@@ -1,13 +1,13 @@
 import { BaseMonacoProvider } from "../../common/monacoproviders/BaseMonacoProvider";
 import * as monaco from 'monaco-editor'
-import { AssemblyLanguage } from "../AssemblyLanguage";
+import { ByAssemblyLanguage } from "../byassembly/ByAssemblyLanguage";
 import { AssemblyModule } from "../AssemblyModule";
 import { Position } from "../../common/range/Position";
 import { Range } from "../../common/range/Range";
 
 export class AssemblyDefinitionProvider extends BaseMonacoProvider implements monaco.languages.DefinitionProvider {
 
-    constructor(language: AssemblyLanguage) {
+    constructor(language: ByAssemblyLanguage) {
         super(language);
         monaco.languages.registerDefinitionProvider(language.monacoLanguageSelector, this);
     }

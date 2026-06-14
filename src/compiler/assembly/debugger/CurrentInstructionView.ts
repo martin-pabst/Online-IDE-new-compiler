@@ -51,7 +51,7 @@ export class CurrentInstructionView extends AccordionElement {
             let descriptionLeft = description.substring(0, colonIndex).trim();
             this.descriptionDiv.textContent = descriptionRight;
 
-            monaco.editor.colorize(descriptionLeft, ProgrammingLanguageData.Assembly.monacoLanguageSelector, {}).then(
+            monaco.editor.colorize(descriptionLeft, ProgrammingLanguageData.ByAssembly.monacoLanguageSelector, {}).then(
             (html) => {this.assemblyDiv.innerHTML = html;}
         );
 

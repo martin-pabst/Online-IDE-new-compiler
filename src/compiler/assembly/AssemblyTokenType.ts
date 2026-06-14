@@ -51,6 +51,14 @@ export enum AssemblyTokenType {
     jmpnv,
     jmpnc,
 
+    jsr,
+    rts,
+    rsv,
+    rel,
+    push,
+    pop,
+    call,
+    return,
 
 
     hold,

@@ -10,7 +10,7 @@ import jQuery from 'jquery';
 
 export class WorkspaceSettingsDialog {
 
-    $libraryDiv: JQuery<HTMLDivElement>;
+    $langueSpecificDiv: JQuery<HTMLDivElement>;
     dialog: Dialog;
 
     constructor(private workspace: Workspace, private main: Main) {
@@ -41,17 +41,18 @@ export class WorkspaceSettingsDialog {
         $selectLanguageDiv.append($selectElement);
 
         dialog.addDiv($selectLanguageDiv);
+        this.$langueSpecificDiv = jQuery("<div></div>");
+        dialog.addDiv(this.$langueSpecificDiv);
 
         $selectElement.on('change', () => {
             let selectedLanguage = <ProgrammingLanguage>getSelectedObject($selectElement);
             this.workspace.settings.language = selectedLanguage.name;
-            this.setupLibraryDiv();
+            this.$langueSpecificDiv.empty();
+            this.setupLanguageSpecificDiv();
         });
 
-        this.$libraryDiv = jQuery("<div></div>");
-        dialog.addDiv(this.$libraryDiv);
 
-        this.setupLibraryDiv();
+        this.setupLanguageSpecificDiv();
 
 
         this.dialog.buttons([
@@ -64,18 +65,11 @@ export class WorkspaceSettingsDialog {
                 caption: WorkspaceSettingsDialogMessages.OK(),
                 color: "green",
                 callback: () => {
-                    let currentLibraries = this.workspace.settings.libraries;
-
-                    let librariesChanged: boolean = false;
-                    let newLibs: string[] = [];
-                    for (let lib of libraryManager.getLibrariesData()) {
-                        let used = lib.checkboxState();
-                        librariesChanged = librariesChanged || (used != (currentLibraries.indexOf(lib.id) >= 0));
-                        if (used) newLibs.push(lib.id);
-                    }
 
                     let selectedLanguage = <ProgrammingLanguage>getSelectedObject($selectElement);
                     let languageChanged = selectedLanguage != this.main.getCurrentProgrammingLanguage();
+
+                    let workspaceSettingsChanged = selectedLanguage.retrieveWorkspaceSettings(this.main, this.$langueSpecificDiv[0], this.workspace);
 
                     if (languageChanged) {
                         this.workspace.settings.language = selectedLanguage.name;
@@ -85,16 +79,7 @@ export class WorkspaceSettingsDialog {
                         }
                     }
 
-                    if (librariesChanged) {
-                        this.workspace.settings.libraries = newLibs;
-                        this.workspace.saved = false;
-                        this.workspace.getFiles().forEach(f => this.main.getCompiler().setFileDirty(f));
-                        this.main.getCompiler().triggerCompile();
-
-                        this.workspace.setLibraries(this.main.getCompiler());
-                    }
-
-                    if (languageChanged || librariesChanged) {
+                    if (languageChanged || workspaceSettingsChanged) {
                         this.workspace.saved = false;
                         this.main.networkManager.sendUpdatesAsync(true);
                     }
@@ -107,21 +92,10 @@ export class WorkspaceSettingsDialog {
 
     }
 
-    setupLibraryDiv() {
-        this.$libraryDiv.empty();
-        let libraryManager = ProgrammingLanguageManager.getInstance().getLanguageByName(this.workspace.settings.language).getLibraryManager();
-
-        let currentLibraries = this.workspace.settings.libraries;
-
-        if (libraryManager.getLibrariesData().length > 0) {
-            this.$libraryDiv.append(jQuery('<div class="dialog-subheading languagesettings">' + WorkspaceSettingsDialogMessages.usedLibraries() + "</div>"));
-            for (let library of libraryManager.getLibrariesData()) {
-                let cbs = this.dialog.addCheckbox(library.identifier + " (" + library.description + ")", currentLibraries.indexOf(library.id) >= 0, library.id, this.$libraryDiv);
-                library.checkboxState = cbs;
-            }
-
-        }
-
-
+    setupLanguageSpecificDiv() {
+        this.$langueSpecificDiv.empty();
+        let languageName = this.workspace.settings.language;
+        let language = ProgrammingLanguageManager.getInstance().getLanguageByName(languageName);
+        language.setupWorkspaceSettings(this.dialog, this.main, this.$langueSpecificDiv[0], this.workspace);
     }
 }

@@ -8,22 +8,22 @@ type PLData = {
     workspaceCssClass: (withRepository: boolean) => string
 }
 
-export var ProgrammingLanguageData: { [key: string]: PLData } = {
-    "Java": {
+export var ProgrammingLanguageData: Record<"Java" | "ByAssembly", PLData> = {
+    Java: {
         name: "Java",
         monacoLanguageSelector: "myJava",
         fileEndingWithOutDot: "java",
         translatedName: () => "Java",
         workspaceCssClass: (withRepository: boolean) => withRepository ? "img_workspace-java-repository-dark" : "img_workspace-java-dark"
     },
-    "Assembly": {
-        name: "Assembly",
-        monacoLanguageSelector: "myAssembly",
+    ByAssembly: {
+        name: "ByAssembly",
+        monacoLanguageSelector: "ByAssembly",
         fileEndingWithOutDot: "asm",
         translatedName: () => lm({
-            "de": "Maschinensprache (Assembler)",
-            "en": "Machine language (Assembler)",
-            "fr": "Langage machine (assembleur)"
+            "de": "Einfache Maschinensprache (Assembler, wie im Bayern-ABI)",
+            "en": "Simple Machine language (Assembler)",
+            "fr": "Langage machine simple (assembleur)"
         }),
         workspaceCssClass: (withRepository: boolean) => withRepository ? "img_workspace-assembly-repository-dark" : "img_workspace-assembly-dark"
     }

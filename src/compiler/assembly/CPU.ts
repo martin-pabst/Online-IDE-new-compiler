@@ -46,11 +46,12 @@ export abstract class CPU {
     abstract getProgramCounter(): number;
     abstract getStatementLengthAtProgramCounter(): number;
     abstract getAddressOperandLocationOfCurrentStatement(): { location: number | undefined; indirectLocation: number | undefined; };
+    abstract getStackPointer(): number | undefined;
 
     /*
     * For code completion
      */
-    abstract getTokensWithDescription(): { tokenIdentifier: string, description: () => string }[];
+    abstract getTokensWithDescription(): { tokenIdentifier: string, description: () => string, insertText?: string }[];
     abstract getPseudoDirectivesWithDescription(): { directiveIdentifier: string, description: () => string, insertText?: string }[];
     abstract getInstructions(): AssemblyInstruction[];
     
