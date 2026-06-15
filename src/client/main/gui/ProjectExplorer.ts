@@ -621,8 +621,9 @@ export class ProjectExplorer {
 
                     cmiList.push({
                         caption: ProjectExplorerMessages.settings() + "...",
-                        callback: () => {
-                            new WorkspaceSettingsDialog(workspace, this.main).open();
+                        callback: async (ws, node) => {
+                            await new WorkspaceSettingsDialog(workspace, this.main).open();
+                            node.iconClass = this.getIconClassForWorkspace(workspace);
                         }
                     })
 
@@ -638,6 +639,10 @@ export class ProjectExplorer {
             return true;
         }
 
+    }
+
+    getIconClassForWorkspace(workspace: Workspace): string {
+        return (ProgrammingLanguageData[workspace.settings.language]??ProgrammingLanguageData.Java).workspaceCssClass(workspace.repository_id != null);
     }
 
     async moveOrCopyFilesToOtherWorkspaces(filesToMoveOrCopy: TreeviewNode<GUIFile, number>[], destinationWorkspaceNode: TreeviewNode<Workspace, number>, dragKind: DragKind) {
@@ -765,7 +770,7 @@ export class ProjectExplorer {
         this.workspaceTreeview.clear();
 
         for (let ws of workspaceList) {
-            let iconClass = (ProgrammingLanguageData[ws.settings.language]??ProgrammingLanguageData.Java).workspaceCssClass(ws.repository_id != null);
+            let iconClass = this.getIconClassForWorkspace(ws);
             if (ws.isFolder) iconClass = undefined;
             let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, iconClass, ws)
 
@@ -913,8 +918,12 @@ export class ProjectExplorer {
             } else {
                 this.main.bottomDiv.homeworkManager.hideHomeworkRevisionButton();
             }
-
+            
             this.main.getInterpreter().onFileSelected();
+
+            if(this.main.currentWorkspace.settings.language == ProgrammingLanguageData.ByAssembly.name){
+                this.main.getCompiler().forceRecompilation();
+            }
         }
 
 

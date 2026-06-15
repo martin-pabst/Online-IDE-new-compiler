@@ -453,7 +453,8 @@ var specialCompletionComments: { tokenType: AssemblyTokenType, description: () =
     { tokenType: AssemblyTokenType.and, description: ByAssemblyMessages.AndCompletionComment },
     { tokenType: AssemblyTokenType.or, description: ByAssemblyMessages.OrCompletionComment },
     { tokenType: AssemblyTokenType.xor, description: ByAssemblyMessages.XorCompletionComment },
-    { tokenType: AssemblyTokenType.cmp, description: ByAssemblyMessages.CmpCompletionComment }
+    { tokenType: AssemblyTokenType.cmp, description: ByAssemblyMessages.CmpCompletionComment },
+    { tokenType: AssemblyTokenType.word, description: ByAssemblyMessages.WordCompletionComment },
 ];
 
 

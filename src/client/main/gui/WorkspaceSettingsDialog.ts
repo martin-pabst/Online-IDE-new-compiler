@@ -13,11 +13,13 @@ export class WorkspaceSettingsDialog {
     $langueSpecificDiv: JQuery<HTMLDivElement>;
     dialog: Dialog;
 
+    resolveWenClosing: () => void;
+
     constructor(private workspace: Workspace, private main: Main) {
 
     }
 
-    open() {
+    open(): Promise<void> {
         let libraryManager = this.main.getCurrentProgrammingLanguage()?.getLibraryManager();
         if (!libraryManager) {
             console.error("Current programming language does not provide a library manager.");
@@ -59,7 +61,7 @@ export class WorkspaceSettingsDialog {
             {
                 caption: WorkspaceSettingsDialogMessages.cancel(),
                 color: "#a00000",
-                callback: () => { this.dialog.close() }
+                callback: () => { this.close() }
             },
             {
                 caption: WorkspaceSettingsDialogMessages.OK(),
@@ -84,12 +86,20 @@ export class WorkspaceSettingsDialog {
                         this.main.networkManager.sendUpdatesAsync(true);
                     }
 
-                    dialog.close();
+                    this.close();
                 }
             },
         ])
 
+        return new Promise<void>((resolve) => {
+            this.resolveWenClosing = resolve;
+        });
 
+    }
+
+    close(){
+        this.dialog.close();
+        if(this.resolveWenClosing) this.resolveWenClosing();
     }
 
     setupLanguageSpecificDiv() {

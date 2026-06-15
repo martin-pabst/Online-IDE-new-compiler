@@ -55,6 +55,7 @@ export class TabManager {
 
     setTabVisible(tab: Tab, visibility: boolean) {
         tab.headingDiv.style.display = visibility ? 'block' : 'none';
+        tab.bodyDiv.style.display = visibility ? '' : 'none';
         tab.visible = visibility;
         if (!visibility && tab.isActive()) {
             let firstVisibleTab = this.tabs.find(t => t.visible);

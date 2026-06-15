@@ -551,6 +551,12 @@ export class ByAssemblyMessages {
         'fr': `Soustrait une valeur de l'accumulateur (sans le changer !) et définit les drapeaux en conséquence (zero, négatif, dépassement).`
     });
 
+    static WordCompletionComment = () => lm({
+        'de': `Speichert eine Zahl an der aktuellen Adresse. Es ist auch möglich, mehrere Zahlen kommasepariert anzugeben, z.B. "word 10, 20, 30".`,
+        'en': `Stores a number at the current address. It is also possible to specify multiple numbers separated by commas, e.g. "word 10, 20, 30".`,
+        'fr': `Stocke un nombre à l'adresse actuelle. Il est également possible de spécifier plusieurs nombres séparés par des virgules, par exemple "word 10, 20, 30".`
+    });
+
     static Architecture16BitSigned = () => lm({
         'de': `Daten: 16 Bit mit Vorzeichen, Adressen: 16 Bit ohne Vorzeichen`,
         'en': `Data: 16-bit signed, addresses: 16-bit unsigned`,

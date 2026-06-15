@@ -89,8 +89,12 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
         let textUntilPosition = line.substring(0, position.column - 1);
         let trimmedTextUntilPosition = textUntilPosition.trimStart();
 
-        let afterInstruction: boolean = (completionItemRange.withLabelCompletionAtLineStart && (trimmedTextUntilPosition.length === 0 || trimmedTextUntilPosition.indexOf(" ") < 0)) ||
-            (completionItemRange.withLabelCompletionAfterStatements && trimmedTextUntilPosition.length > 0 && (trimmedTextUntilPosition.indexOf(" ") >= 0));
+        let colonIndex = trimmedTextUntilPosition.indexOf(":");
+        if(colonIndex >= 0) trimmedTextUntilPosition = trimmedTextUntilPosition.substring(colonIndex + 1).trimStart();
+        let spacePosition = trimmedTextUntilPosition.indexOf(" ");
+
+        let afterInstruction: boolean = (completionItemRange.withLabelCompletionAtLineStart && (trimmedTextUntilPosition.length === 0 || spacePosition < 0)) ||
+            (completionItemRange.withLabelCompletionAfterStatements && trimmedTextUntilPosition.length > 0 && (spacePosition >= 0));
 
         let completionItems: monaco.languages.CompletionItem[] = [];
 
@@ -102,7 +106,7 @@ export class AssemblyCompletionItemProvider extends BaseMonacoProvider implement
                     documentation: {
                         value: token.description()
                     },
-                    insertText:  token.insertText || token.tokenIdentifier + " ",
+                    insertText: token.insertText || token.tokenIdentifier + " ",
                     range: rangeToReplace
                 } as monaco.languages.CompletionItem;
             }));

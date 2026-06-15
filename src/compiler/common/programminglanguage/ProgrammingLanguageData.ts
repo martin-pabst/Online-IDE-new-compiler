@@ -21,7 +21,8 @@ export var ProgrammingLanguageData: Record<"Java" | "ByAssembly", PLData> = {
         monacoLanguageSelector: "ByAssembly",
         fileEndingWithOutDot: "asm",
         translatedName: () => lm({
-            "de": "Einfache Maschinensprache (Assembler, wie im Bayern-ABI)",
+            //"de": "Einfache Maschinensprache (Assembler, wie im Bayern-ABI)",
+            "de": "Einfache Maschinensprache (Assembler)",
             "en": "Simple Machine language (Assembler)",
             "fr": "Langage machine simple (assembleur)"
         }),
