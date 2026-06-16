@@ -15,6 +15,7 @@ export class EditorOpenerProvider implements monaco.editor.ICodeEditorOpener {
 
 
         let file = this.main.getCurrentWorkspace()?.getFiles().find(file => file.getMonacoModel()?.uri == resource);
+        if (file && file.isHidden()) return false; // ponytail: prevent opening hidden scaffolding files
         let model = file?.getMonacoModel();
 
         if (model) {

@@ -38,7 +38,7 @@ export class ErrorManager {
         let hasErrors = false;
 
         for (let file of workspace.getFiles()) {
-
+            if (file.isHidden()) continue; // ponytail: do not list compile/lint errors for hidden files
 
             let $errorList: JQuery<HTMLElement>[] = [];
 

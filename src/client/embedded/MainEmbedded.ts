@@ -223,14 +223,15 @@ export class MainEmbedded implements MainBase {
                         if (this.config.id != null) {
                             this.readScripts(async () => {
                                 if (this.fileExplorer) {
-                                    this.getCompiler().setFiles(this.fileExplorer.getFiles());
+                                    this.getCompiler().setFiles(this.currentWorkspace.getFiles()); // ponytail: use all files so hidden scaffolding compiles
                                     this.fileExplorer.selectFirstFileIfPresent();
                                 }
                                 if (this.fileExplorer == null) {
                                     let files = this.currentWorkspace.getFiles();
                                     this.getCompiler().setFiles(files);
-                                    if (files.length > 0) {
-                                        this.setFileActive(files[0]);
+                                    let visibleFiles = files.filter(f => !f.isHidden()); // ponytail: only choose visible files
+                                    if (visibleFiles.length > 0) {
+                                        this.setFileActive(visibleFiles[0]);
                                     }
                                 }
 
@@ -378,7 +379,7 @@ export class MainEmbedded implements MainBase {
     }
 
     setFileActive(file: GUIFile) {
-
+        if (file && file.isHidden()) return; // ponytail: block direct activation of hidden files
         if (!file) return;
 
         if (this.lastActiveFile) {

@@ -174,11 +174,12 @@ export class ProjectExplorer {
 
                 if (node.hasFocus) {
                     let files = this.main.getCurrentWorkspace().getFiles();
-                    if (files.length == 0) {
+                    let visibleFiles = files.filter(f => !f.isHidden()); // ponytail: only choose visible files
+                    if (visibleFiles.length == 0) {
                         this.fileTreeview.setCaption(ProjectExplorerMessages.noFile());
                         this.setFileActive(null);
                     } else {
-                        this.setFileActive(files[0]);
+                        this.setFileActive(visibleFiles[0]);
                     }
                 }
             }
@@ -726,6 +727,7 @@ export class ProjectExplorer {
             // files.sort((a, b) => { return a.name > b.name ? 1 : a.name < b.name ? -1 : 0 });
 
             for (let file of files) {
+                if (file.isHidden()) continue; // ponytail: skip hidden files in explorer treeview
 
                 this.fileTreeview.addNode(file.isFolder, file.name,
                     file.isFolder ? undefined : FileTypeManager.filenameToFileType(file.name).iconclass, file);
@@ -826,11 +828,12 @@ export class ProjectExplorer {
         w.setLibraries(this.main.getCompiler());
 
         let files = w.getFiles();
+        let visibleFiles = files.filter(f => !f.isHidden()); // ponytail: only activate visible files
 
-        if (w.currentlyOpenFile != null) {
+        if (w.currentlyOpenFile != null && !w.currentlyOpenFile.isHidden()) {
             this.setFileActive(w.currentlyOpenFile);
-        } else if (files.length > 0) {
-            this.setFileActive(files[0]);
+        } else if (visibleFiles.length > 0) {
+            this.setFileActive(visibleFiles[0]);
         } else {
             this.setFileActive(null);
         }
@@ -858,7 +861,7 @@ export class ProjectExplorer {
 
     lastOpenFile: GUIFile = null;
     setFileActive(file: GUIFile) {
-
+        if (file && file.isHidden()) return; // ponytail: block direct activation of hidden files
         if (file?.isFolder) return;
 
         this.main.bottomDiv.homeworkManager.hideRevision();

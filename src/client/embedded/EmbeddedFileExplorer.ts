@@ -121,6 +121,7 @@ export class EmbeddedFileExplorer {
 
 
     addFile(file: GUIFile) {
+        if (file.isHidden()) return; // ponytail: skip hidden scaffolding files in embedded view
 
         let fileType = FileTypeManager.filenameToFileType(file.name);
         let iconclass = fileType.iconclass;

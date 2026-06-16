@@ -217,9 +217,9 @@ export class Workspace extends CompilerWorkspace {
         return this.files.find(f => f.id == id);
     }
 
+    // ponytail: return the first non-hidden file to prevent auto-opening hidden files
     getFirstFile(): GUIFile | undefined {
-        if (this.files.length > 0) return this.files[0];
-        return undefined;
+        return this.files.find(f => !f.isHidden());
     }
 
     getIdentifier(): string {

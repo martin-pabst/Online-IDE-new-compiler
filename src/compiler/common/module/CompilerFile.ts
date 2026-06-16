@@ -30,6 +30,11 @@ export class CompilerFile {
         this.name = name || "";
     }
 
+    // ponytail: check if this file should be hidden from the explorer using a dot-prefix naming convention
+    isHidden(): boolean {
+        return this.name.startsWith('.');
+    }
+
     getText() {
         return this.__textWhenMonacoModelAbsent;
     }
