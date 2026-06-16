@@ -29,6 +29,7 @@
 .joeCssFence {
 
     --memorytab-codebackground: #1c6de78f;
+    --memorytab-databackground: #91720c93;
     --memorytab-revealoperand: #22ff00;
     --memorytab-revealstackpointer: #802020;
     
@@ -120,6 +121,10 @@
 
     .jo_memorytab_programlocation {
         background-color: var(--memorytab-codebackground);
+    }
+
+    .jo_memorytab_datalocation {
+        background-color: var(--memorytab-databackground);
     }
 
     .jo_memorytab_addressoperand {

@@ -32,13 +32,13 @@ export type SettingsType = {
     "explorer.fileOrder": "user-defined" | "comparator",
     "explorer.workspaceOrder": "user-defined" | "comparator",
     "programmingLanguages.java.enabled": "yes" | "no",
-    "programmingLanguages.assembly.enabled": "yes" | "no",
+    "programmingLanguages.ByAssembly.enabled": "yes" | "no",
 
     "compiler.shadowedSymbolErrorLevel": "ignore" | "info" | "warning" | "error",
 
     "output.clearOutputAfterWorkspaceChange": "yes" | "no",
 
-    "programmingLanguages.assembly.defaultArchitecture": string;
+    "programmingLanguages.ByAssembly.defaultArchitecture": string;
 
 }
 
@@ -66,14 +66,15 @@ export var SettingDefaultValues: SettingsType = {
     
     "explorer.fileOrder": "user-defined",
     "explorer.workspaceOrder": "user-defined",
-    "programmingLanguages.java.enabled": "yes",
-    "programmingLanguages.assembly.enabled": "no",
 
+    
     "compiler.shadowedSymbolErrorLevel": "warning",
     
     "output.clearOutputAfterWorkspaceChange": "no",
-
-    "programmingLanguages.assembly.defaultArchitecture": ByArchitecture.getArchitectures()[0].identifier
+    
+    "programmingLanguages.java.enabled": "yes",
+    "programmingLanguages.ByAssembly.enabled": "no",
+    "programmingLanguages.ByAssembly.defaultArchitecture": ByArchitecture.getArchitectures()[0].identifier
 
 };
 

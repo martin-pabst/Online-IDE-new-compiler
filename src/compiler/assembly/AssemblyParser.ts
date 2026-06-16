@@ -9,7 +9,8 @@ import { AssemblyParserMessages } from "./language/AssemblyParserMessages";
 
 export type AssemblyCompiledCodePart = {
     offset: number;
-    code: number[];
+    codeOrData: number[];
+    isData: boolean[];
 }
 
 type AssemblyAssertionPartMemory = {
@@ -177,7 +178,7 @@ export abstract class AssemblyParser {
         this.tokens = tokens;
         this.tokenIndex = 0;
         this.errors = [];
-        this.codeParts = [{ offset: 150, code: [] }];
+        this.codeParts = [{ offset: 150, codeOrData: [], isData: [] }];
         this.currentCodePart = this.codeParts[0];
         this.sourceMap = new Map();
         this.instructionMap = new Map();
@@ -320,7 +321,7 @@ export abstract class AssemblyParser {
                     let codePart = referenceAddress.codePart;
                     let cellValues = this.addressToCellValues(label.address);
                     for (let i = 0; i < cellValues.length; i++) {
-                        codePart.code[referenceAddress.absoluteAddress - codePart.offset + i] = cellValues[i];
+                        codePart.codeOrData[referenceAddress.absoluteAddress - codePart.offset + i] = cellValues[i];
                     }
                 }
                 for (let assertionPart of label.unresolvedAssertionParts) {
@@ -432,9 +433,13 @@ export abstract class AssemblyParser {
         });
     }
 
-    writeToMemory(...values: (number | undefined)[]): void {
+    writeToMemory(values: number | number[], isData: boolean): void {
+        if(!Array.isArray(values)) {
+            values = [values];
+        }
         for (let value of values) {
-            this.currentCodePart.code[this.programCounterRelative] = value;
+            this.currentCodePart.codeOrData[this.programCounterRelative] = value;
+            this.currentCodePart.isData[this.programCounterRelative] = isData;
             this.programCounterRelative++;
         }
     }
@@ -454,10 +459,10 @@ export abstract class AssemblyParser {
      * Starts new code part
      */
     setOrigin(origin: number): void {
-        if (this.currentCodePart?.code.length === 0) {
+        if (this.currentCodePart?.codeOrData.length === 0) {
             this.currentCodePart.offset = origin;
         } else {
-            this.currentCodePart = { offset: origin, code: [] };
+            this.currentCodePart = { offset: origin, codeOrData: [] , isData: []};
             this.codeParts.push(this.currentCodePart);
         }
         this.programCounterRelative = 0;
@@ -539,7 +544,7 @@ export abstract class AssemblyParser {
 
         this.addSourceMapEntry(assertionToken.range);
         this.assertionMap.set(this.getProgramCounterAbsolute(), assertion);
-        this.writeToMemory(this.getAssertionOpcode());
+        this.writeToMemory(this.getAssertionOpcode(), false);
         this.addHoverEntry(assertionToken.range,
             ByAssemblyMessages.AssertHoverComment());
 

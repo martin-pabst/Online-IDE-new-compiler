@@ -7,6 +7,7 @@ import { AssemblyTokenType } from '../AssemblyTokenType';
 type LineInfo = {
     lineNumber: number;
     labelIdentifierAtLineBegin?: AssemblyToken;
+    hasWordInstruction: boolean;
     labelColon?: AssemblyToken;
     tokenAfterColon?: AssemblyToken;
     parameters?: AssemblyToken[];
@@ -66,29 +67,37 @@ export class AssemblyFormatter extends BaseMonacoProvider
 
         let lineInfos = this.generateLineInfos(tokenized.tokens);
 
-        let indentLevelAfterLabel = -1;
+        let maxIndentLevelCode = -1;
+        let maxIndentLevelData = -1;
         let leftMostInstructionColumn = Number.MAX_SAFE_INTEGER;
 
         for (let lineInfo of lineInfos) {
             if(lineInfo.maxIdentifierLengthInsideDirective) continue;
             if (lineInfo.labelIdentifierAtLineBegin) {
                 let il = (lineInfo.labelIdentifierAtLineBegin.range.endColumn - lineInfo.labelIdentifierAtLineBegin.range.startColumn) + 2; // add colon and one space
-                if (il > indentLevelAfterLabel) indentLevelAfterLabel = il;
+                if(lineInfo.hasWordInstruction) {
+                    if (il > maxIndentLevelData) maxIndentLevelData = il;
+                } else {
+                    if (il > maxIndentLevelCode) maxIndentLevelCode = il;
+                }
             } else if (lineInfo.tokenAfterColon) {
                 let il = lineInfo.tokenAfterColon.range.startColumn;
                 if (il < leftMostInstructionColumn) leftMostInstructionColumn = il;
             }
         }
 
-        let indentLevel = indentLevelAfterLabel != -1 ? indentLevelAfterLabel + 1 : leftMostInstructionColumn;
-        if (indentLevel == Number.MAX_SAFE_INTEGER) indentLevel = 3;
+        let codeIndentLevel = maxIndentLevelCode != -1 ? maxIndentLevelCode + 1 : leftMostInstructionColumn;
+        if (codeIndentLevel == Number.MAX_SAFE_INTEGER) codeIndentLevel = 3;
+        
+        let dataIndentLevel = maxIndentLevelData != -1 ? maxIndentLevelData + 1 : codeIndentLevel;
+        if (dataIndentLevel == Number.MAX_SAFE_INTEGER) dataIndentLevel = 3;
 
         for (let lineInfo of lineInfos) {
             let columnOffset = 0;
             if (lineInfo.labelIdentifierAtLineBegin) {
                 let labelStartColumn = lineInfo.labelIdentifierAtLineBegin.range.startColumn;
                 if(lineInfo.maxIdentifierLengthInsideDirective) {
-                    let expectedLabelStartColumn = indentLevel + 3;
+                    let expectedLabelStartColumn = codeIndentLevel + 3;
                     let delta = expectedLabelStartColumn - labelStartColumn;
                     if (delta != 0) {
                         columnOffset += this.insertOrDeleteSpaces(model, edits, lineInfo.lineNumber, labelStartColumn, delta);
@@ -103,7 +112,7 @@ export class AssemblyFormatter extends BaseMonacoProvider
 
             if(lineInfo.maxIdentifierLengthInsideDirective && lineInfo.labelColon){
                 let expectedColonColumn = 
-                indentLevel + 3 + lineInfo.maxIdentifierLengthInsideDirective;
+                codeIndentLevel + 3 + lineInfo.maxIdentifierLengthInsideDirective;
                 let delta = expectedColonColumn - (lineInfo.labelColon.range.startColumn + columnOffset);
                 if(delta != 0) {
                     columnOffset += this.insertOrDeleteSpaces(model, edits, lineInfo.lineNumber, lineInfo.labelColon.range.startColumn, delta);
@@ -113,12 +122,13 @@ export class AssemblyFormatter extends BaseMonacoProvider
             if (lineInfo.tokenAfterColon) {
                 let instructionStartColumn = lineInfo.tokenAfterColon.range.startColumn;
                 if(lineInfo.maxIdentifierLengthInsideDirective) {
-                    let expectedInstructionStartColumn = indentLevel + 3 + lineInfo.maxIdentifierLengthInsideDirective + 3;
+                    let expectedInstructionStartColumn = codeIndentLevel + 3 + lineInfo.maxIdentifierLengthInsideDirective + 3;
                     let delta = expectedInstructionStartColumn - (instructionStartColumn + columnOffset);
                     if (delta != 0) {
                         columnOffset += this.insertOrDeleteSpaces(model, edits, lineInfo.lineNumber, instructionStartColumn, delta);
                     }
                 } else{
+                    let indentLevel = lineInfo.hasWordInstruction ? dataIndentLevel : codeIndentLevel;
                     let delta = indentLevel - (instructionStartColumn + columnOffset);
                     if (delta != 0) {
                         columnOffset += this.insertOrDeleteSpaces(model, edits, lineInfo.lineNumber,
@@ -188,14 +198,14 @@ export class AssemblyFormatter extends BaseMonacoProvider
                     this.readTillEndOfLineOrLeftCurlyBracket();
                     continue;
                 case AssemblyTokenType.dot:
-                    currentLineInfo = { lineNumber: this.currentToken.range.startLineNumber, tokenAfterColon: this.currentToken };
+                    currentLineInfo = { lineNumber: this.currentToken.range.startLineNumber, tokenAfterColon: this.currentToken, hasWordInstruction: false };
                     lineInfos.push(currentLineInfo);
                     this.readTillEndOfLineOrLeftCurlyBracket();
                     continue;
                 case AssemblyTokenType.identifier:
                 case AssemblyTokenType.number:
                     if (isInsideDirective) {
-                        currentLineInfo = { lineNumber: this.currentToken.range.startLineNumber, tokenAfterColon: this.currentToken };
+                        currentLineInfo = { lineNumber: this.currentToken.range.startLineNumber, tokenAfterColon: this.currentToken, hasWordInstruction: false };
                         lineInfosInsideDirective.push(currentLineInfo);
                         lineInfos.push(currentLineInfo);
                         let lineNumber = currentLineInfo.lineNumber;
@@ -223,7 +233,7 @@ export class AssemblyFormatter extends BaseMonacoProvider
                         this.readTillEndOfLineOrRightCurlyBracket();
 
                     } else {
-                        currentLineInfo = { lineNumber: this.currentToken.range.startLineNumber, tokenAfterColon: this.currentToken };
+                        currentLineInfo = { lineNumber: this.currentToken.range.startLineNumber, tokenAfterColon: this.currentToken, hasWordInstruction: false };
                         lineInfos.push(currentLineInfo);
                         let lineNumber = currentLineInfo.lineNumber;
                         this.next();
@@ -238,6 +248,9 @@ export class AssemblyFormatter extends BaseMonacoProvider
                             this.next();
                             this.skipWhitespaceWhileOnLine(lineNumber);
                             currentLineInfo.tokenAfterColon = this.currentToken;
+                            if(this.currentToken.text?.toLocaleLowerCase() == 'word'){
+                                currentLineInfo.hasWordInstruction = true;
+                            }
                         }
                         // We are now at the instruction identifier.
                         this.readTillEndOfLineOrLeftCurlyBracket();

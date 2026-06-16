@@ -192,6 +192,8 @@ export class MemoryTab extends Tab {
                     metadataEntry.classes.push("jo_memorytab_currentstatement");
                 } else if (this.lastDisplayedCPU.isCodeLocation(address)) {
                     metadataEntry.classes.push("jo_memorytab_programlocation");
+                } else if (this.lastDisplayedCPU.isDataLocation(address)) {
+                    metadataEntry.classes.push("jo_memorytab_datalocation");
                 }
 
                 if (location === address) {

@@ -45,7 +45,7 @@ export class ProgrammingLanguageManager {
         let languages: ProgrammingLanguage[] = [
             this.getLanguageByName(ProgrammingLanguageData.Java.name)
         ];
-        if(settings.getValue("programmingLanguages.assembly.enabled") == "yes"){
+        if(settings.getValue("programmingLanguages.ByAssembly.enabled") == "yes"){
             languages.push(this.getLanguageByName(ProgrammingLanguageData.ByAssembly.name));
         }
         return languages;

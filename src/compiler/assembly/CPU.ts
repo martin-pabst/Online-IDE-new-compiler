@@ -40,6 +40,10 @@ export abstract class CPU {
      * which is needed for the MemoryTab.
      */
     codeLocationsField: Uint8Array;
+    static readonly MEM_FREE = 0;
+    static readonly MEM_CODE = 1;
+    static readonly MEM_DATA = 2;
+
 
     abstract getRegisterValues(): { [registerName: string]: number };
 
@@ -77,19 +81,21 @@ export abstract class CPU {
         let codeParts = this.assemblyParserResult.codeParts;
         let size = 0;
         for (const codePart of codeParts) {
-            let lastCodeIndex = codePart.offset + codePart.code.length;
+            let lastCodeIndex = codePart.offset + codePart.codeOrData.length;
             if (lastCodeIndex + 1 > size) {
                 size = lastCodeIndex + 1;
             }
         }
 
         this.codeLocationsField = new Uint8Array(size);
-        this.codeLocationsField.fill(0);
+        this.codeLocationsField.fill(CPU.MEM_FREE);
 
         for (const codePart of codeParts) {
-            for (let i = 0; i < codePart.code.length; i++) {
+            for (let i = 0; i < codePart.codeOrData.length; i++) {
                 let address = codePart.offset + i;
-                this.codeLocationsField[address] = 1;
+                let kind: number = codePart.isData[i] ? CPU.MEM_DATA : CPU.MEM_CODE;
+
+                this.codeLocationsField[address] = kind;
             }
         }
     }
@@ -111,7 +117,11 @@ export abstract class CPU {
     }
 
     isCodeLocation(address: number): boolean {
-        return this.codeLocationsField[address] === 1;
+        return this.codeLocationsField[address] === CPU.MEM_CODE;
+    }
+
+    isDataLocation(address: number): boolean {
+        return this.codeLocationsField[address] === CPU.MEM_DATA;
     }
 
     getStartOfFirstCodePart(): number | undefined {

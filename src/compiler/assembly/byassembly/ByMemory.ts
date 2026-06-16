@@ -63,7 +63,7 @@ export class ByMemory extends Memory {
     loadProgram(codeParts: AssemblyCompiledCodePart[]): void {
         let sizeNeeded = 0;
         for (let codePart of codeParts) {
-            sizeNeeded = Math.max(sizeNeeded, codePart.offset + codePart.code.length);
+            sizeNeeded = Math.max(sizeNeeded, codePart.offset + codePart.codeOrData.length);
         }
         if (sizeNeeded > this.maximumSize) {
             throw new Error(`Program load error: Program size (${sizeNeeded} words) exceeds maximum memory size (0x${this.maximumSize.toString(16)}) words).`);
@@ -75,8 +75,8 @@ export class ByMemory extends Memory {
         this.memory.fill(0);
 
         for (let codePart of codeParts) {
-            for (let i = 0; i < codePart.code.length; i++) {
-                this.memory[codePart.offset + i] = codePart.code[i];
+            for (let i = 0; i < codePart.codeOrData.length; i++) {
+                this.memory[codePart.offset + i] = codePart.codeOrData[i];
             }
         }
     }

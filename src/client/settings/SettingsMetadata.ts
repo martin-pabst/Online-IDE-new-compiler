@@ -442,7 +442,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                 description: SettingsMessages.AssemblyDescription,
                 settings: [
                     {
-                        key: "programmingLanguages.assembly.enabled",
+                        key: "programmingLanguages.ByAssembly.enabled",
                         settingType: 'setting',
                         name: SettingsMessages.AssemblyEnabledName,
                         description: SettingsMessages.AssemblyEnabledDescription,
@@ -459,7 +459,7 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                         }
                     },
                     {
-                        key: "programmingLanguages.assembly.defaultArchitecture",
+                        key: "programmingLanguages.ByAssembly.defaultArchitecture",
                         settingType: 'setting',
                         name: SettingsMessages.AssemblyDefaultArchitectureName,
                         description: SettingsMessages.AssemblyDefaultArchitectureDescription,

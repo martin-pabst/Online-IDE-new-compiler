@@ -170,7 +170,7 @@ export class ByAssemblyLanguage extends ProgrammingLanguage {
                 'load', 'store',
                 'add', 'sub', 'mul', 'div', 'mod',
                 'jmp', 'jeq', 'jne', 'jgt', 'jge', 'jlt', 'jle',
-                'hold', 'halt', 'word',
+                'hold', 'halt',
                 'push', 'pop',
                 'call', 'return',
                 'jsr', 'rts', 'rsv', 'rel',
@@ -183,6 +183,10 @@ export class ByAssemblyLanguage extends ProgrammingLanguage {
                 'addi', 'subi', 'muli', 'divi', 'modi',
                 'andi', 'ori', 'xori', 'cmpi',
                 'shri', 'shli'
+            ],
+
+            dataDirectives: [
+                'word'
             ],
 
             operators: [
@@ -199,12 +203,13 @@ export class ByAssemblyLanguage extends ProgrammingLanguage {
             tokenizer: {
                 root: [
                     [/\.[a-zäöüßA-ZÄÖÜ_]*/, 'identifier.pseudodirective'],
-                    [/[a-zäöüßA-ZÄÖÜ_][a-zäöüßA-ZÄÖÜ_0-9]*:/, 'identifier.tag'],
+                    [/[a-zäöüßA-ZÄÖÜ_][a-zäöüßA-ZÄÖÜ_0-9 ]*:/, 'identifier.tag'],
                     // identifiers and keywords
                     [/[a-zäöüßA-ZÄÖÜ_$][\w$]*/, {
                         cases: {
                             '@immediateKeywords': { token: 'keyword', next: '@immediateOperand' },
                             '@keywords': 'keyword',
+                            '@dataDirectives': 'datadirective',
                             '@default': 'identifier'
                         }
                     }],
@@ -285,9 +290,12 @@ export class ByAssemblyLanguage extends ProgrammingLanguage {
 
     public async enable(main: IMain) {
         let bottomDiv = main.getBottomDiv();
-        bottomDiv.jUnitTab?.setVisible(false);
-        bottomDiv.disassemblerTab?.setVisible(false);
-        bottomDiv.console?.tab?.setVisible(false);
+        if(bottomDiv){
+            bottomDiv.jUnitTab?.setVisible(false);
+            bottomDiv.disassemblerTab?.setVisible(false);
+            bottomDiv.console?.tab?.setVisible(false);
+        }
+
         let rightDiv = main.getRightDiv();
         rightDiv.classDiagramTab?.setVisible(false);
 
@@ -345,7 +353,7 @@ export class ByAssemblyLanguage extends ProgrammingLanguage {
 
         let currentArchitecture: string | undefined = workspace.settings.assemblyArchitecture;
 
-        let defaultArchitecture = <string>main.getSettings().getValue("programmingLanguages.assembly.defaultArchitecture");
+        let defaultArchitecture = <string>main.getSettings().getValue("programmingLanguages.ByAssembly.defaultArchitecture");
 
         setSelectItems(jQuery(selectElement), ByArchitecture.getArchitectures().map(arch => ({ value: arch.identifier, object: arch, caption: arch.getLocalizedName()() })),
             currentArchitecture ?? defaultArchitecture ?? ByArchitecture.getArchitectures()[0].identifier);

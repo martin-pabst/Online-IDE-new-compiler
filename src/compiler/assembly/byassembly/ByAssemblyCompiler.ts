@@ -99,7 +99,7 @@ export class ByAssemblyCompiler implements Compiler {
         }
 
         if(!architectureName) {
-            architectureName = <string>this.main?.getSettings().getValue("programmingLanguages.assembly.defaultArchitecture") ?? ByArchitecture.getArchitectures()[0].identifier;
+            architectureName = <string>this.main?.getSettings().getValue("programmingLanguages.ByAssembly.defaultArchitecture") ?? ByArchitecture.getArchitectures()[0].identifier;
         }
 
         if (this.#files.length === 0) return;

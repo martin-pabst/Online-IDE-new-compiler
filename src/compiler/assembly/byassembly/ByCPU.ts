@@ -694,6 +694,8 @@ export class ByCPU extends CPU {
     }
 
     setAccu(value: number): void {
+        value = Math.floor(value); // Ensure value is an integer
+
         if (value > this.architecture.valueRangeMax || value < this.architecture.valueRangeMin) {
             this.flags.overflow = true;
             value = this.architecture.sanitizeValue(value);
@@ -970,16 +972,16 @@ export class ByParser extends AssemblyParser {
                     let address = addressToken.value as number;
                     this.registerInstruction(instruction, token.range, [address]);
                     this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
-                    this.writeToMemory(instruction.OpCode, address);
+                    this.writeToMemory([instruction.OpCode, address], false);
                 }
                 this.next();
                 if (this.expect(AssemblyTokenType.rightBracket)) this.next();
             } else if (addressToken.type === AssemblyTokenType.identifier) {
                 this.registerInstruction(instruction, token.range, [addressToken.text]);
                 this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
-                this.writeToMemory(instruction.OpCode);
+                this.writeToMemory([instruction.OpCode], false);
                 let labelAddress = this.getLabelAddressAbsolute(addressToken, this.getProgramCounterAbsolute(), undefined);
-                this.writeToMemory(...this.architecture.addressOperandToMemoryCellValues(labelAddress));
+                this.writeToMemory(this.architecture.addressOperandToMemoryCellValues(labelAddress), false);
                 this.next();
                 if (this.expect(AssemblyTokenType.rightBracket)) this.next();
             } else {
@@ -1000,7 +1002,7 @@ export class ByParser extends AssemblyParser {
         if (instruction) {
             this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
             this.registerInstruction(instruction, token.range, []);
-            this.writeToMemory(instruction.OpCode);
+            this.writeToMemory([instruction.OpCode], false);
         } else {
             this.pushError(ByAssemblyMessages.NoArgumentAfterInstructionFound(token.text), "error", token.range);
             let specialCompletionComment = specialCompletionComments.find(item => item.tokenType === token.type);
@@ -1024,11 +1026,11 @@ export class ByParser extends AssemblyParser {
                 let value = numberToken.value as number;
                 this.registerInstruction(instruction, token.range, [value]);
                 this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
-                this.writeToMemory(instruction.OpCode);
+                this.writeToMemory([instruction.OpCode], false);
                 if (instruction.adressMode === "Immediate") {
-                    this.writeToMemory(value);
+                    this.writeToMemory([value], false);
                 } else {
-                    this.writeToMemory(...this.architecture.addressOperandToMemoryCellValues(value));
+                    this.writeToMemory(this.architecture.addressOperandToMemoryCellValues(value), false);
                 }
             } else {
                 this.registerInstruction(instruction, token.range, instruction.adressMode === "Immediate" ? [70] : ["address"]);
@@ -1065,8 +1067,8 @@ export class ByParser extends AssemblyParser {
         if(instruction) {
             this.registerInstruction(instruction, token.range, [operand]);
             this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
-            this.writeToMemory(instruction.OpCode);
-            this.writeToMemory(operand);
+            this.writeToMemory(instruction.OpCode, false);
+            this.writeToMemory(operand, false);
         }
         
         this.readTillBeginOfNextLine();
@@ -1080,9 +1082,9 @@ export class ByParser extends AssemblyParser {
         if (instruction) {
             this.registerInstruction(instruction, token.range, [labelToken.text]);
             this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
-            this.writeToMemory(instruction.OpCode);
+            this.writeToMemory(instruction.OpCode, false);
             let labelAddress = this.getLabelAddressAbsolute(labelToken, this.getProgramCounterAbsolute(), undefined);
-            this.writeToMemory(...this.architecture.addressOperandToMemoryCellValues(labelAddress));
+            this.writeToMemory(this.architecture.addressOperandToMemoryCellValues(labelAddress), false);
         } else {
             this.pushError(ByAssemblyMessages.LabelAfterInstructionNotExpected(token.text), "error", labelToken.range);
             let specialCompletionComment = specialCompletionComments.find(item => item.tokenType === token.type);
@@ -1106,7 +1108,7 @@ export class ByParser extends AssemblyParser {
             if (this.checkIfTokenIsValidValue(numberToken)) {
                 let value = numberToken.value as number;
                 this.addSourceMapEntry(token.range, this.getProgramCounterAbsolute());
-                this.writeToMemory(value);
+                this.writeToMemory(value, true);
             }
             this.next();
         } while (this.currentToken().type === AssemblyTokenType.comma);

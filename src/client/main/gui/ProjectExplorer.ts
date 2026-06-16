@@ -395,7 +395,7 @@ export class ProjectExplorer {
             if(language){
                 w.settings.language = language.name;
                 if(language.name == ProgrammingLanguageData.ByAssembly.name){
-                    let defaultArchitecture = <string>this.main.getSettings().getValue("programmingLanguages.assembly.defaultArchitecture");
+                    let defaultArchitecture = <string>this.main.getSettings().getValue("programmingLanguages.ByAssembly.defaultArchitecture");
                     w.settings.assemblyArchitecture = defaultArchitecture ?? ByArchitecture.getArchitectures()[0].identifier;
                 }
             } else {

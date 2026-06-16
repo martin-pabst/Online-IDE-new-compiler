@@ -68,13 +68,15 @@ type JavaOnlineConfig = {
     hideStartPanel?: boolean,
     hideEditor?: boolean,
     libraries?: string[],
-    programmingLanguage?: string,
     jsonFilename?: string,
     spritesheetURL?: string,
     enableFileAccess?: boolean,
     settings?: SettingValues,
     workspaceURLParameterName?: string,
     cacheUserEdits?: boolean
+
+    programmingLanguage?: string,
+    
 }
 
 export class MainEmbedded implements MainBase {
