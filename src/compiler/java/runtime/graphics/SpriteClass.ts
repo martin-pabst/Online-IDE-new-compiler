@@ -76,7 +76,7 @@ export class SpriteClass extends ShapeClass {
         this._cj$_constructor_$Shape$(t, async () => {
             this.x = x;
             this.y = y;
-            this.scaleModeOrdinal = scaleMode?.ordinal || ScaleMode.nearest_neighbour;
+            this.scaleModeOrdinal = scaleMode?.ordinal ?? ScaleMode.nearest_neighbour;
 
             if (copyFromOtherShape == null) {
                 this.spriteLibrary = (typeof spriteLibrary == "string") ? spriteLibrary : spriteLibrary!.name;

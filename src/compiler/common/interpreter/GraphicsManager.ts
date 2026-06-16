@@ -59,7 +59,9 @@ export class GraphicsManager {
                 resource: this.pngImageData,
                 width: this.pixiSpritesheetData.meta.size.w,
                 height: this.pixiSpritesheetData.meta.size.h,
-                alphaMode: "no-premultiply-alpha"
+                alphaMode: "no-premultiply-alpha",
+                minFilter: "nearest",
+                magFilter: "nearest"
             }))
 
             this.pixiUserSpritesheet = new PIXI.Spritesheet(textureNew, this.pixiSpritesheetData);
