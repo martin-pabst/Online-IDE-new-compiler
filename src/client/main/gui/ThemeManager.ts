@@ -271,8 +271,8 @@ export class ThemeManager {
                 { token: 'identifier', foreground: '#668aff' },
                 { token: 'identifier.pseudodirective', foreground: '#92929294' },
                 // { token: 'identifier.tag', foreground: '#a566cd' },
-                { token: 'statement', foreground: '#bb96c0', fontStyle: 'bold' },
-                { token: 'keyword', foreground: '#68bed4', fontStyle: 'bold' },
+                { token: 'statement', foreground: '#ca5c5c', fontStyle: 'bold' },
+                { token: 'keyword', foreground: '#f78e17' },
                 { token: 'datadirective', foreground: '#91720c93', fontStyle: 'bold' },
                 { token: 'string3', foreground: '#ff0000' },
 
