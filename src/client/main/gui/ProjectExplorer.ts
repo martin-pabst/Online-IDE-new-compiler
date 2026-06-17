@@ -260,7 +260,12 @@ export class ProjectExplorer {
 
         this.fileTreeview.nodeClickedCallback =
             (file: GUIFile) => {
-                if (!file.isFolder) this.setFileActive(file);
+                if (!file.isFolder) {
+                    this.setFileActive(file);
+                    if (this.main.currentWorkspace.settings.language == ProgrammingLanguageData.ByAssembly.name) {
+                        this.main.getCompiler().forceRecompilation();
+                    }
+                }
             }
 
 
@@ -392,9 +397,9 @@ export class ProjectExplorer {
             let w: Workspace = new Workspace(name, this.main, owner_id);
             w.isFolder = node.isFolder;
             w.parent_folder_id = node.getParent().externalObject?.id ?? null;
-            if(language){
+            if (language) {
                 w.settings.language = language.name;
-                if(language.name == ProgrammingLanguageData.ByAssembly.name){
+                if (language.name == ProgrammingLanguageData.ByAssembly.name) {
                     let defaultArchitecture = <string>this.main.getSettings().getValue("programmingLanguages.ByAssembly.defaultArchitecture");
                     w.settings.assemblyArchitecture = defaultArchitecture ?? ByArchitecture.getArchitectures()[0].identifier;
                 }
@@ -642,7 +647,7 @@ export class ProjectExplorer {
     }
 
     getIconClassForWorkspace(workspace: Workspace): string {
-        return (ProgrammingLanguageData[workspace.settings.language]??ProgrammingLanguageData.Java).workspaceCssClass(workspace.repository_id != null);
+        return (ProgrammingLanguageData[workspace.settings.language] ?? ProgrammingLanguageData.Java).workspaceCssClass(workspace.repository_id != null);
     }
 
     async moveOrCopyFilesToOtherWorkspaces(filesToMoveOrCopy: TreeviewNode<GUIFile, number>[], destinationWorkspaceNode: TreeviewNode<Workspace, number>, dragKind: DragKind) {
@@ -918,12 +923,9 @@ export class ProjectExplorer {
             } else {
                 this.main.bottomDiv.homeworkManager.hideHomeworkRevisionButton();
             }
-            
+
             this.main.getInterpreter().onFileSelected();
 
-            if(this.main.currentWorkspace.settings.language == ProgrammingLanguageData.ByAssembly.name){
-                this.main.getCompiler().forceRecompilation();
-            }
         }
 
 

@@ -82,7 +82,7 @@ export class EmbeddedFileExplorer {
         }
 
         this.treeview.nodeClickedCallback = (file) => {
-            this.selectFile(file, false);
+            this.selectFile(file, true);
         }
 
     }
@@ -194,7 +194,7 @@ export class EmbeddedFileExplorer {
                     }, 100);
                 }
                 this.main.interpreter.onFileSelected();
-                if (this.main.currentWorkspace.settings.language == ProgrammingLanguageData.ByAssembly.name) {
+                if (this.main.currentWorkspace.settings.language == ProgrammingLanguageData.ByAssembly.name && focusEditorSubsequently) {
                     this.main.getCompiler().forceRecompilation();
                 }
 
