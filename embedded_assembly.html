@@ -27,20 +27,25 @@
 
     }">
         <script type="text/plain" title="Test1.asm" data-type="java">
-
-           start: load b 
-       subi 1
-       store b
-       jne start
-       .assert { 
-          a:  0,
-          b:  1
-          }
-       hold 
-
-b:     word 10
-            
-        </script>
+      loadi 0
+      store ergebnis
+      loadi 100
+      store adresse
+loop: load (adresse)
+      add ergebnis
+      store ergebnis
+      load adresse
+      addi 1
+      store adresse
+      cmpi 120
+      jlt loop
+      hold
+      .origin 100
+      word 17, 28, 19, 15, 1, 0, 132, 128, 130, 18
+      word 51, 16, 27, 38, 24, 10, 8, 5, 87, 32
+ergebnis: word 0
+adresse:  word 0        
+</script>
     </div>
 
 

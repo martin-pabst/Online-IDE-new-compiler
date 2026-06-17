@@ -68,7 +68,7 @@ regular-table tbody th {
 }
 
 regular-table thead tr:last-child th {
-    border-bottom: 1px solid#ddd;
+    border-bottom: 1px solid#ddd !important;
 }
 
 regular-table th {

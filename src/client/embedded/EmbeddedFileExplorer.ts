@@ -9,6 +9,7 @@ import { EmbeddedMessages } from "./EmbeddedMessages.js";
 import markdownit from 'markdown-it';
 import * as monaco from 'monaco-editor'
 import { Treeview } from "../../tools/components/treeview/Treeview.js";
+import { ProgrammingLanguageData } from "../../compiler/common/programminglanguage/ProgrammingLanguageData.js";
 
 type FileData = {
     type?: string,
@@ -193,6 +194,10 @@ export class EmbeddedFileExplorer {
                     }, 100);
                 }
                 this.main.interpreter.onFileSelected();
+                if (this.main.currentWorkspace.settings.language == ProgrammingLanguageData.ByAssembly.name) {
+                    this.main.getCompiler().forceRecompilation();
+                }
+
                 break;
         }
     }
@@ -237,7 +242,7 @@ export class EmbeddedFileExplorer {
             let errorCountS: string = ((errorCount == null || errorCount == 0) ? "" : "(" + errorCount + ")");
 
             let node = this.treeview.findNodeByElement(f);
-            node.setRightPartOfCaptionErrors(errorCountS);
+            node?.setRightPartOfCaptionErrors(errorCountS);
         }
     }
 

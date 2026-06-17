@@ -173,7 +173,7 @@ export class GUIFile extends CompilerFile {
     }
 
     getLocalVersion(): number {
-        if (this.monacoModel) {
+        if (this.monacoModel && !this.monacoModel.isDisposed()) {
             return this.monacoModel.getAlternativeVersionId();
         } else {
             return this.localVersion;
@@ -181,7 +181,7 @@ export class GUIFile extends CompilerFile {
     }
 
     hasMonacoModel(): boolean {
-        return typeof this.monacoModel !== "undefined";
+        return typeof this.monacoModel !== "undefined" && !this.monacoModel.isDisposed();
     }
 
     getFolderContentsRecursively(allFiles: GUIFile[]): GUIFile[] {

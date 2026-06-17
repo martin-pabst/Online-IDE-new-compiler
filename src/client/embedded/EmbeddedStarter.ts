@@ -131,7 +131,10 @@ export class EmbeddedStarter {
                 let $script = jQuery(element);
 
                 let srcAttr = $script.attr('src');
-                let text = $script.text().trim();
+                let text = $script.text().trimEnd();
+                while(text.startsWith("\n") || text.startsWith("\r")) {
+                    text = text.substring(1);
+                }
                 let script: JOScript = {
                     title: $script.attr('title'),
                     text: text
