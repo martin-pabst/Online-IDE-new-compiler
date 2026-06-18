@@ -364,8 +364,8 @@ export class JCM {
     })
 
     static comparisonOperatorInsteadOfAssignment = () => le({
-        "de": "Hier wird ein Zuweisungsoperator erwartet. Du musst statt des Vergleichsoperators == den Zuweisungsoperator == benutzen.",
-        "en": `Assignment operator expected. Use assignment operator = instead of comparison operator ==.`,
+        "de": "Hier wird ein Zuweisungsoperator erwartet. Du musst statt des Vergleichsoperators == den Zuweisungsoperator = benutzen.",
+        "en": `Assignment operator expected. Use assignment operator = instead of comparison operator =.`,
         "fr": `Opérateur d'affectation attendu. Utilisez l'opérateur d'affectation = au lieu de l'opérateur de comparaison ==.`,
     })
 
