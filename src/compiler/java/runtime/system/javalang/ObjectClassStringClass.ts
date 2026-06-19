@@ -277,7 +277,7 @@ export class StringClass extends ObjectClass implements IPrimitiveTypeWrapper {
         { type: "method", signature: "public final string trim()", native: StringClass.prototype._nTrim, template: "§1.value.trim()", comment: JRC.stringTrimComment },
         { type: "method", signature: "public final string replace(string target, string replacement)", native: StringClass.prototype._nReplace, template: "§1.value.replace(§2, §3)", comment: JRC.stringReplaceComment },
         { type: "method", signature: "public final string replaceAll(string regex, string replacement)", native: StringClass.prototype._nReplaceAll, template: "§1.value.replace(new RegExp(§2, 'g'), §3)", comment: JRC.stringReplaceAllComment },
-        { type: "method", signature: "public final string matches(string regex)", native: StringClass.prototype._nMatches, template: "(§1.value.match(new RegExp(§2, 'g')) != null)", comment: JRC.stringMatchesComment },
+        { type: "method", signature: "public final boolean matches(string regex)", native: StringClass.prototype._nMatches, comment: JRC.stringMatchesComment },
         { type: "method", signature: "public final string replaceFirst(string regex, string replacement)", native: StringClass.prototype._nReplaceFirst, template: "§1.value.replace(new RegExp(§2, ''), §3)", comment: JRC.stringReplaceFirstComment },
         { type: "method", signature: "public final string[] split(string regex)", native: StringClass.prototype._nSplit, comment: JRC.stringSplitComment },
         { type: "method", signature: "public final int hashCode()", native: StringClass.prototype._nHashCode, template: `Array.from(§1.value).reduce((s, c) => Math.imul(31, s) + c.charCodeAt(0) | 0, 0)`, comment: JRC.hashCodeComment },
@@ -419,7 +419,8 @@ export class StringClass extends ObjectClass implements IPrimitiveTypeWrapper {
     }
 
     _nMatches(regEx: string) {
-        return this.value.match(new RegExp(regEx, 'g')) != null;
+        if(this.value == null) return false;
+        return  new RegExp("^(?:" + regEx + ")$").test(this.value);
     }
 
     add(secondString: string): StringClass {
