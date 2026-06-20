@@ -4,6 +4,7 @@ import { Dialog } from "./Dialog.js";
 import { ajax } from "../../communication/AjaxHelper.js";
 import jQuery from 'jquery';
 import { UserMenuMessages } from "./language/GUILanguage.js";
+import type { UserData } from "../../communication/Data.js";
 
 export class UserMenu {
 
@@ -13,26 +14,31 @@ export class UserMenu {
 
     }
 
-    init(){
+    init(user: UserData){
         let $userSettingsButton = jQuery('#buttonUserSettings');
         let that = this;
 
-        $userSettingsButton.on("click", (e) => {
-
-            let contextMenuItems: ContextMenuItem[] = [
-                {
-                    caption: UserMenuMessages.changePassword() + "...",
-                    callback: () => {
-                        let passwortChanger = new PasswordChanger(that.main);
-                        passwortChanger.show();
+        if(user.vidis_akronym){
+            $userSettingsButton.css("display", "none");
+        } else {
+            $userSettingsButton.on("click", (e) => {
+    
+                let contextMenuItems: ContextMenuItem[] = [
+                    {
+                        caption: UserMenuMessages.changePassword() + "...",
+                        callback: () => {
+                            let passwortChanger = new PasswordChanger(that.main);
+                            passwortChanger.show();
+                        }
                     }
-                }
-            ]
+                ]
+    
+    
+                openContextMenu(contextMenuItems, $userSettingsButton.offset().left, $userSettingsButton.offset().top + $userSettingsButton.height());
+    
+            });
+        }
 
-
-            openContextMenu(contextMenuItems, $userSettingsButton.offset().left, $userSettingsButton.offset().top + $userSettingsButton.height());
-
-        });
 
     }
 

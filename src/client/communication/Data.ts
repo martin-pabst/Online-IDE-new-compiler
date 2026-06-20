@@ -210,7 +210,8 @@ export type LoginResponse = {
     sqlIdeForOnlineIdeClient: string,
     userSettings: SettingValues,   // new user settings
     classSettings: SettingValues, // settings for class if user is student
-    schoolSettings: SettingValues // settings for school
+    schoolSettings: SettingValues, // settings for school
+    vidis_id_token?: string
 }
 
 export type CheckIfPruefungIsRunningResponse = {

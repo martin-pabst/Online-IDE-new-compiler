@@ -136,7 +136,7 @@ export class Login {
                 
                 if (this.loggedInWithVidis) {
                     // window.location.assign("https://aai-test.vidis.schule/auth/realms/vidis/protocol/openid-connect/logout?ID_TOKEN_HINT=" + this.vidis_id_token +"&post_logout_redirect_uri=https%3A%2F%2Fwww.online-ide.de");
-                    window.location.assign("https://aai-test.vidis.schule/auth/realms/vidis/protocol/openid-connect/logout?ID_TOKEN_HINT=" + this.main.user.vidis_sub + "&post_logout_redirect_uri=https%3A%2F%2Fwww.online-ide.de");
+                    window.location.assign("https://aai-test.vidis.schule/auth/realms/vidis/protocol/openid-connect/logout?ID_TOKEN_HINT=" + this.vidis_id_token + "&post_logout_redirect_uri=https%3A%2F%2Fonline-ide.de/vidisLogout");
                     // window.location.assign("https://aai.vidis.schule/auth/realms/vidis/protocol/openid-connect/logout?ID_TOKEN_HINT=" + this.main.user.vidis_sub + "&post_logout_redirect_uri=https%3A%2F%2Fwww.online-ide.de");
                     
                 } else {
@@ -174,6 +174,7 @@ export class Login {
                 jQuery('#login-message').html(LoginMessages.wrongUsernameOrPassword());
                 jQuery('#login-spinner>img').hide();
             } else {
+                this.vidis_id_token = response.vidis_id_token || "";
 
                 // We don't do this anymore for security reasons - see AjaxHelper.ts
                 // Alternatively we now set a long expiry interval for cookie.
@@ -226,7 +227,7 @@ export class Login {
                 $loginSpinner.hide();
                 jQuery('#menupanel-username').html(escapeHtml(getUserDisplayName(user)));
 
-                new UserMenu(that.main).init();
+                new UserMenu(that.main).init(user);
 
                 if (user.is_teacher) {
                     that.main.initTeacherExplorer(response.classdata);
