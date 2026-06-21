@@ -262,10 +262,10 @@ export class ThemeManager {
             base: 'vs-dark', // can also be vs-dark or hc-black
             inherit: true, // can also be false to completely replace the builtin rules
             rules: [
-                { token: 'method', foreground: '#dcdcaa', fontStyle: 'italic' },
-                { token: 'print', foreground: '#dcdcaa', fontStyle: 'italic bold' },
+                { token: 'method', foreground: '#e7e543', fontStyle: 'italic' },
+                { token: 'print', foreground: '#e7e543', fontStyle: 'italic bold' },
                 { token: 'class', foreground: '#3DC9B0' },
-                { token: 'number', foreground: '#b5cea8' },
+                { token: 'number', foreground: '#9ce870' },
                 { token: 'number.immediate', foreground: '#e0e0e0', fontStyle: 'italic' },
                 { token: 'type', foreground: '#a566cd' },
                 { token: 'identifier', foreground: '#668aff' },
