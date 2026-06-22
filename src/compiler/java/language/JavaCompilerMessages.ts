@@ -652,6 +652,12 @@ export class JCM {
         "fr": "L'appel au constructeur de la classe de base via super(...) doit être la première instruction du constructeur."
     })
 
+    static thisCallInsideConstructorAfterFirstStatement = () => le({
+        "de": "Der Aufruf eines anderen Konstruktors mit this(...) kann nur als erste Anweisung im Konstruktor erfolgen.",
+        "en": "Call to other constructors of this class via this(...) must be the first statement in a constructor.",
+        "fr": "L'appel à d'autres constructeurs de cette classe via this(...) doit être la première instruction d'un constructeur."
+    })
+
     static fieldDefinitionDoesntStartWithGenericParamter = () => le({
         "de": "Vor Attributen kann keine Definition generischer Parameter stehen.",
         "en": `Field definition mustn't start with generic parameter definition.`,

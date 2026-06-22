@@ -704,7 +704,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
         let objectKind = methodCall.nodeToGetObject?.kind;
         if (!objectKind) return [false, false];
 
-        if (objectKind == TokenType.keywordThis) return [true, false];
+        if (objectKind == TokenType.keywordThis && methodCall.identifier == '') return [true, false];
         if (objectKind == TokenType.keywordSuper) return [false, true];
 
         return [false, false];

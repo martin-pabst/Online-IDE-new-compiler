@@ -285,6 +285,9 @@ export abstract class TermParser extends TokenIterator {
                 node = this.nodeFactory.buildThisNode(thisToken);
                 if (this.comesToken(TokenType.leftBracket, false)) {
                     node = this.buildMethodCallNode(thisToken, node);
+                    if(!this.firstStatementInsideMethodBodyNotYetCompiled){
+                        this.pushError(JCM.thisCallInsideConstructorAfterFirstStatement(), "error", thisToken.range);
+                    }
                 }
                 break;
             case TokenType.keywordSuper:
