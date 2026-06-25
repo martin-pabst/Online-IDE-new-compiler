@@ -99,8 +99,10 @@ export class ActorManager {
         }
 
         this.shapesToDestroySafely.forEach( shape => {
-            shape.container.destroy();
-            shape.container = ContainerProxy.instance;
+            if(shape?.container && shape.container != ContainerProxy.instance){
+                shape.container.destroy();
+                shape.container = ContainerProxy.instance;
+            }
         });
         this.shapesToDestroySafely = [];
 
