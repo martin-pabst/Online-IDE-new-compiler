@@ -219,6 +219,11 @@
         color: var(--fontColorLight);
     }
 
+    #login {
+        height: 100%;
+        overflow: auto;
+    }
+
     /* Login */
     #login,
     #bitteWarten {
@@ -229,6 +234,9 @@
         background-color: var(--backgroundDark);
         display: flex;
         flex-direction: column;
+    }
+
+    #bitteWarten {
         justify-content: center;
     }
 
@@ -242,12 +250,17 @@
     #login-footer {
         font-size: 12pt;
         z-index: 10;
-        margin-bottom: 10px;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        margin-left: 20px;
+        position: absolute;
+        bottom: 0px;
+        padding-bottom: 10px;
+        left: 0;
+        width: 100%;
+        background-color: var(--backgroundBeta);
     }
+
 
     #login-datenschutz {
         margin-right: 20px;
@@ -255,6 +268,7 @@
 
     #login-datenschutz>a {
         color: lightblue !important;
+        padding-right: 20px;
     }
 
     #login-spinner {
