@@ -117,6 +117,12 @@ export class GuiMessages {
         "fr": "Couper (Ctrl + x)",
     })
 
+    static Paste = () => lm({
+        "de": "Einfügen (Strg + v)",
+        "en": "Paste (Ctrl + v)",
+        "fr": "Coller (Ctrl + v)",
+    })
+
     static CopyToTop = () => lm({
         "de": "Nach oben kopieren (Alt + Shift + Pfeil rauf)",
         "en": "Copy to top (Alt + Shift + Arrow up)",

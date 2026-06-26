@@ -99,6 +99,7 @@ export class MainMenu {
                             { identifier: "-" },
                             { identifier: GuiMessages.Copy(), action: () => { editor.getAction("editor.action.clipboardCopyAction").run(); } },
                             { identifier: GuiMessages.Cut(), action: () => { editor.getAction("editor.action.clipboardCutAction").run(); } },
+                            { identifier: GuiMessages.Paste(), action: () => { editor.getAction("myPaste").run(); } },
                             { identifier: GuiMessages.CopyToTop(), action: () => { editor.getAction("editor.action.copyLinesUpAction").run(); } },
                             { identifier: GuiMessages.CopyToBottom(), action: () => { editor.getAction("editor.action.copyLinesDownAction").run(); } },
                             { identifier: GuiMessages.MoveToTop(), action: () => { editor.getAction("editor.action.moveLinesUpAction").run(); } },

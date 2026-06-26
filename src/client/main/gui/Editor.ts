@@ -419,7 +419,7 @@ export class Editor {
             that.cw = null;
         }
 
-        if (that.main.getInterpreter().scheduler.state == SchedulerState.paused) {
+        if (that.main.getInterpreter()?.scheduler.state == SchedulerState.paused) {
 
             let model = that.editor.getModel();
             let text = model.getValueInRange(that.editor.getSelection());

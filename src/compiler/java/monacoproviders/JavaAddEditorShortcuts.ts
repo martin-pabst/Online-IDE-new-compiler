@@ -1,5 +1,6 @@
 import * as monaco from 'monaco-editor'
 import { IMain } from '../../common/IMain';
+import * as actions from "monaco-editor/esm/vs/platform/actions/common/actions";
 
 
 export class JavaAddEditorShortcuts {
@@ -64,7 +65,7 @@ export class JavaAddEditorShortcuts {
             }
         });
 
-        if(main) editor.addAction({
+        if (main) editor.addAction({
             id: 'Debugger Goto Cursor',
             label: 'Führe Programm aus bis zu dieser Zeile',
 
@@ -89,5 +90,51 @@ export class JavaAddEditorShortcuts {
             }
         });
 
+        editor.addAction({
+            id: "myPaste",
+            label: "Paste_",
+            contextMenuGroupId: "9_cutcopypaste",
+            contextMenuOrder: 2,
+            run: (editor) => {
+                navigator.clipboard.readText().then(text => {
+                    let selection = editor.getSelection()
+                    let id = { major: 1, minor: 1 }
+                    let textFromClipboard = text
+                    let op = { identifier: id, range: selection, text: textFromClipboard, forceMoveMarkers: true }
+                    editor.executeEdits("my-source", [op])
+                })
+            }
+        })
+
+        const idsToRemove = ['editor.action.clipboardPasteAction'];
+
+        // const actionMap: Map<{ id: string }, string[]> = actions.MenuRegistry._menuItems;
+        // const contextMenuKey = actionMap.keys().find(key => key.id === 'SimpleEditorContext');
+        // let contextMenu = actionMap.get(contextMenuKey);
+        // if (contextMenu) {
+        //     let entryList = [];
+
+        //     for (let cm of contextMenu) { 
+        //         if(!idsToRemove.includes(cm.command.id)) {
+        //             entryList.push(cm);
+        //         }
+        //     }
+
+        //     contextMenu.clear();
+        //     for (let cm of entryList) {
+        //         contextMenu.push(cm);
+        //     }
+
+        // }
+
+
+        const contextmenu: any = editor.getContribution('editor.contrib.contextmenu');
+        const realMethod = contextmenu._getMenuActions;
+        contextmenu._getMenuActions = function () {
+            const items = realMethod.apply(contextmenu, arguments);
+            return items.filter(function (item) {
+                return !idsToRemove.includes(item.id);
+            });
+        };
     }
 }
