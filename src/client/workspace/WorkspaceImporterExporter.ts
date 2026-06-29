@@ -11,6 +11,7 @@ import { WorkspaceImportMessages } from "../main/gui/language/WorkspaceImportMes
 import { NetworkManager } from "../communication/NetworkManager";
 import { SpriteManager } from "../spritemanager/SpriteManager";
 import { ProgressIndicator } from "../main/gui/ProgressIndicator";
+import JSZip from "jszip";
 
 export type ExportedWorkspace = {
     name: string;
@@ -46,6 +47,60 @@ export class WorkspaceExporter {
             exportedWorkspaces.push(exportedWorkspace);
         }
         return exportedWorkspaces;
+    }
+
+    static async exportAllWorkspacesToZipfile(main: Main): Promise<JSZip> {
+        let zipfile = new JSZip();
+
+        let workspaces = main.projectExplorer.workspaceTreeview.rootNode.getOrderedNodeListRecursively().map(node => <Workspace>node.externalObject);
+        let workspaceToNameMap: Map<number, string> = this.getUniqueNames(workspaces);
+
+        let folderStack: JSZip[] = [zipfile];
+        let folderIdStack: number[] = [null];
+
+        for (let ws of workspaces) {
+            let name = workspaceToNameMap.get(ws.id);
+            while(ws.parent_folder_id != folderIdStack[folderIdStack.length - 1]) {
+                folderStack.pop();
+                folderIdStack.pop();
+            }
+
+            if (ws.isFolder) {
+                let newFolder = folderStack[folderStack.length - 1].folder(name);
+                folderStack.push(newFolder);
+                folderIdStack.push(ws.id);
+            } else {
+                await WorkspaceExporter.exportWorkspaceIntoZipfile(ws, folderStack[folderStack.length - 1], workspaceToNameMap);
+            }
+        }
+
+        return zipfile;
+    }
+
+    static getUniqueNames(workspacesOrFiles: (Workspace | GUIFile)[]): Map<number, string> {
+        let folderToNameListMap: Map<number, string[]> = new Map();
+        let workspaceToNameMap: Map<number, string> = new Map();
+
+        for (let ws of workspacesOrFiles) {
+
+            let folder_id = ws.parent_folder_id ?? -1;
+            let nameList = folderToNameListMap.get(folder_id);
+            if (nameList == null) {
+                nameList = [];
+                folderToNameListMap.set(folder_id, nameList);
+            }
+
+            let name = ws.name;
+            let i = 1;
+            while (nameList.includes(name)) {
+                name = ws.name + " (" + i + ")";
+                i++;
+            }
+            nameList.push(name);
+            workspaceToNameMap.set(ws.id, name);
+
+        }
+        return workspaceToNameMap;
     }
 
 
@@ -90,6 +145,38 @@ export class WorkspaceExporter {
             isFolder: workspace.isFolder
         }
     }
+
+    static async exportWorkspaceIntoZipfile(workspace: Workspace, zipFile: JSZip, uniqueNames: Map<number, string>): Promise<void> {
+        let name = uniqueNames.get(workspace.id);
+        zipFile = zipFile.folder(name);
+        if (workspace.spritesheetId) {
+            try {
+                let sd: SpritesheetData = new SpritesheetData();
+                await sd.load(workspace.spritesheetId);
+                if (sd.zipFile != null) zipFile.file("spritesheet.zip", sd.zipFile);
+            } catch (ex) {
+            }
+        }
+
+        let idToFilenameMap: Map<number, string> = WorkspaceExporter.getUniqueNames(workspace.getFiles());
+        let folderStack: JSZip[] = [zipFile];
+        let folderIdStack: number[] = [null];
+
+        for (let file of workspace.getFiles()) {
+            let filename = idToFilenameMap.get(file.id);
+            while (file.parent_folder_id != folderIdStack[folderIdStack.length - 1]) {
+                folderStack.pop();
+                folderIdStack.pop();
+            }
+            if (file.isFolder) {
+                folderStack.push(folderStack[folderStack.length - 1].folder(filename));
+                folderIdStack.push(file.id);
+            } else {
+                folderStack[folderStack.length - 1].file(filename, file.getText());
+            }
+        }
+    }
+
 
     private static exportFile(file: GUIFile): ExportedFile {
         return {
@@ -223,7 +310,7 @@ export class WorkspaceImporter {
                 }
             }
 
-            for(let exportedFile of wse.modules) {
+            for (let exportedFile of wse.modules) {
                 let file = exportedFileToFileMap.get(exportedFile);
                 if (file && exportedFile.parent_folder_id) {
                     let parentFile = oldIdToFileMap.get(exportedFile.parent_folder_id);

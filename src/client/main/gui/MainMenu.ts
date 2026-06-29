@@ -85,6 +85,15 @@ export class MainMenu {
                                     let workspaces = await WorkspaceExporter.exportAllWorkspaces(this.main);
                                     downloadFile(workspaces, name + ".json");
                                 }
+                            },
+                            {
+                                identifier: GuiMessages.ExportAllWorkspaces() + "zip",
+                                action: async () => {
+                                    let name: string = "all_workspaces.zip";
+                                    let workspaces = await WorkspaceExporter.exportAllWorkspacesToZipfile(this.main);
+                                    let blob = <Uint8Array<ArrayBuffer>>await workspaces.generateAsync({ type: "uint8array" })
+                                    downloadFile(new Blob([blob]), name + ".zip");
+                                }
                             }
 
                         ]
