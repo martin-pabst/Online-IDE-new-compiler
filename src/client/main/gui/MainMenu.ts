@@ -78,7 +78,7 @@ export class MainMenu {
                                 }
                             },
                             {
-                                identifier: GuiMessages.ExportAllWorkspaces(),
+                                identifier: GuiMessages.ExportAllWorkspacesAsJSon(),
                                 action: async () => {
                                     let name: string = "all_workspaces";
                                     let user = this.main.user;
@@ -87,12 +87,12 @@ export class MainMenu {
                                 }
                             },
                             {
-                                identifier: GuiMessages.ExportAllWorkspaces() + "zip",
+                                identifier: GuiMessages.ExportAllWorkspacesAsZip(),
                                 action: async () => {
                                     let name: string = "all_workspaces.zip";
                                     let workspaces = await WorkspaceExporter.exportAllWorkspacesToZipfile(this.main);
                                     let blob = <Uint8Array<ArrayBuffer>>await workspaces.generateAsync({ type: "uint8array" })
-                                    downloadFile(new Blob([blob]), name + ".zip");
+                                    downloadFile(new Blob([blob]), name, true);
                                 }
                             }
 

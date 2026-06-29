@@ -79,7 +79,7 @@ export class SpritesheetData {
     }
 
 
-    async load(spritesheetIdOrURL: number | string): Promise<void> {
+    async load(spritesheetIdOrURL: number | string, alertIfSpritesheetMissing: boolean = true): Promise<void> {
         if (spritesheetIdOrURL == null) return;
 
         if (typeof spritesheetIdOrURL == "number") {
@@ -89,7 +89,7 @@ export class SpritesheetData {
         // let cacheManager = new CacheManager();
         // this.zipFile = await cacheManager.fetchUint8ArrayFromCache(spritesheetIdOrURL);
         // if (this.zipFile == null) {
-            await this.loadFromServer(spritesheetIdOrURL);
+            await this.loadFromServer(spritesheetIdOrURL, alertIfSpritesheetMissing);
             // if (this.zipFile != null) {
             //     cacheManager.store(spritesheetIdOrURL, this.zipFile);
             // }
@@ -108,7 +108,7 @@ export class SpritesheetData {
         this.pixiSpritesheetData.meta.size.h = img.height;
     }
 
-    private async loadFromServer(path: string): Promise<void> {
+    private async loadFromServer(path: string, alertIfSpritesheetMissing: boolean = true): Promise<void> {
 
         let headers: { [key: string]: string; } = {};
         if (csrfToken != null) headers = { "x-token-pm": csrfToken };
@@ -127,7 +127,9 @@ export class SpritesheetData {
 
                 },
                 error: (jqXHR, message) => {
-                    alert(SpritesheetDataMessages.couldntLoadSpritesheet() + message);
+                    if (alertIfSpritesheetMissing) {
+                        alert(SpritesheetDataMessages.couldntLoadSpritesheet() + message);
+                    }
                     reject();
                 }
             });
