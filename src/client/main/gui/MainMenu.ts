@@ -94,6 +94,7 @@ export class MainMenu {
                                     let workspaces = await WorkspaceExporter.exportAllWorkspacesToZipfile(this.main);
                                     let blob = <Uint8Array<ArrayBuffer>>await workspaces.generateAsync({ type: "uint8array" })
                                     downloadFile(new Blob([blob]), name, true);
+                                    alert(GuiMessages.ExportAllWorkspacesDone());
                                 }
                             }
 
