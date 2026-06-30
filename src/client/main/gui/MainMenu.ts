@@ -84,15 +84,17 @@ export class MainMenu {
                                     let user = this.main.user;
                                     let workspaces = await WorkspaceExporter.exportAllWorkspaces(this.main);
                                     downloadFile(workspaces, name + ".json");
+                                    alert(GuiMessages.ExportAllWorkspacesDone());
                                 }
                             },
                             {
-                                identifier: GuiMessages.ExportAllWorkspaces() + "zip",
+                                identifier: GuiMessages.ExportAllWorkspacesAsZip(),
                                 action: async () => {
                                     let name: string = "all_workspaces.zip";
                                     let workspaces = await WorkspaceExporter.exportAllWorkspacesToZipfile(this.main);
                                     let blob = <Uint8Array<ArrayBuffer>>await workspaces.generateAsync({ type: "uint8array" })
                                     downloadFile(new Blob([blob]), name + ".zip");
+                                    alert(GuiMessages.ExportAllWorkspacesDone());
                                 }
                             }
 
