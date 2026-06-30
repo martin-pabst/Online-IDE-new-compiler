@@ -9,6 +9,7 @@ import { DOM } from "../../../tools/DOM.js";
 import { Treeview } from "../../../tools/components/treeview/Treeview.js";
 import { SimpleProgressbar } from "./ProgressIndicator.js";
 import { TreeviewNode } from "../../../tools/components/treeview/TreeviewNode.js";
+import JSZip from "jszip";
 
 
 export class ImportWorkspaceGUI {
@@ -109,10 +110,10 @@ export class ImportWorkspaceGUI {
             {
                 caption: WorkspaceImportMessages.ok(),
                 color: "#18a000ff",
-                callback: () => { 
+                callback: () => {
                     this.main.workspaceList = rightTreeview.getOrderedNodeListRecursively().map(node => node.externalObject);
                     this.main.projectExplorer.renderWorkspaces(this.main.workspaceList);
-                    this.dialog.close() 
+                    this.dialog.close()
                 }
             }
         ])
@@ -136,36 +137,57 @@ export class ImportWorkspaceGUI {
         treeview.clear();
         for (let i = 0; i < files.length; i++) {
             let f = files[i];
-            var reader = new FileReader();
-            reader.onload = (event) => {
-                let text: string = <string>event.target.result;
-                if (!(text.startsWith("{") || text.startsWith("["))) {
-                    alert(WorkspaceImportMessages.wrongFileFormat(f.name));
-                    return;
-                }
 
-                let ew: ExportedWorkspace[] = [];
-                try {
-                    ew = JSON.parse(text);
-                    if (!Array.isArray(ew)) {
-                        ew = [ew];
-                    }
-                } catch (e) {
-                    alert(WorkspaceImportMessages.noJson(f.name));
-                    return;
-                }
-
-                for (let ew1 of ew) {
-                    if (ew1.modules == null || ew1.name == null || ew1.settings == null) {
-                        alert(WorkspaceImportMessages.wrongFileFormat(f.name));
+            if (f.name.endsWith(".zip")) {
+                let jsZip = new JSZip();
+                jsZip.loadAsync(f).then((zip) => {
+                    let jsonFile = zip.file("all_workspaces.json");
+                    if(jsonFile == null){
+                        alert(WorkspaceImportMessages.zipDoesntContainAllWorkspacesJson(f.name));
                         return;
-                    } else {
-                        treeview.addNode(ew1.isFolder, ew1.name, ew1.isFolder ? undefined : 'img_workspace-dark', ew1);
                     }
-                }
+                    jsonFile.async("text").then((text: string) => {
+                        this.fillSourceTreeviewFromJson(text, treeview, f.name);
+                    });
+                });
+            } else {
+                var reader = new FileReader();
+                reader.onload = (event) => {
+                    let text: string = <string>event.target.result;
+                    this.fillSourceTreeviewFromJson(text, treeview, f.name);
+                };
+                reader.readAsText(f);
+            }
 
-            };
-            reader.readAsText(f);
+
+        }
+
+    }
+
+    fillSourceTreeviewFromJson(jsonText: string, treeview: Treeview<ExportedWorkspace, number>, filename: string) {
+        if (!(jsonText.startsWith("{") || jsonText.startsWith("["))) {
+            alert(WorkspaceImportMessages.wrongFileFormat(filename));
+            return;
+        }
+
+        let ew: ExportedWorkspace[] = [];
+        try {
+            ew = JSON.parse(jsonText);
+            if (!Array.isArray(ew)) {
+                ew = [ew];
+            }
+        } catch (e) {
+            alert(WorkspaceImportMessages.noJson(filename));
+            return;
+        }
+
+        for (let ew1 of ew) {
+            if (ew1.modules == null || ew1.name == null || ew1.settings == null) {
+                alert(WorkspaceImportMessages.wrongFileFormat(filename));
+                return;
+            } else {
+                treeview.addNode(ew1.isFolder, ew1.name, ew1.isFolder ? undefined : 'img_workspace-dark', ew1);
+            }
         }
 
     }

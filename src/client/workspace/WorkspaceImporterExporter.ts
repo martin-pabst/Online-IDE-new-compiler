@@ -56,11 +56,12 @@ export class WorkspaceExporter {
         let workspaceToNameMap: Map<number, string> = this.getUniqueNames(workspaces);
 
         let folderStack: JSZip[] = [zipfile];
-        let folderIdStack: number[] = [null];
+        let folderIdStack: number[] = [undefined];
 
         for (let ws of workspaces) {
             let name = workspaceToNameMap.get(ws.id);
-            while(ws.parent_folder_id != folderIdStack[folderIdStack.length - 1]) {
+            console.log("Exporting workspace: " + name + " (id: " + ws.id + ", parent_folder_id: " + ws.parent_folder_id + ")");
+            while(ws.parent_folder_id != folderIdStack[folderIdStack.length - 1] && folderStack.length > 1) {
                 folderStack.pop();
                 folderIdStack.pop();
             }
@@ -73,6 +74,9 @@ export class WorkspaceExporter {
                 await WorkspaceExporter.exportWorkspaceIntoZipfile(ws, folderStack[folderStack.length - 1], workspaceToNameMap);
             }
         }
+
+        let allWorkspacesJson = await WorkspaceExporter.exportAllWorkspaces(main);
+        zipfile.file("all_workspaces.json", JSON.stringify(allWorkspacesJson, null, 2));
 
         return zipfile;
     }
@@ -128,7 +132,7 @@ export class WorkspaceExporter {
         if (workspace.spritesheetId) {
             try {
                 let sd: SpritesheetData = new SpritesheetData();
-                await sd.load(workspace.spritesheetId);
+                await sd.load(workspace.spritesheetId, false);
                 if (sd.zipFile != null) spritesheetBase64 = bytesToBase64(sd.zipFile);
             } catch (ex) {
                 console.log("Hier!");
@@ -146,25 +150,26 @@ export class WorkspaceExporter {
         }
     }
 
-    static async exportWorkspaceIntoZipfile(workspace: Workspace, zipFile: JSZip, uniqueNames: Map<number, string>): Promise<void> {
-        let name = uniqueNames.get(workspace.id);
+    static async exportWorkspaceIntoZipfile(workspace: Workspace, zipFile: JSZip, uniqueWorkspaceNames: Map<number, string>): Promise<void> {
+        let name = uniqueWorkspaceNames.get(workspace.id);
         zipFile = zipFile.folder(name);
         if (workspace.spritesheetId) {
             try {
                 let sd: SpritesheetData = new SpritesheetData();
-                await sd.load(workspace.spritesheetId);
+                await sd.load(workspace.spritesheetId, false);
                 if (sd.zipFile != null) zipFile.file("spritesheet.zip", sd.zipFile);
             } catch (ex) {
             }
         }
 
-        let idToFilenameMap: Map<number, string> = WorkspaceExporter.getUniqueNames(workspace.getFiles());
+        let uniqueFileNames: Map<number, string> = WorkspaceExporter.getUniqueNames(workspace.getFiles());
         let folderStack: JSZip[] = [zipFile];
-        let folderIdStack: number[] = [null];
+        let folderIdStack: number[] = [undefined];
 
         for (let file of workspace.getFiles()) {
-            let filename = idToFilenameMap.get(file.id);
-            while (file.parent_folder_id != folderIdStack[folderIdStack.length - 1]) {
+            let filename = uniqueFileNames.get(file.id);
+            console.log("      Exporting file: " + filename + " (id: " + file.id + ", parent_folder_id: " + file.parent_folder_id + ")");
+            while (file.parent_folder_id != folderIdStack[folderIdStack.length - 1] && folderStack.length > 1) {
                 folderStack.pop();
                 folderIdStack.pop();
             }

@@ -69,10 +69,16 @@ export class GuiMessages {
         "fr": "Aucun espace de travail sélectionné.",
     })
 
-    static ExportAllWorkspaces = () => lm({
-        "de": "Alle Workspaces exportieren",
-        "en": "Export all workspaces",
-        "fr": "Exporter tous les espaces de travail",
+    static ExportAllWorkspacesAsJSon = () => lm({
+        "de": "Alle Workspaces also JSON-Datei exportieren",
+        "en": "Export all workspaces as JSON file",
+        "fr": "Exporter tous les espaces de travail en tant que fichier JSON",
+    })
+
+    static ExportAllWorkspacesAsZip = () => lm({
+        "de": "Alle Workspaces als ZIP-Datei exportieren",
+        "en": "Export all workspaces as ZIP file",
+        "fr": "Exporter tous les espaces de travail en tant que fichier ZIP",
     })
 
     static ExportAllWorkspacesAsZip = () => lm({

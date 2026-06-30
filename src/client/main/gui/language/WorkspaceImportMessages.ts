@@ -27,6 +27,11 @@ export class WorkspaceImportMessages {
         'en': 'File ' + filename + " doesn't contain JSON code."
     });
 
+    static zipDoesntContainAllWorkspacesJson = (filename: string) => lm({
+        'de': 'Die ZIP-Datei ' + filename + " enthält keine Datei all_workspaces.json.",
+        'en': 'ZIP file ' + filename + " doesn't contain file all_workspaces.json."
+    });
+
     static withFiles = (count: number) => lm({
         'de': 'mit ' + count + ' Dateien',
         'en': 'with ' + count + " files"
