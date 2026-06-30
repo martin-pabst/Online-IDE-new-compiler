@@ -81,12 +81,6 @@ export class GuiMessages {
         "fr": "Exporter tous les espaces de travail en tant que fichier ZIP",
     })
 
-    static ExportAllWorkspacesAsZip = () => lm({
-        "de": "Alle Workspaces als ZIP-Datei exportieren",
-        "en": "Export all workspaces as ZIP file",
-        "fr": "Exporter tous les espaces de travail comme fichier ZIP",
-    })
-
     static ExportAllWorkspacesDone = () => lm({
         "de": "Alle Workspaces wurden exportiert.",
         "en": "All workspaces have been exported.",
