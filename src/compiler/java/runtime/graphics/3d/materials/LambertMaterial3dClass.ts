@@ -44,6 +44,11 @@ export class LambertMaterial3dClass extends Material3dClass {
     }
 
 
+    constructor(material?: THREE.MeshLambertMaterial) {
+        super();
+        this.material = material;
+    }
+
     _lambertMaterialConstructorTexture(texture: TextureEnum) {
         const loader = new THREE.TextureLoader();
         this.material = new THREE.MeshLambertMaterial({

@@ -51,12 +51,14 @@ export class Mesh3dClass extends Object3dClass {
 
     mesh: THREE.Mesh;
     private _material: Material3dClass;
+    public _geometry: THREE.BufferGeometry;
+
     side: THREE.Side = THREE.FrontSide;
 
     set material(newMaterial: Material3dClass) {
         if (this._material === newMaterial) return;
 
-        this.material?.destroyIfNotUsedByOtherMesh();
+        this._material?.destroyIfNotUsedByOtherMesh();
 
         this._material = newMaterial;
         this.mesh.material = this._material.getMaterialAndIncreaseUsageCounter();

@@ -43,7 +43,7 @@ export class Object3dClass extends ActorClass {
         
         { type: "method", signature: "final World3d getWorld3d()", java: Object3dClass.prototype._mj$getWorld3d$World3d, comment: JRC.getWorld3dComment },
         
-        { type: "method", signature: "final void setVisible(boolean isVisible)", native: Object3dClass.prototype.setVisible },
+        { type: "method", signature: "void setVisible(boolean isVisible)", native: Object3dClass.prototype.setVisible },
 
         { type: "method", signature: "abstract void destroy()", native: Object3dClass.prototype.destroy },
     ];
@@ -96,7 +96,9 @@ export class Object3dClass extends ActorClass {
         this.scaleZ(v.v.z);
     }
 
-    move(x: number, y: number, z: number): void{}
+    move(x: number, y: number, z: number): void{
+        console.log("Hier");
+    }
 
     lookAt(xTarget: number, yTarget: number, zTarget: number, up: Vector3Class): void{
         let object3d = this.getObject3d();

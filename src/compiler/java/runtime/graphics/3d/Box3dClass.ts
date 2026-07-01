@@ -6,6 +6,7 @@ import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
 import { Mesh3dClass } from "./Mesh3dClass";
 import { SpriteLibraryEnum } from '../SpriteLibraryEnum';
 import { RuntimeExceptionClass } from '../../system/javalang/RuntimeException';
+import { LambertMaterial3dClass } from './materials/LambertMaterial3dClass';
 
 export class Box3dClass extends Mesh3dClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -43,8 +44,8 @@ export class Box3dClass extends Mesh3dClass {
         widthSegments: number, heightSegments: number, depthSegments: number) {
         super._cj$_constructor_$Mesh3d$(t, ()=>{
 
-            const geometry = new THREE.BoxGeometry(width, height, depth, widthSegments, heightSegments, depthSegments);
-            this.mesh = new THREE.Mesh(geometry, this.getInitialMaterial().getMaterialAndIncreaseUsageCounter());
+            this._geometry = new THREE.BoxGeometry(width, height, depth, widthSegments, heightSegments, depthSegments);
+            this.mesh = new THREE.Mesh(this._geometry, this.getInitialMaterial().getMaterialAndIncreaseUsageCounter());
             this.world3d.scene.add(this.mesh);
 
             if(callback)callback();
@@ -55,8 +56,8 @@ export class Box3dClass extends Mesh3dClass {
     _cj$_constructor_$Box3d$double$double$double(t: Thread, callback: CallbackParameter, width: number, height: number, depth: number) {
         super._cj$_constructor_$Mesh3d$(t, ()=>{
 
-            const geometry = new THREE.BoxGeometry(width, height, depth);
-            this.mesh = new THREE.Mesh(geometry, this.getInitialMaterial().getMaterialAndIncreaseUsageCounter());
+            this._geometry = new THREE.BoxGeometry(width, height, depth);
+            this.mesh = new THREE.Mesh(this._geometry, this.getInitialMaterial().getMaterialAndIncreaseUsageCounter());
             this.world3d.scene.add(this.mesh);
 
             if(callback)callback();
@@ -67,8 +68,8 @@ export class Box3dClass extends Mesh3dClass {
     _cj$_constructor_$Box3d$(t: Thread, callback: CallbackParameter) {
         super._cj$_constructor_$Mesh3d$(t, ()=>{
 
-            const geometry = new THREE.BoxGeometry();
-            this.mesh = new THREE.Mesh(geometry, this.getInitialMaterial().getMaterialAndIncreaseUsageCounter());
+            this._geometry = new THREE.BoxGeometry();
+            this.mesh = new THREE.Mesh(this._geometry, this.getInitialMaterial().getMaterialAndIncreaseUsageCounter());
             this.world3d.scene.add(this.mesh);
 
             if(callback)callback();
@@ -96,9 +97,15 @@ export class Box3dClass extends Mesh3dClass {
 
         this.mesh.geometry.attributes.uv.needsUpdate = true;
 
-        this.mesh.material = new THREE.MeshLambertMaterial({
+        // this.mesh.material = new THREE.MeshLambertMaterial({
+        //     map: texture
+        // })
+
+        this.material = new LambertMaterial3dClass(new THREE.MeshLambertMaterial({
             map: texture
-        })
+        }));
+
+        this.mesh.material = this.material.getMaterialAndIncreaseUsageCounter();
 
     }
 

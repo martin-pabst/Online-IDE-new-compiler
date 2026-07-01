@@ -166,6 +166,8 @@ import { IllegalArgumentExceptionClass } from "./javalang/IllegalArgumentExcepti
 import { IllegalStateExceptionClass } from "./javalang/IllegalStateException.ts";
 import { BaseWorldClass } from "../graphics/BaseWorldClass.ts";
 import { Line3Class } from "../graphics/3d/Line3Class.ts";
+import { Object3dBatchClass } from "../graphics/3d/Object3dBatchClass.ts";
+import { BatchedObject3dClass } from "../graphics/3d/BatchedObject3dClass.ts";
 
 export class SystemModule extends JavaLibraryModule {
 
@@ -259,7 +261,7 @@ export class SystemModule extends JavaLibraryModule {
             Matrix4Class, TextureEnum, Cone3dClass, Cylinder3dClass,
             Circle3dClass, Plane3dClass, Ring3dClass, Torus3dClass,
             Camera3dClass, PerspectiveCamera3dClass, OrthographicCamera3dClass, ArrayCamera3dClass,
-            Sprite3dClass,
+            Sprite3dClass, Object3dBatchClass, BatchedObject3dClass,
 
             // Processing
             PAppletClass,

@@ -6241,10 +6241,35 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
 
+    /**
+     * Object3dBatch
+     */
+    static Object3dBatchClassComment = () => lm({
+        "de": `Eine Sammlung von 3d-Objekten, mit einheitlicher Form und Textur, die sehr schnell gerendert werden können.`,
+        "en": `A collection of 3d-objects with same shape and texture, that can be rendered very fast.`,
+        "fr": `Une collection d'objets 3D avec la même forme et la même texture, qui peuvent être rendus très rapidement.`,
+    })
 
 
+    static Object3dBatchConstructorComment = () => lm({
+        "de": `Erzeugt ein neues Object3dBatch-Objekt mit der Form und Textur der angegebenen Vorlage. MaxInstanceCount ist die maximale Anzahl gleichartiger Objekte, die mit der gegebenen Vorlage erzeugt wereden sollen.`,
+        "en": `Creates a new Object3dBatch object with the shape and texture of the given template. MaxInstanceCount is the maximum number of similar objects that should be created with the given template.`,
+        "fr": `Crée un nouvel objet Object3dBatch avec la forme et la texture du modèle donné. MaxInstanceCount est le nombre maximum d'objets similaires qui doivent être créés avec le modèle donné.`,
+    });
 
+    static BatchedObject3dClassComment = () => lm({
+        "de": `Ein einzelnes Objekt, das Teil eines Object3dBatch ist.`,
+        "en": `A single object that is part of an Object3dBatch.`,
+        "fr": `Un seul objet qui fait partie d'un Object3dBatch.`,
+    });
 
+    static Object3dBatchCreateInstanceComment = () => lm({
+        "de": `Erzeugt eine neue Instanz eines BatchedObject3d.`,
+        "en": `Creates a new instance of a BatchedObject3d.`,
+        "fr": `Crée une nouvelle instance d'un BatchedObject3d.`,
+    });
+
+    
 }
 
 
