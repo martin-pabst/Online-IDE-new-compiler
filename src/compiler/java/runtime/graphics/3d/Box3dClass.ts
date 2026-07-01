@@ -84,9 +84,11 @@ export class Box3dClass extends Mesh3dClass {
 
         this.mesh.geometry.attributes.uv.needsUpdate = true;
 
-        this.mesh.material = new THREE.MeshLambertMaterial({
+        this.material = new LambertMaterial3dClass(new THREE.MeshLambertMaterial({
             map: texture
-        })
+        }));
+
+        this.mesh.material = this.material.getMaterialAndIncreaseUsageCounter();
 
     }
 
