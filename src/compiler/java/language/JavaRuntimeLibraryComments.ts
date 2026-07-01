@@ -5915,6 +5915,11 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "en": `Can't find texture with identifier ${textureIdentifier} and index ${index}.`,
     })
 
+    static canvasContext2dNotAvailableError = () => lm({
+        "de": `Der Canvas-Context 2d ist nicht verfügbar.`,
+        "en": `Canvas context 2d is not available.`,
+    })
+
     /**
      * Material3d
      */

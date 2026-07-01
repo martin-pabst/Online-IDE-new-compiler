@@ -6,6 +6,11 @@ import { RuntimeExceptionClass } from '../../system/javalang/RuntimeException';
 import spritesheetjson from '/assets/graphics/spritesheet.json.txt';
 import spritesheetpng from '/assets/graphics/spritesheet.png';
 
+export type TextureImageData = {
+    t: THREE.Texture,
+    data: { x: number, y: number, w: number, h: number }
+};
+
 export class TextureManager3d {
 
     systemSpritesheetData: PixiSpritesheetData;
@@ -62,6 +67,27 @@ export class TextureManager3d {
         return frame;
 
     }
+
+    getTextureImageData(spritesheet: string, index: number): TextureImageData {
+        let key: string = spritesheet + "#" + index;
+        let frame = this.systemSpritesheetData.frames[key];
+        let t: THREE.Texture;
+        if (frame) {
+            t = this.systemTexture;
+        } else {
+            frame = this.userSpritesheetData?.frames[key];
+            if (!frame) {
+                throw new RuntimeExceptionClass(JRC.textureNotFoundError(spritesheet, index));
+            }
+            t = this.userTexture;
+        }
+
+        let data = frame.frame;
+
+        return { t, data };
+
+    }
+
 
     getSpritesheetBasedTexture(spritesheet: string, index: number) {
         let key: string = spritesheet + "#" + index;
@@ -179,7 +205,7 @@ export class TextureManager3d {
     //     return renderTarget.texture;
     // }
 
-    destroy(){
+    destroy() {
         this.systemTexture?.dispose();
         this.userTexture?.dispose();
         this.systemTexture = null;

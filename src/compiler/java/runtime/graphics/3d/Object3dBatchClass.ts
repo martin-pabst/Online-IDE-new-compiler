@@ -13,7 +13,7 @@ export class Object3dBatchClass extends ObjectClass {
         static __javaDeclarations: LibraryDeclarations = [
             { type: "declaration", signature: "class Object3dBatch extends Object", comment: JRC.Object3dBatchClassComment },
             { type: "method", signature: "Object3dBatch(Mesh3d template, int maxInstanceCount)", java: Object3dBatchClass.prototype._cj$_constructor_$Object3dBatch$Mesh3d$int, comment: JRC.Object3dBatchConstructorComment },
-            { type: "method", signature: "BatchedObject3d getInstance()", native: Object3dBatchClass.prototype.getInstance, comment: JRC.Object3dBatchCreateInstanceComment },
+            { type: "method", signature: "BatchedObject3d createInstance()", native: Object3dBatchClass.prototype.createInstance, comment: JRC.Object3dBatchCreateInstanceComment },
     
             { type: "method", signature: "void destroy()", native: Object3dBatchClass.prototype.destroy },
         ];
@@ -36,7 +36,7 @@ export class Object3dBatchClass extends ObjectClass {
             if(callback) callback();
         }   
 
-        getInstance(): Object3dClass {
+        createInstance(): Object3dClass {
             let instanceID = this.batchedMesh.addInstance(this.geometryID);
             let object = new BatchedObject3dClass(this.batchedMesh, instanceID, this.template.mesh.matrix.clone(), this.template.mesh.position.clone());
 
