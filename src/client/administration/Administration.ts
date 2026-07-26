@@ -66,7 +66,7 @@ export class Administration {
 
     initMenu() {
 
-        if (this.vidisSchoolId != null) {
+        if (!this.isVidisSchool()) {
             this.menuItems.push(new StudentBulkImportMI(this));
         }
 
@@ -113,6 +113,10 @@ export class Administration {
     removeGrid($element: JQuery<HTMLElement>) {
         $element.removeClass('w2ui-reset w2ui-grid w2ui-ss');
         $element.css('flex', '');
+    }
+
+    isVidisSchool(): boolean {
+        return this.vidisSchoolId != null && this.vidisSchoolId.length > 0;
     }
 
 }
