@@ -620,7 +620,15 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                                 let superConstructorCall = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${parameterlessConstructor.getInternalName("native")}();\n`);
                                 snippets.unshift(superConstructorCall);
                             } else {
-                                let superConstructorCall = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, undefined);\n`);
+                                // A constructor with the java calling convention may hand control
+                                // back to the scheduler before it is done, so the rest of this
+                                // constructor has to run in a later step - exactly as it does for an
+                                // explicit super(...) call (see TermCodeGenerator.compileMethodCall).
+                                // Without the step mark the constructor body runs while the base
+                                // class constructor is still in flight, and everything it sets up
+                                // there is overwritten again once the base constructor resumes.
+                                let superConstructorCall = new CodeSnippetContainer(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, undefined);\n`));
+                                superConstructorCall.addNextStepMark();
                                 snippets.unshift(superConstructorCall);
                             }
                         }
