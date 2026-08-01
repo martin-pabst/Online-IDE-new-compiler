@@ -72,3 +72,6 @@ Danke für das gelungene Konzept!
 ```java
 MqttClient client = new MqttClient("myserverurl.com", "{'username' = 'Theo', 'password' = 'Test'}");
 ```
+  * Nützlich wäre noch die Methode [publish](https://github.com/mqttjs/MQTT.js#publish-async)
+
+  
