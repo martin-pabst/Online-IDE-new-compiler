@@ -28,13 +28,13 @@ export class JavaModuleManager extends ModuleManager {
         return this.#modules;
     }
 
-    copy(excludeTypesOfModule?: JavaCompiledModule): JavaModuleManager {
-        let mm = new JavaModuleManager(this.workspace);
-        mm.#modules = this.#modules.slice();
-        mm.typestore = this.typestore.copy(excludeTypesOfModule);
+    // copy(excludeTypesOfModule?: JavaCompiledModule): JavaModuleManager {
+    //     let mm = new JavaModuleManager(this.workspace);
+    //     mm.#modules = this.#modules.slice();
+    //     mm.typestore = this.typestore.copy(excludeTypesOfModule);
 
-        return mm;
-    }
+    //     return mm;
+    // }
 
     addModule(module: JavaCompiledModule){
         this.#modules.push(module);

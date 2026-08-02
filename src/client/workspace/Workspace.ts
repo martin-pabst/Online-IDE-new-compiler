@@ -245,13 +245,13 @@ export class Workspace extends CompilerWorkspace {
         return undefined;
     }
 
-    async ensureModuleIsCompiled(module: Module) {
-        if (module.isReplModule()) {
-            this.main.getRepl().compile(module.file.getText(), false);
-        } else {
-            await this.main.getCompiler().updateSingleModuleForCodeCompletion(module);
-        }
-    }
+    // async ensureModuleIsCompiled(module: Module) {
+    //     if (module.isReplModule()) {
+    //         this.main.getRepl().compile(module.file.getText(), false);
+    //     } else {
+    //         await this.main.getCompiler().updateSingleModuleForCodeCompletion(module);
+    //     }
+    // }
 
     getCurrentlyEditedModule(): Module | undefined {
         let model = this.main.getMainEditor().getModel();

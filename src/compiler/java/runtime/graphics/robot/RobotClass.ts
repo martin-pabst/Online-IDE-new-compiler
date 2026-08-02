@@ -21,7 +21,7 @@ import { CallbackFunction } from '../../../../common/interpreter/StepFunction';
 export class RobotClass extends ObjectClass {
 
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Robot extends Object", comment: JRC.robotClassComment },
+        { type: "declaration", package: "robot", signature: "class Robot extends Object", comment: JRC.robotClassComment },
 
         { type: "method", signature: "Robot()", java: RobotClass.prototype._jc$_constructor_$Robot$, comment: JRC.robotEmptyConstructorComment },
         { type: "method", signature: "Robot(int startX, int startY)", java: RobotClass.prototype._jc$_constructor_$Robot$int$int, comment: JRC.robotConstructorStartXStartY },

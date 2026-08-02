@@ -75,7 +75,7 @@ export abstract class IJavaInterface extends NonPrimitiveType {
     }
 
     getAbsoluteName(): string {
-        let s: string = this.pathAndIdentifier;
+        let s: string = this.pathAndIdentifierAsDotSeparatedString;
 
         if (this.genericTypeParameters && this.genericTypeParameters.length > 0) {
             s += "<" + this.genericTypeParameters.map(gi => gi.getAbsoluteName()).join(", ") + ">";
@@ -299,7 +299,7 @@ export class GenericVariantOfJavaInterface extends IJavaInterface {
     private cachedExtends?: IJavaInterface[];
 
     constructor(public isGenericVariantOf: JavaInterface, public typeMap: Map<GenericTypeParameter, NonPrimitiveType>) {
-        super(isGenericVariantOf.identifier, isGenericVariantOf.identifierRange, isGenericVariantOf.pathAndIdentifier, isGenericVariantOf.module);
+        super(isGenericVariantOf.identifier, isGenericVariantOf.identifierRange, isGenericVariantOf.pathAndIdentifierAsDotSeparatedString, isGenericVariantOf.module);
         this.runtimeClass = isGenericVariantOf.runtimeClass;
     }
 
@@ -330,7 +330,7 @@ export class GenericVariantOfJavaInterface extends IJavaInterface {
     }
 
     getAbsoluteName(): string {
-        let s: string = this.pathAndIdentifier;
+        let s: string = this.pathAndIdentifierAsDotSeparatedString;
 
         let genericTypeParameters = this.isGenericVariantOf.genericTypeParameters;
 

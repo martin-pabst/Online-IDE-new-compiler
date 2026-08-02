@@ -202,7 +202,7 @@ export class JavaMethod extends BaseSymbol {
     }
 
     getPathWithMethodIdentifier(): string {
-        return this.classEnumInterface.pathAndIdentifier + "." + this.getInternalNameWithGenericParameterIdentifiers("java");
+        return this.classEnumInterface.pathAndIdentifierAsDotSeparatedString + "." + this.getInternalNameWithGenericParameterIdentifiers("java");
     }
 
     getCompletionLabel(withTypes: boolean = true) {

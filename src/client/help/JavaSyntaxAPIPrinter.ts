@@ -46,8 +46,8 @@ export class JavaSyntaxAPIPrinter extends APIPrinter {
 
     genericTypeParameterToString(gtp: GenericTypeParameter) {
         let s: string = gtp.identifier;
-        s += (gtp.lowerBound ? " super " + gtp.lowerBound?.pathAndIdentifier : "") +
-            (gtp.upperBounds.length > 0 ? " extends " + gtp.upperBounds.map(ub => ub.pathAndIdentifier).join(" & ") : "");
+        s += (gtp.lowerBound ? " super " + gtp.lowerBound?.pathAndIdentifierAsDotSeparatedString : "") +
+            (gtp.upperBounds.length > 0 ? " extends " + gtp.upperBounds.map(ub => ub.pathAndIdentifierAsDotSeparatedString).join(" & ") : "");
         return s;
     }
 

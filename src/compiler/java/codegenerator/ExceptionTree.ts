@@ -16,7 +16,7 @@ export class ExceptionTree {
 
             for (let exc of exceptionClasses) {
                 for (let extendsImplements of exc.getExtendedImplementedIdentifiers()) {
-                    this.register(extendsImplements, exc.pathAndIdentifier);
+                    this.register(extendsImplements, exc.pathAndIdentifierAsDotSeparatedString);
                 }
             }
         }

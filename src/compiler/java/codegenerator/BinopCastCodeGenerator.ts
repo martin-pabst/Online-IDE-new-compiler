@@ -267,7 +267,7 @@ export abstract class BinopCastCodeGenerator {
             ast.instanceofVariables.push(patternVariable)
         }
 
-        return SnippetFramer.frame(leftSnippet, `${Helpers.instanceof}(§1, "${(<StaticNonPrimitiveType>rightType).nonPrimitiveType.pathAndIdentifier}"${stackFramePositionString})`
+        return SnippetFramer.frame(leftSnippet, `${Helpers.instanceof}(§1, "${(<StaticNonPrimitiveType>rightType).nonPrimitiveType.pathAndIdentifierAsDotSeparatedString}"${stackFramePositionString})`
             , this.booleanType)
 
     }

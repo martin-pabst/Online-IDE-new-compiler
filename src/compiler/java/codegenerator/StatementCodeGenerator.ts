@@ -1169,7 +1169,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
             for (let type of catchCase.exceptionTypes) {
                 if (type.resolvedType instanceof NonPrimitiveType) {
-                    Object.assign(exceptionTypes, this.exceptionTree.getAllSubExceptions(type.resolvedType.pathAndIdentifier));
+                    Object.assign(exceptionTypes, this.exceptionTree.getAllSubExceptions(type.resolvedType.pathAndIdentifierAsDotSeparatedString));
                     exceptionTypes[type.resolvedType.identifier] = true;
                 }
             }

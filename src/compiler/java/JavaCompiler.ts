@@ -200,51 +200,51 @@ export class JavaCompiler implements Compiler {
         return executable;
     }
 
-    /**
-     * If user presses . or <ctrl> + <space> then we assume that only
-     * currently edited file is dirty, therefore it suffices to compile only this module.
-     */
-    async updateSingleModuleForCodeCompletion(module: JavaCompiledModule): Promise<"success" | "completeCompilingNecessary"> {
-        if (!module) return "completeCompilingNecessary";
+    // /**
+    //  * If user presses . or <ctrl> + <space> then we assume that only
+    //  * currently edited file is dirty, therefore it suffices to compile only this module.
+    //  */
+    // async updateSingleModuleForCodeCompletion(module: JavaCompiledModule): Promise<"success" | "completeCompilingNecessary"> {
+    //     if (!module) return "completeCompilingNecessary";
 
-        if (!module.isDirty()) return "success";
+    //     if (!module.isDirty()) return "success";
 
-        const moduleManagerCopy = this.moduleManager.copy(module);
+    //     const moduleManagerCopy = this.moduleManager.copy(module);
 
-        module.compiledSymbolsUsageTracker.clear();
-        module.systemSymbolsUsageTracker.clear();
+    //     module.compiledSymbolsUsageTracker.clear();
+    //     module.systemSymbolsUsageTracker.clear();
 
-        module.resetBeforeCompilation();
+    //     module.resetBeforeCompilation();
 
-        const lexerOutput = new Lexer().lex(module.file.getText());
-        module.storeLexerOutput(lexerOutput);
+    //     const lexerOutput = new Lexer().lex(module.file.getText());
+    //     module.storeLexerOutput(lexerOutput);
 
-        const parser = new Parser(module);
-        parser.parse();
+    //     const parser = new Parser(module);
+    //     parser.parse();
 
-        const typeResolver = new TypeResolver(moduleManagerCopy, this.libraryModuleManager);
+    //     const typeResolver = new TypeResolver(moduleManagerCopy, this.libraryModuleManager);
 
-        // resolve returns false if cyclic references are found. In this case we don't continue compiling.
-        if (!typeResolver.resolve()) {
-            return "completeCompilingNecessary";
-        }
+    //     // resolve returns false if cyclic references are found. In this case we don't continue compiling.
+    //     if (!typeResolver.resolve()) {
+    //         return "completeCompilingNecessary";
+    //     }
 
-        // this.moduleManager.typestore.initFastExtendsImplementsLookup();
+    //     // this.moduleManager.typestore.initFastExtendsImplementsLookup();
 
-        const exceptionTree = new ExceptionTree(this.libraryModuleManager.typestore, this.moduleManager.typestore);
+    //     const exceptionTree = new ExceptionTree(this.libraryModuleManager.typestore, this.moduleManager.typestore);
 
-        const codegenerator = new CodeGenerator(module, this.libraryModuleManager.typestore,
-            this.moduleManager.typestore, exceptionTree, this.#progressManager, this.main?.getSettings());
-        await codegenerator.start();
+    //     const codegenerator = new CodeGenerator(module, this.libraryModuleManager.typestore,
+    //         this.moduleManager.typestore, exceptionTree, this.#progressManager, this.main?.getSettings());
+    //     await codegenerator.start();
 
-        /**
-         * The compilation run we did is not sufficient to produce an up-to-date executable,
-         * so we mark module as dirty to force new compilation
-         */
-        module.setDirty(true);
+    //     /**
+    //      * The compilation run we did is not sufficient to produce an up-to-date executable,
+    //      * so we mark module as dirty to force new compilation
+    //      */
+    //     module.setDirty(true);
 
-        return "success";
-    }
+    //     return "success";
+    // }
 
     /**
      * Schedules a compilation in the near future and returns.

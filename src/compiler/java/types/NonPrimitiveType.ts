@@ -94,7 +94,9 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
 
     staticConstructorsDependOn: Map<NonPrimitiveType, boolean> = new Map();
 
-    public pathAndIdentifier: string;
+    public pathAndIdentifierAsDotSeparatedString: string;   // If B is inner Class of A which resides in package p, then this is "p.A.B"
+
+    public pathAndIdentifierAsArray: string[]; // If B is inner Class of A which resides in package p, then this is ["p", "A", "B"]
 
     public staticType: StaticNonPrimitiveType;
 
@@ -103,8 +105,9 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
     constructor(identifier: string, identifierRange: IRange, pathAndIdentifier: string, module: JavaBaseModule) {
         super(identifier, identifierRange, module);
         this.isPrimitive = false;
-        this.pathAndIdentifier = pathAndIdentifier || identifier;
-        this.extendsImplements[this.pathAndIdentifier] = true;
+        this.pathAndIdentifierAsDotSeparatedString = pathAndIdentifier || identifier;
+        this.pathAndIdentifierAsArray = this.pathAndIdentifierAsDotSeparatedString.split(".");
+        this.extendsImplements[this.pathAndIdentifierAsDotSeparatedString] = true;
         this.extendsImplements["Object"] = true;
         this.staticType = new StaticNonPrimitiveType(this);
     }
@@ -120,7 +123,7 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
     }
 
     registerChildType(childType: NonPrimitiveType) {
-        childType.extendsImplements[this.pathAndIdentifier] = true;
+        childType.extendsImplements[this.pathAndIdentifierAsDotSeparatedString] = true;
     }
 
     getDefaultValue() {
@@ -181,7 +184,7 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
         if (this.visibility == TokenType.keywordPublic || !classContext) return true;
         if (this.outerType == classContext || this.innerTypes.includes(classContext)) return true;
         if (this.visibility == TokenType.keywordProtected) {
-            if (this.outerType && classContext.extendsImplements[(<NonPrimitiveType>this.outerType).pathAndIdentifier]) {
+            if (this.outerType && classContext.extendsImplements[(<NonPrimitiveType>this.outerType).pathAndIdentifierAsDotSeparatedString]) {
                 return true;
             }
         }

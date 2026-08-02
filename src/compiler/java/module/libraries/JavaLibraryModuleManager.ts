@@ -55,6 +55,7 @@ export class JavaLibraryModuleManager {
                 this.javaTypes.push(npt);
             }
 
+            // This is only for primitive types in System Module:
             for(let type of module.types){
                 this.typestore.addType(type);
                 this.javaTypes.push(type);

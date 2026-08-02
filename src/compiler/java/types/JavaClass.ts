@@ -198,7 +198,7 @@ export abstract class IJavaClass extends JavaTypeWithInstanceInitializer {
     }
 
     getAbsoluteName(): string {
-        let s: string = this.pathAndIdentifier;
+        let s: string = this.pathAndIdentifierAsDotSeparatedString;
 
         if (this.genericTypeParameters && this.genericTypeParameters.length > 0) {
             s += "<" + this.genericTypeParameters.map(gi => gi.getAbsoluteName()).join(", ") + ">";
@@ -705,7 +705,7 @@ export class GenericVariantOfJavaClass extends IJavaClass {
     private cachedImplements?: IJavaInterface[];
 
     constructor(public isGenericVariantOf: JavaClass, public typeMap: Map<GenericTypeParameter, NonPrimitiveType>) {
-        super(isGenericVariantOf.identifier, isGenericVariantOf.identifierRange, isGenericVariantOf.pathAndIdentifier, isGenericVariantOf.module);
+        super(isGenericVariantOf.identifier, isGenericVariantOf.identifierRange, isGenericVariantOf.pathAndIdentifierAsDotSeparatedString, isGenericVariantOf.module);
         this.isFinal = this.isGenericVariantOf.isFinal;
         this.documentation = this.isGenericVariantOf.documentation;
     }
@@ -734,7 +734,7 @@ export class GenericVariantOfJavaClass extends IJavaClass {
     }
 
     getAbsoluteName(): string {
-        let s: string = this.pathAndIdentifier;
+        let s: string = this.pathAndIdentifierAsDotSeparatedString;
 
         let genericInformation = this.isGenericVariantOf.genericTypeParameters;
 

@@ -62,11 +62,11 @@ export class GenericTypeParameter extends NonPrimitiveType {
     }
 
     getAbsoluteName(): string {
-        return this.pathAndIdentifier +
-            (this.lowerBound ? " super " + this.lowerBound?.pathAndIdentifier : "") +
+        return this.pathAndIdentifierAsDotSeparatedString +
+            (this.lowerBound ? " super " + this.lowerBound?.pathAndIdentifierAsDotSeparatedString : "") +
             // (this.lowerBound ? " super " + this.lowerBound?.toString() : "") +
             // (this.upperBounds.length > 0 ? " extends " + this.upperBounds.map(ub => ub.toString()).join(" & ") : "");
-            (this.upperBounds.length > 0 ? " extends " + this.upperBounds.map(ub => ub.pathAndIdentifier).join(" & ") : "");
+            (this.upperBounds.length > 0 ? " extends " + this.upperBounds.map(ub => ub.pathAndIdentifierAsDotSeparatedString).join(" & ") : "");
     }
 
     isGenericVariant(): boolean {

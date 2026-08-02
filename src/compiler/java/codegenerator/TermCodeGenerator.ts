@@ -242,7 +242,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         let range = node.range;
-        return SnippetFramer.frame(objectSnippet, `${Helpers.checkCast}(§1, "${destType.pathAndIdentifier}", ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn})`
+        return SnippetFramer.frame(objectSnippet, `${Helpers.checkCast}(§1, "${destType.pathAndIdentifierAsDotSeparatedString}", ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn})`
             , destType)
     }
 
@@ -391,7 +391,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         if (method.classEnumInterface != klassType) callingConvention = 'java';
 
         if (!newObjectSnippet) {
-            newObjectSnippet = new StringCodeSnippet(`new ${Helpers.classes}["${klassType.pathAndIdentifier}"](${enumValueIdentifier ? '"' + enumValueIdentifier + '", ' + enumValueIndex : ""})`);
+            newObjectSnippet = new StringCodeSnippet(`new ${Helpers.classes}["${klassType.pathAndIdentifierAsDotSeparatedString}"](${enumValueIdentifier ? '"' + enumValueIdentifier + '", ' + enumValueIndex : ""})`);
         }
 
         // call javascript constructor and directly thereafter call java constructor
@@ -1123,7 +1123,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         if (!field && objectType instanceof StaticNonPrimitiveType) {
             let innerType = objectType.nonPrimitiveType.innerTypes.find(type => type.identifier == node.attributeIdentifier) as NonPrimitiveType;
-            if (innerType) return new StringCodeSnippet(`${Helpers.classes}["${innerType.pathAndIdentifier}"]`, node.range, innerType.staticType);
+            if (innerType) return new StringCodeSnippet(`${Helpers.classes}["${innerType.pathAndIdentifierAsDotSeparatedString}"]`, node.range, innerType.staticType);
         }
 
         if (!field) {
@@ -1168,7 +1168,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
 
         if (field._isStatic) {
-            let classIdentifier = field.classEnum.pathAndIdentifier;
+            let classIdentifier = field.classEnum.pathAndIdentifierAsDotSeparatedString;
             if (field.template) {
                 let code = field.template.replace("§1", `${Helpers.classes}["${classIdentifier}"]`);
                 let snippet = new StringCodeSnippet(code, range, field.type);
@@ -1432,7 +1432,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         if (objectSnippet.type instanceof StaticNonPrimitiveType) {
             objectTemplate = `§1.${method.getInternalNameWithGenericParameterIdentifiers(callingConvention)}(`
         } else if (objectSnippet.isSuperKeywordWithLevel && !method.isConstructor) {   // constructors of class and base class have distinct names as they include class identifier
-            let classIdentifier = (<IJavaClass>objectSnippet.type).pathAndIdentifier;
+            let classIdentifier = (<IJavaClass>objectSnippet.type).pathAndIdentifierAsDotSeparatedString;
             if (method.isStatic) {
                 objectTemplate = `${Helpers.classes}["${classIdentifier}"].${method.getInternalNameWithGenericParameterIdentifiers(callingConvention)}(`
             } else {

@@ -12,7 +12,7 @@ export interface Compiler {
 
     setLibraries(libraryIds: string[]): void;
 
-    updateSingleModuleForCodeCompletion(module: Module): Promise<"success" | "completeCompilingNecessary">;
+    // updateSingleModuleForCodeCompletion(module: Module): Promise<"success" | "completeCompilingNecessary">;
     findModuleByFile(file: CompilerFile): Module | undefined;
     getAllModules(): Module[];
     setFileDirty(file: CompilerFile): void;

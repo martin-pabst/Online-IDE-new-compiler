@@ -139,7 +139,7 @@ export class JavaEnum extends JavaTypeWithInstanceInitializer {
     }
 
     getAbsoluteName(): string {
-        return this.pathAndIdentifier;
+        return this.pathAndIdentifierAsDotSeparatedString;
     }
 
     getDeclaration(): string {

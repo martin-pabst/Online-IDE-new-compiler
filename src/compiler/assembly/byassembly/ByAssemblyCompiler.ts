@@ -53,9 +53,9 @@ export class ByAssemblyCompiler implements Compiler {
     setLibraries(libraryIds: string[]): void {
     }
 
-    updateSingleModuleForCodeCompletion(module: Module): Promise<"success" | "completeCompilingNecessary"> {
-        return new Promise<"completeCompilingNecessary">(resolve => resolve("completeCompilingNecessary"));
-    }
+    // updateSingleModuleForCodeCompletion(module: Module): Promise<"success" | "completeCompilingNecessary"> {
+    //     return new Promise<"completeCompilingNecessary">(resolve => resolve("completeCompilingNecessary"));
+    // }
 
     findModuleByFile(file: CompilerFile): Module | undefined {
         return this.#moduleManager.getModule(file);

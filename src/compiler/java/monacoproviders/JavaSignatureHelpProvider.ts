@@ -20,8 +20,8 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
     signatureHelpTriggerCharacters?: readonly string[] = ['(', ',', ';', '<', '>', '=']; // semicolon, <, >, = for for-loop, if, while, ...
     signatureHelpRetriggerCharacters?: readonly string[] = [' '];
 
-    provideSignatureHelp(model: monaco.editor.ITextModel, position: monaco.Position, token: monaco.CancellationToken, context: monaco.languages.SignatureHelpContext):
-        monaco.languages.ProviderResult<monaco.languages.SignatureHelpResult> {
+    async provideSignatureHelp(model: monaco.editor.ITextModel, position: monaco.Position, token: monaco.CancellationToken, context: monaco.languages.SignatureHelpContext):
+        Promise<monaco.languages.SignatureHelpResult> {
 
         let that = this;
         if (model.getLanguageId() != 'myJava') return undefined;
@@ -38,19 +38,18 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
             module = (<JavaRepl>main.getRepl()).getCurrentModule();
         } else {
             module = <JavaCompiledModule>main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
+            if (module?.isMoreThanOneVersionAheadOfLastCompilation()) {
+                await main.getCompiler().waitTillCompilationFinished();
+                module = <JavaCompiledModule>main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
+            }
         }
 
         if (!module) return;
 
         let structureHelpEnabled = main.getSettings().getValue("editor.contextSensitiveHelp.StructureStatements") === 'true';
 
-        return new Promise(async (resolve, reject) => {
+        return JavaSignatureHelpProvider.provideSignatureHelpLater(module, model, position, token, context, structureHelpEnabled);
 
-            await main.getCurrentWorkspace()?.ensureModuleIsCompiled(module);
-
-            resolve(JavaSignatureHelpProvider.provideSignatureHelpLater(module, model, position, token, context, structureHelpEnabled));
-
-        });
 
     }
 
@@ -61,7 +60,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
         structureHelpEnabled: boolean):
         monaco.languages.SignatureHelpResult {
 
-        if(!(module instanceof JavaCompiledModule)) return { value: { activeParameter: 0, activeSignature: 0, signatures: [] }, dispose: () => { } };
+        if (!(module instanceof JavaCompiledModule)) return { value: { activeParameter: 0, activeSignature: 0, signatures: [] }, dispose: () => { } };
 
         let methodCallPositions = module.methodCallPositions[position.lineNumber];
 

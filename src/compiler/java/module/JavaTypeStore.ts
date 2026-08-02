@@ -1,5 +1,6 @@
 import { KlassObjectRegistry } from "../../common/interpreter/StepFunction";
 import { JCM } from "../language/JavaCompilerMessages";
+import type { ASTNodeWithIdentifier } from "../parser/AST";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
 import { JavaClass } from "../types/JavaClass";
 import { JavaEnum } from "../types/JavaEnum";
@@ -11,36 +12,57 @@ import { JavaCompiledModule } from "./JavaCompiledModule";
 import * as monaco from 'monaco-editor'
 
 
+type TypeNode = {
+    type?: JavaType;
+    children?: Map<string, TypeNode>;
+};
+
 export class JavaTypeStore {
 
-    private typeMap: Map<string, JavaType> = new Map();
+    /**
+     * Type java.lang.A.B is stored in typeMap.get("java").children.get("lang").children.get("A").children.get("B").type
+     * Type java.lang.A is stored in typeMap.get("java").children.get("lang").children.get("A").type
+     */
+
+    private typeMap: TypeNode = { children: new Map() };
     private mainClasses: JavaClass[] = [];
 
     constructor() {
 
     }
 
-    copy(excludeTypesOfModule?: JavaCompiledModule): JavaTypeStore {
-        let jts = new JavaTypeStore();
-        if (excludeTypesOfModule) {
-            this.typeMap.forEach((value, key) => { if (value.module !== excludeTypesOfModule) jts.typeMap.set(key, value) });
-        } else {
-            this.typeMap.forEach((value, key) => { jts.typeMap.set(key, value) });
-        }
-        return jts;
-    }
+    // copy(excludeTypesOfModule?: JavaCompiledModule): JavaTypeStore {
+    //     let jts = new JavaTypeStore();
+    //     if (excludeTypesOfModule) {
+    //         this.typeMap.forEach((value, key) => { if (value.module !== excludeTypesOfModule) jts.typeMap.set(key, value) });
+    //     } else {
+    //         this.typeMap.forEach((value, key) => { jts.typeMap.set(key, value) });
+    //     }
+    //     return jts;
+    // }
 
     empty() {
-        this.typeMap = new Map();
+        this.typeMap = { children: new Map() };
         this.mainClasses = [];
     }
 
     addType(type: JavaType) {
         if (type instanceof NonPrimitiveType) {
-            this.typeMap.set(type.pathAndIdentifier, type);
-            if(type.isMainClass) this.mainClasses.push(<JavaClass>type);
+            let typeMap = this.typeMap;
+            let pathParts = type.pathAndIdentifierAsArray;
+            for (let i = 0; i < pathParts.length; i++) {
+                let part = pathParts[i];
+                typeMap = typeMap.children.get(part);
+                if (!typeMap) {
+                    let newTypeMap = { children: new Map() }
+                    newTypeMap.children.set(part, newTypeMap);
+                    typeMap = newTypeMap;
+                }
+            }
+            typeMap.type = type;
+            if (type.isMainClass) this.mainClasses.push(<JavaClass>type);
         } else {
-            this.typeMap.set(type.identifier, type);
+            this.typeMap.children.set(type.identifier, { type: type, children: new Map() });
         }
     }
 
@@ -48,56 +70,115 @@ export class JavaTypeStore {
         return this.mainClasses;
     }
 
-    getType(identifierWithPath: string): JavaType | undefined {
-        return this.typeMap.get(identifierWithPath);
+    getType(pathWithIdentifier: string | string[]): JavaType | undefined {
+        if (Array.isArray(pathWithIdentifier)) {
+            let typeMap = this.typeMap;
+            for (let i = 0; i < pathWithIdentifier.length; i++) {
+                let part = pathWithIdentifier[i];
+                typeMap = typeMap.children.get(part);
+                if (!typeMap) return undefined;
+            }
+            return typeMap.type;
+        } else {
+            let parts = pathWithIdentifier.split(".");
+            return this.getType(parts);
+        }
+
+    }
+
+    getFirstTypeWhichisNoPackage(pathWithIdentifier: ASTNodeWithIdentifier[]):  { type: JavaType, nextIndex: number } | undefined {
+        let typeMap = this.typeMap;
+        for (let i = 0; i < pathWithIdentifier.length; i++) {
+            let part = pathWithIdentifier[i];
+            typeMap = typeMap.children.get(part.identifier);
+            if (!typeMap) return undefined;
+            if (typeMap.type) return { type: typeMap.type, nextIndex: i + 1 };
+        }
+        return undefined;
+
     }
 
     populateClassObjectRegistry(klassObjectRegistry: KlassObjectRegistry) {
-        this.typeMap.forEach((type, key) => {
-            if (type instanceof NonPrimitiveType && type.runtimeClass) {
-                klassObjectRegistry[type.pathAndIdentifier] = type.runtimeClass;
-            }
-        })
+        this.populateClassObjectRegistryRecursive(this.typeMap, klassObjectRegistry);
     }
 
+    private populateClassObjectRegistryRecursive(typeNode: TypeNode, klassObjectRegistry: KlassObjectRegistry) {
+        if (typeNode.type instanceof NonPrimitiveType && typeNode.type.runtimeClass) {
+            klassObjectRegistry[typeNode.type.pathAndIdentifierAsDotSeparatedString] = typeNode.type.runtimeClass;
+        }
+        if (typeNode.children) {
+            typeNode.children.forEach((childTypeNode, key) => {
+                this.populateClassObjectRegistryRecursive(childTypeNode, klassObjectRegistry);
+            })
+        }
+    }
+
+
     initFastExtendsImplementsLookup() {
-        this.typeMap.forEach((type, key) => {
-            type.registerExtendsImplementsOnAncestors();
-        })
+        this.initFastExtendsImplementsLookupRecursive(this.typeMap);
+    }
+
+    private initFastExtendsImplementsLookupRecursive(typeNode: TypeNode) {
+        if (typeNode.type) {
+            typeNode.type.registerExtendsImplementsOnAncestors();
+        }
+        if (typeNode.children) {
+            typeNode.children.forEach((childTypeNode, key) => {
+                this.initFastExtendsImplementsLookupRecursive(childTypeNode);
+            })
+        }
     }
 
     getClasses(): JavaClass[] {
         let classes: JavaClass[] = [];
 
-        this.typeMap.forEach((type, identifier) => {
-            if (type instanceof JavaClass) {
-                classes.push(type);
-            }
-        })
-
+        this.getClassesRecursive(this.typeMap, classes);
         return classes;
+    }
+
+    private getClassesRecursive(typeNode: TypeNode, classes: JavaClass[]) {
+        if (typeNode.type instanceof JavaClass) {
+            classes.push(typeNode.type);
+        }
+        if (typeNode.children) {
+            typeNode.children.forEach((childTypeNode, key) => {
+                this.getClassesRecursive(childTypeNode, classes);
+            })
+        }
     }
 
     getNonPrimitiveTypes(): NonPrimitiveType[] {
         let npts: NonPrimitiveType[] = [];
 
-        this.typeMap.forEach((type, identifier) => {
-            if (type instanceof NonPrimitiveType) {
-                npts.push(type);
-            }
-        })
-
+        this.getNonPrimitiveTypesRecursive(this.typeMap, npts);
         return npts;
     }
 
+    private getNonPrimitiveTypesRecursive(typeNode: TypeNode, npts: NonPrimitiveType[]) {
+        if (typeNode.type instanceof NonPrimitiveType) {
+            npts.push(typeNode.type);
+        }
+        if (typeNode.children) {
+            typeNode.children.forEach((childTypeNode, key) => {
+                this.getNonPrimitiveTypesRecursive(childTypeNode, npts);
+            })
+        }
+    }
 
     getTypeCompletionItems(classContext: NonPrimitiveType | StaticNonPrimitiveType | undefined, rangeToReplace: monaco.IRange,
         afterNew: boolean, withPrimitiveTypes: boolean): monaco.languages.CompletionItem[] {
 
         let completionItems: monaco.languages.CompletionItem[] = [];
 
-        this.typeMap.forEach((type, identifier) => {
+        this.getTypeCompletionItemsRecursive(this.typeMap, classContext, rangeToReplace, afterNew, withPrimitiveTypes, completionItems);
+        return completionItems;
+    }
 
+    private getTypeCompletionItemsRecursive(typeNode: TypeNode, classContext: NonPrimitiveType | StaticNonPrimitiveType | undefined, rangeToReplace: monaco.IRange,
+        afterNew: boolean, withPrimitiveTypes: boolean, completionItems: monaco.languages.CompletionItem[]) {
+
+        if (typeNode.type) {
+            const type = typeNode.type;
             if (type instanceof PrimitiveType || type.identifier == "null") {
 
                 if (!withPrimitiveTypes) return;
@@ -118,8 +199,8 @@ export class JavaTypeStore {
                 })
             } else {
                 let npt = <NonPrimitiveType>type;
-                if(npt.isMainClass) return;
-                
+                if (npt.isMainClass) return;
+
                 if (classContext instanceof NonPrimitiveType && !npt.isVisibleFrom(classContext)) return;
 
                 let kind: monaco.languages.CompletionItemKind = monaco.languages.CompletionItemKind.Class;
@@ -139,7 +220,7 @@ export class JavaTypeStore {
                 completionItems.push({
                     label: type.identifier,
                     detail: type.getCompletionItemDetail() + (isGeneric ? "(" + JCM.genericType() + ")" : ""),
-                    insertText: npt.pathAndIdentifier + suffix,
+                    insertText: npt.pathAndIdentifierAsDotSeparatedString + suffix,
                     documentation: type.getDocumentation(),
                     kind: kind,
                     range: rangeToReplace,
@@ -152,10 +233,12 @@ export class JavaTypeStore {
                 })
 
             }
-        })
-
-        return completionItems;
-
+        }
+        if (typeNode.children) {
+            typeNode.children.forEach((childTypeNode, key) => {
+                this.getTypeCompletionItemsRecursive(childTypeNode, classContext, rangeToReplace, afterNew, withPrimitiveTypes, completionItems);
+            })
+        }
     }
 
 

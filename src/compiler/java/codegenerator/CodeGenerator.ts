@@ -305,12 +305,12 @@ export class CodeGenerator extends InnerClassCodeGenerator {
                 snippets.push(new StringCodeSnippet(
                     `if(!${Helpers.classes}.__di_instances) ${Helpers.classes}.__di_instances = {};\n` +
                     `${Helpers.classes}.__di_instances["${instanceName}"] = ` +
-                    `new ${Helpers.classes}["${type.pathAndIdentifier}"]().${ctorName}();\n`
+                    `new ${Helpers.classes}["${type.pathAndIdentifierAsDotSeparatedString}"]().${ctorName}();\n`
                 ));
             } else {
                 const ctorName = constructor.getInternalName("java");
                 const callSnippet = new StringCodeSnippet(
-                    `new ${Helpers.classes}["${type.pathAndIdentifier}"]().${ctorName}(${StepParams.thread}, undefined);\n`,
+                    `new ${Helpers.classes}["${type.pathAndIdentifierAsDotSeparatedString}"]().${ctorName}(${StepParams.thread}, undefined);\n`,
                     type.identifierRange
                 );
                 const container = new CodeSnippetContainer([callSnippet], type.identifierRange);

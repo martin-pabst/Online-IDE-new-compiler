@@ -16,7 +16,7 @@ import { JavaParameter } from "../../types/JavaParameter";
 import { Visibility } from "../../types/Visibility";
 import { JavaBaseModule } from "../JavaBaseModule";
 import { JavaTypeStore } from "../JavaTypeStore";
-import { LibraryAttributeDeclaration, LibraryMethodDeclaration, LibraryMethodOrAttributeDeclaration } from "./DeclareType";
+import { LibraryAttributeDeclaration, LibraryMethodDeclaration, LibraryClassOrMethodOrAttributeDeclaration, type LibraryClassDeclaration } from "./DeclareType";
 import { LibraryKlassType, JavaTypeMap, JavaLibraryModule } from "./JavaLibraryModule";
 import { LdToken, LibraryDeclarationLexer } from "./LibraryDeclarationLexer";
 import { SystemModule } from "../../runtime/system/SystemModule.ts";
@@ -44,6 +44,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
     tt: TokenType = TokenType.endofSourcecode;
     currentDeclaration: string = "";
     currentClassIdentifier: string = "";
+    currentClass: NonPrimitiveType | undefined = undefined;
 
     currentTypeStore: JavaTypeStore = new JavaTypeStore();
     genericParameterMapStack: Record<string, GenericTypeParameter>[] = [];
@@ -76,8 +77,15 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
             this.nextToken();
         } while(this.comesToken(TokenType.dot, true));
 
+        let packageAsDotSeparatedString: string | undefined = javaClassDeclaration?.package; // e.g. "java.lang" 
+        if(packageAsDotSeparatedString){
+            path = packageAsDotSeparatedString.split(".").concat(path);
+        }
+
+
         let pathAndIdentifier = path.join(".");
-        let identifier: string = path.pop()!;
+        let identifier: string = path[path.length - 1] || "";
+
         this.currentClassIdentifier = identifier;
 
         let parentPath = path.length > 0 ? path.join(".") : undefined;
@@ -86,30 +94,27 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
 
         switch (modifiersAndType.type) {
             case TokenType.keywordClass:
-                npt = new JavaClass(identifier, LibraryDeclarationParser.nullRange, "", module);
+                npt = new JavaClass(identifier, LibraryDeclarationParser.nullRange, pathAndIdentifier, module);
                 npt.isLibraryType = true;
                 let npt1 = <JavaClass>npt;
                 npt1.runtimeClass = klass;
                 npt1.isStatic = modifiersAndType.static;
                 npt1.isFinal = modifiersAndType.final;
                 npt1._isAbstract = modifiersAndType.abstract;
-                npt1.pathAndIdentifier = pathAndIdentifier;
                 npt1.visibility = modifiersAndType.visibility;
-                if(klass["isPrimitiveTypeWrapper"]) npt.isPrimitiveTypeWrapper = true;
+                if (klass["isPrimitiveTypeWrapper"]) npt.isPrimitiveTypeWrapper = true;
                 break;
-                case TokenType.keywordInterface:
-                    npt = new JavaInterface(identifier, LibraryDeclarationParser.nullRange, "", module);
-                    npt.isLibraryType = true;
-                    npt.pathAndIdentifier = pathAndIdentifier;
-                    npt.runtimeClass = klass;
-                    break;
+            case TokenType.keywordInterface:
+                npt = new JavaInterface(identifier, LibraryDeclarationParser.nullRange, pathAndIdentifier, module);
+                npt.isLibraryType = true;
+                npt.runtimeClass = klass;
+                break;
             case TokenType.keywordEnum:
-                npt = new JavaEnum(identifier, LibraryDeclarationParser.nullRange, "", module, Object.getPrototypeOf(Object.getPrototypeOf(klass)).type);
+                npt = new JavaEnum(identifier, LibraryDeclarationParser.nullRange, pathAndIdentifier, module, Object.getPrototypeOf(Object.getPrototypeOf(klass)).type);
                 npt.isLibraryType = true;
                 let npt2 = <JavaEnum>npt;
                 npt2.runtimeClass = klass;
                 npt2.visibility = modifiersAndType.visibility;
-                npt2.pathAndIdentifier = pathAndIdentifier;
                 npt2.baseEnumClass = <any>this.findType("Enum");
                 this.initEnumValues(npt2, klass, module);
                 npt2.addValuesMethod(klass, this.systemModule.types.find(type => type.identifier == "string") as PrimitiveType);
@@ -119,9 +124,9 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
         klass.type = npt;
         npt.documentation = javaClassDeclaration?.comment;
 
-        if(parentPath){
+        if (parentPath) {
             let parent = this.currentTypeStore.getType(parentPath);
-            if(parent){
+            if (parent) {
                 npt.outerType = parent as JavaClass;
             }
         }
@@ -191,7 +196,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
 
         }
 
-        if(npt instanceof JavaClass && !npt.getExtends() && npt.identifier != "Object"){
+        if (npt instanceof JavaClass && !npt.getExtends() && npt.identifier != "Object") {
             npt.setExtends(<JavaClass>this.currentTypeStore.getType("Object"));
         }
 
@@ -296,9 +301,9 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
     parseType(module: JavaBaseModule): JavaType {
         let id = this.expectIdentifier();
 
-        if(id == ThisType.identifier) return ThisType.this();
+        if (id == ThisType.identifier) return ThisType.this();
 
-        while(this.comesToken(TokenType.dot, true)){
+        while (this.comesToken(TokenType.dot, true)) {
             id += "." + this.expectIdentifier();
         }
 
@@ -354,8 +359,11 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
     findType(id: string): JavaType {
 
         let type: JavaType = undefined;
+        if(this.currentClass && this.currentClass.identifier == id){
+            return this.currentClass;
+        }
 
-        for(let i = this.genericParameterMapStack.length - 1; i >= 0; i--){
+        for (let i = this.genericParameterMapStack.length - 1; i >= 0; i--) {
             const gpm = this.genericParameterMapStack[i];
             type = gpm[id];
             if (type) return type;
@@ -476,8 +484,8 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
     }
 
     pushError(error: string) {
-         console.log("Error parsing library declaration for class " + this.currentClassIdentifier + " (" + error + "): " + this.currentDeclaration); 
-    } 
+        console.log("Error parsing library declaration for class " + this.currentClassIdentifier + " (" + error + "): " + this.currentDeclaration);
+    }
 
     expect(tt: TokenType, skip: boolean): boolean {
         if (tt == this.tt) {
@@ -504,6 +512,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
         }
 
         this.currentClassIdentifier = klass.name;
+        this.currentClass = klass.type;
 
         for (let decl of javaClassDeclaration.filter(cd => cd.type == "field" || cd.type == "method")) {
             this.initTokens(decl.signature);
@@ -511,24 +520,26 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
         }
 
         this.insertClassField(klass);
-        
+
+        this.currentClass = undefined;
+
     }
-    
-    insertClassField(klass: Klass & LibraryKlassType){
+
+    insertClassField(klass: Klass & LibraryKlassType) {
         let npt = <JavaClass | JavaInterface | JavaEnum>klass.type;
-        
-        if(npt instanceof JavaClass || npt instanceof JavaEnum){
+
+        if (npt instanceof JavaClass || npt instanceof JavaEnum) {
             let classType = this.currentTypeStore.getType("Class");
-            if(classType){
+            if (classType) {
                 npt.fields.push(npt.createClassField(<NonPrimitiveType>classType));
             }
         }
     }
 
 
-    parseFieldOrMethod(klass: Klass & LibraryKlassType, module: JavaBaseModule, decl: LibraryMethodOrAttributeDeclaration) {
+    parseFieldOrMethod(klass: Klass & LibraryKlassType, module: JavaBaseModule, decl: LibraryClassOrMethodOrAttributeDeclaration) {
 
-        this.genericParameterMapStack.push({}); 
+        this.genericParameterMapStack.push({});
 
         let klassType = <JavaClass | JavaInterface | JavaEnum>klass.type;
 
@@ -644,7 +655,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
 
             if (mdecl.template) {
                 m.template = mdecl.template;
-                if(m.template.indexOf("&") >= 0){
+                if (m.template.indexOf("&") >= 0) {
                     console.log("WARNING: Template '" + m.template + "' contains letter & instead of §!")
                 }
             }
@@ -657,7 +668,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
             let adecl = <LibraryAttributeDeclaration>decl;
             // attribute
             let a = new JavaField(identifier, EmptyRange.instance, module, type, modifiers.visibility);
-            a.hiddenWhenDebugging = (<LibraryAttributeDeclaration> decl).hiddenWhenDebugging;
+            a.hiddenWhenDebugging = (<LibraryAttributeDeclaration>decl).hiddenWhenDebugging;
             a._isStatic = modifiers.static;
             a._isFinal = modifiers.final;
             a.classEnum = klassType;
@@ -681,7 +692,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
 
     initEnumValues(enumType: JavaEnum, klass: Klass & LibraryKlassType, module: JavaBaseModule) {
         let values: EnumClass[] = klass.values;
-        for(let value of values){
+        for (let value of values) {
             // attribute
             let a = new JavaField(value.name, EmptyRange.instance, module, enumType, TokenType.keywordPublic);
             a._isStatic = true;

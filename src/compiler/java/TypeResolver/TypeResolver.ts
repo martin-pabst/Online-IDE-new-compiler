@@ -459,14 +459,19 @@ export class TypeResolver {
 
         }
 
+        let typeWithNextIdentifierIndex: { type: JavaType, nextIndex: number } | undefined;
+
         if (!type) {
-            type = this.moduleManager.typestore.getType(identifer);
-            if (!type) {
-                type = this.libraryModuleManager.typestore.getType(identifer);
+            typeWithNextIdentifierIndex = this.moduleManager.typestore.getFirstTypeWhichisNoPackage(typeNode.identifiers);
+            if (!typeWithNextIdentifierIndex) {
+                typeWithNextIdentifierIndex = this.libraryModuleManager.typestore.getFirstTypeWhichisNoPackage(typeNode.identifiers);
+            }
+            if(typeWithNextIdentifierIndex) {
+                type = typeWithNextIdentifierIndex.type;
             }
         }
 
-        let i = 1;
+        let i = typeWithNextIdentifierIndex ? typeWithNextIdentifierIndex.nextIndex : 1;
         while (i < typeNode.identifiers.length && type) {
             let id = typeNode.identifiers[i];
             if (type instanceof NonPrimitiveType) {
