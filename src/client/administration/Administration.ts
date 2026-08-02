@@ -1,11 +1,9 @@
 import { AdminMenuItem } from "./AdminMenuItem.js";
-import { SchoolsWithAdminsMI } from "./SchoolsWithAdminsMI.js";
 import { ajax, extractCsrfTokenFromGetRequest, extractLanguageFromGetRequest, fetchGetParameterValue } from "../communication/AjaxHelper.js";
 import { GetUserDataResponse, UserData, ClassData } from "../communication/Data.js";
 import { TeachersWithClassesMI } from "./TeachersWithClasses.js";
 import { ClassesWithStudentsMI } from "./ClassesWithStudentsMI.js";
 import { StudentBulkImportMI } from "./StudentBulkImortMI.js";
-import { ExportImportMI } from "./ExportImportMI.js";
 import { Pruefungen } from "./Pruefungen.js";
 import { w2utils } from 'w2ui';
 import { AutoLogout } from "../main/AutoLogout.js";
@@ -27,11 +25,9 @@ export class Administration {
     activeMenuItem: AdminMenuItem = null;
 
     menuItems: AdminMenuItem[] = [
-        new SchoolsWithAdminsMI(this),
         // new SchoolSettingsMI(this),
         new TeachersWithClassesMI(this),
         new ClassesWithStudentsMI(this),
-        new ExportImportMI(this),
         new Pruefungen(this)
     ]
 

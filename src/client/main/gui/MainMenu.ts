@@ -341,25 +341,25 @@ export class MainMenu {
             )
         }
 
-        if (user != null && (user.is_admin)) {
-            mainMenu.items[0].subMenu.items.push(
-                {
-                    identifier: GuiMessages.ServerStatistics(),
-                    link: serverURL + "statistics.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
-                }, {
-                identifier: GuiMessages.ShutdownServer(),
-                action: () => {
-                    if (confirm(GuiMessages.ReallyShutdownServer())) {
-                        ajax("shutdown", {}, () => {
-                            alert(GuiMessages.ServerShutdownDone());
-                        }, (message) => {
-                            alert(message);
-                        })
-                    }
-                }
-            }
-            )
-        }
+        // if (user != null && (user.is_admin)) {
+        //     mainMenu.items[0].subMenu.items.push(
+        //         {
+        //             identifier: GuiMessages.ServerStatistics(),
+        //             link: serverURL + "statistics.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
+        //         }, {
+        //         identifier: GuiMessages.ShutdownServer(),
+        //         action: () => {
+        //             if (confirm(GuiMessages.ReallyShutdownServer())) {
+        //                 ajax("shutdown", {}, () => {
+        //                     alert(GuiMessages.ServerShutdownDone());
+        //                 }, (message) => {
+        //                     alert(message);
+        //                 })
+        //             }
+        //         }
+        //     }
+        //     )
+        // }
 
         mainMenu.items[0].subMenu.items.push({
             identifier: GuiMessages.Settings(),
