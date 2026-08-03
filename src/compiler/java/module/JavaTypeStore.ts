@@ -52,12 +52,12 @@ export class JavaTypeStore {
             let pathParts = type.pathAndIdentifierAsArray;
             for (let i = 0; i < pathParts.length; i++) {
                 let part = pathParts[i];
-                typeMap = typeMap.children.get(part);
-                if (!typeMap) {
-                    let newTypeMap = { children: new Map() }
-                    newTypeMap.children.set(part, newTypeMap);
-                    typeMap = newTypeMap;
+                let childTypeMap = typeMap.children.get(part);
+                if (!childTypeMap) {
+                    childTypeMap = { children: new Map() }
+                    typeMap.children.set(part, childTypeMap);
                 }
+                typeMap = childTypeMap;
             }
             typeMap.type = type;
             if (type.isMainClass) this.mainClasses.push(<JavaClass>type);

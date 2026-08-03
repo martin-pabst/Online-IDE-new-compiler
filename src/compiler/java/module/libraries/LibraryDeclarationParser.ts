@@ -359,7 +359,7 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
     findType(id: string): JavaType {
 
         let type: JavaType = undefined;
-        if(this.currentClass && this.currentClass.identifier == id){
+        if(this.currentClass && this.currentClass.identifier == id && this.currentClass.identifier != "string"){
             return this.currentClass;
         }
 
