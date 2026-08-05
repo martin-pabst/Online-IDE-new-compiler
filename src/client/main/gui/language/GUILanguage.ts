@@ -256,8 +256,29 @@ Are you sure?`
     });
 
     static noFile = () => lm({
-        'de': 'Keine Datei vorhanden',
-        'en': 'No file'
+        'de': `Keine Datei vorhanden.
+        
+!!!!
+!  !   
+!  !   Hilf mit beim Datenschutz:
+!  !   
+!  !   Bitte achte darauf, keine 
+!!!!   personenbezogenen Daten  
+       im Programmtext einzugeben!
+!!!!
+!  !
+!!!!`,
+        'en': `No file present.
+!!!!
+!  !
+!  !   Help with data protection:
+!  !
+!  !   Please make sure not to enter any
+!!!!   personal data in the program text!
+
+!!!!
+!  !
+!!!!`
     });
 
     static duplicate = () => lm({
