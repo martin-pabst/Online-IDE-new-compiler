@@ -14,7 +14,7 @@ import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
 export class NiedersachsenStackClass extends ObjectClass implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Stack", comment: NiedersachsenLang.StackClassComment },
+        { type: "declaration", package: 'nds', signature: "class Stack", comment: NiedersachsenLang.StackClassComment },
 
         { type: "method", signature: "Stack()", native: NiedersachsenStackClass.prototype._constructor, comment: NiedersachsenLang.stackClassConstructorComment },
 

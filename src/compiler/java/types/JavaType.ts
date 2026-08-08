@@ -13,6 +13,8 @@ export abstract class JavaType extends BaseType {
 
     declare module: JavaBaseModule;
 
+    
+
     constructor(identifier: string, identifierRange: IRange, module: JavaBaseModule){
         super(identifier, identifierRange, module);
         this.isPrimitive = false;

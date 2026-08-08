@@ -646,6 +646,25 @@ export class JCM {
      * class Parser
      */
 
+    static importStatementMustStartWithIdentifier = () => le({
+        "de": "Nach dem Schlüsselwort 'import' wird der Bezeichner eines packages erwartet.",
+        "en": `Import statement must start with identifier.`,
+        "fr": `L'instruction import doit commencer par un identifiant.`,
+    })
+
+    static importStatementCannotHaveMultipleWildcards = () => le({
+        "de": "In einer import-Anweisung darf höchstens ein Sternchen (*) vorkommen.",
+        "en": `Import statement can't have multiple wildcards (*).`,
+        "fr": `L'instruction import ne peut pas avoir plusieurs jokers (*).`,
+    })
+
+    static identifierOrAsteriskExpectedInImportStatement = () => le({
+        "de": "Nach dem Bezeichner des packages wird entweder ein Bezeichner (für eine Klasse oder ein Unterpackage) oder ein Sternchen (*) erwartet.",
+        "en": `Identifier or asterisk expected in import statement.`,
+        "fr": `Un identifiant ou un astérisque est attendu dans l'instruction import.`,
+    })
+
+
     static unexpectedToken = (token: string) => le({
         "de": "Mit dem Token " + token + " kann der Compiler nichts anfangen.",
         "en": `Unexpected token: ${token}`,
@@ -819,6 +838,12 @@ export class JCM {
     /**
      * TypeResolver
     */
+
+    static importedTypesNotFound = (importedTypes: string) => le({
+        "de": `Die importierten Typen ${importedTypes} konnten nicht gefunden werden.`,
+        "en": `Imported types ${importedTypes} not found.`,
+        "fr": `Les types importés ${importedTypes} n'ont pas été trouvés.`,
+    })
 
     static multipleFieldsWithSameIdentifier = (signature: string, otherLineNumber: number) => le({
         "de": `Es gibt in dieser Klasse/diesem enum ein weiteres Attribut mit dem Bezeichner ${signature} in Zeile ${otherLineNumber}.`,

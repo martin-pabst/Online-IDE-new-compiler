@@ -61,6 +61,8 @@ export class JavaCompiledModule extends JavaBaseModule {
 
     hasDependencyInjectionAnnotations: boolean = false;
 
+    importedTypes: Map<string, NonPrimitiveType> = new Map<string, NonPrimitiveType>();
+
     constructor(file: CompilerFile, public moduleManager?: JavaModuleManager) {
         super(file, false);
     }
@@ -196,6 +198,7 @@ export class JavaCompiledModule extends JavaBaseModule {
         this.methodDeclarationRanges = [];
         this.quickfixes = [];
         this.inlayHints = [];
+        this.importedTypes.clear();
     }
 
     hasMainProgram(): boolean {

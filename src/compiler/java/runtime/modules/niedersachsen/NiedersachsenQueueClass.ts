@@ -15,7 +15,7 @@ import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
 export class NiedersachsenQueueClass extends SystemCollection {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Queue", comment: NiedersachsenLang.queueClassComment },
+        { type: "declaration", package: 'nds', signature: "class Queue", comment: NiedersachsenLang.queueClassComment },
 
         { type: "method", signature: "Queue()", native: NiedersachsenQueueClass.prototype._constructor, comment: NiedersachsenLang.queueClassConstructorComment },
 

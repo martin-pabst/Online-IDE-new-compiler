@@ -25,6 +25,7 @@ import { DIValidator as DependencyInjectionValidator } from "./DIValidator.ts";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { JavaCompilerStringConstants } from "../JavaCompilerStringConstants.ts";
 import { GenerateGetterAndSetterQuickfixHelper } from "../monacoproviders/quickfix/GenerateGetterAndSetterQuickfix.ts";
+import { JavaPackage } from "../types/JavaPackage.ts";
 
 
 export class TypeResolver {
@@ -42,6 +43,8 @@ export class TypeResolver {
     }
 
     resolve(): boolean {
+
+        this.registerImportedTypes();
 
         this.gatherTypeDefinitionNodes();
 
@@ -71,6 +74,21 @@ export class TypeResolver {
         return true;
     }
 
+    registerImportedTypes() {
+        for (let module of this.dirtyModules) {
+            if (!module.ast) continue;
+            for (let importStatement of module.ast.importStatements) {
+                let types = this.libraryModuleManager.typestore.getTypesMatchingImportPath(importStatement, module);
+                if (types.length == 0) {
+                    this.pushError(JCM.importedTypesNotFound(importStatement.importedPath.join(".")), importStatement.range, module, "error");
+                } else {
+                    for (let type of types) {
+                        module.importedTypes.set(type.identifier, type as NonPrimitiveType);
+                    }
+                }
+            }
+        }
+    }
 
     gatherTypeDefinitionNodes() {
         let typeNames: Map<string, ASTClassDefinitionNode> = new Map();
@@ -459,6 +477,10 @@ export class TypeResolver {
 
         }
 
+        if (module instanceof JavaCompiledModule) {
+            type = module.importedTypes.get(identifer);
+        }
+
         let typeWithNextIdentifierIndex: { type: JavaType, nextIndex: number } | undefined;
 
         if (!type) {
@@ -466,7 +488,7 @@ export class TypeResolver {
             if (!typeWithNextIdentifierIndex) {
                 typeWithNextIdentifierIndex = this.libraryModuleManager.typestore.getFirstTypeWhichisNoPackage(typeNode.identifiers);
             }
-            if(typeWithNextIdentifierIndex) {
+            if (typeWithNextIdentifierIndex) {
                 type = typeWithNextIdentifierIndex.type;
             }
         }
@@ -485,6 +507,12 @@ export class TypeResolver {
                 } else {
                     this.pushError(JCM.typeNotDefined(id.identifier), typeNode.range, module);
                     return undefined;
+                }
+            } else if(type instanceof JavaPackage){
+                let innerType = type.children.find(it => it.identifier == id.identifier) as JavaType;
+                if (innerType) {
+                    module.registerTypeUsage(innerType, id.identifierRange);
+                    type = innerType;
                 }
             } else {
                 this.pushError(JCM.typeHasNoSubtype(type.identifier, id.identifier), id.identifierRange, module, "error");
@@ -709,7 +737,7 @@ export class TypeResolver {
             type.methods.push(method);
 
             let signature = method.getSignature();
-            if(signatures.get(signature)){
+            if (signatures.get(signature)) {
                 this.pushError(JCM.multipleMethodsWithSameSignature(signature, signatures.get(signature).identifierRange.startLineNumber), method.identifierRange, module, "error");
             } else {
                 signatures.set(signature, method);
@@ -804,17 +832,17 @@ export class TypeResolver {
 
                         for (let field of classNode.fieldsOrInstanceInitializers) {
                             if (field.kind == TokenType.fieldDeclaration) {
-                                if(field.isStatic){
+                                if (field.isStatic) {
                                     const otherField = staticFieldIdentifiers.get(field.identifier);
-                                    if(otherField){
-                                        this.pushError(JCM.multipleFieldsWithSameIdentifier(field.identifier, otherField.identifierRange.startLineNumber), field.identifierRange, classNode.module , "error");
+                                    if (otherField) {
+                                        this.pushError(JCM.multipleFieldsWithSameIdentifier(field.identifier, otherField.identifierRange.startLineNumber), field.identifierRange, classNode.module, "error");
                                         continue;
                                     }
                                     staticFieldIdentifiers.set(field.identifier, field);
                                 } else {
                                     const otherField = fieldIdentifiers.get(field.identifier);
-                                    if(otherField){
-                                        this.pushError(JCM.multipleFieldsWithSameIdentifier(field.identifier, otherField.identifierRange.startLineNumber), field.identifierRange, classNode.module , "error");
+                                    if (otherField) {
+                                        this.pushError(JCM.multipleFieldsWithSameIdentifier(field.identifier, otherField.identifierRange.startLineNumber), field.identifierRange, classNode.module, "error");
                                         continue;
                                     }
                                     fieldIdentifiers.set(field.identifier, field);

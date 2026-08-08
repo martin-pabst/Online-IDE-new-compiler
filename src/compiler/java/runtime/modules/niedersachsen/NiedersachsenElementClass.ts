@@ -9,7 +9,7 @@ import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
 export class NiedersachsenElementClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Element", comment: NiedersachsenLang.ElementClassComment },
+        { type: "declaration", package: 'nds', signature: "class Element", comment: NiedersachsenLang.ElementClassComment },
 
         { type: "method", signature: "Element()", native: NiedersachsenElementClass.prototype._constructorEmpty },
         { type: "method", signature: "Element(Object inhalt, Element next)", native: NiedersachsenElementClass.prototype._constructorFull },

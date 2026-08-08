@@ -14,6 +14,7 @@ export enum TokenType {
     true,
     false,
     // keywords
+    keywordImport,
     keywordPrint,
     keywordPrintln,
     keywordClass,
@@ -236,6 +237,7 @@ export var TokenTypeReadable: { [tt: number]: string } = {
     [TokenType.keywordCatch]: "catch",
     [TokenType.keywordFinally]: "finally",
     [TokenType.keywordVar]: "var",
+    [TokenType.keywordImport]: "import",
     [TokenType.keywordPrint]: "print",
     [TokenType.keywordPrintln]: "println",
     // keywordInt,
@@ -416,6 +418,7 @@ export var keywordList: { [keyword: string]: TokenType } = {
     "var": TokenType.keywordVar,
     "true": TokenType.true,
     "false": TokenType.false,
+    "import": TokenType.keywordImport,
     "print": TokenType.keywordPrint,
     "println": TokenType.keywordPrintln,
     // "int": TokenType.keywordInt,

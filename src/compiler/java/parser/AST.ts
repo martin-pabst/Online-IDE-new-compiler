@@ -58,6 +58,8 @@ export interface ASTGlobalNode extends ASTNode, TypeScope {
 
     collectedTypeNodes: ASTTypeNode[];      // if compile target is "Program"
 
+    importStatements: ASTImportStatementNode[];
+
 }
 
 /**
@@ -205,6 +207,12 @@ export interface ASTInstanceInitializerNode extends ASTStatementNode {
 export interface ASTStaticInitializerNode extends ASTStatementNode {
     kind: TokenType.staticInitializerBlock,
     statements: ASTStatementNode[]
+}
+
+export interface ASTImportStatementNode extends ASTNode {
+    kind: TokenType.keywordImport,
+    importedPath: string[],
+    pathRanges: IRange[],
 }
 
 export interface ASTClassDefinitionNode

@@ -15,7 +15,8 @@ import {
     ASTGenericParameterDeclarationNode,
     ASTInterfaceDefinitionNode, ASTMethodDeclarationNode,
     ASTNewObjectNode,
-    ASTNodeWithModifiers, ASTStatementNode, ASTTypeNode, TypeScope
+    ASTNodeWithModifiers, ASTStatementNode, ASTTypeNode, TypeScope,
+    type ASTImportStatementNode
 } from "./AST.ts";
 import { ASTNodeFactory } from "./ASTNodeFactory.ts";
 import { StatementParser } from "./StatementParser.ts";
@@ -57,6 +58,7 @@ export class Parser extends StatementParser {
             innerTypes: [],
             mainProgramNode: this.nodeFactory.buildMainProgramNode(this.cct),
             collectedTypeNodes: this.nodeFactory.collectedTypenodesGettingRegisteredAtTypeResolver,
+            importStatements: [],
             path: ""
         }
 
@@ -96,6 +98,8 @@ export class Parser extends StatementParser {
 
     parse() {
 
+        this.parseImportStatements();
+
         while (!this.isEnd()) {
             let pos = this.pos;
 
@@ -128,6 +132,57 @@ export class Parser extends StatementParser {
         //     console.log(lastStatement);
         // }
 
+    }
+
+    parseImportStatements() {
+        while (!this.isEnd() && this.tt == TokenType.keywordImport) {
+            this.nextToken(); // skip "import"
+            let astImportStatementNode: ASTImportStatementNode = {
+                kind: TokenType.keywordImport,
+                range: this.cct.range,
+                importedPath: [],
+                pathRanges: []
+            }
+
+            if(this.tt as TokenType != TokenType.identifier){
+                this.pushError(JCM.importStatementMustStartWithIdentifier(), "error");
+                this.skipTokensTillEndOfLineOr([TokenType.semicolon]);
+                break;
+            }
+
+            let error: boolean = false;
+            let wildcardFound: boolean = false;
+            do {
+                switch (this.tt as TokenType) {
+                    case TokenType.identifier:
+                        astImportStatementNode.importedPath.push(this.cct.value as string);
+                        astImportStatementNode.pathRanges.push(this.cct.range);
+                        this.nextToken();
+                        break;
+                    case TokenType.multiplication:
+                        if(wildcardFound){
+                            this.pushError(JCM.importStatementCannotHaveMultipleWildcards(), "error");
+                        }
+                        wildcardFound = true;
+                        astImportStatementNode.importedPath.push("*");
+                        this.nextToken();
+                        break;
+                    default:
+                        this.pushError(JCM.identifierOrAsteriskExpectedInImportStatement(), "error");
+                        this.skipTokensTillEndOfLineOr([]);
+                        error = true;
+                }
+            } while (!error && this.comesToken(TokenType.dot, true));
+
+            this.setEndOfRange(astImportStatementNode);
+
+            if(!error){
+                this.expectSemicolon(true, true);
+            }
+
+            this.javaCompiledModule.ast!.importStatements.push(astImportStatementNode);
+
+        }
     }
 
     parseMethodDeclarationInMainProgram(visibilityModifier?: TokenType) {

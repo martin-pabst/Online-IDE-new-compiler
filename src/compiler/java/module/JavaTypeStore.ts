@@ -1,10 +1,11 @@
 import { KlassObjectRegistry } from "../../common/interpreter/StepFunction";
 import { JCM } from "../language/JavaCompilerMessages";
-import type { ASTNodeWithIdentifier } from "../parser/AST";
+import type { ASTImportStatementNode, ASTNodeWithIdentifier } from "../parser/AST";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
 import { JavaClass } from "../types/JavaClass";
 import { JavaEnum } from "../types/JavaEnum";
 import { IJavaInterface } from "../types/JavaInterface";
+import { JavaPackage } from "../types/JavaPackage";
 import { JavaType } from "../types/JavaType";
 import { NonPrimitiveType } from "../types/NonPrimitiveType";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType";
@@ -56,6 +57,9 @@ export class JavaTypeStore {
                 if (!childTypeMap) {
                     childTypeMap = { children: new Map() }
                     typeMap.children.set(part, childTypeMap);
+                    if(i < pathParts.length - 1) {
+                        childTypeMap.type = new JavaPackage(part, type.identifierRange, type.module, typeMap.type as JavaPackage | undefined);
+                    }
                 }
                 typeMap = childTypeMap;
             }
@@ -95,7 +99,34 @@ export class JavaTypeStore {
             if (typeMap.type) return { type: typeMap.type, nextIndex: i + 1 };
         }
         return undefined;
+    }
 
+    getTypesMatchingImportPath(importPath: ASTImportStatementNode, module: JavaCompiledModule): JavaType[] {
+        let typeMap = this.typeMap;
+        for (let i = 0; i < importPath.importedPath.length - 1; i++) {
+            let part = importPath.importedPath[i];
+            typeMap = typeMap.children.get(part);
+            if (!typeMap) return [];
+            if(typeMap.type){
+                module.registerTypeUsage(typeMap.type, importPath.pathRanges[i]);
+            }
+        }
+
+        let lastPart = importPath.importedPath[importPath.importedPath.length - 1];
+        if(lastPart == "*") {
+            let types: JavaType[] = [];
+            typeMap.children.forEach((childTypeNode, key) => {
+                if (childTypeNode.type) types.push(childTypeNode.type);
+            })
+            return types;
+        }
+
+        let type = typeMap.children.get(lastPart)?.type;
+        if(!type) return [];
+
+        module.registerTypeUsage(type, importPath.pathRanges[importPath.pathRanges.length - 1]);
+
+        return [type];
     }
 
     populateClassObjectRegistry(klassObjectRegistry: KlassObjectRegistry) {

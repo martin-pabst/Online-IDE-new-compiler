@@ -11,7 +11,7 @@ import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
 export class NiedersachsenDynArrayClass extends ObjectClass implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class DynArray implements Iterable<Object>", comment: NiedersachsenLang.dynArrayClassComment },
+        { type: "declaration", package: 'nds', signature: "class DynArray implements Iterable<Object>", comment: NiedersachsenLang.dynArrayClassComment },
 
         { type: "method", signature: "DynArray()", native: NiedersachsenDynArrayClass.prototype._constructor, comment: NiedersachsenLang.dynArrayConstructorComment },
         { type: "method", signature: "boolean isEmpty()", native: NiedersachsenDynArrayClass.prototype._isEmpty, comment: NiedersachsenLang.dynArrayIsEmptyComment },
