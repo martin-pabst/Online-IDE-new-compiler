@@ -20,6 +20,7 @@ import { ASTBlockNode, ASTClassDefinitionNode, ASTGlobalNode } from "../parser/A
 import { JavaArrayType } from "../types/JavaArrayType.ts";
 import { JavaClass } from "../types/JavaClass.ts";
 import { JavaMethod } from "../types/JavaMethod.ts";
+import { JavaPackage } from "../types/JavaPackage.ts";
 import { JavaType } from "../types/JavaType";
 import { NonPrimitiveType } from "../types/NonPrimitiveType";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType.ts";
@@ -62,6 +63,8 @@ export class JavaCompiledModule extends JavaBaseModule {
     hasDependencyInjectionAnnotations: boolean = false;
 
     importedTypes: Map<string, NonPrimitiveType> = new Map<string, NonPrimitiveType>();
+
+    imports: string[][] = [];
 
     constructor(file: CompilerFile, public moduleManager?: JavaModuleManager) {
         super(file, false);
@@ -120,7 +123,8 @@ export class JavaCompiledModule extends JavaBaseModule {
     addTypePosition(position: Position, type: JavaType) {
 
 
-        if (type instanceof NonPrimitiveType || type instanceof StaticNonPrimitiveType || type instanceof JavaArrayType) {
+        if (type instanceof NonPrimitiveType || type instanceof StaticNonPrimitiveType 
+            || type instanceof JavaArrayType || type instanceof JavaPackage) {
             let list = this.typePositions[position.lineNumber];
             if (list == null) {
                 list = [];
@@ -133,7 +137,7 @@ export class JavaCompiledModule extends JavaBaseModule {
         }
     }
 
-    getTypeAtPosition(line: number, column: number): NonPrimitiveType | StaticNonPrimitiveType | JavaArrayType | undefined {
+    getTypeAtPosition(line: number, column: number): NonPrimitiveType | StaticNonPrimitiveType | JavaArrayType | JavaPackage | undefined {
 
         return this.typePositions[line]?.find(tp => tp.position.column == column)?.type;
 
@@ -199,6 +203,7 @@ export class JavaCompiledModule extends JavaBaseModule {
         this.quickfixes = [];
         this.inlayHints = [];
         this.importedTypes.clear();
+        this.imports = [];
     }
 
     hasMainProgram(): boolean {

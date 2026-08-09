@@ -33,4 +33,10 @@ export class NiedersachsenModule extends JavaLibraryModule {
         // let classesToRemove: string[] = ['Stack', 'Queue', 'Deque', 'LinkedList', 'ArrayList', 'Vector'];
         // systemModule.classesInterfacesEnums = systemModule.classesInterfacesEnums.filter(c => classesToRemove.indexOf(this.getName(c)) < 0);
     }
+
+    getStandardImports(): string[][] {
+        return [
+            ['nds', '*']
+        ];
+    }
 }

@@ -37,6 +37,7 @@ export class TypeResolver {
     enumDeclarationNodes: ASTEnumDefinitionNode[] = [];
 
     absoluteNameToResolvedTypeMap: Map<string, JavaType> = new Map();
+    globallyImportedTypesMap: Map<string, JavaType> = new Map();
 
     constructor(private moduleManager: JavaModuleManager, private libraryModuleManager: JavaLibraryModuleManager) {
         this.dirtyModules = this.moduleManager.getNewOrDirtyModules();
@@ -75,10 +76,19 @@ export class TypeResolver {
     }
 
     registerImportedTypes() {
+        this.libraryModuleManager.libraryModules.forEach(module => {
+            for(let si of module.getStandardImports()){
+                let types = this.libraryModuleManager.typestore.getTypesMatchingImportPath(si);    
+                for(let type of types){
+                    this.globallyImportedTypesMap.set(type.identifier, type as NonPrimitiveType);
+                }
+        }});
+        
         for (let module of this.dirtyModules) {
             if (!module.ast) continue;
             for (let importStatement of module.ast.importStatements) {
-                let types = this.libraryModuleManager.typestore.getTypesMatchingImportPath(importStatement, module);
+                module.imports.push(importStatement.importedPath);
+                let types = this.libraryModuleManager.typestore.getTypesMatchingImportPath(importStatement.importedPath, module, importStatement.pathRanges);
                 if (types.length == 0) {
                     this.pushError(JCM.importedTypesNotFound(importStatement.importedPath.join(".")), importStatement.range, module, "error");
                 } else {
@@ -162,12 +172,13 @@ export class TypeResolver {
                 resolvedType.staticType.isMainClass = true;
             }
 
-            if (klassNode.identifier != "") {
+
+            if (klassNode.parent?.kind != TokenType.global) {
+                declarationNodesWithClassParent.push(klassNode);
+            } else if (klassNode.identifier != "") {
                 this.moduleManager.typestore.addType(resolvedType);
                 module.types.push(klassNode.resolvedType);
             }
-
-            if (klassNode.parent?.kind != TokenType.global) declarationNodesWithClassParent.push(klassNode);
 
             module.compiledSymbolsUsageTracker.registerUsagePosition(resolvedType, module.file, klassNode.identifierRange);
 
@@ -428,7 +439,7 @@ export class TypeResolver {
 
 
     findPrimaryTypeByIdentifier(typeNode: ASTBaseTypeNode, module: JavaBaseModule): JavaType | undefined {
-        let identifer = typeNode.identifiers[0].identifier;
+        let identifier = typeNode.identifiers[0].identifier;
 
         let type: JavaType | undefined;
 
@@ -441,7 +452,7 @@ export class TypeResolver {
                 let methodDeclarationNode: ASTMethodDeclarationNode = <any>parentTypeScope;
                 for (let gpType of methodDeclarationNode.genericParameterDeclarations) {
                     let gp = gpType.resolvedType;
-                    if (gp && gp.identifier == identifer) return gp;
+                    if (gp && gp.identifier == identifier) return gp;
                 }
                 parentTypeScope = methodDeclarationNode.parentTypeScope;
             }
@@ -451,10 +462,11 @@ export class TypeResolver {
                 let classOrInterfaceNode: ASTClassDefinitionNode | ASTInterfaceDefinitionNode = <any>parentTypeScope;
                 for (let gpType of classOrInterfaceNode.genericParameterDeclarations) {
                     let gp = gpType.resolvedType;
-                    if (gp && gp.identifier == identifer) return gp;
+                    if (gp && gp.identifier == identifier) return gp;
                 }
+
                 for (let innerclass of classOrInterfaceNode.innerTypes) {
-                    if (innerclass.identifier == identifer && innerclass.resolvedType) {
+                    if (innerclass.identifier == identifier && innerclass.resolvedType) {
                         type = innerclass.resolvedType;
                     }
                 }
@@ -477,20 +489,27 @@ export class TypeResolver {
 
         }
 
-        if (module instanceof JavaCompiledModule) {
-            type = module.importedTypes.get(identifer);
+        if (!type && module instanceof JavaCompiledModule) {
+            type = module.importedTypes.get(identifier);
         }
+
+        if(!type){
+            type = this.globallyImportedTypesMap.get(identifier);
+        }
+
+        if (type){
+            module.registerTypeUsage(type, typeNode.range);
+            return type;
+        } 
 
         let typeWithNextIdentifierIndex: { type: JavaType, nextIndex: number } | undefined;
 
-        if (!type) {
-            typeWithNextIdentifierIndex = this.moduleManager.typestore.getFirstTypeWhichisNoPackage(typeNode.identifiers);
-            if (!typeWithNextIdentifierIndex) {
-                typeWithNextIdentifierIndex = this.libraryModuleManager.typestore.getFirstTypeWhichisNoPackage(typeNode.identifiers);
-            }
-            if (typeWithNextIdentifierIndex) {
-                type = typeWithNextIdentifierIndex.type;
-            }
+        typeWithNextIdentifierIndex = this.moduleManager.typestore.getFirstTypeWhichisNoPackage(typeNode.identifiers, module);
+        if (!typeWithNextIdentifierIndex) {
+            typeWithNextIdentifierIndex = this.libraryModuleManager.typestore.getFirstTypeWhichisNoPackage(typeNode.identifiers, module);
+        }
+        if (typeWithNextIdentifierIndex) {
+            type = typeWithNextIdentifierIndex.type;
         }
 
         let i = typeWithNextIdentifierIndex ? typeWithNextIdentifierIndex.nextIndex : 1;
@@ -508,8 +527,8 @@ export class TypeResolver {
                     this.pushError(JCM.typeNotDefined(id.identifier), typeNode.range, module);
                     return undefined;
                 }
-            } else if(type instanceof JavaPackage){
-                let innerType = type.children.find(it => it.identifier == id.identifier) as JavaType;
+            } else if (type instanceof JavaPackage) {
+                let innerType = type.childrenList.find(it => it.identifier == id.identifier) as JavaType;
                 if (innerType) {
                     module.registerTypeUsage(innerType, id.identifierRange);
                     type = innerType;
@@ -522,7 +541,7 @@ export class TypeResolver {
         }
 
         if (!type) {
-            this.pushError(JCM.typeNotDefined(identifer), typeNode.range, module);
+            this.pushError(JCM.typeNotDefined(identifier), typeNode.range, module);
         }
 
         return type;

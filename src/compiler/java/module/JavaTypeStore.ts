@@ -1,4 +1,5 @@
 import { KlassObjectRegistry } from "../../common/interpreter/StepFunction";
+import type { IRange } from "../../common/range/Range";
 import { JCM } from "../language/JavaCompilerMessages";
 import type { ASTImportStatementNode, ASTNodeWithIdentifier } from "../parser/AST";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
@@ -9,14 +10,10 @@ import { JavaPackage } from "../types/JavaPackage";
 import { JavaType } from "../types/JavaType";
 import { NonPrimitiveType } from "../types/NonPrimitiveType";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType";
+import type { JavaBaseModule } from "./JavaBaseModule";
 import { JavaCompiledModule } from "./JavaCompiledModule";
 import * as monaco from 'monaco-editor'
 
-
-type TypeNode = {
-    type?: JavaType;
-    children?: Map<string, TypeNode>;
-};
 
 export class JavaTypeStore {
 
@@ -25,7 +22,7 @@ export class JavaTypeStore {
      * Type java.lang.A is stored in typeMap.get("java").children.get("lang").children.get("A").type
      */
 
-    private typeMap: TypeNode = { children: new Map() };
+    private typeMap: Map<string, JavaType> = new Map();
     private mainClasses: JavaClass[] = [];
 
     constructor() {
@@ -43,30 +40,36 @@ export class JavaTypeStore {
     // }
 
     empty() {
-        this.typeMap = { children: new Map() };
+        this.typeMap = new Map();
         this.mainClasses = [];
     }
 
     addType(type: JavaType) {
         if (type instanceof NonPrimitiveType) {
             let typeMap = this.typeMap;
+            let currentPackage: JavaPackage | undefined = undefined;
+
             let pathParts = type.pathAndIdentifierAsArray;
             for (let i = 0; i < pathParts.length; i++) {
                 let part = pathParts[i];
-                let childTypeMap = typeMap.children.get(part);
-                if (!childTypeMap) {
-                    childTypeMap = { children: new Map() }
-                    typeMap.children.set(part, childTypeMap);
-                    if(i < pathParts.length - 1) {
-                        childTypeMap.type = new JavaPackage(part, type.identifierRange, type.module, typeMap.type as JavaPackage | undefined);
+
+                if (i < pathParts.length - 1) {
+                    let package1 = typeMap.get(part);
+                    if (!package1) {
+                        package1 = new JavaPackage(part, type.identifierRange, type.module, currentPackage);
+                        typeMap.set(part, package1);
                     }
+                    currentPackage = package1 as JavaPackage;
+                    typeMap = currentPackage.childrenMap;
+                } else {
+                    if(currentPackage) currentPackage.childrenList.push(type);
+                    typeMap.set(part, type);
                 }
-                typeMap = childTypeMap;
+
             }
-            typeMap.type = type;
             if (type.isMainClass) this.mainClasses.push(<JavaClass>type);
         } else {
-            this.typeMap.children.set(type.identifier, { type: type, children: new Map() });
+            this.typeMap.set(type.identifier, type);
         }
     }
 
@@ -75,142 +78,223 @@ export class JavaTypeStore {
     }
 
     getType(pathWithIdentifier: string | string[]): JavaType | undefined {
-        if (Array.isArray(pathWithIdentifier)) {
-            let typeMap = this.typeMap;
-            for (let i = 0; i < pathWithIdentifier.length; i++) {
-                let part = pathWithIdentifier[i];
-                typeMap = typeMap.children.get(part);
-                if (!typeMap) return undefined;
-            }
-            return typeMap.type;
-        } else {
-            let parts = pathWithIdentifier.split(".");
-            return this.getType(parts);
+        if (!Array.isArray(pathWithIdentifier)) {
+            pathWithIdentifier = pathWithIdentifier.split(".");
         }
+
+        if (pathWithIdentifier.length == 0) return undefined;
+
+        let type: JavaType | undefined = this.typeMap.get(pathWithIdentifier[0]);
+        if (!type) return undefined;
+
+        for (let i = 1; i < pathWithIdentifier.length; i++) {
+            let part = pathWithIdentifier[i];
+            type = type.getChildTypeByIdentifier(part);
+            if (!type) return undefined;
+        }
+        return type;
 
     }
 
-    getFirstTypeWhichisNoPackage(pathWithIdentifier: ASTNodeWithIdentifier[]):  { type: JavaType, nextIndex: number } | undefined {
+    getFirstTypeWhichisNoPackage(pathWithIdentifier: ASTNodeWithIdentifier[], module: JavaBaseModule): { type: JavaType, nextIndex: number } | undefined {
         let typeMap = this.typeMap;
         for (let i = 0; i < pathWithIdentifier.length; i++) {
             let part = pathWithIdentifier[i];
-            typeMap = typeMap.children.get(part.identifier);
-            if (!typeMap) return undefined;
-            if (typeMap.type) return { type: typeMap.type, nextIndex: i + 1 };
+            let packageOrType = typeMap.get(part.identifier);
+            if (!packageOrType) return undefined;
+            if (packageOrType instanceof JavaPackage) {
+                typeMap = packageOrType.childrenMap;
+                module.registerTypeUsage(packageOrType, part.identifierRange);
+            } else {
+                return { type: packageOrType, nextIndex: i + 1 };
+            }
         }
         return undefined;
     }
 
-    getTypesMatchingImportPath(importPath: ASTImportStatementNode, module: JavaCompiledModule): JavaType[] {
+    getTypesMatchingImportPath(importedPath: string[], module: JavaCompiledModule = undefined, pathRanges: IRange[] = undefined): JavaType[] {
         let typeMap = this.typeMap;
-        for (let i = 0; i < importPath.importedPath.length - 1; i++) {
-            let part = importPath.importedPath[i];
-            typeMap = typeMap.children.get(part);
-            if (!typeMap) return [];
-            if(typeMap.type){
-                module.registerTypeUsage(typeMap.type, importPath.pathRanges[i]);
+        let packageOrType: JavaType | undefined = undefined;
+        for (let i = 0; i < importedPath.length - 1; i++) {
+            let part = importedPath[i];
+            packageOrType = typeMap.get(part);
+            if (!packageOrType) return [];
+            if(pathRanges) module.registerTypeUsage(packageOrType, pathRanges[i]);
+            if (packageOrType instanceof JavaPackage) {
+                typeMap = packageOrType.childrenMap;
+            } else {
+                return [];
             }
         }
 
-        let lastPart = importPath.importedPath[importPath.importedPath.length - 1];
-        if(lastPart == "*") {
-            let types: JavaType[] = [];
-            typeMap.children.forEach((childTypeNode, key) => {
-                if (childTypeNode.type) types.push(childTypeNode.type);
-            })
-            return types;
+        let lastPart = importedPath[importedPath.length - 1];
+        if (lastPart == "*") {
+            return packageOrType instanceof JavaPackage ? packageOrType.childrenList.filter(c => !(c instanceof JavaPackage)) : [];
         }
 
-        let type = typeMap.children.get(lastPart)?.type;
-        if(!type) return [];
+        let type = typeMap.get(lastPart);
+        if (!type) return [];
 
-        module.registerTypeUsage(type, importPath.pathRanges[importPath.pathRanges.length - 1]);
+        if(pathRanges) module.registerTypeUsage(type, pathRanges[pathRanges.length - 1]);
 
         return [type];
     }
 
     populateClassObjectRegistry(klassObjectRegistry: KlassObjectRegistry) {
-        this.populateClassObjectRegistryRecursive(this.typeMap, klassObjectRegistry);
+        this.typeMap.forEach((value, key) => {
+            this.populateClassObjectRegistryRecursive(value, klassObjectRegistry);
+        });
     }
 
-    private populateClassObjectRegistryRecursive(typeNode: TypeNode, klassObjectRegistry: KlassObjectRegistry) {
-        if (typeNode.type instanceof NonPrimitiveType && typeNode.type.runtimeClass) {
-            klassObjectRegistry[typeNode.type.pathAndIdentifierAsDotSeparatedString] = typeNode.type.runtimeClass;
-        }
-        if (typeNode.children) {
-            typeNode.children.forEach((childTypeNode, key) => {
-                this.populateClassObjectRegistryRecursive(childTypeNode, klassObjectRegistry);
-            })
+    private populateClassObjectRegistryRecursive(type: JavaType, klassObjectRegistry: KlassObjectRegistry) {
+        if (type instanceof JavaPackage) {
+            type.childrenList.forEach(childType => {
+                this.populateClassObjectRegistryRecursive(childType, klassObjectRegistry);
+            });
+        } else if (type instanceof NonPrimitiveType && type.runtimeClass) {
+            klassObjectRegistry[type.pathAndIdentifierAsDotSeparatedString] = type.runtimeClass;
+            type.innerTypes.forEach(innerType => {
+                this.populateClassObjectRegistryRecursive(innerType, klassObjectRegistry);
+            });
         }
     }
 
 
     initFastExtendsImplementsLookup() {
-        this.initFastExtendsImplementsLookupRecursive(this.typeMap);
+        this.typeMap.forEach((value, key) => {
+            this.initFastExtendsImplementsLookupRecursive(value);
+        });
     }
 
-    private initFastExtendsImplementsLookupRecursive(typeNode: TypeNode) {
-        if (typeNode.type) {
-            typeNode.type.registerExtendsImplementsOnAncestors();
-        }
-        if (typeNode.children) {
-            typeNode.children.forEach((childTypeNode, key) => {
-                this.initFastExtendsImplementsLookupRecursive(childTypeNode);
-            })
+    private initFastExtendsImplementsLookupRecursive(type: JavaType) {
+        if (type instanceof NonPrimitiveType) {
+            type.registerExtendsImplementsOnAncestors();
+        } else if (type instanceof JavaPackage) {
+            type.childrenList.forEach(childType => {
+                this.initFastExtendsImplementsLookupRecursive(childType);
+            });
         }
     }
 
     getClasses(): JavaClass[] {
         let classes: JavaClass[] = [];
 
-        this.getClassesRecursive(this.typeMap, classes);
+        this.typeMap.forEach((value, key) => {
+            this.getClassesRecursive(value, classes);
+        });
+
         return classes;
     }
 
-    private getClassesRecursive(typeNode: TypeNode, classes: JavaClass[]) {
-        if (typeNode.type instanceof JavaClass) {
-            classes.push(typeNode.type);
+    private getClassesRecursive(type: JavaType, classes: JavaClass[]) {
+        if (type instanceof JavaClass) {
+            classes.push(type);
         }
-        if (typeNode.children) {
-            typeNode.children.forEach((childTypeNode, key) => {
-                this.getClassesRecursive(childTypeNode, classes);
-            })
+        if (type instanceof JavaPackage) {
+            type.childrenList.forEach(childType => {
+                this.getClassesRecursive(childType, classes);
+            });
         }
     }
 
     getNonPrimitiveTypes(): NonPrimitiveType[] {
         let npts: NonPrimitiveType[] = [];
 
-        this.getNonPrimitiveTypesRecursive(this.typeMap, npts);
+        this.typeMap.forEach((value, key) => {
+
+            this.getNonPrimitiveTypesRecursive(value, npts);
+        });
+
         return npts;
     }
 
-    private getNonPrimitiveTypesRecursive(typeNode: TypeNode, npts: NonPrimitiveType[]) {
-        if (typeNode.type instanceof NonPrimitiveType) {
-            npts.push(typeNode.type);
-        }
-        if (typeNode.children) {
-            typeNode.children.forEach((childTypeNode, key) => {
-                this.getNonPrimitiveTypesRecursive(childTypeNode, npts);
-            })
+
+    private getNonPrimitiveTypesRecursive(type: JavaType, npts: NonPrimitiveType[]) {
+        if (type instanceof JavaPackage) {
+            type.childrenList.forEach(childType => {
+                this.getNonPrimitiveTypesRecursive(childType, npts);
+            });
+        } else if (type instanceof NonPrimitiveType) {
+            npts.push(type);
         }
     }
 
+    private getAllTypes(): JavaType[] {
+        let types: JavaType[] = [];
+        this.typeMap.forEach((value, key) => {
+            this.getAllTypesRecursive(value, types);
+        }
+        );
+        return types;
+    }
+
+    private getAllTypesRecursive(type: JavaType, types: JavaType[]) {
+        types.push(type);
+        if (type instanceof NonPrimitiveType) {
+            type.innerTypes.forEach(innerType => {
+                this.getAllTypesRecursive(innerType, types);
+            });
+        } else if (type instanceof JavaPackage) {
+            type.childrenList.forEach(childType => {
+                this.getAllTypesRecursive(childType, types);
+            });
+        } 
+    }
+
+
+
+
     getTypeCompletionItems(classContext: NonPrimitiveType | StaticNonPrimitiveType | undefined, rangeToReplace: monaco.IRange,
-        afterNew: boolean, withPrimitiveTypes: boolean): monaco.languages.CompletionItem[] {
+        afterNew: boolean, withPrimitiveTypes: boolean, imports: string[][] ): monaco.languages.CompletionItem[] {
 
         let completionItems: monaco.languages.CompletionItem[] = [];
 
-        this.getTypeCompletionItemsRecursive(this.typeMap, classContext, rangeToReplace, afterNew, withPrimitiveTypes, completionItems);
-        return completionItems;
-    }
+        this.getAllTypes().forEach((type, identifier) => {
 
-    private getTypeCompletionItemsRecursive(typeNode: TypeNode, classContext: NonPrimitiveType | StaticNonPrimitiveType | undefined, rangeToReplace: monaco.IRange,
-        afterNew: boolean, withPrimitiveTypes: boolean, completionItems: monaco.languages.CompletionItem[]) {
+            let path = type.getPath();
+            let visible = false;
+            if(path.length == 1){
+                visible = true;
+            } else {
+                for(let importPath of imports){
+                    if(importPath.length == path.length){   
+                        let allMatch = true;
+                        for(let i = 0; i < path.length; i++){
+                            if(importPath[i] == '*'){
+                                break;
+                            } else if(importPath[i] != path[i]){
+                                allMatch = false;
+                                break;
+                            }
+                        }
+                        if(allMatch){
+                            visible = true;
+                            break;
+                        }
+                    }
+                }
+            }
 
-        if (typeNode.type) {
-            const type = typeNode.type;
-            if (type instanceof PrimitiveType || type.identifier == "null") {
+            if(!visible) return;
+
+            if (type instanceof JavaPackage) {
+
+                completionItems.push({
+                    label: type.identifier,
+                    detail: type.getCompletionItemDetail(),
+                    insertText: type.identifier + ".",
+                    documentation: type.getDocumentation(),
+                    kind: monaco.languages.CompletionItemKind.Module,
+                    range: rangeToReplace,
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    command: {
+                        id: "editor.action.triggerSuggest",
+                        title: '123',
+                        arguments: []
+                    }
+                })
+
+            } else if (type instanceof PrimitiveType || type.identifier == "null") {
 
                 if (!withPrimitiveTypes) return;
 
@@ -221,12 +305,7 @@ export class JavaTypeStore {
                     documentation: type.getDocumentation(),
                     kind: monaco.languages.CompletionItemKind.Struct,
                     range: rangeToReplace,
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    command: {
-                        id: "editor.action.triggerParameterHints",
-                        title: '123',
-                        arguments: []
-                    }
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.None,
                 })
             } else {
                 let npt = <NonPrimitiveType>type;
@@ -251,7 +330,7 @@ export class JavaTypeStore {
                 completionItems.push({
                     label: type.identifier,
                     detail: type.getCompletionItemDetail() + (isGeneric ? "(" + JCM.genericType() + ")" : ""),
-                    insertText: npt.pathAndIdentifierAsDotSeparatedString + suffix,
+                    insertText: npt.identifier + suffix,
                     documentation: type.getDocumentation(),
                     kind: kind,
                     range: rangeToReplace,
@@ -264,12 +343,10 @@ export class JavaTypeStore {
                 })
 
             }
-        }
-        if (typeNode.children) {
-            typeNode.children.forEach((childTypeNode, key) => {
-                this.getTypeCompletionItemsRecursive(childTypeNode, classContext, rangeToReplace, afterNew, withPrimitiveTypes, completionItems);
-            })
-        }
+        })
+
+        return completionItems;
+
     }
 
 

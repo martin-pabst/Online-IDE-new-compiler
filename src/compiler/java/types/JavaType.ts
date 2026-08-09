@@ -53,5 +53,12 @@ export abstract class JavaType extends BaseType {
      */
     abstract getAbsoluteName(): string;
 
+    getChildTypeByIdentifier(identifier: string): JavaType | undefined {
+        return undefined;
+    }
+
+    getPath(): string[] {
+        return [this.identifier];
+    }
 
 }

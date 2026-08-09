@@ -76,19 +76,22 @@ export class LibraryDeclarationParser extends LibraryDeclarationLexer {
             path.push(this.cct.value);
             this.nextToken();
         } while(this.comesToken(TokenType.dot, true));
+        
+        let hasParent: boolean = path.length > 1;
 
+        
         let packageAsDotSeparatedString: string | undefined = javaClassDeclaration?.package; // e.g. "java.lang" 
         if(packageAsDotSeparatedString){
             path = packageAsDotSeparatedString.split(".").concat(path);
         }
-
+        
+        let parentPath = hasParent ? path.slice(0, -1).join(".") : undefined;
 
         let pathAndIdentifier = path.join(".");
         let identifier: string = path[path.length - 1] || "";
 
         this.currentClassIdentifier = identifier;
 
-        let parentPath = path.length > 0 ? path.join(".") : undefined;
 
         let npt: NonPrimitiveType;
 

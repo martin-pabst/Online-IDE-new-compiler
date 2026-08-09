@@ -416,6 +416,12 @@ export class JCM {
      * Error messages in class TermCodeGenerator
      */
 
+    static packageCannotBeUsedAsType = (packageName: string) => le({
+        "de": `Der Name ${packageName} ist ein Package-Name und kann daher nicht als Datentyp verwendet werden. Wahrscheinlich sollte nach dem Package-Namen noch ein Punkt und danach der Name einer Klasse stehen.`,
+        "en": `Package name ${packageName} can't be used as type. Probably you forgot to write a dot and the name of a class after the package name.`,
+        "fr": `Le nom de package ${packageName} ne peut pas être utilisé comme type. Vous avez probablement oublié d'écrire un point et le nom d'une classe après le nom du package.`,
+    })
+
     static voidTypeNotAllowedAsParameterType = (methodIdentifier: string) => le({
         "de": `Der Datentyp void ist nicht als Typ eines Parameters der Methode ${methodIdentifier} erlaubt.`,
         "en": `Void type is not allowed as parameter type of method ${methodIdentifier}.`,

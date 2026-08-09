@@ -210,7 +210,7 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
     createClassField(classType: NonPrimitiveType): JavaField {
         const cf = new JavaField("class", EmptyRange.instance, this.module, this, TokenType.keywordPublic);
         cf._isStatic = true;
-        cf.template = "§1.type.getClassObject()";    
+        cf.template = "§1.type.getClassObject()";
         cf.classEnum = <any>this;
         cf.documentation = JRC.classFieldComment;
         cf.hiddenWhenDebugging = true;
@@ -221,11 +221,19 @@ export abstract class NonPrimitiveType extends JavaType implements BaseObjectTyp
     }
 
     getArraySnippetEnding(dimension: number): string {
-        let snippetEnding: string = ""; 
+        let snippetEnding: string = "";
         for (let i = 0; i < dimension; i++) {
             snippetEnding += "[$" + i + "]";
         }
         return snippetEnding;
+    }
+
+    getChildTypeByIdentifier(identifier: string): JavaType | undefined {
+        return this.innerTypes.find(t => t.identifier == identifier);
+    }
+
+    getPath(): string[] {
+        return this.pathAndIdentifierAsArray;
     }
 
 } 

@@ -17,6 +17,7 @@ import * as monaco from 'monaco-editor'
 import { JavaSignatureHelpProvider } from "./JavaSignatureHelpProvider.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule.ts";
 import { HoverMessages } from "../language/HoverMessages.ts";
+import { JavaPackage } from "../types/JavaPackage.ts";
 
 
 export class JavaHoverProvider extends BaseMonacoProvider {
@@ -162,6 +163,14 @@ export class JavaHoverProvider extends BaseMonacoProvider {
                 range = usagePosition.range;
                 contents.push({ value: declarationAsString3 });
 
+            } else if(symbol instanceof JavaPackage) {
+                // Package
+                let declarationAsString4 = "```\n" + symbol.getDeclaration() + "\n```"
+                if (symbol.documentation) {
+                    declarationAsString4 += "\n" + this.formatDocumentation(symbol.getDocumentation());
+                }
+                range = usagePosition.range;
+                contents.push({ value: declarationAsString4 });
             }
         } else {
             let word = this.getWordUnderCursor(model, position);

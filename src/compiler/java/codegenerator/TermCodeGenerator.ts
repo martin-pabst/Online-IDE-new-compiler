@@ -35,6 +35,7 @@ import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
 import { ThisType } from "../types/ThisType.ts";
 import { SettingsStore } from "../../../client/settings/SettingsStore.ts";
 import { param } from "jquery";
+import { JavaPackage } from "../types/JavaPackage.ts";
 
 export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
@@ -761,12 +762,19 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
 
-        if (type != null && type instanceof NonPrimitiveType) {
+        if(type != null){
+            if (type instanceof NonPrimitiveType) {
+    
+                this.registerUsagePosition(type, node.range);
+    
+                let staticType = type.staticType;
+                return new StringCodeSnippet(`${Helpers.classes}["${type.identifier}"]`, node.range, staticType);
+            } else if (type instanceof JavaPackage){
+                this.module.addTypePosition(Range.getEndPosition(node.range), type);
+                this.pushError(JCM.packageCannotBeUsedAsType(type.identifier), "error", node);
+                return undefined;
+            }
 
-            this.registerUsagePosition(type, node.range);
-
-            let staticType = type.staticType;
-            return new StringCodeSnippet(`${Helpers.classes}["${type.identifier}"]`, node.range, staticType);
         }
 
         // // does method in inner class access field of outer class?

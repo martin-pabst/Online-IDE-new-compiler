@@ -3,6 +3,7 @@ import { SystemModule } from "../../runtime/system/SystemModule";
 import { TokenType } from "../../TokenType.ts";
 import { GenericTypeParameter } from "../../types/GenericTypeParameter";
 import { JavaType } from "../../types/JavaType";
+import type { JavaCompiledModule } from "../JavaCompiledModule.ts";
 import { JavaTypeStore } from "../JavaTypeStore";
 import { JavaLibraryModule } from "./JavaLibraryModule";
 import { LibraryDeclarationParser } from "./LibraryDeclarationParser";
@@ -49,7 +50,7 @@ export class JavaLibraryModuleManager {
         for(let module of this.libraryModules){
             for (let klass of module.classesInterfacesEnums) {
                 let npt = ldp.parseClassOrEnumOrInterfaceDeclarationWithoutGenerics(klass, module);
-                if(npt.visibility != TokenType.keywordPrivate){
+                if(npt.visibility != TokenType.keywordPrivate && !npt.outerType){
                     this.typestore.addType(npt);
                 }
                 this.javaTypes.push(npt);
@@ -88,9 +89,17 @@ export class JavaLibraryModuleManager {
         }
     }
 
-    getTypeCompletionItems(rangeToReplace: monaco.IRange): monaco.languages.CompletionItem[] {
-        return this.typestore.getTypeCompletionItems(undefined, rangeToReplace, false, true);
+    getTypeCompletionItems(module: JavaCompiledModule, rangeToReplace: monaco.IRange): monaco.languages.CompletionItem[] {
+        return this.typestore.getTypeCompletionItems(undefined, rangeToReplace, false, true, this.getImports(module));
     }
 
+    getImports(module: JavaCompiledModule): string[][] {
+        let standardImports: string[][] = [];
+        for(let module of this.libraryModules){
+            standardImports.push(...module.getStandardImports());
+        }
+        standardImports.push(...module.imports);
+        return standardImports;
+    }
 
 }

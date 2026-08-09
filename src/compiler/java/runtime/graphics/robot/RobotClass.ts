@@ -28,7 +28,7 @@ export class RobotClass extends ObjectClass {
         { type: "method", signature: "Robot(int startX, int startY, int worldX, int worldY)", java: RobotClass.prototype._jc$_constructor_$Robot$int$int$int$int, comment: JRC.robotConstructorStartXStartYWorldXWorldY },
         { type: "method", signature: "Robot(int startX, int startY, string initialWorld)", java: RobotClass.prototype._jc$_constructor_$Robot$int$int$string, comment: JRC.robotConstructorStartXStartYinitialWorld },
 
-        { type: "method", signature: "RobotWorld getWelt()", native: RobotClass.prototype._getWelt, comment: JRC.robotGetWelt },
+        { type: "method", signature: "robot.RobotWorld getWelt()", native: RobotClass.prototype._getWelt, comment: JRC.robotGetWelt },
         { type: "method", signature: "void rechtsDrehen()", native: RobotClass.prototype._rechtsDrehen, comment: JRC.robotRechtsDrehen },
         { type: "method", signature: "void linksDrehen()", native: RobotClass.prototype._linksDrehen, comment: JRC.robotLinksDrehen },
         { type: "method", signature: "void schritt()", native: RobotClass.prototype._schritt, comment: JRC.robotSchritt },

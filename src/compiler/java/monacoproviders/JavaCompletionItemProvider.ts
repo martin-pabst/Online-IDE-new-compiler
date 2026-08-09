@@ -15,6 +15,7 @@ import { IJavaClass, JavaClass } from "../types/JavaClass";
 import { JavaEnum } from "../types/JavaEnum.ts";
 import { IJavaInterface } from "../types/JavaInterface";
 import { JavaMethod } from "../types/JavaMethod";
+import { JavaPackage } from "../types/JavaPackage.ts";
 import { NonPrimitiveType } from "../types/NonPrimitiveType";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType";
 import { getVisibilityUpTo } from "../types/VisibilityTools";
@@ -83,7 +84,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
                     endColumn: position.column
                 }
             }
-            return this.getCompletionItemsAfterNew(main, classContext instanceof NonPrimitiveType ? classContext : undefined, rangeToReplace);
+            return this.getCompletionItemsAfterNew(main, classContext instanceof NonPrimitiveType ? classContext : undefined, rangeToReplace, module);
         }
 
         if (context.triggerCharacter == " ") {
@@ -186,13 +187,15 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
     }
 
-    getCompletionItemsAfterNew(main: IMain, classContext: NonPrimitiveType | undefined, range: IRange): monaco.languages.ProviderResult<monaco.languages.CompletionList> {
+    getCompletionItemsAfterNew(main: IMain, classContext: NonPrimitiveType | undefined, range: IRange, module: JavaCompiledModule): monaco.languages.ProviderResult<monaco.languages.CompletionList> {
         let completionItems: monaco.languages.CompletionItem[] = [];
 
         let compiler = <JavaCompiler>main.getCompiler();
 
-        completionItems = completionItems.concat(compiler.libraryModuleManager.typestore.getTypeCompletionItems(classContext, range, true, false));
-        completionItems = completionItems.concat(compiler.moduleManager.typestore.getTypeCompletionItems(classContext, range, true, false));
+        let imports = compiler.libraryModuleManager.getImports(module);
+
+        completionItems = completionItems.concat(compiler.libraryModuleManager.typestore.getTypeCompletionItems(classContext, range, true, false, imports));
+        completionItems = completionItems.concat(compiler.moduleManager.typestore.getTypeCompletionItems(classContext, range, true, false, imports));
 
         this.upvoteItemsWithSameFirstCharacterCasing(completionItems, "A");
 
@@ -307,7 +310,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
 
         let compiler = <JavaCompiler>main.getCompiler();
 
-        completionItems = completionItems.concat(compiler.libraryModuleManager.getTypeCompletionItems(rangeToReplace));
+        completionItems = completionItems.concat(compiler.libraryModuleManager.getTypeCompletionItems(module, rangeToReplace));
         completionItems = completionItems.concat(compiler.moduleManager.getTypeCompletionItems(module, rangeToReplace, classContext));
 
         let methodContext = symbolTable?.methodContext;
@@ -578,9 +581,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
                 suggestions: this.deleteDoublesWithIdenticalInsertText(type.getCompletionItems(visibilityUpTo, leftBracketAlreadyThere,
                     identifierAndBracketAfterCursor, rangeToReplace, undefined))
             });
-        }
-
-        if (type instanceof IJavaInterface || type instanceof GenericTypeParameter) {
+        } else if (type instanceof IJavaInterface || type instanceof GenericTypeParameter) {
             let items = type.getCompletionItems(TokenType.keywordPublic, leftBracketAlreadyThere,
                 identifierAndBracketAfterCursor, rangeToReplace, undefined);
 
@@ -594,9 +595,7 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
             return Promise.resolve({
                 suggestions: items
             });
-        }
-
-        if (type instanceof JavaArrayType) {
+        } else if (type instanceof JavaArrayType) {
             return Promise.resolve({
                 suggestions: [
                     {
@@ -610,6 +609,13 @@ export class JavaCompletionItemProvider extends BaseMonacoProvider implements mo
                         }
                     }
                 ]
+            });
+        } else if (type instanceof JavaPackage) {
+            let items = type.getCompletionItems(TokenType.keywordPublic, leftBracketAlreadyThere,
+                identifierAndBracketAfterCursor, rangeToReplace, undefined);
+
+            return Promise.resolve({
+                suggestions: items
             });
         }
 

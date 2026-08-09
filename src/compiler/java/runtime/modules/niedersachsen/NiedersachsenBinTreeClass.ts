@@ -11,7 +11,7 @@ import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
 export class NiedersachsenBinTreeClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class BinTree", comment: NiedersachsenLang.binTreeClassComment },
+        { type: "declaration", package: "nds", signature: "class BinTree", comment: NiedersachsenLang.binTreeClassComment },
 
         { type: "method", signature: "BinTree()", native: NiedersachsenBinTreeClass.prototype._constructor, comment: NiedersachsenLang.binTreeConstructorComment },
         { type: "method", signature: "BinTree(Object o)", native: NiedersachsenBinTreeClass.prototype._constructor1, comment: NiedersachsenLang.binTreeConstructorWithContentComment },

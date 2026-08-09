@@ -139,7 +139,7 @@ export class JavaModuleManager extends ModuleManager {
     }
 
     getTypeCompletionItems(module: JavaCompiledModule, rangeToReplace: monaco.IRange, classContext: NonPrimitiveType | StaticNonPrimitiveType| undefined): monaco.languages.CompletionItem[] {
-        return this.typestore.getTypeCompletionItems(classContext, rangeToReplace, false, false);
+        return this.typestore.getTypeCompletionItems(classContext, rangeToReplace, false, false, module.imports);
     }
 
     correctUsagePositionsOfAbstractAndInterfaceMethods(){

@@ -342,7 +342,8 @@ export class JavaFormatter extends BaseMonacoProvider
                 let lowerGeneric = t.tt == TokenType.lower && this.lowerBelongsToGenericExpression(i, tokenlist);
                 let greaterGeneric = t.tt == TokenType.greater && this.greaterBelongsToGenericExpression(i, tokenlist);
 
-                if (lastTokenWasNewLine <= 0 && lastNonSpaceToken != null && [TokenType.leftBracket, TokenType.assignment, TokenType.comma].indexOf(lastNonSpaceToken.tt) < 0) {
+                if (lastTokenWasNewLine <= 0 && lastNonSpaceToken != null 
+                    && [TokenType.leftBracket, TokenType.assignment, TokenType.comma, TokenType.dot].indexOf(lastNonSpaceToken.tt) < 0) {
 
                     if (i > 0) {
                         let tokenBefore = tokenlist[i - 1];

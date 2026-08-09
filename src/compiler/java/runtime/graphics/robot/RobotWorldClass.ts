@@ -14,7 +14,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 export class RobotWorldClass extends ObjectClass {
 
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class RobotWorld extends Object", comment: JRC.robotWorldClassComment },
+        { type: "declaration", package: "robot", signature: "class RobotWorld extends Object", comment: JRC.robotWorldClassComment },
         { type: "method", signature: "RobotWorld(int worldX, int worldY)", java: RobotWorldClass.prototype._cj$_constructor_$RobotWorld$int$int, comment: JRC.robotWorldConstructorWorldXWorldY },
         { type: "method", signature: "RobotWorld(string initialeWelt)", java: RobotWorldClass.prototype._cj$_constructor_$RobotWorld$int$int, comment: JRC.robotWorldConstructorInitialWorld },
         { type: "method", signature: "void setzeMaximalhöhe(int hoehe)", native: RobotWorldClass.prototype._setzeMaximalhoehe, comment: JRC.robotWorldSetzeMaximalHoehe},

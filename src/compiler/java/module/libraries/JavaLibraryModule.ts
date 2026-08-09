@@ -15,14 +15,19 @@ export type JavaTypeMap = { [identifier: string]: JavaType };
 
 export abstract class JavaLibraryModule extends JavaBaseModule {
     
-    prepareSystemModule(systemModule: SystemModule) {
-    }
-
+    
     classesInterfacesEnums: (Klass & LibraryKlassType)[] = [];
-
+    
     constructor() {
         super(new CompilerFile("Library file"), true);
         this.setDirty(false);
+    }
+
+    getStandardImports(): string[][] {
+        return [];
+    }
+
+    prepareSystemModule(systemModule: SystemModule) {
     }
 
     getName(klass: Klass & LibraryKlassType): string {
