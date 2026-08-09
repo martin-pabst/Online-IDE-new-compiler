@@ -291,6 +291,12 @@ export class SystemModule extends JavaLibraryModule {
 
     }
 
+    getStandardImports(): string[][] {
+        return [
+            ["robot", "*"]
+        ];
+    }
+
     getMainProgram(): Program | undefined {
         return undefined;
     }
@@ -302,4 +308,5 @@ export class SystemModule extends JavaLibraryModule {
     getCodeFragments(): CodeFragment[] {
         return [];
     }
+
 }

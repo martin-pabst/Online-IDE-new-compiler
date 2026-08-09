@@ -76,7 +76,7 @@ export class TypeResolver {
     }
 
     registerImportedTypes() {
-        this.libraryModuleManager.libraryModules.forEach(module => {
+        this.libraryModuleManager.getLibraryModulesAndSystemModule().forEach(module => {
             for(let si of module.getStandardImports()){
                 let types = this.libraryModuleManager.typestore.getTypesMatchingImportPath(si);    
                 for(let type of types){

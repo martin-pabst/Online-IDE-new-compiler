@@ -95,11 +95,15 @@ export class JavaLibraryModuleManager {
 
     getImports(module: JavaCompiledModule): string[][] {
         let standardImports: string[][] = [];
-        for(let module of this.libraryModules){
+        for(let module of this.getLibraryModulesAndSystemModule()){
             standardImports.push(...module.getStandardImports());
         }
         standardImports.push(...module.imports);
         return standardImports;
+    }
+
+    getLibraryModulesAndSystemModule(): (JavaLibraryModule | SystemModule)[] {
+        return [...this.libraryModules, this.systemModule];
     }
 
 }
