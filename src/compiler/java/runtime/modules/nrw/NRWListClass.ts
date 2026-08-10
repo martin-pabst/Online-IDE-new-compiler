@@ -20,7 +20,7 @@ class ListNode {
 
 export class NRWListClass extends SystemCollection implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class List<ContentType>", comment: NRWLang.listClassComment },
+        { type: "declaration", package: "nrw", signature: "class List<ContentType>", comment: NRWLang.listClassComment },
 
         { type: "method", signature: "List()", native: NRWListClass.prototype._constructor, comment: NRWLang.listClassConstructorComment },
 

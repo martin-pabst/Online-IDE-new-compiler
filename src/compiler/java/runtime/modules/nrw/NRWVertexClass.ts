@@ -5,7 +5,7 @@ import { NRWLang } from "./NRWLang";
 
 export class NRWVertexClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Vertex", comment: NRWLang.vertexClassComment },
+        { type: "declaration", package: "nrw", signature: "class Vertex", comment: NRWLang.vertexClassComment },
 
         { type: "method", signature: "Vertex(String pID)", native: NRWVertexClass.prototype._constructor1, comment: NRWLang.vertexConstructorComment },
         { type: "method", signature: "String getID()", native: NRWVertexClass.prototype._getID, comment: NRWLang.vertexGetIDComment },

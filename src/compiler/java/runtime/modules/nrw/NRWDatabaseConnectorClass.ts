@@ -22,7 +22,7 @@ import { NRWQueryResultClass } from "./NRWQueryResultClass";
 
 export class NRWDatabaseConnectorClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class DatabaseConnector", comment: NRWLang.databaseConnectorClassComment },
+        { type: "declaration", package: "nrw", signature: "class DatabaseConnector", comment: NRWLang.databaseConnectorClassComment },
 
         { type: "method", signature: "public DatabaseConnector(string code)", java: NRWDatabaseConnectorClass.prototype._cj$_constructor_$DatabaseConnector$string, comment: NRWLang.databaseConnectorConstructorComment},
 

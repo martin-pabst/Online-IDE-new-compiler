@@ -6,7 +6,7 @@ import { NRWVertexClass } from "./NRWVertexClass";
 
 export class NRWEdgeClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Edge", comment: NRWLang.edgeClassComment },
+        { type: "declaration", package: "nrw", signature: "class Edge", comment: NRWLang.edgeClassComment },
 
         { type: "method", signature: "Edge()", native: NRWEdgeClass.prototype._constructor1, comment: NRWLang.edgeConstructorComment },
 

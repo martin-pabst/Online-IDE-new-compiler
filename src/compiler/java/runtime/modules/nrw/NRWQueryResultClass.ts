@@ -5,7 +5,7 @@ import { NRWLang } from "./NRWLang";
 
 export class NRWQueryResultClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class QueryResult", comment: NRWLang.queryResultClassComment },
+        { type: "declaration", package: "nrw", signature: "class QueryResult", comment: NRWLang.queryResultClassComment },
 
         { type: "method", signature: "private QueryResult(string[][] pData, string[] pColumnNames, string[] pColumnTypes)", native: NRWQueryResultClass.prototype._constructor1 },
 

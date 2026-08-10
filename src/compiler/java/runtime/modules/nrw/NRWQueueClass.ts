@@ -19,7 +19,7 @@ class QueueNode {
 
 export class NRWQueueClass extends SystemCollection implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Queue<ContentType>", comment: NRWLang.queueClassComment },
+        { type: "declaration", package: "nrw", signature: "class Queue<ContentType>", comment: NRWLang.queueClassComment },
 
         { type: "method", signature: "Queue()", native: NRWQueueClass.prototype._constructor, comment: NRWLang.queueClassConstructorComment },
 

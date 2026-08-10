@@ -19,7 +19,7 @@ class StackNode {
 
 export class NRWStackClass extends SystemCollection implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Stack<ContentType>", comment: NRWLang.stackClassComment },
+        { type: "declaration", package: "nrw", signature: "class Stack<ContentType>", comment: NRWLang.stackClassComment },
 
         { type: "method", signature: "Stack()", native: NRWStackClass.prototype._constructor, comment: NRWLang.stackClassConstructorComment },
 

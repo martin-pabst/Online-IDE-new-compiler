@@ -8,7 +8,7 @@ import { NRWVertexClass } from "./NRWVertexClass";
 
 export class NRWGraphClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class Graph", comment: NRWLang.graphClassComment },
+        { type: "declaration", package: "nrw", signature: "class Graph", comment: NRWLang.graphClassComment },
 
         { type: "method", signature: "Graph()", native: NRWGraphClass.prototype._constructor1, comment: NRWLang.graphConstructorComment },
 

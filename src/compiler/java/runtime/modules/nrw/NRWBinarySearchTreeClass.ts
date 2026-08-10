@@ -19,7 +19,7 @@ class BSTNode {
 
 export class NRWBinarySearchTreeClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class BinarySearchTree<ContentType extends ComparableContent<ContentType>>", comment: NRWLang.binarySearchTreeClassComment },
+        { type: "declaration", package: "nrw", signature: "class BinarySearchTree<ContentType extends ComparableContent<ContentType>>", comment: NRWLang.binarySearchTreeClassComment },
 
         { type: "method", signature: "BinarySearchTree()", native: NRWBinarySearchTreeClass.prototype._constructor, comment: NRWLang.binarySearchTreeConstructorComment1 },
 

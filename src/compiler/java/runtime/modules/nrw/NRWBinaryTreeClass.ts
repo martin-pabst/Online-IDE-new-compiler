@@ -16,7 +16,7 @@ class BTNode {
 
 export class NRWBinaryTreeClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class BinaryTree<ContentType>", comment: NRWLang.binaryTreeClassComment },
+        { type: "declaration", package: "nrw", signature: "class BinaryTree<ContentType>", comment: NRWLang.binaryTreeClassComment },
 
         { type: "method", signature: "BinaryTree()", native: NRWBinaryTreeClass.prototype._constructor, comment: NRWLang.binaryTreeConstructorComment1 },
         { type: "method", signature: "BinaryTree(ContentType pContent)", native: NRWBinaryTreeClass.prototype._constructor, comment: NRWLang.binaryTreeConstructorComment2 },

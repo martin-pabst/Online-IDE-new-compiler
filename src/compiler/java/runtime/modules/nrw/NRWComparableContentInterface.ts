@@ -9,7 +9,7 @@ import { NRWLang } from "./NRWLang.ts";
 
 export class NRWComparableContentInterface extends InterfaceClass {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "interface ComparableContent<ContentType>", comment: NRWLang.comparableContentInterfaceComment },
+        { type: "declaration", package: "nrw", signature: "interface ComparableContent<ContentType>", comment: NRWLang.comparableContentInterfaceComment },
 
         { type: "method", signature: "boolean isGreater(ContentType pContent)", java: NRWComparableContentInterface.prototype._mj$isGreater$boolean$ContentType, comment: NRWLang.comparableContentIsGreaterComment },
         { type: "method", signature: "boolean isLess(ContentType pContent)", java: NRWComparableContentInterface.prototype._mj$isLess$boolean$ContentType, comment: NRWLang.comparableContentIsLessComment },
