@@ -882,7 +882,7 @@ export class ProjectExplorer {
             for (let file of files) {
                 this.main.getCompiler().setFileDirty(file);
             }
-            this.main.bottomDiv.gradingManager?.setValues(w);
+            this.main.bottomDiv.gradingManager?.setValues(w.pruefung_id);
             this.main.getCompiler().setFiles(files);
             this.main.getCompiler().triggerCompile();
         });

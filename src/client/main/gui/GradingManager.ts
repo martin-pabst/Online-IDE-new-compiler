@@ -84,20 +84,18 @@ export class GradingManager {
 
         this.pruefungId = pruefungId;
 
-        if (pruefungId == null) return;
+        if (pruefungId == null) {this.hideGrading(); return;}
 
-        let gradeData = await this.main.networkManager.fetchGrade(this.main.user.id, pruefungId);
-
-        if (gradeData == null) return;
+        let studentId = this.main.workspacesOwnerId;
+        let gradeData = await this.main.networkManager.fetchGrade(studentId, pruefungId);
 
         let hideGrading: boolean = false;
-        let studentId = this.main.workspacesOwnerId;
 
         if (this.main.user.is_teacher) {
             hideGrading = studentId == this.main.user.id;
         } else {
-            hideGrading = this.isEmptyOrNull(gradeData.grade) &&
-                this.isEmptyOrNull(gradeData.points) && this.isEmptyOrNull(gradeData.comment);
+            hideGrading = this.isEmptyOrNull(gradeData?.grade) &&
+                this.isEmptyOrNull(gradeData?.points) && this.isEmptyOrNull(gradeData?.comment);
             this.$l3.css('display', 'none');
             this.$l4.css('display', 'none');
         }
@@ -113,9 +111,9 @@ export class GradingManager {
         }
 
         this.dontFireOnChange = true;
-        this.$gradingMark.val(gradeData.grade == null ? "" : gradeData.grade);
-        this.$gradingPoints.val(gradeData.points == null ? "" : gradeData.points);
-        this.$gradingCommentMarkdown.val(gradeData.comment == null ? "" : gradeData.comment);
+        this.$gradingMark.val(gradeData?.grade == null ? "" : gradeData.grade);
+        this.$gradingPoints.val(gradeData?.points == null ? "" : gradeData.points);
+        this.$gradingCommentMarkdown.val(gradeData?.comment == null ? "" : gradeData.comment);
 
         let group: string = "A";
         let attendance: string = GradingManagerMessages.yes();
@@ -139,6 +137,10 @@ export class GradingManager {
         this.$attendence.text(attendance);
 
         this.dontFireOnChange = false;
+    }
+
+    hideGrading(){
+        this.tab.setVisible(false);
     }
 
     onChange() {
