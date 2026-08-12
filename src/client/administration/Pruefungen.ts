@@ -1,14 +1,13 @@
 import { ajax, ajaxAsync } from "../communication/AjaxHelper";
-import { BaseResponse, CRUDPruefungRequest, CRUDPruefungResponse, GetPruefungStudentStatesRequest, GetPruefungStudentStatesResponse, GetPruefungStudentTableDataRequest, GetPruefungStudentTableDataResponse, GetPruefungenForLehrkraftResponse, KlassData, Pruefung, PruefungCaptions, PruefungState, PruefungStudentMode, StudentPruefungStateInfo, UpdatePruefungSchuelerDataRequest, UserData, WorkspaceData, WorkspaceShortData } from "../communication/Data";
+import { BaseResponse, CRUDPruefungRequest, CRUDPruefungResponse, GetPruefungStudentStatesRequest, GetPruefungStudentStatesResponse, GetPruefungStudentTableDataRequest, GetPruefungStudentTableDataResponse, GetPruefungenForLehrkraftResponse, KlassData, Pruefung, PruefungCaptions, PruefungState, PruefungStudentMode, UpdatePruefungSchuelerDataRequest, UserData, WorkspaceShortData, type GradeData } from "../communication/Data";
 import { PushClientManager } from "../communication/pushclient/PushClientManager";
-import { w2grid, w2ui, w2utils, w2field } from 'w2ui'
+import { w2grid, w2ui, w2utils, w2field } from 'w2ui';
 import { GUIButton } from "../../tools/components/GUIButton";
 import { makeDiv } from "../../tools/HtmlTools";
 import { AdminMenuItem } from "./AdminMenuItem";
 import { NewPruefungPopup } from "./NewPruefungPopup";
-import jQuery from 'jquery'
+import jQuery from 'jquery';
 import { AdminMessages } from "./AdministrationMessages";
-import { group } from "console";
 import { Administration } from "./Administration";
 
 
@@ -123,8 +122,8 @@ export class Pruefungen extends AdminMenuItem {
 
         this.initTimer();
 
-        PushClientManager.getInstance().subscribe("onGradeChangedInMainWindow", (data: WorkspaceData) => {
-            let record: PSchuelerData = <any>this.studentTable.records.find((r: PSchuelerData) => r.id == data.owner_id);
+        PushClientManager.getInstance().subscribe("onGradeChangedInMainWindow", (data: GradeData) => {
+            let record: PSchuelerData = <any>this.studentTable.records.find((r: PSchuelerData) => r.id == data.user_id);
             if (record == null) return;
             record.grade = data.grade;
             record.points = data.points;

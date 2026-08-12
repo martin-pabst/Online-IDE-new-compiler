@@ -6,6 +6,7 @@ import { Main } from "../Main.js";
 import { Tab, TabManager } from '../../../tools/TabManager.js';
 import { GradingManagerMessages } from './language/GUILanguage.js';
 import { AdminMessages } from '../../administration/AdministrationMessages.js';
+import type { GradeData } from '../../communication/Data.js';
 
 export class GradingManager {
 
@@ -31,7 +32,7 @@ export class GradingManager {
         tabManager.addTab(this.tab);
         this.$gradingTab = jQuery(this.tab.bodyDiv);
 
-        PushClientManager.getInstance().subscribe("onGradeChangedInPruefungAdministration", () => { this.setValues(this.pruefungId) })
+        PushClientManager.getInstance().subscribe("onGradeChangedInPruefungAdministration", (gradeData: GradeData) => { this.setValues(this.pruefungId) })
     }
 
     initGUI() {

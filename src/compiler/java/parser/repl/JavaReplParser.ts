@@ -27,7 +27,8 @@ export class JavaReplParser extends StatementParser {
             innerTypes: [],
             mainProgramNode: this.nodeFactory.buildMainProgramNode(this.cct),
             collectedTypeNodes: [],
-            path: ""
+            path: "",
+            importStatements: []
         }
     }
 

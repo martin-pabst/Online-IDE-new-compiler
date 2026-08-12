@@ -79,6 +79,9 @@ export type WorkspaceData = {
     readonly: boolean,
 
     spritesheet_id: number,
+    grade?: string,
+    points?: string,
+    comment?: string
 
 }
 

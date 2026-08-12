@@ -11,6 +11,7 @@ export class TextEncoderDecoder {
             case TextEncoderDecoder.GzipThenBase64:
                 let bytes:Uint8Array<ArrayBufferLike> = new TextEncoder().encode(text);
                 let gzipResult = pako.gzip(bytes, {level: 9});
+                //@ts-ignore
                 return gzipResult.toBase64();
             default:
                 throw new Error(`Unknown encoding: ${encoding}`);
@@ -22,6 +23,7 @@ export class TextEncoderDecoder {
             case TextEncoderDecoder.NoEncoding:
                 return text;
             case TextEncoderDecoder.GzipThenBase64:
+                //@ts-ignore
                 let bytes:Uint8Array<ArrayBufferLike> = pako.ungzip(Uint8Array.fromBase64(text));
                 return new TextDecoder().decode(bytes);
             default:
