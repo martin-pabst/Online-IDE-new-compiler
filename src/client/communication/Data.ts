@@ -80,10 +80,6 @@ export type WorkspaceData = {
 
     spritesheet_id: number,
 
-    grade?: string,
-    points?: string,
-    comment?: string,
-    attended_exam?: boolean
 }
 
 export type Workspaces = {
@@ -938,6 +934,33 @@ export type UpdatePruefungSchuelerDataRequest = {
     attributesToUpdate: string;
 }
 
+export type GetGradeRequest = {
+    schuelerId: number;
+    pruefungId: number;
+}
+
+export type GradeData = {
+    user_id: number;
+    pruefung_id: number;
+    grade: string;
+    points: string;
+    comment: string;
+}
+
+export type CreateOrUpdateGradeRequest = {
+    schuelerId: number;
+    pruefungId: number;
+    grade: string;
+    points: string;
+    comment: string;
+}
+
+export type GetGradeResponse = {
+    grade: GradeData;
+    success: boolean;
+    message: string;
+}
+
 export type VidisNewUserRequest = {
     singleUseToken: string,
     username?: string,
@@ -1029,3 +1052,4 @@ export type SetPruefungStudentModeRequest = {
     student_id: number,
     mode: PruefungStudentMode
 }
+

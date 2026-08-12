@@ -23,20 +23,22 @@ export class GradingManager {
 
     tab: Tab;
 
+    pruefungId: number;
+
     constructor(private main: Main, tabManager: TabManager) {
 
-        this.tab = new Tab('Grading',GradingManagerMessages.evaluation(), ["jo_gradingTab"]);
+        this.tab = new Tab('Grading', GradingManagerMessages.evaluation(), ["jo_gradingTab"]);
         tabManager.addTab(this.tab);
         this.$gradingTab = jQuery(this.tab.bodyDiv);
 
-        PushClientManager.getInstance().subscribe("onGradeChangedInPruefungAdministration", () => { this.setValues(this.main.currentWorkspace) })
+        PushClientManager.getInstance().subscribe("onGradeChangedInPruefungAdministration", () => { this.setValues(this.pruefungId) })
     }
 
     initGUI() {
         let that = this;
 
         this.$gradingTab.empty();
-        this.$gradingTab.css('display','none');
+        this.$gradingTab.css('display', 'none');
 
         let upperRow = makeDiv(null, "jo_grading_upperRow");
 
@@ -78,18 +80,24 @@ export class GradingManager {
 
     }
 
-    setValues(ws: Workspace) {
+    async setValues(pruefungId: number) {
 
-        if (ws == null) return;
+        this.pruefungId = pruefungId;
 
+        if (pruefungId == null) return;
+
+        let gradeData = await this.main.networkManager.fetchGrade(this.main.user.id, pruefungId);
+
+        if (gradeData == null) return;
 
         let hideGrading: boolean = false;
+        let studentId = this.main.workspacesOwnerId;
 
         if (this.main.user.is_teacher) {
-            hideGrading = this.main.workspacesOwnerId == this.main.user.id;
+            hideGrading = studentId == this.main.user.id;
         } else {
-            hideGrading = this.isEmptyOrNull(ws.grade) &&
-                this.isEmptyOrNull(ws.points) && this.isEmptyOrNull(ws.comment);
+            hideGrading = this.isEmptyOrNull(gradeData.grade) &&
+                this.isEmptyOrNull(gradeData.points) && this.isEmptyOrNull(gradeData.comment);
             this.$l3.css('display', 'none');
             this.$l4.css('display', 'none');
         }
@@ -100,27 +108,27 @@ export class GradingManager {
 
         this.tab.setVisible(!hideGrading);
 
-        if(hideGrading){
+        if (hideGrading) {
             return;
         }
 
         this.dontFireOnChange = true;
-        this.$gradingMark.val(ws.grade == null ? "" : ws.grade);
-        this.$gradingPoints.val(ws.points == null ? "" : ws.points);
-        this.$gradingCommentMarkdown.val(ws.comment == null ? "" : ws.comment);
+        this.$gradingMark.val(gradeData.grade == null ? "" : gradeData.grade);
+        this.$gradingPoints.val(gradeData.points == null ? "" : gradeData.points);
+        this.$gradingCommentMarkdown.val(gradeData.comment == null ? "" : gradeData.comment);
 
         let group: string = "A";
         let attendance: string = GradingManagerMessages.yes();
-        let pruefung = this.main.teacherExplorer.pruefungen?.find(p => p.id == ws.pruefung_id);
+        let pruefung = this.main.teacherExplorer.pruefungen?.find(p => p.id == pruefungId);
         if (pruefung != null) {
             if (pruefung.pruefungStudentGroups != null) {
-                let sm = pruefung.pruefungStudentGroups.studentGroups.find(m => m.student_id == ws.owner_id);
+                let sm = pruefung.pruefungStudentGroups.studentGroups.find(m => m.student_id == studentId);
                 if (sm != null) {
                     group = sm.group;
                 }
             }
             if (pruefung.pruefungStudentModes != null) {
-                let sm = pruefung.pruefungStudentModes.studentModes.find(m => m.student_id == ws.owner_id);
+                let sm = pruefung.pruefungStudentModes.studentModes.find(m => m.student_id == studentId);
                 if (sm != null) {
                     if (sm.mode == "manualOff")
                         attendance = GradingManagerMessages.no();
@@ -134,15 +142,15 @@ export class GradingManager {
     }
 
     onChange() {
-        if (this.dontFireOnChange) return;
-        let ws = this.main.currentWorkspace;
-        if (ws != null) {
-            ws.grade = (<string>this.$gradingMark.val())?.trim();
-            ws.points = (<string>this.$gradingPoints.val())?.trim();
-            ws.comment = (<string>this.$gradingCommentMarkdown.val())?.trim();
-            // ws.attended_exam = this.$attendedExam.is(":checked");
-            ws.saved = false;
-        }
+        if (this.dontFireOnChange || this.pruefungId == null) return;
+        let grade = (<string>this.$gradingMark.val())?.trim();
+        let points = (<string>this.$gradingPoints.val())?.trim();
+        let comment = (<string>this.$gradingCommentMarkdown.val())?.trim();
+
+        let studentId = this.main.workspacesOwnerId;
+
+        this.main.networkManager.createOrUpdateGrade(studentId, this.pruefungId, grade, points, comment);
+
     }
 
 

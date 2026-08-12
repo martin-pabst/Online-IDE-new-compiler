@@ -4,7 +4,7 @@ import { SqlIdeUrlHolder } from "../main/SqlIdeUrlHolder.js";
 import { CacheManager } from "../../tools/database/CacheManager.js";
 import { Workspace } from "../workspace/Workspace.js";
 import { ajax, ajaxAsync, csrfToken, PerformanceCollector } from "./AjaxHelper.js";
-import { BaseResponse, CheckIfPruefungIsRunningResponse, ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, MoveFileRequest, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateFileOrderRequest, UpdateGuiStateRequest, UpdateGuiStateResponse, UpdateWorkspaceOrderRequest, WorkspaceData } from "./Data.js";
+import { BaseResponse, CheckIfPruefungIsRunningResponse, ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, MoveFileRequest, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateFileOrderRequest, UpdateGuiStateRequest, UpdateGuiStateResponse, UpdateWorkspaceOrderRequest, WorkspaceData, type CreateOrUpdateGradeRequest, type GetGradeRequest, type GetGradeResponse, type GradeData } from "./Data.js";
 import { PushClientManager } from "./pushclient/PushClientManager.js";
 import { GUIFile } from '../workspace/File.js';
 import pako from 'pako'
@@ -672,6 +672,27 @@ export class NetworkManager {
 
     }
 
+    public async fetchGrade(schueler_id: number, pruefung_id: number): Promise<GradeData> {
+        let request: GetGradeRequest = {
+            schuelerId: schueler_id,
+            pruefungId: pruefung_id
+        }
 
+        let response: GetGradeResponse = await ajaxAsync("servlet/getGrade", request);
+
+        return response.grade;
+    }
+
+    public createOrUpdateGrade(schueler_id: number, pruefung_id: number, grade: string, points: string, comment: string) {
+        let request: CreateOrUpdateGradeRequest = {
+            schuelerId: schueler_id,
+            pruefungId: pruefung_id,
+            grade: grade,
+            points: points,
+            comment: comment
+        }
+
+        ajaxAsync("servlet/createOrUpdateGrade", request);
+    }
 
 }
