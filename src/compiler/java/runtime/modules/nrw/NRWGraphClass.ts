@@ -12,15 +12,15 @@ export class NRWGraphClass extends ObjectClass {
 
         { type: "method", signature: "Graph()", native: NRWGraphClass.prototype._constructor1, comment: NRWLang.graphConstructorComment },
 
-        { type: "method", signature: "List<Vertex> getVertices()", native: NRWGraphClass.prototype._getVertices, comment: NRWLang.graphGetVerticesComment },
-        { type: "method", signature: "List<Edge> getEdges()", native: NRWGraphClass.prototype._getEdges, comment: NRWLang.graphGetEdgesComment },
+        { type: "method", signature: "List<nrw.Vertex> getVertices()", native: NRWGraphClass.prototype._getVertices, comment: NRWLang.graphGetVerticesComment },
+        { type: "method", signature: "List<nrw.Edge> getEdges()", native: NRWGraphClass.prototype._getEdges, comment: NRWLang.graphGetEdgesComment },
         
-        { type: "method", signature: "Vertex getVertex(string pID)", native: NRWGraphClass.prototype._getVertex, comment: NRWLang.graphGetVertexComment },
+        { type: "method", signature: "nrw.Vertex getVertex(string pID)", native: NRWGraphClass.prototype._getVertex, comment: NRWLang.graphGetVertexComment },
 
-        { type: "method", signature: "void addVertex(Vertex pVertex)", native: NRWGraphClass.prototype._addVertex, comment: NRWLang.graphAddVertexComment },
-        { type: "method", signature: "void addEdge(Edge pEdge)", native: NRWGraphClass.prototype._addEdge, comment: NRWLang.graphAddEdgeComment },
-        { type: "method", signature: "void removeVertex(Vertex pVertex)", native: NRWGraphClass.prototype._removeVertex, comment: NRWLang.graphRemoveVertexComment },
-        { type: "method", signature: "void removeEdge(Edge pEdge)", native: NRWGraphClass.prototype._removeEdge, comment: NRWLang.graphRemoveEdgeComment },
+        { type: "method", signature: "void addVertex(nrw.Vertex pVertex)", native: NRWGraphClass.prototype._addVertex, comment: NRWLang.graphAddVertexComment },
+        { type: "method", signature: "void addEdge(nrw.Edge pEdge)", native: NRWGraphClass.prototype._addEdge, comment: NRWLang.graphAddEdgeComment },
+        { type: "method", signature: "void removeVertex(nrw.Vertex pVertex)", native: NRWGraphClass.prototype._removeVertex, comment: NRWLang.graphRemoveVertexComment },
+        { type: "method", signature: "void removeEdge(nrw.Edge pEdge)", native: NRWGraphClass.prototype._removeEdge, comment: NRWLang.graphRemoveEdgeComment },
         
         { type: "method", signature: "void setAllVertexMarks(boolean pMark)", native: NRWGraphClass.prototype._setAllVertexMarks, comment: NRWLang.graphSetAllVertexMarksComment },
         { type: "method", signature: "void setAllEdgeMarks(boolean pMark)", native: NRWGraphClass.prototype._setAllEdgeMarks, comment: NRWLang.graphSetAllEdgeMarksComment },
@@ -28,10 +28,10 @@ export class NRWGraphClass extends ObjectClass {
         { type: "method", signature: "boolean allVerticesMarked()", native: NRWGraphClass.prototype._allVerticesMarked, comment: NRWLang.graphAllVerticesMarkedComment },
         { type: "method", signature: "boolean allEdgesMarked()", native: NRWGraphClass.prototype._allEdgesMarked, comment: NRWLang.graphAllEdgesMarkedComment },
         
-        { type: "method", signature: "List<Vertex> getNeighbours(Vertex pVertex)", native: NRWGraphClass.prototype._getNeighbours, comment: NRWLang.graphGetNeighboursComment },
-        { type: "method", signature: "List<Edge> getEdges(Vertex pVertex)", native: NRWGraphClass.prototype._getEdgesForVertex, comment: NRWLang.graphGetEdgesForVertexComment },
+        { type: "method", signature: "List<nrw.Vertex> getNeighbours(nrw.Vertex pVertex)", native: NRWGraphClass.prototype._getNeighbours, comment: NRWLang.graphGetNeighboursComment },
+        { type: "method", signature: "List<nrw.Edge> getEdges(nrw.Vertex pVertex)", native: NRWGraphClass.prototype._getEdgesForVertex, comment: NRWLang.graphGetEdgesForVertexComment },
         
-        { type: "method", signature: "Edge getEdge(Vertex pVertex, Vertex pAnotherVertex)", native: NRWGraphClass.prototype._getEdge, comment: NRWLang.graphGetEdgeComment },
+        { type: "method", signature: "nrw.Edge getEdge(nrw.Vertex pVertex, nrw.Vertex pAnotherVertex)", native: NRWGraphClass.prototype._getEdge, comment: NRWLang.graphGetEdgeComment },
         
         { type: "method", signature: "boolean isEmpty()", native: NRWGraphClass.prototype._isEmpty, comment: NRWLang.graphIsEmptyComment },
 

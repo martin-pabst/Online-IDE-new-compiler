@@ -27,7 +27,7 @@ export class NRWDatabaseConnectorClass extends ObjectClass {
         { type: "method", signature: "public DatabaseConnector(string code)", java: NRWDatabaseConnectorClass.prototype._cj$_constructor_$DatabaseConnector$string, comment: NRWLang.databaseConnectorConstructorComment},
 
         { type: "method", signature: "void executeStatement(string statement)", java: NRWDatabaseConnectorClass.prototype._mj$executeStatement$void$string, comment: NRWLang.databaseConnectorExecuteStatementComment },
-        { type: "method", signature: "QueryResult getCurrentQueryResult()", native: NRWDatabaseConnectorClass.prototype._getCurrentQueryResult, comment: NRWLang.databaseConnectorGetCurrentQueryResultComment },
+        { type: "method", signature: "nrw.QueryResult getCurrentQueryResult()", native: NRWDatabaseConnectorClass.prototype._getCurrentQueryResult, comment: NRWLang.databaseConnectorGetCurrentQueryResultComment },
         { type: "method", signature: "string getErrorMessage()", native: NRWDatabaseConnectorClass.prototype._getErrorMessage, comment: NRWLang.databaseConnectorGetErrorMessageComment },
         { type: "method", signature: "void close()", native: NRWDatabaseConnectorClass.prototype._close, comment: NRWLang.databaseConnectorCloseComment },
 
