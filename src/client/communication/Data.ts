@@ -1,6 +1,8 @@
 import { SerializedClassDiagram } from "../main/gui/diagrams/classdiagram/ClassDiagram.js"
 import { SettingValues } from "../settings/SettingsMetadata.js";
 
+export type Application = 1 | 2;    // 1 == OnlineIDE, 2 == SQLIDE
+
 export interface BaseResponse {
     success: boolean;
     message: string;
@@ -197,6 +199,7 @@ export type TeacherData = {
 export type LoginRequest = {
     username: string,
     password: string,
+    application: Application,
     singleUseToken: string | undefined
 }
 
@@ -694,7 +697,7 @@ export type ImportSchoolsResponse = {
  */
 
 export type GetTemplateRequest = {
-    token: string
+    databaseCode: string
 }
 
 
@@ -718,7 +721,7 @@ export type ObtainSqlTokenResponse = {
 }
 
 export type GetDatabaseRequest = {
-    token: string
+    databaseCode: string
 }
 
 export type getDatabaseResponse = {
@@ -728,12 +731,24 @@ export type getDatabaseResponse = {
     error: string
 }
 
+export type RegisterPushClientForDatabaseRequest = { databaseCode: string, registerOrUnregister: "register" | "unregister" }
+
+export type RegisterPushClientForDatabaseResponse = { success: boolean, message: string }
+
+export type DatabaseChangedPushMessage = {
+    databaseId: number,
+    firstNewStatementIndex?: number,
+    newStatements?: string[],
+    rollbackToVersion?: number
+}
+
+
 /**
  * Database WebSocket
  */
 
 export type JAddStatementRequest = {
-    token: string,
+    databaseCode: string,
     version_before: number,
     statements: string[]
 }
@@ -746,7 +761,7 @@ export type JAddStatementResponse = {
 }
 
 export type JRollbackStatementRequest = {
-    token: string,
+    databaseCode: string,
     current_version: number
 }
 

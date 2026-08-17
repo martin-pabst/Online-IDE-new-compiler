@@ -550,31 +550,16 @@ export class NetworkManager {
 
     }
 
-    fetchDatabaseAndToken(code: string, callback: (database: DatabaseData, token: string, error: string) => void) {
-        let request: ObtainSqlTokenRequest = { code: code };
 
-        ajax("obtainSqlToken", request, (response: ObtainSqlTokenResponse) => {
-            if (response.success) {
-                this.fetchDatabase(response.token, (database, error) => {
-                    callback(database, response.token, error);
-                })
-            } else {
-                callback(null, null, response.message);
-            }
-        }, (errormessage) => {
-            callback(null, null, errormessage);
-        })
-    }
-
-    private fetchDatabase(token: string, callback: (database: DatabaseData, error: string) => void) {
+    public fetchDatabase(code: string, callback: (database: DatabaseData, error: string) => void) {
 
         let cacheManager: CacheManager = new CacheManager();
 
         let request: GetDatabaseRequest = {
-            token: token
+            databaseCode: code
         }
 
-        ajax(SqlIdeUrlHolder.sqlIdeURL + "jGetDatabase", request, (response: getDatabaseResponse) => {
+        ajax("getDatabase", request, (response: getDatabaseResponse) => {
             if (response.success) {
 
                 let database = response.database;
@@ -591,7 +576,7 @@ export class NetworkManager {
                             callback(database, null);
                             return
                         }
-                        this.fetchTemplate(token, (template) => {
+                        this.fetchTemplate(code, (template) => {
                             if (template != null) {
                                 cacheManager.saveTemplateToCache(database.based_on_template_id, template);
                                 // @ts-ignore
@@ -614,9 +599,9 @@ export class NetworkManager {
     }
 
 
-    private fetchTemplate(token: string, callback: (template: Uint8Array) => void) {
+    private fetchTemplate(code: string, callback: (template: Uint8Array) => void) {
         let request: GetTemplateRequest = {
-            token: token
+            databaseCode: code
         }
 
         let headers: { [key: string]: string; } = {};
@@ -628,7 +613,7 @@ export class NetworkManager {
             headers: headers,
             data: JSON.stringify(request),
             contentType: 'application/json',
-            url: SqlIdeUrlHolder.sqlIdeURL + "jGetTemplate",
+            url: "servlet/getTemplate",
             xhrFields: { responseType: 'arraybuffer' },
             success: function (response: any) {
                 callback(new Uint8Array(response));
@@ -641,31 +626,31 @@ export class NetworkManager {
 
     }
 
-    public addDatabaseStatement(token: string, version_before: number, statements: string[],
+    public addDatabaseStatement(code: string, version_before: number, statements: string[],
         callback: (statementsBefore: string[], new_version: number, message: string) => void) {
 
         let request: JAddStatementRequest = {
-            token: token,
+            databaseCode: code,
             version_before: version_before,
             statements: statements
         }
 
-        ajax(SqlIdeUrlHolder.sqlIdeURL + "jAddDatabaseStatement", request, (response: JAddStatementResponse) => {
+        ajax("addDatabaseStatements", request, (response: JAddStatementResponse) => {
             callback(response.statements_before, response.new_version, response.message);
         }, (message) => { callback([], 0, message) })
 
 
     }
 
-    public rollbackDatabaseStatement(token: string, current_version: number,
+    public rollbackDatabaseStatement(code: string, current_version: number,
         callback: (message: string) => void) {
 
         let request: JRollbackStatementRequest = {
-            token: token,
+            databaseCode: code,
             current_version: current_version
         }
 
-        ajax(SqlIdeUrlHolder.sqlIdeURL + "jRollbackDatabaseStatement", request, (response: JRollbackStatementResponse) => {
+        ajax("rollback", request, (response: JRollbackStatementResponse) => {
             callback(response.message);
         })
 

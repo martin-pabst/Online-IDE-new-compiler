@@ -1,4 +1,4 @@
-import { DatabaseData } from "../../../../client/communication/Data";
+import { DatabaseData, type DatabaseChangedPushMessage, type RegisterPushClientForDatabaseRequest } from "../../../../client/communication/Data";
 import { Main } from "../../../../client/main/Main";
 import { Interpreter } from "../../../../compiler/common/interpreter/Interpreter";
 import { JRC } from "../../../../compiler/java/language/JavaRuntimeLibraryComments";
@@ -6,8 +6,9 @@ import { LibraryDeclarations } from "../../../../compiler/java/module/libraries/
 import { ObjectClass } from "../../../../compiler/java/runtime/system/javalang/ObjectClassStringClass";
 import { RuntimeExceptionClass } from "../../../../compiler/java/runtime/system/javalang/RuntimeException";
 import { NonPrimitiveType } from "../../../../compiler/java/types/NonPrimitiveType";
-import { DatabaseNewLongPollingListener } from "../../../../tools/database/DatabaseNewLongPollingListener";
 import { DatabaseTool, QueryResult } from "../../../../tools/database/DatabaseTool";
+import { ajaxAsync } from "../../../communication/AjaxHelper";
+import { PushClientManager } from "../../../communication/pushclient/PushClientManager";
 import { PreparedStatementClass } from "./PreparedStatementClass";
 import { StatementClass } from "./StatementClass";
 
@@ -25,8 +26,7 @@ export class ConnectionClass extends ObjectClass {
 
     database: DatabaseTool;
     databaseData: DatabaseData;
-    token: string;
-    databaseSSEListener: DatabaseNewLongPollingListener;
+    code: string;
 
     alreadyClosed: boolean = false;
 
@@ -50,17 +50,21 @@ export class ConnectionClass extends ObjectClass {
 
     connect(code: string, callback: (error: string) => void) {
         let that = this;
-        this.main.networkManager.fetchDatabaseAndToken(code, (dbData, token, error) => {
+        this.main.networkManager.fetchDatabase(code, (dbData, error) => {
             if (error == null) {
-                that.token = token;
+                that.code = code;
                 that.databaseData = dbData;
                 that.database = new DatabaseTool(that.main);
                 that.database.initializeWorker(dbData.templateDump, dbData.statements, (error) => {
 
-                    that.databaseSSEListener = new DatabaseNewLongPollingListener(that.main.networkManager,
-                        that.token, dbData.id, (firstNewStatementIndex, newStatements, rollbackToVersion) => {
-                            that.onServerSentStatements(firstNewStatementIndex, newStatements, rollbackToVersion);
-                        })
+                    let request: RegisterPushClientForDatabaseRequest = { databaseCode: code, registerOrUnregister: "register" };
+
+
+                    ajaxAsync("servlet/registerPushClientForDatabase", request);
+
+                    PushClientManager.subscribe("broadcastDatabaseChange", (data: DatabaseChangedPushMessage) => {
+                        that.onServerSentStatements(data.firstNewStatementIndex, data.newStatements, data.rollbackToVersion);
+                    })
 
                     callback(null);
                 });
@@ -71,10 +75,14 @@ export class ConnectionClass extends ObjectClass {
     }
 
     _close() {
-        if (this.databaseSSEListener != null) {
-            this.databaseSSEListener.close();
-            this.databaseSSEListener = null;
-        }
+        let request: RegisterPushClientForDatabaseRequest = { databaseCode: this.code, registerOrUnregister: "register" };
+        ajaxAsync("servlet/registerPushClientForDatabase", request);
+        PushClientManager.unsubscribe("broadcastDatabaseChange");
+
+        // if (this.databaseSSEListener != null) {
+        //     this.databaseSSEListener.close();
+        //     this.databaseSSEListener = null;
+        // }
 
         if (this.database != null) {
             this.database.close();
@@ -141,7 +149,7 @@ export class ConnectionClass extends ObjectClass {
         this.database.executeQuery("explain " + query, () => {
 
             that.skipNextServerSentStatement = true;
-            that.main.networkManager.addDatabaseStatement(that.token, oldStatementIndex,
+            that.main.networkManager.addDatabaseStatement(that.code, oldStatementIndex,
                 [query], (statementsBefore, new_version, errorMessage) => {
                     if (errorMessage != null) {
                         callback(errorMessage, 0);
@@ -163,7 +171,7 @@ export class ConnectionClass extends ObjectClass {
                             that.databaseData.statements.push(query);
                             if (callback != null) callback(errorMessage, 0);
                             // try rollback so that server doesn't store this statement
-                            that.main.networkManager.rollbackDatabaseStatement(that.token, that.databaseData.statements.length, () => { })
+                            that.main.networkManager.rollbackDatabaseStatement(that.code, that.databaseData.statements.length, () => { })
                         })
 
 
@@ -179,12 +187,8 @@ export class ConnectionClass extends ObjectClass {
 
     executeQuery(query: string, callback: (error: string, data: QueryResult) => void) {
 
-        if(this.alreadyClosed){
+        if (this.alreadyClosed) {
             throw new RuntimeExceptionClass(JRC.connectionAlreadyClosedError(), null);
-        }
-
-        if (this.database == null || this.databaseSSEListener == null) {
-            throw new RuntimeExceptionClass(JRC.connectionDatabaseConnectionError(), null);
         }
 
         this.database.executeQuery(query, (results: QueryResult[]) => {

@@ -1,6 +1,6 @@
 import jQuery from 'jquery';
 import { ajax } from "../communication/AjaxHelper.js";
-import { getUserDisplayName, LoginRequest, LoginResponse, LogoutRequest, UserData } from "../communication/Data.js";
+import { getUserDisplayName, LoginRequest, LoginResponse, LogoutRequest, UserData, type Application } from "../communication/Data.js";
 import { Main } from "./Main.js";
 import { Helper } from "./gui/Helper.js";
 import { SoundTools } from "../../tools/SoundTools.js";
@@ -8,7 +8,6 @@ import { UserMenu } from "./gui/UserMenu.js";
 import { escapeHtml } from "../../tools/StringTools.js";
 import { PruefungManagerForStudents } from './pruefung/PruefungManagerForStudents.js';
 import { PushClientManager } from '../communication/pushclient/PushClientManager.js';
-import { DatabaseNewLongPollingListener } from '../../tools/database/DatabaseNewLongPollingListener.js';
 import { SqlIdeUrlHolder } from './SqlIdeUrlHolder.js';
 import { AutoLogout } from './AutoLogout.js';
 import { SchedulerState } from "../../compiler/common/interpreter/SchedulerState.js";
@@ -22,6 +21,8 @@ export class Login {
 
     loggedInWithVidis: boolean = false;
     vidis_id_token: string = "";
+
+    static ApplicationOnlineIDE: Application = 1;
 
     constructor(private main: Main) {
         new AutoLogout(this);
@@ -148,8 +149,6 @@ export class Login {
         });
 
         PushClientManager.getInstance().close();
-        DatabaseNewLongPollingListener.close();
-
 
     }
 
@@ -161,6 +160,7 @@ export class Login {
         let loginRequest: LoginRequest = {
             username: <string>jQuery('#login-username').val(),
             password: <string>jQuery('#login-password').val(),
+            application: Login.ApplicationOnlineIDE,
             singleUseToken: singleUseToken
         }
 

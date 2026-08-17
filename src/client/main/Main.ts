@@ -12,8 +12,7 @@ import { EditorOpenerProvider } from '../../compiler/common/monacoproviders/Edit
 import { ErrorMarker } from '../../compiler/common/monacoproviders/ErrorMarker.js';
 import { ProgramPointerManager } from '../../compiler/common/monacoproviders/ProgramPointerManager.js';
 import { IRange, Range } from '../../compiler/common/range/Range.js';
-import { DatabaseNewLongPollingListener } from '../../tools/database/DatabaseNewLongPollingListener.js';
-import { checkIfMousePresent, findGetParameter, getCookieValue } from "../../tools/HtmlTools.js";
+import { checkIfMousePresent, findGetParameter } from "../../tools/HtmlTools.js";
 import { ClassData, UserData, WorkspaceData, Workspaces } from "../communication/Data.js";
 import { NetworkManager } from "../communication/NetworkManager.js";
 import { PushClientManager } from '../communication/pushclient/PushClientManager.js';
@@ -46,7 +45,6 @@ import { PruefungManagerForStudents } from './pruefung/PruefungManagerForStudent
 import { CompilerFile } from '../../compiler/common/module/CompilerFile.js';
 import { Disassembler } from '../../compiler/common/disassembler/Disassembler.js';
 import { ExceptionMarker } from '../../compiler/common/interpreter/ExceptionMarker.js';
-import { JUnitTestrunner } from '../../compiler/common/testrunner/JUnitTestrunner.js';
 import { IPosition } from '../../compiler/common/range/Position.js';
 import * as monaco from 'monaco-editor'
 import { LanguageManager } from '../../tools/language/LanguageManager.js';
@@ -299,7 +297,6 @@ export class Main implements MainBase {
                 await that.networkManager.sendUpdatesAsync(false, true);
                 that.interpreter.eventManager.fire("resetRuntime");
 
-                DatabaseNewLongPollingListener.close();
                 PushClientManager.getInstance().close();
             }
 

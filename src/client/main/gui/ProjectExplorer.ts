@@ -1,5 +1,4 @@
 import jQuery from 'jquery';
-import { DatabaseNewLongPollingListener } from '../../../tools/database/DatabaseNewLongPollingListener.js';
 import { downloadFile } from "../../../tools/HtmlTools.js";
 import { dateToString } from "../../../tools/StringTools.js";
 import { ajaxAsync } from '../../communication/AjaxHelper.js';
@@ -829,8 +828,6 @@ export class ProjectExplorer {
         */
         this.main.editor.editor.setModel(null); // detach current model from editor
         this.main.getCurrentWorkspace()?.disposeMonacoModels();
-
-        DatabaseNewLongPollingListener.close();
 
         if (this.main.interpreter.scheduler.state == SchedulerState.running) {
             this.main.interpreter.stop(false);
