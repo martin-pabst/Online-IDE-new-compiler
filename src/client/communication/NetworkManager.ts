@@ -87,12 +87,10 @@ export class NetworkManager {
 
     }
 
-    initializeSSE() {
+    initializePushClientManager() {
         PushClientManager.getInstance().subscribe("doFileUpdate", (data) => {
             this.sendUpdatesAsync(true, false, true);
         })
-
-
     }
 
     checkIfTestIsRunning(){

@@ -257,7 +257,7 @@ export class Login {
                 that.main.viewModeController.initViewMode();
                 that.main.bottomDiv.hideHomeworkTab();
 
-                that.main.networkManager.initializeSSE();
+                that.main.networkManager.initializePushClientManager();
 
                 this.main.pruefungManagerForStudents?.close();
 
