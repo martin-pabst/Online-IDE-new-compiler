@@ -11,13 +11,6 @@ import * as monaco from 'monaco-editor'
 import { Treeview } from "../../tools/components/treeview/Treeview.js";
 import { ProgrammingLanguageData } from "../../compiler/common/programminglanguage/ProgrammingLanguageData.js";
 
-type FileData = {
-    type?: string,
-    file?: GUIFile,
-    hint?: string,
-    $fileDiv: JQuery<HTMLElement>
-}
-
 export class EmbeddedFileExplorer {
 
     public treeview: Treeview<GUIFile, number>;
