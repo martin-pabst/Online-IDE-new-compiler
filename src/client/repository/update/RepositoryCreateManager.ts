@@ -131,7 +131,7 @@ export class RepositoryCreateManager {
                 let projectExplorer = this.main.projectExplorer;
                 let node = projectExplorer.workspaceTreeview.findNodeByElement(this.workspace);
                 if(node){
-                    node.iconClass = 'img_workspace-dark-repository';
+                    node.iconClass = 'img_workspace-java-repository-dark';
                     this.workspace.renderSynchronizeButton(node);
                 }
                 projectExplorer.showRepositoryButtonIfNeeded(this.workspace);

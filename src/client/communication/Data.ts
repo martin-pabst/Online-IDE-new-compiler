@@ -823,22 +823,6 @@ export type KeepAliveMessageFromServer = {
 }
 
 
-/**
- * Long polling database listener
- */
-export type DatabaseLongPollingListenerRequest = {
-    token: string,
-    listenerIdentifier: number
-}
-
-export type LongPollingListenerResponse = {
-    success: boolean,
-    message: string,
-    firstNewStatementIndex: number,
-    newStatements: string[],
-    rollbackToVersion: number
-}
-
 export type UploadSpriteResponse = {
     success: boolean,
     message: string,

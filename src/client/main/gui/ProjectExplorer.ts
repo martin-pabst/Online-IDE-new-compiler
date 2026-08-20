@@ -614,7 +614,7 @@ export class ProjectExplorer {
                                         workspace.repository_id = null;
                                         workspace.saved = false;
                                         await this.main.networkManager.sendUpdatesAsync(true);
-                                        node.iconClass = "img_workspace-dark";
+                                        node.iconClass = "img_workspace-java-dark";
                                         workspace.renderSynchronizeButton(node);
                                     }
                                 });

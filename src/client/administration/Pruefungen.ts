@@ -47,7 +47,12 @@ type GetPruefungForPrintingResponse = {
 export class Pruefungen extends AdminMenuItem {
 
     states: PruefungState[] = ["preparing", "running", "correcting", "opening"];
-
+    stateIndex: { [key in PruefungState]: number } = {
+        preparing: 0,
+        running: 1,
+        correcting: 2,
+        opening: 3
+    };
 
     pruefungen: Pruefung[];
     klassen: KlassData[];
@@ -754,13 +759,15 @@ export class Pruefungen extends AdminMenuItem {
 
     }
 
-    /* only transitions preparing -> running <-> correcting <-> opening possible
+    /* only transitions preparing -> running <-> correcting -> opening possible
    running -> preparing is possible only if template hasn't been copied to student-workspaces */
     isTransitionAllowed(newStateIndex: number): boolean {
         if (newStateIndex == this.selectedStateIndex) return true;
         if (newStateIndex < 0 || newStateIndex > this.states.length - 1) return false;
 
-        if (newStateIndex == 0 && this.selectedStateIndex == 1) return false;
+        if (newStateIndex == this.stateIndex.preparing && this.selectedStateIndex == this.stateIndex.running) return false;
+
+        if(this.selectedStateIndex == this.stateIndex.correcting) return false;
 
         return true;
     }

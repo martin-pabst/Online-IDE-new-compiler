@@ -333,7 +333,7 @@ export class Treeview<E, K> extends AccordionElement {
 
     addNewNode(isFolder: boolean, parentFolder?: TreeviewNode<E, K>, optionObject?: any) {
 
-        if (!parentFolder && !isFolder) {
+        if (!parentFolder) {
             let selectedNodes = this.getCurrentlySelectedNodes();
             if (selectedNodes.length > 0) {
                 let focusedNode = selectedNodes[0];
@@ -342,6 +342,10 @@ export class Treeview<E, K> extends AccordionElement {
                 }
                 if (focusedNode.isFolder) parentFolder = focusedNode;
             }
+        }
+
+        if(parentFolder){
+            parentFolder.expand();
         }
 
         let node = this.addNode(isFolder, "", isFolder ? undefined : this.config.defaultIconClass, null,
