@@ -1,6 +1,6 @@
 import { Main } from "../Main.js";
-import { ClassData, UserData, Pruefung, PruefungCaptions, getUserDisplayName, GetClassesDataResponse } from "../../communication/Data.js";
-import { ajaxAsync, csrfToken } from "../../communication/AjaxHelper.js";
+import { ClassData, UserData, Pruefung, PruefungCaptions, getUserDisplayName, GetClassesDataResponse, type GetSingleUseSessionTokenResponse } from "../../communication/Data.js";
+import { ajaxAsync, csrfToken, SINGLEUSETOKEN } from "../../communication/AjaxHelper.js";
 import { Workspace } from "../../workspace/Workspace.js";
 import { GUIToggleButton } from "../../../tools/components/GUIToggleButton.js";
 import jQuery from "jquery";
@@ -57,23 +57,23 @@ export class TeacherExplorer {
         });
 
         PushClientManager.subscribe("onClassesChanged", async () => {
-            let response: GetClassesDataResponse = await ajaxAsync("/servlet/getClassesData", {wholeSchool: false})
-            this.classData = response.classDataList;  
+            let response: GetClassesDataResponse = await ajaxAsync("/servlet/getClassesData", { wholeSchool: false })
+            this.classData = response.classDataList;
             if (this.classPanelMode == "classes") {
                 let currentClass: ClassData = null;
                 let selectedNodes = this.classPanel.getCurrentlySelectedNodes();
-                if(selectedNodes?.length > 0){
+                if (selectedNodes?.length > 0) {
                     currentClass = selectedNodes[0].externalObject as ClassData;
                 }
                 this.renderClasses(this.classData);
-                if(currentClass != null){
+                if (currentClass != null) {
                     let newCurrentClass = this.classData.find(c => c.id == currentClass.id);
-                    if(newCurrentClass != null){
+                    if (newCurrentClass != null) {
                         this.classPanel.selectElement(newCurrentClass, false);
                         this.renderStudents(newCurrentClass.students);
                     }
                 }
-                if(this.main.currentWorkspace.owner_id != this.main.user.id){
+                if (this.main.currentWorkspace.owner_id != this.main.user.id) {
                     this.onHomeButtonClicked();
                 }
             }
@@ -87,7 +87,7 @@ export class TeacherExplorer {
 
         this.homeButton.setVisible(false);
 
-        
+
 
     }
 
@@ -185,8 +185,12 @@ export class TeacherExplorer {
         })
 
         let buttonPruefungAdministration = this.classPanel.captionLineAddIconButton("img_gear-dark", "right",
-            () => {
-                window.open(`administration_mc.html?csrfToken=${csrfToken}&menuItem=manageTests`, '_blank').focus();
+            async () => {
+                let response: GetSingleUseSessionTokenResponse = await ajaxAsync("servlet/getSingleUseSessionToken", {});
+                if (response.success) {
+                    window.open( "administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + (this.main.user.gui_state.language ?? "de") + "&menuItem=manageTests");
+                    // window.open(`administration_mc.html?csrfToken=${csrfToken}&menuItem=manageTests`, '_blank').focus();
+                }
             }, TeacherExplorerMessages.createNewTest());
 
         buttonPruefungAdministration.setVisible(false);
@@ -310,7 +314,7 @@ export class TeacherExplorer {
         if (klasse != null) {
             node.renderCaptionAsHtml = true;
             node.caption = `<span class="joe_pruefung_name">${p.name} </span>` +
-             `<span class="joe_pruefung_klasse" style="margin: 0 4px">(${klasse.name})</span>`;
+                `<span class="joe_pruefung_klasse" style="margin: 0 4px">(${klasse.name})</span>`;
         }
 
         node.iconClass = "img_test-state-" + p.state;

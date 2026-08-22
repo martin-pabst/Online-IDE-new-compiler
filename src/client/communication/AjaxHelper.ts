@@ -4,6 +4,8 @@ import { PushClientManager } from "./pushclient/PushClientManager.js";
 import { currentLanguageId, setLanguageId } from "../../tools/language/LanguageManager.js";
 // export var credentials: { username: string, password: string } = { username: null, password: null };
 
+export var SINGLEUSETOKEN: string = "singleUseToken";
+
 export class PerformanceCollector {
     static performanceData: PerformanceData[] = [];
     static performanceDataCount: number = 0;
@@ -117,7 +119,6 @@ export function showNetworkBusy(busy: boolean) {
     }
 }
 
-
 export async function extractCsrfTokenFromGetRequest(retrieveNewCsrfToken: boolean = false) {
     let url = window.location.href;
     let token = fetchGetParameterValueIntern(url, "csrfToken");
@@ -128,6 +129,30 @@ export async function extractCsrfTokenFromGetRequest(retrieveNewCsrfToken: boole
     if (retrieveNewCsrfToken) {
         await ajaxAsync("/servlet/retrieveNewCsrfToken", {});
     }
+}
+
+export async function extractSingleUseSessionTokenFromGetRequestAndRetrieveNewCsrfToken() {
+    let url = window.location.href;
+
+    let csrfTokenFromGetRequest = fetchGetParameterValueIntern(url, "csrfToken");
+    if(csrfTokenFromGetRequest == null) {
+        let token = fetchGetParameterValueIntern(url, SINGLEUSETOKEN);
+    
+        await ajaxAsync("/servlet/retrieveNewCsrfToken?" + SINGLEUSETOKEN + "=" + token, {});
+
+        let index = url.indexOf("?");
+        let newUrl = url.substring(0, index) + "?csrfToken=" + csrfToken;
+
+        let menuItem = fetchGetParameterValueIntern(url, "menuItem");
+        if(menuItem != null) {
+            newUrl += "&menuItem=" + menuItem;
+        }
+
+        window.location.href = newUrl;
+    } else {
+        csrfToken = csrfTokenFromGetRequest;
+    }
+
 }
 
 export function fetchGetParameterValue(parameterIdentifier: string): string | null {
@@ -148,7 +173,7 @@ function fetchGetParameterValueIntern(url: string, parameterIdentifier: string):
 export async function extractLanguageFromGetRequest(retrieveNewCsrfToken: boolean = false) {
     let url = window.location.href;
     let lang = fetchGetParameterValueIntern(url, 'lang');
-    if(lang != null){
+    if (lang != null) {
         setLanguageId(lang);
     }
 }
@@ -158,7 +183,7 @@ export async function extractLanguageFromGetRequest(retrieveNewCsrfToken: boolea
 export async function ajaxAsync(url: string, data: any): Promise<any> {
     let headers: [string, string][] = [["content-type", "text/json"]];
 
-    if (csrfToken != null) {
+    if (csrfToken != null && csrfToken.length > 0) {
         headers.push(["x-token-pm", csrfToken]);
     }
 
@@ -172,8 +197,8 @@ export async function ajaxAsync(url: string, data: any): Promise<any> {
 
         let obj: any = await response.json()
 
-        if (obj["token"] != null) {
-            csrfToken = obj["token"];
+        if (obj["csrfToken"] != null) {
+            csrfToken = obj["csrfToken"];
             PushClientManager.getInstance().open();
         }
 

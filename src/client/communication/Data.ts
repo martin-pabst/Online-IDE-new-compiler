@@ -963,17 +963,6 @@ export type GetGradeResponse = {
     message: string;
 }
 
-export type VidisNewUserRequest = {
-    singleUseToken: string,
-    username?: string,
-    password?: string,
-
-    // alternative:
-    rufname?: string,
-    familienname?: string,
-    klasse?: string,
-}
-
 export type GetSpritesheetIdForWorkspaceRequest = {
     workspace_id: number
 }
@@ -1055,3 +1044,8 @@ export type SetPruefungStudentModeRequest = {
     mode: PruefungStudentMode
 }
 
+export type GetSingleUseSessionTokenResponse = {
+    success: boolean,
+    singleUseSessionToken: string,
+    message: string
+}

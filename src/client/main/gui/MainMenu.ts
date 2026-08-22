@@ -1,7 +1,7 @@
 import { Main } from "../Main.js";
-import { UserData } from "../../communication/Data.js";
+import { UserData, type GetSingleUseSessionTokenResponse } from "../../communication/Data.js";
 import { PasswordChanger } from "./UserMenu.js";
-import { ajax, csrfToken } from "../../communication/AjaxHelper.js";
+import { ajaxAsync, csrfToken, SINGLEUSETOKEN } from "../../communication/AjaxHelper.js";
 import { ImportWorkspaceGUI } from "./ImportWorkspaceGUI.js";
 import jQuery from 'jquery';
 import { Workspace } from "../../workspace/Workspace.js";
@@ -10,9 +10,7 @@ import { WorkspaceExporter } from "../../workspace/WorkspaceImporterExporter.js"
 import { IssueReporter } from "./IssueReporter.js";
 import * as monaco from 'monaco-editor'
 import { GuiMessages } from "./language/GuiMessages.js";
-import { Settings } from "../../settings/Settings.js";
 import { SettingsGUI } from "../../settings/SettingsGUI.js";
-import { TabletConsoleLog } from "../../../tools/TabletConsoleLog.js";
 import { ImportRepositoryGUI } from "./ImportRepositoryGUI.js";
 
 
@@ -336,7 +334,12 @@ export class MainMenu {
             mainMenu.items[0].subMenu.items.push(
                 {
                     identifier: GuiMessages.ClassesUserTests(),
-                    link: serverURL + "administration_mc.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
+                    action: async () => {
+                        let response: GetSingleUseSessionTokenResponse = await ajaxAsync("servlet/getSingleUseSessionToken", {});
+                        if (response.success) {
+                        window.open(serverURL + "administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + (user.gui_state.language ?? "de"));
+                        }
+                    }
                 }
             )
         }
