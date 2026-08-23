@@ -7,6 +7,7 @@ import { Tab, TabManager } from '../../../tools/TabManager.js';
 import { GradingManagerMessages } from './language/GUILanguage.js';
 import { AdminMessages } from '../../administration/AdministrationMessages.js';
 import type { GradeData } from '../../communication/Data.js';
+import '/assets/css/gradingtab.css';
 
 export class GradingManager {
 

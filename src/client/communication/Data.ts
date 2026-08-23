@@ -856,7 +856,8 @@ export type Pruefung = {
     template_workspace_b_id: number,
     pruefungStudentGroups?: {studentGroups: PruefungStudentGroupWithId[]},
     pruefungStudentModes?: {studentModes: PruefungStudentModeWithId[]},
-    state: PruefungState;
+    state: PruefungState,
+    application: Application
 }
 
 export type CRUDPruefungRequest = {
