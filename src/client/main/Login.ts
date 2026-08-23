@@ -16,13 +16,12 @@ import * as PIXI from 'pixi.js';
 import { LoginMessages } from './language/MainLanguage.js';
 import { Settings } from '../settings/Settings.js';
 import { ProgrammingLanguageData } from '../../compiler/common/programminglanguage/ProgrammingLanguageData.js';
+import { Constants } from '../Constants.js';
 
 export class Login {
 
     loggedInWithVidis: boolean = false;
     vidis_id_token: string = "";
-
-    static ApplicationOnlineIDE: Application = 1;
 
     constructor(private main: Main) {
         new AutoLogout(this);
@@ -160,7 +159,7 @@ export class Login {
         let loginRequest: LoginRequest = {
             username: <string>jQuery('#login-username').val(),
             password: <string>jQuery('#login-password').val(),
-            application: Login.ApplicationOnlineIDE,
+            application: Constants.Application,
             singleUseToken: singleUseToken
         }
 
