@@ -767,7 +767,7 @@ export class Pruefungen extends AdminMenuItem {
 
         if (newStateIndex == this.stateIndex.preparing && this.selectedStateIndex == this.stateIndex.running) return false;
 
-        if(this.selectedStateIndex == this.stateIndex.correcting) return false;
+        if(this.selectedStateIndex == this.stateIndex.opening) return false;
 
         return true;
     }
