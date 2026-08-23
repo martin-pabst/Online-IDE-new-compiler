@@ -8,7 +8,6 @@ import { UserMenu } from "./gui/UserMenu.js";
 import { escapeHtml } from "../../tools/StringTools.js";
 import { PruefungManagerForStudents } from './pruefung/PruefungManagerForStudents.js';
 import { PushClientManager } from '../communication/pushclient/PushClientManager.js';
-import { SqlIdeUrlHolder } from './SqlIdeUrlHolder.js';
 import { AutoLogout } from './AutoLogout.js';
 import { SchedulerState } from "../../compiler/common/interpreter/SchedulerState.js";
 import * as monaco from 'monaco-editor';
@@ -218,8 +217,6 @@ export class Login {
                     response.userSettings, response.classSettings, response.schoolSettings);
 
                 that.main.languagemanager.setLanguage(user.gui_state.language);
-
-                SqlIdeUrlHolder.sqlIdeURL = response.sqlIdeForOnlineIdeClient + "/servlet/";
 
                 this.main.startupAfterLogin();
 
