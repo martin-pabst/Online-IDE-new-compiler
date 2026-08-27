@@ -29,6 +29,10 @@ export class SettingsGUI {
     $settingsMainDiv: JQuery<HTMLDivElement>; // main div for settings content
 
     settingsExplorer: Treeview<GroupOfSettingMetadata, GroupOfSettingMetadata>;
+    tabManager: TabManager;
+    schoolSettingsTab: Tab;
+    classSettingsTab: Tab;
+    userSettingsTab: Tab;
 
     constructor(private main: Main) {
         this.userSettings = main.settings.values.user || {};
@@ -61,22 +65,22 @@ export class SettingsGUI {
         this.$settingsMainDiv = jQuery('<div class="jo_settingsMain jo_scrollable"></div>');
         $tabBody.append(this.$settingsMainDiv);
 
-        let tabManager = new TabManager($tabDiv[0], true);
+        this.tabManager = new TabManager($tabDiv[0], true);
 
-        let userSettingsTab = new Tab('User Settings',SettingsMessages.UserSettingsTabHeading(), []);
-        userSettingsTab.onShow = () => { this.showSettingsData("user"); };
-        tabManager.addTab(userSettingsTab);
-        tabManager.setActive(userSettingsTab);
+        this.userSettingsTab = new Tab('User Settings',SettingsMessages.UserSettingsTabHeading(), []);
+        this.userSettingsTab.onShow = () => { this.showSettingsData("user"); };
+        this.tabManager.addTab(this.userSettingsTab);
+        this.tabManager.setActive(this.userSettingsTab);
 
         if (this.main.user.is_teacher && this.classSettings && this.classSettings.length > 0) {
-            let classSettingsTab = new Tab('Class Settings', SettingsMessages.ClassSettingsTabHeading(), []);
-            classSettingsTab.onShow = () => {
+            this.classSettingsTab = new Tab('Class Settings', SettingsMessages.ClassSettingsTabHeading(), []);
+            this.classSettingsTab.onShow = () => {
                 this.showSettingsData("class");
             };
-            tabManager.addTab(classSettingsTab);
+            this.tabManager.addTab(this.classSettingsTab);
 
             let $selectElement: JQuery<HTMLSelectElement> = jQuery('<select class="jo_settingsSelect"></select>');
-            classSettingsTab.headingDiv.append($selectElement[0]);
+            this.classSettingsTab.headingDiv.append($selectElement[0]);
 
             setSelectItems($selectElement, this.classSettings.map(cs => ({
                 value: cs.classId,
@@ -97,9 +101,9 @@ export class SettingsGUI {
         }
 
         if (this.main.user.is_schooladmin && this.schoolSettings) {
-            let schoolSettingsTab = new Tab('School Settings', SettingsMessages.SchoolSettingsTabHeading(), []);
-            schoolSettingsTab.onShow = () => { this.showSettingsData("school"); };
-            tabManager.addTab(schoolSettingsTab);
+            this.schoolSettingsTab = new Tab('School Settings', SettingsMessages.SchoolSettingsTabHeading(), []);
+            this.schoolSettingsTab.onShow = () => { this.showSettingsData("school"); };
+            this.tabManager.addTab(this.schoolSettingsTab);
         }
 
         dialog.buttons([
@@ -346,11 +350,22 @@ export class SettingsGUI {
         })
 
         for (let settingsGroup of AllSettingsMetadata.filter(sg => sg.settingType === 'group')) {
+
+            if(settingsGroup.isSchooladminOnly && !this.main.user.is_schooladmin) continue; // Skip schooladmin-only groups for non-schooladmin users
+
             this.addSettingsToExplorer(settingsGroup);
         }
 
         this.settingsExplorer.nodeClickedCallback = (element: GroupOfSettingMetadata) => {
             this.currentSettingsGroup = element;
+            if(element.isSchooladminOnly){
+                this.tabManager.setActive(this.schoolSettingsTab);
+                this.classSettingsTab.setVisible(false);
+                this.userSettingsTab.setVisible(false);
+            } else {
+                this.classSettingsTab.setVisible(this.main.user.is_teacher);
+                this.userSettingsTab.setVisible(true);
+            }
             this.showSettingsData();
         }
 

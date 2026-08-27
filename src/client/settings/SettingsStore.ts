@@ -2,10 +2,12 @@ import { ByArchitecture } from "../../compiler/assembly/byassembly/ByArchitectur
 
 export type SettingsScope = 'user' | 'class' | 'school' | 'default';
 
-export type SettingPrecedence = 'userClassSchoolDefault' | 'classSchoolUserDefault';
+export type SettingPrecedence = 'userClassSchoolDefault' | 'classSchoolUserDefault' |
+                            'schoolDefault';
 export var SettingsPrecedenceArrays: { [key in SettingPrecedence]: SettingsScope[] } = {
     'userClassSchoolDefault': ['user', 'class', 'school', 'default'],
-    'classSchoolUserDefault': ['class', 'school', 'user', 'default']
+    'classSchoolUserDefault': ['class', 'school', 'user', 'default'],
+    'schoolDefault': ['school', 'default']
 }
 
 export type SettingsType = {
@@ -39,7 +41,8 @@ export type SettingsType = {
 
     "output.clearOutputAfterWorkspaceChange": "yes" | "no",
 
-    "programmingLanguages.ByAssembly.defaultArchitecture": string;
+    "programmingLanguages.ByAssembly.defaultArchitecture": string,
+    "schooladmin.functionality.pruefungen": "enabled" | "disabled"
 
 }
 
@@ -65,18 +68,20 @@ export var SettingDefaultValues: SettingsType = {
     "classDiagram.background": "transparent",
     "classDiagram.omitVoidReturnType": "omit",
     "classDiagram.drawCompositionDiamond": "yes",
-    
+
     "explorer.fileOrder": "user-defined",
     "explorer.workspaceOrder": "user-defined",
 
-    
+
     "compiler.shadowedSymbolErrorLevel": "warning",
-    
+
     "output.clearOutputAfterWorkspaceChange": "no",
-    
+
     "programmingLanguages.java.enabled": "yes",
     "programmingLanguages.ByAssembly.enabled": "no",
-    "programmingLanguages.ByAssembly.defaultArchitecture": ByArchitecture.getArchitectures()[0].identifier
+    "programmingLanguages.ByAssembly.defaultArchitecture": ByArchitecture.getArchitectures()[0].identifier,
+
+    "schooladmin.functionality.pruefungen": "enabled",
 
 };
 
@@ -88,6 +93,8 @@ export var SettingPrecedenceValues: Partial<{ [key in SettingKey]: SettingPreced
     "editor.hoverVerbosity.showClassDeclaration": "classSchoolUserDefault",
     "editor.contextSensitiveHelp.StructureStatements": "classSchoolUserDefault",
     "editor.contextSensitiveHelp.ParameterHints": "classSchoolUserDefault",
+    "schooladmin.functionality.pruefungen": "schoolDefault",
+
 }
 
 export type SettingValue = string | number | boolean | undefined;

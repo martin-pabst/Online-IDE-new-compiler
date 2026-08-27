@@ -17,6 +17,9 @@ import "/assets/css/administration.css";
 import "/assets/fonts/fonts.css";
 
 import w2uiLocale from '/assets/w2uilocale/de-de.json?url'
+import type { SettingValues } from "../settings/SettingsMetadata.js";
+import { SettingDefaultValues, type SettingsStore } from "../settings/SettingsStore.js";
+import { Settings } from "../settings/Settings.js";
 
 
 
@@ -24,17 +27,15 @@ export class Administration {
 
     activeMenuItem: AdminMenuItem = null;
 
-    menuItems: AdminMenuItem[] = [
-        // new SchoolSettingsMI(this),
-        new TeachersWithClassesMI(this),
-        new ClassesWithStudentsMI(this),
-        new Pruefungen(this)
-    ]
+    menuItems: AdminMenuItem[] = [];
 
     userData: UserData;
     classes: ClassData[];
     schoolName: string;
     vidisSchoolId: string | null;
+    schoolSettings: SettingValues;
+
+    settings: SettingsStore;
 
     async start() {
 
@@ -48,9 +49,11 @@ export class Administration {
 
         ajax("getUserData", {}, (response: GetUserDataResponse) => {
             that.userData = response.user;
+            that.schoolSettings = response.schoolSettings;
             that.classes = response.classdata;
             that.schoolName = response.schoolName;
             that.vidisSchoolId = response.vidisSchoolId;
+            that.settings = new Settings(response.user, response.user.settings, undefined, response.schoolSettings);  
             
             this.initMenu();
             new AutoLogout();
@@ -62,6 +65,12 @@ export class Administration {
     }
 
     initMenu() {
+        this.menuItems.push(new TeachersWithClassesMI(this));
+        this.menuItems.push(new ClassesWithStudentsMI(this));
+
+        if(this.settings.getValue("schooladmin.functionality.pruefungen")  == "enabled") {  
+            this.menuItems.push(new Pruefungen(this));
+        }
 
         if (!this.isVidisSchool()) {
             this.menuItems.push(new StudentBulkImportMI(this));

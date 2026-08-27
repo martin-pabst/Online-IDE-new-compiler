@@ -54,6 +54,8 @@ export class TabManager {
     }
 
     setTabVisible(tab: Tab, visibility: boolean) {
+        if(tab.visible == visibility) return;
+        
         tab.headingDiv.style.display = visibility ? 'block' : 'none';
         tab.bodyDiv.style.display = visibility ? '' : 'none';
         tab.visible = visibility;

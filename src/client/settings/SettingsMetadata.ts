@@ -44,6 +44,7 @@ export type GroupOfSettingMetadata = {
     description: TranslatedText | undefined;
     settings: (SettingMetadata | GroupOfSettingMetadata)[];
     image?: string;
+    isSchooladminOnly?: boolean; // Optional flag to indicate if the group is only for schooladmin users
 }
 
 export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
@@ -488,7 +489,29 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                 ]
             }
         ]
+    },
+    {
+        settingType: 'group',
+        name: SettingsMessages.SchooladminSettingsName,
+        description: SettingsMessages.SchooladminSettingsDescription,
+        isSchooladminOnly: true, // This group is only for schooladmin users
+        settings: [
+            {
+                key: "schooladmin.functionality.pruefungen",
+                settingType: 'setting',
+                name: SettingsMessages.PruefungFunctionalityName,
+                description: SettingsMessages.PruefungFunctionalityDescription,
+                type: 'enumeration',
+                optionValues: ["enabled", "disabled"],
+                optionTexts: [
+                    SettingsMessages.enabled,
+                    SettingsMessages.disabled
+                ],
+                action: (main, value) => {
+                    main.teacherExplorer.initPruefungButtons();
+                }
+            }
+        ]
     }
 
 ]
-

@@ -137,7 +137,8 @@ export type GetUserDataResponse = {
     user: UserData,
     classdata: ClassData[], // null if !is_teacher
     schoolName: string,
-    vidisSchoolId: string | null
+    vidisSchoolId: string | null,
+    schoolSettings: SettingValues,
 }
 
 export type GetSchoolDataRequest = {
