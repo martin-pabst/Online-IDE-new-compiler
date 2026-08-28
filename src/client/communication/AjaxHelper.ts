@@ -178,9 +178,6 @@ export async function extractLanguageFromGetRequest(retrieveNewCsrfToken: boolea
     }
 }
 
-
-
-
 export async function ajaxAsync(url: string, data: any): Promise<BaseResponse> {
     let headers: [string, string][] = [["content-type", "text/json"]];
 
