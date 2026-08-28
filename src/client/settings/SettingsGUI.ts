@@ -118,7 +118,7 @@ export class SettingsGUI {
     }
 
     async getSettingsFromServer() {
-        let response = <GetSettingsResponse>await ajaxAsync("/servlet/getSettings", {})
+        let response = await ajaxAsync("/servlet/getSettings", {}) as GetSettingsResponse;
         if (response.success) {
             this.classSettings = response.classSettings;
             this.schoolSettings = response.schoolSettings;

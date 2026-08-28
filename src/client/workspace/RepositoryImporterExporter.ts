@@ -20,7 +20,7 @@ export class RepositoryExporter {
     static async exportRepository(repository_id: number, workspace_id?: number): Promise<ExportedRepository> {
 
         let getRepositoryRequest: GetRepositoryRequest = { repository_id: repository_id, workspace_id: workspace_id };
-        let getRepositoryResponse: GetRepositoryResponse = await ajaxAsync("/servlet/getRepository", getRepositoryRequest)
+        let getRepositoryResponse = await ajaxAsync("/servlet/getRepository", getRepositoryRequest) as GetRepositoryResponse;
         if (!getRepositoryResponse.success) return;
 
         let repository = getRepositoryResponse.repository;

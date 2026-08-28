@@ -29,7 +29,7 @@ export class SpritesheetData {
             
             if(workspace.repository_id != null){
                 let request: GetSpritesheetIdForWorkspaceRequest = {workspace_id: workspace.id};
-                let response: GetSpritesheetIdForWorkspaceResponse = await ajaxAsync('servlet/getSpritesheetIdForWorkspace', request);
+                let response = await ajaxAsync('servlet/getSpritesheetIdForWorkspace', request) as GetSpritesheetIdForWorkspaceResponse;
                 workspace.spritesheetId = response.spritesheet_id;
             }
 

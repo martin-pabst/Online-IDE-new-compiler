@@ -3,7 +3,7 @@ import { SettingValues } from "../settings/SettingsMetadata.js";
 
 export type Application = 1 | 2;    // 1 == OnlineIDE, 2 == SQLIDE
 
-export interface BaseResponse {
+export type BaseResponse = {
     success: boolean;
     message: string;
 }
@@ -156,6 +156,7 @@ export type GetClassesDataRequest = {
 
 export type GetClassesDataResponse = {
     success: boolean,
+    message: string,
     classDataList: ClassData[]
 }
 
@@ -165,6 +166,7 @@ export type GetTeacherDataRequest = {
 
 export type GetTeacherDataResponse = {
     success: boolean,
+    message: string,
     teacherData?: TeacherData[],
     classesWithoutTeacher: ClassData[]
 }
@@ -219,10 +221,6 @@ export type LoginResponse = {
     penaltyTimeInSeconds: number,
 }
 
-export type CheckIfPruefungIsRunningResponse = {
-    runningPruefung: Pruefung | null
-}
-
 export type LogoutRequest = {
     currentWorkspaceId: number
 }
@@ -242,6 +240,7 @@ export type SendUpdatesRequest = {
 
 export type SendUpdatesResponse = {
     success: boolean,
+    message: string,
     workspaces: Workspaces,
     filesToForceUpdate: FileData[],
     activePruefung: Pruefung
@@ -274,6 +273,7 @@ export type MoveFileRequest = {
 
 export type CRUDResponse = {
     success: boolean,
+    message: string,
     id?: number, // in case of create
     error: string
 }
@@ -315,6 +315,7 @@ export type GetWorkspacesRequest = {
 
 export type GetWorkspacesResponse = {
     success: boolean,
+    message: string,
     workspaces: Workspaces
 }
 
@@ -338,6 +339,7 @@ export type DuplicateWorkspaceRequest = {
 
 export type DuplicateWorkspaceResponse = {
     workspace: WorkspaceData, // new Workspace (with copied files)
+    success: boolean,
     message: string
 }
 
@@ -923,6 +925,8 @@ export type WorkspaceShortData = {
 }
 
 export type GetPruefungenForLehrkraftResponse = {
+    success: boolean,
+    message: string,
     pruefungen: Pruefung[];
     klassen: KlassData[];
     workspaces: WorkspaceShortData[];
@@ -970,6 +974,8 @@ export type GetSpritesheetIdForWorkspaceRequest = {
 }
 
 export type GetSpritesheetIdForWorkspaceResponse = {
+    success: boolean,
+    message: string,
     spritesheet_id: number
 }
 
@@ -979,6 +985,7 @@ export type GetSettingsRequest = {
 
 export type GetSettingsResponse = {
     success: boolean,
+    message: string,
     classSettings: {classId: number, className: string, settings: SettingValues}[] | null, // settings for classes if user is teacher
     schoolSettings: SettingValues | null // settings for school if user is schooladmin
 }

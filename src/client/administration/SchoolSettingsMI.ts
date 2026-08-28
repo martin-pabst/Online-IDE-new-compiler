@@ -66,7 +66,7 @@ export class SchoolSettings extends AdminMenuItem {
 
         let request: GetSchoolSettingsRequest = {school_id: this.administration.userData.schule_id}
 
-        return await ajaxAsync("/servlet/getSchoolSettings", request);
+        return await ajaxAsync("/servlet/getSchoolSettings", request) as GetSchoolSettingsResponse;
 
     }
 

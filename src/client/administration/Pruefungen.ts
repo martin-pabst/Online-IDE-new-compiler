@@ -39,6 +39,8 @@ type PSchuelerData = {
 }
 
 type GetPruefungForPrintingResponse = {
+    success: boolean,
+    message: string,
     pSchuelerDataList: PSchuelerData[];
     templates: PFileData[];
 }
@@ -93,8 +95,8 @@ export class Pruefungen extends AdminMenuItem {
         //@ts-ignore
         w2utils.settings.dateStartYear = 1990;
 
-        let response: GetPruefungenForLehrkraftResponse = await ajaxAsync("/servlet/getPruefungenForLehrkraft", {});
-        if (response == null) return;
+        let response = await ajaxAsync("/servlet/getPruefungenForLehrkraft", {}) as GetPruefungenForLehrkraftResponse;
+        if (!response.success) return;
         this.pruefungen = response.pruefungen;
         this.klassen = response.klassen;
         this.workspaces = response.workspaces;
@@ -167,8 +169,8 @@ export class Pruefungen extends AdminMenuItem {
                 if (this.counter % 5 == 0 && this.currentPruefung != null) {
                     let request: GetPruefungStudentStatesRequest = { pruefungId: this.currentPruefung.id }
 
-                    let pruefungStates: GetPruefungStudentStatesResponse = await ajaxAsync("/servlet/getPruefungStates", request);
-                    if (pruefungStates != null) {
+                    let pruefungStates = await ajaxAsync("/servlet/getPruefungStates", request) as GetPruefungStudentStatesResponse;
+                    if (pruefungStates.success) {
                         this.displayStudentStates(pruefungStates);
                     }
                 }
@@ -547,9 +549,9 @@ export class Pruefungen extends AdminMenuItem {
     async print() {
         let request: GetPruefungForPrintingRequest = { pruefungId: this.currentPruefung.id };
 
-        let p: GetPruefungForPrintingResponse = await ajaxAsync("/servlet/getPruefungForPrinting", request);
+        let p = await ajaxAsync("/servlet/getPruefungForPrinting", request) as GetPruefungForPrintingResponse;
 
-        if (p == null) return;
+        if (!p.success) return;
 
         let $printingDiv = jQuery('#print');
         $printingDiv.empty();
@@ -784,7 +786,8 @@ export class Pruefungen extends AdminMenuItem {
 
         let request: GetPruefungStudentTableDataRequest = { pruefung_id: recId };
 
-        let p: GetPruefungStudentTableDataResponse = await ajaxAsync("/servlet/getPruefungStudentTableData", request);
+        let p = await ajaxAsync("/servlet/getPruefungStudentTableData", request) as GetPruefungStudentTableDataResponse;
+        if(!p.success) return;
 
         for (let sd of p.studentDataList) {
             sd.mode = { id: <PruefungStudentMode>sd.mode, text: AdminMessages.modeToText(<string>sd.mode) };

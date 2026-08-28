@@ -1,4 +1,4 @@
-import { LoginRequest, PerformanceData } from "./Data.js";
+import { LoginRequest, PerformanceData, type BaseResponse } from "./Data.js";
 import jQuery from 'jquery';
 import { PushClientManager } from "./pushclient/PushClientManager.js";
 import { currentLanguageId, setLanguageId } from "../../tools/language/LanguageManager.js";
@@ -180,7 +180,8 @@ export async function extractLanguageFromGetRequest(retrieveNewCsrfToken: boolea
 
 
 
-export async function ajaxAsync(url: string, data: any): Promise<any> {
+
+export async function ajaxAsync(url: string, data: any): Promise<BaseResponse> {
     let headers: [string, string][] = [["content-type", "text/json"]];
 
     if (csrfToken != null && csrfToken.length > 0) {
@@ -212,7 +213,7 @@ export async function ajaxAsync(url: string, data: any): Promise<any> {
     } catch (exception) {
         showNetworkBusy(false);
         return {
-            status: "Error",
+            success: false,
             message: "Es ist ein Fehler aufgetreten: " + exception
         }
     }

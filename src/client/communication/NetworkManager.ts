@@ -1,10 +1,9 @@
 import jQuery from 'jquery';
 import { Main } from "../main/Main.js";
-import { SqlIdeUrlHolder } from "../main/SqlIdeUrlHolder.js";
 import { CacheManager } from "../../tools/database/CacheManager.js";
 import { Workspace } from "../workspace/Workspace.js";
 import { ajax, ajaxAsync, csrfToken, PerformanceCollector } from "./AjaxHelper.js";
-import { BaseResponse, CheckIfPruefungIsRunningResponse, ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, MoveFileRequest, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateFileOrderRequest, UpdateGuiStateRequest, UpdateGuiStateResponse, UpdateWorkspaceOrderRequest, WorkspaceData, type CreateOrUpdateGradeRequest, type GetGradeRequest, type GetGradeResponse, type GradeData } from "./Data.js";
+import { BaseResponse, ClassData, CreateOrDeleteFileOrWorkspaceRequest, CRUDResponse, DatabaseData, DistributeWorkspaceRequest, DistributeWorkspaceResponse, DuplicateWorkspaceRequest, DuplicateWorkspaceResponse, FileData, GetDatabaseRequest, getDatabaseResponse, GetTemplateRequest, JAddStatementRequest, JAddStatementResponse, JRollbackStatementRequest, JRollbackStatementResponse, MoveFileRequest, ObtainSqlTokenRequest, ObtainSqlTokenResponse, SendUpdatesRequest, SendUpdatesResponse, SetRepositorySecretRequest, SetRepositorySecretResponse, UpdateFileOrderRequest, UpdateGuiStateRequest, UpdateGuiStateResponse, UpdateWorkspaceOrderRequest, WorkspaceData, type CreateOrUpdateGradeRequest, type GetGradeRequest, type GetGradeResponse, type GradeData } from "./Data.js";
 import { PushClientManager } from "./pushclient/PushClientManager.js";
 import { GUIFile } from '../workspace/File.js';
 import pako from 'pako'
@@ -93,14 +92,6 @@ export class NetworkManager {
         })
     }
 
-    checkIfTestIsRunning(){
-        ajaxAsync("servlet/checkIfPruefungIsRunning", {}).then((resp: CheckIfPruefungIsRunningResponse) => {
-            if(resp && resp.runningPruefung){
-                this.main.pruefungManagerForStudents.startPruefung(resp.runningPruefung);
-            }
-        })
-    }
-
     savePruefungWorkspace(pruefungWorkspace: Workspace){
 
         let request: SendUpdatesRequest = {
@@ -127,22 +118,28 @@ export class NetworkManager {
 
         if (classDiagram?.dirty || this.main.gui_state_dirty) {
 
-            this.main.gui_state_dirty = false;
             userSettings.classDiagram = classDiagram?.serialize();
-            this.sendUpdateGuiState(sendBeacon);
+            this.sendUpdateGuiState(sendBeacon).then((success) => {
+                if(success){                    
+                    this.main.gui_state_dirty = false;
+                    if(classDiagram) classDiagram.dirty = false;
+                }
+            });;
             this.forcedUpdatesInARow = 0;
         }
 
-        if(classDiagram) classDiagram.dirty = false;
 
         let wdList: WorkspaceData[] = [];
         let fdList: FileData[] = [];
+
+        let workspacesToUpdate: Workspace[] = [];
+        let filesToUpdate: GUIFile[] = [];
 
         for (let ws of this.main.workspaceList) {
 
             if (!ws.saved) {
                 wdList.push(ws.getWorkspaceData(false));
-                ws.saved = true;
+                workspacesToUpdate.push(ws);
                 this.forcedUpdatesInARow = 0;
             }
 
@@ -151,7 +148,7 @@ export class NetworkManager {
                     this.forcedUpdatesInARow = 0;
                     fdList.push(file.getFileData(ws));
                     // console.log("Save file " + file.name);
-                    file.setSaved(true);
+                    filesToUpdate.push(file);
                 }
             }
         }
@@ -174,9 +171,12 @@ export class NetworkManager {
             } else {
 
                 try {
-                    let response: SendUpdatesResponse = await ajaxAsync('servlet/sendUpdates', request);
+                    let response = await ajaxAsync('servlet/sendUpdates', request) as SendUpdatesResponse;
                     that.errorHappened = !response.success;
                     if (!that.errorHappened) {
+
+                        filesToUpdate.forEach(file => file.setSaved(true));
+                        workspacesToUpdate.forEach(ws => ws.saved = true);
 
                         if (response.workspaces != null) {
                             that.updateWorkspaces(request, response, alertIfNewWorkspacesFound);
@@ -230,7 +230,7 @@ export class NetworkManager {
             userId: this.main.user.id
         }
 
-        let response: CRUDResponse = await ajaxAsync("servlet/createOrDeleteFileOrWorkspace", request);
+        let response = await ajaxAsync("servlet/createOrDeleteFileOrWorkspace", request) as CRUDResponse;
         if (response.success) {
             w.id = response.id;
             return true;
@@ -266,7 +266,7 @@ export class NetworkManager {
             userId: this.main.user.id
         }
 
-        let response: CRUDResponse = await ajaxAsync("servlet/createOrDeleteFileOrWorkspace", request);
+        let response = await ajaxAsync("servlet/createOrDeleteFileOrWorkspace", request) as CRUDResponse;
         if(response.success) {
             f.id = response.id;
             f.setSaved(true);
@@ -279,7 +279,7 @@ export class NetworkManager {
     async sendDuplicateWorkspace(ws: Workspace): Promise <DuplicateWorkspaceResponse> {
 
         if (this.main.user.is_testuser) {
-            return {message: "Diese Aktion ist für den Testuser nicht möglich.", workspace: null};
+            return {message: "Diese Aktion ist für den Testuser nicht möglich.", workspace: null, success: false};
         }
 
 
@@ -287,7 +287,7 @@ export class NetworkManager {
             workspace_id: ws.id
         }
 
-        return await ajaxAsync("/servlet/duplicateWorkspace", request);
+        return await ajaxAsync("/servlet/duplicateWorkspace", request) as DuplicateWorkspaceResponse;
 
     }
 
@@ -367,17 +367,17 @@ export class NetworkManager {
             userId: this.main.user.id
         }
 
-        let response: CRUDResponse = 
-           await ajaxAsync("/servlet/createOrDeleteFileOrWorkspace", request);
+        let response = 
+           await ajaxAsync("/servlet/createOrDeleteFileOrWorkspace", request) as CRUDResponse;
 
         return response.success;
     }
 
-    async sendUpdateGuiState(sendBeacon: boolean = false): Promise<string> {
+    async sendUpdateGuiState(sendBeacon: boolean = false): Promise<boolean> {
 
         if (this.main.user.is_testuser) {
-            return;
         }
+            return true;
 
         let request: UpdateGuiStateRequest = {
             gui_state: this.main.user.gui_state,
@@ -386,14 +386,10 @@ export class NetworkManager {
 
         if (sendBeacon) {
             navigator.sendBeacon("servlet/updateGuiState", JSON.stringify(request));
+            return true;
         } else {
             let response: UpdateGuiStateResponse = await ajaxAsync("servlet/updateGuiState", request);
-            if (response.success) {
-                return null;
-            } else {
-                return "Netzwerkfehler!";
-            }
-
+            return response?.success || false;
         }
 
     }
@@ -661,7 +657,7 @@ export class NetworkManager {
             pruefungId: pruefung_id
         }
 
-        let response: GetGradeResponse = await ajaxAsync("servlet/getGrade", request);
+        let response = await ajaxAsync("servlet/getGrade", request) as GetGradeResponse;
 
         return response.grade;
     }

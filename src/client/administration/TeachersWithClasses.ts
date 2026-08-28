@@ -413,7 +413,7 @@ export class TeachersWithClassesMI extends AdminMenuItem {
 
         let request: GetTeacherDataRequest = { school_id: this.administration.userData.schule_id };
 
-        let data: GetTeacherDataResponse = await ajaxAsync("/servlet/getTeacherData", request);
+        let data = await ajaxAsync("/servlet/getTeacherData", request) as GetTeacherDataResponse;
 
         this.teacherData = data.teacherData;
         this.classesWithoutTeacher = data.classesWithoutTeacher;
