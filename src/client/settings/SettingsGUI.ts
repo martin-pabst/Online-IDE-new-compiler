@@ -10,6 +10,7 @@ import '/assets/css/settings.css';
 import { getSelectedObject, SelectItem, setSelectItems } from "../../tools/HtmlTools.ts";
 import { Treeview } from "../../tools/components/treeview/Treeview.ts";
 import { SettingPrecedence, SettingPrecedenceValues, SettingsScope, SettingValue } from "./SettingsStore.ts";
+import { SecureJSON } from "../../tools/SecureJSON.ts";
 
 type ClassSettings = { classId: number, className: string, settings: SettingValues };
 
@@ -36,8 +37,8 @@ export class SettingsGUI {
 
     constructor(private main: Main) {
         this.userSettings = main.settings.values.user || {};
-        this.ownClassSettings = main.settings.values.class;
-        this.schoolSettings = main.settings.values.school;
+        this.ownClassSettings = main.settings.values.class || {};
+        this.schoolSettings = main.settings.values.school || {};
     }
 
     async open() {
@@ -120,8 +121,11 @@ export class SettingsGUI {
     async getSettingsFromServer() {
         let response = await ajaxAsync("/servlet/getSettings", {}) as GetSettingsResponse;
         if (response.success) {
-            this.classSettings = response.classSettings;
-            this.schoolSettings = response.schoolSettings;
+            this.classSettings = response.classSettings.map(cs => ({
+                classId: cs.classId,
+                className: cs.className,
+                settings: SecureJSON.parse(cs.settings)
+            }));
         }
     }
 
@@ -218,15 +222,17 @@ export class SettingsGUI {
                 userId: this.currentScope == 'user' ? this.main.user.id : undefined,
                 klasseId: this.currentScope == 'class' ? this.currentClassId : undefined,
                 schuleId: this.currentScope == 'school' ? this.main.user.schule_id : undefined,
-                settings: this.getCurrentSettingValues()
+                settings:  SecureJSON.stringify(this.getCurrentSettingValues())
             }
 
             $savingMessage.text(SettingsMessages.Saving() + '...');
             $savingMessage.css('color', 'var(--loginMessageColor)');
             $savingMessage.show();
             let response: UpdateSettingsDataResponse = await ajaxAsync('/servlet/updateSettings', request);
-            $savingMessage.text(`-> ${SettingsMessages.Saved()} ✓`);
-            $savingMessage.css('color', 'var(--loginButtonBackground)')
+            if(response.success){
+                $savingMessage.text(`-> ${SettingsMessages.Saved()} ✓`);
+                $savingMessage.css('color', 'var(--loginButtonBackground)')
+            }
         }
     }
 
@@ -257,7 +263,7 @@ export class SettingsGUI {
         $inputElement.on('focusout', async () => {
             let value = $inputElement.val();
             if (value == '') value = undefined; // default-value!
-            await onChangedCallback(value, $savingMessage);
+            await onChangedCallback(<string>value, $savingMessage);
         })
 
         $inputElement.on('change', () => {
@@ -360,10 +366,10 @@ export class SettingsGUI {
             this.currentSettingsGroup = element;
             if(element.isSchooladminOnly){
                 this.tabManager.setActive(this.schoolSettingsTab);
-                this.classSettingsTab.setVisible(false);
+                this.classSettingsTab?.setVisible(false);
                 this.userSettingsTab.setVisible(false);
             } else {
-                this.classSettingsTab.setVisible(this.main.user.is_teacher);
+                this.classSettingsTab?.setVisible(this.main.user.is_teacher);
                 this.userSettingsTab.setVisible(true);
             }
             this.showSettingsData();

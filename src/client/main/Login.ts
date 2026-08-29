@@ -16,6 +16,7 @@ import { LoginMessages } from './language/MainLanguage.js';
 import { Settings } from '../settings/Settings.js';
 import { ProgrammingLanguageData } from '../../compiler/common/programminglanguage/ProgrammingLanguageData.js';
 import { Constants } from '../Constants.js';
+import { SecureJSON } from '../../tools/SecureJSON.js';
 
 export class Login {
 
@@ -194,8 +195,7 @@ export class Login {
                 let user: UserData = response.user;
                 user.is_testuser = response.isTestuser;
 
-                if (user.gui_state == null || user.gui_state.helperHistory == null) {
-                    user.gui_state = {
+                this.main.guiState = SecureJSON.parse(user.gui_state) || {
                         helperHistory: {
                             consoleHelperDone: false,
                             newFileHelperDone: false,
@@ -209,14 +209,14 @@ export class Login {
                         viewModes: null,
                         classDiagram: null,
                         language: 'de'
-                    }
-                }
+                };
+
 
                 that.main.user = user;
                 that.main.settings = new Settings(user, 
                     user.settings, response.classSettings, response.schoolSettings);
 
-                that.main.languagemanager.setLanguage(user.gui_state.language);
+                that.main.languagemanager.setLanguage(this.main.guiState.language);
 
                 this.main.startupAfterLogin();
 
@@ -246,8 +246,8 @@ export class Login {
 
                 that.main.rightDiv?.classDiagram?.clear();
 
-                if (user.gui_state.classDiagram != null) {
-                    that.main.rightDiv?.classDiagram?.deserialize(user.gui_state.classDiagram);
+                if (this.main.guiState.classDiagram != null) {
+                    that.main.rightDiv?.classDiagram?.deserialize(this.main.guiState.classDiagram);
                 }
 
                 that.main.viewModeController.initViewMode();

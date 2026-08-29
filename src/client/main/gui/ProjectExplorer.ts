@@ -808,7 +808,7 @@ export class ProjectExplorer {
         if (w.repository_id != null && w.owner_id == this.main.user.id) {
             this.synchronizedButton.setVisible(true);
 
-            if (!this.main.user.gui_state.helperHistory.repositoryButtonDone) {
+            if (!this.main.guiState.helperHistory.repositoryButtonDone) {
 
                 Helper.showHelper("repositoryButton", this.main, jQuery(this.synchronizedButton.parent));
 
@@ -866,7 +866,7 @@ export class ProjectExplorer {
             this.setFileActive(null);
         }
 
-        if (files.length == 0 && !this.main.user.gui_state.helperHistory.newFileHelperDone) {
+        if (files.length == 0 && !this.main.guiState.helperHistory.newFileHelperDone) {
 
             Helper.showHelper("newFileHelper", this.main, jQuery(this.fileTreeview.addElementsButton.parent));
 

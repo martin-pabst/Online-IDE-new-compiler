@@ -213,7 +213,7 @@ export class TeacherExplorer {
                 async () => {
                     let response = await ajaxAsync("servlet/getSingleUseSessionToken", {}) as GetSingleUseSessionTokenResponse;
                     if (response.success) {
-                        window.open("administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + (this.main.user.gui_state.language ?? "de") + "&menuItem=manageTests");
+                        window.open("administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + (this.main.guiState.language ?? "de") + "&menuItem=manageTests");
                         // window.open(`administration_mc.html?csrfToken=${csrfToken}&menuItem=manageTests`, '_blank').focus();
                     }
                 }, TeacherExplorerMessages.createNewTest());

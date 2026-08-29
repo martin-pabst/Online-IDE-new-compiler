@@ -64,7 +64,7 @@ export class ClassDiagram extends Diagram {
         let that = this;
 
         if (!main.isEmbedded()) {
-            let serializedClassDiagram = (<Main>main).user.gui_state?.classDiagram;
+            let serializedClassDiagram = (<Main>main).guiState?.classDiagram;
             if (serializedClassDiagram) {
                 this.deserialize(serializedClassDiagram);
             }

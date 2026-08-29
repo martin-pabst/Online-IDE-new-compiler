@@ -8,6 +8,7 @@ import { PushClientManager } from "./pushclient/PushClientManager.js";
 import { GUIFile } from '../workspace/File.js';
 import pako from 'pako'
 import { FileTypeManager } from '../../compiler/common/module/FileTypeManager.js';
+import { SecureJSON } from '../../tools/SecureJSON.js';
 
 
 export class NetworkManager {
@@ -114,11 +115,11 @@ export class NetworkManager {
         }
 
         let classDiagram = this.main.rightDiv?.classDiagram;
-        let userSettings = this.main.user.gui_state;
+        let gui_state = this.main.guiState;
 
         if (classDiagram?.dirty || this.main.gui_state_dirty) {
 
-            userSettings.classDiagram = classDiagram?.serialize();
+            gui_state.classDiagram = classDiagram?.serialize();
             this.sendUpdateGuiState(sendBeacon).then((success) => {
                 if(success){                    
                     this.main.gui_state_dirty = false;
@@ -376,11 +377,11 @@ export class NetworkManager {
     async sendUpdateGuiState(sendBeacon: boolean = false): Promise<boolean> {
 
         if (this.main.user.is_testuser) {
-        }
             return true;
+        }
 
         let request: UpdateGuiStateRequest = {
-            gui_state: this.main.user.gui_state,
+            gui_state: SecureJSON.stringify(this.main.guiState),
             userId: this.main.user.id
         }
 

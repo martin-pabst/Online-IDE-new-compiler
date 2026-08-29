@@ -13,7 +13,7 @@ import { ErrorMarker } from '../../compiler/common/monacoproviders/ErrorMarker.j
 import { ProgramPointerManager } from '../../compiler/common/monacoproviders/ProgramPointerManager.js';
 import { IRange, Range } from '../../compiler/common/range/Range.js';
 import { checkIfMousePresent, findGetParameter } from "../../tools/HtmlTools.js";
-import { ClassData, UserData, WorkspaceData, Workspaces } from "../communication/Data.js";
+import { ClassData, UserData, WorkspaceData, Workspaces, type GuiState } from "../communication/Data.js";
 import { NetworkManager } from "../communication/NetworkManager.js";
 import { PushClientManager } from '../communication/pushclient/PushClientManager.js';
 import { SynchronizationManager } from "../repository/synchronize/RepositorySynchronizationManager.js";
@@ -109,6 +109,8 @@ export class Main implements MainBase {
 
     settings: Settings;
     debuggerDiv: HTMLDivElement;
+
+    guiState: GuiState;
 
     showFile(file?: CompilerFile): void {
         if (!file || !(file instanceof GUIFile)) return;
@@ -388,7 +390,7 @@ export class Main implements MainBase {
 
         }
 
-        if (!this.user.gui_state.helperHistory.folderButtonDone && this.projectExplorer.workspaceTreeview.size(true) > 5) {
+        if (!this.guiState.helperHistory.folderButtonDone && this.projectExplorer.workspaceTreeview.size(true) > 5) {
 
             Helper.showHelper("folderButton", this, jQuery(this.projectExplorer.workspaceTreeview.addFolderButton.parent));
 

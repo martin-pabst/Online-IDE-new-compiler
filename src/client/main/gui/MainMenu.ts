@@ -49,6 +49,8 @@ export class MainMenu {
         let that = this;
         let editor = this.main.getMainEditor();
 
+        let language = this.main.guiState.language ?? "de";
+
         let mainMenu: Menu = {
             items: [
                 {
@@ -222,7 +224,7 @@ export class MainMenu {
                             { identifier: "-" },
                             {
                                 identifier: GuiMessages.SpriteCatalogue(),
-                                link: serverURL + "spriteLibrary.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
+                                link: serverURL + "spriteLibrary.html?csrfToken=" + csrfToken + "&lang=" + language
                             },
                         ]
                     }
@@ -252,12 +254,12 @@ export class MainMenu {
                             {
                                 identifier: GuiMessages.APIReference(),
                                 //link: "https://www.learnj.de/doku.php?id=api:documentation:start"
-                                link: serverURL + "api_documentation.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
+                                link: serverURL + "api_documentation.html?csrfToken=" + csrfToken + "&lang=" + language
                             },
                             { identifier: "-" },
                             {
                                 identifier: GuiMessages.Shortcuts(),
-                                link: serverURL + "shortcuts.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
+                                link: serverURL + "shortcuts.html?csrfToken=" + csrfToken + "&lang=" + language
                             },
                             { identifier: "-" },
                             {
@@ -337,7 +339,7 @@ export class MainMenu {
                     action: async () => {
                         let response = await ajaxAsync("servlet/getSingleUseSessionToken", {}) as GetSingleUseSessionTokenResponse;
                         if (response.success) {
-                        window.open(serverURL + "administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + (user.gui_state.language ?? "de"));
+                        window.open(serverURL + "administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
                         }
                     }
                 }
@@ -348,7 +350,7 @@ export class MainMenu {
         //     mainMenu.items[0].subMenu.items.push(
         //         {
         //             identifier: GuiMessages.ServerStatistics(),
-        //             link: serverURL + "statistics.html?csrfToken=" + csrfToken + "&lang=" + (user.gui_state.language ?? "de")
+        //             link: serverURL + "statistics.html?csrfToken=" + csrfToken + "&lang=" + language
         //         }, {
         //         identifier: GuiMessages.ShutdownServer(),
         //         action: () => {

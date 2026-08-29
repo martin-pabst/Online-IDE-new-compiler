@@ -47,6 +47,7 @@ import { EmbeddedFullpageController } from "./EmbeddedFullpageController.js";
 import { EmbeddedIndexedDB } from "./EmbeddedIndexedDB.js";
 import { OnlineIDEAccessImpl } from "./EmbeddedInterface.js";
 import { JOScript } from "./EmbeddedStarter.js";
+import { SecureJSON } from "../../tools/SecureJSON.js";
 
 /**
  * Configuration options for the Java Online IDE in embedded mode.
@@ -180,7 +181,7 @@ export class MainEmbedded implements MainBase {
         let userSettings = this.config.settings || {};
 
         if (!this.settings) {
-            this.settings = new Settings(undefined, userSettings, {}, {});
+            this.settings = new Settings(undefined, SecureJSON.stringify(userSettings), undefined, undefined);
         }
         return this.settings;
     }

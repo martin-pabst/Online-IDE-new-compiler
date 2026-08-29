@@ -20,6 +20,7 @@ import w2uiLocale from '/assets/w2uilocale/de-de.json?url'
 import type { SettingValues } from "../settings/SettingsMetadata.js";
 import { SettingDefaultValues, type SettingsStore } from "../settings/SettingsStore.js";
 import { Settings } from "../settings/Settings.js";
+import { SecureJSON } from "../../tools/SecureJSON.js";
 
 
 
@@ -49,7 +50,7 @@ export class Administration {
 
         ajax("getUserData", {}, (response: GetUserDataResponse) => {
             that.userData = response.user;
-            that.schoolSettings = response.schoolSettings;
+            that.schoolSettings = SecureJSON.parse(response.schoolSettings);
             that.classes = response.classdata;
             that.schoolName = response.schoolName;
             that.vidisSchoolId = response.vidisSchoolId;

@@ -3,6 +3,7 @@ import { TranslatedText } from "../../tools/language/LanguageManager";
 import { AllSettingsMetadata, GroupOfSettingMetadata, SettingMetadata, SettingValues } from "./SettingsMetadata";
 import type { UserData } from "../communication/Data";
 import { SettingDefaultValues, SettingKey, SettingsScope, SettingsStore, SettingValue, SettingPrecedenceValues, SettingPrecedence, SettingsPrecedenceArrays } from "./SettingsStore";
+import { SecureJSON } from "../../tools/SecureJSON";
 
 
 export class Settings implements SettingsStore {
@@ -21,17 +22,16 @@ export class Settings implements SettingsStore {
     }
 
     constructor(private user: UserData | undefined,
-        userSettings: SettingValues | undefined,
-        classSettings: SettingValues | undefined, schoolSettings: SettingValues | undefined) {
+        userSettings: string | undefined,
+        classSettings: string | undefined, schoolSettings: string | undefined) {
         // Initialize default values
         for (let setting of AllSettingsMetadata) {
             this.setDefaultValues(setting);
         }
 
-
-        this.values.user = userSettings || {};
-        this.values.class = classSettings || {};
-        this.values.school = schoolSettings || {};
+        this.values.user = userSettings ? SecureJSON.parse(userSettings) : {};
+        this.values.class = classSettings ? SecureJSON.parse(classSettings) : {};
+        this.values.school = schoolSettings ? SecureJSON.parse(schoolSettings) : {};
 
     }
 
