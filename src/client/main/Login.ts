@@ -214,7 +214,7 @@ export class Login {
 
                 that.main.user = user;
                 that.main.settings = new Settings(user, 
-                    response.userSettings, response.classSettings, response.schoolSettings);
+                    user.settings, response.classSettings, response.schoolSettings);
 
                 that.main.languagemanager.setLanguage(user.gui_state.language);
 

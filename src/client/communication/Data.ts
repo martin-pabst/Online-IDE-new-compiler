@@ -104,10 +104,14 @@ export type UserData = {
     familienname: string,
     rufname: string,
     currentWorkspace_id?: number,
+    
     gui_state?: GuiState,
+    sql_gui_state?: any,
+    settings?: SettingValues,
+    sql_settings?: any,
+
     password?: string,
     is_testuser?: boolean,
-    settings?: SettingValues,
 
     vidis_sub?: string,
     vidis_klasse?: string,
@@ -214,7 +218,6 @@ export type LoginResponse = {
     isTestuser: boolean,
     activePruefung: Pruefung,
     sqlIdeForOnlineIdeClient: string,
-    userSettings: SettingValues,   // new user settings
     classSettings: SettingValues, // settings for class if user is student
     schoolSettings: SettingValues, // settings for school
     vidis_id_token?: string,
