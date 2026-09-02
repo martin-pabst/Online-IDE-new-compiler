@@ -917,6 +917,10 @@ export class ProjectExplorer {
                 }, 100);
             }
 
+            this.fileTreeview.selectElement(file, false);
+            file.restoreViewState(editor);
+            this.lastOpenFile = file;
+
             if (file.text_before_revision != null) {
                 this.main.bottomDiv.homeworkManager.showHomeWorkRevisionButton();
             } else {

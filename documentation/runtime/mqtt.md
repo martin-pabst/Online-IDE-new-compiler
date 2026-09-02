@@ -1,5 +1,5 @@
 # Time table: 
-  * 10 min einlesen        (hauptsächllich auf https://github.com/mqttjs/MQTT.js)
+  * 10 min einlesen        (hauptsächlich auf https://github.com/mqttjs/MQTT.js)
   * 20 min folgendes überlegen + schreiben:
 
 

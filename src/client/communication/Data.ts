@@ -216,7 +216,6 @@ export type LoginResponse = {
     workspaces: Workspaces,
     isTestuser: boolean,
     activePruefung: Pruefung,
-    sqlIdeForOnlineIdeClient: string,
     classSettings: string, // settings for class if user is student; serialized SettingValues
     schoolSettings: string, // settings for school; serialized SettingValues
     vidis_id_token?: string,
