@@ -103,7 +103,8 @@ export type UserData = {
     familienname: string,
     rufname: string,
     currentWorkspace_id?: number,
-    
+    sql_current_workspace_id?: number,
+
     gui_state?: string, // serialized GuiState
     sql_gui_state?: any,
     settings?: string, // serialized SettingValues 

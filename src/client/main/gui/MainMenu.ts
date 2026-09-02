@@ -339,7 +339,8 @@ export class MainMenu {
                     action: async () => {
                         let response = await ajaxAsync("servlet/getSingleUseSessionToken", {}) as GetSingleUseSessionTokenResponse;
                         if (response.success) {
-                        window.open(serverURL + "administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
+                        // window.open(serverURL + "administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
+                        window.open("https://teacherbackend.online-ide.de?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
                         }
                     }
                 }
