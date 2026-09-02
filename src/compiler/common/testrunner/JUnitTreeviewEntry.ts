@@ -13,23 +13,12 @@ import { ExceptionPrinter } from "../interpreter/ExceptionPrinter";
 
 export type JUnitTreeviewEntryType = "all" | "class" | "method";
 
-type Testresult = {
-    state: "passed" | "failed",
-    message?: string
-}
-
-type TestProgress = {
-    overall: number,
-    passed: number,
-    failed: number
-}
-
 export class JUnitTreeviewEntry {
 
     children: JUnitTreeviewEntry[] = [];
     treeviewNode: TreeviewNode<JUnitTreeviewEntry, JUnitTreeviewEntry>;
 
-    testProgress: TestProgress = { overall: 0, passed: 0, failed: 0 };
+    readonly testProgress: TestProgress = { overall: 0, passed: 0, failed: 0, classIdentifier: "", methodIdentifier: "", children: [] };
 
     assertionResults: AssertionResult[] = [];   // Results of last run
 
@@ -37,6 +26,9 @@ export class JUnitTreeviewEntry {
         public moduleManager: JavaModuleManager | undefined,
         public klass: JavaClass | undefined,
         public method: JavaMethod | undefined) {
+
+        this.testProgress.classIdentifier = this.klass?.identifier || "";
+        this.testProgress.methodIdentifier = this.method?.identifier || "";
 
         this.treeviewNode = new TreeviewNode(testrunner.testTreeview, !this.method, "", "img_test-start", this, parent);
         this.treeviewNode.onIconClicked = (element) => {
@@ -68,7 +60,9 @@ export class JUnitTreeviewEntry {
             for (let method of this.klass.getOwnMethods()
                 .filter(m => !m.isConstructor && m.hasAnnotation("Test") && m.returnParameterType?.identifier == "void"
                     && m.parameters.length == 0)) {
-                this.children.push(new JUnitTreeviewEntry(this.testrunner, this, undefined, undefined, method));
+                let childEntry = new JUnitTreeviewEntry(this.testrunner, this, undefined, undefined, method);
+                this.testProgress.children.push(childEntry.testProgress);
+                this.children.push(childEntry);
             }
             return;
         }
@@ -78,7 +72,9 @@ export class JUnitTreeviewEntry {
                     let testMethods = (<JavaClass>type).getOwnMethods()
                         .filter(m => !m.isConstructor && m.hasAnnotation("Test") && m.returnParameterType?.identifier == "void" && m.parameters.length == 0);
                     if (testMethods.length > 0) {
-                        this.children.push(new JUnitTreeviewEntry(this.testrunner, this, undefined, <JavaClass>type, undefined));
+                        let childEntry = new JUnitTreeviewEntry(this.testrunner, this, undefined, <JavaClass>type, undefined);
+                        this.testProgress.children.push(childEntry.testProgress);
+                        this.children.push(childEntry);
                     }
                 }
             }
@@ -260,11 +256,9 @@ export class JUnitTreeviewEntry {
     }
 
     reset() {
-        this.testProgress = {
-            overall: 0,
-            passed: 0,
-            failed: 0
-        }
+        this.testProgress.overall = 0;
+        this.testProgress.passed = 0;
+        this.testProgress.failed = 0;
 
         this.children.forEach(c => c.reset());
     }

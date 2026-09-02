@@ -7,6 +7,12 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
 
     <script type="module" src="/src/client/embedded/EmbeddedStarter.ts"></script>
+    <script>
+        window.online_ide_onReady = () => {
+            let ide = window.online_ide_access.getIDE('abcd');
+            ide.registerOnRunExitListener((exitStatus)=>{console.log(exitStatus);});
+        }
+    </script>
 </head>
 
 <body>
@@ -23,13 +29,35 @@
         'settings': {
             'compiler.shadowedSymbolErrorLevel': 'error'
         },
-        'withClassDiagram': true
+        'withClassDiagram': true,
+        'enableRunExitStatusAccess': true
 
     }">
-        <script type="text/plain" title="Test1.java" data-type="java">
+        <script type="text/plain" title="Program.java" data-type="java">
+           for(int i = 0; i < 10; i++){
+              println(i);
+           }
+           System.exit(0);            
+        </script>
+        <script type="text/plain" title="Test.java" data-type="java">
+            @Test
+class MyFirstTestClass {
 
-           
-            
+   @Test
+   void testSquareRoot() {
+      double squareRootOfFour = Math.sqrt(4);
+      assertEquals(2.0, squareRootOfFour,
+         "There seems to be something wrong with Math.sqrt!");
+   }
+
+   @Test
+   void testDivision() {
+      double n = 5 / 2 * 3;
+      println(n);
+      assertEquals(7.5, n,
+         "5/2 * 3 doesn't yield 7.5 -> mysterious...");
+   }
+}
         </script>
     </div>
 

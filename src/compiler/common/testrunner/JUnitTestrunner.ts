@@ -43,6 +43,7 @@ export class JUnitTestrunner {
     executingTestDiv?: HTMLDivElement;
 
     progressbar!: JUnitProgressbar;
+    private rootEntry: JUnitTreeviewEntry;
 
     constructor(public main: IMain, parentElement: HTMLElement) {
         this.registerHandler();
@@ -62,8 +63,9 @@ export class JUnitTestrunner {
         this.outputDiv = DOM.makeDiv(this.rightDiv, "jo_junitTestrunnerOutput", "jo_scrollable");
 
         this.testTreeview = new Treeview(leftDiv, {
-            captionLine: { enabled: false
-             },
+            captionLine: {
+                enabled: false
+            },
             initialExpandCollapseState: 'expanded',
             buttonAddFolders: false,
             buttonAddElements: false,
@@ -125,10 +127,10 @@ export class JUnitTestrunner {
     }
 
     onAfterExecutableInitialized(executable: JavaExecutable) {
-        if(!(executable instanceof JavaExecutable)) return;
+        if (!(executable instanceof JavaExecutable)) return;
         this.markTestsInEditor(executable);
         this.testTreeview.clear();
-        new JUnitTreeviewEntry(this, undefined, executable.getModuleManager(), undefined, undefined);
+        this.rootEntry = new JUnitTreeviewEntry(this, undefined, executable.getModuleManager(), undefined, undefined);
     }
 
     markTestsInEditor(executable: JavaExecutable) {
@@ -163,7 +165,7 @@ export class JUnitTestrunner {
 
                 let decorations: monaco.editor.IModelDeltaDecoration[] = [];
                 let file = klass.module.file;
-                if(!(file instanceof GUIFile)) return;
+                if (!(file instanceof GUIFile)) return;
                 let model = file.getMonacoModel();
                 if (!model) return;
 
@@ -286,6 +288,10 @@ export class JUnitTestrunner {
 
     clearTree() {
         this.testTreeview?.clear();
+    }
+
+    getProgress(): TestProgress | undefined {
+        return this.rootEntry?.testProgress;
     }
 
 

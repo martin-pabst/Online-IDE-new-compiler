@@ -179,6 +179,7 @@ export class Scheduler {
                                 this.#callbackAfterProgramFinished = undefined;
                                 cb();
                             }
+                            this.interpreter.eventManager.fire("done");
                             return SchedulerExitState.nothingMoreToDo;
                         }
                         break;
@@ -241,6 +242,7 @@ export class Scheduler {
                     if (!printManager.isTestPrintManager()) {
                         let dt = performance.now() - this.#timeStampProgramStarted;
                         let stepsPerSecond = Math.round(this.stepCountSinceStartOfProgram / dt * 1000);
+                        this.interpreter.printManager.stopLogging();
                         this.interpreter.printManager.print("", true, undefined);
                         this.interpreter.printManager.print(InterpreterMessages.ExecutionTime() + ": " +
                             Math.round(dt * 100) / 100 + " ms, " +
@@ -565,6 +567,7 @@ export class Scheduler {
     exit(status: number) {
         console.log("Exited with status " + status);
         this.interpreter.printManager?.print("Exited with status " + status, true, 0xffffff);
+        this.interpreter.exitStatus = status;
         this.interpreter.stop(false);
         // this.setState(SchedulerState.stopped);
     }

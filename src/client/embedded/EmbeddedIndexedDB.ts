@@ -4,43 +4,47 @@ export class EmbeddedIndexedDB {
 
     private db: IDBDatabase;
 
-    public open(successCallback: () => void) {
+    public async open(): Promise<void> {
 
-        if (window.indexedDB) {
-
-            let request: IDBOpenDBRequest = window.indexedDB.open("LearnJ", 1);
-
-            let that = this;
-
-            request.onerror = function (this: IDBRequest<IDBDatabase>, ev: Event) {
-                console.log("Couldn't open IndexedDB: " + ev.type);
-            };
-
-            request.onsuccess = function (this: IDBRequest<IDBDatabase>, ev: Event) {
-                that.db = request.result;
-                that.db.onerror = function(event) {
-                    // Allgemeine Fehlerbehandlung, die für alle Anfragen an die Datenbank gilt.
+        return new Promise<void>((resolve, reject) => {
+            if (window.indexedDB) {
+    
+                let request: IDBOpenDBRequest = window.indexedDB.open("LearnJ", 1);
+    
+                let that = this;
+    
+                request.onerror = function (this: IDBRequest<IDBDatabase>, ev: Event) {
+                    console.log("Couldn't open IndexedDB: " + ev.type);
+                    reject();
+                };
+    
+                request.onsuccess = function (this: IDBRequest<IDBDatabase>, ev: Event) {
+                    that.db = request.result;
+                    that.db.onerror = function(event) {
+                        // Allgemeine Fehlerbehandlung, die für alle Anfragen an die Datenbank gilt.
+                        // @ts-ignore
+                        console.log("Datenbankfehler: " + event.target.error.message);
+                      };
+                      resolve();
+                };
+    
+                request.onupgradeneeded = function(ev: Event){
                     // @ts-ignore
-                    console.log("Datenbankfehler: " + event.target.error.message);
-                  };
-                  successCallback();
-            };
-
-            request.onupgradeneeded = function(ev: Event){
-                // @ts-ignore
-                that.db = ev.target.result;
-                let objectStore = that.db.createObjectStore("scripts", { keyPath: "scriptId", autoIncrement: false});
-
-
-                objectStore.transaction.oncomplete = function(event) {
-
+                    that.db = ev.target.result;
+                    let objectStore = that.db.createObjectStore("scripts", { keyPath: "scriptId", autoIncrement: false});
+    
+    
+                    objectStore.transaction.oncomplete = function(event) {
+    
+                    }
+    
                 }
-
+    
+            } else {
+                console.log("IndexedDB not available.");
             }
 
-        } else {
-            console.log("IndexedDB not available.");
-        }
+        });
 
     }
 

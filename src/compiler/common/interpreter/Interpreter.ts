@@ -28,10 +28,11 @@ import { GuiMessages } from "../../../client/main/gui/language/GuiMessages.ts";
 import { ArrayClassSimulator } from "../../java/runtime/system/javalang/ArrayClassSimulator.ts";
 import { JavaExecutable } from "../../java/JavaExecutable.ts";
 import { Debugger } from "../debugger/Debugger.ts";
+import type { IThrowable } from "./ThrowableType.ts";
 
 
 type InterpreterEvents = "stop" | "done" | "resetRuntime" | "stateChanged" |
-    "showProgramPointer" | "hideProgramPointer" | "afterExcecutableInitialized";
+    "showProgramPointer" | "hideProgramPointer" | "afterExcecutableInitialized" | "start";
 
 export class Interpreter {
 
@@ -57,6 +58,9 @@ export class Interpreter {
     eventManager: EventManager<InterpreterEvents> = new EventManager();
 
     actorManager: ActorManager;
+
+    exitStatus: number;
+    exception: IThrowable | undefined;
 
     #objectStore: Map<string, any> = new Map();
 
@@ -512,11 +516,6 @@ export class Interpreter {
 
         this.#enableButtonsAccordingToState(state);
 
-        if (state == SchedulerState.stopped) {
-            this.eventManager.fire("done");
-
-        }
-
         let runningStates: SchedulerState[] = [SchedulerState.paused, SchedulerState.running];
         if (runningStates.indexOf(this.scheduler.state) >= 0 && runningStates.indexOf(state) < 0) {
             this.keyboardManager?.unsubscribeAllListeners();
@@ -527,6 +526,7 @@ export class Interpreter {
 
         if (runningStates.indexOf(this.scheduler.state) < 0 && runningStates.indexOf(state) >= 0) {
             this.main?.showDebugger();
+            this.eventManager.fire("start");
         }
 
         this.eventManager.fire("stateChanged", this.scheduler.state, state);

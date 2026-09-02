@@ -372,6 +372,7 @@ export class Thread {
                 this.scheduler.interpreter.breakpointManager?.main);
 
             this.scheduler.interpreter.exceptionMarker?.markException(exception, step)
+            this.scheduler.interpreter.exception = exception;
 
             this.state = ThreadState.terminatedWithException;
 

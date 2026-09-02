@@ -160,6 +160,12 @@ export class EmbeddedStarter {
             await this.initDiv(dws[0], dws[1]);
         }
 
+        //@ts-ignore
+        if(window.online_ide_onReady){
+            //@ts-ignore
+            window.online_ide_onReady();
+        }
+
     }
 
     eraseDokuwikiSearchMarkup(text: string): string {
@@ -177,7 +183,8 @@ export class EmbeddedStarter {
         }
 
         // Here execution is continued...
-        new MainEmbedded($div, scriptList);
+        let mainEmbedded =new MainEmbedded($div, scriptList);
+        await mainEmbedded.init();
 
     }
 

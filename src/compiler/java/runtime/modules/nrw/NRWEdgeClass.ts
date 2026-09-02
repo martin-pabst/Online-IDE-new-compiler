@@ -12,7 +12,7 @@ export class NRWEdgeClass extends ObjectClass {
 
         { type: "method", signature: "boolean isMarked()", native: NRWEdgeClass.prototype._isMarked, comment: NRWLang.edgeIsMarkedComment },
         { type: "method", signature: "void setMark(boolean pMark)", native: NRWEdgeClass.prototype._setMark, comment: NRWLang.edgeSetMarkComment },
-        { type: "method", signature: "Vertex[] getVertices()", native: NRWEdgeClass.prototype._getVertices, comment: NRWLang.edgeGetVerticesComment },
+        { type: "method", signature: "nrw.Vertex[] getVertices()", native: NRWEdgeClass.prototype._getVertices, comment: NRWLang.edgeGetVerticesComment },
         
         { type: "method", signature: "void setWeight(double pWeight)", native: NRWEdgeClass.prototype._setWeight, comment: NRWLang.edgeSetWeightComment },
         { type: "method", signature: "double getWeight(double pWeight)", native: NRWEdgeClass.prototype._getWeight, comment: NRWLang.edgeGetWeightComment },

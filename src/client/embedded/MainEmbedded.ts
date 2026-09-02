@@ -45,9 +45,11 @@ import { ExportedWorkspace, WorkspaceExporter } from "../workspace/WorkspaceImpo
 import { EmbeddedFileExplorer } from "./EmbeddedFileExplorer.js";
 import { EmbeddedFullpageController } from "./EmbeddedFullpageController.js";
 import { EmbeddedIndexedDB } from "./EmbeddedIndexedDB.js";
-import { OnlineIDEAccessImpl } from "./EmbeddedInterface.js";
+import { OnlineIDEAccessImpl, type OnRunExitListener } from "./EmbeddedInterface.js";
 import { JOScript } from "./EmbeddedStarter.js";
 import { SecureJSON } from "../../tools/SecureJSON.js";
+import type { IThrowable } from "../../compiler/common/interpreter/ThrowableType.js";
+import { JavaLanguage } from "../../compiler/java/JavaLanguage.js";
 
 /**
  * Configuration options for the Java Online IDE in embedded mode.
@@ -68,12 +70,13 @@ type JavaOnlineConfig = {
     jsonFilename?: string,
     spritesheetURL?: string,
     enableFileAccess?: boolean,
+    enableRunExitStatusAccess?: boolean,
     settings?: SettingValues,
     workspaceURLParameterName?: string,
     cacheUserEdits?: boolean
 
     programmingLanguage?: string,
-    
+
 }
 
 export class MainEmbedded implements MainBase {
@@ -127,130 +130,53 @@ export class MainEmbedded implements MainBase {
 
     embeddedFullpageController: EmbeddedFullpageController;
 
-    isEmbedded(): boolean { return true; }
-
-    getCompiler(): Compiler {
-        return this.language.getCompiler(this);
-    }
-    getInterpreter(): Interpreter {
-        return this.interpreter;
-    }
-    getCurrentWorkspace(): Workspace {
-        return this.currentWorkspace;
-    }
-    getDebugger(): Debugger {
-        return this.debugger;
-    }
-    getMonacoEditor(): monaco.editor.IStandaloneCodeEditor {
-        return this.editor.editor;
-    }
-
-    getRightDiv(): RightDiv {
-        return this.rightDiv;
-    }
-
-    getBottomDiv(): BottomDiv {
-        return this.bottomDiv;
-    }
-
-    getActionManager(): ActionManager {
-        return this.actionManager;
-    }
-
-    addWorkspace(ws: CompilerWorkspace): void {
-        // not used
-    }
-
-    getCurrentProgrammingLanguage(): ProgrammingLanguage {
-        return this.language;
-    }
-
-    getRepl(): Repl {
-        return this.language?.getRepl(this);
-    }
-
-    getMainEditor(): monaco.editor.IStandaloneCodeEditor {
-        return this.editor.editor;
-    }
-
-    getReplEditor(): monaco.editor.IStandaloneCodeEditor {
-        return this.bottomDiv?.console.editor;
-    }
-
-    getSettings(): Settings {
-        let userSettings = this.config.settings || {};
-
-        if (!this.settings) {
-            this.settings = new Settings(undefined, SecureJSON.stringify(userSettings), undefined, undefined);
-        }
-        return this.settings;
-    }
-
-    onCompilationFinished(executable: Executable | undefined): void {
-        this.interpreter.setExecutable(executable);
-
-        if (this.bottomDiv && this.fileExplorer) {
-            let errors = this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
-            this.fileExplorer.renderErrorCount(this.currentWorkspace, errors);
-        }
-
-        this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());
-
-    }
-
-    adjustWidthToWorld(): void {
-        this.rightDiv.adjustWidthToWorld();
-    }
-
-
-
+    runExitListeners: OnRunExitListener[] = [];
 
 
     constructor(private $outerDiv: JQuery<HTMLElement>, private scriptList: JOScript[]) {
 
-        this.readConfig($outerDiv);
+    }
 
-        this.initGUI($outerDiv);
+    async init() {
+        this.readConfig(this.$outerDiv);
 
-        this.initScripts().then(() => {
+        this.initGUI(this.$outerDiv);
 
-            this.currentWorkspace.setLibraries(this.getCompiler());
+        await this.initScripts();
 
-            this.loadUserSpritesheet().then(() => {
-                if (!this.config.hideStartPanel) {
-                    this.indexedDB = new EmbeddedIndexedDB();
-                    this.indexedDB.open(() => {
+        this.currentWorkspace.setLibraries(this.getCompiler());
 
-                        if (this.config.id != null) {
-                            this.readScripts(async () => {
-                                if (this.fileExplorer) {
-                                    this.getCompiler().setFiles(this.fileExplorer.getFiles());
-                                    this.fileExplorer.selectFirstFileIfPresent();
-                                }
-                                if (this.fileExplorer == null) {
-                                    let files = this.currentWorkspace.getFiles();
-                                    this.getCompiler().setFiles(files);
-                                    if (files.length > 0) {
-                                        this.setFileActive(files[0]);
-                                    }
-                                }
+        await this.loadUserSpritesheet();
+        if (!this.config.hideStartPanel) {
+            this.indexedDB = new EmbeddedIndexedDB();
+            await this.indexedDB.open();
 
-                                this.readClassDiagram();
-
-                                this.getCompiler().triggerCompile();
-
-                            });
-                        }
-
-                        if (this.config.enableFileAccess) {
-                            //@ts-ignore
-                            window.online_ide_access = new OnlineIDEAccessImpl();
-                            OnlineIDEAccessImpl.registerIDE(this);
-                        }
-                    });
+            if (this.config.id != null) {
+                await this.readScripts();
+                if (this.fileExplorer) {
+                    this.getCompiler().setFiles(this.fileExplorer.getFiles());
+                    this.fileExplorer.selectFirstFileIfPresent();
                 }
-            });
-        });
+                if (this.fileExplorer == null) {
+                    let files = this.currentWorkspace.getFiles();
+                    this.getCompiler().setFiles(files);
+                    if (files.length > 0) {
+                        this.setFileActive(files[0]);
+                    }
+                }
+
+                this.readClassDiagram();
+
+                this.getCompiler().triggerCompile();
+
+            }
+
+            if (this.config.enableFileAccess || this.config.enableRunExitStatusAccess) {
+                //@ts-ignore
+                window.online_ide_access = new OnlineIDEAccessImpl();
+                OnlineIDEAccessImpl.registerIDE(this);
+            }
+        }
 
     }
 
@@ -414,72 +340,74 @@ export class MainEmbedded implements MainBase {
         return text.replace(/<span class="search\whit">(.*?)<\/span>/g, "$1");
     }
 
-    readScripts(callback: () => void) {
+    async readScripts(): Promise<void> {
 
-        let files = this.currentWorkspace.getFiles();
-        files.forEach(f => {
-            f.getMonacoModel();
-            f.setSaved(true);
-        })
+        return new Promise<void>((resolve, reject) => {
+            let files = this.currentWorkspace.getFiles();
+            files.forEach(f => {
+                f.getMonacoModel();
+                f.setSaved(true);
+            })
 
-        if (!this.config.cacheUserEdits) {
-            callback();
-            return;
-        }
-
-
-        let that = this;
-
-        this.indexedDB.getScript(this.config.id, (scriptListJSon) => {
-            if (scriptListJSon == null) {
-                setTimeout(() => {
-                    setInterval(() => {
-                        that.saveScripts();
-                    }, 1000);
-                }, 2000);
-                callback();
-            } else {
-
-                let scriptList: string[] = JSON.parse(scriptListJSon);
-                let countDown = scriptList.length;
-
-                for (let file of files.slice()) {
-                    that.fileExplorer?.removeFile(file, false);  // calls MainEmbedded.removeFile subsequently
-                }
-                that.currentWorkspace.removeAllFiles();
-
-                for (let name of scriptList) {
-
-                    let scriptId = this.config.id + name;
-                    this.indexedDB.getScript(scriptId, (script) => {
-                        if (script != null) {
-
-                            script = this.eraseDokuwikiSearchMarkup(script);
-
-                            let file = new GUIFile(this, name, script);
-                            file.getMonacoModel();
-                            file.setSaved(true);
-
-                            that.fileExplorer?.addFile(file);
-                            that.currentWorkspace.addFile(file);
-                            that.showResetButton();
-
-                            // console.log("Retrieving script " + scriptId);
-                        }
-                        countDown--;
-                        if (countDown == 0) {
-                            setInterval(() => {
-                                that.saveScripts();
-                            }, 1000);
-                            callback();
-                        }
-                    })
-
-                }
-
+            if (!this.config.cacheUserEdits) {
+                resolve();
+                return;
             }
 
 
+            let that = this;
+
+            this.indexedDB.getScript(this.config.id, (scriptListJSon) => {
+                if (scriptListJSon == null) {
+                    setTimeout(() => {
+                        setInterval(() => {
+                            that.saveScripts();
+                        }, 1000);
+                    }, 2000);
+                    resolve();
+                } else {
+
+                    let scriptList: string[] = JSON.parse(scriptListJSon);
+                    let countDown = scriptList.length;
+
+                    for (let file of files.slice()) {
+                        that.fileExplorer?.removeFile(file, false);  // calls MainEmbedded.removeFile subsequently
+                    }
+                    that.currentWorkspace.removeAllFiles();
+
+                    for (let name of scriptList) {
+
+                        let scriptId = this.config.id + name;
+                        this.indexedDB.getScript(scriptId, (script) => {
+                            if (script != null) {
+
+                                script = this.eraseDokuwikiSearchMarkup(script);
+
+                                let file = new GUIFile(this, name, script);
+                                file.getMonacoModel();
+                                file.setSaved(true);
+
+                                that.fileExplorer?.addFile(file);
+                                that.currentWorkspace.addFile(file);
+                                that.showResetButton();
+
+                                // console.log("Retrieving script " + scriptId);
+                            }
+                            countDown--;
+                            if (countDown == 0) {
+                                setInterval(() => {
+                                    that.saveScripts();
+                                }, 1000);
+                                resolve();
+                            }
+                        })
+
+                    }
+
+                }
+
+
+            });
         });
 
     }
@@ -652,9 +580,6 @@ export class MainEmbedded implements MainBase {
             $centerDiv.prepend($editorDiv);
         }
 
-
-
-
         if (!this.config.withBottomPanel) {
             if (this.config.hideEditor) {
                 $rightDiv.prepend($controlsDiv);
@@ -708,6 +633,25 @@ export class MainEmbedded implements MainBase {
             breakpointManager,
             programPointerManager, inputManager,
             fileManager, new ExceptionMarker(this), this);
+
+        this.interpreter.eventManager.on("done", () => {
+            this.runExitListeners.forEach((listener) => {
+                listener({
+                    exitCode: this.interpreter.exitStatus,
+                    output: this.interpreter.printManager?.getLog() || "",
+                    exception: this.interpreter.exception,
+                    testProgress: this.language instanceof JavaLanguage ? this.language.getTestRunner().getProgress() : undefined
+                });
+            });
+        })
+
+        this.interpreter.eventManager.on("start", () => {
+            if (this.runExitListeners.length > 0) {
+                this.interpreter.printManager?.startLogging();
+            } else {
+                this.interpreter.printManager?.stopLogging();
+            }
+        });
 
         /**
          * Compiler and Repl are fields of language!
@@ -1062,6 +1006,86 @@ export class MainEmbedded implements MainBase {
     setHorizontalSliderPosition(fraction: number): void {
         this.horizontalSlider?.setPosition(fraction);
     }
+
+    registerOnRunExitListener(listener: OnRunExitListener) {
+        this.runExitListeners.push(listener);
+    }
+
+    isEmbedded(): boolean { return true; }
+
+    getCompiler(): Compiler {
+        return this.language.getCompiler(this);
+    }
+    getInterpreter(): Interpreter {
+        return this.interpreter;
+    }
+    getCurrentWorkspace(): Workspace {
+        return this.currentWorkspace;
+    }
+    getDebugger(): Debugger {
+        return this.debugger;
+    }
+    getMonacoEditor(): monaco.editor.IStandaloneCodeEditor {
+        return this.editor.editor;
+    }
+
+    getRightDiv(): RightDiv {
+        return this.rightDiv;
+    }
+
+    getBottomDiv(): BottomDiv {
+        return this.bottomDiv;
+    }
+
+    getActionManager(): ActionManager {
+        return this.actionManager;
+    }
+
+    addWorkspace(ws: CompilerWorkspace): void {
+        // not used
+    }
+
+    getCurrentProgrammingLanguage(): ProgrammingLanguage {
+        return this.language;
+    }
+
+    getRepl(): Repl {
+        return this.language?.getRepl(this);
+    }
+
+    getMainEditor(): monaco.editor.IStandaloneCodeEditor {
+        return this.editor.editor;
+    }
+
+    getReplEditor(): monaco.editor.IStandaloneCodeEditor {
+        return this.bottomDiv?.console.editor;
+    }
+
+    getSettings(): Settings {
+        let userSettings = this.config.settings || {};
+
+        if (!this.settings) {
+            this.settings = new Settings(undefined, SecureJSON.stringify(userSettings), undefined, undefined);
+        }
+        return this.settings;
+    }
+
+    onCompilationFinished(executable: Executable | undefined): void {
+        this.interpreter.setExecutable(executable);
+
+        if (this.bottomDiv && this.fileExplorer) {
+            let errors = this.bottomDiv?.errorManager?.showErrors(this.currentWorkspace);
+            this.fileExplorer.renderErrorCount(this.currentWorkspace, errors);
+        }
+
+        this.drawClassDiagrams(!this.rightDiv.isClassDiagramActive());
+
+    }
+
+    adjustWidthToWorld(): void {
+        this.rightDiv.adjustWidthToWorld();
+    }
+
 }
 
 

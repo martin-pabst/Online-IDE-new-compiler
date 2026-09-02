@@ -389,4 +389,8 @@ export class JavaLanguage extends ProgrammingLanguage {
         return librariesChanged;
     }
 
+    getTestRunner(): JUnitTestrunner {
+        return this.jUnitTestrunner;
+    }
+
 }
