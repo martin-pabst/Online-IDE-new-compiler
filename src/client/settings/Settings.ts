@@ -25,27 +25,15 @@ export class Settings implements SettingsStore {
         userSettings: string | undefined,
         classSettings: string | undefined, schoolSettings: string | undefined) {
         // Initialize default values
-        for (let setting of AllSettingsMetadata) {
-            this.setDefaultValues(setting);
+
+        for (let key in SettingDefaultValues) {
+            this.values.default[key] = SettingDefaultValues[key];
         }
 
         this.values.user = userSettings ? SecureJSON.parse(userSettings) : {};
         this.values.class = classSettings ? SecureJSON.parse(classSettings) : {};
         this.values.school = schoolSettings ? SecureJSON.parse(schoolSettings) : {};
 
-    }
-
-    private setDefaultValues(metadata: GroupOfSettingMetadata | SettingMetadata) {
-        if (metadata.settingType === 'setting') {
-            let defaultValue = SettingDefaultValues[metadata.key];
-            if (defaultValue !== undefined) {
-                this.values.default[metadata.key] = defaultValue;
-            }
-        } else if (metadata.settingType === 'group') {
-            for (let setting of metadata.settings) {
-                this.setDefaultValues(setting);
-            }
-        }
     }
 
     public setValue(scope: SettingsScope, key: SettingKey, value: SettingValue) {
