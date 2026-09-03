@@ -37,7 +37,8 @@ declare var BUILD_DATE: string;
 export type JOScript = {
     title: string,
     text: string,
-    url?: string
+    url?: string,
+    readOnly?: boolean
 }
 
 function loadSpritesheet() {
@@ -145,6 +146,11 @@ export class EmbeddedStarter {
                     script.title += ".md";
                 }
 
+                if($script.data('online-ide')){
+                    let data = JSON.parse($script.data('online-ide').replaceAll("'", '"'));
+                    script = Object.assign(script, data);
+                }
+
                 if (srcAttr != null) script.url = srcAttr;
                 script.text = this.eraseDokuwikiSearchMarkup(script.text);
                 scriptList.push(script);
@@ -183,8 +189,8 @@ export class EmbeddedStarter {
         }
 
         // Here execution is continued...
-        let mainEmbedded =new MainEmbedded($div, scriptList);
-        await mainEmbedded.init();
+        let mainEmbedded =new MainEmbedded($div);
+        await mainEmbedded.init(scriptList);
 
     }
 

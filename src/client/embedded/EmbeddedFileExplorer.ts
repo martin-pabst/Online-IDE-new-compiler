@@ -49,6 +49,10 @@ export class EmbeddedFileExplorer {
         }
 
         this.treeview.renameCallback = async (file, newName, node): Promise<{ correctedName: string; success: boolean; }> => {
+            if(file.readOnly) {
+                alert("Diese Datei ist schreibgeschützt und kann nicht umbenannt werden.");
+                return { correctedName: file.name, success: false };
+            }
             newName = newName.substring(0, 30);
             file.name = newName;
             file.setSaved(false);
@@ -60,6 +64,10 @@ export class EmbeddedFileExplorer {
         }
 
         this.treeview.deleteCallback = async (file, node) => {
+            if(file.readOnly) {
+                alert("Diese Datei ist schreibgeschützt und kann nicht gelöscht werden.");
+                return false;
+            }
             let files = this.treeview.nodes.filter(node => !node.isRootNode() && node.externalObject != file).map(node => node.externalObject);
             this.main.removeFile(file);
             if (node?.hasFocus) {

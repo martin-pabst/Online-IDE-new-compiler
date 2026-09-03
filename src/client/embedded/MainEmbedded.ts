@@ -73,7 +73,7 @@ type JavaOnlineConfig = {
     enableRunExitStatusAccess?: boolean,
     settings?: SettingValues,
     workspaceURLParameterName?: string,
-    cacheUserEdits?: boolean
+    cacheUserEdits?: boolean,
 
     programmingLanguage?: string,
 
@@ -132,17 +132,21 @@ export class MainEmbedded implements MainBase {
 
     runExitListeners: OnRunExitListener[] = [];
 
+    scriptListFromHtml: JOScript[] = [];
 
-    constructor(private $outerDiv: JQuery<HTMLElement>, private scriptList: JOScript[]) {
+
+    constructor(private $outerDiv: JQuery<HTMLElement>) {
 
     }
 
-    async init() {
+    async init(scriptList: JOScript[]) {
         this.readConfig(this.$outerDiv);
 
         this.initGUI(this.$outerDiv);
 
-        await this.initScripts();
+        this.scriptListFromHtml = await this.tryLoadingWorkspaceFromURL() || scriptList;
+
+        await this.processScriptsComingFromHtml();
 
         this.currentWorkspace.setLibraries(this.getCompiler());
 
@@ -152,7 +156,7 @@ export class MainEmbedded implements MainBase {
             await this.indexedDB.open();
 
             if (this.config.id != null) {
-                await this.readScripts();
+                await this.readScriptsFromIndexedDB();
                 if (this.fileExplorer) {
                     this.getCompiler().setFiles(this.fileExplorer.getFiles());
                     this.fileExplorer.selectFirstFileIfPresent();
@@ -178,6 +182,10 @@ export class MainEmbedded implements MainBase {
             }
         }
 
+    }
+
+    isReadOnlyScript(identifier: string): boolean {
+        return this.scriptListFromHtml.some(script => script.title === identifier && script.readOnly);
     }
 
     readClassDiagram() {
@@ -214,7 +222,7 @@ export class MainEmbedded implements MainBase {
         f();
     }
 
-    async tryLoadingWorkspaceFromURL() {
+    async tryLoadingWorkspaceFromURL(): Promise<JOScript[] | undefined> {
         if (!this.config.workspaceURLParameterName) return;
         let url = findGetParameter(this.config.workspaceURLParameterName);
         if (!url) return;
@@ -224,25 +232,24 @@ export class MainEmbedded implements MainBase {
             let workspaces = await response.json();
             if (!Array.isArray(workspaces)) workspaces = [workspaces];
             let exportedWorkspace: ExportedWorkspace = workspaces[0];
-            this.scriptList = exportedWorkspace.modules.map(mo => ({
+            let scriptList: JOScript[] = exportedWorkspace.modules.map(mo => ({
                 title: mo.name,
                 text: mo.text
             })
             );
+            return scriptList;
         } catch (error) {
             console.log("Error retrieving or converting data from URL " + url + " to json.")
             console.error(error);
-            return
+            return undefined;
         }
     }
 
-    async initScripts() {
+    async processScriptsComingFromHtml() {
 
         this.fileExplorer?.removeAllFiles();
 
-        await this.tryLoadingWorkspaceFromURL();
-
-        this.initWorkspace(this.scriptList);
+        this.initWorkspace(this.scriptListFromHtml);
 
         if (this.config.withFileList) {
             for (let file of this.currentWorkspace.getFiles()) {
@@ -320,7 +327,7 @@ export class MainEmbedded implements MainBase {
          * später readonly = false gesetzt wird.
          */
         this.getMainEditor().updateOptions({
-            readOnly: false,
+            readOnly: file.readOnly || false,
             lineNumbersMinChars: 4
         });
 
@@ -340,7 +347,7 @@ export class MainEmbedded implements MainBase {
         return text.replace(/<span class="search\whit">(.*?)<\/span>/g, "$1");
     }
 
-    async readScripts(): Promise<void> {
+    async readScriptsFromIndexedDB(): Promise<void> {
 
         return new Promise<void>((resolve, reject) => {
             let files = this.currentWorkspace.getFiles();
@@ -386,6 +393,7 @@ export class MainEmbedded implements MainBase {
                                 let file = new GUIFile(this, name, script);
                                 file.getMonacoModel();
                                 file.setSaved(true);
+                                file.readOnly = that.isReadOnlyScript(name);
 
                                 that.fileExplorer?.addFile(file);
                                 that.currentWorkspace.addFile(file);
@@ -487,6 +495,7 @@ export class MainEmbedded implements MainBase {
     addFile(script: JOScript): GUIFile {
 
         let file = new GUIFile(this, script.title, script.text);
+        file.readOnly = script.readOnly || false;
         file.id = this.currentWorkspace.getFiles().length;
 
         this.currentWorkspace.addFile(file);
@@ -782,7 +791,7 @@ export class MainEmbedded implements MainBase {
 
         this.$outerDiv.find(".joe_codeResetModalOK").on("click", async () => {
 
-            await this.initScripts();
+            await this.processScriptsComingFromHtml();
             this.currentWorkspace.getFiles().forEach(f => f.setSaved(true));
             this.deleteScriptsInDB();
 

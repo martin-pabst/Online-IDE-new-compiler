@@ -28,6 +28,9 @@ export class GUIFile extends CompilerFile {
 
     sorting_order: number;
 
+    readOnly: boolean = false;
+
+
     // GUI references:
     private monacoModel?: monaco.editor.ITextModel;
     private static uriMap: { [name: string]: number } = {};
@@ -91,7 +94,7 @@ export class GUIFile extends CompilerFile {
             this.monacoModel.onDidChangeContent((ev) => {
                 let main1: Main = <Main>this.main;
                 if (main1.workspacesOwnerId != main1.user.id) {
-                    if(!(ev.isUndoing || ev.isRedoing)){
+                    if (!(ev.isUndoing || ev.isRedoing)) {
                         if (this.text_before_revision == null || this.student_edited_after_revision) {
                             this.student_edited_after_revision = false;
                             //@ts-ignore
@@ -99,7 +102,7 @@ export class GUIFile extends CompilerFile {
                             this.text_before_revision = this.monacoModel.getValue(monaco.editor.EndOfLinePreference.LF);
                             //@ts-ignore
                             this.monacoModel.redo();
-    
+
                             this.setSaved(false);
                             main1.networkManager.sendUpdatesAsync(false).then(() => {
                                 main1.bottomDiv.homeworkManager.showHomeWorkRevisionButton();
@@ -186,8 +189,8 @@ export class GUIFile extends CompilerFile {
 
     getFolderContentsRecursively(allFiles: GUIFile[]): GUIFile[] {
         let ret: GUIFile[] = allFiles.filter(f => f.parent_folder_id == this.id);
-        for(let file of ret.slice()){
-            if(file.isFolder){
+        for (let file of ret.slice()) {
+            if (file.isFolder) {
                 ret = ret.concat(file.getFolderContentsRecursively(allFiles));
             }
         }
