@@ -182,7 +182,7 @@ export class ImportWorkspaceGUI {
         }
 
         for (let ew1 of ew) {
-            if (ew1.modules == null || ew1.name == null || ew1.settings == null) {
+            if (ew1.modules == null || ew1.name == null ) {
                 alert(WorkspaceImportMessages.wrongFileFormat(filename));
                 return;
             } else {
