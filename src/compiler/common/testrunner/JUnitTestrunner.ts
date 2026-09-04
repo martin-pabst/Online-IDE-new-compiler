@@ -284,6 +284,7 @@ export class JUnitTestrunner {
             this.clearOutput();
             await treeviewEntry?.runTests();
         }
+        this.main.getInterpreter().eventManager.fire("done");
     }
 
     clearTree() {

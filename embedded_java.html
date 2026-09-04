@@ -10,7 +10,10 @@
     <script>
         window.online_ide_onReady = () => {
             let ide = window.online_ide_access.getIDE('abcd');
-            ide.registerOnRunExitListener((exitStatus)=>{console.log(exitStatus);});
+            ide.registerOnRunExitListener((exitStatus)=>{
+                console.log(`overall: ${exitStatus.testProgress.overall} passed: ${exitStatus.testProgress.passed} failed: ${exitStatus.testProgress.failed}`);
+                console.log(exitStatus);
+            });
         }
     </script>
 </head>

@@ -44,6 +44,7 @@ export class Scheduler {
     callbackAfterReplProgramFinished?: () => void;
 
     runsSynchronously: boolean = false;
+    #isJUnitTestMethod: boolean = false;
 
 
     constructor(public interpreter: Interpreter) {
@@ -151,7 +152,7 @@ export class Scheduler {
                     case ThreadState.terminatedWithException:
                         // TODO: Print Exception if present
 
-                        if(currentThread.__cpu){
+                        if (currentThread.__cpu) {
                             this.interpreter.updateDebugger();
                         }
 
@@ -179,7 +180,9 @@ export class Scheduler {
                                 this.#callbackAfterProgramFinished = undefined;
                                 cb();
                             }
-                            this.interpreter.eventManager.fire("done");
+                            if (!this.isJUnitTestMethod()) {
+                                this.interpreter.eventManager.fire("done");
+                            }
                             return SchedulerExitState.nothingMoreToDo;
                         }
                         break;
@@ -395,10 +398,10 @@ export class Scheduler {
         currentThread = currentThread || this.runningThreads[this.#currentThreadIndex];
         if (!currentThread) return undefined;
 
-        if(currentThread.__cpu){
+        if (currentThread.__cpu) {
             let cpu = currentThread.__cpu;
             let position = cpu.getCurrentPosition();
-            if(position) return position;
+            if (position) return position;
             return undefined;
         }
 
@@ -461,6 +464,7 @@ export class Scheduler {
     initJUnitTestMethodAndReturnMainThread(executable: Executable | undefined, method: JavaMethod, callback: () => void): Thread | undefined {
         if (!executable) return undefined;
 
+        this.#isJUnitTestMethod = true;
         this.#initIntern(executable);
 
         let mainThread = this.createThread("main thread");
@@ -574,5 +578,9 @@ export class Scheduler {
 
     getAllThreads(): Thread[] {
         return this.runningThreads.concat(this.#suspendedThreads);
+    }
+
+    isJUnitTestMethod(): boolean {
+        return this.#isJUnitTestMethod;
     }
 }
