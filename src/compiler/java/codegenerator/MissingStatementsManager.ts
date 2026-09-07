@@ -12,21 +12,19 @@ class MissingStatements {
     symbolWriteHappened: boolean[];
 
     returnHappened: boolean;
-    childrenCount: number = 0;
-    childrenWithReturnStatement: number = 0;
+    children: MissingStatements[] = [];
 
     constructor(public parent?: MissingStatements){
+        this.returnHappened = false;
         if(parent){
             this.symbols = parent.symbols.slice();
             this.symbolReadHappened = parent.symbolReadHappened.slice();
             this.symbolWriteHappened = parent.symbolWriteHappened.slice();
-            this.returnHappened = parent.returnHappened;
-            parent.childrenCount++;
+            parent.children.push(this);
         } else {
             this.symbols = [];
             this.symbolReadHappened = [];
             this.symbolWriteHappened = [];
-            this.returnHappened = false;
         }
     }
 
@@ -59,24 +57,34 @@ class MissingStatements {
     }
 
     onCloseBranch(errors: Error[]){
-        let start: number = 0;
 
-        if(this.parent){
-            if(this.returnHappened) this.parent.childrenWithReturnStatement++;
-
-            for(let i = 0; i < this.parent.symbolReadHappened.length; i++){
-                if(this.symbolReadHappened[i]) this.parent.symbolReadHappened[i] = true;
-                start = this.parent.symbolReadHappened.length;
-            }
-        }
-
-        for(let i = start; i < this.symbolReadHappened.length; i++){
+        for(let i = this.parent ? this.parent.symbolReadHappened.length : 0; i < this.symbolReadHappened.length; i++){
             if(!this.symbolReadHappened[i]){
                 let error = JCM.noReadAccessForVariable(this.symbols[i].identifier)
                 errors.push({message: error.message, id: error.id , level: "info", range: this.symbols[i].identifierRange});
             }
         }
 
+    }
+
+    /**
+     * Only for debugging purposes
+     */
+    toString(){
+        let result = "MissingStatements: ";
+        if(this.symbols.length > 0){
+            result += "Symbols: [";
+            for(let i = 0; i < this.symbols.length; i++){
+                result += this.symbols[i].identifier + (this.symbolReadHappened[i] ? "(read)" : "") + (this.symbolWriteHappened[i] ? "(write)" : "") + ", ";
+            }
+            result += "]";
+        }
+        if(this.returnHappened){
+            result += " Return happened";
+        } else {
+            result += " Return not happened";
+        }
+        return result;
     }
 
 }
@@ -105,14 +113,47 @@ export class MissingStatementManager {
     }
 
     endBranching(){
+
         let currentMissingStatements = this.stack[this.stack.length - 1];
         if(!currentMissingStatements) return;
-        if(currentMissingStatements.childrenWithReturnStatement == currentMissingStatements.childrenCount){
-            currentMissingStatements.returnHappened = true;
+
+        if(!currentMissingStatements.returnHappened){
+            let returnHappenedInChildren = true;
+            for(let child of currentMissingStatements.children){
+                if(!child.returnHappened){
+                    returnHappenedInChildren = false;
+                    break;
+                }
+            }
+            currentMissingStatements.returnHappened = returnHappenedInChildren;
         }
 
-        currentMissingStatements.childrenCount = 0;
-        currentMissingStatements.childrenWithReturnStatement = 0;
+        for(let i = 0; i < currentMissingStatements.symbolWriteHappened.length; i++){
+            if(!currentMissingStatements.symbolWriteHappened[i]){
+                let writeHappenedInChildren = true;
+                for(let child of currentMissingStatements.children){
+                    if(!child.symbolWriteHappened[i]){
+                        writeHappenedInChildren = false;
+                        break;
+                    }
+                }
+                currentMissingStatements.symbolWriteHappened[i] = writeHappenedInChildren;
+            }
+        }
+
+        for(let i = 0; i < currentMissingStatements.symbolReadHappened.length; i++){
+            if(!currentMissingStatements.symbolReadHappened[i]){
+                let readHappenedInChildren = false;
+                for(let child of currentMissingStatements.children){
+                    if(child.symbolReadHappened[i]){
+                        readHappenedInChildren = true;
+                        break;
+                    }
+                }
+                currentMissingStatements.symbolReadHappened[i] = readHappenedInChildren;
+            }
+        }
+
     }
 
     endMethodBody(method: JavaMethod | undefined, errors: Error[]){
