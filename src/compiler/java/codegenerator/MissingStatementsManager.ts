@@ -154,6 +154,8 @@ export class MissingStatementManager {
             }
         }
 
+        currentMissingStatements.children = [];
+
     }
 
     endMethodBody(method: JavaMethod | undefined, errors: Error[]){
