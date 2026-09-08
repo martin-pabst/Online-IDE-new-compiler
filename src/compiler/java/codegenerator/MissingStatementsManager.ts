@@ -5,16 +5,27 @@ import { JCM } from "../language/JavaCompilerMessages";
 import { JavaMethod } from "../types/JavaMethod";
 import { JavaParameter } from "../types/JavaParameter";
 
-class MissingStatements {
+
+
+/**
+ * For a given block of code { ... } we track the following:
+ * - which symbols have been declared before this block or inside this block
+ * - which of these symbols have been read in this block
+ * - which these symbols have been written in this block
+ * - whether a return statement has been executed in this block
+ * Additionally we save MissingStatementsBlockState for all child blocks of this block, 
+ * so that we can check if a symbol has been read or written in any of the child blocks.
+ */
+class MissingStatementsBlockState {
 
     symbols: BaseSymbol[];
     symbolReadHappened: boolean[];
     symbolWriteHappened: boolean[];
 
     returnHappened: boolean;
-    children: MissingStatements[] = [];
+    children: MissingStatementsBlockState[] = [];
 
-    constructor(public parent?: MissingStatements){
+    constructor(public parent?: MissingStatementsBlockState){
         this.returnHappened = false;
         if(parent){
             this.symbols = parent.symbols.slice();
@@ -91,11 +102,11 @@ class MissingStatements {
 
 export class MissingStatementManager {
 
-    stack: MissingStatements[] = [];
+    stack: MissingStatementsBlockState[] = [];
 
     beginMethodBody(parameters: JavaParameter[]){
         this.stack = [];
-        let missingStatements = new MissingStatements();
+        let missingStatements = new MissingStatementsBlockState();
         for(let parameter of parameters) {
             if(parameter.trackMissingReadAccess){
                 missingStatements.addSymbolDeclaration(parameter, true);
@@ -105,7 +116,7 @@ export class MissingStatementManager {
     }
 
     openBranch(){
-        this.stack.push(new MissingStatements(this.stack[this.stack.length - 1]));
+        this.stack.push(new MissingStatementsBlockState(this.stack[this.stack.length - 1]));
     }
 
     closeBranch(errors: Error[]){
