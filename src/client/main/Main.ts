@@ -390,7 +390,7 @@ export class Main implements MainBase {
 
         }
 
-        if (!this.guiState.helperHistory.folderButtonDone && this.projectExplorer.workspaceTreeview.size(true) > 5) {
+        if (!this.guiState.helperHistory?.folderButtonDone && this.projectExplorer.workspaceTreeview.size(true) > 5) {
 
             Helper.showHelper("folderButton", this, jQuery(this.projectExplorer.workspaceTreeview.addFolderButton.parent));
 

@@ -196,21 +196,24 @@ export class Login {
                 user.is_testuser = response.isTestuser;
 
                 this.main.guiState = SecureJSON.parse(user.gui_state) || {
-                        helperHistory: {
-                            consoleHelperDone: false,
-                            newFileHelperDone: false,
-                            newWorkspaceHelperDone: false,
-                            speedControlHelperDone: false,
-                            homeButtonHelperDone: false,
-                            stepButtonHelperDone: false,
-                            repositoryButtonDone: false,
-                            folderButtonDone: false
-                        },
+                        helperHistory: null,
                         viewModes: null,
                         classDiagram: null,
                         language: 'de'
                 };
 
+                if(this.main.guiState.helperHistory == null){
+                    this.main.guiState.helperHistory = {
+                        consoleHelperDone: false,
+                        newFileHelperDone: false,
+                        newWorkspaceHelperDone: false,
+                        speedControlHelperDone: false,
+                        homeButtonHelperDone: false,
+                        stepButtonHelperDone: false,
+                        repositoryButtonDone: false,
+                        folderButtonDone: false
+                    }
+                }
 
                 that.main.user = user;
                 that.main.settings = new Settings(user, 
