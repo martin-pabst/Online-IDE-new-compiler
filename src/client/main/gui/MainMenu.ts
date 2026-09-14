@@ -341,6 +341,7 @@ export class MainMenu {
                         if (response.success) {
                         // window.open(serverURL + "administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
                         window.open("https://teacherbackend.online-ide.de?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
+                        // window.open("http://localhost:3001?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
                         }
                     }
                 }
