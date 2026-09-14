@@ -40,16 +40,24 @@ export class TabManager {
         this.tabheadingRightDiv.appendChild(element);
     }
 
+    insertIntoHeadingDiv(element: HTMLElement) {
+        this.headingsDiv.insertBefore(element, this.tabheadingRightDiv);
+    }
+
     setActive(tab: Tab) {
 
         for (let tab1 of this.tabs) {
             if (tab1 == tab) continue;
+            if (tab1.headingDiv.classList.contains('jo_active')) {
+                if (tab1.onHide) tab1.onHide();
+            }
             tab1.headingDiv.classList.remove('jo_active');
             if (!this.sharedBody) tab1.bodyDiv.style.display = 'none';
         }
 
         tab.headingDiv.classList.add('jo_active');
         if (!this.sharedBody) tab.bodyDiv.style.display = 'flex'
+        if (tab.onShow) tab.onShow();
 
     }
 
@@ -79,6 +87,7 @@ export class Tab {
     visible: boolean = true;
 
     onShow: () => void;
+    onHide: () => void;
 
     constructor(public name: string, caption: string, cssClasses: string[] = [], withoutBody: boolean = false) {
         this.headingDiv = document.createElement('div');
@@ -99,7 +108,6 @@ export class Tab {
 
     show() {
         this.tabManager.setActive(this);
-        if (this.onShow) this.onShow();
     }
 
     isActive(): boolean {
