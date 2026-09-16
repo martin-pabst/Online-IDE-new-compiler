@@ -83,7 +83,7 @@ export class EmbeddedFileExplorer {
         }
 
         this.treeview.nodeClickedCallback = (file) => {
-            this.selectFile(file, true);
+            this.selectFile(file, false);
         }
 
     }
