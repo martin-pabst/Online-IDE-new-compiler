@@ -351,6 +351,12 @@ export class Treeview<E, K> extends AccordionElement {
         let node = this.addNode(isFolder, "", isFolder ? undefined : this.config.defaultIconClass, null,
             parentFolder?.ownKey);
         makeEditable(node.captionDiv, node.captionDiv, async (newContent: string) => {
+
+            if(newContent == ''){
+                node.destroy(true);
+                return;
+            }
+
             node.caption = newContent;
             if (this.newNodeCallback) {
                 let externalObject = await this.newNodeCallback(newContent, node, optionObject);
