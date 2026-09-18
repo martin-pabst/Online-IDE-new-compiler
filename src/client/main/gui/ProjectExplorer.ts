@@ -406,7 +406,7 @@ export class ProjectExplorer {
                 w.settings.language = "Java";
             }
             this.main.workspaceList.push(w);
-            node.iconClass = ProgrammingLanguageData[w.settings.language]?.workspaceCssClass(false) ?? "img_workspace-dark";
+            if (!node.isFolder) node.iconClass = ProgrammingLanguageData[w.settings.language]?.workspaceCssClass(false) ?? "img_workspace-dark";
 
             let success = this.main.user.is_testuser || await this.main.networkManager.sendCreateWorkspace(w, this.main.workspacesOwnerId);
             if (success) {
