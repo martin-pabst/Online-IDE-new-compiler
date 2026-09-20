@@ -18,7 +18,7 @@ export class JavaSignatureHelpProvider extends BaseMonacoProvider implements mon
     }
 
     signatureHelpTriggerCharacters?: readonly string[] = ['(', ',', ';', '<', '>', '=']; // semicolon, <, >, = for for-loop, if, while, ...
-    signatureHelpRetriggerCharacters?: readonly string[] = [' '];
+    signatureHelpRetriggerCharacters?: readonly string[] = [' ', ','];
 
     async provideSignatureHelp(model: monaco.editor.ITextModel, position: monaco.Position, token: monaco.CancellationToken, context: monaco.languages.SignatureHelpContext):
         Promise<monaco.languages.SignatureHelpResult> {
