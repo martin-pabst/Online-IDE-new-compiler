@@ -21,6 +21,7 @@ import {
 import { ASTNodeFactory } from "./ASTNodeFactory.ts";
 import { StatementParser } from "./StatementParser.ts";
 import { JavaCompilerStringConstants } from "../JavaCompilerStringConstants.ts";
+import type { Visibility } from "../types/Visibility.ts";
 
 export class Parser extends StatementParser {
 
@@ -191,7 +192,7 @@ export class Parser extends StatementParser {
 
         let modifiers = this.nodeFactory.buildNodeWithModifiers(this.cct.range);
         modifiers.isStatic = true;
-        modifiers.visibility = visibilityModifier | TokenType.keywordPublic;
+        modifiers.visibility = visibilityModifier == null ? TokenType.keywordPublic : visibilityModifier as Visibility;
         this.parseFieldOrMethodDeclaration(this.module.mainClass!, modifiers, undefined);
 
         this.maybeParseAndSkipAnnotation();
