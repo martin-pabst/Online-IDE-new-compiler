@@ -38,6 +38,7 @@ export type SettingsType = {
     "programmingLanguages.ByAssembly.enabled": "yes" | "no",
 
     "compiler.shadowedSymbolErrorLevel": "ignore" | "info" | "warning" | "error",
+    "compiler.equalityOperatorForStringsCompares": "values" | "references",
 
     "output.clearOutputAfterWorkspaceChange": "yes" | "no",
 
@@ -72,7 +73,7 @@ export var SettingDefaultValues: SettingsType = {
     "explorer.fileOrder": "user-defined",
     "explorer.workspaceOrder": "user-defined",
 
-
+    "compiler.equalityOperatorForStringsCompares": "values",
     "compiler.shadowedSymbolErrorLevel": "warning",
 
     "output.clearOutputAfterWorkspaceChange": "no",
@@ -94,6 +95,7 @@ export var SettingPrecedenceValues: Partial<{ [key in SettingKey]: SettingPreced
     "editor.contextSensitiveHelp.StructureStatements": "classSchoolUserDefault",
     "editor.contextSensitiveHelp.ParameterHints": "classSchoolUserDefault",
     "schooladmin.functionality.pruefungen": "schoolDefault",
+    "compiler.equalityOperatorForStringsCompares": "classSchoolUserDefault",
 
 }
 

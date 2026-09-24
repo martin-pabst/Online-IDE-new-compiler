@@ -174,12 +174,21 @@ export abstract class BinopCastCodeGenerator {
 
         if (assignmentOperators.indexOf(operator) >= 0) return this.compileAssignment(leftSnippet, rightSnippet, lTypeIndex, rTypeIndex, lIdentifier, rIdentifier, <AssignmentOperator>operator, operatorRange, wholeRange);
 
+        let isEqualityOperator = operator == TokenType.equal || operator == TokenType.notEqual;
+
+        if (isEqualityOperator && this.settingStore.getValue("compiler.equalityOperatorForStringsCompares") == "references"
+            && lTypeIndex == nString && rTypeIndex == nString) {
+
+            return new BinaryOperatorTemplate(operatorIdentifier + "=", true).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
+
+        }
+
         // unbox if necessary
         // don't unbox when comparing boxed value to null.
         if (lWrapperIndex && rightSnippet.getConstantValue() !== null) leftSnippet = this.unbox(leftSnippet);
         if (rWrapperIndex && leftSnippet.getConstantValue() !== null) rightSnippet = this.unbox(rightSnippet);
 
-        if (operator == TokenType.equal || operator == TokenType.notEqual) {
+        if (isEqualityOperator) {
             if (leftType == this.nullType && (!rightType.isPrimitive || rightType == this.stringType)
                 || rightType == this.nullType && (!leftType.isPrimitive || leftType == this.stringType)) {
                 return new BinaryOperatorTemplate(operatorIdentifier, true).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
@@ -697,7 +706,7 @@ export abstract class BinopCastCodeGenerator {
                 if (typeFrom instanceof JavaArrayType && typeTo instanceof JavaArrayType) {
                     return typeFrom.dimension == typeTo.dimension && this.canCastTo(typeFrom.elementType, typeTo.elementType, castType);
                 }
-                if(typeFrom instanceof JavaArrayType){
+                if (typeFrom instanceof JavaArrayType) {
                     return typeTo.identifier == "Object";
                 }
                 return false;
@@ -715,8 +724,8 @@ export abstract class BinopCastCodeGenerator {
             return true;
         }
 
-        if(typeFrom.isPrimitive && typeTo instanceof GenericTypeParameter){
-            if(typeTo.catches){
+        if (typeFrom.isPrimitive && typeTo instanceof GenericTypeParameter) {
+            if (typeTo.catches) {
                 typeTo.catches.push(this.getBoxedType(typeFrom));
             }
             return true;
@@ -776,13 +785,13 @@ export abstract class BinopCastCodeGenerator {
 
         let unboxedType = this.primitiveTypes[boxedTypeIndex];
 
-        if(boxedTypeIndex == nString){
+        if (boxedTypeIndex == nString) {
             // special handling for String:
             // (§1 || String.null).value
             return SnippetFramer.frame(snippet, `(§1 || ${Helpers.classes}["String"].null).value`, unboxedType);
         } else {
             // return SnippetFramer.frame(snippet, `(§1 || {value: ${unboxedNullValuesMap[snippet.type.identifier]}}).value`, unboxedType);
-    
+
             // better variant:
             return SnippetFramer.frame(snippet, `${Helpers.checkNPE('§1', snippet.range!)}.value`, unboxedType);
         }
@@ -831,7 +840,7 @@ export abstract class BinopCastCodeGenerator {
         let unboxedTypeIndex = primitiveTypeMap[type.identifier];
         if (!unboxedTypeIndex) return undefined;
 
-        return <NonPrimitiveType> this.libraryTypestore.getType(boxedTypeIdentifiers[unboxedTypeIndex]);
+        return <NonPrimitiveType>this.libraryTypestore.getType(boxedTypeIdentifiers[unboxedTypeIndex]);
     }
 
     convertCharToNumber(snippet: CodeSnippet): CodeSnippet {

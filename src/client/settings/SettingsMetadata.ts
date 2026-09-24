@@ -426,6 +426,21 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                     main.getCompiler().forceRecompilation();
                 },
                 image: variableShadowingError
+            },
+            {
+                key: "compiler.equalityOperatorForStringsCompares",
+                settingType: 'setting',
+                name: SettingsMessages.EqualityOperatorForStringsComparesName,
+                description: SettingsMessages.EqualityOperatorForStringsComparesDescription,
+                type: 'enumeration',
+                optionValues: ["values", "references"],
+                optionTexts: [
+                    SettingsMessages.EqualityOperatorForStringsComparesValues,
+                    SettingsMessages.EqualityOperatorForStringsComparesReferences,
+                ],
+                action: (main, value) => {
+                    main.getCompiler().forceRecompilation();
+                }
             }
         ]
     },

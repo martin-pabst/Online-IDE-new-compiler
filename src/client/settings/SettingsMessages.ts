@@ -740,4 +740,28 @@ export class SettingsMessages {
         'fr': 'désactivé'
     });
 
+    static EqualityOperatorForStringsComparesName = () => lm({
+        'de': 'Verhalten des Vergleichsoperators für Strings',
+        'en': 'Behavior of the equality operator for strings',
+        'fr': 'Comportement de l\'opérateur d\'égalité pour les chaînes'
+    });
+    
+    static EqualityOperatorForStringsComparesDescription = () => lm({
+        'de': 'Legt fest, ob der Gleichheitsoperator Strings anhand ihrer Werte oder ihrer Referenzen vergleichen soll.',
+        'en': 'Determines whether the equality operator should compare strings based on their values or their references.',
+        'fr': 'Détermine si l\'opérateur d\'égalité doit comparer les chaînes en fonction de leurs valeurs ou de leurs références.' 
+    });
+
+    static EqualityOperatorForStringsComparesValues = () => lm({
+        'de': 'Vergleich der Werte',
+        'en': 'compare values',
+        'fr': 'comparer les valeurs'
+    });
+
+    static EqualityOperatorForStringsComparesReferences = () => lm({
+        'de': 'Vergleich der Referenzen',
+        'en': 'compare references',
+        'fr': 'comparer les références'
+    });
+
 }
