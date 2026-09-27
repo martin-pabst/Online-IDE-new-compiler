@@ -507,15 +507,15 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
     },
     {
         settingType: 'group',
-        name: SettingsMessages.SchooladminSettingsName,
-        description: SettingsMessages.SchooladminSettingsDescription,
+        name: SettingsMessages.PruefungenSettingsName,
+        description: SettingsMessages.PruefungenSettingsDescription,
         isSchooladminOnly: true, // This group is only for schooladmin users
         settings: [
             {
                 key: "schooladmin.functionality.pruefungen",
                 settingType: 'setting',
-                name: SettingsMessages.PruefungFunctionalityName,
-                description: SettingsMessages.PruefungFunctionalityDescription,
+                name: SettingsMessages.EnablePruefungFunctionalityName,
+                description: SettingsMessages.EnablePruefungFunctionalityDescription,
                 type: 'enumeration',
                 optionValues: ["enabled", "disabled"],
                 optionTexts: [

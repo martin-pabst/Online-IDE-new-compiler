@@ -704,25 +704,25 @@ export class SettingsMessages {
         'fr': `Ici, vous pouvez définir combien de bits les cellules de mémoire doivent avoir par défaut et si leur valeur doit être interprétée comme signée ou non signée.`
     });
 
-    static SchooladminSettingsName = () => lm({
-        'de': 'Schulweite Festlegungen',
-        'en': 'School-wide settings',
-        'fr': 'Paramètres à l\'échelle de l\'école'
+    static PruefungenSettingsName = () => lm({
+        'de': 'Prüfungen',
+        'en': 'Exams',
+        'fr': 'Examens'
     });
 
-    static SchooladminSettingsDescription = () => lm({
-        'de': 'Hier können Sie Einstellungen vornehmen, die schulweit gelten.',
-        'en': 'Here you can adjust settings that apply school-wide.',
-        'fr': 'Ici, vous pouvez ajuster les paramètres qui s\'appliquent à l\'échelle de l\'école.'
+    static PruefungenSettingsDescription = () => lm({
+        'de': 'Hier können Sie Einstellungen vornehmen, die sich auf die Funktionalität "Prüfungen" beziehen.',
+        'en': 'Here you can adjust settings that apply to the "Exams" functionality.',
+        'fr': 'Ici, vous pouvez ajuster les paramètres qui s\'appliquent à la fonctionnalité "Examens".'
     });
 
-    static PruefungFunctionalityName = () => lm({
+    static EnablePruefungFunctionalityName = () => lm({
         'de': 'Funktionalität "Prüfungen" aktivieren/deaktivieren',
         'en': 'Functionality "Exams" enable/disable',
         'fr': 'Fonctionnalité "Examens" activer/désactiver'
     });
 
-    static PruefungFunctionalityDescription = () => lm({
+    static EnablePruefungFunctionalityDescription = () => lm({
         'de': 'Hier können Sie einstellen, ob die Funktionalität "Prüfungen" in der Online-IDE aktiviert oder deaktiviert werden soll.',
         'en': 'Here you can set whether the functionality "Exams" should be enabled or disabled in the online IDE.',
         'fr': 'Ici, vous pouvez définir si la fonctionnalité "Examens" doit être activée ou désactivée dans l\'IDE en ligne.'
