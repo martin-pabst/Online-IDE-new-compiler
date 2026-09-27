@@ -642,7 +642,7 @@ export class NetworkManager {
 
         let request: JRollbackStatementRequest = {
             databaseCode: code,
-            current_version: current_version
+            version: current_version
         }
 
         ajax("rollback", request, (response: JRollbackStatementResponse) => {

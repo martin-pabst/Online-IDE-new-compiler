@@ -767,7 +767,7 @@ export type JAddStatementResponse = {
 
 export type JRollbackStatementRequest = {
     databaseCode: string,
-    current_version: number
+    version: number
 }
 
 export type JRollbackStatementResponse = {
