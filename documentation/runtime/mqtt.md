@@ -7,9 +7,9 @@
 class MqttClient{
     MqttClient(String server);  // starts the connection process but doesn't wait for it to finish, if another method needs an active connection it aits for one or throws a timeout or connectionFailed error
     
-    void subscribe(String topic) throws MqttError;
+    void subscribe(String topic) throws MqttException;
 
-    void subscribe(String topic, SingleTopicHandler handler) throws MqttError;
+    void subscribe(String topic, SingleTopicHandler handler) throws MqttException;
 
     @override
     void onMessage(String topic, String message);
@@ -25,7 +25,7 @@ interface MultiTopicHandler{
     void handle(String topic, String message);
 }
 
-class MqttError{
+class MqttException{
     ...
 }
 

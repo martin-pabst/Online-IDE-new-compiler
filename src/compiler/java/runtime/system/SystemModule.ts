@@ -169,6 +169,8 @@ import { Line3Class } from "../graphics/3d/Line3Class.ts";
 import { Object3dBatchClass } from "../graphics/3d/Object3dBatchClass.ts";
 import { BatchedObject3dClass } from "../graphics/3d/BatchedObject3dClass.ts";
 import { ArraysClass } from "./collections/ArraysClass.ts";
+import { MqttHandlerInterface } from "../network/mqtt/MqttHandler.ts";
+import { MqttClientClass } from "../network/mqtt/MqttClientClass.ts";
 
 export class SystemModule extends JavaLibraryModule {
 
@@ -285,6 +287,10 @@ export class SystemModule extends JavaLibraryModule {
 
             // Robot
             RobotClass, RobotWorldClass,
+
+            // MQTT
+            MqttHandlerInterface,
+            MqttClientClass, 
 
         );
 
