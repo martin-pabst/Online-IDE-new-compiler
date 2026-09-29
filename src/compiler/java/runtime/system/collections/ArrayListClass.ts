@@ -15,7 +15,7 @@ import { SystemStreamClass } from "./SystemStreamClass.ts";
 
 export class ArrayListClass extends SystemCollection implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", signature: "class ArrayList<E> implements List<E>", comment: JRC.arrayListClassComment },
+        { type: "declaration", signature: "class ArrayList<E> implements List<E>, Cloneable", comment: JRC.arrayListClassComment },
 
         { type: "method", signature: "ArrayList()", native: ArrayListClass.prototype._constructor, comment: JRC.arrayListConstructorComment },
         { type: "method", signature: "ArrayList(Collection<? extends E> c)", java: ArrayListClass.prototype._constructor1, comment: JRC.arrayListConstructorComment1 },
@@ -49,6 +49,7 @@ export class ArrayListClass extends SystemCollection implements BaseListType {
 
         // override toString-method
         { type: "method", signature: "String toString()", java: ArrayListClass.prototype._mj$toString$String$, comment: JRC.objectToStringComment },
+        { type: "method", signature: "ArrayList<E> clone()", native: ArrayListClass.prototype._clone, comment: JRC.arrayListCloneComment },
         //
     ]
 
@@ -467,6 +468,9 @@ export class ArrayListClass extends SystemCollection implements BaseListType {
 
     // }
 
-
+    _clone() {
+        let newArrayList = new ArrayListClass(this.elements.slice());
+        return newArrayList;
+    }
 
 }

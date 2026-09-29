@@ -171,6 +171,8 @@ import { BatchedObject3dClass } from "../graphics/3d/BatchedObject3dClass.ts";
 import { ArraysClass } from "./collections/ArraysClass.ts";
 import { MqttHandlerInterface } from "../network/mqtt/MqttHandler.ts";
 import { MqttClientClass } from "../network/mqtt/MqttClientClass.ts";
+import { CloneableInterface } from "./javalang/CloneableInterface.ts";
+import { CloneNotSupportedExceptionClass } from "./javalang/CloneNotSupportedExceptionClass.ts";
 
 export class SystemModule extends JavaLibraryModule {
 
@@ -200,6 +202,8 @@ export class SystemModule extends JavaLibraryModule {
             ClassClass,
             ObjectClass, StringClass, EnumClass,                  // These two MUST come first!
 
+            CloneableInterface,
+
             //additional system classes
             KeyClass, LocalDateTimeClass, DayOfWeekEnum, PositionClass, BigIntegerClass,
             ConsoleClass, Vector2Class, MathToolsClass, PrintStreamClass, SystemClass,
@@ -216,6 +220,7 @@ export class SystemModule extends JavaLibraryModule {
             ThrowableClass, ExceptionClass, RuntimeExceptionClass, IllegalArgumentExceptionClass, ArithmeticExceptionClass, NullPointerExceptionClass,
             ClassCastExceptionClass, IndexOutOfBoundsExceptionClass, IllegalMonitorStateExceptionClass,
             EmptyStackExceptionClass, IllegalStateExceptionClass,
+            CloneNotSupportedExceptionClass,
 
             // Collections
             IteratorInterface, IterableInterface, CollectionInterface, ListInterface, ArrayListClass, CopyOnWriteArrayListClass,

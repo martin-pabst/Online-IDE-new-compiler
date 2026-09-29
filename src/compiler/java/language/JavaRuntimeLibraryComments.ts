@@ -249,6 +249,14 @@ export class JRC {
     })
 
     /**
+     * Interface Cloneable
+     */
+    static CloneableInterfaceComment = () => lm({
+        "de": "Die Schnittstelle Cloneable kennzeichnet Klassen, deren Objekte geklont werden können. Die Methode clone() der Klasse Object wirft eine CloneNotSupportedException, wenn das Objekt nicht die Schnittstelle Cloneable implementiert.",
+        "en": "The Cloneable interface indicates that a class allows its objects to be cloned. The clone() method of class Object throws a CloneNotSupportedException if the object does not implement the Cloneable interface.",
+    })
+
+    /**
      * Class World
      */
 
@@ -2112,6 +2120,11 @@ export class JRC {
     static arrayListIteratorComment = () => lm({
         "de": "Gibt ein Iterator-Objekt zurück, mit dem über alle Elemente der Liste in der gespeicherten Reihenfolge iteriert werden kann.",
         "en": "Returns an iterator over the elements in this list in proper sequence.",
+    })
+
+    static arrayListCloneComment = () => lm({
+        "de": "Erstellt eine flache Kopie der ArrayList.",
+        "en": "Creates a shallow copy of the ArrayList.",
     })
 
     static arrayListForeachComment = () => lm({
