@@ -5,7 +5,6 @@ import { Thread } from "../../../../common/interpreter/Thread";
 import { ThreadState } from "../../../../common/interpreter/ThreadState";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
-import { ArrayListClass } from "../../system/collections/ArrayListClass";
 import { ClassClass } from "../../system/ClassClass";
 import { StringClass } from "../../system/javalang/ObjectClassStringClass";
 import { RuntimeExceptionClass } from "../../system/javalang/RuntimeException";
@@ -20,6 +19,7 @@ import { ScratchCostumes } from "./ScratchCostumes";
 import { DEBUG_COLOR, DEBUG_FONT_FAMILY, DEBUG_FONT_SIZE, round2, roundInt } from "./ScratchDebug";
 import { SCRATCH_FONT_FAMILY, loadScratchFont } from "./ScratchFont";
 import { applyCameraTransform, createScratchLayers, ScratchLayers } from "./ScratchLayers";
+import { scratchSpriteList } from "./ScratchLists";
 import { ScratchPenClass } from "./ScratchPenClass";
 import { IScratchEventReceiver, ScratchRuntimeManager } from "./ScratchRuntimeManager";
 import { ScratchSoundBank } from "./ScratchSounds";
@@ -79,8 +79,8 @@ export class ScratchStageClass extends ActorClass implements InternalMouseListen
         { type: "method", signature: "void remove(Sprite sprite)", native: ScratchStageClass.prototype._remove, comment: SRC.stageRemove3Comment },
         { type: "method", signature: "void removeAll()", native: ScratchStageClass.prototype._removeAll, comment: SRC.stageRemoveAllComment },
         { type: "method", signature: "void remove(Class<? extends Sprite> c)", native: ScratchStageClass.prototype._removeOfClass, comment: SRC.stageRemove4Comment },
-        { type: "method", signature: "List<Sprite> getAll()", native: ScratchStageClass.prototype._getAll, comment: SRC.stageGetAllComment },
-        { type: "method", signature: "<T extends Sprite> List<T> find(Class<T> c)", native: ScratchStageClass.prototype._find, comment: SRC.stageFindComment },
+        { type: "method", signature: "List<Sprite> getAll()", java: ScratchStageClass.prototype._mj$getAll$List$, comment: SRC.stageGetAllComment },
+        { type: "method", signature: "<T extends Sprite> List<T> find(Class<T> c)", java: ScratchStageClass.prototype._mj$find$List$Class, comment: SRC.stageFindComment },
         { type: "method", signature: "<T extends Sprite> int count(Class<T> c)", native: ScratchStageClass.prototype._count, comment: SRC.stageCountComment },
 
         // backdrops
@@ -435,8 +435,15 @@ export class ScratchStageClass extends ActorClass implements InternalMouseListen
     _removeOfClass(c: ClassClass) {
         for (const s of this.spritesOfClass(c)) this._remove(s);
     }
-    _getAll(): ArrayListClass { return new ArrayListClass(this.sprites.slice()); }
-    _find(c: ClassClass): ArrayListClass { return new ArrayListClass(this.spritesOfClass(c)); }
+    // java.util.List or, in the library "scratch-nrw", the nrw List; see scratchSpriteList
+    _mj$getAll$List$(t: Thread, callback: CallbackParameter) {
+        t.s.push(scratchSpriteList(t, this.sprites.slice()));
+        if (callback) callback();
+    }
+    _mj$find$List$Class(t: Thread, callback: CallbackParameter, c: ClassClass) {
+        t.s.push(scratchSpriteList(t, this.spritesOfClass(c)));
+        if (callback) callback();
+    }
     _count(c: ClassClass): number { return this.spritesOfClass(c).length; }
 
     // ---- backdrops ----

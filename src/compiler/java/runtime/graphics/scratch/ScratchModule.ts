@@ -19,6 +19,7 @@ import {
 import { ScratchExceptionClass } from "./ScratchExceptionClass";
 import { ScratchHitboxClass } from "./ScratchHitboxClass";
 import { ScratchHtmlColorClass } from "./ScratchHtmlColorClass";
+import { ScratchListFlavour } from "./ScratchLists";
 import {
     ScratchCircleClass, ScratchEllipseClass, ScratchPolygonClass, ScratchRectangleClass,
     ScratchShapeClass, ScratchTriangleClass,
@@ -47,9 +48,15 @@ import { TextureSamplingEnum } from "./TextureSamplingEnum";
  * `getStandardImports` imports all of them implicitly as well, so a program that
  * writes no import at all works just as it did before the packages existed.
  */
-export class ScratchModule extends JavaLibraryModule {
+export class ScratchModule extends JavaLibraryModule implements ScratchListFlavour {
 
-    constructor() {
+    /**
+     * @param scratchNrwLists true for the library "scratch-nrw", the counterpart of the NRW
+     * build of Scratch for Java: Stage.getAll, Stage.find and Sprite.getTouchingSprites return
+     * the List of the NRW Zentralabitur instead of java.util.List. It needs the NRWModule
+     * next to it, which is where that List comes from.
+     */
+    constructor(readonly scratchNrwLists: boolean = false) {
         super();
         this.classesInterfacesEnums.push(
             KeyCodeEnum, MouseCodeEnum, RotationStyleEnum, LayerEnum, TextAlignEnum, TextStyleEnum,
@@ -102,6 +109,8 @@ export class ScratchModule extends JavaLibraryModule {
             ["org", "openpatch", "scratch", "extensions", "tiled", "*"],
             // Stage.waitUntil takes a java.util.function.BooleanSupplier
             ["java", "util", "function", "*"],
+            // the declarations' List is the nrw List then; see the constructor
+            ...(this.scratchNrwLists ? [["nrw", "List"]] : []),
         ];
     }
 

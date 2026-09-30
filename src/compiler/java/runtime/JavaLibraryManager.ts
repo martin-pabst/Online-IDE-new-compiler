@@ -32,6 +32,11 @@ export class JavaLibraryManager implements LibraryManager {
             description: 'Scratch-artige Klassenbibliothek (Stage, Sprite, Costumes) — Port von org.openpatch.scratch',
             id: 'scratch'
         },
+        {
+            identifier: 'Scratch for Java (NRW)',
+            description: 'Scratch for Java zusammen mit den Abiturklassen Nordrhein-Westfalen: getAll, find und getTouchingSprites liefern die List des Zentralabiturs',
+            id: 'scratch-nrw'
+        },
     ];
 
     libraryIds: string[] = [];
@@ -45,15 +50,21 @@ export class JavaLibraryManager implements LibraryManager {
             new DatabaseModule()
         ]
 
+        // scratch-nrw is Scratch plus the NRW classes, so it stands in for either of them
+        // when they are chosen as well: each module may be loaded only once.
+        let scratchNrw = this.libraryIds.indexOf("scratch-nrw") >= 0;
+
         for (let lib of this.libraryIds) {
             switch (lib) {
                 case "gng": additionalModules.push(new GNGModule());
                     break;
-                case "nrw": additionalModules.push(new NRWModule());
+                case "nrw": if (!scratchNrw) additionalModules.push(new NRWModule());
                     break;
                 case "niedersachsen": additionalModules.push(new NiedersachsenModule());
                     break;
-                case "scratch": additionalModules.push(new ScratchModule());
+                case "scratch": if (!scratchNrw) additionalModules.push(new ScratchModule());
+                    break;
+                case "scratch-nrw": additionalModules.push(new NRWModule(), new ScratchModule(true));
                     break;
             }
         }

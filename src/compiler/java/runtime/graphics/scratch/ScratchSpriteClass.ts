@@ -4,7 +4,6 @@ import { Thread } from "../../../../common/interpreter/Thread";
 import { ThreadState } from "../../../../common/interpreter/ThreadState";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
-import { ArrayListClass } from "../../system/collections/ArrayListClass";
 import { ClassClass } from "../../system/ClassClass";
 import { RuntimeExceptionClass } from "../../system/javalang/RuntimeException";
 import { ObjectClass, StringClass } from "../../system/javalang/ObjectClassStringClass";
@@ -19,6 +18,7 @@ import { ScratchColorClass } from "./ScratchColorClass";
 import { ScratchCostumes } from "./ScratchCostumes";
 import { DEBUG_COLOR, round2 } from "./ScratchDebug";
 import { ScratchHitboxClass } from "./ScratchHitboxClass";
+import { scratchSpriteList } from "./ScratchLists";
 import { ScratchPenClass } from "./ScratchPenClass";
 import { IScratchEventReceiver, ScratchRuntimeManager } from "./ScratchRuntimeManager";
 import { ScratchSoundBank } from "./ScratchSounds";
@@ -166,7 +166,7 @@ export class ScratchSpriteClass extends ShapeClass {
         { type: "method", signature: "boolean isTouchingSprite(Sprite other)", native: ScratchSpriteClass.prototype._isTouchingSprite, comment: SRC.spriteIsTouchingSpriteComment },
         { type: "method", signature: "boolean isTouchingSprite(Class<? extends Sprite> c)", native: ScratchSpriteClass.prototype._isTouchingSpriteOfClass, comment: SRC.spriteIsTouchingSprite2Comment },
         { type: "method", signature: "<T extends Sprite> T getTouchingSprite(Class<T> c)", native: ScratchSpriteClass.prototype._getTouchingSprite, comment: SRC.spriteGetTouchingSpriteComment },
-        { type: "method", signature: "<T extends Sprite> List<T> getTouchingSprites(Class<T> c)", native: ScratchSpriteClass.prototype._getTouchingSprites, comment: SRC.spriteGetTouchingSpritesComment },
+        { type: "method", signature: "<T extends Sprite> List<T> getTouchingSprites(Class<T> c)", java: ScratchSpriteClass.prototype._mj$getTouchingSprites$List$Class, comment: SRC.spriteGetTouchingSpritesComment },
         { type: "method", signature: "boolean isTouchingEdge()", native: ScratchSpriteClass.prototype._isTouchingEdge, comment: SRC.spriteIsTouchingEdgeComment },
         { type: "method", signature: "boolean isTouchingMousePointer()", native: ScratchSpriteClass.prototype._isTouchingMousePointer, comment: SRC.spriteIsTouchingMousePointerComment },
         { type: "method", signature: "boolean isKeyPressed(KeyCode key)", native: ScratchSpriteClass.prototype._isKeyPressed, comment: SRC.spriteIsKeyPressedComment },
@@ -1038,8 +1038,10 @@ export class ScratchSpriteClass extends ShapeClass {
     _getTouchingSprite(c: ClassClass): ScratchSpriteClass | null {
         return this.spritesOfClass(c).find(s => s.container.visible && this._isTouchingSprite(s)) ?? null;
     }
-    _getTouchingSprites(c: ClassClass): ArrayListClass {
-        return new ArrayListClass(this.spritesOfClass(c).filter(s => this._isTouchingSprite(s)));
+    // java.util.List or, in the library "scratch-nrw", the nrw List; see scratchSpriteList
+    _mj$getTouchingSprites$List$Class(t: Thread, callback: CallbackParameter, c: ClassClass) {
+        t.s.push(scratchSpriteList(t, this.spritesOfClass(c).filter(s => this._isTouchingSprite(s))));
+        if (callback) callback();
     }
 
     _isTouchingMousePointer(): boolean {
