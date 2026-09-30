@@ -51,10 +51,10 @@ import { TextureSamplingEnum } from "./TextureSamplingEnum";
 export class ScratchModule extends JavaLibraryModule implements ScratchListFlavour {
 
     /**
-     * @param scratchNrwLists true for the library "scratch-nrw", the counterpart of the NRW
-     * build of Scratch for Java: Stage.getAll, Stage.find and Sprite.getTouchingSprites return
-     * the List of the NRW Zentralabitur instead of java.util.List. It needs the NRWModule
-     * next to it, which is where that List comes from.
+     * @param scratchNrwLists true when the NRW classes are loaded as well — the counterpart of
+     * the NRW build of Scratch for Java: Stage.getAll, Stage.find and Sprite.getTouchingSprites
+     * return the List of the NRW Zentralabitur instead of java.util.List. It needs the
+     * NRWModule next to it, which is where that List comes from.
      */
     constructor(readonly scratchNrwLists: boolean = false) {
         super();

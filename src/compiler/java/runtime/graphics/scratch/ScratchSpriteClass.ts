@@ -1038,7 +1038,7 @@ export class ScratchSpriteClass extends ShapeClass {
     _getTouchingSprite(c: ClassClass): ScratchSpriteClass | null {
         return this.spritesOfClass(c).find(s => s.container.visible && this._isTouchingSprite(s)) ?? null;
     }
-    // java.util.List or, in the library "scratch-nrw", the nrw List; see scratchSpriteList
+    // java.util.List or, next to the NRW classes, the nrw List; see scratchSpriteList
     _mj$getTouchingSprites$List$Class(t: Thread, callback: CallbackParameter, c: ClassClass) {
         t.s.push(scratchSpriteList(t, this.spritesOfClass(c).filter(s => this._isTouchingSprite(s))));
         if (callback) callback();

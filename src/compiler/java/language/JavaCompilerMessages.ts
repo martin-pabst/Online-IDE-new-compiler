@@ -585,6 +585,7 @@ export class JCM {
     })
 
     static cantFindMethod = () => le({
+        "id": "cantFindMethod",
         "de": "Es konnte keine passende Methode mit diesem Bezeichner/mit dieser Signatur gefunden werden.",
         "en": `Can't find method with this identifier and signature.`,
         "fr": `Impossible de trouver une méthode correspondant à cet identifiant et à cette signature.`,

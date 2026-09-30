@@ -29,13 +29,8 @@ export class JavaLibraryManager implements LibraryManager {
         },
         {
             identifier: 'Scratch for Java',
-            description: 'Scratch-artige Klassenbibliothek (Stage, Sprite, Costumes) — Port von org.openpatch.scratch',
+            description: 'Scratch-artige Klassenbibliothek (Stage, Sprite, Costumes) — Port von org.openpatch.scratch. Zusammen mit den Abiturklassen NRW liefern getAll, find und getTouchingSprites deren List',
             id: 'scratch'
-        },
-        {
-            identifier: 'Scratch for Java (NRW)',
-            description: 'Scratch for Java zusammen mit den Abiturklassen Nordrhein-Westfalen: getAll, find und getTouchingSprites liefern die List des Zentralabiturs',
-            id: 'scratch-nrw'
         },
     ];
 
@@ -50,21 +45,20 @@ export class JavaLibraryManager implements LibraryManager {
             new DatabaseModule()
         ]
 
-        // scratch-nrw is Scratch plus the NRW classes, so it stands in for either of them
-        // when they are chosen as well: each module may be loaded only once.
-        let scratchNrw = this.libraryIds.indexOf("scratch-nrw") >= 0;
+        // Scratch next to the NRW classes is the NRW build of Scratch for Java: nrw.* makes
+        // a student's List the nrw List, so getAll, find and getTouchingSprites hand out
+        // that List too; with java.util.List they could not be used together at all.
+        let nrwLists = this.libraryIds.indexOf("nrw") >= 0;
 
         for (let lib of this.libraryIds) {
             switch (lib) {
                 case "gng": additionalModules.push(new GNGModule());
                     break;
-                case "nrw": if (!scratchNrw) additionalModules.push(new NRWModule());
+                case "nrw": additionalModules.push(new NRWModule());
                     break;
                 case "niedersachsen": additionalModules.push(new NiedersachsenModule());
                     break;
-                case "scratch": if (!scratchNrw) additionalModules.push(new ScratchModule());
-                    break;
-                case "scratch-nrw": additionalModules.push(new NRWModule(), new ScratchModule(true));
+                case "scratch": additionalModules.push(new ScratchModule(nrwLists));
                     break;
             }
         }

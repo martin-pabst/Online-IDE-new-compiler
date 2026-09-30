@@ -28,18 +28,13 @@ const sprites: any[] = [{ name: "a" }, { name: "b" }, { name: "c" }];
 
 describe('Scratch sprite lists', () => {
 
-    test('library "scratch" hands out a java.util.List', () => {
+    test('scratch alone hands out a java.util.List', () => {
         const list = scratchSpriteList(threadRunning('scratch'), sprites);
         expect(list).toBeInstanceOf(ArrayListClass);
     });
 
-    test('scratch next to nrw still hands out a java.util.List', () => {
+    test('scratch next to nrw hands out the nrw List, in order', () => {
         const list = scratchSpriteList(threadRunning('scratch', 'nrw'), sprites);
-        expect(list).toBeInstanceOf(ArrayListClass);
-    });
-
-    test('library "scratch-nrw" hands out the nrw List, in order', () => {
-        const list = scratchSpriteList(threadRunning('scratch-nrw'), sprites);
         expect(list).toBeInstanceOf(NRWListClass);
         const nrw = list as NRWListClass;
         const seen: any[] = [];
@@ -51,17 +46,16 @@ describe('Scratch sprite lists', () => {
         expect(seen).toEqual(sprites);
     });
 
-    test('scratch-nrw next to scratch and nrw loads each module once', () => {
-        const manager = new JavaLibraryManager();
-        manager.addLibraries('scratch', 'nrw', 'scratch-nrw');
-        const names = manager.getAdditionalModules().map(m => m.constructor.name);
-        expect(names.filter(n => n == 'ScratchModule').length).toBe(1);
-        expect(names.filter(n => n == 'NRWModule').length).toBe(1);
-        expect(scratchSpriteList(threadRunning('scratch', 'nrw', 'scratch-nrw'), sprites)).toBeInstanceOf(NRWListClass);
+    test('the order of the libraries does not matter', () => {
+        expect(scratchSpriteList(threadRunning('nrw', 'scratch'), sprites)).toBeInstanceOf(NRWListClass);
+    });
+
+    test('scratch next to another library keeps java.util.List', () => {
+        expect(scratchSpriteList(threadRunning('scratch', 'gng'), sprites)).toBeInstanceOf(ArrayListClass);
     });
 
     test('an empty result is an empty nrw List', () => {
-        const list = scratchSpriteList(threadRunning('scratch-nrw'), []);
+        const list = scratchSpriteList(threadRunning('scratch', 'nrw'), []);
         expect((list as NRWListClass)._isEmpty()).toBe(true);
     });
 });

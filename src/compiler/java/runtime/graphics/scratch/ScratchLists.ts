@@ -6,18 +6,18 @@ import { ObjectClass } from "../../system/javalang/ObjectClassStringClass";
 
 /**
  * The library modules that make Stage.getAll, Stage.find and Sprite.getTouchingSprites
- * hand out the List of the NRW Zentralabitur (see ScratchModule, library "scratch-nrw").
+ * hand out the List of the NRW Zentralabitur (see ScratchModule: Scratch loaded together with nrw).
  */
 export interface ScratchListFlavour {
     scratchNrwLists?: boolean;
 }
 
 /**
- * The list a Scratch method returning sprites hands out: a java.util.List, or in the
- * "scratch-nrw" library the nrw List — the IDE's counterpart of the NRW build of
+ * The list a Scratch method returning sprites hands out: a java.util.List, or, with the
+ * NRW classes loaded as well, the nrw List — the IDE's counterpart of the NRW build of
  * Scratch for Java.
  *
- * Both libraries compile these methods under the same internal name, and the library
+ * Both flavours compile these methods under the same internal name, and the library
  * parser writes them onto the one shared prototype, so the declaration cannot decide
  * which list it is. The program that runs does: its executable carries the library
  * modules it was compiled with.

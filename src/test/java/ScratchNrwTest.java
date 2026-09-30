@@ -1,6 +1,6 @@
 /**::
- * scratch-nrw: getAll, find and getTouchingSprites hand out the nrw List
- * {"libraries": ["scratch-nrw"], "expectedOutput": "nrw-listen"}
+ * scratch with nrw: getAll, find and getTouchingSprites hand out the nrw List
+ * {"libraries": ["scratch", "nrw"], "expectedOutput": "nrw-listen"}
  */
 // The counterpart of the NRW build of Scratch for Java. The graphics classes need a
 // browser, so this checks the types: the lists these methods return are the List of
@@ -37,13 +37,13 @@ class Gegner extends Sprite {
 // the rest of the NRW classes are there as well
 Queue<String> q = new Queue<String>();
 q.enqueue("a");
-assertEquals("a", q.front(), "the NRW classes come with scratch-nrw");
+assertEquals("a", q.front(), "the NRW classes are there next to Scratch");
 
 print("nrw-listen");
 
 /**::
- * scratch-nrw together with scratch and nrw loads each module once
- * {"libraries": ["scratch", "nrw", "scratch-nrw"], "expectedOutput": "einmal"}
+ * the order of the libraries does not matter
+ * {"libraries": ["nrw", "scratch"], "expectedOutput": "andersrum"}
  */
 class Feld extends Stage {
     public void zaehle() {
@@ -52,15 +52,16 @@ class Feld extends Stage {
     }
 }
 
-print("einmal");
+print("andersrum");
 
 /**::
- * scratch and nrw without scratch-nrw keep java.util.List for the sprites
- * {"libraries": ["scratch", "nrw"], "expectedCompilationError": { "id": "cantAssignValueToLocalVariable", "line": 8 }}
+ * scratch alone keeps java.util.List for the sprites
+ * {"libraries": ["scratch"], "expectedCompilationError": { "id": "cantFindMethod", "line": 9 }}
  */
 class Feld2 extends Stage {
     public void zaehle() {
-        // nrw.* makes List the nrw List, getAll gives a java.util.List
+        // java.util.List has no toFirst
         List<Sprite> alle = this.getAll();
+        alle.toFirst();
     }
 }

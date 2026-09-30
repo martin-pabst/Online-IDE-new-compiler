@@ -435,7 +435,7 @@ export class ScratchStageClass extends ActorClass implements InternalMouseListen
     _removeOfClass(c: ClassClass) {
         for (const s of this.spritesOfClass(c)) this._remove(s);
     }
-    // java.util.List or, in the library "scratch-nrw", the nrw List; see scratchSpriteList
+    // java.util.List or, next to the NRW classes, the nrw List; see scratchSpriteList
     _mj$getAll$List$(t: Thread, callback: CallbackParameter) {
         t.s.push(scratchSpriteList(t, this.sprites.slice()));
         if (callback) callback();

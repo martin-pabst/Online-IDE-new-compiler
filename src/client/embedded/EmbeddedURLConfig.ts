@@ -34,7 +34,7 @@ export type URLParameterDoc = {
 
 export const URL_PARAMETERS: URLParameterDoc[] = [
     {
-        name: "libraries", kind: "special", values: "gng, nrw, niedersachsen, scratch, scratch-nrw",
+        name: "libraries", kind: "special", values: "gng, nrw, niedersachsen, scratch",
         description: () => lm({
             "de": "Klassenbibliotheken, durch Komma getrennt. Leer lässt alle weg.",
             "en": "Class libraries, separated by commas. Empty leaves them all out.",
