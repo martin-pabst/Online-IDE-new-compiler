@@ -1,0 +1,118 @@
+body {
+    background-color: #101010;
+    color: #ddd;
+    font-family: sans-serif;
+}
+
+#isi-digital-frame {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+}
+
+#isi-digital-frame>a>img {
+    height: 100px;
+}
+
+
+#icondiv {
+    display: flex;
+    flex-direction: row;
+    gap: 10%;
+    justify-content: center;
+    margin-top: 10vh
+}
+
+#maindiv {
+    margin-top: 8vh;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+.icon {
+    height: 200px;
+}
+
+
+#login-datenschutz {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+}
+
+#assistantdiv {
+    width: 50vw;
+    background-color: #222;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+}
+
+#stepone input {
+    width: 300px;
+    font-family: monospace;
+    margin-left: 10px;
+}
+
+#nextdiv {
+    margin-top: 30px;
+}
+
+#nextbutton {
+    background-color: rgb(146, 178, 97);
+    padding: 3px;
+    width: 100px;
+    text-align: center;
+    color: black;
+    user-select: none;
+}
+
+#nextbutton:hover {
+    filter:brightness(120%);
+    cursor: pointer;
+}
+
+#nextbutton:active {
+    transform: scale(105%);
+}
+
+.inputwithlabel {
+    display: flex;
+    flex-direction: row;
+    margin-top: 8px;
+}
+
+.inputwithlabel .label {
+    width: 150px;
+}
+
+.inputwithlabel input {
+    width: 200px;
+}
+
+#errordiv {
+    margin-top: 10px;
+    color: red;
+}
+
+a:link {
+    color: rgb(120, 142, 255);
+}
+
+/* visited link */
+a:visited {
+    color: #75beff;
+}
+
+/* mouse over link */
+a:hover {
+    color: rgb(189, 200, 255);
+}
+
+/* selected link */
+a:active {
+    color: #fff;
+}
+

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online-IDE: Schuladmin registrieren</title>
+    <link rel="stylesheet" href="/assets/css/register.css">
+    <script type="module" src="/src/client/register/RegisterSchoolAdmin.ts"></script>
+</head>
+
+<body>
+
+    <div id="isi-digital-frame">
+        <a href="https://www.bildungspakt-bayern.de/isi-preistraeger-2022-gy-ingolstadt/" target="_blank">
+            <img src="assets/graphics/isi_digital_2022.png"
+                alt="Die Online-IDE erhielt 2022 den isi-digital-Preis der Stiftung Bildungspakt Bayern"
+                class="icon-with-link">
+        </a>
+    </div>
+
+    <div id="icondiv">
+        <img src="/assets/graphics/Logo1.png" alt="" class="icon">
+        <img src="/assets/graphics/logo_sql-ide.png" alt="" class="icon">
+    </div>
+
+    <div id="maindiv">
+        <h1>Erstellen eines Schuladmin-Accounts</h1>
+        <div id="assistantdiv">
+            <div id="stepone" class="step">
+                <div>
+                    Bitte geben Sie den Einmalschlüssel Ihrer Schule ein:
+                    <input id="onetimekey" type="text">
+                </div>
+            </div>
+            <div id="steptwo" class="step">
+                <div style="margin-bottom: 10px">
+                    Bitte geben Sie die Daten für den neuen Schuladmin-Account der Schule <span id="schulname"></span>
+                    ein:
+                </div>
+                <div class="inputwithlabel">
+                    <div class="label">Rufname:</div>
+                    <input type="text" id="rufname">
+                </div>
+                <div class="inputwithlabel">
+                    <div class="label">Familienname</div>
+                    <input type="text" id="familienname">
+                    <div style="margin-left: 5px; font-size: 70%;">(inklusive Namensbestandteilen)</div>
+                </div>
+                <div class="inputwithlabel">
+                    <div class="label">Benutzername:</div>
+                    <input type="text" id="username">
+                </div>
+                <div class="inputwithlabel">
+                    <div class="label">Neues Passwort:</div>
+                    <input type="password" id="password">
+                    <div style="margin-left: 5px; font-size: 70%;">(Mindestens 8 Zeichen aus 3 Kategorien)</div>
+                </div>
+                <div class="inputwithlabel">
+                    <div class="label">Mail:</div>
+                    <input type="text" id="mail">
+                    <div style="margin-left: 5px; font-size: 70%;">(Optional; wird nicht auf dem Server gespeichert,
+                        sondern nur für Kommunikationszwecke übermittelt.)</div>
+                </div>
+            </div>
+            <div id="stepsuccess" class="step">
+                <div style="margin-bottom: 5px">
+                    Der Schuladmin-Account wurde erfolgreich erstellt. Sie können sich damit jetzt bei der Online-IDE
+                    und der SQL-IDE anmelden und weitere Schuladmin-, Lehrkraft- und Schüler(innen)zugänge anlegen:
+                </div>
+                <div style="margin-bottom: 2px">
+                    <a href="https://www.online-ide.de">https://www.online-ide.de</a>
+                </div>
+                <div style="margin-bottom: 12px">
+                    <a href="https://www.sql-ide.de">https://www.sql-ide.de</a>
+                </div>
+
+                <div style="margin-bottom: 2px">
+                    Hier finden Sie <a href="https://www.learnj.de/doku.php?id=api:ide_manual:start">Videoanleitungen zur Bedienung der Online-IDE</a>.
+                </div>
+
+
+                
+
+            </div>
+            <div id="nextdiv">
+                <div id="nextbutton">Weiter...</div>
+            </div>
+            <div id="errordiv"></div>
+        </div>
+    </div>
+
+
+    <div id="login-datenschutz">
+        <a href="https://www.learnj.de/doku.php?id=ide:datenschutzerklaerung" target="_blank">Datenschutzerklärung</a>
+        <a href="https://www.learnj.de/doku.php?id=ide:impressum" target="_blank">Impressum</a>
+    </div>
+
+</body>
+
+</html>

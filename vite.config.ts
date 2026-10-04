@@ -16,6 +16,7 @@ export default {
                 spriteLibrary: './spriteLibrary.html',
                 statistics: './statistics.html',
                 shortcuts: './shortcuts.html',
+                register: './register.html',
             },
             output: {
                 manualChunks: (id: string, { getModuleInfo, getModuleIds }) => {

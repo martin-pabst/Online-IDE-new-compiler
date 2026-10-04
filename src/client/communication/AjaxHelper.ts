@@ -202,9 +202,7 @@ export async function ajaxAsync(url: string, data: any): Promise<BaseResponse> {
 
         if (obj == null) {
             alert("Fehler beim Übertragen der Daten.");
-        } else if (obj.success != true) {
-            alert("Fehler beim Übertragen der Daten:\n" + obj.message);
-        }
+        } 
         showNetworkBusy(false);
         return obj;
     } catch (exception) {
