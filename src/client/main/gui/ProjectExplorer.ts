@@ -261,7 +261,7 @@ export class ProjectExplorer {
             (file: GUIFile) => {
                 if (!file.isFolder) {
                     this.setFileActive(file);
-                    if (this.main.currentWorkspace.settings.language == ProgrammingLanguageData.ByAssembly.name) {
+                    if (this.main.currentWorkspace.settings?.language == ProgrammingLanguageData.ByAssembly.name) {
                         this.main.getCompiler().forceRecompilation();
                     }
                 }
@@ -646,7 +646,7 @@ export class ProjectExplorer {
     }
 
     getIconClassForWorkspace(workspace: Workspace): string {
-        return (ProgrammingLanguageData[workspace.settings.language] ?? ProgrammingLanguageData.Java).workspaceCssClass(workspace.repository_id != null);
+        return (ProgrammingLanguageData[workspace.settings?.language] ?? ProgrammingLanguageData.Java).workspaceCssClass(workspace.repository_id != null);
     }
 
     async moveOrCopyFilesToOtherWorkspaces(filesToMoveOrCopy: TreeviewNode<GUIFile, number>[], destinationWorkspaceNode: TreeviewNode<Workspace, number>, dragKind: DragKind) {
