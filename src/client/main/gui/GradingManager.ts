@@ -5,9 +5,9 @@ import { Workspace } from "../../workspace/Workspace.js";
 import { Main } from "../Main.js";
 import { Tab, TabManager } from '../../../tools/TabManager.js';
 import { GradingManagerMessages } from './language/GUILanguage.js';
-import { AdminMessages } from '../../administration/AdministrationMessages.js';
 import type { GradeData } from '../../communication/Data.js';
 import '/assets/css/gradingtab.css';
+import { GradingMessages } from './language/GradingMessages.js';
 
 export class GradingManager {
 
@@ -59,8 +59,8 @@ export class GradingManager {
 
         $l1.append(makeDiv(null, null, GradingManagerMessages.points() + ": "), this.$gradingPoints);
         $l2.append(makeDiv(null, null, GradingManagerMessages.grade() + ": "), this.$gradingMark);
-        this.$l3.append(makeDiv(null, null, AdminMessages.groupLong() + ": "), this.$group);
-        this.$l4.append(makeDiv(null, null, AdminMessages.attendance() + ": "), this.$attendence);
+        this.$l3.append(makeDiv(null, null, GradingMessages.groupLong() + ": "), this.$group);
+        this.$l4.append(makeDiv(null, null, GradingMessages.attendance() + ": "), this.$attendence);
 
         upperRow.append($l1, $l2, this.$l3, this.$l4);
 

@@ -11,10 +11,8 @@ export default {
         rollupOptions: {
             input: {
                 main: './index.html',
-                admin: './administration_mc.html',
                 api: './api_documentation.html',
                 spriteLibrary: './spriteLibrary.html',
-                statistics: './statistics.html',
                 shortcuts: './shortcuts.html',
                 register: './register.html',
             },

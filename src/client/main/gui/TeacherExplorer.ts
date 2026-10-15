@@ -211,11 +211,13 @@ export class TeacherExplorer {
 
             let buttonPruefungAdministration = this.classPanel.captionLineAddIconButton("img_gear-dark", "right",
                 async () => {
-                    let response = await ajaxAsync("servlet/getSingleUseSessionToken", {}) as GetSingleUseSessionTokenResponse;
-                    if (response.success) {
-                        window.open("administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + (this.main.guiState.language ?? "de") + "&menuItem=manageTests");
-                        // window.open(`administration_mc.html?csrfToken=${csrfToken}&menuItem=manageTests`, '_blank').focus();
-                    }
+                        let response = await ajaxAsync("servlet/getSingleUseSessionToken", {}) as GetSingleUseSessionTokenResponse;
+                        if (response.success) {
+                        // window.open(serverURL + "administration_mc.html?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
+                         window.open("https://teacherbackend.online-ide.de?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + (this.main.guiState.language ?? "de") + "&menuItem=manageTests");
+                        //window.open("http://localhost:3001?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
+                        }
+
                 }, TeacherExplorerMessages.createNewTest());
 
             buttonPruefungAdministration.setVisible(false);

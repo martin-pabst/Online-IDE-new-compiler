@@ -214,6 +214,24 @@ export class RepositorySettingsManager {
                 return;
             }
 
+            response.repositories.sort((a, b) => {
+                let nameA = a.name.toUpperCase();
+                let nameB = b.name.toUpperCase();
+                if(nameA == null){
+                    return -1;
+                }
+                if(nameB == null){
+                    return 1;
+                }
+                if (nameA < nameB) {
+                    return -1;
+                }
+                if (nameA > nameB) {
+                    return 1;
+                }
+                return 0;
+            });
+
             response.repositories.forEach(repInfo => {
                 let $div = makeDiv('', 'updateRepo-repoListItem');
                 let $namediv = makeDiv('', '', repInfo.name);
