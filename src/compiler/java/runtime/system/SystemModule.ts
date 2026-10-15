@@ -175,6 +175,7 @@ import { CloneableInterface } from "./javalang/CloneableInterface.ts";
 import { CloneNotSupportedExceptionClass } from "./javalang/CloneNotSupportedExceptionClass.ts";
 import { NoSuchElementExceptionClass } from "./javalang/NoSuchElementException.ts";
 import { UnsupportedOperationExceptionClass } from "./javalang/UnsupportedOperationException.ts";
+import { ExecutableInterface } from "./javalang/ExecutableInterface.ts";
 
 export class SystemModule extends JavaLibraryModule {
 
@@ -241,6 +242,7 @@ export class SystemModule extends JavaLibraryModule {
             TimerClass,
 
             // Assertions
+            ExecutableInterface,
             AssertionsClass,
 
             // HttpClient

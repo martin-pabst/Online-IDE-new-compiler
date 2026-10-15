@@ -6333,6 +6333,15 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "en": `Returns the array as a list.`,
         "fr": `Renvoie le tableau sous forme de liste.`,
     })
+
+    /**
+     * Executable
+     */
+    static executableInterfaceComment = () => lm({
+        "en": "Executable is a functional interface that can be used to implement any generic block of code.",
+        "de": "Executable ist ein funktionales Interface, das verwendet werden kann, um einen beliebigen generischen Codeblock zu implementieren.",
+    })
+
 }
 
 

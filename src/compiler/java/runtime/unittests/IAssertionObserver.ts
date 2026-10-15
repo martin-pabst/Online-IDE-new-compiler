@@ -10,11 +10,13 @@ export interface IAssertionObserver {
     notifyOnAssertEqualsObject(thread: Thread, step: Step, expected: string, actual: string, message: string): void;
     notifyOnFail(thread: Thread, step: Step, message: string): void;
 
+    notifyOnAssertThrows(thread: Thread, step: Step, message: string, exeptionIdentifier: string): void;
+
     notifyOnAssemblyAssertion(thread: Thread, step: Step, expectedMemoryState: string, actualMemoryState: string, message: string): void;
 }
 
 export class DummyAssertionObserver implements IAssertionObserver {
-
+    
     notifyOnAssertTrue(thread: Thread, step: Step, condition: boolean, message: string): void {
     }
 
@@ -23,17 +25,20 @@ export class DummyAssertionObserver implements IAssertionObserver {
 
     notifyOnAssertEqualsBoolean(thread: Thread, step: Step, expected: boolean, actual: boolean, message: string): void {
     }
-
+    
     notifyOnAssertEqualsNumber(thread: Thread, step: Step, expected: number, actual: number, message: string): void {
     }
-
+    
     notifyOnAssertEqualsString(thread: Thread, step: Step, expected: string, actual: string, message: string): void {
     }
-
+    
     notifyOnAssertEqualsObject(thread: Thread, step: Step, expected: string, actual: string, message: string): void {
     }
-
+    
     notifyOnFail(thread: Thread, step: Step, message: string): void {
+    }
+
+    notifyOnAssertThrows(thread: Thread, step: Step, message: string, exceptionIdentifier: string): void {
     }
 
     notifyOnAssemblyAssertion(thread: Thread, step: Step, expectedMemoryState: string, actualMemoryState: string, message: string): void {

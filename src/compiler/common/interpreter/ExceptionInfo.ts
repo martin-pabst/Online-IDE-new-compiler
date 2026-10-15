@@ -11,7 +11,8 @@ export type ExceptionInfo = {
     catchBlockInfos: CatchBlockInfo[],
     stackSize: number,          // stack size when entering try {...} block
     finallyBlockIndex?: number,
-    aquiredObjectLocks?: ObjectClass[]
+    aquiredObjectLocks?: ObjectClass[],
+    callInsteadOfCatchBlock?: (t: Thread, exception: Exception) => void
 }
 
 export interface Exception {

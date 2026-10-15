@@ -482,16 +482,23 @@ export class Scheduler {
 
         let parameterlessConstructor = parameterlessConstructors[0]!;
 
-        let statement1 = `new ${Helpers.classes}["${klass.identifier}"]().${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, () => {});
-                          return 1;\n`;
-        // let statement1 = `new ${Helpers.classes}["${klass.identifier}"]().${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, ${StepParams.stack}, undefined);
-        //                   return 1;\n`;
-        program.createAndAddStep(statement1);
+        if(method.isStatic){
+            let statement1 = `${Helpers.classes}["${klass.identifier}"].${method.getInternalName("java")}(${StepParams.thread}, undefined);
+                              return 1; `;
+            program.createAndAddStep(statement1);
+        } else {
+            let statement1 = `new ${Helpers.classes}["${klass.identifier}"]().${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, () => {});
+                              return 1;\n`;
+            // let statement1 = `new ${Helpers.classes}["${klass.identifier}"]().${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, ${StepParams.stack}, undefined);
+            //                   return 1;\n`;
+            program.createAndAddStep(statement1);
+    
+            // Step 2: call test method
+            let statement2 = `${Helpers.elementRelativeToStackbase(0)}.${method.getInternalName("java")}(${StepParams.thread}, undefined);
+                              return 2; `;
+            program.createAndAddStep(statement2);
+        }
 
-        // Step 2: call test method
-        let statement2 = `${Helpers.elementRelativeToStackbase(0)}.${method.getInternalName("java")}(${StepParams.thread}, undefined);
-                          return 2; `;
-        program.createAndAddStep(statement2);
 
         // Step 3: return
         let statement3 = `${Helpers.return}(); `;

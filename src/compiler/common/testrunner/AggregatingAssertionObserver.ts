@@ -62,6 +62,10 @@ export class AggregatingAssertionObserver implements IAssertionObserver {
         }
     }
 
+    notifyOnAssertThrows(thread: Thread, step: Step, message: string, expectedExceptionIdentifier: string): void {
+        this.addFailedResult(thread, step, "notifyOnAssertThrows", "Executable was expected to throw an exception of type " + expectedExceptionIdentifier + ".", "No exception was thrown.", message);
+    }
+
     notifyOnFail(thread: Thread, step: Step, message: string): void {
         this.addFailedResult(thread, step, "notifyOnFail", "---", "---", message);
     }

@@ -332,6 +332,11 @@ export class Thread {
                     ps1.afterExceptionTrimStackToSize = exInfo.stackSize;
                     newProgramStates.push(ps1);
 
+                    if(exInfo.callInsteadOfCatchBlock){
+                        ps1.stepIndex = ps1.lastExecutedStep.index + 1;
+                        exInfo.callInsteadOfCatchBlock(this, exception);
+                    }
+
                     break;
                 } else {
                     if (exInfo.finallyBlockIndex) {
