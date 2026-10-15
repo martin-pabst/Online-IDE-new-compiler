@@ -264,7 +264,7 @@ export class Login {
                     this.main.pruefungManagerForStudents = new PruefungManagerForStudents(this.main);
                     if (response.activePruefung != null) {
 
-                        let workspaceData = this.main.workspaceList.filter(w => w.pruefung_id == response.activePruefung.id)[0].getWorkspaceData(true);
+                        // let workspaceData = this.main.workspaceList.filter(w => w.pruefung_id == response.activePruefung.id)[0]?.getWorkspaceData(true);
 
                         this.main.pruefungManagerForStudents.startPruefung(response.activePruefung);
                     }
