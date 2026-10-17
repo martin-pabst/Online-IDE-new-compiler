@@ -705,15 +705,27 @@ export class SettingsMessages {
     });
 
     static PruefungenSettingsName = () => lm({
-        'de': 'Prüfungen',
-        'en': 'Exams',
-        'fr': 'Examens'
+        'de': 'Prüfungen ein/ausschalten',
+        'en': 'Enable/disable Exams',
+        'fr': 'Activer/désactiver les examens'
     });
 
     static PruefungenSettingsDescription = () => lm({
-        'de': 'Hier können Sie Einstellungen vornehmen, die sich auf die Funktionalität "Prüfungen" beziehen.',
-        'en': 'Here you can adjust settings that apply to the "Exams" functionality.',
-        'fr': 'Ici, vous pouvez ajuster les paramètres qui s\'appliquent à la fonctionnalité "Examens".'
+        'de': 'Hier können Sie die Funktionalität "Prüfungen" ein- oder ausschalten.',
+        'en': 'Here you can enable or disable the functionality "Exams".',
+        'fr': 'Ici, vous pouvez activer ou désactiver la fonctionnalité "Examens".'
+    });
+
+    static PruefungenSettingsDetailName = () => lm({
+        'de': 'Prüfungen - Detaileinstellungen',
+        'en': 'Exams - Detailed Settings',
+        'fr': 'Examens - Paramètres détaillés'
+    });
+
+    static PruefungenSettingsDetailDescription = () => lm({
+        'de': 'Hier können Sie die Detaileinstellungen für die Funktionalität "Prüfungen" vornehmen.',
+        'en': 'Here you can adjust the detailed settings for the functionality "Exams".',
+        'fr': 'Ici, vous pouvez ajuster les paramètres détaillés de la fonctionnalité "Examens".'
     });
 
     static EnablePruefungFunctionalityName = () => lm({
@@ -762,6 +774,18 @@ export class SettingsMessages {
         'de': 'Vergleich der Referenzen',
         'en': 'compare references',
         'fr': 'comparer les références'
+    });
+
+    static ShowClassDiagramName = () => lm({
+        'de': 'Klassendiagramm während Prüfungen anzeigen',
+        'en': 'Show class diagram in exams',
+        'fr': 'Afficher le diagramme de classes dans les examens'
+    });
+
+    static ShowClassDiagramDescription = () => lm({
+        'de': 'Legt fest, ob das Klassendiagramm während Prüfungen angezeigt werden soll.',
+        'en': 'Determines whether the class diagram should be displayed during exams.',
+        'fr': 'Détermine si le diagramme de classes doit être affiché pendant les examens.'
     });
 
 }

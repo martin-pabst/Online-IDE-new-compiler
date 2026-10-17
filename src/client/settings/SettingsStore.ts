@@ -43,7 +43,9 @@ export type SettingsType = {
     "output.clearOutputAfterWorkspaceChange": "yes" | "no",
 
     "programmingLanguages.ByAssembly.defaultArchitecture": string,
-    "schooladmin.functionality.pruefungen": "enabled" | "disabled"
+    "schooladmin.functionality.pruefungen": "enabled" | "disabled",
+
+    "pruefung.showClassDiagram": "yes" | "no",
 
 }
 
@@ -81,8 +83,10 @@ export var SettingDefaultValues: SettingsType = {
     "programmingLanguages.java.enabled": "yes",
     "programmingLanguages.ByAssembly.enabled": "no",
     "programmingLanguages.ByAssembly.defaultArchitecture": ByArchitecture.getArchitectures()[0].identifier,
-
+    
     "schooladmin.functionality.pruefungen": "enabled",
+
+    "pruefung.showClassDiagram": "yes",
 
 };
 
@@ -96,6 +100,7 @@ export var SettingPrecedenceValues: Partial<{ [key in SettingKey]: SettingPreced
     "editor.contextSensitiveHelp.ParameterHints": "classSchoolUserDefault",
     "schooladmin.functionality.pruefungen": "schoolDefault",
     "compiler.equalityOperatorForStringsCompares": "classSchoolUserDefault",
+    "pruefung.showClassDiagram": "classSchoolUserDefault",
 
 }
 

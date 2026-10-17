@@ -188,6 +188,12 @@ export class RightDiv {
         return false;
     }
 
+    setClassDiagramTabVisible(visible: boolean) {
+        if (this.classDiagramTab) {
+            this.classDiagramTab.setVisible(visible);
+        }
+    }
+
 
 }
 

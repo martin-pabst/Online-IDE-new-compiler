@@ -161,6 +161,11 @@ export class ClassDiagram extends Diagram {
         });
     }
 
+    setVisible(visible: boolean) {
+        this.$htmlElement.css('display', visible ? '' : 'none');
+    }
+
+
     duplicateSerializedClassDiagram(oldWorkspaceId: number, newWorkspaceId: number) {
         let classBoxesSrc: ClassBoxes = this.classBoxesRepository[oldWorkspaceId];
         if (!classBoxesSrc) return;

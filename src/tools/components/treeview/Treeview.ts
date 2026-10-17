@@ -535,8 +535,12 @@ export class Treeview<E, K> extends AccordionElement {
     }
 
     removeElementAndItsFolderContents(element: E) {
-        let node = this.findNodeByElement(element);
-        if (node) this.removeNodeAndItsFolderContents(node);
+        try {
+            let node = this.findNodeByElement(element);
+            if (node) this.removeNodeAndItsFolderContents(node);
+        } catch(e) {
+            console.error(e);
+        }
     }
 
     findNodeByElement(element: E) {

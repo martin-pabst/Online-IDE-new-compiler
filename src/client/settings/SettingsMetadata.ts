@@ -525,8 +525,27 @@ export var AllSettingsMetadata: GroupOfSettingMetadata[] = [
                 action: (main, value) => {
                     main.teacherExplorer.initPruefungButtons();
                 }
+            },
+        ]
+    },
+    {
+        settingType: 'group',
+        name: SettingsMessages.PruefungenSettingsDetailName,
+        description: SettingsMessages.PruefungenSettingsDetailDescription,
+        settings: [
+            {
+                key: "pruefung.showClassDiagram",
+                settingType: 'setting',
+                name: SettingsMessages.ShowClassDiagramName,
+                description: SettingsMessages.ShowClassDiagramDescription,
+                type: 'enumeration',
+                optionValues: ["yes", "no"],
+                optionTexts: [
+                    SettingsMessages.yes,
+                    SettingsMessages.no
+                ]
             }
         ]
-    }
+    },
 
 ]

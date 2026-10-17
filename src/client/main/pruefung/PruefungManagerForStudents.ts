@@ -24,13 +24,13 @@ export class PruefungManagerForStudents {
         jQuery('.jo_projectexplorer').prepend(this.$pruefungLaeuft);
 
         PushClientManager.subscribe("startPruefung", async (message: MessagePruefungStart) => {
-            if(message.pruefung.application != Constants.Application) {
+            if (message.pruefung.application != Constants.Application) {
                 return;
             }
             this.startPruefung(message.pruefung);
         })
         PushClientManager.subscribe("stopPruefung", (message: MessagePruefungStop) => {
-            if(message.pruefung.application != Constants.Application) {
+            if (message.pruefung.application != Constants.Application) {
                 return;
             }
             this.stopPruefung(true);
@@ -48,6 +48,7 @@ export class PruefungManagerForStudents {
                 projectExplorer.fetchAndRenderOwnWorkspaces();
             })
             this.pruefung = null;
+
         }
 
     }
@@ -56,12 +57,12 @@ export class PruefungManagerForStudents {
 
         if (this.pruefung != null) return;
 
-        
+
         let wss: Workspace[] = [];
-        
+
         if (wss.length == 0) {
             await this.main.networkManager.sendUpdatesAsync(true, false, false);
-            
+
             wss = this.main.workspaceList.filter(ws => ws.pruefung_id == pruefung.id);
             if (wss.length == 0) {
                 console.log("Workspace for Puefung not found, retrying...");
@@ -70,7 +71,7 @@ export class PruefungManagerForStudents {
             }
         }
 
-        if(this.pruefung != null) {
+        if (this.pruefung != null) {
             return;
         }
 
@@ -97,6 +98,10 @@ export class PruefungManagerForStudents {
         pruefungWorkspace.saved = false;
 
         this.main.getInterpreter().resetRuntime();
+
+        if (this.main.getSettings().getValue("pruefung.showClassDiagram") == "no") {
+            this.main.rightDiv.setClassDiagramTabVisible(false);
+        }
 
 
         // this.pruefung = pruefung;
@@ -131,7 +136,7 @@ export class PruefungManagerForStudents {
      */
     async stopPruefung(renderWorkspaces: boolean) {
         // this is not done reliably by fetchAndRenderOwnWorkspaces later on, so we call it explicitly here to make sure all changes are sent to the server before we potentially switch to other workspaces
-        this.main.networkManager.savePruefungWorkspace(this.main.currentWorkspace);  
+        this.main.networkManager.savePruefungWorkspace(this.main.currentWorkspace);
 
         console.log("Stopping pruefung...");
 
@@ -145,12 +150,16 @@ export class PruefungManagerForStudents {
         this.main.getInterpreter().resetRuntime();
 
         // if (!renderWorkspaces) {
-            let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, running: false }
-            ajaxAsync('/servlet/reportPruefungState', request)
+        let request: ReportPruefungStudentStateRequest = { pruefungId: this.pruefung.id, running: false }
+        ajaxAsync('/servlet/reportPruefungState', request)
         // }
 
-        
+
         this.pruefung = null;
+        
+        if (this.main.getSettings().getValue("pruefung.showClassDiagram") == "no") {
+            this.main.rightDiv.setClassDiagramTabVisible(true);
+        }
 
         this.main.projectExplorer.workspaceTreeview.setVisible(true);
         jQuery('#pruefunglaeuft').css('display', 'none');
@@ -160,6 +169,7 @@ export class PruefungManagerForStudents {
             this.main.projectExplorer.renderWorkspaces(this.main.workspaceList);
             await this.main.projectExplorer.fetchAndRenderOwnWorkspaces();
         }
+
 
     }
 
