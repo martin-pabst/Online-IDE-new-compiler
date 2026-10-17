@@ -119,11 +119,10 @@ export class AssertionsClass extends ObjectClass {
         let expectedException = <NonPrimitiveType>expectedType.type;
 
         let exceptionTypes: Record<string, boolean> = {};
+        let exceptionTree = t.scheduler.interpreter.executable.exceptionTree;
+        
+        Object.assign(exceptionTypes, exceptionTree.getAllSubExceptions(expectedException.pathAndIdentifierAsDotSeparatedString));
         exceptionTypes[expectedException.identifier] = true;
-        expectedException.getExtendedImplementedIdentifiers().forEach((identifier) => {
-            exceptionTypes[identifier] = true;
-        });
-
 
         let exceptionInfo: ExceptionInfo = {
             catchBlockInfos: [{
