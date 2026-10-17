@@ -173,6 +173,8 @@ export class Login {
                 jQuery('#login-spinner>img').hide();
             } else {
 
+                this.main.isProduction = response.isProduction;
+
                 if(response.penaltyTimeInSeconds > 0){
                     jQuery('#login-message').html(LoginMessages.penaltyTime(response.penaltyTimeInSeconds));
                     jQuery('#login-spinner>img').hide();

@@ -112,6 +112,8 @@ export class Main implements MainBase {
 
     guiState: GuiState;
 
+    isProduction: boolean = false;
+
     showFile(file?: CompilerFile): void {
         if (!file || !(file instanceof GUIFile)) return;
         this.projectExplorer.setFileActive(<GUIFile>file);

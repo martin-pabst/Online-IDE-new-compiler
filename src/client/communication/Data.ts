@@ -221,6 +221,7 @@ export type LoginResponse = {
     schoolSettings: string, // settings for school; serialized SettingValues
     vidis_id_token?: string,
     penaltyTimeInSeconds: number,
+    isProduction: boolean
 }
 
 export type LogoutRequest = {
