@@ -65,6 +65,10 @@ export class ViteTestAssertions implements DummyAssertionObserver {
         }
     }
 
+    notifyOnAssertThrows(thread: Thread, step: Step, message: string, expectedExceptionIdentifier: string): void {
+        this.logFailedTest(thread, step, "Executable was expected to throw an exception of type " + expectedExceptionIdentifier + ".", "No exception was thrown.");
+    }
+
 
     logFailedTest(thread: Thread, step: Step, message: string, detail: string) {
         console.log(chalk.red("Test failed: ") + message);
