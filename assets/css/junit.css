@@ -35,6 +35,10 @@
         letter-spacing: 0px;
     }
 
+    .jo_junitTestrunnerLeft>.jo_treeview_outer {
+        height: 100%;
+    }
+
     .jo_junitTestrunnerRight {
         position: relative;
         height: 100%;
