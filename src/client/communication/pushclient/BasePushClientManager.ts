@@ -4,7 +4,7 @@ import { PushClientWebsocketStrategy } from "./PushClientWebsocketStrategy";
 
 export type PushEventType = "startPruefung" | "stopPruefung" | "doFileUpdate" | "broadcastDatabaseChange" | "checkIfAlive" | "close" | "onPruefungChanged"
                      | "onGradeChangedInPruefungAdministration"| "onGradeChangedInMainWindow" | "onOpen" | "keepAlive"
-                     | "onClassesChanged";
+                     | "onClassesChanged" | "logoutDueToMultipleLogin";
 
 export type ServerSentMessage = {eventType: PushEventType, data?: any};
 

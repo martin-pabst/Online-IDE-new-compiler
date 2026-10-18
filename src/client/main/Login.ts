@@ -115,29 +115,29 @@ export class Login {
 
         jQuery('#bitteWartenText').html(LoginMessages.pleaseWaitWhileSaving());
         jQuery('#bitteWarten').css('display', 'flex');
-        
+
         if (this.main.workspacesOwnerId != this.main.user.id) {
             this.main.teacherExplorer.onHomeButtonClicked();
         }
-        
+
         this.main.networkManager.sendUpdatesAsync().then(() => {
-            
+
             this.main.pruefungManagerForStudents?.stopPruefung(false);
-            
+
             this.main.rightDiv.classDiagram.clearAfterLogout();
-            
+
             let logoutRequest: LogoutRequest = {
                 currentWorkspaceId: this.main.currentWorkspace?.pruefung_id == null ? this.main.currentWorkspace?.id : null
             }
-            
+
             let that = this;
             ajax('logout', logoutRequest, () => {
                 // window.location.href = 'index.html';
-                
+
                 if (this.loggedInWithVidis) {
                     // window.location.assign("https://aai-test.vidis.schule/auth/realms/vidis/protocol/openid-connect/logout?ID_TOKEN_HINT=" + this.vidis_id_token + "&post_logout_redirect_uri=https%3A%2F%2Fonline-ide.de/vidisLogout");
                     window.location.assign("https://aai.vidis.schule/auth/realms/vidis/protocol/openid-connect/logout?ID_TOKEN_HINT=" + this.vidis_id_token + "&post_logout_redirect_uri=https%3A%2F%2Fonline-ide.de/vidisLogout");
-                    
+
                 } else {
                     jQuery('#bitteWartenText').html(LoginMessages.done());
                     window.location.assign("/" + (isSilent ? "?silent=true" : ""));
@@ -163,7 +163,7 @@ export class Login {
             singleUseToken: singleUseToken
         }
 
-        if(loginRequest.username == ""){
+        if (loginRequest.username == "") {
         }
 
         ajax(servlet, loginRequest, (response: LoginResponse) => {
@@ -175,7 +175,7 @@ export class Login {
 
                 this.main.isProduction = response.isProduction;
 
-                if(response.penaltyTimeInSeconds > 0){
+                if (response.penaltyTimeInSeconds > 0) {
                     jQuery('#login-message').html(LoginMessages.penaltyTime(response.penaltyTimeInSeconds));
                     jQuery('#login-spinner>img').hide();
                     return;
@@ -198,13 +198,13 @@ export class Login {
                 user.is_testuser = response.isTestuser;
 
                 this.main.guiState = SecureJSON.parse(user.gui_state) || {
-                        helperHistory: null,
-                        viewModes: null,
-                        classDiagram: null,
-                        language: 'de'
+                    helperHistory: null,
+                    viewModes: null,
+                    classDiagram: null,
+                    language: 'de'
                 };
 
-                if(this.main.guiState.helperHistory == null){
+                if (this.main.guiState.helperHistory == null) {
                     this.main.guiState.helperHistory = {
                         consoleHelperDone: false,
                         newFileHelperDone: false,
@@ -218,7 +218,7 @@ export class Login {
                 }
 
                 that.main.user = user;
-                that.main.settings = new Settings(user, 
+                that.main.settings = new Settings(user,
                     user.settings, response.classSettings, response.schoolSettings);
 
                 that.main.languagemanager.setLanguage(this.main.guiState.language);
@@ -272,10 +272,14 @@ export class Login {
                     }
                 }
 
-                if(!PIXI.isWebGLSupported()){
-                        alert(LoginMessages.webGLNotSupported());
+                if (!PIXI.isWebGLSupported()) {
+                    alert(LoginMessages.webGLNotSupported());
                 }
 
+                PushClientManager.subscribe("logoutDueToMultipleLogin", () => {
+                    alert("Während einer laufenden Prüfung wurde ein zweiter Login mit dem gleichen Benutzer durchgeführt. Du wurdest ausgeloggt.");
+                    location.reload();
+                });
             }
 
         }, (errorMessage: string) => {
