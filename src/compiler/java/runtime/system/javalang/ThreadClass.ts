@@ -201,8 +201,9 @@ export class ThreadClass extends ObjectClass implements RunnableInterface {
 
         t.scheduler.suspendThread(t);
         t.state = ThreadState.timedWaiting;
-
+        
         setTimeout(() => {
+            t.lastTimeThreadWasRun += milliseconds;
             t.scheduler.restoreThread(t);
         }, milliseconds);
 
