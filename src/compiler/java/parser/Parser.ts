@@ -145,7 +145,7 @@ export class Parser extends StatementParser {
                 pathRanges: []
             }
 
-            if(this.tt as TokenType != TokenType.identifier){
+            if (this.tt as TokenType != TokenType.identifier) {
                 this.pushError(JCM.importStatementMustStartWithIdentifier(), "error");
                 this.skipTokensTillEndOfLineOr([TokenType.semicolon]);
                 break;
@@ -161,7 +161,7 @@ export class Parser extends StatementParser {
                         this.nextToken();
                         break;
                     case TokenType.multiplication:
-                        if(wildcardFound){
+                        if (wildcardFound) {
                             this.pushError(JCM.importStatementCannotHaveMultipleWildcards(), "error");
                         }
                         wildcardFound = true;
@@ -177,7 +177,7 @@ export class Parser extends StatementParser {
 
             this.setEndOfRange(astImportStatementNode);
 
-            if(!error){
+            if (!error) {
                 this.expectSemicolon(true, true);
             }
 
@@ -373,7 +373,7 @@ export class Parser extends StatementParser {
             if (this.lookahead(1).tt == TokenType.leftBracket) {
                 let identifier = this.cct.value + "";
                 this.pushError(JCM.methodDeclarationWithoutReturnType(identifier));
-                if(this.comesToken(TokenType.identifier, false)){
+                if (this.comesToken(TokenType.identifier, false)) {
                     this.parseMethodDeclaration(classASTNode, modifiers, false, this.nodeFactory.buildVoidTypeNode(this.cct.range), [], documentation);
                 } else {
                     this.nextToken();
@@ -441,13 +441,13 @@ export class Parser extends StatementParser {
             methodNode.statement = statement;
         } else {
             if (!methodNode.isAbstract && parentNode.kind != TokenType.keywordInterface) {
-                if(this.comesToken(TokenType.semicolon, false)){
+                if (this.comesToken(TokenType.semicolon, false)) {
                     this.pushError(JCM.noSemicolonAsMethodBody());
                 }
                 methodNode.statement = this.nodeFactory.buildBlockNode(this.cct);
                 this.pushError(JCM.methodNeedsMethodBody(methodNode.identifier), "error", this.cct.range);
             } else {
-                if(parentNode.kind == TokenType.keywordClass && !parentNode.isAbstract){
+                if (parentNode.kind == TokenType.keywordClass && !parentNode.isAbstract) {
                     this.setEndOfRange(methodNode);
                     this.pushError(JCM.abstractMethodOnlyInAbstractClass(), "error", methodNode.range);
                 }
@@ -466,10 +466,13 @@ export class Parser extends StatementParser {
         let isFinal = this.comesToken(TokenType.keywordFinal, true);
 
         let type = this.parseType(replaceStringByPrimitiveString);
-        
+
         let isEllipsis = this.comesToken(TokenType.ellipsis, true);
 
         let identifier = this.expectAndSkipIdentifierAsToken();
+
+        type = this.increaseArrayDimensionIfLeftRightSquareBracketsToCome(type);
+
 
         if (type != null && identifier.value != "") {
             let parameterNode = this.nodeFactory.buildParameterNode(startRange, identifier, type, isEllipsis, isFinal);
@@ -479,7 +482,7 @@ export class Parser extends StatementParser {
     }
 
     parseFieldDeclaration(classASTNode: ASTClassDefinitionNode | ASTEnumDefinitionNode | ASTInterfaceDefinitionNode, modifiers: ASTNodeWithModifiers,
-        type: ASTTypeNode | undefined, documentation: string | undefined){
+        type: ASTTypeNode | undefined, documentation: string | undefined) {
         let rangeStart = this.cct.range;
         let identifier = this.expectAndSkipIdentifierAsToken();
 
@@ -488,7 +491,7 @@ export class Parser extends StatementParser {
         let initialization = this.comesToken(TokenType.assignment, true) ? this.parseTerm() : undefined;
 
         if (identifier.value != "" && type != null) {
-            if(this.collectedAnnotations.some(a => a.identifier === "Inject")){
+            if (this.collectedAnnotations.some(a => a.identifier === "Inject")) {
                 classASTNode.hasInjectedFields = true; // optimization to avoid iterating through all fields when there are none with @Inject annotation
             }
 
@@ -517,7 +520,7 @@ export class Parser extends StatementParser {
                     astNodeWithModifiers.visibility = this.tt;
                     break;
                 case TokenType.keywordStatic:
-                    if(this.lookahead(1).tt == TokenType.leftCurlyBracket){
+                    if (this.lookahead(1).tt == TokenType.leftCurlyBracket) {
                         foundModifier = false; // static initializer block
                     } else {
                         astNodeWithModifiers.isStatic = true;
@@ -672,7 +675,7 @@ export class Parser extends StatementParser {
     parseImplements(node: ASTInterfaceDefinitionNode | ASTClassDefinitionNode) {
         do {
             let type = this.parseType(false);
-            if (type){
+            if (type) {
                 node.implements.push(type);
             } else {
                 this.pushError(JCM.typeExpected(this.cct.value + ""));
@@ -685,7 +688,7 @@ export class Parser extends StatementParser {
         this.nextToken(); // skip "extends"
 
         let type = this.parseType(false);
-        if (type){
+        if (type) {
             node.extends = type;
         } else {
             this.pushError(JCM.typeExpected(this.cct.value + ""));
