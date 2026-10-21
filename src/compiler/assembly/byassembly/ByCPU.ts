@@ -171,7 +171,7 @@ type Instruction = {
 var instructions: Instruction[] = [
     {
         tokenType: AssemblyTokenType.load, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.load, description: ByAssemblyMessages.LoadAddress, parameterCount: 1,
-        exec: (cpu: ByCPU) => { cpu.accumulator = cpu.memory.read(cpu.readAddressOperand()); return false; }
+        exec: (cpu: ByCPU) => { cpu.setAccu(cpu.memory.read(cpu.readAddressOperand())); return false; }
     },
     {
         tokenType: AssemblyTokenType.store, jumpType: "nojump", adressMode: "Address", OpCode: OpCode.store, description: ByAssemblyMessages.StoreAddress, parameterCount: 1,
@@ -223,7 +223,7 @@ var instructions: Instruction[] = [
     },
     {
         tokenType: AssemblyTokenType.load, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.loadIndirect, description: ByAssemblyMessages.LoadIndirect, parameterCount: 1,
-        exec: (cpu: ByCPU) => { cpu.accumulator = cpu.memory.readIndirect(cpu.readAddressOperand()); return false; }
+        exec: (cpu: ByCPU) => { cpu.setAccu(cpu.memory.readIndirect(cpu.readAddressOperand())); return false; }
     },
     {
         tokenType: AssemblyTokenType.store, jumpType: "nojump", adressMode: "Indirect", OpCode: OpCode.storeIndirect, description: ByAssemblyMessages.StoreIndirect, parameterCount: 1,
@@ -421,7 +421,7 @@ var instructions: Instruction[] = [
     },
     {
         tokenType: AssemblyTokenType.load, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.loadSPRel, description: ByAssemblyMessages.LoadSpRelative, parameterCount: 1,
-        exec: (cpu: ByCPU) => { cpu.accumulator = cpu.memory.read(cpu.stackPointer + cpu.readDataOperand()); return false; }
+        exec: (cpu: ByCPU) => { cpu.setAccu(cpu.memory.read(cpu.stackPointer + cpu.readDataOperand())); return false; }
     },
     {
         tokenType: AssemblyTokenType.store, jumpType: "nojump", adressMode: "Immediate", OpCode: OpCode.storeSPRel, description: ByAssemblyMessages.StoreSpRelative, parameterCount: 1,

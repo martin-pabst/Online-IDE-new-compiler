@@ -170,6 +170,7 @@ export class ByAssemblyLanguage extends ProgrammingLanguage {
                 'load', 'store',
                 'add', 'sub', 'mul', 'div', 'mod',
                 'jmp', 'jeq', 'jne', 'jgt', 'jge', 'jlt', 'jle',
+                'jmpz', 'jmpnz', 'jmpc', 'jmpnc', 'jmpv', 'jmpnv','jmpn', 'jmpnn', 'jmpp', 'jmpnp',
                 'hold', 'halt',
                 'push', 'pop',
                 'call', 'return',
