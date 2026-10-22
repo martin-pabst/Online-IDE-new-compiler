@@ -64,23 +64,24 @@ export class ActorClass extends ObjectClass implements IActor {
     */
     _registerListeners(t: Thread) {
         this.actorManager = t.scheduler.interpreter.actorManager;
-        if (this._mj$act$void$ != ActorClass.prototype._mj$act$void$) {
+        // field isEmpty is set by InnerClassCodeGenerator.compileMethodDeclaration
+        if (this._mj$act$void$ != ActorClass.prototype._mj$act$void$ && !this._mj$act$void$["isEmpty"]) {
             this.actorManager.registerActor(this, "act");
         }
 
-        if (this._mj$act$void$double != ActorClass.prototype._mj$act$void$double) {
+        if (this._mj$act$void$double != ActorClass.prototype._mj$act$void$double && !this._mj$act$void$double["isEmpty"]) {
             this.actorManager.registerActor(this, "actWithTime");
         }
 
-        if (this._mj$onKeyDown$void$String != ActorClass.prototype._mj$onKeyDown$void$String) {
+        if (this._mj$onKeyDown$void$String != ActorClass.prototype._mj$onKeyDown$void$String && !this._mj$onKeyDown$void$String["isEmpty"]) {
             this.actorManager.registerActor(this, "keyDown");
         }
 
-        if (this._mj$onKeyTyped$void$String != ActorClass.prototype._mj$onKeyTyped$void$String) {
+        if (this._mj$onKeyTyped$void$String != ActorClass.prototype._mj$onKeyTyped$void$String && !this._mj$onKeyTyped$void$String["isEmpty"]) {
             this.actorManager.registerActor(this, "keyPressed");
         }
 
-        if (this._mj$onKeyUp$void$String != ActorClass.prototype._mj$onKeyUp$void$String) {
+        if (this._mj$onKeyUp$void$String != ActorClass.prototype._mj$onKeyUp$void$String && !this._mj$onKeyUp$void$String["isEmpty"]) {
             this.actorManager.registerActor(this, "keyUp");
         }
 
