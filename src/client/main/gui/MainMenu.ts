@@ -235,13 +235,6 @@ export class MainMenu {
                     {
                         items: [
                             {
-                                identifier: UserMenuMessages.changePassword() + "...", action: () => {
-                                    let passwordChanger = new PasswordChanger(this.main);
-                                    passwordChanger.show();
-                                }
-                            },
-                            { identifier: "-" },
-                            {
                                 identifier: GuiMessages.VideoTutorials(),
                                 link: "https://www.learnj.de/doku.php?id=api:ide_manual:start"
                             },
