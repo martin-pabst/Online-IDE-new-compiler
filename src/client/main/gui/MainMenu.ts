@@ -12,6 +12,7 @@ import * as monaco from 'monaco-editor'
 import { GuiMessages } from "./language/GuiMessages.js";
 import { SettingsGUI } from "../../settings/SettingsGUI.js";
 import { ImportRepositoryGUI } from "./ImportRepositoryGUI.js";
+import { UserMenuMessages } from "./language/GUILanguage.js";
 
 
 declare var BUILD_DATE: string;
@@ -234,7 +235,7 @@ export class MainMenu {
                     {
                         items: [
                             {
-                                identifier: "Passwort ändern...", action: () => {
+                                identifier: UserMenuMessages.changePassword() + "...", action: () => {
                                     let passwordChanger = new PasswordChanger(this.main);
                                     passwordChanger.show();
                                 }
