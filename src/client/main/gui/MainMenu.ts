@@ -234,6 +234,13 @@ export class MainMenu {
                     {
                         items: [
                             {
+                                identifier: "Passwort ändern...", action: () => {
+                                    let passwordChanger = new PasswordChanger(this.main);
+                                    passwordChanger.show();
+                                }
+                            },
+                            { identifier: "-" },
+                            {
                                 identifier: GuiMessages.VideoTutorials(),
                                 link: "https://www.learnj.de/doku.php?id=api:ide_manual:start"
                             },
