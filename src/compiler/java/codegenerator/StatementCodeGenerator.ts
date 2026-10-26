@@ -764,7 +764,12 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         caseSnippet.addParts(new JumpToLabelCodeSnippet(labelArray[index]));
 
-        let statementCode = node.statements.map((statementNode) => this.compileStatementOrTerm(statementNode));
+        this.missingStatementManager.openBranch();
+        let statementCode = node.statements.map((statementNode) => {
+            let snippet = this.compileStatementOrTerm(statementNode);
+            return snippet;
+        });
+        this.missingStatementManager.closeBranch(this.module.errors);
 
         if (!this.listHasNoUndefined(statementCode)) return undefined;
 
@@ -858,7 +863,9 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             let defaultSnippet = new CodeSnippetContainer([], node.defaultNode.range);
             defaultSnippet.addParts(defaultLabel!);
 
+            this.missingStatementManager.openBranch();
             let statementCode = node.defaultNode.statements.map((statementNode) => this.compileStatementOrTerm(statementNode));
+            this.missingStatementManager.closeBranch(this.module.errors);
 
             if (!this.listHasNoUndefined(statementCode)) {
                 this.popSymbolTable();
