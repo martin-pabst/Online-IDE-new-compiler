@@ -39,7 +39,6 @@ declare global {
 export class ApiDoc {
     async start() {
 
-        await extractCsrfTokenFromGetRequest(true);
         extractLanguageFromGetRequest();
 
         this.initEditor();
