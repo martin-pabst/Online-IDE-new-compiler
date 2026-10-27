@@ -22,7 +22,6 @@ import { HelpMessages } from './HelpMessages.js';
 export class SpriteLibraryPage {
     async start() {
 
-        await extractCsrfTokenFromGetRequest(true);
         extractLanguageFromGetRequest();
 
         let $entries = jQuery('#entries');
