@@ -99,7 +99,7 @@ export function ajax(url: string, request: any, successCallback: (response: any)
                 if (jqXHR.status != 0) {
                     statusText = "" + jqXHR.status
                 }
-                if (jqXHR.status == 401) {
+                if (jqXHR.status == 409) {
                     statusText = "Doppellogin während einer laufenden Prüfung. Du wurdest ausgeloggt.";
                 }
                 errorCallback(statusText);
@@ -198,7 +198,7 @@ export async function ajaxAsync(url: string, data: any): Promise<BaseResponse> {
             PushClientManager.getInstance().open();
         }
 
-        if (response.status == 401) {
+        if (response.status == 409) {
             alert("Logout wegen Doppellogin während einer Prüfung.");
             location.reload();
         }
