@@ -2,6 +2,7 @@ import { LoginRequest, PerformanceData, type BaseResponse } from "./Data.js";
 import jQuery from 'jquery';
 import { PushClientManager } from "./pushclient/PushClientManager.js";
 import { currentLanguageId, setLanguageId } from "../../tools/language/LanguageManager.js";
+import { CommunicationMessages } from "./CommunicationMessages.js";
 // export var credentials: { username: string, password: string } = { username: null, password: null };
 
 export var SINGLEUSETOKEN: string = "singleUseToken";
@@ -100,7 +101,9 @@ export function ajax(url: string, request: any, successCallback: (response: any)
                     statusText = "" + jqXHR.status
                 }
                 if (jqXHR.status == 409) {
-                    statusText = "Doppellogin während einer laufenden Prüfung. Du wurdest ausgeloggt.";
+                    statusText = CommunicationMessages.doubleLoginDuringPruefung();
+                } else if (jqXHR.status == 401) {
+                    statusText = CommunicationMessages.notLoggedIn();
                 }
                 errorCallback(statusText);
                 return;
@@ -111,9 +114,9 @@ export function ajax(url: string, request: any, successCallback: (response: any)
 
 export function showNetworkBusy(busy: boolean) {
     if (busy) {
-        jQuery('.jo_network-busy').show();
+        jQuery('.jo_network-busy').css('display', 'block');
     } else {
-        jQuery('.jo_network-busy').hide();
+        jQuery('.jo_network-busy').css('display', 'none');
     }
 }
 
@@ -199,8 +202,13 @@ export async function ajaxAsync(url: string, data: any): Promise<BaseResponse> {
         }
 
         if (response.status == 409) {
-            alert("Logout wegen Doppellogin während einer Prüfung.");
+            alert(CommunicationMessages.doubleLoginDuringPruefung());
             location.reload();
+            return;
+        } else if (response.status == 401) {
+            alert(CommunicationMessages.notLoggedIn());
+            location.reload();
+            return;
         }
 
         if (obj == null) {
