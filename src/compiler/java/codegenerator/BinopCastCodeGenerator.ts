@@ -704,7 +704,12 @@ export abstract class BinopCastCodeGenerator {
 
             if (typeFrom instanceof JavaArrayType || typeTo instanceof JavaArrayType) {
                 if (typeFrom instanceof JavaArrayType && typeTo instanceof JavaArrayType) {
-                    return typeFrom.dimension == typeTo.dimension && this.canCastTo(typeFrom.elementType, typeTo.elementType, castType);
+                    if(typeFrom.dimension != typeTo.dimension) return false;
+                    if(typeFrom.elementType instanceof NonPrimitiveType && typeTo.elementType instanceof NonPrimitiveType) {
+                        return this.canCastTo(typeFrom.elementType, typeTo.elementType, castType);
+                    }
+
+                    return typeFrom.elementType?.toString() == typeTo.elementType?.toString();
                 }
                 if (typeFrom instanceof JavaArrayType) {
                     return typeTo.identifier == "Object";
@@ -720,7 +725,9 @@ export abstract class BinopCastCodeGenerator {
 
         if (typeTo == this.stringType && typeFrom == this.nullType) return true;
 
-        if (typeFrom.isPrimitive && typeTo.identifier == "Object" || typeFrom.identifier == "Object" && typeTo.isPrimitive) {
+        if (typeFrom.isPrimitive && typeTo.identifier == "Object"   // automatic boxing
+            // || typeFrom.identifier == "Object" && typeTo.isPrimitive
+        ) {
             return true;
         }
 
