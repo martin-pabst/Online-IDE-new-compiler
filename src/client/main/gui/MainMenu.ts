@@ -341,7 +341,10 @@ export class MainMenu {
                         let response = await ajaxAsync("servlet/getSingleUseSessionToken", {}) as GetSingleUseSessionTokenResponse;
                         if (response.success) {
                             if(this.main.isProduction){
-                                window.open("https://teacherbackend.online-ide.de?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
+
+                                let url = window.location.origin.replace("https://", "https://teacherbackend.");
+
+                                window.open(url + "?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
                             } else {
                                 window.open("http://localhost:3001?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
                             }
