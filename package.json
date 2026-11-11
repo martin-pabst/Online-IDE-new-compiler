@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "dev-embedded": "vite --host --config vite.config-embedded.js",
-    "build": "tsc && vite build && vite build --config vite.config-embedded.js",
-    "build-deploy": "tsc && vite build && vite build --config vite.config-embedded.js && node src/development/ZipAndUpload.js",
+    "dev-embedded": "vite --host --config vite.config-embedded.ts",
+    "build": "tsc && vite build && vite build --config vite.config-embedded.ts",
+    "build-deploy": "tsc && vite build && vite build --config vite.config-embedded.ts && node src/development/ZipAndUpload.js",
     "build-ide": "tsc && vite build",
-    "build-embedded": "tsc && vite build --config vite.config-embedded.js",
+    "build-embedded": "tsc && vite build --config vite.config-embedded.ts",
     "preview": "npm run build && vite preview --host",
-    "preview-embedded": "npm run build-embedded && vite preview --host --config vite.config-embedded.js",
+    "preview-embedded": "npm run build-embedded && vite preview --host --config vite.config-embedded.ts",
     "build_tools": "tsc --project tsconfig_development-tools.json",
     "test": "vitest --config vitest.config.ts",
     "deploy": "node src/development/ZipAndUpload.js"
