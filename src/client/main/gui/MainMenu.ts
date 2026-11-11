@@ -342,7 +342,7 @@ export class MainMenu {
                         if (response.success) {
                             if(this.main.isProduction){
 
-                                let url = window.location.origin.replace("https://", "https://teacherbackend.");
+                                let url = window.location.origin.replace("www.", ""). replace("https://", "https://teacherbackend.");
 
                                 window.open(url + "?" + SINGLEUSETOKEN + "=" + response.singleUseSessionToken + "&lang=" + language);
                             } else {
