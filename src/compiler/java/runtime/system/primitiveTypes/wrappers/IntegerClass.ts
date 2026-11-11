@@ -92,23 +92,23 @@ export class IntegerClass extends NumberClass {
     }
 
     static toBinary(number: number): string {
-        return (number >>> 0).toString(2);
+        return Math.round(number).toString(2);
     }
 
     static toHex(number: number): string {
-        return (number >>> 0).toString(16);
+        return Math.round(number).toString(16);
     }
 
     static toOctal(number: number): string {
-        return (number >>> 0).toString(8);
+        return Math.round(number).toString(8);
     }   
 
     static toStringRadix(number: number, radix: number): string {
-        return (number >>> 0).toString(radix);
+        return Math.round(number).toString(radix);
     }
        
     static toString(number: number): string {
-        return (number >>> 0).toString(10);
+        return Math.round(number).toString(10);
     }   
 
 }
