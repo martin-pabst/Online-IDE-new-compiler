@@ -22,7 +22,7 @@ npx vitest run --config vitest.config.ts src/test/JavaTests.test.ts -t "Arithmet
 npx tsc                # type check only (noEmit)
 ```
 
-Note: `dev-embedded`/`build-embedded`/`build` reference `vite.config-embedded.js`, but the file in the repo is `vite.config-embedded.ts`. `deploy`/`build-deploy` upload via SSH (`src/development/ZipAndUpload.js`) — don't run them unless asked. There is no active ESLint config (`eslint.config.js1` is disabled). `tsconfig.json` has `strict: false`.
+`deploy`/`build-deploy` upload via SSH (`src/development/ZipAndUpload.js`) — don't run them unless asked. There is no active ESLint config (`eslint.config.js1` is disabled). `tsconfig.json` has `strict: false`.
 
 ## Tests
 
