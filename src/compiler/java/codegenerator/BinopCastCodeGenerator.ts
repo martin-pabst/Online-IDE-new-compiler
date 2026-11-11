@@ -726,7 +726,7 @@ export abstract class BinopCastCodeGenerator {
         if (typeTo == this.stringType && typeFrom == this.nullType) return true;
 
         if (typeFrom.isPrimitive && typeTo.identifier == "Object"   // automatic boxing
-            // || typeFrom.identifier == "Object" && typeTo.isPrimitive
+            || typeFrom.identifier == "Object" && typeTo.isPrimitive
         ) {
             return true;
         }
