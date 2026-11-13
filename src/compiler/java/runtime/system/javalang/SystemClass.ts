@@ -5,6 +5,7 @@ import { ThreadState } from "../../../../common/interpreter/ThreadState";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
 import { ObjectClass, StringClass } from "../javalang/ObjectClassStringClass";
+import { StringFormatHelper } from "./StringFormatHelper";
 
 export class PrintStreamClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -22,6 +23,7 @@ export class PrintStreamClass extends ObjectClass {
         { type: "method", signature: "void println(boolean b)", java: PrintStreamClass.prototype._mn$println$void$boolean, comment: JRC.PrintStreamPrintlnComment},
         { type: "method", signature: "void println(Object o)", java: PrintStreamClass.prototype._mn$println$void$Object, comment: JRC.PrintStreamPrintlnComment},
         { type: "method", signature: "void println()", java: PrintStreamClass.prototype._mn$println$void$string, comment: JRC.PrintStreamPrintlnComment2},
+        { type: "method", signature: "void printf(String format, Object... args)", java: PrintStreamClass.prototype._mj$printf$void$String$Object_I, comment: JRC.PrintStreamPrintfComment},
     ];
 
     static type: NonPrimitiveType;
@@ -107,6 +109,13 @@ export class PrintStreamClass extends ObjectClass {
                 return;
             });
         }
+    }
+
+    _mj$printf$void$String$Object_I(t: Thread, callback: CallbackFunction, format: StringClass, args: ObjectClass[]){
+        StringFormatHelper.format(t, format == null ? null : format.value, args, (result) => {
+            t.print(result, undefined);
+            if(callback) callback();
+        });
     }
 
     _mn$print$void$Object(t: Thread, callback: CallbackFunction, n: ObjectClass){

@@ -290,7 +290,16 @@ export class StringClass extends ObjectClass implements IPrimitiveTypeWrapper {
         { type: "method", signature: `public static string valueOf(double d)`, native: StringClass.prototype._valueOf, template: `("" + §1)`, comment: JRC.stringValueOfComment },
         { type: "method", signature: `public static string valueOf(char[] data)`, native: StringClass.prototype._valueOfCharArray, comment: JRC.stringValueOfComment },
         { type: "method", signature: `public static String valueOf(Object o)`, java: StringClass.prototype._mj$valueOfObject$String$Object, comment: JRC.stringValueOfComment },
+        { type: "method", signature: `public static String format(String format, Object... args)`, java: StringClass._mj$format$String$String$Object_I, comment: JRC.stringFormatComment },
+        { type: "method", signature: `public final String formatted(Object... args)`, java: StringClass.prototype._mj$formatted$String$Object_I, comment: JRC.stringFormattedComment },
     ];
+
+    /**
+     * Implementation of String.format/formatted, injected by SystemModule (see StringFormatHelper).
+     * A direct import of Formatter here would create an import cycle
+     * ObjectClass -> Formatter -> exception classes -> ObjectClass.
+     */
+    static formatImplementation: (t: Thread, format: string, args: any[] | null | undefined, callback: (result: string) => void) => void;
 
     public value: string;
 
@@ -473,6 +482,19 @@ export class StringClass extends ObjectClass implements IPrimitiveTypeWrapper {
     _mj$valueOfObject$String$Object(t: Thread, o: ObjectClassOrNull) {
         if (o == null) return 'null';
         o._mj$toString$String$(t, () => {
+        });
+    }
+
+    static _mj$format$String$String$Object_I(t: Thread, format: StringClass, args: ObjectClassOrNull[]) {
+        StringClass.formatImplementation(t, format == null ? null : format.value, args, (result) => {
+            t.s.push(new StringClass(result));
+        });
+    }
+
+    _mj$formatted$String$Object_I(t: Thread, callback: CallbackFunction, args: ObjectClassOrNull[]) {
+        StringClass.formatImplementation(t, this.value, args, (result) => {
+            t.s.push(new StringClass(result));
+            if (callback) callback();
         });
     }
 }

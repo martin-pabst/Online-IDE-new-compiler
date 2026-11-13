@@ -1299,6 +1299,16 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
         }
 
+        // Methods of class String which are not declared for primitive strings (e.g. step-aware methods
+        // like formatted(Object... args)) are called on the boxed value:
+        if (!methods.best && objectSnippet.type == this.stringType) {
+            let stringMethods = this.searchMethod(node.identifier, this.stringNonPrimitiveType, parameterTypes, false, false, true, node.identifierRange);
+            if (stringMethods.best) {
+                methods = stringMethods;
+                objectSnippet = this.box(objectSnippet);
+            }
+        }
+
         let method = methods?.best;
 
         if (pv.withErrors) {

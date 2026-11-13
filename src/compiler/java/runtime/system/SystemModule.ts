@@ -163,6 +163,8 @@ import { StreamInterface } from "./collections/StreamInterface.ts";
 import { SystemStreamClass } from "./collections/SystemStreamClass.ts";
 import { PredicateInterface } from "./functional/PredicateInterface.ts";
 import { IllegalArgumentExceptionClass } from "./javalang/IllegalArgumentException.ts";
+import { IllegalFormatExceptionClass } from "./javalang/IllegalFormatExceptionClass.ts";
+import { StringFormatHelper } from "./javalang/StringFormatHelper.ts";
 import { IllegalStateExceptionClass } from "./javalang/IllegalStateException.ts";
 import { BaseWorldClass } from "../graphics/BaseWorldClass.ts";
 import { Line3Class } from "../graphics/3d/Line3Class.ts";
@@ -199,6 +201,10 @@ export class SystemModule extends JavaLibraryModule {
 
         ColorClass._initPredefinedColors();
 
+        // String.format/formatted delegate to StringFormatHelper; injected here to avoid an import cycle
+        // ObjectClassStringClass -> Formatter -> exception classes -> ObjectClassStringClass
+        StringClass.formatImplementation = StringFormatHelper.format;
+
         this.classesInterfacesEnums.push(
             ComparableInterface, ComparatorInterface,
 
@@ -220,7 +226,7 @@ export class SystemModule extends JavaLibraryModule {
             OptionalClass,
 
             MathClass, RandomClass, DecimalFormatClass,
-            ThrowableClass, ExceptionClass, RuntimeExceptionClass, IllegalArgumentExceptionClass, ArithmeticExceptionClass, NullPointerExceptionClass,
+            ThrowableClass, ExceptionClass, RuntimeExceptionClass, IllegalArgumentExceptionClass, IllegalFormatExceptionClass, ArithmeticExceptionClass, NullPointerExceptionClass,
             ClassCastExceptionClass, IndexOutOfBoundsExceptionClass, IllegalMonitorStateExceptionClass,
             EmptyStackExceptionClass, IllegalStateExceptionClass,
             CloneNotSupportedExceptionClass, NoSuchElementExceptionClass, UnsupportedOperationExceptionClass,

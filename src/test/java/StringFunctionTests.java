@@ -107,3 +107,76 @@ if(t < "Zest") t += t;
 
 assertEquals(t, "NewTestNewTest", "if-clause gone wrong...");
 
+
+
+/**::
+ * String.format, String.formatted and System.out.printf
+ * { "expectedOutput": "Preis:   3.50 EUR\nMax is 12 years old.\n" }
+ */
+assertEquals("42", String.format("%d", 42), "String.format with %d not working.");
+assertEquals("   42|42   |00042", String.format("%5d|%-5d|%05d", 42, 42, 42), "String.format with width and flags not working.");
+assertEquals("2.68", String.format("%.2f", 2.675), "String.format with %.2f not working.");
+assertEquals("1,234,567", String.format("%,d", 1234567), "String.format with grouping not working.");
+assertEquals("Max is 12 years old.", String.format("%s is %d years old.", "Max", 12), "String.format with %s and %d not working.");
+assertEquals("true A ff 1.234568e+04", String.format("%b %c %x %e", true, "A".charAt(0), 255, 12345.678), "String.format with %b %c %x %e not working.");
+assertEquals("b a", String.format("%2$s %1$s", "a", "b"), "String.format with explicit argument index not working.");
+assertEquals("100%", String.format("100%%"), "String.format without arguments not working.");
+assertEquals("x is 3", "%s is %d".formatted("x", 3), "String.formatted not working.");
+
+Person p = new Person("Anna");
+assertEquals("Person Anna!", String.format("%s!", p), "String.format does not call toString() of user objects.");
+assertEquals(" Person Anna|", String.format("%12s|", p), "String.format with width and user objects not working.");
+assertEquals("null", String.format("%s", p.getFriend()), "String.format with null object not working.");
+assertEquals("Anna and Person Bob", String.format("%s and %s", p.name, p.getBob()), "String.format with several user objects not working.");
+
+System.out.printf("Preis: %6.2f EUR%n", 3.5);
+System.out.printf("%s is %d years old.%n", "Max", 12);
+
+class Person {
+   String name;
+
+   Person(String name) {
+      this.name = name;
+   }
+
+   Person getFriend() {
+      return null;
+   }
+
+   Person getBob() {
+      return new Person("Bob");
+   }
+
+   public String toString() {
+      return "Person " + name;
+   }
+}
+
+
+/**::
+ * IllegalFormatException is thrown for incompatible format specifiers and missing arguments
+ */
+boolean caught = false;
+try {
+   String s = String.format("%d", "x");
+} catch (IllegalFormatException e) {
+   caught = true;
+   assertTrue(e.getMessage().startsWith("IllegalFormatConversionException"), "Wrong message: " + e.getMessage());
+}
+assertTrue(caught, "IllegalFormatException expected for %d with a String argument.");
+
+caught = false;
+try {
+   String s = String.format("%s %s", "x");
+} catch (IllegalArgumentException e) {
+   caught = true;
+}
+assertTrue(caught, "IllegalFormatException (an IllegalArgumentException) expected for missing arguments.");
+
+caught = false;
+try {
+   System.out.printf("%q");
+} catch (RuntimeException e) {
+   caught = true;
+}
+assertTrue(caught, "IllegalFormatException (a RuntimeException) expected for an unknown conversion.");

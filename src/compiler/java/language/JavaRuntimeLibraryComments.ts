@@ -248,6 +248,16 @@ export class JRC {
         "en": "Returns the string representation of given value.",
     })
 
+    static stringFormatComment = () => lm({
+        "de": "Gibt eine formatierte Zeichenkette zurück. Der Formatstring enthält Formatangaben der Form %[argument_index$][flags][width][.precision]conversion, z.B. %d (ganze Zahl), %.2f (Kommazahl mit 2 Nachkommastellen), %s (Zeichenkette), %10s (Zeichenkette, rechtsbündig in 10 Zeichen), %-10s (linksbündig), %n (Zeilenumbruch), %% (Prozentzeichen). Beispiel: String.format(\"%s ist %d Jahre alt.\", \"Max\", 12)",
+        "en": "Returns a formatted string. The format string contains format specifiers of the form %[argument_index$][flags][width][.precision]conversion, e.g. %d (integer), %.2f (floating point number with 2 fraction digits), %s (string), %10s (string, right-aligned in 10 characters), %-10s (left-aligned), %n (line break), %% (percent sign). Example: String.format(\"%s is %d years old.\", \"Max\", 12)",
+    })
+
+    static stringFormattedComment = () => lm({
+        "de": "Verwendet diese Zeichenkette als Formatstring und gibt die mit den gegebenen Argumenten formatierte Zeichenkette zurück. Entspricht String.format(this, args).",
+        "en": "Uses this string as format string and returns the string formatted with the given arguments. Equivalent to String.format(this, args).",
+    })
+
     /**
      * Interface Cloneable
      */
@@ -4353,6 +4363,16 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     static PrintStreamPrintlnComment2 = () => lm({
         "de": "Gibt einen Zeilenumbruch aus.",
         "en": "Prints a line break.",
+    })
+
+    static PrintStreamPrintfComment = () => lm({
+        "de": "Gibt eine formatierte Zeichenkette aus. Der Formatstring enthält Formatangaben wie %d (ganze Zahl), %.2f (Kommazahl mit 2 Nachkommastellen), %s (Zeichenkette), %10s (rechtsbündig in 10 Zeichen), %-10s (linksbündig), %n (Zeilenumbruch), %% (Prozentzeichen). Beispiel: System.out.printf(\"%s ist %d Jahre alt.%n\", \"Max\", 12)",
+        "en": "Prints a formatted string. The format string contains format specifiers like %d (integer), %.2f (floating point number with 2 fraction digits), %s (string), %10s (right-aligned in 10 characters), %-10s (left-aligned), %n (line break), %% (percent sign). Example: System.out.printf(\"%s is %d years old.%n\", \"Max\", 12)",
+    })
+
+    static IllegalFormatExceptionClassComment = () => lm({
+        "de": "Wird von String.format, String.formatted und System.out.printf geworfen, wenn der Formatstring fehlerhaft ist, eine Formatangabe nicht zum übergebenen Argument passt oder zu wenige Argumente übergeben wurden.",
+        "en": "Thrown by String.format, String.formatted and System.out.printf when the format string contains illegal syntax, a format specifier is incompatible with the given argument or too few arguments are given.",
     })
 
     /**
