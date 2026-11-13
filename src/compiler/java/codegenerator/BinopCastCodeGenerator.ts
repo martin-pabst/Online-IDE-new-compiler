@@ -727,7 +727,7 @@ export abstract class BinopCastCodeGenerator {
 
         if (typeFrom.isPrimitive && typeTo.identifier == "Object"   // automatic boxing
             // unboxing with explicit cast needed for Niedersachsen: int i = (int) o
-            || (typeFrom.identifier == "Object" && typeTo.isPrimitive && castType == "explicit")  
+            || (typeFrom.identifier == "Object" && typeTo.isPrimitive) // && castType == "explicit")  
         ) {
             return true;
         }
