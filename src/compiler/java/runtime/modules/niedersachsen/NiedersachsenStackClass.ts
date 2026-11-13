@@ -14,14 +14,14 @@ import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
 export class NiedersachsenStackClass extends ObjectClass implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", package: 'nds', signature: "class Stack", comment: NiedersachsenLang.StackClassComment },
+        { type: "declaration", package: 'nds', signature: "class Stack<ContentType>", comment: NiedersachsenLang.StackClassComment },
 
         { type: "method", signature: "Stack()", native: NiedersachsenStackClass.prototype._constructor, comment: NiedersachsenLang.stackClassConstructorComment },
 
         { type: "method", signature: "boolean isEmpty()", native: NiedersachsenStackClass.prototype._isEmpty, comment: NiedersachsenLang.stackClassIsEmptyComment },
-        { type: "method", signature: "void push(Object pContent)", native: NiedersachsenStackClass.prototype._push, comment: NiedersachsenLang.stackClassPushComment },
-        { type: "method", signature: "Object pop()", native: NiedersachsenStackClass.prototype._pop, comment: NiedersachsenLang.stackClassPopComment },
-        { type: "method", signature: "Object top()", native: NiedersachsenStackClass.prototype._top, comment: NiedersachsenLang.stackClassTopComment },
+        { type: "method", signature: "void push(ContentType content)", native: NiedersachsenStackClass.prototype._push, comment: NiedersachsenLang.stackClassPushComment },
+        { type: "method", signature: "ContentType pop()", native: NiedersachsenStackClass.prototype._pop, comment: NiedersachsenLang.stackClassPopComment },
+        { type: "method", signature: "ContentType top()", native: NiedersachsenStackClass.prototype._top, comment: NiedersachsenLang.stackClassTopComment },
 
         { type: "method", signature: "String toString()", java: NiedersachsenStackClass.prototype._mj$toString$String$, comment: JRC.objectToStringComment },
         //

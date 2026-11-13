@@ -11,17 +11,17 @@ import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
 export class NiedersachsenDynArrayClass extends ObjectClass implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", package: 'nds', signature: "class DynArray implements Iterable<Object>", comment: NiedersachsenLang.dynArrayClassComment },
+        { type: "declaration", package: 'nds', signature: "class DynArray<ContentType> implements Iterable<ContentType>", comment: NiedersachsenLang.dynArrayClassComment },
 
         { type: "method", signature: "DynArray()", native: NiedersachsenDynArrayClass.prototype._constructor, comment: NiedersachsenLang.dynArrayConstructorComment },
         { type: "method", signature: "boolean isEmpty()", native: NiedersachsenDynArrayClass.prototype._isEmpty, comment: NiedersachsenLang.dynArrayIsEmptyComment },
-        { type: "method", signature: "Object getItem(int index)", native: NiedersachsenDynArrayClass.prototype._getItem, comment: NiedersachsenLang.dynArrayGetItemComment },
-        { type: "method", signature: "void append(Object x)", native: NiedersachsenDynArrayClass.prototype._append, comment: NiedersachsenLang.dynArrayAppendComment },
-        { type: "method", signature: "void insertAt(int index, Object x)", native: NiedersachsenDynArrayClass.prototype._insertAt, comment: NiedersachsenLang.dynArrayInsertAtComment },
-        { type: "method", signature: "void setItem(int index, Object x)", native: NiedersachsenDynArrayClass.prototype._setItem, comment: NiedersachsenLang.dynArraySetItemComment },
+        { type: "method", signature: "ContentType getItem(int index)", native: NiedersachsenDynArrayClass.prototype._getItem, comment: NiedersachsenLang.dynArrayGetItemComment },
+        { type: "method", signature: "void append(ContentType content)", native: NiedersachsenDynArrayClass.prototype._append, comment: NiedersachsenLang.dynArrayAppendComment },
+        { type: "method", signature: "void insertAt(int index, ContentType content)", native: NiedersachsenDynArrayClass.prototype._insertAt, comment: NiedersachsenLang.dynArrayInsertAtComment },
+        { type: "method", signature: "void setItem(int index, ContentType content)", native: NiedersachsenDynArrayClass.prototype._setItem, comment: NiedersachsenLang.dynArraySetItemComment },
         { type: "method", signature: "void delete(int index)", native: NiedersachsenDynArrayClass.prototype._delete, comment: NiedersachsenLang.dynArrayDeleteComment },
         { type: "method", signature: "int getLength()", native: NiedersachsenDynArrayClass.prototype._getLength, comment: NiedersachsenLang.dynArrayGetLengthComment },
-        { type: "method", signature: "Iterator<Object> iterator()", native: NiedersachsenDynArrayClass.prototype._iterator, comment: NiedersachsenLang.dynArrayIteratorComment },
+        { type: "method", signature: "Iterator<ContentType> iterator()", native: NiedersachsenDynArrayClass.prototype._iterator, comment: NiedersachsenLang.dynArrayIteratorComment },
         
         { type: "method", signature: "String toString()", java: NiedersachsenDynArrayClass.prototype._mj$toString$String$, comment: JRC.objectToStringComment },
 

@@ -19,6 +19,20 @@ assertEquals("Drei", s.pop(), "Niedersachsen-Stack: pop() doesn't return correct
 assertEquals("Zwei", s.pop(), "Niedersachsen-Stack: pop() doesn't return correct value");
 assertEquals("Eins", s.pop(), "Niedersachsen-Stack: pop() doesn't return correct value");
 
+/**::
+ * Test casting
+ * { "libraries": ["niedersachsen"] }
+ */
+
+Stack s = new Stack();
+
+s.push(new Integer(12));
+s.push(new Integer(23));
+
+int i = (int) s.pop();
+assertEquals(23, i, "Niedersachsen-Stack: pop() doesn't return correct value after casting.");
+Integer j = (Integer) s.pop();
+assertEquals(12, j.intValue(), "Niedersachsen-Stack: pop() doesn't return correct value after casting.");
 
 /**::
  * Test Queue
@@ -145,3 +159,68 @@ assertEquals("BinTree[inhalt=Wurzel, left=BinTree[inhalt=Links, left=BinTree[inh
 
 
 
+/**::
+ * Test generic Stack
+ * { "libraries": ["niedersachsen"] }
+ */
+Stack<String> s = new Stack<>();
+s.push("Eins");
+s.push("Zwei");
+String t = s.top();
+assertEquals("Zwei", t, "Niedersachsen-Stack<String>: top() doesn't return correct value");
+assertEquals(4, s.pop().length(), "Niedersachsen-Stack<String>: pop() doesn't return typed value");
+assertEquals("Eins", s.pop(), "Niedersachsen-Stack<String>: pop() doesn't return correct value");
+assertTrue(s.isEmpty(), "Niedersachsen-Stack<String>: isEmpty() returns false on empty stack.");
+
+/**::
+ * Test generic Queue
+ * { "libraries": ["niedersachsen"] }
+ */
+Queue<Integer> q = new Queue<Integer>();
+q.enqueue(1);
+q.enqueue(2);
+q.enqueue(3);
+int h = q.head();
+assertEquals(1, h, "Niedersachsen-Queue<Integer>: head() doesn't return correct value");
+int sum = 0;
+while(!q.isEmpty()){
+    sum += q.dequeue();
+}
+assertEquals(6, sum, "Niedersachsen-Queue<Integer>: dequeue() doesn't return correct values");
+
+/**::
+ * Test generic DynArray with for-each loop
+ * { "libraries": ["niedersachsen"] }
+ */
+DynArray<String> d = new DynArray<>();
+d.append("a");
+d.append("c");
+d.insertAt(1, "b");
+d.setItem(2, "d");
+String all = "";
+for(String str : d){
+    all += str.toUpperCase();
+}
+assertEquals("ABD", all, "Niedersachsen-DynArray<String>: for-each loop doesn't iterate correctly");
+assertEquals("a", d.getItem(0), "Niedersachsen-DynArray<String>: getItem(0) doesn't return correct value");
+
+/**::
+ * Test generic BinTree
+ * { "libraries": ["niedersachsen"] }
+ */
+BinTree<String> bt = new BinTree<>("Wurzel");
+bt.setLeft(new BinTree<String>("Links"));
+bt.setRight(new BinTree<>("Rechts"));
+BinTree<String> left = bt.getLeft();
+assertEquals(5, left.getItem().length(), "Niedersachsen-BinTree<String>: getLeft().getItem() doesn't return typed value");
+assertEquals("Rechts", bt.getRight().getItem(), "Niedersachsen-BinTree<String>: getRight().getItem() doesn't return correct value");
+assertTrue(bt.getRight().getLeft().isEmpty(), "Niedersachsen-BinTree<String>: subtree of leaf isn't empty");
+assertFalse(bt.isLeaf(), "Niedersachsen-BinTree<String>: isLeaf() returns true on non-leaf node.");
+
+/**::
+ * Test generic Stack: wrong content type
+ * { "libraries": ["niedersachsen"], "expectedCompilationError": {"id": "cantAssignValueToLocalVariable"} }
+ */
+Stack<String> s = new Stack<>();
+s.push("Eins");
+int x = s.pop();

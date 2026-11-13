@@ -15,14 +15,14 @@ import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
 export class NiedersachsenQueueClass extends SystemCollection {
     static __javaDeclarations: LibraryDeclarations = [
-        { type: "declaration", package: 'nds', signature: "class Queue", comment: NiedersachsenLang.queueClassComment },
+        { type: "declaration", package: 'nds', signature: "class Queue<ContentType>", comment: NiedersachsenLang.queueClassComment },
 
         { type: "method", signature: "Queue()", native: NiedersachsenQueueClass.prototype._constructor, comment: NiedersachsenLang.queueClassConstructorComment },
 
         { type: "method", signature: "boolean isEmpty()", native: NiedersachsenQueueClass.prototype._isEmpty, comment: NiedersachsenLang.queueClassIsEmptyComment },
-        { type: "method", signature: "Object head()", native: NiedersachsenQueueClass.prototype._head, comment: NiedersachsenLang.queueClassHeadComment },
-        { type: "method", signature: "void enqueue(Object neu)", native: NiedersachsenQueueClass.prototype._enqueue, comment: NiedersachsenLang.queueClassEnqueueComment },
-        { type: "method", signature: "Object dequeue()", native: NiedersachsenQueueClass.prototype._dequeue, comment: NiedersachsenLang.queueClassDequeueComment },
+        { type: "method", signature: "ContentType head()", native: NiedersachsenQueueClass.prototype._head, comment: NiedersachsenLang.queueClassHeadComment },
+        { type: "method", signature: "void enqueue(ContentType content)", native: NiedersachsenQueueClass.prototype._enqueue, comment: NiedersachsenLang.queueClassEnqueueComment },
+        { type: "method", signature: "ContentType dequeue()", native: NiedersachsenQueueClass.prototype._dequeue, comment: NiedersachsenLang.queueClassDequeueComment },
 
         { type: "method", signature: "String toString()", java: NiedersachsenQueueClass.prototype._mj$toString$String$, comment: JRC.objectToStringComment },
         //
