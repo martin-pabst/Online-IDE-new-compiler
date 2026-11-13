@@ -726,7 +726,8 @@ export abstract class BinopCastCodeGenerator {
         if (typeTo == this.stringType && typeFrom == this.nullType) return true;
 
         if (typeFrom.isPrimitive && typeTo.identifier == "Object"   // automatic boxing
-            || typeFrom.identifier == "Object" && typeTo.isPrimitive
+            // unboxing with explicit cast needed for Niedersachsen: int i = (int) o
+            || (typeFrom.identifier == "Object" && typeTo.isPrimitive && castType == "explicit")  
         ) {
             return true;
         }
