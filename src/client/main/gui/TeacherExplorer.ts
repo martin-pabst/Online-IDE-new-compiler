@@ -294,6 +294,7 @@ export class TeacherExplorer {
         this.studentPanel.setCaption(TeacherExplorerMessages.students());
         this.classPanel.clear();
 
+        classDataList = classDataList.filter((cd) => cd.aktiv == true);
         classDataList.sort((a, b) => {
             return a.name.localeCompare(b.name);
         })
