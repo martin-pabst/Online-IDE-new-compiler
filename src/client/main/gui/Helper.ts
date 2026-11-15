@@ -24,22 +24,22 @@ export class Helper {
 
         switch (direction) {
             case "bottom": $helper.css({
-                left: to.left + targetElement.width() / 2 - delta,
+                left: to.left + targetElement.width() / 2 - delta + 8,
                 bottom: b.height() - to.top + delta
             });
                 break;
             case "top": $helper.css({
-                left: to.left + targetElement.width() / 2 - delta,
+                left: to.left + targetElement.width() / 2 - delta + 8,
                 top: to.top + targetElement.height() + 26
             });
                 break;
             case "left": $helper.css({
-                left: to.left + targetElement.width() + delta,
+                left: to.left + targetElement.width() + delta + 8,
                 top: to.top + targetElement.height() / 2 - delta
             });
                 break;
             case "right": $helper.css({
-                right: b.width() - to.left,
+                right: b.width() - to.left + 8,
                 top: to.top + targetElement.height() / 2 - delta
             });
                 break;
@@ -65,6 +65,13 @@ export class Helper {
 
 
     static showHelper(id: string, mainBase: MainBase, $element?: JQuery<HTMLElement> | HTMLElement) {
+
+        setTimeout(() => {
+            Helper.showHelperImmediately(id, mainBase, $element);
+        }, 1000);
+    }
+
+    static showHelperImmediately(id: string, mainBase: MainBase, $element?: JQuery<HTMLElement> | HTMLElement) {
 
         $element = ($element instanceof jQuery ? $element : jQuery($element)) as JQuery<HTMLElement>;
 
