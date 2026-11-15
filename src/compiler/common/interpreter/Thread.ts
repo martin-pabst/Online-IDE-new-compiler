@@ -869,6 +869,7 @@ export class Thread {
 
     CheckLastIndex(index: number, dimension: number): number {
         let array = this.#lastCheckedArrays.pop();
+        if(array == null) throw new NullPointerExceptionClass(InterpreterMessages.AccessingElementOfNullArray());
         if (index < 0 || index >= array!.length) throw new IndexOutOfBoundsExceptionClass(InterpreterMessages.ArrayIndexOutOfBoundsException(index, array!.length, dimension));
         return index;
     }

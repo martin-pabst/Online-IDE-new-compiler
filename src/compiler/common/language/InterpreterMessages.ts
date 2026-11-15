@@ -32,6 +32,11 @@ export class InterpreterMessages {
     "en": `The index is out of bounds of this array.`,
     })
 
+    static AccessingElementOfNullArray = () => lm({
+    "de": `Zugriff auf ein Element eines null-Arrays.`,
+    "en": `Accessing an element of a null array.`,
+    })
+
     static ArrayIndexOutOfBoundsException = (index: number, length: number, dimension: number) => lm({
     "de": `Der Index ${index}${dimension > 1 ? " (" + dimension + ". Dimension)" : ""} liegt außerhalb der Grenzen des Arrays. Mögliche Werte für den Index sind 0 ... ${length - 1}.`,
     "en": `Index ${index}${dimension > 1 ? " (dimension " + dimension + ")" : ""} is out of bounds of this array. Possible values for this index are 0 ... ${length - 1}.`,
