@@ -147,3 +147,29 @@ stack.push("Zach");
 assertEquals("Zach", stack.pop(), "Stack.pop()");
 assertFalse(stack.contains("Zach"), "Stack.pop()");
 
+
+/**::
+ * Collections.shuffle with List of enum values and List of Strings
+ */
+List<ShuffleTestRole> roles = new ArrayList<>();
+roles.add(ShuffleTestRole.WEREWOLF);
+roles.add(ShuffleTestRole.VILLAGER);
+
+Collections.shuffle(roles);
+assertEquals(2, roles.size(), "Collections.shuffle(List<enum>)");
+assertTrue(roles.contains(ShuffleTestRole.WEREWOLF), "Collections.shuffle(List<enum>)");
+assertTrue(roles.contains(ShuffleTestRole.VILLAGER), "Collections.shuffle(List<enum>)");
+
+List<String> players = new ArrayList<>();
+Collections.shuffle(players);
+players.add("Kaspar");
+players.add("Theo");
+Collections.shuffle(players);
+assertEquals(2, players.size(), "Collections.shuffle(List<String>)");
+
+List<?> rolesWildcard = roles;
+List<? extends Object> rolesExtendsObject = roles;
+List<? extends Enum> rolesExtendsEnum = roles;
+assertEquals(2, rolesExtendsEnum.size(), "List<enum> assigned to List<? extends Enum>");
+
+enum ShuffleTestRole { WEREWOLF, VILLAGER }

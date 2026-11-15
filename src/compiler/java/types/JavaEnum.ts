@@ -109,6 +109,29 @@ export class JavaEnum extends JavaTypeWithInstanceInitializer {
     canImplicitlyCastTo(otherType: JavaType): boolean {
         if (otherType.isPrimitive) return false;
 
+        // e.g. List<MyEnum> can cast to List<?>, List<? extends Object>, List<? super MyEnum>
+        // or to List<T> in generic method calls like static <T> void sort(List<T> list, ...)
+        if (otherType instanceof GenericTypeParameter) {
+
+            if (otherType.isWildcard) {
+                for (let ext of otherType.upperBounds) {
+                    if (!this.canImplicitlyCastTo(ext)) return false;
+                }
+
+                if (otherType.lowerBound) {
+                    return this.canImplicitlyCastTo(otherType.lowerBound);
+                }
+                return true;
+            }
+
+            if (otherType.catches) {
+                otherType.catches.push(this);
+                return true;
+            }
+
+            return false;
+        }
+
         if (otherType instanceof JavaInterface) {
             for (let intf of this.implements) {
                 if (intf.canExplicitlyCastTo(otherType)) return true;
@@ -123,7 +146,8 @@ export class JavaEnum extends JavaTypeWithInstanceInitializer {
 
         if (otherType instanceof JavaClass) {
             if (otherType.identifier == 'Object') return true;
-            return false;
+            // MyEnum can cast to Enum (needed e.g. for ? extends Enum)
+            return this.baseEnumClass?.canImplicitlyCastTo(otherType) ?? false;
         }
 
         return false;
