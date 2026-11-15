@@ -444,34 +444,12 @@ export class TypeResolver {
 
         let type: JavaType | undefined;
 
-        // Generic parameter variable?
+        // Generic parameter variable or inner type of this or an enclosing type?
         if (typeNode.parentTypeScope) {
 
-            let parentTypeScope: TypeScope = typeNode.parentTypeScope;
-
-            if (parentTypeScope.kind == TokenType.methodDeclaration) {
-                let methodDeclarationNode: ASTMethodDeclarationNode = <any>parentTypeScope;
-                for (let gpType of methodDeclarationNode.genericParameterDeclarations) {
-                    let gp = gpType.resolvedType;
-                    if (gp && gp.identifier == identifier) return gp;
-                }
-                parentTypeScope = methodDeclarationNode.parentTypeScope;
-            }
-
-
-            if ([TokenType.keywordClass, TokenType.keywordInterface].indexOf(parentTypeScope.kind) >= 0) {
-                let classOrInterfaceNode: ASTClassDefinitionNode | ASTInterfaceDefinitionNode = <any>parentTypeScope;
-                for (let gpType of classOrInterfaceNode.genericParameterDeclarations) {
-                    let gp = gpType.resolvedType;
-                    if (gp && gp.identifier == identifier) return gp;
-                }
-
-                for (let innerclass of classOrInterfaceNode.innerTypes) {
-                    if (innerclass.identifier == identifier && innerclass.resolvedType) {
-                        type = innerclass.resolvedType;
-                    }
-                }
-            }
+            let typeFromScope = this.findTypeInEnclosingScopes(identifier, typeNode.parentTypeScope);
+            if (typeFromScope instanceof GenericTypeParameter) return typeFromScope;
+            type = typeFromScope;
 
             // if (typeNode.identifiers.indexOf(".") >= 0) {
             //     let parentTypeScope1: TypeScope | undefined = parentTypeScope;
@@ -547,6 +525,53 @@ export class TypeResolver {
 
         return type;
 
+    }
+
+    /**
+     * Searches the given scope and all enclosing scopes (method -> class -> outer class -> ...)
+     * for a generic type parameter or an inner type with the given identifier.
+     *
+     * Generic type parameters of enclosing types are only visible from non-static inner classes,
+     * not from static nested classes, interfaces, enums or classes declared inside interfaces.
+     */
+    findTypeInEnclosingScopes(identifier: string, scope: TypeScope | undefined): JavaType | undefined {
+        let isStaticContext: boolean = false;
+
+        while (scope && scope.kind != TokenType.global) {
+
+            if (scope.kind == TokenType.methodDeclaration) {
+                let methodDeclarationNode: ASTMethodDeclarationNode = <any>scope;
+                for (let gpNode of methodDeclarationNode.genericParameterDeclarations) {
+                    let gp = gpNode.resolvedType;
+                    if (gp && gp.identifier == identifier) return gp;
+                }
+                scope = methodDeclarationNode.parentTypeScope;
+                continue;
+            }
+
+            let typeDefinitionNode: ASTClassDefinitionNode | ASTInterfaceDefinitionNode | ASTEnumDefinitionNode = <any>scope;
+
+            if (!isStaticContext && typeDefinitionNode.kind != TokenType.keywordEnum) {
+                for (let gpNode of typeDefinitionNode.genericParameterDeclarations) {
+                    let gp = gpNode.resolvedType;
+                    if (gp && gp.identifier == identifier) return gp;
+                }
+            }
+
+            for (let innerType of typeDefinitionNode.innerTypes) {
+                if (innerType.identifier == identifier && innerType.resolvedType) {
+                    return innerType.resolvedType;
+                }
+            }
+
+            let isImplicitlyStatic = typeDefinitionNode.kind != TokenType.keywordClass
+                || typeDefinitionNode.parent?.kind == TokenType.keywordInterface;
+            if (typeDefinitionNode.isStatic || isImplicitlyStatic) isStaticContext = true;
+
+            scope = typeDefinitionNode.parent;
+        }
+
+        return undefined;
     }
 
     resolveGenericParameterTypesAndExtendsImplements() {

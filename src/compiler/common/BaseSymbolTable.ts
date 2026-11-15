@@ -120,8 +120,13 @@ export class BaseStackframe {
 
     }
 
+    /**
+     * Reserves a stack position for a parameter that is not visible in source code
+     * (e.g. reference to outer class object passed to constructors of non-static inner classes)
+     */
     insertInvisibleParameter() {
         this.numberOfParameters++;
+        this.nextFreePosition++;
     }
 
     insertInvisibleLocalVariableAndGetItsIndex(): number {
