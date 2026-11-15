@@ -60,3 +60,39 @@ Integer i4 = 20 - i5;  // 10
 i4--;
 assertEquals(9, i4, "-- -Operator doesn't work with Double value.");
 assertEquals(8, --i4, "-- -Operator doesn't work with Double value.");
+
+/**::
+ * Boolean.compareTo and Character.compareTo
+ */
+
+Boolean bTrue = true;
+Boolean bTrue2 = true;
+Boolean bFalse = false;
+
+assertEquals(0, bTrue.compareTo(bTrue2), "Boolean.compareTo: equal values (different objects)");
+assertTrue(bFalse.compareTo(bTrue) < 0, "Boolean.compareTo: false < true");
+assertTrue(bTrue.compareTo(bFalse) > 0, "Boolean.compareTo: true > false");
+assertEquals("false", bFalse.toString(), "Boolean.toString with value false");
+
+Character cA = 'A';
+Character cA2 = 'A';
+Character cC = 'C';
+
+assertEquals(0, cA.compareTo(cA2), "Character.compareTo: equal values (different objects)");
+assertEquals(-2, cA.compareTo(cC), "Character.compareTo: difference of char codes");
+assertEquals(2, cC.compareTo(cA), "Character.compareTo: difference of char codes");
+
+// calls via interface Comparable
+ArrayList<Character> chars = new ArrayList<>();
+chars.add('x');
+chars.add('B');
+chars.add('a');
+Collections.sort(chars);
+assertEquals("[B, a, x]", chars.toString(), "Collections.sort(List<Character>)");
+
+ArrayList<Boolean> booleans = new ArrayList<>();
+booleans.add(true);
+booleans.add(false);
+booleans.add(true);
+Collections.sort(booleans);
+assertEquals("[false, true, true]", booleans.toString(), "Collections.sort(List<Boolean>)");

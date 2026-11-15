@@ -190,7 +190,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 return undefined;
             }
 
-            let termSnippet = this.compileTerm(node.term);
+            let termSnippet = this.compileTermWithTargetType(node.term, method.returnParameterType);
             if (!termSnippet) return undefined;
 
             if (method.returnParameterType instanceof GenericTypeParameter && method.returnParameterType.catches) {
@@ -1105,7 +1105,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                     }
                     break;
                 default:
-                    initValueSnippet = this.compileTerm(initializationNode);
+                    initValueSnippet = this.compileTermWithTargetType(initializationNode, destinationType);
             }
 
 

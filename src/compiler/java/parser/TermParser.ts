@@ -502,6 +502,10 @@ export abstract class TermParser extends TokenIterator {
 
                     this.expect(TokenType.greater, true);
                     this.setEndOfRange(type);
+
+                    if ((<ASTGenericTypeInstantiationNode>type).actualTypeArguments.length == 0) {
+                        (<ASTGenericTypeInstantiationNode>type).isDiamond = true;
+                    }
                 }
 
                 if (this.comesToken(TokenType.leftRightSquareBracket, true)) {

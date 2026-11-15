@@ -1,3 +1,4 @@
+import { CallbackFunction } from "../../../../../common/interpreter/StepFunction";
 import { Thread } from "../../../../../common/interpreter/Thread";
 import { LibraryDeclarations } from "../../../../module/libraries/DeclareType";
 import { NonPrimitiveType } from "../../../../types/NonPrimitiveType";
@@ -20,7 +21,8 @@ export class BooleanClass extends ObjectClass implements IPrimitiveTypeWrapper {
         { type: "field", signature: "static final boolean FALSE", constantValue: BooleanClass.FALSE },
         { type: "field", signature: "static final boolean TRUE", constantValue: BooleanClass.TRUE },
         { type: "method", signature: "public final boolean booleanValue()", template: "§1.value" },
-        { type: "method", signature: "public int compareTo(Boolean otherBoolean)", native: BooleanClass.prototype._compareTo },
+        // java-implementation is needed for calls via interface Comparable (method identifier _mj$compareTo$int$T)
+        { type: "method", signature: "public int compareTo(Boolean otherBoolean)", native: BooleanClass.prototype._compareTo, java: BooleanClass.prototype._mj$compareTo$int$T },
         { type: "method", signature: "public static boolean getBoolean(String name)", template: '§1 == "true"' },
         { type: "method", signature: "public static boolean parseBoolean(String name)", template: '§1 == "true"' },
     ]
@@ -40,8 +42,16 @@ export class BooleanClass extends ObjectClass implements IPrimitiveTypeWrapper {
         return this.value;
     }
 
-    _compareTo(otherValue: BooleanClass) {
-        return this == otherValue ? 0 : 1;
+    /**
+     * like java: false < true
+     */
+    _compareTo(otherValue: BooleanClass): number {
+        return this.value == otherValue.value ? 0 : (this.value ? 1 : -1);
+    }
+
+    _mj$compareTo$int$T(t: Thread, callback: CallbackFunction, otherValue: BooleanClass) {
+        t.s.push(this._compareTo(otherValue));
+        if (callback) callback();
     }
 
 

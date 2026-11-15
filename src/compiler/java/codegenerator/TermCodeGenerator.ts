@@ -8,13 +8,13 @@ import { JCM } from "../language/JavaCompilerMessages.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { JavaLibraryModule } from "../module/libraries/JavaLibraryModule.ts";
-import { ASTAnonymousClassNode, ASTArrayLiteralNode, ASTAttributeDereferencingNode, ASTBinaryNode, ASTBracketNode, ASTCastNode, ASTEnumValueNode, ASTLambdaFunctionDeclarationNode, ASTLiteralNode, ASTMethodCallNode, ASTNewArrayNode, ASTNewObjectNode, ASTPlusPlusMinusMinusSuffixNode, ASTSelectArrayElementNode, ASTSuperNode, ASTSymbolNode, ASTTermNode, ASTThisNode, ASTUnaryPrefixNode } from "../parser/AST";
+import { ASTAnonymousClassNode, ASTArrayLiteralNode, ASTAttributeDereferencingNode, ASTBinaryNode, ASTBracketNode, ASTCastNode, ASTEnumValueNode, ASTGenericTypeInstantiationNode, ASTLambdaFunctionDeclarationNode, ASTLiteralNode, ASTMethodCallNode, ASTNewArrayNode, ASTNewObjectNode, ASTPlusPlusMinusMinusSuffixNode, ASTSelectArrayElementNode, ASTSuperNode, ASTSymbolNode, ASTTermNode, ASTThisNode, ASTTypeNode, ASTUnaryPrefixNode } from "../parser/AST";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
 import { JavaArrayType } from "../types/JavaArrayType";
-import { IJavaClass, JavaClass } from "../types/JavaClass.ts";
+import { GenericVariantOfJavaClass, IJavaClass, JavaClass } from "../types/JavaClass.ts";
 import { JavaEnum } from "../types/JavaEnum.ts";
 import { JavaField } from "../types/JavaField";
-import { IJavaInterface, JavaInterface } from "../types/JavaInterface.ts";
+import { GenericVariantOfJavaInterface, IJavaInterface, JavaInterface } from "../types/JavaInterface.ts";
 import { GenericMethod, JavaMethod } from "../types/JavaMethod.ts";
 import { JavaParameter } from "../types/JavaParameter";
 import { JavaType } from "../types/JavaType";
@@ -52,6 +52,13 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
     continueStack: LabelCodeSnippet[] = [];
 
     nextArrayLiteralTypeExpected: JavaType[] = [];
+
+    /**
+     * Type expected by the context of a new-expression with diamond operator, e.g. PriorityQueue<Integer> in
+     * PriorityQueue<Integer> pq = new PriorityQueue<>((a, b) -> b - a);
+     * Is set by compileTermWithTargetType and consumed by compileNewObjectNode.
+     */
+    private targetTypeOfNewObject?: JavaType;
 
     isRepl: boolean = false;
 
@@ -132,6 +139,76 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         return snippet;
+    }
+
+    /**
+     * Compiles term in a context that expects targetType (variable initialization, assignment, return statement).
+     * If term is a new-expression with diamond operator (new X<>(...)) its type arguments are inferred from targetType.
+     */
+    compileTermWithTargetType(ast: ASTTermNode | undefined, targetType: JavaType | undefined): CodeSnippet | undefined {
+        if (ast?.kind != TokenType.newObject) return this.compileTerm(ast);
+
+        this.targetTypeOfNewObject = targetType;
+        let snippet = this.compileTerm(ast);
+        this.targetTypeOfNewObject = undefined;
+        return snippet;
+    }
+
+    /**
+     * Diamond operator: infers type arguments of the generic class instantiated by new X<>(...) from the type
+     * the context expects, e.g.
+     *   PriorityQueue<Integer> pq = new PriorityQueue<>(...)   => PriorityQueue<Integer>
+     *   Queue<Integer> q = new PriorityQueue<>(...)            => PriorityQueue<Integer>
+     * Returns undefined if nothing can be inferred.
+     */
+    inferTypeArgumentsOfDiamond(typeNode: ASTTypeNode, klassType: JavaType, targetType: JavaType | undefined): IJavaClass | undefined {
+        if (typeNode.kind != TokenType.genericTypeInstantiation || !(<ASTGenericTypeInstantiationNode>typeNode).isDiamond) return undefined;
+        if (!(klassType instanceof GenericVariantOfJavaClass)) return undefined;
+        if (!(targetType instanceof GenericVariantOfJavaClass || targetType instanceof GenericVariantOfJavaInterface)) return undefined;
+
+        let genericClass = klassType.isGenericVariantOf;
+        let targetBase: NonPrimitiveType = targetType.isGenericVariantOf;
+        let isSameType = (t1: NonPrimitiveType, t2: NonPrimitiveType) => t1 == t2 ||
+            t1.pathAndIdentifierAsDotSeparatedString == t2.pathAndIdentifierAsDotSeparatedString;
+
+        if (isSameType(genericClass, targetBase)) return <GenericVariantOfJavaClass>targetType;
+
+        // find supertype of generic class which is variant of targetType's base type, expressed in
+        // generic type parameters of generic class: e.g. Collection<E> for class PriorityQueue<E>
+        let supertypes: (GenericVariantOfJavaClass | GenericVariantOfJavaInterface)[] = [];
+        let superclass = genericClass.getExtends();
+        while (superclass) {
+            if (superclass instanceof GenericVariantOfJavaClass) supertypes.push(superclass);
+            superclass = superclass.getExtends();
+        }
+        for (let intf of genericClass.getAllImplementedInterfaces()) {
+            if (intf instanceof GenericVariantOfJavaInterface) supertypes.push(intf);
+        }
+
+        let supertype = supertypes.find(st => isSameType(st.isGenericVariantOf, targetBase));
+        if (!supertype) return undefined;
+
+        let typeMap: Map<GenericTypeParameter, NonPrimitiveType> = new Map(klassType.typeMap);
+        let inferredAnything: boolean = false;
+
+        for (let gp of targetType.isGenericVariantOf.genericTypeParameters ?? []) {
+            let typeOfClassParameter = supertype.typeMap.get(gp);
+            let targetArgument: NonPrimitiveType | undefined = targetType.typeMap.get(gp);
+
+            if (!(typeOfClassParameter instanceof GenericTypeParameter) || !genericClass.genericTypeParameters.includes(typeOfClassParameter)) continue;
+
+            // wildcards: Collection<? super Integer> => Integer, Collection<? extends Number> => Number
+            if (targetArgument instanceof GenericTypeParameter && targetArgument.isWildcard) {
+                targetArgument = targetArgument.lowerBound ?? targetArgument.upperBounds[0];
+            }
+
+            if (targetArgument && typeOfClassParameter.canBeReplacedByConcreteType(targetArgument)) {
+                typeMap.set(typeOfClassParameter, targetArgument);
+                inferredAnything = true;
+            }
+        }
+
+        return inferredAnything ? genericClass.getCopyWithConcreteType(typeMap) : undefined;
     }
 
     compileBrackets(node: ASTBracketNode): CodeSnippet {
@@ -252,21 +329,27 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         // new t.classes[<identifier>]().<constructorIdentifier>(param1, ..., paramN)
         // constructor has to return this or push it to stack!
 
+        // consume target type before parameter values (which may contain new-expressions, too) get compiled
+        let targetType = this.targetTypeOfNewObject;
+        this.targetTypeOfNewObject = undefined;
+
         let pv = this.getParameterValueSnippets(node);
         let parameterValues = pv.snippets;
 
         if (!node.type.resolvedType) return;
 
-        let klassType = node.type.resolvedType;
+        let resolvedType = node.type.resolvedType;
 
-        if (!klassType) {
+        if (!resolvedType) {
             return undefined;
         }
 
-        if (!(klassType instanceof IJavaClass)) {
-            this.pushError(JCM.cantInstantiateFromType(klassType.identifier), "error", node.range);
+        if (!(resolvedType instanceof IJavaClass)) {
+            this.pushError(JCM.cantInstantiateFromType(resolvedType.identifier), "error", node.range);
             return undefined;
         }
+
+        let klassType: IJavaClass = resolvedType;
 
         if (klassType.isAbstract()) {
             this.pushError(JCM.cantInstantiateFromAbstractClass(), "error", node.range);
@@ -289,6 +372,18 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         if (!parameterTypes) return undefined;
 
         let methods = this.searchMethod(klassType.identifier, klassType, parameterTypes, true, false, true, node.range);
+
+        // diamond operator (new X<>(...)): infer type arguments from target type. Falls back to the
+        // uninferred type if the inferred type has no fitting constructor.
+        let inferredKlassType = this.inferTypeArgumentsOfDiamond(node.type, klassType, targetType);
+        if (inferredKlassType) {
+            let methodsOfInferredType = this.searchMethod(inferredKlassType.identifier, inferredKlassType, parameterTypes, true, false, true, node.range);
+            if (methodsOfInferredType.best) {
+                klassType = inferredKlassType;
+                methods = methodsOfInferredType;
+            }
+        }
+
         let method = methods.best;
 
         if (pv.withErrors) {
@@ -932,7 +1027,13 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 this.pushAndGetNewSymbolTable(ast.rightSide.range, false);
                 ast.rightSide.instanceofVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
             }
-            rightOperand = ast.rightSide?.kind == TokenType.lambdaOperator ? this.compileLambdaFunction(<ASTLambdaFunctionDeclarationNode>ast.rightSide, leftOperand?.type) : this.compileTerm(ast.rightSide);
+            if (ast.rightSide?.kind == TokenType.lambdaOperator) {
+                rightOperand = this.compileLambdaFunction(<ASTLambdaFunctionDeclarationNode>ast.rightSide, leftOperand?.type);
+            } else if (ast.operator == TokenType.assignment) {
+                rightOperand = this.compileTermWithTargetType(ast.rightSide, leftOperand?.type);
+            } else {
+                rightOperand = this.compileTerm(ast.rightSide);
+            }
             if (ast.rightSide?.instanceofVariables) {
                 this.popSymbolTable();
             }

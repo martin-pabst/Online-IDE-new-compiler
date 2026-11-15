@@ -161,7 +161,8 @@ export interface ASTArrayTypeNode extends ASTTypeNode {
 export interface ASTGenericTypeInstantiationNode extends ASTTypeNode {
     kind: TokenType.genericTypeInstantiation,
     baseType: ASTTypeNode,
-    actualTypeArguments: ASTTypeNode[]
+    actualTypeArguments: ASTTypeNode[],
+    isDiamond?: boolean     // true for diamond operator, e.g. new ArrayList<>()
 }
 
 export interface ASTBaseTypeNode extends ASTTypeNode {

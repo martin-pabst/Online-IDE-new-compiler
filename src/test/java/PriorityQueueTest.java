@@ -106,7 +106,7 @@ assertEquals("Charlie", names.poll(), "PriorityQueue.poll");
  * PriorityQueue with Comparator (lambda and class)
  */
 
-PriorityQueue<Integer> maxQueue = new PriorityQueue<Integer>((a, b) -> b - a);
+PriorityQueue<Integer> maxQueue = new PriorityQueue<>((a, b) -> b - a);
 maxQueue.add(3);
 maxQueue.add(17);
 maxQueue.add(-2);
@@ -198,7 +198,7 @@ list.add(4);
 PriorityQueue<Integer> fromList = new PriorityQueue<>(list);
 assertEquals("[4, 4, 7, 9]", fromList.toString(), "PriorityQueue(Collection)");
 
-PriorityQueue<Integer> maxQueue = new PriorityQueue<Integer>((a, b) -> b - a);
+PriorityQueue<Integer> maxQueue = new PriorityQueue<>((a, b) -> b - a);
 maxQueue.addAll(list);
 
 Integer[] integers = maxQueue.toArray(new Integer[0]);
@@ -287,7 +287,7 @@ try {
 }
 assertTrue(points.isEmpty(), "Non-comparable element must not be added");
 
-PriorityQueue<Point> pointsWithComparator = new PriorityQueue<Point>((p1, p2) -> p1.x - p2.x);
+PriorityQueue<Point> pointsWithComparator = new PriorityQueue<>((p1, p2) -> p1.x - p2.x);
 Point p = new Point();
 p.x = 3;
 pointsWithComparator.add(p);
@@ -332,7 +332,7 @@ for (int i = 0; i < 20000; i++) {
 }
 assertTrue(ok, "PriorityQueue.poll with many elements");
 
-PriorityQueue<Integer> bigWithComparator = new PriorityQueue<Integer>((a, b) -> b - a);
+PriorityQueue<Integer> bigWithComparator = new PriorityQueue<>((a, b) -> b - a);
 for (int i = 0; i < 1000; i++) {
    bigWithComparator.add((i * 7919) % 1000);
 }

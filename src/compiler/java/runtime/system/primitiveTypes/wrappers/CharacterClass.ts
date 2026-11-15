@@ -22,7 +22,8 @@ export class CharacterClass extends ObjectClass implements IPrimitiveTypeWrapper
 
         { type: "method", signature: "Character(char value)", native: CharacterClass.prototype._constructor1 },
         { type: "method", signature: "public final char charValue()", template: "§1.value" },
-        { type: "method", signature: "public int compareTo(Character otherCharacter)", native: CharacterClass.prototype._compareTo },
+        // java-implementation is needed for calls via interface Comparable (method identifier _mj$compareTo$int$T)
+        { type: "method", signature: "public int compareTo(Character otherCharacter)", native: CharacterClass.prototype._compareTo, java: CharacterClass.prototype._mj$compareTo$int$T },
         { type: "method", signature: "public static Character valueOf(char c)", native: CharacterClass._valueOf },
         { type: "method", signature: "public static boolean isLetter(char c)", native: CharacterClass._isLetter },
         { type: "method", signature: "public static boolean isLetterOrDigit(char c)", native: CharacterClass._isLetterOrDigit },
@@ -61,8 +62,16 @@ export class CharacterClass extends ObjectClass implements IPrimitiveTypeWrapper
         return this.value;
     }
 
-    _compareTo(otherValue: CharacterClass) {
-        return this == otherValue ? 0 : 1;
+    /**
+     * like java: difference of char codes
+     */
+    _compareTo(otherValue: CharacterClass): number {
+        return this.value.charCodeAt(0) - otherValue.value.charCodeAt(0);
+    }
+
+    _mj$compareTo$int$T(t: Thread, callback: CallbackFunction, otherValue: CharacterClass) {
+        t.s.push(this._compareTo(otherValue));
+        if (callback) callback();
     }
 
     _toString() {

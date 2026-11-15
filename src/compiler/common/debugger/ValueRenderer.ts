@@ -79,6 +79,9 @@ export class ValueRenderer {
 
         if(value["value"]) return ValueRenderer.renderValue(value["value"], maxLength);
 
+        // wrapper objects (Boolean, Integer, String, ...) with falsy value (false, 0, "")
+        if((<any>value.constructor)?.isPrimitiveTypeWrapper && value["value"] !== undefined) return ValueRenderer.renderValue(value["value"], maxLength);
+
         let s: string = "{ ";
             let type = value.getType();
             if(type){
