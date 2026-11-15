@@ -481,6 +481,13 @@ export class GenericVariantOfJavaInterface extends IJavaInterface {
                 continue;
             }
 
+            if (othersType instanceof GenericTypeParameter && othersType.catches) {
+                // type parameter of generic method which is being inferred,
+                // e.g. static <T> void sort(List<T> list) called with List<String>: T = String
+                if (!myType.canImplicitlyCastTo(othersType)) return false;
+                continue;
+            }
+
             if (!(myType.canImplicitlyCastTo(othersType) && othersType.canImplicitlyCastTo(myType))) {
                 return false;
             }
