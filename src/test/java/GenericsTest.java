@@ -166,3 +166,176 @@ List<? super Number> numbers = integerList;
 List<? super Integer> integers = integerList;
 List<? extends Number> extendsNumber = integerList;
 List<? super Integer> integers2 = stringList;
+
+/**::
+ * Static fields, static methods and static initializers can't use generic type parameter of their class
+ * { "expectedCompilationErrors": [{"id": "typeParameterInStaticContext", "line": 6}, {"id": "typeParameterInStaticContext", "line": 7}, {"id": "typeParameterInStaticContext", "line": 8}, {"id": "typeParameterInStaticContext", "line": 9}, {"id": "typeParameterInStaticContext", "line": 10}, {"id": "typeParameterInStaticContext", "line": 11}, {"id": "typeParameterInStaticContext", "line": 12}]}
+ */
+class Box<T> {
+   static T field1;
+   static List<T> field2;
+   static T m1() { return null; }
+   static List<? super T> m2() { return null; }
+   static void m3(T t) { }
+   static void m4() { T t = null; }
+   static { T t = null; }
+}
+
+/**::
+ * Generic type parameters remain usable in non-static members, generic static methods use their own type parameters
+ */
+
+Pair<String> p = new Pair<String>("a", "b");
+assertEquals("b", p.getSecond(), "Instance method uses class type parameter");
+assertEquals("x", Pair.identity("x"), "Static generic method uses own type parameter");
+assertEquals(2, Pair.count(), "Static method without type parameter");
+
+class Pair<T> {
+   private static int counter = 0;
+   private T first;
+   private T second;
+
+   Pair(T first, T second) {
+      this.first = first;
+      this.second = second;
+      counter++;
+      counter++;
+   }
+
+   T getSecond() {
+      T result = second;
+      return result;
+   }
+
+   static <T> T identity(T t) {
+      return t;
+   }
+
+   static int count() {
+      return counter;
+   }
+}
+
+/**::
+ * Generic methods: type parameters of the method can be used inside its return type and inside bounds of its type parameters
+ */
+List<String> l = GenericMethods.wrap("a");
+assertEquals("a", l.get(0), "<E> List<E> wrap(E e)");
+
+Map<String, Integer> m = GenericMethods.mapOf("x", 5);
+assertEquals(5, m.get("x"), "<K, V> Map<K, V> mapOf(K k, V v)");
+
+String[] arr = GenericMethods.make("a");
+assertTrue(arr == null, "<E> E[] make(E e)");
+
+assertEquals("b", GenericMethods.max("a", "b"), "<E extends Comparable<E>> E max(E a, E b) with String");
+assertEquals(3, GenericMethods.max(1, 3), "<E extends Comparable<E>> E max(E a, E b) with Integer");
+
+KeyHolder<String> h = new KeyHolder<>("k");
+Map<String, Integer> m2 = h.pairWith(7);
+assertEquals(7, m2.get("k"), "<U> Map<T, U> pairWith(U u) in generic class");
+
+class GenericMethods {
+   public static <E> List<E> wrap(E e) {
+      List<E> list = new ArrayList<>();
+      list.add(e);
+      return list;
+   }
+
+   public static <K, V> Map<K, V> mapOf(K k, V v) {
+      Map<K, V> map = new HashMap<>();
+      map.put(k, v);
+      return map;
+   }
+
+   public static <E> E[] make(E e) {
+      return null;
+   }
+
+   public static <E extends Comparable<E>> E max(E a, E b) {
+      return a.compareTo(b) > 0 ? a : b;
+   }
+}
+
+class KeyHolder<T> {
+   T key;
+
+   KeyHolder(T key) {
+      this.key = key;
+   }
+
+   <U> Map<T, U> pairWith(U u) {
+      Map<T, U> map = new HashMap<>();
+      map.put(key, u);
+      return map;
+   }
+}
+
+/**::
+ * Wildcard with generic type parameter as upper bound (? extends T)
+ */
+WildcardBox<Number> b = new WildcardBox<>();
+List<Integer> ints = new ArrayList<>();
+ints.add(1);
+ints.add(2);
+b.addAll(ints);
+assertEquals(2, b.items.size(), "void addAll(List<? extends T> other)");
+Number n = b.firstOf(ints);
+assertEquals(1, n.intValue(), "T firstOf(List<? extends T> l)");
+assertEquals(3, b.sum(ints), "for (Number x : List<? extends Number>)");
+
+List<String> strings = new ArrayList<>();
+strings.add("x");
+strings.add("y");
+String s = WildcardMethods.firstOf(strings);
+assertEquals("x", s, "<T> T firstOf(List<? extends T> list)");
+assertEquals("y", WildcardMethods.maxOf(strings), "<T extends Comparable<T>> T maxOf(List<? extends T> list)");
+
+class WildcardBox<T> {
+   List<T> items = new ArrayList<>();
+
+   void addAll(List<? extends T> other) {
+      for (T t : other) {
+         items.add(t);
+      }
+   }
+
+   T firstOf(List<? extends T> l) {
+      T first = l.get(0);
+      return first;
+   }
+
+   int sum(List<? extends Number> numbers) {
+      int sum = 0;
+      for (Number x : numbers) {
+         sum += x.intValue();
+      }
+      return sum;
+   }
+}
+
+class WildcardMethods {
+   static <T> T firstOf(List<? extends T> list) {
+      return list.get(0);
+   }
+
+   static <T extends Comparable<T>> T maxOf(List<? extends T> list) {
+      T max = list.get(0);
+      for (T t : list) {
+         if (t.compareTo(max) > 0) max = t;
+      }
+      return max;
+   }
+}
+
+/**::
+ * Wildcard with generic type parameter as upper bound: incompatible type argument
+ * { "expectedCompilationError": {"id": "cantFindMethod", "line": 7}}
+ */
+IntegerSink<Integer> sink = new IntegerSink<>();
+List<String> strs = new ArrayList<>();
+sink.addAll(strs);
+
+class IntegerSink<T> {
+   void addAll(List<? extends T> other) { }
+}

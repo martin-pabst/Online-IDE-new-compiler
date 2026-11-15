@@ -6,6 +6,7 @@ import { TokenType } from "../TokenType";
 import {
     ASTAnnotationNode,
     ASTAnonymousClassNode,
+    ASTArrayTypeNode,
     ASTBaseTypeNode,
     ASTBlockNode,
     ASTClassDefinitionNode,
@@ -13,9 +14,10 @@ import {
     ASTEnumValueNode,
     ASTFieldDeclarationNode,
     ASTGenericParameterDeclarationNode,
+    ASTGenericTypeInstantiationNode,
     ASTInterfaceDefinitionNode, ASTMethodDeclarationNode,
     ASTNewObjectNode,
-    ASTNodeWithModifiers, ASTStatementNode, ASTTypeNode, TypeScope,
+    ASTNodeWithModifiers, ASTStatementNode, ASTTypeNode, ASTWildcardTypeNode, TypeScope,
     type ASTImportStatementNode
 } from "./AST.ts";
 import { ASTNodeFactory } from "./ASTNodeFactory.ts";
@@ -346,10 +348,15 @@ export class Parser extends StatementParser {
         let blockNode = this.nodeFactory.buildStaticInitializerNode(this.cct);
         this.nextToken(); // skip {
 
+        let isInStaticContextBefore = this.isInStaticContext;
+        this.isInStaticContext = true;
+
         while (!this.isEnd() && this.tt != TokenType.rightCurlyBracket) {
             let statement = this.parseStatementOrExpression();
             if (statement) blockNode.statements.push(statement);
         }
+
+        this.isInStaticContext = isInStaticContextBefore;
 
         this.expect(TokenType.rightCurlyBracket, true);
 
@@ -358,6 +365,20 @@ export class Parser extends StatementParser {
     }
 
     parseFieldOrMethodDeclaration(classASTNode: ASTClassDefinitionNode | ASTEnumDefinitionNode | ASTInterfaceDefinitionNode, modifiers: ASTNodeWithModifiers,
+        documentation: string | undefined) {
+
+        // generic type parameters of the enclosing class are not accessible inside static fields and methods
+        let isInStaticContextBefore = this.isInStaticContext;
+        this.isInStaticContext = this.isInStaticContext || modifiers.isStatic;
+
+        try {
+            this.parseFieldOrMethodDeclarationIntern(classASTNode, modifiers, documentation);
+        } finally {
+            this.isInStaticContext = isInStaticContextBefore;
+        }
+    }
+
+    private parseFieldOrMethodDeclarationIntern(classASTNode: ASTClassDefinitionNode | ASTEnumDefinitionNode | ASTInterfaceDefinitionNode, modifiers: ASTNodeWithModifiers,
         documentation: string | undefined) {
         /**
          * Problem:
@@ -417,8 +438,14 @@ export class Parser extends StatementParser {
         methodNode.documentation = documentation;
 
         this.currentMethod = methodNode;
-        if (returnType) {
-            returnType.parentTypeScope = methodNode;
+
+        // Return type and bounds of generic parameters got parsed before the method node existed,
+        // so their type nodes point to the enclosing class. Let them point to the method to make
+        // the method's generic parameters visible inside them, e.g. <E extends Comparable<E>> List<E> sort(...)
+        this.setParentTypeScopeRecursively(returnType, methodNode);
+        for (let gp of genericParameters) {
+            gp.extends?.forEach(ext => this.setParentTypeScopeRecursively(ext, methodNode));
+            this.setParentTypeScopeRecursively(gp.super, methodNode);
         }
 
         methodNode.genericParameterDeclarations = genericParameters;
@@ -692,6 +719,30 @@ export class Parser extends StatementParser {
             node.extends = type;
         } else {
             this.pushError(JCM.typeExpected(this.cct.value + ""));
+        }
+    }
+
+    /**
+     * Sets parentTypeScope of given type node and of all type nodes nested inside it,
+     * e.g. Map<String, List<? extends E>>[]
+     */
+    setParentTypeScopeRecursively(typeNode: ASTTypeNode | undefined, scope: TypeScope) {
+        if (!typeNode) return;
+        typeNode.parentTypeScope = scope;
+        switch (typeNode.kind) {
+            case TokenType.genericTypeInstantiation:
+                let genericTypeNode = <ASTGenericTypeInstantiationNode>typeNode;
+                this.setParentTypeScopeRecursively(genericTypeNode.baseType, scope);
+                genericTypeNode.actualTypeArguments.forEach(arg => this.setParentTypeScopeRecursively(arg, scope));
+                break;
+            case TokenType.arrayType:
+                this.setParentTypeScopeRecursively((<ASTArrayTypeNode>typeNode).arrayOf, scope);
+                break;
+            case TokenType.wildcardType:
+                let wildcardTypeNode = <ASTWildcardTypeNode>typeNode;
+                wildcardTypeNode.extends.forEach(ext => this.setParentTypeScopeRecursively(ext, scope));
+                this.setParentTypeScopeRecursively(wildcardTypeNode.super, scope);
+                break;
         }
     }
 

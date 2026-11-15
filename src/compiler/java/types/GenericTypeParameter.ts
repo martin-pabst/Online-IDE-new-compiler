@@ -29,10 +29,11 @@ export class GenericTypeParameter extends NonPrimitiveType {
      *
      * @param identifier
      * @param upperBounds: ? extends B1 & B2 & B3...  B1 can be class or interface, B2, ... only interfaces; The type is SUBtype of B1, B2, ...
+     *                     Wildcards may have a generic type parameter as upper bound, e.g. List<? extends T>
      * @param lowerBound : ? super B: the given type has B as its subtype; B may be a class, interface, enum or generic type parameter
      */
     constructor(identifier: string, module: JavaBaseModule, identifierRange: IRange,
-        public upperBounds: (IJavaClass | IJavaInterface)[] = [], public lowerBound?: NonPrimitiveType) {
+        public upperBounds: (IJavaClass | IJavaInterface | GenericTypeParameter)[] = [], public lowerBound?: NonPrimitiveType) {
         super(identifier, identifierRange, identifier + "@" + GenericTypeParameter.uniqueID++, module);
         this.isWildcard = (this.identifier == '?');
     }
@@ -124,7 +125,7 @@ export class GenericTypeParameter extends NonPrimitiveType {
         }
 
         for (let ub of this.upperBounds) {
-            copy.upperBounds.push(ub.getCopyWithConcreteType(typeMap) as IJavaClass | IJavaInterface);
+            copy.upperBounds.push(ub.getCopyWithConcreteType(typeMap) as IJavaClass | IJavaInterface | GenericTypeParameter);
         }
 
         typeMap.delete(this);
@@ -183,6 +184,11 @@ export class GenericTypeParameter extends NonPrimitiveType {
         if (otherType == this) return true;
 
         if (otherType instanceof GenericTypeParameter) {
+            // e.g. value of type ? extends T fits into variable of type T
+            for (let ub of this.upperBounds) {
+                if (ub instanceof GenericTypeParameter && ub.canImplicitlyCastTo(otherType)) return true;
+            }
+
             if(otherType.catches){
                 otherType.catches.push(this);
                 return true;

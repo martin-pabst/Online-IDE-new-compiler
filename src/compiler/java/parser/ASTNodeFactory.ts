@@ -129,7 +129,8 @@ export class ASTNodeFactory {
                 identifier: identifier,
                 identifierRange: startRange
             }],
-            parentTypeScope: parentTypeScope
+            parentTypeScope: parentTypeScope,
+            isInStaticContext: this.parser.isInStaticContext
         }
     }
 

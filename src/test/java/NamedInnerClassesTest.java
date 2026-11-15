@@ -187,7 +187,7 @@ class Outer {
 
 /**::
  * Static nested class can't reference generic type parameter of outer class
- * { "expectedCompilationError": {"id": "typeNotDefined", "line": 9}}
+ * { "expectedCompilationError": {"id": "typeParameterInStaticContext", "line": 9}}
  */
 
 class Container<T> {

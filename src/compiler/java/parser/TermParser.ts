@@ -51,6 +51,10 @@ export abstract class TermParser extends TokenIterator {
     currentClassOrInterface?: ASTClassDefinitionNode | ASTInterfaceDefinitionNode;
     currentMethod?: ASTMethodDeclarationNode;
 
+    // true while parsing static fields, static methods and static initializers
+    // (generic type parameters of the enclosing class are not accessible there)
+    isInStaticContext: boolean = false;
+
     firstStatementInsideMethodBodyNotYetCompiled: boolean = true;
 
     constructor(public module: JavaCompiledModule) {

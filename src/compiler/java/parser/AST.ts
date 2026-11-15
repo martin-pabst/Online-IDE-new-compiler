@@ -167,7 +167,8 @@ export interface ASTGenericTypeInstantiationNode extends ASTTypeNode {
 
 export interface ASTBaseTypeNode extends ASTTypeNode {
     kind: TokenType.baseType,
-    identifiers: ASTNodeWithIdentifier[]
+    identifiers: ASTNodeWithIdentifier[],
+    isInStaticContext?: boolean     // inside static field, static method or static initializer
 }
 
 // e.g. public int getValue(String key)

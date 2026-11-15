@@ -373,13 +373,15 @@ export class TypeResolver {
                 return undefined;
             case TokenType.wildcardType:
                 let wildcardTypeNode = <ASTWildcardTypeNode>typeNode;
-                let upperBounds: (IJavaClass | IJavaInterface)[] = [];
+                let upperBounds: (IJavaClass | IJavaInterface | GenericTypeParameter)[] = [];
                 for (let ubNode of wildcardTypeNode.extends) {
                     let upperBound = this.resolveTypeNode(ubNode, module);
-                    if (!(upperBound instanceof IJavaClass || upperBound instanceof IJavaInterface)) {
-                        this.pushError(JCM.onlyClassesOrInterfacesAsUpperBounds(), ubNode.range, module);
-                    } else if (upperBound) {
+                    if (!upperBound) continue;  // error message has already been pushed
+                    // ? extends X: X may be a class, interface or generic type parameter
+                    if (upperBound instanceof IJavaClass || upperBound instanceof IJavaInterface || upperBound instanceof GenericTypeParameter) {
                         upperBounds.push(upperBound);
+                    } else {
+                        this.pushError(JCM.onlyClassesOrInterfacesAsUpperBounds(), ubNode.range, module);
                     }
                 }
 
@@ -447,9 +449,12 @@ export class TypeResolver {
         // Generic parameter variable or inner type of this or an enclosing type?
         if (typeNode.parentTypeScope) {
 
-            let typeFromScope = this.findTypeInEnclosingScopes(identifier, typeNode.parentTypeScope);
-            if (typeFromScope instanceof GenericTypeParameter) return typeFromScope;
-            type = typeFromScope;
+            let typeFromScope = this.findTypeInEnclosingScopes(identifier, typeNode.parentTypeScope, typeNode.isInStaticContext == true);
+            if (typeFromScope?.isTypeParameterInStaticContext) {
+                this.pushError(JCM.typeParameterInStaticContext(identifier), typeNode.range, module);
+            }
+            if (typeFromScope?.type instanceof GenericTypeParameter) return typeFromScope.type;
+            type = typeFromScope?.type;
 
             // if (typeNode.identifiers.indexOf(".") >= 0) {
             //     let parentTypeScope1: TypeScope | undefined = parentTypeScope;
@@ -531,19 +536,23 @@ export class TypeResolver {
      * Searches the given scope and all enclosing scopes (method -> class -> outer class -> ...)
      * for a generic type parameter or an inner type with the given identifier.
      *
-     * Generic type parameters of enclosing types are only visible from non-static inner classes,
-     * not from static nested classes, interfaces, enums or classes declared inside interfaces.
+     * Generic type parameters of classes/interfaces may not be used in a static context, i.e. inside
+     * static fields, static methods and static initializers (isStaticContext == true at the start)
+     * and inside static nested classes, interfaces, enums or classes declared inside interfaces
+     * (with respect to the type parameters of their enclosing types).
+     * Like in Java such a type parameter is found nonetheless, but isTypeParameterInStaticContext is set.
      */
-    findTypeInEnclosingScopes(identifier: string, scope: TypeScope | undefined): JavaType | undefined {
-        let isStaticContext: boolean = false;
+    findTypeInEnclosingScopes(identifier: string, scope: TypeScope | undefined, isStaticContext: boolean):
+        { type: JavaType, isTypeParameterInStaticContext: boolean } | undefined {
 
         while (scope && scope.kind != TokenType.global) {
 
             if (scope.kind == TokenType.methodDeclaration) {
+                // generic type parameters of methods are always accessible inside the method, even if it's static
                 let methodDeclarationNode: ASTMethodDeclarationNode = <any>scope;
                 for (let gpNode of methodDeclarationNode.genericParameterDeclarations) {
                     let gp = gpNode.resolvedType;
-                    if (gp && gp.identifier == identifier) return gp;
+                    if (gp && gp.identifier == identifier) return { type: gp, isTypeParameterInStaticContext: false };
                 }
                 scope = methodDeclarationNode.parentTypeScope;
                 continue;
@@ -551,16 +560,16 @@ export class TypeResolver {
 
             let typeDefinitionNode: ASTClassDefinitionNode | ASTInterfaceDefinitionNode | ASTEnumDefinitionNode = <any>scope;
 
-            if (!isStaticContext && typeDefinitionNode.kind != TokenType.keywordEnum) {
+            if (typeDefinitionNode.kind != TokenType.keywordEnum) {
                 for (let gpNode of typeDefinitionNode.genericParameterDeclarations) {
                     let gp = gpNode.resolvedType;
-                    if (gp && gp.identifier == identifier) return gp;
+                    if (gp && gp.identifier == identifier) return { type: gp, isTypeParameterInStaticContext: isStaticContext };
                 }
             }
 
             for (let innerType of typeDefinitionNode.innerTypes) {
                 if (innerType.identifier == identifier && innerType.resolvedType) {
-                    return innerType.resolvedType;
+                    return { type: innerType.resolvedType, isTypeParameterInStaticContext: false };
                 }
             }
 

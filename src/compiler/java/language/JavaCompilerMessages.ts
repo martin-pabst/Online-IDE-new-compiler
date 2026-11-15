@@ -586,6 +586,7 @@ export class JCM {
     })
 
     static cantFindMethod = () => le({
+        "id": "cantFindMethod",
         "de": "Es konnte keine passende Methode mit diesem Bezeichner/mit dieser Signatur gefunden werden.",
         "en": `Can't find method with this identifier and signature.`,
         "fr": `Impossible de trouver une méthode correspondant à cet identifiant et à cette signature.`,
@@ -943,6 +944,13 @@ export class JCM {
         "de": `Hinter extends können nur Interfaces stehen.`,
         "en": `Only interface identifiers are allowed after extends.`,
         "fr": `Seuls les identifiants d'interface sont autorisés après extends.`,
+    })
+
+    static typeParameterInStaticContext = (identifier: string) => le({
+        "id": "typeParameterInStaticContext",
+        "de": `Der generische Typparameter ${identifier} kann nicht in einem statischen Kontext (statisches Attribut, statische Methode, statischer Initialisierungsblock, statische innere Klasse) verwendet werden.`,
+        "en": `Generic type parameter ${identifier} cannot be referenced from a static context (static field, static method, static initializer, static nested class).`,
+        "fr": `Le paramètre de type générique ${identifier} ne peut pas être utilisé dans un contexte statique (attribut statique, méthode statique, bloc d'initialisation statique, classe imbriquée statique).`,
     })
 
     static typeNotDefined = (type: string) => le({

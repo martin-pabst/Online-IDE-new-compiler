@@ -327,6 +327,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             } else if (collectionType.identifier == "Group") {
                 collectionElementType = this.libraryTypestore.getType("Shape")!;
             }
+            collectionElementType = this.replaceWildcardByUpperBound(collectionElementType);
             if (node.elementType.kind != TokenType.varType) {
                 if (!this.typesAreIdentical(elementType!, collectionElementType)) {
                     this.pushError(JCM.wrongCollectionElementType(elementType!.toString(), node.elementIdentifier, collectionElementType.toString()), "error", node.elementIdentifierPosition);
@@ -379,6 +380,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                     collectionElementType = iterableInterface.typeMap.get(iterableInterface.isGenericVariantOf.genericTypeParameters![0])!;
                 }
             }
+            collectionElementType = this.replaceWildcardByUpperBound(collectionElementType);
 
             if (node.elementType.kind != TokenType.varType) {
                 if (elementType == this.stringType && collectionElementType == this.stringNonPrimitiveType) {
@@ -426,6 +428,17 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         this.popSymbolTable();
         return forLoopSnippet;
 
+    }
+
+    /**
+     * Elements of a collection with wildcard element type have the wildcard's upper bound as type,
+     * e.g. List<? extends Number> -> Number, List<? extends T> -> T; List<?> and List<? super X> -> Object
+     */
+    replaceWildcardByUpperBound(type: JavaType): JavaType {
+        if (type instanceof GenericTypeParameter && type.isWildcard) {
+            return type.upperBounds.find(ub => ub.identifier != "Object") ?? this.objectType;
+        }
+        return type;
     }
 
     typesAreIdentical(type1: JavaType, type2: JavaType) {
