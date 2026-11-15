@@ -172,4 +172,8 @@ List<? extends Object> rolesExtendsObject = roles;
 List<? extends Enum> rolesExtendsEnum = roles;
 assertEquals(2, rolesExtendsEnum.size(), "List<enum> assigned to List<? extends Enum>");
 
+List<? super ShuffleTestRole> rolesSuper = roles;
+rolesSuper.add(ShuffleTestRole.WEREWOLF);
+assertEquals(3, roles.size(), "List<? super enum>.add(enum)");
+
 enum ShuffleTestRole { WEREWOLF, VILLAGER }

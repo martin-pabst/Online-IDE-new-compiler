@@ -386,10 +386,11 @@ export class TypeResolver {
                 let type = new GenericTypeParameter("?", module, wildcardTypeNode.range, upperBounds);
                 if (wildcardTypeNode.super) {
                     let lowerBound = this.resolveTypeNode(wildcardTypeNode.super, module);
-                    if (!(lowerBound instanceof IJavaClass)) {
-                        this.pushError(JCM.onlyClassesOrInterfacesAsLowerBounds(), wildcardTypeNode.range, module);
-                    } else {
+                    // ? super X: X may be a class, interface, enum or generic type parameter
+                    if (lowerBound instanceof NonPrimitiveType) {
                         type.lowerBound = lowerBound;
+                    } else if (lowerBound) {
+                        this.pushError(JCM.onlyClassesOrInterfacesAsLowerBounds(), wildcardTypeNode.range, module);
                     }
                 }
 
@@ -650,7 +651,7 @@ export class TypeResolver {
             if (gpNode.super) {
                 let superType = this.resolveTypeNode(gpNode.super, module);
                 if (superType) {
-                    if (superType instanceof IJavaClass) {
+                    if (superType instanceof NonPrimitiveType) {
                         gpType.lowerBound = superType;
                     } else {
                         this.pushError(JCM.onlyClassesOrInterfacesAsLowerBounds(), gpNode.super.range, module);

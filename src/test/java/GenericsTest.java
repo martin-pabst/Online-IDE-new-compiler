@@ -117,3 +117,52 @@ Collection<? extends Number> numbers = integers;
 numbers.add(5);
 
 
+
+/**::
+ * Wildcard with lower bound which is an interface, an enum or a generic type parameter
+ */
+List<Object> objects = new ArrayList<>();
+List<? super LowerBoundShape> shapes = objects;
+shapes.add(new LowerBoundCircle());
+assertEquals(1, objects.size(), "List<? super LowerBoundShape>");
+
+List<Number> numbers = new ArrayList<>();
+List<? super Integer> integers = numbers;
+integers.add(4);
+Collection<? super Integer> integerCollection = integers;
+assertEquals(1, integerCollection.size(), "List<Number> -> List<? super Integer>");
+
+List<? super LowerBoundColor> colors = new ArrayList<LowerBoundColor>();
+colors.add(LowerBoundColor.RED);
+assertEquals(1, colors.size(), "List<? super LowerBoundColor>");
+
+LowerBoundBox<String> box = new LowerBoundBox<>();
+List<Object> target = new ArrayList<>();
+box.value = "abc";
+box.copyTo(target);
+assertEquals(1, target.size(), "copyTo(List<? super T>)");
+
+enum LowerBoundColor { RED, GREEN }
+
+interface LowerBoundShape { }
+
+class LowerBoundCircle implements LowerBoundShape { }
+
+class LowerBoundBox<T> {
+   T value;
+
+   void copyTo(List<? super T> list) {
+      list.add(value);
+   }
+}
+
+/**::
+ * Wildcard with lower bound: type argument has to be a supertype of the lower bound
+ * { "expectedCompilationErrors": [{"id": "cantAssignValueToLocalVariable", "line": 7}, {"id": "cantAssignValueToLocalVariable", "line": 10}]}
+ */
+List<Integer> integerList = new ArrayList<>();
+List<String> stringList = new ArrayList<>();
+List<? super Number> numbers = integerList;
+List<? super Integer> integers = integerList;
+List<? extends Number> extendsNumber = integerList;
+List<? super Integer> integers2 = stringList;

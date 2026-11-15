@@ -228,6 +228,9 @@ export class JavaInterface extends IJavaInterface {
             return true;
         }
 
+        // every interface type can be cast to class Object
+        if (otherType.identifier == 'Object') return true;
+
         if (!(otherType instanceof JavaInterface)) return false;
 
         if (otherType == this) return true;
@@ -235,9 +238,6 @@ export class JavaInterface extends IJavaInterface {
         for (let intf of this.extends) {
             if (intf.canImplicitlyCastTo(otherType)) return true;
         }
-
-        if (otherType.identifier == 'Object') return true;
-
 
         return false;
     }
@@ -444,6 +444,8 @@ export class GenericVariantOfJavaInterface extends IJavaInterface {
             return true;
         }
 
+        // every interface type can be cast to class Object
+        if (otherType.identifier == 'Object') return true;
 
         if (!(otherType instanceof IJavaInterface)) return false;
 
@@ -473,9 +475,13 @@ export class GenericVariantOfJavaInterface extends IJavaInterface {
 
             if (!myType || !othersType) return false;
 
-            let othersTypeIsGenericWildcardParameter = othersType instanceof GenericTypeParameter && othersType.isWildcard;
+            if (othersType instanceof GenericTypeParameter && othersType.isWildcard) {
+                // List<Integer> -> List<? extends Number>, List<Object> -> List<? super Integer>
+                if (!othersType.containsTypeArgument(myType)) return false;
+                continue;
+            }
 
-            if (!(myType.canImplicitlyCastTo(othersType) && (othersTypeIsGenericWildcardParameter || othersType.canImplicitlyCastTo(myType)))) {
+            if (!(myType.canImplicitlyCastTo(othersType) && othersType.canImplicitlyCastTo(myType))) {
                 return false;
             }
 

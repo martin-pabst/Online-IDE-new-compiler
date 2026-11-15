@@ -921,10 +921,10 @@ export class JCM {
     })
 
     static onlyClassesOrInterfacesAsLowerBounds = () => le({
-        "de": `Nur Klassen und Interfaces können als lower bound für einen generischen Typparameter verwendet werden.`
+        "de": `Nur Klassen, Interfaces, Enums und generische Typparameter können als lower bound für einen generischen Typparameter verwendet werden.`
         ,
-        "en": `Only classes and interfaces can be used as lower bound for generic parameter.`,
-        "fr": `Seules les classes et les interfaces peuvent être utilisées comme borne inférieure pour un paramètre générique.`,
+        "en": `Only classes, interfaces, enums and generic type parameters can be used as lower bound for generic parameter.`,
+        "fr": `Seules les classes, les interfaces, les énumérations et les paramètres de type génériques peuvent être utilisés comme borne inférieure pour un paramètre générique.`,
     })
 
     static afterExtendsClassNeeded = () => le({

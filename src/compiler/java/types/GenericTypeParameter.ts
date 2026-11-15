@@ -29,10 +29,10 @@ export class GenericTypeParameter extends NonPrimitiveType {
      *
      * @param identifier
      * @param upperBounds: ? extends B1 & B2 & B3...  B1 can be class or interface, B2, ... only interfaces; The type is SUBtype of B1, B2, ...
-     * @param lowerBound : ? super B: the given type has B as its subtype
+     * @param lowerBound : ? super B: the given type has B as its subtype; B may be a class, interface, enum or generic type parameter
      */
     constructor(identifier: string, module: JavaBaseModule, identifierRange: IRange,
-        public upperBounds: (IJavaClass | IJavaInterface)[] = [], public lowerBound?: IJavaClass) {
+        public upperBounds: (IJavaClass | IJavaInterface)[] = [], public lowerBound?: NonPrimitiveType) {
         super(identifier, identifierRange, identifier + "@" + GenericTypeParameter.uniqueID++, module);
         this.isWildcard = (this.identifier == '?');
     }
@@ -120,7 +120,7 @@ export class GenericTypeParameter extends NonPrimitiveType {
         copy.catches = this.catches;
 
         if (this.lowerBound) {
-            copy.lowerBound = this.lowerBound.getCopyWithConcreteType(typeMap) as IJavaClass;
+            copy.lowerBound = this.lowerBound.getCopyWithConcreteType(typeMap) as NonPrimitiveType;
         }
 
         for (let ub of this.upperBounds) {
@@ -144,6 +144,40 @@ export class GenericTypeParameter extends NonPrimitiveType {
     }
 
 
+    /**
+     * Type argument containment for wildcard type arguments: can SomeType<typeArgument> be cast to SomeType<this>?
+     * e.g. List<Integer> -> List<? extends Number>: Integer has to be subtype of Number,
+     *      List<Object> -> List<? super Integer>: Integer has to be subtype of Object (and not the other way round!)
+     */
+    containsTypeArgument(typeArgument: NonPrimitiveType): boolean {
+        if (typeArgument == this) return true;
+
+        let upperBoundsToCheck = this.upperBounds.filter(ub => ub.identifier != 'Object');
+
+        if (typeArgument instanceof GenericTypeParameter && typeArgument.isWildcard) {
+            // e.g. List<? extends Integer> -> List<? extends Number>; List<? super Number> -> List<? super Integer>
+            for (let ub of upperBoundsToCheck) {
+                if (!typeArgument.upperBounds.some(tub => tub.canImplicitlyCastTo(ub))) return false;
+            }
+            if (!this.lowerBound) return true;
+            return !!typeArgument.lowerBound && this.lowerBound.canImplicitlyCastTo(typeArgument.lowerBound);
+        }
+
+        for (let ub of upperBoundsToCheck) {
+            if (!typeArgument.canImplicitlyCastTo(ub)) return false;
+        }
+
+        if (!this.lowerBound) return true;
+
+        // generic method <T> m(Comparator<? super T> c) called with Comparator<String>: infer T = String
+        if (this.lowerBound instanceof GenericTypeParameter && this.lowerBound.catches) {
+            this.lowerBound.catches.push(typeArgument);
+            return true;
+        }
+
+        return this.lowerBound.canImplicitlyCastTo(typeArgument);
+    }
+
     canImplicitlyCastTo(otherType: JavaType): boolean {
         if (otherType.isPrimitive) return false;
         if (otherType == this) return true;
@@ -153,6 +187,16 @@ export class GenericTypeParameter extends NonPrimitiveType {
                 otherType.catches.push(this);
                 return true;
             }
+
+            // e.g. value of type T fits into parameter of type ? super T
+            if (otherType.isWildcard) {
+                for (let ub of otherType.upperBounds) {
+                    if (!this.canImplicitlyCastTo(ub)) return false;
+                }
+                if (otherType.lowerBound) return this.canImplicitlyCastTo(otherType.lowerBound);
+                return true;
+            }
+
             if (!otherType.lowerBound) return false;
             for (let ub of this.upperBounds) {
                 if (ub.canImplicitlyCastTo(otherType.lowerBound)) return true;
