@@ -4,7 +4,7 @@ import { Dialog } from "./Dialog.js";
 import { ajax } from "../../communication/AjaxHelper.js";
 import jQuery from 'jquery';
 import { UserMenuMessages } from "./language/GUILanguage.js";
-import type { UserData } from "../../communication/Data.js";
+import type { EnrolToClassRequest, EnrolToClassResponse, UserData } from "../../communication/Data.js";
 
 export class UserMenu {
 
@@ -18,27 +18,46 @@ export class UserMenu {
         let $userSettingsButton = jQuery('#buttonUserSettings');
         let that = this;
 
-        if(user.vidis_akronym){
+        let isStudent = !user.is_teacher && !user.is_admin && !user.is_schooladmin && !user.is_testuser;
+        let hasChangePassword = !user.vidis_akronym;
+
+        if (!hasChangePassword && !isStudent) {
             $userSettingsButton.css("display", "none");
         } else {
-            $userSettingsButton.on("click", (e) => {
-    
-                let contextMenuItems: ContextMenuItem[] = [
-                    {
+            $userSettingsButton.css("display", "");
+            $userSettingsButton.off("click").on("click", (e) => {
+                let contextMenuItems: ContextMenuItem[] = [];
+
+                if (hasChangePassword) {
+                    contextMenuItems.push({
                         caption: UserMenuMessages.changePassword() + "...",
                         callback: () => {
                             let passwortChanger = new PasswordChanger(that.main);
                             passwortChanger.show();
                         }
-                    }
-                ]
-    
-    
+                    });
+                }
+
+                if (isStudent) {
+                    contextMenuItems.push({
+                        caption: UserMenuMessages.enrolInClass(),
+                        callback: () => {
+                            let key = prompt(UserMenuMessages.enterEnrolmentKey());
+                            if (key == null || key.trim() === "") return;
+
+                            let request: EnrolToClassRequest = { key: key.trim() };
+                            ajax("enrolInClass", request, (response: EnrolToClassResponse) => {
+                                alert(UserMenuMessages.enrolInClassSuccess(response.className ?? ""));
+                            }, (message: string) => {
+                                alert(UserMenuMessages.enrolInClassError(message));
+                            });
+                        }
+                    });
+                }
+
                 openContextMenu(contextMenuItems, $userSettingsButton.offset().left, $userSettingsButton.offset().top + $userSettingsButton.height());
-    
             });
         }
-
 
     }
 

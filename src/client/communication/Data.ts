@@ -7,6 +7,14 @@ export type BaseResponse = {
     message: string;
 }
 
+export type EnrolToClassRequest = {
+    key: string;
+}
+
+export type EnrolToClassResponse = BaseResponse & {
+    className?: string;
+}
+
 export type GuiState = {
     helperHistory: {
         newWorkspaceHelperDone: boolean,

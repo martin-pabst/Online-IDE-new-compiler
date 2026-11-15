@@ -657,6 +657,26 @@ export class UserMenuMessages {
         'en': 'Setting new password was successful.'
     });
 
+    static enrolInClass = () => lm({
+        'de': 'In Klasse einschreiben',
+        'en': 'Enrol in class'
+    });
+
+    static enterEnrolmentKey = () => lm({
+        'de': 'Bitte geben Sie den Einschreibeschlüssel ein:',
+        'en': 'Please enter the enrolment key:'
+    });
+
+    static enrolInClassSuccess = (className: string) => lm({
+        'de': 'Du bist jetzt der Klasse ' + className + ' zugeordnet.',
+        'en': 'You are now enrolled in class ' + className + '.'
+    });
+
+    static enrolInClassError = (message: string) => lm({
+        'de': 'Fehler beim Zuordnen zur Klasse: ' + message,
+        'en': 'Error enrolling in class: ' + message
+    });
+
 
 }
 
