@@ -31,7 +31,9 @@ assertEquals("a", queue.poll(), "Diamond: local variable of implemented interfac
 
 // a % 10 only compiles if a has inferred type Integer
 Collection<? super Integer> coll = new PriorityQueue<>((a, b) -> a % 10 - b % 10);
-assertTrue(coll.isEmpty(), "Diamond: local variable with wildcard type argument");
+coll.add(29);
+coll.add(31);
+assertEquals("[31, 29]", coll.toString(), "Diamond: local variable with wildcard type argument");
 
 PriorityQueue<Integer> fromList = new PriorityQueue<>(new ArrayList<>());
 fromList.add(2);
@@ -92,5 +94,26 @@ class Scheduler {
       return new PriorityQueue<>((s1, s2) -> s1.length() - s2.length());
    }
 }
+
+/**::
+ * Wildcard with lower bound: primitive values can be passed to parameters of type ? super X
+ */
+
+Collection<? super Integer> coll = new ArrayList<Integer>();
+coll.add(5);
+coll.add(7);
+assertEquals(2, coll.size(), "Collection<? super Integer>.add(int)");
+assertTrue(coll.contains(7), "Collection<? super Integer>.contains(int)");
+
+Comparator<? super Integer> comparator = (a, b) -> a - b;
+assertTrue(comparator.compare(3, 5) < 0, "Comparator<? super Integer>.compare(int, int)");
+
+/**::
+ * Wildcard with upper bound: adding a value is not allowed (like in java)
+ * { "expectedCompilationError": {"id": "cantCastType", "line": 7}}
+ */
+ArrayList<Integer> integers = new ArrayList<>();
+Collection<? extends Number> numbers = integers;
+numbers.add(5);
 
 

@@ -560,6 +560,12 @@ export abstract class BinopCastCodeGenerator {
 
         // from here on type is primitive!
         if (!castTo.isPrimitive) {
+            // wildcard with lower bound, e.g. Collection<? super Integer> c; c.add(5);
+            // Value fits to ? super X if it fits to X.
+            if (castTo instanceof GenericTypeParameter && castTo.isWildcard && castTo.lowerBound) {
+                return this.compileCast(snippet, castTo.lowerBound, castType);
+            }
+
             let boxedTypeIndex = boxedTypesMap[castTo.identifier];
             let fromIndex = primitiveTypeMap[type.identifier];
             let toIndex = boxedTypeIndex;
