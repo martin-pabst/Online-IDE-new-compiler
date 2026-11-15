@@ -879,6 +879,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         }
 
+        this.missingStatementManager.endBranching();
+
 
         switchSnippet.addParts(breakLabel);
         this.breakStack.pop();
