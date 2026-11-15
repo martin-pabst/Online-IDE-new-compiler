@@ -5331,6 +5331,94 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
     })
 
     /**
+     * class PriorityQueue
+     */
+    static priorityQueueClassComment = () => lm({
+        "de": "Warteschlange, die ihre Elemente nach Priorität ordnet: Am Kopf steht immer das kleinste Element (gemäß der natürlichen Ordnung der Elemente oder gemäß dem Comparator, der dem Konstruktor übergeben wurde). Elemente gleicher Priorität werden in der Reihenfolge entnommen, in der sie eingefügt wurden. iterator(), toArray() und toString() liefern die Elemente in Prioritätsreihenfolge. null-Elemente sind nicht erlaubt.",
+        "en": "A queue that orders its elements by priority: its head is always the least element with respect to the elements' natural ordering or to the Comparator passed to the constructor. Elements of equal priority are retrieved in insertion order. iterator(), toArray() and toString() return the elements in priority order. null elements are not permitted.",
+    })
+
+    static priorityQueueConstructorComment = () => lm({
+        "de": "Erzeugt eine neue, leere PriorityQueue, die ihre Elemente nach ihrer natürlichen Ordnung anordnet. Die Elemente müssen dazu das Interface Comparable implementieren (String, Integer, Double, ... tun das bereits).",
+        "en": "Creates an empty PriorityQueue that orders its elements according to their natural ordering. The elements have to implement interface Comparable (String, Integer, Double, ... already do).",
+    })
+
+    static priorityQueueConstructorCollectionComment = () => lm({
+        "de": "Erzeugt eine neue PriorityQueue, die alle Elemente der übergebenen Collection enthält. Ist die Collection selbst eine PriorityQueue, so wird deren Comparator übernommen, ansonsten werden die Elemente nach ihrer natürlichen Ordnung angeordnet.",
+        "en": "Creates a PriorityQueue containing the elements of the specified collection. If the collection is a PriorityQueue itself, its comparator is used, otherwise the elements are ordered according to their natural ordering.",
+    })
+
+    static priorityQueueConstructorComparatorComment = () => lm({
+        "de": "Erzeugt eine neue, leere PriorityQueue, die ihre Elemente mithilfe des übergebenen Comparators anordnet. Am Kopf der Warteschlange steht das Element, das laut Comparator das kleinste ist.",
+        "en": "Creates an empty PriorityQueue that orders its elements according to the specified comparator. The head of the queue is the least element with respect to the comparator.",
+    })
+
+    static priorityQueueAddComment = () => lm({
+        "de": "Fügt das Element gemäß seiner Priorität in die Warteschlange ein und gibt true zurück. Elemente gleicher Priorität werden hinter den bereits vorhandenen eingeordnet.",
+        "en": "Inserts the specified element into this priority queue according to its priority and returns true. Elements of equal priority are placed behind the ones already present.",
+    })
+
+    static priorityQueuePeekComment = () => lm({
+        "de": "Gibt das Element mit der höchsten Priorität (d.h. das kleinste Element) zurück, ohne es zu entfernen. Gibt null zurück, wenn die Warteschlange leer ist.",
+        "en": "Retrieves, but does not remove, the head (i.e. the least element) of this queue, or returns null if this queue is empty.",
+    })
+
+    static priorityQueuePollComment = () => lm({
+        "de": "Entfernt das Element mit der höchsten Priorität (d.h. das kleinste Element) und gibt es zurück. Gibt null zurück, wenn die Warteschlange leer ist.",
+        "en": "Retrieves and removes the head (i.e. the least element) of this queue, or returns null if this queue is empty.",
+    })
+
+    static priorityQueueRemoveHeadComment = () => lm({
+        "de": "Entfernt das Element mit der höchsten Priorität (d.h. das kleinste Element) und gibt es zurück. Wirft eine NoSuchElementException, wenn die Warteschlange leer ist.",
+        "en": "Retrieves and removes the head (i.e. the least element) of this queue. Throws a NoSuchElementException if this queue is empty.",
+    })
+
+    static priorityQueueElementComment = () => lm({
+        "de": "Gibt das Element mit der höchsten Priorität (d.h. das kleinste Element) zurück, ohne es zu entfernen. Wirft eine NoSuchElementException, wenn die Warteschlange leer ist.",
+        "en": "Retrieves, but does not remove, the head (i.e. the least element) of this queue. Throws a NoSuchElementException if this queue is empty.",
+    })
+
+    static priorityQueueIteratorComment = () => lm({
+        "de": "Gibt einen Iterator zurück, der die Elemente in Prioritätsreihenfolge durchläuft (beginnend mit dem kleinsten Element).",
+        "en": "Returns an iterator over the elements in this queue in priority order (starting with the least element).",
+    })
+
+    static priorityQueueToArrayComment = () => lm({
+        "de": "Gibt ein Array zurück, das alle Elemente der Warteschlange in Prioritätsreihenfolge enthält.",
+        "en": "Returns an array containing all of the elements in this queue in priority order.",
+    })
+
+    static priorityQueueNullElementException = () => lm({
+        "de": "Eine PriorityQueue kann keine null-Elemente enthalten.",
+        "en": "A PriorityQueue can't contain null elements.",
+    })
+
+    static priorityQueueIsEmptyException = () => lm({
+        "de": "Die PriorityQueue ist leer, daher gibt es kein Element mit höchster Priorität.",
+        "en": "The PriorityQueue is empty, so there is no head element.",
+    })
+
+    static priorityQueueIteratorNoMoreElementsException = () => lm({
+        "de": "Der Iterator hat bereits alle Elemente der PriorityQueue geliefert.",
+        "en": "The iterator has already returned all elements of the PriorityQueue.",
+    })
+
+    static priorityQueueNotComparableException = (className: string) => lm({
+        "de": `Die Klasse ${className} implementiert nicht das Interface Comparable. Übergib dem Konstruktor der PriorityQueue einen Comparator oder lass die Klasse ${className} das Interface Comparable<${className}> implementieren.`,
+        "en": `Class ${className} doesn't implement interface Comparable. Pass a Comparator to the constructor of PriorityQueue or let class ${className} implement Comparable<${className}>.`,
+    })
+
+    static priorityQueueIncomparableTypesException = (className1: string, className2: string) => lm({
+        "de": `Objekte der Klassen ${className1} und ${className2} können nicht miteinander verglichen werden.`,
+        "en": `Objects of classes ${className1} and ${className2} can't be compared to each other.`,
+    })
+
+    static priorityQueueAddAllToItselfException = () => lm({
+        "de": "Eine PriorityQueue kann nicht zu sich selbst hinzugefügt werden.",
+        "en": "A PriorityQueue can't be added to itself.",
+    })
+
+    /**
      * interface Map
      */
     static mapInterfaceComment = () => lm({

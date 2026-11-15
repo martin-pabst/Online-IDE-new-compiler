@@ -106,6 +106,7 @@ import { IteratorInterface } from "./collections/IteratorInterface.ts";
 import { LinkedListClass } from "./collections/LinkedListClass.ts";
 import { ListInterface } from "./collections/ListInterface.ts";
 import { MapInterface } from "./collections/MapInterface.ts";
+import { PriorityQueueClass } from "./collections/PriorityQueueClass.ts";
 import { QueueInterface } from "./collections/QueueInterface.ts";
 import { SetInterface } from "./collections/SetInterface.ts";
 import { StackClass } from "./collections/StackClass.ts";
@@ -235,7 +236,7 @@ export class SystemModule extends JavaLibraryModule {
             IteratorInterface, IterableInterface, CollectionInterface, ListInterface, ArrayListClass, CopyOnWriteArrayListClass,
 
             CollectionsClass,
-            QueueInterface, DequeInterface, LinkedListClass,
+            QueueInterface, DequeInterface, LinkedListClass, PriorityQueueClass,
             SetInterface, MapInterface, HashMapClass, HashSetClass,
             VectorClass, StackClass,
             StreamInterface, SystemStreamClass,
