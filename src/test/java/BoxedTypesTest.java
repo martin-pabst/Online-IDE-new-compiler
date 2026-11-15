@@ -155,3 +155,83 @@ assertEquals(10, Byte.valueOf("a", 16).intValue(), "Byte.valueOf(String, int)");
 assertEquals(5, Short.valueOf("5").intValue(), "Short.valueOf(String)");
 assertEquals(-1200, Short.valueOf("-1200").intValue(), "Short.valueOf(String)");
 assertEquals(255, Short.valueOf("ff", 16).intValue(), "Short.valueOf(String, int)");
+
+/**::
+ * Integer.parseInt, Integer.valueOf(String) and NumberFormatException
+ */
+
+assertEquals(0, Integer.parseInt("0"), "Integer.parseInt(\"0\")");
+assertEquals(0, Integer.parseInt("-0"), "Integer.parseInt(\"-0\")");
+assertEquals(0, Integer.parseInt("+0"), "Integer.parseInt(\"+0\")");
+assertEquals(42, Integer.parseInt("42"), "Integer.parseInt(\"42\")");
+assertEquals(42, Integer.parseInt("+42"), "Integer.parseInt(\"+42\")");
+assertEquals(-42, Integer.parseInt("-42"), "Integer.parseInt(\"-42\")");
+assertEquals(123, Integer.parseInt("0000000000000000000000123"), "Integer.parseInt with leading zeros");
+assertEquals(Integer.MAX_VALUE, Integer.parseInt("2147483647"), "Integer.parseInt(MAX_VALUE)");
+assertEquals(Integer.MIN_VALUE, Integer.parseInt("-2147483648"), "Integer.parseInt(MIN_VALUE)");
+
+assertEquals(255, Integer.parseInt("ff", 16), "Integer.parseInt(\"ff\", 16)");
+assertEquals(255, Integer.parseInt("+FF", 16), "Integer.parseInt(\"+FF\", 16)");
+assertEquals(Integer.MAX_VALUE, Integer.parseInt("7fffffff", 16), "Integer.parseInt(\"7fffffff\", 16)");
+assertEquals(Integer.MIN_VALUE, Integer.parseInt("-80000000", 16), "Integer.parseInt(\"-80000000\", 16)");
+assertEquals(42, Integer.parseInt("101010", 2), "Integer.parseInt(\"101010\", 2)");
+assertEquals(-5, Integer.parseInt("-101", 2), "Integer.parseInt(\"-101\", 2)");
+assertEquals(35, Integer.parseInt("z", 36), "Integer.parseInt(\"z\", 36)");
+assertEquals(-35, Integer.parseInt("-Z", 36), "Integer.parseInt(\"-Z\", 36)");
+
+assertEquals(42, Integer.valueOf("42").intValue(), "Integer.valueOf(\"42\")");
+assertEquals(255, Integer.valueOf("ff", 16).intValue(), "Integer.valueOf(\"ff\", 16)");
+assertEquals(42, new Integer("42").intValue(), "new Integer(\"42\")");
+
+String[] invalidStrings = {
+    "12b", "", "+", "-", " 12", "12 ", "--1", "+-1", "12_3",
+    "2147483648", "-2147483649", "99999999999999", null
+};
+
+for (String s : invalidStrings) {
+    boolean caught = false;
+    try {
+        Integer.parseInt(s);
+    } catch (NumberFormatException e) {
+        caught = true;
+        assertTrue(e instanceof IllegalArgumentException, "NumberFormatException must be an IllegalArgumentException");
+    }
+    assertTrue(caught, "NumberFormatException expected for parseInt(" + s + ")");
+}
+
+String[][] invalidRadixCases = {
+    {"0x10", "16"},
+    {"80000000", "16"},
+    {"8", "8"},
+    {"2", "2"},
+    {"12", "1"},
+    {"12", "37"},
+    {"12", "0"},
+    {"12", "-10"}
+};
+
+for (String[] testCase : invalidRadixCases) {
+    boolean caught = false;
+    try {
+        Integer.parseInt(testCase[0], Integer.parseInt(testCase[1]));
+    } catch (IllegalArgumentException e) {
+        caught = true;
+    }
+    assertTrue(caught, "NumberFormatException expected for parseInt(" + testCase[0] + ", " + testCase[1] + ")");
+}
+
+boolean caughtValueOf = false;
+try {
+    Integer.valueOf("12b");
+} catch (NumberFormatException e) {
+    caughtValueOf = true;
+}
+assertTrue(caughtValueOf, "NumberFormatException expected for Integer.valueOf(\"12b\")");
+
+boolean caughtCtor = false;
+try {
+    new Integer("12b");
+} catch (NumberFormatException e) {
+    caughtCtor = true;
+}
+assertTrue(caughtCtor, "NumberFormatException expected for new Integer(\"12b\")");

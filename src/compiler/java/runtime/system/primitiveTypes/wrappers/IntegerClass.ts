@@ -1,7 +1,7 @@
 import { Thread } from "../../../../../common/interpreter/Thread";
 import { LibraryDeclarations } from "../../../../module/libraries/DeclareType";
 import { NonPrimitiveType } from "../../../../types/NonPrimitiveType";
-import { ArithmeticExceptionClass } from "../../javalang/ArithmeticExceptionClass";
+import { NumberFormatExceptionClass } from "../../javalang/NumberFormatExceptionClass";
 import { StringClass } from "../../javalang/ObjectClassStringClass";
 import { NumberClass } from "./NumberClass";
 
@@ -11,6 +11,11 @@ import { NumberClass } from "./NumberClass";
 export class IntegerClass extends NumberClass {
 
     static isPrimitiveTypeWrapper: boolean = true;
+
+    static readonly MIN_VALUE = -0x80000000;
+    static readonly MAX_VALUE = 0x80000000 - 1;
+    static readonly MIN_RADIX = 2;
+    static readonly MAX_RADIX = 36;
 
     static __javaDeclarations: LibraryDeclarations = [
         {type: "declaration", signature: "class Integer extends Number implements Comparable<Integer>"},
@@ -26,7 +31,7 @@ export class IntegerClass extends NumberClass {
         {type: "method", signature: "public final long longValue()", native: IntegerClass.prototype.longValue, template: "§1.value"},
         {type: "method", signature: "public int compareTo(Integer anotherInteger)", java: IntegerClass.prototype._mj$compareTo$int$T},
         {type: "method", signature: "public static int parseInt(String s)", native: IntegerClass.parseInt},
-        {type: "method", signature: "public static int parseInt(String sr, int radix)", native: IntegerClass.parseInt},
+        {type: "method", signature: "public static int parseInt(String s, int radix)", native: IntegerClass.parseInt},
         {type: "method", signature: "public static Integer valueOf(int i)", native: IntegerClass.valueOf},
         {type: "method", signature: "public static Integer valueOf(string s)", native: IntegerClass.valueOfString},
         {type: "method", signature: "public static Integer valueOf(string s, int radix)", native: IntegerClass.valueOfString},
@@ -49,12 +54,8 @@ export class IntegerClass extends NumberClass {
     }
 
     _constructorString(value: string){
-        try{
-            let v = Number.parseInt(value);
-            return new IntegerClass(v);
-        } catch(ex){
-            throw new ArithmeticExceptionClass("\"" + value + "\" is no integer.");
-        }
+        this.value = IntegerClass.parseIntString(value, 10);
+        return this;
     }
 
     _mj$compareTo$int$T(t: Thread, callback: CallableFunction, otherValue: IntegerClass){
@@ -63,8 +64,75 @@ export class IntegerClass extends NumberClass {
         return;
     }
 
-    static parseInt(s: StringClass, radix: number = 10){
-        return (Number.parseInt(s.value, radix) + 0x80000000) % 0x100000000 - 0x80000000;
+    private static digit(charCode: number, radix: number): number {
+        let digit = -1;
+        if (charCode >= 48 && charCode <= 57) {
+            digit = charCode - 48;
+        } else if (charCode >= 65 && charCode <= 90) {
+            digit = charCode - 65 + 10;
+        } else if (charCode >= 97 && charCode <= 122) {
+            digit = charCode - 97 + 10;
+        }
+        return digit < radix ? digit : -1;
+    }
+
+    static parseIntString(s: string | null | undefined, radix: number = 10): number {
+        if (s == null) {
+            throw new NumberFormatExceptionClass("Cannot parse null string");
+        }
+        if (radix < IntegerClass.MIN_RADIX) {
+            throw new NumberFormatExceptionClass(`radix ${radix} less than Character.MIN_RADIX`);
+        }
+        if (radix > IntegerClass.MAX_RADIX) {
+            throw new NumberFormatExceptionClass(`radix ${radix} greater than Character.MAX_RADIX`);
+        }
+
+        const len = s.length;
+        if (len === 0) {
+            throw new NumberFormatExceptionClass(`For input string: "${s}"`);
+        }
+
+        let i = 0;
+        let negative = false;
+        let limit = -IntegerClass.MAX_VALUE;
+
+        const firstChar = s.charCodeAt(0);
+        if (firstChar < 48) { // Possible leading "+" or "-"
+            if (firstChar === 45) { // '-'
+                negative = true;
+                limit = IntegerClass.MIN_VALUE;
+            } else if (firstChar !== 43) { // '+'
+                throw new NumberFormatExceptionClass(`For input string: "${s}"`);
+            }
+            if (len === 1) { // Cannot have lone "+" or "-"
+                throw new NumberFormatExceptionClass(`For input string: "${s}"`);
+            }
+            i++;
+        }
+
+        // Accumulate as negative so Integer.MIN_VALUE (-2147483648) does not overflow
+        const multmin = Math.trunc(limit / radix);
+        let result = 0;
+
+        while (i < len) {
+            const digit = IntegerClass.digit(s.charCodeAt(i++), radix);
+            if (digit < 0 || result < multmin) {
+                throw new NumberFormatExceptionClass(`For input string: "${s}"`);
+            }
+            result *= radix;
+            if (result < limit + digit) {
+                throw new NumberFormatExceptionClass(`For input string: "${s}"`);
+            }
+            result -= digit;
+        }
+
+        if (result === 0) return 0;
+        return negative ? result : -result;
+    }
+
+    static parseInt(s: StringClass | string | null, radix: number = 10): number {
+        const str = s == null ? null : (typeof s === "string" ? s : s.value);
+        return IntegerClass.parseIntString(str, radix);
     }
 
     intValue(){
@@ -87,8 +155,8 @@ export class IntegerClass extends NumberClass {
         return new IntegerClass(i);
     }
 
-    static valueOfString(s: string, radix: number): IntegerClass {
-        return new IntegerClass((Number.parseInt(s, radix) + 0x80000000) % 0x100000000 - 0x80000000);
+    static valueOfString(s: string, radix: number = 10): IntegerClass {
+        return new IntegerClass(IntegerClass.parseIntString(s, radix));
     }
 
     static toBinary(number: number): string {

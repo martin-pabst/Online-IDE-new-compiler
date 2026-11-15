@@ -4375,6 +4375,11 @@ rectMode(RADIUS) also uses the first two parameters as the x- and y-coordinates 
         "en": "Thrown by String.format, String.formatted and System.out.printf when the format string contains illegal syntax, a format specifier is incompatible with the given argument or too few arguments are given.",
     })
 
+    static NumberFormatExceptionClassComment = () => lm({
+        "de": "Wird geworfen, um anzuzeigen, dass eine Zeichenkette nicht in einen numerischen Typ umgewandelt werden konnte, da sie kein gültiges Zahlenformat hat.",
+        "en": "Thrown to indicate that the application has attempted to convert a string to one of the numeric types, but that the string does not have the appropriate format.",
+    })
+
     /**
      * class Gamepad
      */
