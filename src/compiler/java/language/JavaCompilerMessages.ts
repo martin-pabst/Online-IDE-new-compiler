@@ -71,6 +71,7 @@ export class JCM {
     })
 
     static cantCastType = (srcIdentifier: string, destIdentifier: string) => le({
+        "id": "cantCastType",
         "de": "Der Typ " + srcIdentifier + " kann nicht in den Typ " + destIdentifier + " gecastet werden.",
         "en": `Can't cast ${srcIdentifier} to ${destIdentifier}.`,
         "fr": `Impossible de convertir ${srcIdentifier} en ${destIdentifier}.`,

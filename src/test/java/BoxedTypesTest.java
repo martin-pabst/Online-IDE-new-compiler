@@ -96,3 +96,62 @@ booleans.add(false);
 booleans.add(true);
 Collections.sort(booleans);
 assertEquals("[false, true, true]", booleans.toString(), "Collections.sort(List<Boolean>)");
+
+/**::
+ * compareTo of Integer, Long, Float, Double (-1, 0, 1) and Byte, Short (difference) like in java
+ */
+
+Integer i3 = 3;
+Integer i7 = 7;
+assertEquals(-1, i3.compareTo(i7), "Integer.compareTo");
+assertEquals(1, i7.compareTo(i3), "Integer.compareTo");
+assertEquals(0, i3.compareTo(3), "Integer.compareTo");
+
+Long l3 = 3L;
+Long l7 = 7L;
+assertEquals(-1, l3.compareTo(l7), "Long.compareTo");
+assertEquals(1, l7.compareTo(l3), "Long.compareTo");
+
+Double d1 = 2.5;
+Double d2 = 2.25;
+assertEquals(1, d1.compareTo(d2), "Double.compareTo");
+assertEquals(-1, d2.compareTo(d1), "Double.compareTo");
+assertEquals(0, d1.compareTo(2.5), "Double.compareTo");
+
+Double nan = Math.sqrt(-1);
+Double infinity = Double.POSITIVE_INFINITY;
+assertEquals(1, nan.compareTo(infinity), "Double.compareTo: NaN is greater than infinity");
+assertEquals(0, nan.compareTo(nan), "Double.compareTo: NaN equals NaN");
+
+Float f1 = 1.5f;
+Float f2 = 1.25f;
+assertEquals(1, f1.compareTo(f2), "Float.compareTo");
+assertEquals(-1, f2.compareTo(f1), "Float.compareTo");
+
+Byte b3 = (byte) 3;
+Byte b7 = (byte) 7;
+assertEquals(-4, b3.compareTo(b7), "Byte.compareTo(Byte)");
+
+Short s3 = (short) 3;
+Short s7 = (short) 7;
+assertEquals(4, s7.compareTo(s3), "Short.compareTo(Short)");
+
+/**::
+ * Byte and Short: boxing and valueOf(String)
+ */
+
+byte b = (byte) 5;
+Object o = b;
+assertTrue(o instanceof Byte, "Boxing of byte");
+
+ArrayList<Byte> bytes = new ArrayList<>();
+bytes.add((byte) 12);
+assertEquals("[12]", bytes.toString(), "ArrayList<Byte>");
+
+assertEquals(5, Byte.valueOf("5").intValue(), "Byte.valueOf(String)");
+assertEquals(-7, Byte.valueOf("-7").intValue(), "Byte.valueOf(String)");
+assertEquals(10, Byte.valueOf("a", 16).intValue(), "Byte.valueOf(String, int)");
+
+assertEquals(5, Short.valueOf("5").intValue(), "Short.valueOf(String)");
+assertEquals(-1200, Short.valueOf("-1200").intValue(), "Short.valueOf(String)");
+assertEquals(255, Short.valueOf("ff", 16).intValue(), "Short.valueOf(String, int)");

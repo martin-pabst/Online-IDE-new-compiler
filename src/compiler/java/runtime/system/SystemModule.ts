@@ -156,6 +156,7 @@ import { IntegerClass } from "./primitiveTypes/wrappers/IntegerClass";
 import { LongClass } from "./primitiveTypes/wrappers/LongClass.ts";
 import { NumberClass } from "./primitiveTypes/wrappers/NumberClass";
 import { ShortClass } from "./primitiveTypes/wrappers/ShortClass.ts";
+import { ByteClass } from "./primitiveTypes/wrappers/ByteClass.ts";
 import { Sprite3dClass } from "../graphics/3d/FastSprite/Sprite3dClass.ts";
 import { ClassClass } from "./ClassClass.ts";
 import { Icosahedron3dClass } from "../graphics/3d/Icosahedron3dClass.ts";
@@ -222,7 +223,7 @@ export class SystemModule extends JavaLibraryModule {
             // Functional
             ConsumerInterface, BiConsumerInterface, FunctionInterface, PredicateInterface,
 
-            NumberClass, IntegerClass, LongClass, FloatClass, DoubleClass, ShortClass, BooleanClass, CharacterClass,  // boxed primitive types
+            NumberClass, IntegerClass, LongClass, FloatClass, DoubleClass, ShortClass, ByteClass, BooleanClass, CharacterClass,  // boxed primitive types
 
             OptionalClass,
 

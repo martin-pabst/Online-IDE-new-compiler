@@ -36,6 +36,31 @@ export class NumberClass extends ObjectClass implements IPrimitiveTypeWrapper {
         return "" + this.value;
     }
 
+    /**
+     * Like Integer.compare and Long.compare in java: returns -1, 0 or 1
+     */
+    static compareIntegral(a: number, b: number): number {
+        return a < b ? -1 : (a > b ? 1 : 0);
+    }
+
+    /**
+     * Like Double.compare and Float.compare in java: returns -1, 0 or 1. NaN is considered greater than
+     * all other values (including positive infinity) and equal to itself; -0.0 is less than 0.0.
+     */
+    static compareFloatingPoint(a: number, b: number): number {
+        if (a < b) return -1;
+        if (a > b) return 1;
+        if (a == b) {
+            let aIsNegativeZero = Object.is(a, -0);
+            let bIsNegativeZero = Object.is(b, -0);
+            return aIsNegativeZero == bIsNegativeZero ? 0 : (aIsNegativeZero ? -1 : 1);
+        }
+        // at least one of a and b is NaN
+        let aIsNaN = Number.isNaN(a);
+        let bIsNaN = Number.isNaN(b);
+        return aIsNaN == bIsNaN ? 0 : (aIsNaN ? 1 : -1);
+    }
+
     __internalHashCode(): any {
         return this.value;
     }

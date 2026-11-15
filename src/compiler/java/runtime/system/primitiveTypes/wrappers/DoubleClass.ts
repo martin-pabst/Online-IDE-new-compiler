@@ -33,7 +33,7 @@ export class DoubleClass extends NumberClass {
     static type: NonPrimitiveType;
 
     constructor(i: number){
-        super(i || 0);
+        super(i ?? 0);      // not i || 0: NaN and -0.0 have to be preserved
     }
 
     _constructorDouble(d: number) {
@@ -42,7 +42,7 @@ export class DoubleClass extends NumberClass {
     }
 
     _mj$compareTo$int$T(t: Thread, callback: CallableFunction, otherValue: DoubleClass){
-        t.s.push(this.value - otherValue.value);
+        t.s.push(NumberClass.compareFloatingPoint(this.value, otherValue.value));
         if(callback) callback();
         return;
     }

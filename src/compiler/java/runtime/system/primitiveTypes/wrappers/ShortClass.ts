@@ -28,7 +28,7 @@ export class ShortClass extends NumberClass {
         {type: "method", signature: "public static short parseShort(String sr, int radix)", native: ShortClass.parseShort},
         {type: "method", signature: "public static Short valueOf(short i)", native: ShortClass.valueOf},
         {type: "method", signature: "public static Short valueOf(String s)", native: ShortClass.valueOfString},
-        {type: "method", signature: "public static Short valueOf(String s, short radix)", native: ShortClass.valueOfString},
+        {type: "method", signature: "public static Short valueOf(String s, int radix)", native: ShortClass.valueOfString},
     ]
 
     static type: NonPrimitiveType;
@@ -72,8 +72,8 @@ export class ShortClass extends NumberClass {
         return new ShortClass(i);
     }
 
-    static valueOfString(s: string, radix: number): ShortClass {
-        return new ShortClass(Number.parseInt(s, radix) % 0x10000 - 0x8000);
+    static valueOfString(s: StringClass, radix: number = 10): ShortClass {
+        return new ShortClass(ShortClass.parseShort(s, radix));
     }
 
 }

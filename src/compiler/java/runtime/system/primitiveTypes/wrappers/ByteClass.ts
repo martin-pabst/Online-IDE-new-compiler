@@ -23,12 +23,12 @@ export class ByteClass extends NumberClass {
         {type: "method", signature: "public final float floatValue()", native: ByteClass.prototype.floatValue, template: "§1.value"},
         {type: "method", signature: "public final int intValue()", native: ByteClass.prototype.intValue, template: "§1.value"},
         {type: "method", signature: "public final long longValue()", native: ByteClass.prototype.longValue, template: "§1.value"},
-        {type: "method", signature: "public int compareTo(Short otherShort)", java: ByteClass.prototype._mj$compareTo$int$T},
+        {type: "method", signature: "public int compareTo(Byte anotherByte)", java: ByteClass.prototype._mj$compareTo$int$T},
         {type: "method", signature: "public static byte parseByte(String s)", native: ByteClass.parseByte},
         {type: "method", signature: "public static byte parseByte(String sr, int radix)", native: ByteClass.parseByte},
         {type: "method", signature: "public static Byte valueOf(byte i)", native: ByteClass.valueOf},
         {type: "method", signature: "public static Byte valueOf(String s)", native: ByteClass.valueOfString},
-        {type: "method", signature: "public static Byte valueOf(String s, byte radix)", native: ByteClass.valueOfString},
+        {type: "method", signature: "public static Byte valueOf(String s, int radix)", native: ByteClass.valueOfString},
     ]
 
     static type: NonPrimitiveType;
@@ -73,8 +73,8 @@ export class ByteClass extends NumberClass {
         return new ByteClass(i);
     }
 
-    static valueOfString(s: string, radix: number): ByteClass {
-        return new ByteClass(Number.parseInt(s, radix) % 0x100 - 0x80);
+    static valueOfString(s: StringClass, radix: number = 10): ByteClass {
+        return new ByteClass(ByteClass.parseByte(s, radix));
     }
 
 }

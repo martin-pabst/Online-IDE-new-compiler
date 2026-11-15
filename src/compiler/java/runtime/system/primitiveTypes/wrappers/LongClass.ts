@@ -43,7 +43,7 @@ export class LongClass extends NumberClass {
     }
 
     _mj$compareTo$int$T(t: Thread, callback: CallableFunction, otherValue: LongClass){
-        t.s.push(this.value - otherValue.value);
+        t.s.push(NumberClass.compareIntegral(this.value, otherValue.value));
         if(callback) callback();
         return;
     }

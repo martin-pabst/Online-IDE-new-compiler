@@ -425,7 +425,7 @@ export class PriorityQueueClass extends SystemCollection implements BaseListType
 
         switch (kind) {
             case "string": return (<string>a.value).localeCompare(b.value);
-            case "number": return a.value < b.value ? -1 : (a.value > b.value ? 1 : 0);
+            case "number": return NumberClass.compareFloatingPoint(a.value, b.value);
             case "char": return (<string>a.value).charCodeAt(0) - (<string>b.value).charCodeAt(0);
             case "boolean": return (a.value ? 1 : 0) - (b.value ? 1 : 0);
         }
