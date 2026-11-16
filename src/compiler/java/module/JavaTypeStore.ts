@@ -58,6 +58,8 @@ export class JavaTypeStore {
                     if (!package1) {
                         package1 = new JavaPackage(part, type.identifierRange, type.module, currentPackage);
                         typeMap.set(part, package1);
+                    } else if (!(package1 instanceof JavaPackage)) {
+                        continue;  // inner class!
                     }
                     currentPackage = package1 as JavaPackage;
                     typeMap = currentPackage.childrenMap;

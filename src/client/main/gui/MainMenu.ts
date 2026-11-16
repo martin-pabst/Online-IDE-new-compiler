@@ -242,6 +242,14 @@ export class MainMenu {
                                 identifier: GuiMessages.JavaTutorial(),
                                 link: "https://www.learnj.de/doku.php"
                             },
+                            {
+                                identifier: GuiMessages.AssemblerTutorial(),
+                                link: "https://www.learnj.de/1213/doku.php?id=rechner:assembler:start"
+                            },
+                            {
+                                identifier: GuiMessages.AssemblerDoku(),
+                                link: "https://www.learnj.de/1213/doku.php?id=anhang:assembler:start"
+                            },
                             // {
                             //     identifier: "Materialien für Lehrkräfte",
                             //     link: "servlet/teachers/index.html"
