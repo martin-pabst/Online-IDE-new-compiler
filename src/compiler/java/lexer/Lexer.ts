@@ -924,12 +924,14 @@ export class Lexer {
             posStart = this.pos;
 
             //@ts-ignore
-            if (this.currentChar == "e") {
+            if (radix == 10 && (this.currentChar == "e" || this.currentChar == "E")) {
+                // literal with exponent is a floating point literal (e.g. 1e10 is a double value)
+                tt = TokenType.floatLiteral;
                 this.next();
                 let posExponentStart: number = this.pos;
 
                 //@ts-ignore
-                if (this.currentChar == '-') {
+                if (this.currentChar == '-' || this.currentChar == '+') {
                     this.next();
                 }
 
@@ -954,9 +956,8 @@ export class Lexer {
         }
 
 
-        let value: number = (tt == TokenType.integerLiteral) ? Number.parseInt(base, radix) : Number.parseFloat(base);
+        let value: number = (tt == TokenType.integerLiteral) ? Number.parseInt(base, radix) : Number.parseFloat(exponent != 0 ? base + "e" + exponent : base);
         value *= sign;
-        if (exponent != 0) value *= Math.pow(10, exponent);
 
         this.pushToken(tt, value, line, column, this.line, this.column);
 

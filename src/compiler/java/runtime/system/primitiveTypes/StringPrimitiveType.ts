@@ -14,7 +14,7 @@ export class StringPrimitiveType extends PrimitiveType {
     }
 
     getDefaultValue() {
-        return 0;
+        return null;
     }
 
     toString(): string {

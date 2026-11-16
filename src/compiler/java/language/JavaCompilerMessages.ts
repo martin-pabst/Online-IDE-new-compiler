@@ -148,13 +148,15 @@ export class JCM {
     })
 
     static cantFindConstructor = () => le({
-        "de": "Es konnte kein passender Konstruktor mit dieser Signatur gefunden werden.",
+        "id": "cantFindConstructor",
+        "de":"Es konnte kein passender Konstruktor mit dieser Signatur gefunden werden.",
         "en": `Cant find constructor.`,
         "fr": `Impossible de trouver un constructeur correspondant à cette signature.`,
     })
 
     static cantInstantiateFromAbstractClass = () => le({
-        "de": `Von einer abstrakten Klasse kann man keine Objekte instanzieren.`,
+        "id": "cantInstantiateFromAbstractClass",
+        "de":`Von einer abstrakten Klasse kann man keine Objekte instanzieren.`,
         "en": `You can't create objects of an abstract class.`,
         "fr": `Vous ne pouvez pas instancier d'objets à partir d'une classe abstraite.`,
     })
@@ -184,25 +186,29 @@ export class JCM {
     })
 
     static superCallInConstructorMissing = (baseClass: string) => le({
+        "id": "superCallInConstructorMissing",
         "de": `Da die Oberklasse ${baseClass} keinen parameterlosen Konstruktor hat, muss in jedem Konstruktor einer Unterklasse gleich zu Beginn der Aufruf eines Konstruktors der Oberklasse erfolgen (super(...)).`,
-        "en": ``, // The English message is empty, so I will base the French translation on the German one.
+        "en": `Base class ${baseClass} has no constructor without parameters, therefore every constructor of a subclass has to start with a call to a constructor of the base class (super(...)).`,
         "fr": `Puisque la super-classe ${baseClass} n'a pas de constructeur sans paramètres, chaque constructeur d'une sous-classe doit commencer par un appel au constructeur de la super-classe (super(...)).`,
     })
 
     static lambdaFunctionHereNotPossible = () => le({
-        "de": "Eine Lambda-Funktion darf nur an einer Stelle im Code stehen, an der ein functional interface (d.h. ein Interface mit genau einer Methode) erwartet wird.",
+        "id": "lambdaFunctionHereNotPossible",
+        "de":"Eine Lambda-Funktion darf nur an einer Stelle im Code stehen, an der ein functional interface (d.h. ein Interface mit genau einer Methode) erwartet wird.",
         "en": `Lambda functions are only usable in places where a functional interface (that is: a interface with only one method) is expected.`,
         "fr": `Les fonctions lambda ne peuvent être utilisées qu'aux endroits où une interface fonctionnelle (c'est-à-dire une interface avec une seule méthode) est attendue.`,
     })
 
     static lambdaFunctionWrongParameterCount = (actualCount: number, expectedCount: number, functionalInterface: string) => le({
-        "de": `Die Anzahl der Parameter der Lambda-Funktion (${actualCount}) stimmt nicht mit der des functional interfaces ${functionalInterface} (${expectedCount}) überein.`,
+        "id": "lambdaFunctionWrongParameterCount",
+        "de":`Die Anzahl der Parameter der Lambda-Funktion (${actualCount}) stimmt nicht mit der des functional interfaces ${functionalInterface} (${expectedCount}) überein.`,
         "en": `Number of parameters of lambda function (${actualCount}) doesn't match number of parameters of functional interfaces ${functionalInterface} (${expectedCount}).`,
         "fr": `Le nombre de paramètres de la fonction lambda (${actualCount}) ne correspond pas à celui de l'interface fonctionnelle ${functionalInterface} (${expectedCount}).`,
     })
 
     static lambdaFunctionWrongParameterType = (identifier: string, type: string) => le({
-        "de": `Der Datentyp des Parameters ${identifier} passt nicht zum erwarteten Datentyp ${type}.`,
+        "id": "lambdaFunctionWrongParameterType",
+        "de":`Der Datentyp des Parameters ${identifier} passt nicht zum erwarteten Datentyp ${type}.`,
         "en": `Parameter ${identifier} has wrong type. Expected type: ${type}.`,
         "fr": `Le paramètre ${identifier} a un type incorrect. Type attendu : ${type}.`,
     })
@@ -241,7 +247,8 @@ export class JCM {
     })
 
     static returnStatementMissing = (identifier: string, type: string) => le({
-        "de": "Die Methode " + identifier + " muss einen Wert vom Typ " + type + " zurückliefern. In einem der Ausführungszweige fehlt ein entsprechendes return-statement.",
+        "id": "returnStatementMissing",
+        "de":"Die Methode " + identifier + " muss einen Wert vom Typ " + type + " zurückliefern. In einem der Ausführungszweige fehlt ein entsprechendes return-statement.",
         "en": `Method ${identifier} must return value of type ${type}. Return statement is missing in at least one program branch.`,
         "fr": `La méthode ${identifier} doit retourner une valeur de type ${type}. Une instruction return est manquante dans au moins une branche du programme.`,
     })
@@ -299,7 +306,8 @@ export class JCM {
     })
 
     static returnValueNotExpected = () => le({
-        "de": "Die Methode erwartet keinen Rückgabewert, hier ist aber einer angegeben.",
+        "id": "returnValueNotExpected",
+        "de":"Die Methode erwartet keinen Rückgabewert, hier ist aber einer angegeben.",
         "en": `Method doesn't expect return value.`,
         "fr": `La méthode n'attend pas de valeur de retour, mais une est spécifiée ici.`,
     })
@@ -311,7 +319,8 @@ export class JCM {
     })
 
     static wrongReturnValueType = (expected: string, actual: string) => le({
-        "de": "Die Methode erwartet einen Rückgabewert vom Typ " + expected + ", der Wert des Terms hat aber den Datentyp " + actual + ".",
+        "id": "wrongReturnValueType",
+        "de":"Die Methode erwartet einen Rückgabewert vom Typ " + expected + ", der Wert des Terms hat aber den Datentyp " + actual + ".",
         "en": `Expression of type ${actual} found, but return value of type ${expected} expected.`,
         "fr": `Expression de type ${actual} trouvée, mais valeur de retour de type ${expected} attendue.`,
     })
@@ -383,19 +392,22 @@ export class JCM {
     })
 
     static constantValueExpectedAfterCase = () => le({
-        "de": "Nach case dürfen nur konstante Ausdrücke stehen, z.B. eine feste Zahl oder Zeichenkette. Wenn du an dieser Stelle etwas anderes (einen Term oder eine Variable) verwenden möchtest, informiere dich über sogenannten constant expressions in Java.",
+        "id": "constantValueExpectedAfterCase",
+        "de":"Nach case dürfen nur konstante Ausdrücke stehen, z.B. eine feste Zahl oder Zeichenkette. Wenn du an dieser Stelle etwas anderes (einen Term oder eine Variable) verwenden möchtest, informiere dich über sogenannten constant expressions in Java.",
         "en": `Constant value expected.`,
         "fr": `Valeur constante attendue.`,
     })
 
     static caseValueDoesntFitToSwitchValue = (expected: string, actual: string) => le({
-        "de": `Ich erwarte hier einen Ausdruck vom Typ ${expected} - dem Datentyp des Switch-Ausdrucks - bekomme aber einen Ausdruck vom Typ ${actual}.`,
+        "id": "caseValueDoesntFitToSwitchValue",
+        "de":`Ich erwarte hier einen Ausdruck vom Typ ${expected} - dem Datentyp des Switch-Ausdrucks - bekomme aber einen Ausdruck vom Typ ${actual}.`,
         "en": `Value of type ${expected} expected (this is type inside switch()-expression), but found value of type ${actual}.`,
         "fr": `Valeur de type ${expected} attendue (c'est le type de l'expression switch()), mais valeur de type ${actual} trouvée.`,
     })
 
     static switchOnlyFeasibleForTypes = () => le({
-        "de": "Die Anweisung switch(x) ist nur möglich, wenn x den Typ int, String, oder enum hat.",
+        "id": "switchOnlyFeasibleForTypes",
+        "de":"Die Anweisung switch(x) ist nur möglich, wenn x den Typ int, String, oder enum hat.",
         "en": `Switch statement (switch) is only feasible for expression x of type int, String or enum.`,
         "fr": `L'instruction switch(x) n'est possible que si x est de type int, String ou enum.`,
     })
@@ -680,13 +692,15 @@ export class JCM {
     })
 
     static superCallInsideConstructorAfterFirstStatement = () => le({
-        "de": "Der Aufruf des Konstruktors der Oberklasse mit super(...) kann nur als erste Anweisung im Konstruktor erfolgen.",
+        "id": "superCallInsideConstructorAfterFirstStatement",
+        "de":"Der Aufruf des Konstruktors der Oberklasse mit super(...) kann nur als erste Anweisung im Konstruktor erfolgen.",
         "en": "Call to constructors base class via super(...) must be first statement in constructor.",
         "fr": "L'appel au constructeur de la classe de base via super(...) doit être la première instruction du constructeur."
     })
 
     static thisCallInsideConstructorAfterFirstStatement = () => le({
-        "de": "Der Aufruf eines anderen Konstruktors mit this(...) kann nur als erste Anweisung im Konstruktor erfolgen.",
+        "id": "thisCallInsideConstructorAfterFirstStatement",
+        "de":"Der Aufruf eines anderen Konstruktors mit this(...) kann nur als erste Anweisung im Konstruktor erfolgen.",
         "en": "Call to other constructors of this class via this(...) must be the first statement in a constructor.",
         "fr": "L'appel à d'autres constructeurs de cette classe via this(...) doit être la première instruction d'un constructeur."
     })
@@ -872,7 +886,8 @@ export class JCM {
     })
 
     static typenameUsedInLibrary = (name: string) => le({
-        "de": `Es gibt in der API bereits einen Typ (Klasse/Interface/Enum) mit dem Bezeichner ${name}.`,
+        "id": "typenameUsedInLibrary",
+        "de":`Es gibt in der API bereits einen Typ (Klasse/Interface/Enum) mit dem Bezeichner ${name}.`,
         "en": `Identifier ${name} is already used in the API.`,
         "fr": `L'identifiant ${name} est déjà utilisé dans l'API.`,
     })
@@ -973,7 +988,8 @@ export class JCM {
     })
 
     static cantExtendFinalClass = () => le({
-        "de": `Von einer final class können keine Unterklassen gebildet werden.`,
+        "id": "cantExtendFinalClass",
+        "de":`Von einer final class können keine Unterklassen gebildet werden.`,
         "en": `You can't subclass a final class.`,
         "fr": `Vous ne pouvez pas créer de sous-classe à partir d'une classe finale.`,
     })
@@ -982,7 +998,8 @@ export class JCM {
      * class JavaClass
      */
     static abstractMethodsNotImplemented = (identifier: string, methods: string) => le({
-        "de": "Die Klasse " + identifier + " muss noch folgende Methoden ihrer abstrakten Oberklassen implementieren: " + methods,
+        "id": "abstractMethodsNotImplemented",
+        "de":"Die Klasse " + identifier + " muss noch folgende Methoden ihrer abstrakten Oberklassen implementieren: " + methods,
         "en": "Class " + identifier + " has to implement methods of it's abstract base class: " + methods,
         "fr": `La classe ${identifier} doit encore implémenter les méthodes suivantes de ses classes de base abstraites : ${methods}.`,
     })

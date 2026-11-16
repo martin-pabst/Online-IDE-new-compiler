@@ -123,17 +123,44 @@ export class MissingStatementManager {
         this.stack.pop()?.onCloseBranch(errors);
     }
 
-    endBranching(){
+    /**
+     * Call after closing the branches of a switch statement. Branches (= statement groups after case/default labels)
+     * have to be opened/closed in source code order.
+     * Like in java a switch statement returns in every case if
+     *  - it has a default label and
+     *  - the last statement group returns (other statement groups which don't return fall through to the next group) and
+     *  - there's no break statement which leaves the switch statement.
+     * see https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-14.22
+     */
+    endBranchingOfSwitchStatement(hasDefaultLabel: boolean, breakStatementLeavesSwitch: boolean){
+        let currentMissingStatements = this.stack[this.stack.length - 1];
+        if(!currentMissingStatements) return;
+
+        let children = currentMissingStatements.children;
+        let lastChild = children[children.length - 1];
+        let switchReturns = hasDefaultLabel && !breakStatementLeavesSwitch && lastChild != null && lastChild.returnHappened;
+
+        this.endBranching(switchReturns);
+    }
+
+    /**
+     * @param returnHappenedInBranches if undefined: return happened if it happened in every branch
+     */
+    endBranching(returnHappenedInBranches?: boolean){
 
         let currentMissingStatements = this.stack[this.stack.length - 1];
         if(!currentMissingStatements) return;
 
         if(!currentMissingStatements.returnHappened){
             let returnHappenedInChildren = true;
-            for(let child of currentMissingStatements.children){
-                if(!child.returnHappened){
-                    returnHappenedInChildren = false;
-                    break;
+            if(returnHappenedInBranches !== undefined){
+                returnHappenedInChildren = returnHappenedInBranches;
+            } else {
+                for(let child of currentMissingStatements.children){
+                    if(!child.returnHappened){
+                        returnHappenedInChildren = false;
+                        break;
+                    }
                 }
             }
             currentMissingStatements.returnHappened = returnHappenedInChildren;

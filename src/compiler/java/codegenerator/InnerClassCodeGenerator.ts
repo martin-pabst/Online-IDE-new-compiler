@@ -9,7 +9,7 @@ import { TokenType } from "../TokenType";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
-import { ASTAnnotationNode, ASTAnonymousClassNode, ASTBlockNode, ASTClassDefinitionNode, ASTEnumDefinitionNode, ASTFieldDeclarationNode, ASTInstanceInitializerNode, ASTInterfaceDefinitionNode, ASTLambdaFunctionDeclarationNode, ASTMethodCallNode, ASTMethodDeclarationNode, ASTStatementNode, ASTStaticInitializerNode, TypeScope } from "../parser/AST";
+import { ASTAnnotationNode, ASTAnonymousClassNode, ASTBinaryNode, ASTBlockNode, ASTClassDefinitionNode, ASTEnumDefinitionNode, ASTFieldDeclarationNode, ASTInstanceInitializerNode, ASTInterfaceDefinitionNode, ASTLambdaFunctionDeclarationNode, ASTMethodCallNode, ASTMethodDeclarationNode, ASTReturnNode, ASTStatementNode, ASTStaticInitializerNode, ASTTermNode, ASTUnaryPrefixNode, TypeScope } from "../parser/AST";
 import { ObjectClass } from "../runtime/system/javalang/ObjectClassStringClass.ts";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType.ts";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
@@ -155,10 +155,21 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
         method.identifierRange = node.statement?.range || node.range;
 
+        // Parser converts lambda functions with expression body (x -> expression) into lambda functions
+        // with body { return expression; }. If the functional interface's method has return type void
+        // then expression has to be a statement expression (e.g. method call, assignment, ...) which is
+        // executed without returning it's value.
+        let statement: ASTStatementNode = node.statement;
+        if (statement.kind == TokenType.keywordReturn && (<ASTReturnNode>statement).term &&
+            (!method.returnParameterType || method.returnParameterType == this.voidType) &&
+            this.isStatementExpression((<ASTReturnNode>statement).term!)) {
+            statement = (<ASTReturnNode>statement).term!;
+        }
+
         //@ts-ignore    (fake methodNode to use compileMethodDeclaration later)
         let methodNode: ASTMethodDeclarationNode = {
             range: method.identifierRange,
-            statement: node.statement,
+            statement: statement,
             isConstructor: false,
             identifier: method.identifier,
             method: method,
@@ -236,6 +247,34 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
         return newClassSnippet;
     }
+
+    /**
+     * Statement expressions are expressions which may be used as statements:
+     * method calls, object creation, assignments, ++ and -- (and print/println in this java dialect)
+     * see https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-14.8
+     */
+    isStatementExpression(term: ASTTermNode): boolean {
+        switch (term.kind) {
+            case TokenType.methodCall:
+            case TokenType.newObject:
+            case TokenType.anonymousClass:
+            case TokenType.plusPlusMinusMinusSuffix:
+            case TokenType.keywordPrint:
+            case TokenType.keywordPrintln:
+                return true;
+            case TokenType.unaryPrefixOp:
+                let prefixOperator = (<ASTUnaryPrefixNode>term).operator;
+                return prefixOperator == TokenType.plusPlus || prefixOperator == TokenType.minusMinus;
+            case TokenType.binaryOp:
+                return InnerClassCodeGenerator.assignmentOperators.indexOf((<ASTBinaryNode>term).operator) >= 0;
+        }
+        return false;
+    }
+
+    static assignmentOperators: TokenType[] = [TokenType.assignment, TokenType.plusAssignment, TokenType.minusAssignment,
+        TokenType.multiplicationAssignment, TokenType.divisionAssignment, TokenType.moduloAssignment,
+        TokenType.ANDAssigment, TokenType.XORAssigment, TokenType.ORAssigment,
+        TokenType.shiftLeftAssigment, TokenType.shiftRightAssigment, TokenType.shiftRightUnsignedAssigment];
 
     isFunctionalInterface(type: JavaType | undefined) {
         if (!type) return false;
@@ -456,12 +495,21 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
             if (fieldNode.initialization) field.initializedBeforeConstructor = true;
             let snippet = this.compileInitialValue(fieldNode.initialization, fieldNode.type.resolvedType);
+
+            // Like in java fields get their initial values after the constructor of the base class has been executed.
+            // If the base class is a user defined class its constructor may call overridden methods
+            // which see the default values (0, false, null) of the fields of this class.
+            // Therefore constant initial values can only be stored in the prototype if the base class is a library class.
+            let baseClass = classContext instanceof JavaClass ? classContext.getExtends() : undefined;
+            let baseClassConstructorMayAccessFields = baseClass != null && !baseClass.isLibraryType;
+            let defaultValue = field.initialValue;
+
             if (snippet) {
 
                 if (snippet.isConstant()) {
                     field.initialValue = snippet.getConstantValue();
                     field.initialValueIsConstant = field.isFinal();
-                    if ((<JavaType>field.getType())?.isPrimitive) {
+                    if ((<JavaType>field.getType())?.isPrimitive && !baseClassConstructorMayAccessFields) {
                         snippet = undefined;
                     }
                 }
@@ -479,7 +527,8 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             }
 
             if (classContext.runtimeClass) {
-                classContext.runtimeClass.prototype[field.getInternalName()] = field.initialValue;
+                // if there is an initialization snippet, the prototype holds the default value until it is executed
+                classContext.runtimeClass.prototype[field.getInternalName()] = snippet ? defaultValue : field.initialValue;
             }
 
             return snippet;
@@ -562,24 +611,40 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
         let thisCallHappened: boolean = false;
         let superCallHappened: boolean = false;
+        let insertPositionForImplicitSuperCall: number = 0;
+
+        // methods of lambda functions and anonymous classes inside parameters of super(...)-call are compiled while compiling the
+        // enclosing constructor, so save state of enclosing constructor:
+        let snippetsToInsertAfterSuperConstructorCallOfEnclosingConstructor = this.snippetsToInsertAfterSuperConstructorCall;
+        this.snippetsToInsertAfterSuperConstructorCall = undefined;
 
         if (method.isConstructor) {
 
             if (classContext instanceof JavaInterface) {
                 this.pushError(JCM.interfacesDontHaveConstructors(), "error", methodNode);
                 this.popSymbolTable();
+                this.snippetsToInsertAfterSuperConstructorCall = snippetsToInsertAfterSuperConstructorCallOfEnclosingConstructor;
                 return undefined;
             }
 
             [thisCallHappened, superCallHappened] = this.checkIfSuperconstructorCallPresent(methodNode.statement);
 
-            if (!thisCallHappened && classContext.instanceInitializer.length > 0) {
-                snippets = snippets.concat(classContext.instanceInitializer);
-            }
-
+            // reference to outer object is needed by field initializers, so store it first
             if (method.hasOuterClassParameter) {
                 let storeOuterClassReferenceSnippet = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${Helpers.outerClassAttributeIdentifier} = ${Helpers.elementRelativeToStackbase(1)};\n`);
                 snippets.push(storeOuterClassReferenceSnippet);
+            }
+
+            insertPositionForImplicitSuperCall = snippets.length;
+
+            // Like in java field initializers and instance initializer blocks are executed
+            // after the constructor of the base class (super(...)) has been called:
+            if (superCallHappened) {
+                // explicit super(...)-call: see compileStatementOrTerm
+                this.snippetsToInsertAfterSuperConstructorCall = classContext.instanceInitializer.length > 0 ? classContext.instanceInitializer : undefined;
+            } else if (!thisCallHappened && classContext.instanceInitializer.length > 0) {
+                // implicit super()-call is inserted in front of these snippets below
+                snippets = snippets.concat(classContext.instanceInitializer);
             }
 
         } else if (method.identifier == classContext.identifier && method.returnParameterType) {
@@ -618,7 +683,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                             let parameterlessConstructor = parameterlessConstructors[0];
                             if (parameterlessConstructor.hasImplementationWithNativeCallingConvention) {
                                 let superConstructorCall = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${parameterlessConstructor.getInternalName("native")}();\n`);
-                                snippets.unshift(superConstructorCall);
+                                snippets.splice(insertPositionForImplicitSuperCall, 0, superConstructorCall);
                             } else {
                                 // A constructor with the java calling convention may hand control
                                 // back to the scheduler before it is done, so the rest of this
@@ -629,7 +694,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                                 // there is overwritten again once the base constructor resumes.
                                 let superConstructorCall = new CodeSnippetContainer(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, undefined);\n`));
                                 superConstructorCall.addNextStepMark();
-                                snippets.unshift(superConstructorCall);
+                                snippets.splice(insertPositionForImplicitSuperCall, 0, superConstructorCall);
                             }
                         }
                     }
@@ -670,8 +735,6 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             let runtimeClass = classContext.runtimeClass;
 
             if (runtimeClass) {
-                method.callbackAfterCodeGeneration.forEach(callback => callback());
-
                 let functionStub: Function;
                 if (method.isStatic) {
                     functionStub = function (this: any, __t: Thread, ...parameters: any) {
@@ -688,9 +751,14 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                     functionStub["isEmpty"] = methodNode.statement.isEmpty;         // See ActorClass._registerListeners for usage of this property
                 }
 
+                // e.g. copy default method of interface to classes implementing this interface.
+                // This has to be done after functionStub has been stored in runtimeClass.
+                method.callbackAfterCodeGeneration.forEach(callback => callback());
+
             }
         }
 
+        this.snippetsToInsertAfterSuperConstructorCall = snippetsToInsertAfterSuperConstructorCallOfEnclosingConstructor;
 
         this.popSymbolTable();
 
@@ -698,7 +766,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
     checkIfSuperconstructorCallPresent(statement: ASTStatementNode | undefined): [boolean, boolean] {
         if (!statement) return [false, false];
-        if (statement.kind = TokenType.block) {
+        if (statement.kind == TokenType.block) {
             let blockstatement = <ASTBlockNode>statement;
             if (blockstatement.statements.length > 0) {
                 statement = blockstatement.statements[0];

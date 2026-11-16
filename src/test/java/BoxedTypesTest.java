@@ -235,3 +235,42 @@ try {
     caughtCtor = true;
 }
 assertTrue(caughtCtor, "NumberFormatException expected for new Integer(\"12b\")");
+
+/**::
+ * Objects of wrapper classes are immutable: ++ and -- assign new objects
+ */
+Integer a = 5;
+Integer b = a;
+a++;
+assertEquals(6, a, "a++");
+assertEquals(5, b, "a++ doesn't change other variable referencing the same object");
+
+++a;
+assertEquals(7, a, "++a");
+assertEquals(5, b, "++a doesn't change other variable referencing the same object");
+
+a--;
+--a;
+assertEquals(5, a, "a-- and --a");
+
+Integer c = 10;
+int oldValue = c++;
+assertEquals(10, oldValue, "value of c++ is old value");
+int newValue = ++c;
+assertEquals(12, newValue, "value of ++c is new value");
+
+Double d = 1.5;
+Double e = d;
+d++;
+assertEquals(2.5, d, "Double d++");
+assertEquals(1.5, e, "d++ doesn't change other variable referencing the same object");
+
+Counter counter = new Counter();
+Integer before = counter.count;
+counter.count++;
+assertEquals(1, counter.count, "field of type Integer: counter.count++");
+assertEquals(0, before, "counter.count++ doesn't change other variable referencing the same object");
+
+class Counter {
+   Integer count = 0;
+}

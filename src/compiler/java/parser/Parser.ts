@@ -783,7 +783,7 @@ export class Parser extends StatementParser {
 
             } while (this.comesToken(TokenType.comma, true));
 
-            if (this.comesToken(TokenType.shiftRight, false)) {
+            if (this.comesToken([TokenType.shiftRight, TokenType.shiftRightUnsigned], false)) {
                 this.exchangeShiftRightForTwoClosingGreater();
             }
 

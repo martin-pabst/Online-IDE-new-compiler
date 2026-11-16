@@ -20,7 +20,9 @@ export class TokenIterator {
         TokenType.leftRightSquareBracket, TokenType.comma,
         TokenType.keywordVar, TokenType.ternaryOperator,
         TokenType.keywordExtends, TokenType.keywordSuper,
-        TokenType.leftBracket, TokenType.keywordVoid
+        TokenType.leftBracket, TokenType.keywordVoid,
+        // >> and >>> close nested generic types like List<List<String>>
+        TokenType.shiftRight, TokenType.shiftRightUnsigned
     ]
 
     static spaceTokenTypes: TokenType[] = [
@@ -126,13 +128,19 @@ export class TokenIterator {
 
     }
 
+    /**
+     * Inside generic type declarations like List<List<String>> or Map<String, List<List<String>>>
+     * the lexer delivers >> (shift right) resp. >>> (unsigned shift right) instead of two or three closing >.
+     * This method splits off the first > of current token.
+     */
     exchangeShiftRightForTwoClosingGreater() {
+        let isUnsigned = this.cct.tt == TokenType.shiftRightUnsigned;
         this.cct.tt = TokenType.greater;
         this.tt = TokenType.greater;
         this.cct.value = '>';
         let newToken: Token = {
-            tt: TokenType.greater,
-            value: '>',
+            tt: isUnsigned ? TokenType.shiftRight : TokenType.greater,
+            value: isUnsigned ? '>>' : '>',
             range: {
                 startLineNumber: this.cct.range.startLineNumber,
                 startColumn: this.cct.range.startColumn + 1,
@@ -432,6 +440,10 @@ export class TokenIterator {
                 }
                 return "statement";
             }
+            // >> and >>> only close nested generic types, so a < has to come before. Otherwise: a >> b is a shift operation.
+            if ((tt == TokenType.shiftRight || tt == TokenType.shiftRightUnsigned) && nonSpaceTokenTypesFound.indexOf(TokenType.lower) < 0) {
+                return "statement";
+            }
             if (TokenIterator.possibleTokensInsideVariableDeclaration.indexOf(tt) < 0) {
                 if (tt == TokenType.equal && !nonSpaceTokenTypesFound.find(tt => tt != TokenType.identifier) && nonSpaceTokenTypesFound.length >= 2) {
                     // this is for cases like "int a == 10;"
@@ -454,7 +466,7 @@ export class TokenIterator {
 
         if (isCodeOutsideClassdeclarations) {
             if (lastToken1 == TokenType.leftBracket && lastToken2 == TokenType.identifier
-                && [TokenType.greater, TokenType.identifier, TokenType.leftRightSquareBracket,
+                && [TokenType.greater, TokenType.shiftRight, TokenType.shiftRightUnsigned, TokenType.identifier, TokenType.leftRightSquareBracket,
                 TokenType.keywordVoid].indexOf(lastToken3) >= 0) {
                 return "methoddeclaration"
             }
@@ -463,7 +475,7 @@ export class TokenIterator {
 
         if ([TokenType.identifier, TokenType.leftRightSquareBracket].indexOf(lastToken1) < 0) return "statement";
 
-        if ([TokenType.identifier, TokenType.greater, TokenType.leftRightSquareBracket, TokenType.keywordVar, TokenType.comma].indexOf(lastToken2) < 0) {
+        if ([TokenType.identifier, TokenType.greater, TokenType.shiftRight, TokenType.shiftRightUnsigned, TokenType.leftRightSquareBracket, TokenType.keywordVar, TokenType.comma].indexOf(lastToken2) < 0) {
             return "statement";
         }
 

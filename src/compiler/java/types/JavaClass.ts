@@ -439,16 +439,25 @@ export class JavaClass extends IJavaClass {
                         let copy = method.getCopy();
                         this.methods.push(copy);
 
+                        let functionIdentifier = copy.getInternalNameWithGenericParameterIdentifiers("java");
+
                         let f = () => {
-                            let runtimeClass = this.runtimeClass!;
-                            let otherRuntimeClass = javaInterface.runtimeClass!;
-                            let functionIdentifier = copy.getInternalNameWithGenericParameterIdentifiers("java");
+                            let runtimeClass = this.runtimeClass;
+                            let otherRuntimeClass = javaInterface.runtimeClass;
+                            if (!runtimeClass || !otherRuntimeClass) return;
                             runtimeClass.prototype[functionIdentifier] = otherRuntimeClass.prototype[functionIdentifier];
                         }
 
-                        if (this.isLibraryType) {
+                        // Code of default method has already been generated (e.g. if this class is the class of a lambda
+                        // function or an anonymous inner class which is built during code generation)?
+                        let defaultMethodCodeExists = javaInterface.runtimeClass?.prototype?.[functionIdentifier] != null;
+
+                        if (this.isLibraryType || defaultMethodCodeExists) {
                             f();
-                        } else {
+                        }
+
+                        // code of default methods of library interfaces is never regenerated
+                        if (!this.isLibraryType && !javaInterface.isLibraryType) {
                             method.callbackAfterCodeGeneration.push(f);
                         }
 

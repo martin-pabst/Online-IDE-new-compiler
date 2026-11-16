@@ -50,6 +50,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     breakStack: LabelCodeSnippet[] = [];
     continueStack: LabelCodeSnippet[] = [];
+    labelsTargetedByBreak: Set<LabelCodeSnippet> = new Set();
+
+    // field initializers and instance initializer blocks which have to be executed directly after explicit super(...)-call in constructor
+    snippetsToInsertAfterSuperConstructorCall: CodeSnippet[] | undefined;
 
     nextArrayLiteralTypeExpected: JavaType[] = [];
 
@@ -131,6 +135,11 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             case TokenType.leftBracket:
                 snippet = this.compileBrackets(<ASTBracketNode>ast);
                 break;
+            case TokenType.lambdaOperator:
+                // Lambda functions are compiled by compileLambdaFunction in places where a functional interface
+                // is expected (see compileTermWithTargetType). Everywhere else they are not possible.
+                this.pushError(JCM.lambdaFunctionHereNotPossible(), "error", ast.range);
+                break;
 
         }
 
@@ -146,6 +155,13 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
      * If term is a new-expression with diamond operator (new X<>(...)) its type arguments are inferred from targetType.
      */
     compileTermWithTargetType(ast: ASTTermNode | undefined, targetType: JavaType | undefined): CodeSnippet | undefined {
+        if (ast?.kind == TokenType.lambdaOperator) {
+            if (!targetType) {
+                this.pushError(JCM.lambdaFunctionHereNotPossible(), "error", ast.range);
+                return undefined;
+            }
+            return this.compileLambdaFunction(<ASTLambdaFunctionDeclarationNode>ast, targetType);
+        }
         if (ast?.kind != TokenType.newObject) return this.compileTerm(ast);
 
         this.targetTypeOfNewObject = targetType;
@@ -291,7 +307,12 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         if (this.canCastTo(sourceType, destType, "explicit")) {
-            return this.compileCast(objectSnippet, destType, "explicit");
+            let castSnippet = this.compileCast(objectSnippet, destType, "explicit");
+            // e.g. (Object)"Test": boxing gives type String, but static type of cast expression is Object (relevant for choosing overloaded methods)
+            if (castSnippet?.type && destType instanceof NonPrimitiveType && castSnippet.type != destType) {
+                castSnippet = SnippetFramer.frame(castSnippet, '§1', destType);
+            }
+            return castSnippet;
         } else {
             this.pushError(JCM.cantCastFromTo(sourceType.identifier, destType.identifier), "error", node);
         }
@@ -300,8 +321,9 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     compileExplicitCastFromObjectToObject(node: ASTCastNode, objectSnippet: CodeSnippet, sourceType: NonPrimitiveType, destType: NonPrimitiveType): CodeSnippet | undefined {
         if (sourceType.fastExtendsImplements(destType.identifier)) {
-            this.pushError(JCM.unneccessaryCast(), "info", node);
-            return objectSnippet;
+            // upcast: no code needed, but static type of cast expression is destType (relevant for choosing overloaded methods)
+            if (sourceType == destType) this.pushError(JCM.unneccessaryCast(), "info", node);
+            return SnippetFramer.frame(objectSnippet, '§1', destType);
         }
 
         // if (!destType.fastExtendsImplements(sourceType.identifier)) {
@@ -775,15 +797,19 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 let snippet = this.compileArrayLiteral(elementType.getElementType(), <ASTArrayLiteralNode>elementNode);
                 if (snippet) elementSnippets.push(snippet);
             } else {
-                let elementSnippet = this.compileTerm(elementNode);
-                if (elementSnippet && elementSnippet.type) {
-                    if (this.canCastTo(elementSnippet.type, elementType, "implicit")) {
-                        elementSnippet = this.compileCast(elementSnippet, elementType, "implicit");
-                        elementSnippets.push(elementSnippet);
-                    } else {
-                        this.pushError(JCM.cantCastTermTo(elementType.toString()), "error", elementNode.range);
-                        return undefined;
-                    }
+                // compileTermWithTargetType compiles lambda functions, too: Runnable[] r = {() -> {...}, ...}
+                let elementSnippet = this.compileTermWithTargetType(elementNode, elementType);
+                if (!elementSnippet?.type) return undefined; // don't silently create an array with fewer elements
+
+                if (this.canCastTo(elementSnippet.type, elementType, "implicit")) {
+                    elementSnippet = this.compileCast(elementSnippet, elementType, "implicit");
+                    elementSnippets.push(elementSnippet);
+                } else if (this.isImplicitConstantNarrowingPossible(elementSnippet, elementType)) {
+                    // byte[] b = {1, 2, 3};
+                    elementSnippets.push(this.compileCast(elementSnippet, elementType, "explicit"));
+                } else {
+                    this.pushError(JCM.cantCastTermTo(elementType.toString()), "error", elementNode.range);
+                    return undefined;
                 }
             }
         }
@@ -1160,6 +1186,9 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
 
             if (this.hasBoxedType(operand)) {
+                let snippet = this.compileBoxedIncrementOrDecrement(operand, ast.operator, false, ast.range);
+                if (snippet) return snippet;
+
                 if (["Double", "Float", "Integer", "Byte"].indexOf(operand.type.identifier) >= 0) {
                     let template: CodeTemplate = ast.operator == TokenType.plusPlus ? new OneParameterTemplate(`${Helpers.checkNPE('§1', operand.range)}.value++`) : new OneParameterTemplate(`${Helpers.checkNPE('§1', operand.range)}.value--`);
 

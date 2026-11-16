@@ -121,6 +121,8 @@ export class TypeResolver {
                     continue;
                 }
                 otherType = this.libraryModuleManager.typestore.getType(tdn.identifier);
+                // types of packages which are imported by default (e.g. class Robot of package robot) would hide user defined top level types with same identifier
+                if (!otherType && tdn.parent?.kind == TokenType.global) otherType = this.globallyImportedTypesMap.get(tdn.identifier);
                 if (otherType) {
                     this.pushError(JCM.typenameUsedInLibrary(tdn.identifier), tdn.range, tdn.module, "error");
                     continue;
@@ -166,6 +168,7 @@ export class TypeResolver {
             resolvedType.visibility = klassNode.visibility;
             resolvedType.isStatic = klassNode.isStatic;
             resolvedType._isAbstract = klassNode.isAbstract;
+            resolvedType.isFinal = klassNode.isFinal;
             resolvedType.documentation = klassNode.documentation;
             if (klassNode.isMainClass) {
                 resolvedType.isMainClass = true;
@@ -484,7 +487,7 @@ export class TypeResolver {
         if (type){
             module.registerTypeUsage(type, typeNode.range);
             return type;
-        } 
+        }
 
         let typeWithNextIdentifierIndex: { type: JavaType, nextIndex: number } | undefined;
 

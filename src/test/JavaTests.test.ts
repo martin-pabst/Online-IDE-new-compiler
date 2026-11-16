@@ -151,6 +151,13 @@ function compileAndTest(name: string, program: string, lineOffset: number,
 
             interpreter.runMainProgramSynchronously();
 
+            if (interpreter.exception) {
+                console.log(chalk.red("Test failed: ") + "Program terminated with uncaught exception: " +
+                    chalk.yellow(interpreter.exception.message ?? "") + chalk.gray(" (test beginning with line " + lineOffset + ")"));
+                //@ts-ignore
+                context.task.fails = 1;
+            }
+
             let codeNotReachedAssertions = interpreter.codeReachedAssertions.getUnreachedAssertions();
             if (codeNotReachedAssertions.length > 0) {
                 console.log(chalk.red("Test failed: ") + "CodeReached-assertions not reached");

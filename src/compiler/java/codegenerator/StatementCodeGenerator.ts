@@ -3,12 +3,13 @@ import { ErrorLevel } from "../../common/Error.ts";
 import { CatchBlockInfo } from "../../common/interpreter/ExceptionInfo.ts";
 import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
 import { EmptyRange, IRange, Range } from "../../common/range/Range.ts";
+import { Position } from "../../common/range/Position.ts";
 import { TokenType } from "../TokenType";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { ReplaceTokenQuickfix } from "../monacoproviders/quickfix/ReplaceTokenQuickfix.ts";
-import { ASTArrayLiteralNode, ASTAttributeDereferencingNode, ASTBinaryNode, ASTBlockNode, ASTBracketNode, ASTBreakNode, ASTCaseNode, ASTContinueNode, ASTDoWhileNode, ASTEnhancedForLoopNode, ASTFirstMainMethodStatementNode, ASTForLoopNode, ASTIfNode, ASTInitialFieldAssignmentInMainProgramNodes, ASTLambdaFunctionDeclarationNode, ASTLocalVariableDeclaration, ASTLocalVariableDeclarations, ASTNode, ASTPrintStatementNode, ASTReturnNode, ASTStatementNode, ASTSwitchCaseNode, ASTSymbolNode, ASTSynchronizedBlockNode, ASTTermNode, ASTThrowNode, ASTTryCatchNode, ASTUnaryPrefixNode, ASTWhileNode } from "../parser/AST";
+import { ASTArrayLiteralNode, ASTAttributeDereferencingNode, ASTBinaryNode, ASTBlockNode, ASTBracketNode, ASTBreakNode, ASTCaseNode, ASTContinueNode, ASTDoWhileNode, ASTEnhancedForLoopNode, ASTFirstMainMethodStatementNode, ASTForLoopNode, ASTIfNode, ASTInitialFieldAssignmentInMainProgramNodes, ASTLambdaFunctionDeclarationNode, ASTLocalVariableDeclaration, ASTLocalVariableDeclarations, ASTMethodCallNode, ASTNode, ASTPrintStatementNode, ASTReturnNode, ASTStatementNode, ASTSwitchCaseNode, ASTSymbolNode, ASTSynchronizedBlockNode, ASTTermNode, ASTThrowNode, ASTTryCatchNode, ASTUnaryPrefixNode, ASTWhileNode } from "../parser/AST";
 import { ObjectClass } from "../runtime/system/javalang/ObjectClassStringClass.ts";
 import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
@@ -96,6 +97,15 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 if (snippet) {
                     if (!snippet.endsWith(";\n")) snippet = new CodeSnippetContainer(SnippetFramer.frame(snippet, '§1;\n'));
                 }
+
+                // explicit super(...)-call in constructor: field initializers and instance initializer blocks follow
+                if (this.snippetsToInsertAfterSuperConstructorCall && ast.kind == TokenType.methodCall &&
+                    (<ASTMethodCallNode>ast).identifier == "" && (<ASTMethodCallNode>ast).nodeToGetObject?.kind == TokenType.keywordSuper) {
+                    if (snippet) {
+                        snippet = new CodeSnippetContainer([snippet, ...this.snippetsToInsertAfterSuperConstructorCall]);
+                    }
+                    this.snippetsToInsertAfterSuperConstructorCall = undefined;
+                }
         }
 
         // enforce new step before snippet
@@ -145,6 +155,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             this.pushError(JCM.breakNotExpected(), "error", node);
             return undefined;
         }
+        this.labelsTargetedByBreak.add(label);  // needed by compileSwitchCaseStatement to check for missing return statements
         let snippet = new JumpToLabelCodeSnippet(label);
         snippet.range = node.range;
         return snippet;
@@ -814,6 +825,12 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             term = SnippetFramer.frame(term, "§1.ordinal");
         }
 
+        // switch on wrapper types: unboxing (throws NullPointerException if value is null, like in java)
+        if (type.identifier && ["Byte", "Short", "Integer", "Character"].includes(type.identifier)) {
+            term = this.unbox(term);
+            type = term.type!;
+        }
+
         if (!(enumType || type.identifier && ["byte", "short", "int", "char", "String", "string"].includes(type.identifier))) {
             this.pushError(JCM.switchOnlyFeasibleForTypes(), "error", node.term.range);
         }
@@ -825,8 +842,6 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         if (!type) return undefined;
 
-        // TODO: Check type
-
         // Contains one label for every case
         // plus one label for default if it exists
         // plus one label to break out of the switch-case expression
@@ -835,7 +850,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         this.pushAndGetNewSymbolTable(node.range, false);
 
         let labelArray = [...node.caseNodes].map((_) => new LabelCodeSnippet());
-        let defaultLabel;
+        let defaultLabel: LabelCodeSnippet | undefined;
         if (node.defaultNode) {
             defaultLabel = new LabelCodeSnippet();
             labelArray.push(defaultLabel);
@@ -845,20 +860,59 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         labelArray.push(breakLabel);
 
-        let caseSnippets = node.caseNodes.map((node, i) => this.compileCaseStatement(node, i, labelArray, enumType ? "int" : type.identifier, enumType));
+        // Statement groups (case ...: statements; default: statements) have to be compiled and emitted
+        // in source code order, because control falls through from each group to the next one.
+        // The default group may be at any position.
+        let defaultPosition = node.caseNodes.length;
+        if (node.defaultNode) {
+            let defaultStart = Range.getStartPosition(node.defaultNode.range);
+            let index = node.caseNodes.findIndex(cn => Position.isBefore(defaultStart, Range.getStartPosition(cn.range)));
+            if (index >= 0) defaultPosition = index;
+        }
 
-        // if (!this.listHasNoUndefined(caseSnippets)){
-        //     this.popSymbolTable();
-        //     return undefined;
-        // }
+        let caseLabelSnippets: CodeSnippet[] = [];
+        let statementGroupSnippets: CodeSnippet[] = [];
+        let errorInDefaultGroup = false;
 
-        caseSnippets = caseSnippets.filter(cs => typeof cs !== 'undefined');
+        for (let i = 0; i <= node.caseNodes.length; i++) {
+            if (node.defaultNode && i == defaultPosition) {
+                let defaultSnippet = new CodeSnippetContainer([], node.defaultNode.range);
+                defaultSnippet.addParts(defaultLabel!);
+
+                this.missingStatementManager.openBranch();
+                let statementCode = node.defaultNode.statements.map((statementNode) => this.compileStatementOrTerm(statementNode));
+                this.missingStatementManager.closeBranch(this.module.errors);
+
+                if (this.listHasNoUndefined(statementCode)) {
+                    defaultSnippet.addParts(statementCode);
+                    defaultSnippet.addNextStepMark();
+                    statementGroupSnippets.push(defaultSnippet);
+                } else {
+                    errorInDefaultGroup = true;
+                }
+            }
+
+            if (i < node.caseNodes.length) {
+                let caseSnippets = this.compileCaseStatement(node.caseNodes[i], i, labelArray, enumType ? "int" : type.identifier, enumType);
+                if (caseSnippets) {
+                    caseLabelSnippets.push(caseSnippets[0]);
+                    statementGroupSnippets.push(caseSnippets[1]);
+                }
+            }
+        }
+
+        this.missingStatementManager.endBranchingOfSwitchStatement(node.defaultNode != null, this.labelsTargetedByBreak.has(breakLabel));
+
+        this.breakStack.pop();
+        this.popSymbolTable();
+
+        if (errorInDefaultGroup) return undefined;
 
         let switchSnippet = new CodeSnippetContainer([], node.range);
 
         switchSnippet.addParts(SnippetFramer.frame(term, "switch(§1){\n", this.voidType));
 
-        caseSnippets.forEach(([a, _]) => switchSnippet.addParts(a));
+        caseLabelSnippets.forEach(caseLabelSnippet => switchSnippet.addParts(caseLabelSnippet));
         if (node.defaultNode) {
             switchSnippet.addStringPart("default: \n", node.range);
             switchSnippet.addParts(new JumpToLabelCodeSnippet(defaultLabel!));
@@ -870,36 +924,9 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         switchSnippet.addNextStepMark();
 
-        caseSnippets.forEach(([_, b]) => switchSnippet.addParts(b));
-
-        if (node.defaultNode) {
-            let defaultSnippet = new CodeSnippetContainer([], node.defaultNode.range);
-            defaultSnippet.addParts(defaultLabel!);
-
-            this.missingStatementManager.openBranch();
-            let statementCode = node.defaultNode.statements.map((statementNode) => this.compileStatementOrTerm(statementNode));
-            this.missingStatementManager.closeBranch(this.module.errors);
-
-            if (!this.listHasNoUndefined(statementCode)) {
-                this.popSymbolTable();
-                return undefined;
-            }
-
-            defaultSnippet.addParts(statementCode);
-            defaultSnippet.addNextStepMark();
-
-            switchSnippet.addParts(defaultSnippet);
-
-        }
-
-        this.missingStatementManager.endBranching();
-
+        statementGroupSnippets.forEach(statementGroupSnippet => switchSnippet.addParts(statementGroupSnippet));
 
         switchSnippet.addParts(breakLabel);
-        this.breakStack.pop();
-
-        this.popSymbolTable();
-
 
         return switchSnippet;
     }
@@ -1141,6 +1168,10 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 }
 
                 if (!this.canCastTo(initValueSnippet.type, destinationType, "implicit")) {
+                    // byte b = 10; short s = 300; char c = 65;
+                    if (this.isImplicitConstantNarrowingPossible(initValueSnippet, destinationType)) {
+                        return this.compileCast(initValueSnippet, destinationType, "explicit");
+                    }
                     this.pushError(JCM.localVariableDeclarationWrongInitializerType(initValueSnippet.type.toString(), destinationType.toString()), "error", initializationNode);
                     return undefined;
                 }

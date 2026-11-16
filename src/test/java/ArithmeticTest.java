@@ -50,13 +50,24 @@ assertEquals(1, v4.getUnitVector().getLength(), "Vector2 -> unit vector");
 /**::
  * BigInteger
  */
-BigInteger a = new BigInteger(5e10);
-BigInteger product = a.multiply(new BigInteger(6e10));
+BigInteger a = new BigInteger(50000000000L);
+BigInteger product = a.multiply(new BigInteger(60000000000L));
 
 assertEquals("3000000000000000000000", product.toString(), "BigInteger.multiply");
-BigInteger quotient = product.divide(new BigInteger(7e6));
+BigInteger quotient = product.divide(new BigInteger(7000000L));
 assertEquals("428571428571428", quotient.toString(), "BigInteger.quotient");
 
 
 BigInteger modPow = a.modPow(new BigInteger(12345), new BigInteger(537));
 assertEquals("320", modPow.toString(), "BigInteger.quotient");
+
+/**::
+ * Floating point literals with exponent
+ */
+double a = 1e3;
+assertEquals(1000.0, a, "1e3");
+assertEquals(1500.0, 1.5E3, "1.5E3");
+assertEquals(0.0025, 2.5e-3, "2.5e-3");
+assertEquals(100.0, 1e+2, "1e+2");
+assertEquals(2.5, 5e0 / 2, "5e0 is a double literal: no integer division");
+assertEquals(0.1, 1e-1, "1e-1");

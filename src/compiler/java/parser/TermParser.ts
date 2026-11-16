@@ -219,24 +219,24 @@ export abstract class TermParser extends TokenIterator {
                     case TokenType.charLiteral:
                     case TokenType.true:
                     case TokenType.false:
+                    case TokenType.not:
+                    case TokenType.tilde:
 
                         node = this.parseCastedObject();
                         break;
-                    default:
-                        let startPos = this.cct.range;
-                        this.nextToken();
-                        node = this.parseTerm();
-                        if (node) {
-                            node.parenthesisNeeded = true;
-                            let range: IRange = {
-                                startColumn: startPos.startColumn,
-                                startLineNumber: startPos.startLineNumber,
-                                endColumn: this.cct.range.endColumn,
-                                endLineNumber: this.cct.range.endLineNumber
-                            }
-                            this.expect(TokenType.rightBracket, true);
-                            node = this.nodeFactory.buildBracketNode(range, node);
+                    case TokenType.plus:
+                    case TokenType.minus:
+                    case TokenType.plusPlus:
+                    case TokenType.minusMinus:
+                        // (int) -x is a cast, (a) - b is a subtraction (like in Java: only casts to primitive types may be followed by unary + or -)
+                        if (this.isPrimitiveTypeInsideBrackets()) {
+                            node = this.parseCastedObject();
+                        } else {
+                            node = this.parseBracketedTerm();
                         }
+                        break;
+                    default:
+                        node = this.parseBracketedTerm();
                 }
                 break;
             case TokenType.identifier:
@@ -500,7 +500,7 @@ export abstract class TermParser extends TokenIterator {
                         if (actualTypeArgument) (<ASTGenericTypeInstantiationNode>type).actualTypeArguments.push(actualTypeArgument);
                     } while (this.comesToken(TokenType.comma, true))
 
-                    if (this.comesToken(TokenType.shiftRight, false)) {
+                    if (this.comesToken([TokenType.shiftRight, TokenType.shiftRightUnsigned], false)) {
                         this.exchangeShiftRightForTwoClosingGreater();
                     }
 
@@ -546,12 +546,46 @@ export abstract class TermParser extends TokenIterator {
     }
 
 
+    static primitiveTypeIdentifiers: string[] = ["byte", "short", "int", "long", "float", "double", "char", "boolean"];
+
+    /**
+     * current token is (
+     * returns true if tokens are ( primitiveType )
+     */
+    isPrimitiveTypeInsideBrackets(): boolean {
+        let identifier = this.lookahead(1);
+        return identifier.tt == TokenType.identifier && TermParser.primitiveTypeIdentifiers.indexOf(<string>identifier.value) >= 0
+            && this.lookahead(2).tt == TokenType.rightBracket;
+    }
+
+    /**
+     * current token is (
+     */
+    parseBracketedTerm(): ASTTermNode | undefined {
+        let startPos = this.cct.range;
+        this.nextToken();
+        let node = this.parseTerm();
+        if (node) {
+            node.parenthesisNeeded = true;
+            let range: IRange = {
+                startColumn: startPos.startColumn,
+                startLineNumber: startPos.startLineNumber,
+                endColumn: this.cct.range.endColumn,
+                endLineNumber: this.cct.range.endLineNumber
+            }
+            this.expect(TokenType.rightBracket, true);
+            node = this.nodeFactory.buildBracketNode(range, node);
+        }
+        return node;
+    }
+
     parseCastedObject(): ASTCastNode | undefined {
         let startToken = this.cct;
         this.nextToken(); // skip (
         let type = this.parseType(false);
         this.expect(TokenType.rightBracket);
-        let term = this.parseTermUnary();
+        // unary prefix operators like in (int) -x bind stronger than the cast operator
+        let term = TermParser.unaryPrefixOperators.indexOf(this.tt) >= 0 ? this.parsePraefixSuffix() : this.parseTermUnary();
 
         if (type && term) {
             let castNode = this.nodeFactory.buildCastNode(startToken, type, term);

@@ -441,6 +441,9 @@ export abstract class BinopCastCodeGenerator {
         if (operator == TokenType.assignment) {
             if (this.canCastTo(rightSnippet.type, leftSnippet.type, "implicit")) {
                 rightSnippet = this.compileCast(rightSnippet, leftSnippet.type!, "implicit");
+            } else if (this.isImplicitConstantNarrowingPossible(rightSnippet, leftSnippet.type)) {
+                // byte b; b = 10;
+                rightSnippet = this.compileCast(rightSnippet, leftSnippet.type!, "explicit");
             } else {
                 this.pushError(JCM.cantCastType(rightSnippet.type!.identifier, leftSnippet.type!.identifier), "error", rightSnippet.range!);
             }
@@ -449,11 +452,20 @@ export abstract class BinopCastCodeGenerator {
 
         if (!leftSnippet.type!.isPrimitive) {
             if (leftSnippet.type == this.stringNonPrimitiveType && operator == TokenType.plusAssignment) {
-                if (!this.canCastTo(rightSnippet.type, this.stringType, "implicit")) {
+                if (this.canCastTo(rightSnippet.type, this.stringType, "implicit")) {
+                    rightSnippet = this.compileCast(rightSnippet, this.stringType, "implicit");
+                } else if (rightSnippet.type == this.voidType) {
                     this.pushError(JCM.cantCastRightSideToString(), "error", rightSnippet.range!);
                     return undefined;
+                } else if (rightSnippet.type?.isPrimitive) {
+                    // String s; s += 5;
+                    rightSnippet = this.compileCast(rightSnippet, this.stringType, "explicit");
+                } else if (rightSnippet.type instanceof JavaArrayType) {
+                    rightSnippet = this.wrapWithArrayToString(rightSnippet, "string");
+                } else {
+                    // String s; s += object;  (calls object.toString())
+                    rightSnippet = this.wrapWithToStringCall(rightSnippet, "string");
                 }
-                rightSnippet = this.compileCast(rightSnippet, this.stringType, "implicit");
                 return new TwoParameterTemplate(`§1 = ${Helpers.checkNPE('§1', leftSnippet.range!)}.add(§2)`).applyToSnippet(leftSnippet.type, wholeRange, leftSnippet, rightSnippet);
             }
 
@@ -623,7 +635,7 @@ export abstract class BinopCastCodeGenerator {
         }
 
         if (castToTypeIndex == nString) {
-            if (snippet.isConstant()) return new StringCodeSnippet(`"${snippet.getConstantValue()}"`, snippet.range, this.stringType, "" + snippet.getConstantValue);
+            if (snippet.isConstant()) return new StringCodeSnippet(JSON.stringify("" + snippet.getConstantValue()), snippet.range, this.stringType, "" + snippet.getConstantValue());
             return new OneParameterTemplate('("" + (§1))').applyToSnippet(this.stringType, snippet.range!, snippet);
         }
 
@@ -646,44 +658,52 @@ export abstract class BinopCastCodeGenerator {
         }
 
 
+        // Narrowing primitive conversion like in Java:
+        // floating point -> integral type: first convert to int (rounding towards zero, NaN -> 0, values out of range are clamped)
+        // (resp. long for cast to long), then wrap around to target type
+        let fromFloatingPoint = snippetTypeIndex >= nFloat;
+
         if (snippet.isConstant()) {
             let value: number = <number>snippet.getConstantValue();
-            let result: number;
+            let result: number = value;
+
+            let toInt = (v: number) => fromFloatingPoint ? (Math.max(-2147483648, Math.min(2147483647, v)) | 0) : (v | 0);
 
             switch (castToTypeIndex) {
-                case nByte: result = snippetTypeIndex <= nLong ? ((value + 128) % 256 - 128) : ((Math.trunc(value) + 128) % 256 - 128);
+                case nByte: result = (toInt(value) << 24) >> 24;
                     break;
-                case nShort: result = snippetTypeIndex <= nLong ? ((value + 0x8000) % 0x10000 - 0x8000) : ((Math.trunc(value) + 0x8000) % 0x10000 - 0x8000);
+                case nShort: result = (toInt(value) << 16) >> 16;
                     break;
-                // case nInteger: result = snippetTypeIndex <= nLong ? ((value + 0x80000000) % 0x100000000 - 0x80000000) : ((Math.trunc(value) + 0x80000000) % 0x100000000 - 0x80000000);
-                case nInteger: result = snippetTypeIndex <= nLong ? value | 0 : Math.trunc(value) | 0;
+                case nInteger: result = toInt(value);
                     break;
-                case nLong: result = Math.trunc(value);
+                case nLong: result = fromFloatingPoint ? (Math.trunc(Math.max(-9223372036854775808, Math.min(9223372036854775807, value))) || 0) : value;
                     break;
                 case nFloat: result = Math.fround(value);
                     break;
             }
 
-            return new StringCodeSnippet("" + value, snippet.range!, castTo, value);
+            return new StringCodeSnippet(result < 0 ? "(" + result + ")" : "" + result, snippet.range!, castTo, result);
 
         } else {
             let template: OneParameterTemplate | undefined;
 
+            let toInt = fromFloatingPoint ? 'Math.max(-2147483648, Math.min(2147483647, §1))' : '(§1)';
+
             switch (castToTypeIndex) {
-                case nByte: template = snippetTypeIndex <= nLong ? new OneParameterTemplate('((§1 + 128) % 256 - 128)') : new OneParameterTemplate('((Math.trunc(§1) + 128) % 256 - 128)');
+                case nByte: template = new OneParameterTemplate(`((${toInt} << 24) >> 24)`);
                     break;
-                case nShort: template = snippetTypeIndex <= nLong ? new OneParameterTemplate('((§1 + 0x8000) % 0x10000 - 0x8000)') : new OneParameterTemplate('((Math.trunc(§1) + 0x80000000) % 0x100000000 - 0x80000000)');
+                case nShort: template = new OneParameterTemplate(`((${toInt} << 16) >> 16)`);
                     break;
-                // case nInteger: template = snippetTypeIndex <= nLong ? new OneParameterTemplate('((§1 + 0x80000000) % 0x100000000 - 0x80000000)') : new OneParameterTemplate('((Math.trunc(§1) + 0x80000000) % 0x100000000 - 0x80000000)');
-                case nInteger: template = snippetTypeIndex <= nLong ? new OneParameterTemplate('((§1) | 0)') : new OneParameterTemplate('(Math.trunc(§1) | 0)');
+                case nInteger: template = new OneParameterTemplate(`(${toInt} | 0)`);
                     break;
-                case nLong: template = new OneParameterTemplate('Math.trunc(§1)');
+                case nLong: template = fromFloatingPoint ? new OneParameterTemplate('(Math.trunc(Math.max(-9223372036854775808, Math.min(9223372036854775807, §1))) || 0)') : undefined;
                     break;
                 case nFloat: template = new OneParameterTemplate('Math.fround(§1)');
                     break;
             }
 
             if (template) return template.applyToSnippet(castTo, snippet.range!, snippet);
+            snippet.type = castTo;
             return snippet;
         }
 
@@ -691,6 +711,32 @@ export abstract class BinopCastCodeGenerator {
 
     }
 
+
+    /**
+     * In assignment contexts java allows implicit narrowing of constant values of type byte, short, char or int
+     * to type byte, short or char if the value is representable in the destination type, e.g. byte b = 10;
+     * (see https://docs.oracle.com/javase/specs/jls/se21/html/jls-5.html#jls-5.2)
+     */
+    isImplicitConstantNarrowingPossible(snippet: CodeSnippet | undefined, destinationType: JavaType | undefined): boolean {
+        if (!snippet?.type || !destinationType || !snippet.isConstant()) return false;
+        if (!snippet.type.isPrimitive || !destinationType.isPrimitive) return false;
+
+        let fromIndex = primitiveTypeMap[snippet.type.identifier];
+        let toIndex = primitiveTypeMap[destinationType.identifier];
+        if ([nByte, nShort, nInteger, nChar].indexOf(fromIndex) < 0) return false;
+
+        let value = snippet.getConstantValue();
+        if (typeof value == "string") value = value.charCodeAt(0);
+        if (typeof value != "number") return false;
+
+        switch (toIndex) {
+            case nByte: return value >= -128 && value <= 127;
+            case nShort: return value >= -32768 && value <= 32767;
+            case nChar: return value >= 0 && value <= 65535;
+        }
+
+        return false;
+    }
 
     canCastTo(typeFrom: JavaType | undefined, typeTo: JavaType | undefined, castType: "explicit" | "implicit"): boolean {
 
@@ -894,6 +940,11 @@ export abstract class BinopCastCodeGenerator {
             return;
         }
 
+        if ([TokenType.plusPlus, TokenType.minusMinus].indexOf(operator) >= 0 && boxedTypesMap[operand.type.identifier]) {
+            let snippet = this.compileBoxedIncrementOrDecrement(operand, operator, true, operand.range!);
+            if (snippet) return snippet;
+        }
+
         operand = this.unbox(operand);
         let operatorAsString = TokenTypeReadable[operator];
 
@@ -940,6 +991,31 @@ export abstract class BinopCastCodeGenerator {
         return;
 
 
+    }
+
+    /**
+     * ++ and -- for variables of type Integer, Double, ...
+     * Objects of these wrapper classes are immutable in java, so the variable gets a new object
+     * (otherwise other variables referencing the same object would see the change).
+     * Returns undefined if operand is not suitable.
+     */
+    compileBoxedIncrementOrDecrement(operand: CodeSnippet, operator: TokenType, isPrefix: boolean, range: IRange): CodeSnippet | undefined {
+        let boxedIdentifier = operand.type?.identifier;
+        if (["Byte", "Short", "Integer", "Long", "Float", "Double"].indexOf(boxedIdentifier) < 0) return undefined;
+        // operand is inserted twice into the template, so it has to be free of side effects
+        if (!operand.isLefty || !operand.isPureTerm()) return undefined;
+
+        let unboxedType = this.getUnboxedType(operand.type);
+        let op = operator == TokenType.plusPlus ? "+" : "-";
+        let newObject = (oldObject: string) => `new ${Helpers.classes}["${boxedIdentifier}"](${oldObject}.value ${op} 1)`;
+
+        let template = isPrefix ?
+            // ++i: assign new object, value of expression is new value
+            `(§1 = ${newObject(Helpers.checkNPE('§1', range))}).value` :
+            // i++: assign new object, value of expression is old value
+            `((__boxed) => (§1 = ${newObject('__boxed')}, __boxed.value))(${Helpers.checkNPE('§1', range)})`;
+
+        return new OneParameterTemplate(template).applyToSnippet(unboxedType, range, operand);
     }
 
     applyUnaryOperatorConsideringConstantFolding(operator: string, resultType: JavaType, range: IRange, snippet: CodeSnippet): CodeSnippet {

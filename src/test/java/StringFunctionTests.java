@@ -180,3 +180,28 @@ try {
    caught = true;
 }
 assertTrue(caught, "IllegalFormatException (a RuntimeException) expected for an unknown conversion.");
+
+/**::
+ * Operator += for String variables with right operand of any type
+ */
+String s = "";
+s += 5;
+s += 'c';
+s += true;
+s += 2L;
+s += "|";
+Integer boxed = 7;
+s += boxed;
+s += new Fraction(1, 2);
+assertEquals("5ctrue2|71/2", s, "String += int, char, boolean, long, Integer, Object");
+
+String t = "x";
+for (int i = 0; i < 3; i++) t += i;
+assertEquals("x012", t, "String += int in loop");
+
+class Fraction {
+   int n;
+   int d;
+   Fraction(int n, int d) { this.n = n; this.d = d; }
+   public String toString() { return n + "/" + d; }
+}
