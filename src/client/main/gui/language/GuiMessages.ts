@@ -340,6 +340,18 @@ export class GuiMessages {
         "fr": "Tutoriel Java interactif avec de nombreux exemples",
     })
 
+    static AssemblerTutorial = () => lm({
+        "de": "Interaktives Assembler-Tutorial mit vielen Beispielen",
+        "en": "Interactive Assembler tutorial",
+        "fr": "Tutoriel Assembleur interactif avec de nombreux exemples",
+    })
+
+    static AssemblerDoku = () => lm({
+        "de": "Maschinensprache-Programmierung (Assembler) - Dokumentation",
+        "en": "Machine language programming (assembler) - documentation",
+        "fr": "Documentation de la programmation en langage machine (assembleur)",
+    })
+
     static APIDoc = () => lm({
         "de": "API-Dokumentation",
         "en": "API documentation",
