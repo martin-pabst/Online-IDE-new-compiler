@@ -490,8 +490,12 @@ export abstract class StatementParser extends TermParser {
             this.nextToken(); // skip case or default
 
             let constants: ASTTermNode[] = [];
-            let caseNode = this.nodeFactory.buildCaseNode(caseDefaultToken, constants);
-        
+            let caseNode = this.nodeFactory.buildCaseNode(caseDefaultToken, !isCase, constants);
+
+            if (!isCase && switchNode.caseNodes.some(cn => cn.isDefaultNode)) {
+                this.pushError(JCM.duplicateDefaultLabel(), "error", caseDefaultToken.range);
+            }
+
             if(isCase){
                 do {
                     let constant = this.parseTermUnary();
@@ -509,11 +513,7 @@ export abstract class StatementParser extends TermParser {
                 if (statement) caseNode.statements.push(statement);
             }
             this.setEndOfRange(caseNode);
-            if (isCase) {
-                switchNode.caseNodes.push(caseNode);
-            } else {
-                switchNode.defaultNode = caseNode;
-            }
+            switchNode.caseNodes.push(caseNode);
         }
 
         this.expect(TokenType.rightCurlyBracket, true);

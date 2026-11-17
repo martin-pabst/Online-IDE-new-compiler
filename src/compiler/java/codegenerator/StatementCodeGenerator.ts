@@ -3,7 +3,6 @@ import { ErrorLevel } from "../../common/Error.ts";
 import { CatchBlockInfo } from "../../common/interpreter/ExceptionInfo.ts";
 import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
 import { EmptyRange, IRange, Range } from "../../common/range/Range.ts";
-import { Position } from "../../common/range/Position.ts";
 import { TokenType } from "../TokenType";
 import { JCM } from "../language/JavaCompilerMessages.ts";
 import { JavaCompiledModule } from "../module/JavaCompiledModule";
@@ -716,9 +715,44 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         return !x.includes(undefined);
     }
 
-    compileCaseStatement(node: ASTCaseNode, index: number, labelArray: Array<LabelCodeSnippet>,
+    /**
+     * Compiles one statement group (case ...: statements or default: statements) of a switch statement.
+     * @returns [snippet with case/default label(s) inside the javascript switch statement which jumps to label,
+     *           snippet consisting of label followed by the statements of this group]
+     */
+    compileCaseStatement(node: ASTCaseNode, label: LabelCodeSnippet,
         typeId: string | undefined, enumType: JavaEnum | undefined): [CodeSnippet, CodeSnippet] | undefined {
-        if (!node.constants) return undefined;
+
+        let caseSnippet = new CodeSnippetContainer([], node.range);
+
+        if (node.isDefaultNode) {
+            caseSnippet.addStringPart("default: \n", node.range);
+        } else if (!this.compileCaseLabels(node, caseSnippet, typeId, enumType)) {
+            return undefined;
+        }
+
+        caseSnippet.addParts(new JumpToLabelCodeSnippet(label));
+
+        this.missingStatementManager.openBranch();
+        let statementCode = node.statements.map((statementNode) => this.compileStatementOrTerm(statementNode));
+        this.missingStatementManager.closeBranch(this.module.errors);
+
+        if (!this.listHasNoUndefined(statementCode)) return undefined;
+
+        let caseStatementSnippet = new CodeSnippetContainer([], node.range);
+        caseStatementSnippet.addParts(label);
+        caseStatementSnippet.addParts(statementCode);
+        caseStatementSnippet.addNextStepMark();
+
+        return [caseSnippet, caseStatementSnippet];
+    }
+
+    /**
+     * Compiles the constants of a case node and adds a javascript case label for each of them to caseSnippet.
+     * @returns false if no constant could be compiled
+     */
+    compileCaseLabels(node: ASTCaseNode, caseSnippet: CodeSnippetContainer,
+        typeId: string | undefined, enumType: JavaEnum | undefined): boolean {
 
         let constants: CodeSnippet[] = [];
 
@@ -741,7 +775,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 let enumIndex = enumType.fields.findIndex(field => field.identifier == enumIdentifier);
                 if (enumIndex < 0) {
                     this.pushError(JCM.enumIdentifierUnknown(enumType.identifier, enumIdentifier), "error", constantNode.range);
-                    return undefined;
+                    return false;
                 }
                 this.registerUsagePosition(enumType.fields[enumIndex], enumIdentifierRange);
                 constant = new StringCodeSnippet(enumIndex + "", enumIdentifierRange, this.intType, enumIndex);
@@ -762,11 +796,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         }
 
         if (constants.length == 0) {
-            return undefined;
+            return false;
         }
-
-        let caseSnippet = new CodeSnippetContainer([], node.range);
-        let caseStatementSnippet = new CodeSnippetContainer([], node.range);
 
         for (let constant of constants) {
             let constantValue = constant.getConstantValue();
@@ -785,23 +816,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             }
         }
 
-
-        caseSnippet.addParts(new JumpToLabelCodeSnippet(labelArray[index]));
-
-        this.missingStatementManager.openBranch();
-        let statementCode = node.statements.map((statementNode) => {
-            let snippet = this.compileStatementOrTerm(statementNode);
-            return snippet;
-        });
-        this.missingStatementManager.closeBranch(this.module.errors);
-
-        if (!this.listHasNoUndefined(statementCode)) return undefined;
-
-        caseStatementSnippet.addParts(labelArray[index]);
-        caseStatementSnippet.addParts(statementCode);
-        caseStatementSnippet.addNextStepMark();
-
-        return [caseSnippet, caseStatementSnippet];
+        return true;
     }
 
     /*
@@ -842,81 +857,36 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         if (!type) return undefined;
 
-        // Contains one label for every case
-        // plus one label for default if it exists
-        // plus one label to break out of the switch-case expression
-
-
         this.pushAndGetNewSymbolTable(node.range, false);
 
-        let labelArray = [...node.caseNodes].map((_) => new LabelCodeSnippet());
-        let defaultLabel: LabelCodeSnippet | undefined;
-        if (node.defaultNode) {
-            defaultLabel = new LabelCodeSnippet();
-            labelArray.push(defaultLabel);
-        }
         let breakLabel = new LabelCodeSnippet();
         this.breakStack.push(breakLabel);
 
-        labelArray.push(breakLabel);
-
-        // Statement groups (case ...: statements; default: statements) have to be compiled and emitted
+        // Statement groups (case ...: statements; default: statements) are compiled and emitted
         // in source code order, because control falls through from each group to the next one.
-        // The default group may be at any position.
-        let defaultPosition = node.caseNodes.length;
-        if (node.defaultNode) {
-            let defaultStart = Range.getStartPosition(node.defaultNode.range);
-            let index = node.caseNodes.findIndex(cn => Position.isBefore(defaultStart, Range.getStartPosition(cn.range)));
-            if (index >= 0) defaultPosition = index;
-        }
-
+        // Each of them gets its own label; the javascript switch statement only jumps to these labels.
         let caseLabelSnippets: CodeSnippet[] = [];
         let statementGroupSnippets: CodeSnippet[] = [];
-        let errorInDefaultGroup = false;
 
-        for (let i = 0; i <= node.caseNodes.length; i++) {
-            if (node.defaultNode && i == defaultPosition) {
-                let defaultSnippet = new CodeSnippetContainer([], node.defaultNode.range);
-                defaultSnippet.addParts(defaultLabel!);
-
-                this.missingStatementManager.openBranch();
-                let statementCode = node.defaultNode.statements.map((statementNode) => this.compileStatementOrTerm(statementNode));
-                this.missingStatementManager.closeBranch(this.module.errors);
-
-                if (this.listHasNoUndefined(statementCode)) {
-                    defaultSnippet.addParts(statementCode);
-                    defaultSnippet.addNextStepMark();
-                    statementGroupSnippets.push(defaultSnippet);
-                } else {
-                    errorInDefaultGroup = true;
-                }
-            }
-
-            if (i < node.caseNodes.length) {
-                let caseSnippets = this.compileCaseStatement(node.caseNodes[i], i, labelArray, enumType ? "int" : type.identifier, enumType);
-                if (caseSnippets) {
-                    caseLabelSnippets.push(caseSnippets[0]);
-                    statementGroupSnippets.push(caseSnippets[1]);
-                }
+        for (let caseNode of node.caseNodes) {
+            let caseSnippets = this.compileCaseStatement(caseNode, new LabelCodeSnippet(), enumType ? "int" : type.identifier, enumType);
+            if (caseSnippets) {
+                caseLabelSnippets.push(caseSnippets[0]);
+                statementGroupSnippets.push(caseSnippets[1]);
             }
         }
 
-        this.missingStatementManager.endBranchingOfSwitchStatement(node.defaultNode != null, this.labelsTargetedByBreak.has(breakLabel));
+        let hasDefaultNode = node.caseNodes.some(caseNode => caseNode.isDefaultNode);
+        this.missingStatementManager.endBranchingOfSwitchStatement(hasDefaultNode, this.labelsTargetedByBreak.has(breakLabel));
 
         this.breakStack.pop();
         this.popSymbolTable();
-
-        if (errorInDefaultGroup) return undefined;
 
         let switchSnippet = new CodeSnippetContainer([], node.range);
 
         switchSnippet.addParts(SnippetFramer.frame(term, "switch(§1){\n", this.voidType));
 
         caseLabelSnippets.forEach(caseLabelSnippet => switchSnippet.addParts(caseLabelSnippet));
-        if (node.defaultNode) {
-            switchSnippet.addStringPart("default: \n", node.range);
-            switchSnippet.addParts(new JumpToLabelCodeSnippet(defaultLabel!));
-        }
 
         switchSnippet.addStringPart("\n }\n", undefined);
 

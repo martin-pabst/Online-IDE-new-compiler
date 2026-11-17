@@ -501,15 +501,15 @@ export interface ASTEnhancedForLoopNode extends ASTStatementNode {
 
 export interface ASTCaseNode extends ASTNode {
     kind: TokenType.keywordCase;
-    constants: ASTTermNode[] | undefined;  // undefined in case of default:
+    isDefaultNode: boolean;
+    constants: ASTTermNode[];  // empty in case of default:
     statements: ASTStatementNode[];
 }
 
 export interface ASTSwitchCaseNode extends ASTStatementNode {
     kind: TokenType.keywordSwitch;
     term: ASTTermNode;
-    caseNodes: ASTCaseNode[];
-    defaultNode: ASTCaseNode | undefined;
+    caseNodes: ASTCaseNode[];   // case and default nodes in source code order
 }
 
 export interface ASTContinueNode extends ASTStatementNode {

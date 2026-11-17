@@ -642,15 +642,15 @@ export class ASTNodeFactory {
             kind: TokenType.keywordSwitch,
             range: tokenSwitch.range,
             term: term,
-            caseNodes: [],
-            defaultNode: undefined
+            caseNodes: []
         }
     }
 
-    buildCaseNode(caseToken: Token, constants: ASTTermNode[] | undefined): ASTCaseNode {
+    buildCaseNode(caseToken: Token, isDefaultNode: boolean, constants: ASTTermNode[]): ASTCaseNode {
         return {
             kind: TokenType.keywordCase,
             range: caseToken.range,
+            isDefaultNode: isDefaultNode,
             constants: constants,
             statements: []
         }

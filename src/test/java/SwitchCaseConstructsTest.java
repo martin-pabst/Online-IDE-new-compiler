@@ -404,3 +404,32 @@ double d = 1.0;
 switch (d) {
    default: break;
 }
+
+/**::
+ * default branch as first statement group: falls through to following case
+ */
+assertEquals("d1", traceDefaultFirst(5), "default falls through to case 1");
+assertEquals("1", traceDefaultFirst(1), "case 1");
+assertEquals("2", traceDefaultFirst(2), "case 2");
+
+String traceDefaultFirst(int x) {
+   String s = "";
+   switch (x) {
+      default: s += "d";
+      case 1: s += "1"; break;
+      case 2: s += "2";
+   }
+   return s;
+}
+
+/**::
+ * switch with more than one default label
+ * { "expectedCompilationError": {"id": "duplicateDefaultLabel", "line": 10}}
+ */
+
+int x = 1;
+switch (x) {
+   default: break;
+   case 1: break;
+   default: break;
+}

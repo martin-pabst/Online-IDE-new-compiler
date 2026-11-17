@@ -781,6 +781,13 @@ export class JCM {
         "fr": `Constante manquante entre case et le deux-points.`,
     })
 
+    static duplicateDefaultLabel = () => le({
+        "id": "duplicateDefaultLabel",
+        "de": "Eine switch-Anweisung darf höchstens einen default-Block enthalten.",
+        "en": `A switch statement must not contain more than one default label.`,
+        "fr": `Une instruction switch ne peut pas contenir plus d'une étiquette default.`,
+    })
+
     static statementOrBlockExpected = () => le({
         "de": "Hier wird eine Anweisung oder ein Anweisungsblock (in geschweiften Klammern) erwartet.",
         "en": `Statement or block-Statement in curly braces { ... } expected.`,
