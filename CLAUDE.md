@@ -16,11 +16,13 @@ UI texts, comments and the README are mostly German; user-facing strings are bil
 npm run dev            # Vite dev server on http://localhost:3000 (proxies /servlet, /sprites to a backend on localhost:5500)
 npm run build          # tsc type check + IDE build (dist/) + embedded build
 npm run build-ide      # tsc + IDE build only
-npm test               # vitest (jsdom), watch mode
+npm test               # vitest (jsdom), watch mode - never returns, don't use from the Bash tool
 npx vitest run --config vitest.config.ts                         # run all tests once
 npx vitest run --config vitest.config.ts src/test/JavaTests.test.ts -t "ArithmeticTest.java"   # one test file's cases
 npx tsc                # type check only (noEmit)
 ```
+
+On Windows from Claude Code's Bash tool, run tests as described in "Running tests from the Bash tool" below.
 
 `deploy`/`build-deploy` upload via SSH (`src/development/ZipAndUpload.js`) — don't run them unless asked. There is no active ESLint config (`eslint.config.js1` is disabled). `tsconfig.json` has `strict: false`.
 
@@ -31,6 +33,22 @@ Tests are data-driven, not hand-written vitest cases:
 - Block bodies are top-level Java statements (main program) plus classes; they use the built-in `assertEquals`/`assertTrue`/... functions, which report through `ViteTestAssertions`. The test compiles with `JavaCompiler`, then runs via `Interpreter.runMainProgramSynchronously()`.
 - `src/test/AssemblyTests.test.ts` does the same for `src/test/assembly/*.asm`.
 - To add a regression test for a compiler/runtime bug, add a `/**::` block to the fitting `.java` file in `src/test/java/`.
+- The harness only checks `error`-level messages; warnings and infos are ignored. To check a warning, write a temporary `src/test/Tmp*.test.ts` and delete it afterwards. It must import `"../compiler/common/interpreter/Interpreter"` before `JavaCompiler`, otherwise an import cycle fails with `Class extends value undefined is not a constructor`.
+
+### Running tests from the Bash tool (Windows, Git Bash)
+
+Use exactly this pattern (put the output file in the session's scratchpad directory):
+
+```
+cd /C/Vorhaben/Online-IDE-new-compiler && NO_COLOR=1 FORCE_COLOR=0 npx vitest run --config vitest.config.ts src/test/JavaTests.test.ts -t "SwitchCaseConstructsTest.java" > <scratchpad>/vitest.txt 2>&1; echo exit=$?
+grep -E "FAIL|Test Files|Tests " <scratchpad>/vitest.txt
+```
+
+- **Uppercase drive letter:** always `cd /C/...` first. If vitest starts in the default working directory `c:\...`, it loads `@vitest/runner` twice (`file:///c:/` and `file:///C:/`). Every suite then fails with `Cannot read properties of undefined (reading 'test')` / `No test suite found`, and not a single test has run.
+- **No non-ASCII characters in Bash tool commands** (e.g. ✓, ×): the command fails with exit code 127 before it runs. vitest marks tests with ✓/×, so grep for ASCII text instead.
+- **Reading results:** `exit=0` means all passed. Each failed test is listed as `FAIL  src/test/JavaTests.test.ts > File <name>.java: <title>`. The reason is in the `stderr | ... > File <name>.java: <title>` block printed earlier. It shows unexpected compiler errors with line numbers, `Expected Error with id ... on line ...`, or assertion messages; read it with the Grep tool or `grep -A`.
+- `NO_COLOR=1 FORCE_COLOR=0` turns off ANSI color codes, which would otherwise break grep patterns. The output has one line per test, so redirect it to a file instead of piping it.
+- `-t` filters by test name, `File <name>.java: <title of the /**:: block>`. Leave out `src/test/JavaTests.test.ts -t ...` to run all suites (about 30 s).
 
 ## Architecture
 

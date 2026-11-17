@@ -282,6 +282,13 @@ export class JCM {
         "fr": `L'instruction break n'est attendue qu'à l'intérieur des boucles (for, while, do...while) et des instructions switch.`,
     })
 
+    static unreachableBreakStatement = () => le({
+        "id": "unreachableBreakStatement",
+        "de": "Diese break-Anweisung wird nie ausgeführt, da vor ihr eine return- oder throw-Anweisung steht. Sie kann entfernt werden.",
+        "en": "This break statement is never executed because it follows a return or throw statement. It can be removed.",
+        "fr": "Cette instruction break n'est jamais exécutée car elle suit une instruction return ou throw. Elle peut être supprimée.",
+    })
+
     static noVariableDeclarationWhileProgramIsRunning = () => le({
         "de": "Während ein Programm läuft (oder pausiert ist) kann keine Variable in der Konsole deklariert werden.",
         "en": `You can't declare a variable while a program is running (or paused).`,

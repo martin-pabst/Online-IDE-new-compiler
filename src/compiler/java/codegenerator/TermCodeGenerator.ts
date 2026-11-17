@@ -51,6 +51,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
     breakStack: LabelCodeSnippet[] = [];
     continueStack: LabelCodeSnippet[] = [];
     labelsTargetedByBreak: Set<LabelCodeSnippet> = new Set();
+    labelsTargetedByContinue: Set<LabelCodeSnippet> = new Set();
 
     // field initializers and instance initializer blocks which have to be executed directly after explicit super(...)-call in constructor
     snippetsToInsertAfterSuperConstructorCall: CodeSnippet[] | undefined;

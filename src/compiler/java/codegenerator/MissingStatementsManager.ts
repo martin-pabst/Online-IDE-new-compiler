@@ -248,4 +248,14 @@ export class MissingStatementManager {
         if(currentMissingStatements) return currentMissingStatements.returnHappened;
     }
 
+    /**
+     * Statements whose parts don't open branches (loops, try/catch) use this to
+     * set the flag to the value valid after the whole statement, see
+     * https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-14.22
+     */
+    setReturnHappened(returnHappened: boolean){
+        let currentMissingStatements = this.stack[this.stack.length - 1];
+        if(currentMissingStatements) currentMissingStatements.returnHappened = returnHappened;
+    }
+
 }

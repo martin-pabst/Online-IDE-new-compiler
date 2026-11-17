@@ -433,3 +433,89 @@ switch (x) {
    case 1: break;
    default: break;
 }
+
+/**::
+ * break after return/throw is never executed, so the switch statement still returns in every case
+ */
+assertTrue(method(), "example with break after return in default branch");
+assertEquals(true, isOne(1), "case 1");
+assertEquals(false, isOne(2), "default branch: return followed by break");
+assertEquals("small", size(1), "case 1: return followed by break");
+assertEquals("big", size(50), "default: if/else with return in both branches followed by break");
+assertEquals("huge", size(500), "default: if/else with return in both branches followed by break");
+try {
+   size(2);
+   fail("case 2 must throw an exception");
+} catch (RuntimeException e) {
+   assertEquals("two", e.getMessage(), "case 2: throw followed by break");
+}
+
+boolean method() {
+   switch(1) {
+      default :
+         return true;
+         break;
+      case 1 :
+         return true;
+   }
+}
+
+boolean isOne(int x) {
+   switch (x) {
+      default:
+         return false;
+         break;
+      case 1:
+         return true;
+   }
+}
+
+String size(int x) {
+   switch (x) {
+      case 1:
+         return "small";
+         break;
+      case 2:
+         throw new RuntimeException("two");
+         break;
+      default:
+         if (x > 100) return "huge"; else return "big";
+         break;
+   }
+}
+
+/**::
+ * Missing return: break after a loop whose body returns is executed and leaves the switch statement
+ * { "expectedCompilationError": {"id": "returnStatementMissing", "line": 7}}
+ */
+
+class A {
+   int f(int x, boolean c) {
+      switch (x) {
+         case 1:
+            while (c) { return 10; }
+            break;
+         default: return 30;
+      }
+   }
+}
+
+/**::
+ * Missing return: break after a try-catch statement whose catch block doesn't return leaves the switch statement
+ * { "expectedCompilationError": {"id": "returnStatementMissing", "line": 7}}
+ */
+
+class A {
+   int f(int x) {
+      switch (x) {
+         case 1:
+            try {
+               return 10;
+            } catch (Exception e) {
+               println("exception");
+            }
+            break;
+         default: return 30;
+      }
+   }
+}

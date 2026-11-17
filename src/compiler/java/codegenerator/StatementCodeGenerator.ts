@@ -154,7 +154,12 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             this.pushError(JCM.breakNotExpected(), "error", node);
             return undefined;
         }
-        this.labelsTargetedByBreak.add(label);  // needed by compileSwitchCaseStatement to check for missing return statements
+        if (this.missingStatementManager.hasReturnHappened()) {
+            // break after return/throw is never executed, so it doesn't leave the switch statement/loop
+            this.pushError(JCM.unreachableBreakStatement(), "warning", node);
+        } else {
+            this.labelsTargetedByBreak.add(label);  // needed by compileSwitchCaseStatement and loops to check for missing return statements
+        }
         let snippet = new JumpToLabelCodeSnippet(label);
         snippet.range = node.range;
         return snippet;
@@ -165,6 +170,9 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if (!label) {
             this.pushError(JCM.continueNotExpected(), "error", node);
             return undefined;
+        }
+        if (!this.missingStatementManager.hasReturnHappened()) {
+            this.labelsTargetedByContinue.add(label);   // needed by compileDoStatement to check for missing return statements
         }
         let snippet = new JumpToLabelCodeSnippet(label);
         snippet.range = node.range;
@@ -250,6 +258,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         */
         let forLoopSymbolTable = this.pushAndGetNewSymbolTable(node.range, false);
 
+        // the loop body may be executed zero times, so return statements inside it don't count after the loop
+        let returnHappenedBeforeLoop = !!this.missingStatementManager.hasReturnHappened();
 
         let continueLabel = new LabelCodeSnippet();
         this.continueStack.push(continueLabel);
@@ -430,7 +440,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             this.pushError(JCM.enhancedForLoopOnlyForArraysCollectionsIterables(), "error", node.collection.range);
         }
 
-
+        this.missingStatementManager.setReturnHappened(returnHappenedBeforeLoop);
 
         this.continueStack.pop();
         this.breakStack.pop();
@@ -492,7 +502,12 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         let lastStatement = this.compileStatementOrTerm(node.lastStatement);
 
+        let returnHappenedBeforeLoop = !!this.missingStatementManager.hasReturnHappened();
         let statementsToRepeat = this.compileStatementOrTerm(node.statementToRepeat);
+        // for(...; ; ...) and for(...; true; ...) without break statement can't complete normally
+        let loopCanCompleteNormally = (node.condition && !this.isConstantWithValue(condition, !negationResult?.negationHappened)) ||
+            this.labelsTargetedByBreak.has(labelAfterForBlock);
+        this.missingStatementManager.setReturnHappened(returnHappenedBeforeLoop || !loopCanCompleteNormally);
 
         if (!statementsToRepeat) {
             this.popSymbolTable();
@@ -551,7 +566,14 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let labelAfterDoWhileBlock = new LabelCodeSnippet();
         this.breakStack.push(labelAfterDoWhileBlock);
 
+        let returnHappenedBeforeLoop = !!this.missingStatementManager.hasReturnHappened();
         let statementToRepeat = this.compileStatementOrTerm(node.statementToRepeat);
+        // the body of a do-while loop is executed at least once
+        let bodyCanCompleteNormally = !this.missingStatementManager.hasReturnHappened() || this.labelsTargetedByContinue.has(labelBeforeEvaluatingCondition);
+        let loopCanCompleteNormally = (bodyCanCompleteNormally && !this.isConstantWithValue(condition, true)) ||
+            this.labelsTargetedByBreak.has(labelAfterDoWhileBlock);
+        this.missingStatementManager.setReturnHappened(returnHappenedBeforeLoop || !loopCanCompleteNormally);
+
         let doWhileSnippet = new CodeSnippetContainer([], node.range);
 
         if (!condition || !statementToRepeat) return undefined;
@@ -650,7 +672,13 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let labelAfterWhileBlock = new LabelCodeSnippet();
         this.breakStack.push(labelAfterWhileBlock);
 
+        let returnHappenedBeforeLoop = !!this.missingStatementManager.hasReturnHappened();
         let statementToRepeat = this.compileStatementOrTerm(node.statementToRepeat);
+        // while(true) without break statement can't complete normally
+        let loopCanCompleteNormally = !this.isConstantWithValue(condition, !negationResult.negationHappened) ||
+            this.labelsTargetedByBreak.has(labelAfterWhileBlock);
+        this.missingStatementManager.setReturnHappened(returnHappenedBeforeLoop || !loopCanCompleteNormally);
+
         let whileSnippet = new CodeSnippetContainer([], node.range);
 
         if (!condition || !statementToRepeat) return undefined;
@@ -675,6 +703,10 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         return whileSnippet;
     }
 
+
+    isConstantWithValue(snippet: CodeSnippet | undefined, value: boolean): boolean {
+        return !!snippet && snippet.isConstant() && snippet.getConstantValue() === value;
+    }
 
     negateConditionIfPossible(node: ASTTermNode): { newNode: ASTTermNode, negationHappened: boolean } {
         if (!node) return undefined;
@@ -1217,7 +1249,11 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             step.finallyBlockIndex = finallyBlockLabel?.stepIndex;
         });
 
+        // try-catch statement returns if try block and all catch blocks return (or if finally block returns)
+        let returnHappenedBeforeTryStatement = !!this.missingStatementManager.hasReturnHappened();
         let tryBlockStatements = this.compileStatementOrTerm(node.tryStatement);
+        let tryAndCatchBlocksReturn = !!this.missingStatementManager.hasReturnHappened();
+        this.missingStatementManager.setReturnHappened(returnHappenedBeforeTryStatement);
         if (!tryBlockStatements) return undefined;
 
         if (tryBlockStatements instanceof CodeSnippetContainer) tryBlockStatements.removeNextStepBeforeSnippetMark();
@@ -1244,6 +1280,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             snippetContainer.addParts(storeExceptionVariableStatement);
 
             let statement = this.compileStatementOrTerm(catchCase.statement);
+            tryAndCatchBlocksReturn = tryAndCatchBlocksReturn && !!this.missingStatementManager.hasReturnHappened();
+            this.missingStatementManager.setReturnHappened(returnHappenedBeforeTryStatement);
 
             if (statement) {
                 if (statement instanceof CodeSnippetContainer) statement.removeNextStepBeforeSnippetMark();
@@ -1253,6 +1291,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             snippetContainer.addParts(labelAfterLastCatchBlock.getJumpToSnippet());
 
         }
+
+        this.missingStatementManager.setReturnHappened(returnHappenedBeforeTryStatement || tryAndCatchBlocksReturn);
 
         finallyBlockLabel = new LabelCodeSnippet();
         snippetContainer.addNextStepMark();

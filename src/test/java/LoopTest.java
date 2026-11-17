@@ -299,3 +299,79 @@ for(int i = 0; i < max - 2; i++) {
 }
 
 assertEquals(207, k, "Suche nach Primzahlzwillingen gescheitert");
+
+/**::
+ * Loops which can't complete normally (while(true), for(;;), do...while(true) without break) need no return statement after them
+ */
+assertEquals(4, firstSquareAbove(10), "while(true) with return inside");
+assertEquals(128, firstPowerOfTwoAbove(100), "for(;;) with return inside");
+assertEquals(21, firstMultipleOfSeven(15), "do...while(true) with return inside");
+assertEquals(42, returnInDoBody(), "body of do...while loop is executed at least once");
+
+int firstSquareAbove(int limit) {
+   int i = 1;
+   while (true) {
+      if (i * i > limit) return i;
+      i++;
+   }
+}
+
+int firstPowerOfTwoAbove(int limit) {
+   for (int p = 1; ; p *= 2) {
+      if (p > limit) return p;
+   }
+}
+
+int firstMultipleOfSeven(int start) {
+   int i = start;
+   do {
+      if (i % 7 == 0) return i;
+      i++;
+   } while (true);
+}
+
+int returnInDoBody() {
+   do {
+      return 42;
+   } while (false);
+}
+
+/**::
+ * Missing return: loops whose body returns may complete normally
+ * { "expectedCompilationErrors": [{"id": "returnStatementMissing", "line": 7}, {"id": "returnStatementMissing", "line": 11}, {"id": "returnStatementMissing", "line": 15}, {"id": "returnStatementMissing", "line": 19}, {"id": "returnStatementMissing", "line": 26}, {"id": "returnStatementMissing", "line": 33}]}
+ */
+
+class A {
+   int whileLoop(boolean c) {
+      while (c) { return 1; }
+   }
+
+   int enhancedForLoop(int[] values) {
+      for (int v : values) { return v; }
+   }
+
+   int forLoop(int n) {
+      for (int i = 0; i < n; i++) { return i; }
+   }
+
+   int doWhileLoopWithBreak(boolean c) {
+      do {
+         if (c) break;
+         return 1;
+      } while (c);
+   }
+
+   int doWhileLoopWithContinue(boolean c) {
+      do {
+         if (c) continue;
+         return 1;
+      } while (c);
+   }
+
+   int whileTrueLoopWithBreak(boolean c) {
+      while (true) {
+         if (c) break;
+         return 1;
+      }
+   }
+}

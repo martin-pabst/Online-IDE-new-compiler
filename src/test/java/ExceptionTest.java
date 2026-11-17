@@ -36,3 +36,33 @@ class Test {
    }
 
 }
+
+/**::
+ * try-catch statement returns if try block and all catch blocks return
+ */
+assertEquals(5, checkedDivide(10, 2), "try block returns");
+assertEquals(-1, checkedDivide(10, 0), "catch block returns");
+
+int checkedDivide(int a, int b) {
+   try {
+      if (b == 0) throw new ArithmeticException("division by zero");
+      return a / b;
+   } catch (ArithmeticException e) {
+      return -1;
+   }
+}
+
+/**::
+ * Missing return: catch block doesn't return
+ * { "expectedCompilationError": {"id": "returnStatementMissing", "line": 7}}
+ */
+
+class A {
+   int f(int a, int b) {
+      try {
+         return a / b;
+      } catch (ArithmeticException e) {
+         println("division by zero");
+      }
+   }
+}
