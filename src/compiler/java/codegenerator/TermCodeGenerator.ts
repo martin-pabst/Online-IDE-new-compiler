@@ -1,6 +1,6 @@
 import { isBoxedPrimitive } from "util/types";
 import { BaseSymbol, SymbolOnStackframe } from "../../common/BaseSymbolTable";
-import { CodeReacedAssertion } from "../../common/interpreter/CodeReachedAssertions.ts";
+import { CodeReachedAssertion } from "../../common/interpreter/CodeReachedAssertions.ts";
 import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
 import { EmptyRange, IRange, Range } from "../../common/range/Range";
 import { TokenType, TokenTypeReadable } from "../TokenType";
@@ -1661,7 +1661,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             return undefined;
         }
         let message = <string>parameterValues[0].getConstantValue();
-        let codeReachedAssertion = new CodeReacedAssertion(message, this.module, node.range);
+        let codeReachedAssertion = new CodeReachedAssertion(message, this.module, node.range);
         this.module.codeReachedAssertions.registerAssertion(codeReachedAssertion);
 
         return new StringCodeSnippet(`${Helpers.registerCodeReached}("${codeReachedAssertion.key}")`, node.range);
