@@ -41,11 +41,11 @@ Tests are data-driven, not hand-written vitest cases:
 Use exactly this pattern (put the output file in the session's scratchpad directory):
 
 ```
-cd /C/Vorhaben/Online-IDE-new-compiler && NO_COLOR=1 FORCE_COLOR=0 npx vitest run --config vitest.config.ts src/test/JavaTests.test.ts -t "SwitchCaseConstructsTest.java" > <scratchpad>/vitest.txt 2>&1; echo exit=$?
+cd "$(git rev-parse --show-toplevel | sed 's#^\([a-zA-Z]\):#/\U\1#')" && NO_COLOR=1 FORCE_COLOR=0 npx vitest run --config vitest.config.ts src/test/JavaTests.test.ts -t "SwitchCaseConstructsTest.java" > <scratchpad>/vitest.txt 2>&1; echo exit=$?
 grep -E "FAIL|Test Files|Tests " <scratchpad>/vitest.txt
 ```
 
-- **Uppercase drive letter:** always `cd /C/...` first. If vitest starts in the default working directory `c:\...`, it loads `@vitest/runner` twice (`file:///c:/` and `file:///C:/`). Every suite then fails with `Cannot read properties of undefined (reading 'test')` / `No test suite found`, and not a single test has run.
+- **Uppercase drive letter:** the repo lives on different drives depending on the machine (`C:\Vorhaben\...` at work, `D:\Vorhaben\...` at home), so don't hard-code the drive. The `cd "$(git rev-parse --show-toplevel | sed ...)"` prefix changes to the repo root with an uppercase drive letter (`/C/...` or `/D/...`) on either machine. If vitest instead starts in the default working directory with a lowercase drive letter (`c:\...` / `d:\...`), it loads `@vitest/runner` twice (e.g. `file:///c:/` and `file:///C:/`). Every suite then fails with `Cannot read properties of undefined (reading 'test')` / `No test suite found`, and not a single test has run.
 - **No non-ASCII characters in Bash tool commands** (e.g. ✓, ×): the command fails with exit code 127 before it runs. vitest marks tests with ✓/×, so grep for ASCII text instead.
 - **Reading results:** `exit=0` means all passed. Each failed test is listed as `FAIL  src/test/JavaTests.test.ts > File <name>.java: <title>`. The reason is in the `stderr | ... > File <name>.java: <title>` block printed earlier. It shows unexpected compiler errors with line numbers, `Expected Error with id ... on line ...`, or assertion messages; read it with the Grep tool or `grep -A`.
 - `NO_COLOR=1 FORCE_COLOR=0` turns off ANSI color codes, which would otherwise break grep patterns. The output has one line per test, so redirect it to a file instead of piping it.
