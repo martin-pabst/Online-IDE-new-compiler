@@ -39,6 +39,15 @@ export default {
             // no [PLUGIN_TIMINGS] report after each build
             checks: {
                 bundlerTimings: false
+            },
+            // sql.js ships one build for node and browser: its node-only code requires fs, path and crypto,
+            // which vite replaces by empty modules. That's harmless, so don't report it in every build.
+            onLog(level, log, defaultHandler) {
+                if (level === 'warn' && log.message.includes('has been externalized for browser compatibility')
+                    && log.message.includes('/node_modules/sql.js/')) {
+                    return;
+                }
+                defaultHandler(level, log);
             }
         }
     },
