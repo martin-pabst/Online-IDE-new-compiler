@@ -51,6 +51,11 @@ export class GuiComponentClass extends FilledShapeClass implements InternalMouse
 
             this.centerXInitial = 0;
             this.centerYInitial = 0;
+
+            if(this._mj$onChange$void$String != GuiComponentClass.prototype._mj$onChange$void$String){
+                this.world.hasGUIElementsWithUserDefinedListeners = true;
+            }
+
             if(callback) callback();
         });
 
@@ -118,6 +123,7 @@ export class GuiComponentClass extends FilledShapeClass implements InternalMouse
 
     addChangeListener(listener: ChangeListenerInterface) {
         this.changeListeners.push(listener);
+        this.world.hasGUIElementsWithUserDefinedListeners = true;
     }
 
     callOnChange(newValue: string){

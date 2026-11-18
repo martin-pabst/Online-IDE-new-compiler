@@ -659,6 +659,7 @@ export class Interpreter {
 
         let world: IWorld = this.retrieveObject("WorldClass");
         if (this.actorManager.hasActors() || world?.hasActors()) return true;
+        if(world.hasGUIElementsWithUserDefinedListeners) return true;
 
         let timerCount: number = this.retrieveObject(Interpreter.TimerCountIndentifier) || 0;
         return timerCount > 0;

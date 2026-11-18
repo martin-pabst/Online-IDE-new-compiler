@@ -88,6 +88,8 @@ export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem,
 
     shapesNotAffectedByWorldTransforms: ShapeClass[] = [];
 
+    hasGUIElementsWithUserDefinedListeners: boolean = false;
+
     tickerFunction?: (ticker: PIXI.Ticker) => void;
 
 
@@ -215,6 +217,7 @@ export class WorldClass extends BaseWorldClass implements IWorld, GraphicSystem,
         this.app = undefined;
         this.resizeObserver?.disconnect();
         this.graphicsDiv?.remove();
+        this.hasGUIElementsWithUserDefinedListeners = false;
         interpreter.deleteObject("WorldClass");
 
     }

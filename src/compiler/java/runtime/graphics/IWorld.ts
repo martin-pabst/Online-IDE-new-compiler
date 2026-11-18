@@ -20,6 +20,8 @@ export interface IWorld {
     currentHeight: number;
     shapesNotAffectedByWorldTransforms: ShapeClass[];
 
+    hasGUIElementsWithUserDefinedListeners: boolean;
+
     mouseManager: MouseManager;
 
     width: number;
