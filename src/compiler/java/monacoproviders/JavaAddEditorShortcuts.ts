@@ -1,6 +1,5 @@
 import * as monaco from 'monaco-editor'
 import { IMain } from '../../common/IMain';
-import * as actions from "monaco-editor/esm/vs/platform/actions/common/actions";
 
 
 export class JavaAddEditorShortcuts {
