@@ -1,5 +1,12 @@
+/**
+ * Test harness for the Java test files in src/test/java/*.java.
+ *
+ * vitest treats every .java file there as a test file of its own (see "include" in vitest.config.ts):
+ * the plugin javaTestFilePlugin in vitest.config.ts transforms each .java file into a small module
+ * that calls runJavaTestFile(source, fileName). Therefore vitest runs the .java files in parallel
+ * workers and reports each of them separately.
+ */
 import chalk from "chalk";
-import fs from "fs";
 import { test } from "vitest";
 import { Interpreter } from "../compiler/common/interpreter/Interpreter";
 import { JavaCompiler } from "../compiler/java/JavaCompiler";
@@ -10,19 +17,11 @@ import { CompilerFile } from "../compiler/common/module/CompilerFile";
 import { StoreOutputPrintManager } from "./StoreOutputPrintManager";
 import type { Error as CompilerError } from "../compiler/common/Error";
 
-try {
-    let javaDir: string = __dirname + "/java";
-
-    let files = fs.readdirSync(javaDir);
-    for (let i = 0; i < files.length; i++) {
-        let file = files[i];
-        if (file && file.endsWith(".java")) {
-            let data = fs.readFileSync(javaDir + '/' + file, 'utf8');
-            test1(data, file);
-        }
-    }
-} catch (ex) {
-    console.error(ex);
+/**
+ * Splits the content of a .java test file at the /**:: markers and registers one vitest test per block.
+ */
+export function runJavaTestFile(sourcecode: string, file: string) {
+    test1(sourcecode, file);
 }
 
 
@@ -66,7 +65,8 @@ function test1(sourcecode: string, file: string) {
         let titleBegin = sourcecode.indexOf(" * ", testBegin) + 3;
         let titleEnd = sourcecode.indexOf("\n", titleBegin);
 
-        let title = "File " + file + ": " + sourcecode.substring(titleBegin, titleEnd);
+        // vitest shows the file name in front of the test name anyway
+        let title = sourcecode.substring(titleBegin, titleEnd);
 
         let testEnd = sourcecode.indexOf("/**::", testBegin + 1);
         if (testEnd <= testBegin + 1) testEnd = sourcecode.length;

@@ -18,7 +18,7 @@ npm run build          # tsc type check + IDE build (dist/) + embedded build
 npm run build-ide      # tsc + IDE build only
 npm test               # vitest (jsdom), watch mode - never returns, don't use from the Bash tool
 npx vitest run --config vitest.config.ts                         # run all tests once
-npx vitest run --config vitest.config.ts src/test/JavaTests.test.ts -t "ArithmeticTest.java"   # one test file's cases
+npx vitest run --config vitest.config.ts src/test/java/ArithmeticTest.java   # one Java test file
 npx tsc                # type check only (noEmit)
 ```
 
@@ -29,9 +29,10 @@ On Windows from Claude Code's Bash tool, run tests as described in "Running test
 ## Tests
 
 Tests are data-driven, not hand-written vitest cases:
-- `src/test/JavaTests.test.ts` reads every `src/test/java/*.java` file and splits it at `/**::` markers. Each block is one test: the first comment line is the title, and an optional JSON object in the header comment gives `expectedOutput`, `expectedCompilationError(s)` (`{id, line}` — error ids from the compiler messages), `expectedWarnings` (array of `{id, line}`), and `libraries` (e.g. `["nrw"]`, `["niedersachsen"]`, `["gng"]`). `line` is relative to the block: the `/**::` line is line 1.
+- Every `src/test/java/*.java` file is a vitest test file of its own (`include` in `vitest.config.ts`), so the files run in parallel and are reported separately. The plugin `javaTestFilePlugin` in `vitest.config.ts` turns each `.java` file into a module that passes its source to `runJavaTestFile` in `src/test/JavaTestHarness.ts`. The harness splits the source at `/**::` markers. Each block is one test: the first comment line is the title, and an optional JSON object in the header comment gives `expectedOutput`, `expectedCompilationError(s)` (`{id, line}` — error ids from the compiler messages), `expectedWarnings` (array of `{id, line}`), and `libraries` (e.g. `["nrw"]`, `["niedersachsen"]`, `["gng"]`). `line` is relative to the block: the `/**::` line is line 1.
 - Block bodies are top-level Java statements (main program) plus classes; they use the built-in `assertEquals`/`assertTrue`/... functions, which report through `ViteTestAssertions`. The test compiles with `JavaCompiler`, then runs via `Interpreter.runMainProgramSynchronously()`.
-- `src/test/AssemblyTests.test.ts` does the same for `src/test/assembly/*.asm`.
+- `src/test/AssemblyTests.test.ts` does the same for `src/test/assembly/*.asm`, but as a single test file.
+- `vitest.config.ts` sets `isolate: false` and a `threads` pool with at most 4 workers, so each worker imports the compiler only once. Test files therefore share module state.
 - To add a regression test for a compiler/runtime bug, add a `/**::` block to the fitting `.java` file in `src/test/java/`.
 - Warnings are only checked in blocks that have `expectedWarnings`: then every warning must be listed and every listed warning must occur (`"expectedWarnings": []` asserts that there are no warnings). Without the field, warnings are ignored. Infos are never checked. Warnings without an `id` in `JavaCompilerMessages` get the id `"no id"`.
 - For other checks (e.g. infos, message texts), write a temporary `src/test/Tmp*.test.ts` and delete it afterwards. It must import `"../compiler/common/interpreter/Interpreter"` before `JavaCompiler`, otherwise an import cycle fails with `Class extends value undefined is not a constructor`.
@@ -41,15 +42,15 @@ Tests are data-driven, not hand-written vitest cases:
 Use exactly this pattern (put the output file in the session's scratchpad directory):
 
 ```
-cd "$(git rev-parse --show-toplevel | sed 's#^\([a-zA-Z]\):#/\U\1#')" && NO_COLOR=1 FORCE_COLOR=0 npx vitest run --config vitest.config.ts src/test/JavaTests.test.ts -t "SwitchCaseConstructsTest.java" > <scratchpad>/vitest.txt 2>&1; echo exit=$?
+cd "$(git rev-parse --show-toplevel | sed 's#^\([a-zA-Z]\):#/\U\1#')" && NO_COLOR=1 FORCE_COLOR=0 npx vitest run --config vitest.config.ts src/test/java/SwitchCaseConstructsTest.java > <scratchpad>/vitest.txt 2>&1; echo exit=$?
 grep -E "FAIL|Test Files|Tests " <scratchpad>/vitest.txt
 ```
 
 - **Uppercase drive letter:** the repo lives on different drives depending on the machine (`C:\Vorhaben\...` at work, `D:\Vorhaben\...` at home), so don't hard-code the drive. The `cd "$(git rev-parse --show-toplevel | sed ...)"` prefix changes to the repo root with an uppercase drive letter (`/C/...` or `/D/...`) on either machine. If vitest instead starts in the default working directory with a lowercase drive letter (`c:\...` / `d:\...`), it loads `@vitest/runner` twice (e.g. `file:///c:/` and `file:///C:/`). Every suite then fails with `Cannot read properties of undefined (reading 'test')` / `No test suite found`, and not a single test has run.
 - **No non-ASCII characters in Bash tool commands** (e.g. ✓, ×): the command fails with exit code 127 before it runs. vitest marks tests with ✓/×, so grep for ASCII text instead.
-- **Reading results:** `exit=0` means all passed. Each failed test is listed as `FAIL  src/test/JavaTests.test.ts > File <name>.java: <title>`. The reason is in the `stderr | ... > File <name>.java: <title>` block printed earlier. It shows unexpected compiler errors with line numbers, `Expected Error with id ... on line ...`, or assertion messages; read it with the Grep tool or `grep -A`.
+- **Reading results:** `exit=0` means all passed. Each failed test is listed as `FAIL  src/test/java/<name>.java > <title>`. The reason is in the `stdout | src/test/java/<name>.java > <title>` (or `stderr | ...`) block printed earlier. It shows unexpected compiler errors with line numbers, `Expected Error with id ... on line ...`, or assertion messages; read it with the Grep tool or `grep -A`.
 - `NO_COLOR=1 FORCE_COLOR=0` turns off ANSI color codes, which would otherwise break grep patterns. The output has one line per test, so redirect it to a file instead of piping it.
-- `-t` filters by test name, `File <name>.java: <title of the /**:: block>`. Leave out `src/test/JavaTests.test.ts -t ...` to run all suites (about 30 s).
+- File arguments filter by path substring (`src/test/java/LoopTest.java`, or just `LoopTest`; several are allowed). `-t` additionally filters by test name, which is the title of the `/**::` block. Leave out the file argument to run all suites (about 15 s).
 
 ## Architecture
 
