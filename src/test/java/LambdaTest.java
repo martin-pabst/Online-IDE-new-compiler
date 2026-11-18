@@ -410,3 +410,17 @@ IntOperation op = x -> {
 interface IntOperation {
    int apply(int x);
 }
+
+/**::
+ * print/println as expression body of a lambda whose functional interface method returns void
+ * { "expectedOutput": "Hello\n42 ", "expectedWarnings": [] }
+ */
+Runnable r = () -> println("Hello");
+r.run();
+
+IntPrinter p = x -> print(x + " ");
+p.printInt(42);
+
+interface IntPrinter {
+   void printInt(int x);
+}

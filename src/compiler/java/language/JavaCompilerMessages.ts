@@ -258,7 +258,7 @@ export class JCM {
     })
 
     /**
-     * Messages for class MissingStatementsManager
+     * Messages for class FlowAnalyzer
      */
 
     static variableNotInitialized = (identifier: string) => le({
@@ -315,11 +315,11 @@ export class JCM {
         "fr": `L'instruction break n'est attendue qu'à l'intérieur des boucles (for, while, do...while) et des instructions switch.`,
     })
 
-    static unreachableBreakStatement = () => le({
-        "id": "unreachableBreakStatement",
-        "de": "Diese break-Anweisung wird nie ausgeführt, da vor ihr eine return- oder throw-Anweisung steht. Sie kann entfernt werden.",
-        "en": "This break statement is never executed because it follows a return or throw statement. It can be removed.",
-        "fr": "Cette instruction break n'est jamais exécutée car elle suit une instruction return ou throw. Elle peut être supprimée.",
+    static unreachableStatement = () => le({
+        "id": "unreachableStatement",
+        "de": "Diese Anweisung wird nie ausgeführt, da das Programm sie nicht erreichen kann (z.B. weil vor ihr eine return-, throw-, break- oder continue-Anweisung oder eine Endlosschleife steht).",
+        "en": "This statement is never executed because it can't be reached (e.g. because it follows a return, throw, break or continue statement or an infinite loop).",
+        "fr": "Cette instruction n'est jamais exécutée car elle ne peut pas être atteinte (p. ex. parce qu'elle suit une instruction return, throw, break ou continue ou une boucle infinie).",
     })
 
     static noVariableDeclarationWhileProgramIsRunning = () => le({

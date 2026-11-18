@@ -19,6 +19,7 @@ import { CodeSnippet, StringCodeSnippet } from "./CodeSnippet";
 import { CodeSnippetContainer } from "./CodeSnippetKinds.ts";
 import { OneParameterTemplate } from "./CodeTemplate.ts";
 import { ExceptionTree } from "./ExceptionTree.ts";
+import { FlowAnalyzer } from "./FlowAnalyzer.ts";
 import { InnerClassCodeGenerator } from "./InnerClassCodeGenerator.ts";
 import { SnippetLinker } from "./SnippetLinker";
 
@@ -349,13 +350,13 @@ export class CodeGenerator extends InnerClassCodeGenerator {
 
     compileStaticInitializerBlock(node: ASTStaticInitializerNode): CodeSnippetContainer | undefined {
 
-        this.missingStatementManager.beginMethodBody([]);
-        let snippet = new CodeSnippetContainer([], node.range);
-        for (let statementNode of node.statements) {
-            let statementSnippet = this.compileStatementOrTerm(statementNode);
-            if (statementSnippet) snippet.addParts(statementSnippet);
-        }
-        this.missingStatementManager.endMethodBody(undefined, this.module.errors);
+        let flowOfEnclosingCode = this.flow;
+        this.flow = new FlowAnalyzer();
+
+        let snippet = new CodeSnippetContainer(this.compileStatementSequence(node.statements), node.range);
+
+        this.flow.end(undefined, this.module.errors);
+        this.flow = flowOfEnclosingCode;
 
         return snippet;
     }

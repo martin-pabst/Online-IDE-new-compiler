@@ -29,7 +29,7 @@ import { CodeTemplate, OneParameterTemplate, ParametersJoinedTemplate, SeveralPa
 import { JavaLocalVariable } from "./JavaLocalVariable";
 import { JavaSymbolTable } from "./JavaSymbolTable";
 import { JumpToLabelCodeSnippet, LabelCodeSnippet } from "./LabelManager.ts";
-import { MissingStatementManager } from "./MissingStatementsManager.ts";
+import { FlowAnalyzer } from "./FlowAnalyzer.ts";
 import { OuterClassFieldAccessTracker } from "./OuterClassFieldAccessTracker.ts";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
 import { ThisType } from "../types/ThisType.ts";
@@ -44,14 +44,16 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     classOfCurrentlyCompiledStaticInitialization?: NonPrimitiveType;
 
-    missingStatementManager: MissingStatementManager = new MissingStatementManager();
+    /**
+     * Flow analysis of the method body, initializer block or lambda body which is currently compiled. Each of them
+     * gets its own instance (see InnerClassCodeGenerator.compileMethodDeclaration). The REPL uses this default instance.
+     */
+    flow: FlowAnalyzer = new FlowAnalyzer();
 
     outerClassFieldAccessTracker: OuterClassFieldAccessTracker = new OuterClassFieldAccessTracker();
 
     breakStack: LabelCodeSnippet[] = [];
     continueStack: LabelCodeSnippet[] = [];
-    labelsTargetedByBreak: Set<LabelCodeSnippet> = new Set();
-    labelsTargetedByContinue: Set<LabelCodeSnippet> = new Set();
 
     // field initializers and instance initializer blocks which have to be executed directly after explicit super(...)-call in constructor
     snippetsToInsertAfterSuperConstructorCall: CodeSnippet[] | undefined;
@@ -855,7 +857,11 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             if (symbol.onStackframe()) {
                 this.registerUsagePosition(symbol, node.range);
                 if (symbolInformation.outerClassLevel == 0) {
-                    this.missingStatementManager.onSymbolAccess(symbol, node.range, this.module.errors, isWriteAccess);
+                    if (isWriteAccess) {
+                        this.flow.onWrite(symbol);
+                    } else {
+                        this.flow.onRead(symbol, node.range, this.module.errors);
+                    }
                     return this.compileSymbolOnStackframeAccess(symbol as SymbolOnStackframe, node.range);
                 } else {
                     return this.compileOuterClassLocalVariableAccess(symbol as JavaLocalVariable, node.range);
@@ -929,11 +935,16 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     compileOuterClassLocalVariableAccess(symbol: JavaLocalVariable, range: IRange) {
 
-        // generate invisible field
-        let f: JavaField = new JavaField(symbol.identifier, symbol.identifierRange, this.module, symbol.type, TokenType.keywordPrivate);
-        f.isInnerClassCopyOfOuterClassLocalVariable = symbol;
         let klass: JavaClass = <JavaClass>this.currentSymbolTable.classContext;
-        klass.fields.push(f);
+        let f = klass.fields.find(field => field.innerClassCopyOfOuterClassLocalVariable === symbol);
+
+        if (!f) {
+            // generate invisible field
+            f = new JavaField(symbol.identifier, symbol.identifierRange, this.module, symbol.type, TokenType.keywordPrivate);
+            f.innerClassCopyOfOuterClassLocalVariable = symbol;
+            f.classEnum = klass;
+            klass.fields.push(f);
+        }
 
         let snippet: CodeSnippet = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${f.getInternalName()}`, range, symbol.type);
         snippet.isLefty = false;
@@ -1007,8 +1018,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         snippet.isFinalField = field._isFinal;
 
-        if (field.isInnerClassCopyOfOuterClassLocalVariable) {
-            this.registerUsagePosition(field.isInnerClassCopyOfOuterClassLocalVariable, range);
+        if (field.innerClassCopyOfOuterClassLocalVariable) {
+            this.registerUsagePosition(field.innerClassCopyOfOuterClassLocalVariable, range);
         } else {
             this.registerUsagePosition(field, range);
         }

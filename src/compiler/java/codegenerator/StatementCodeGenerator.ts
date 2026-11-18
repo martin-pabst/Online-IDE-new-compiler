@@ -25,6 +25,7 @@ import { CodeSnippetContainer } from "./CodeSnippetKinds.ts";
 import { SnippetFramer } from "./CodeSnippetTools.ts";
 import { BinaryOperatorTemplate, OneParameterTemplate, TwoParameterTemplate } from "./CodeTemplate";
 import { ExceptionTree } from "./ExceptionTree.ts";
+import { FlowState } from "./FlowAnalyzer.ts";
 import { JavaLocalVariable } from "./JavaLocalVariable";
 import { JumpToLabelCodeSnippet, LabelCodeSnippet } from "./LabelManager.ts";
 import { TermCodeGenerator } from "./TermCodeGenerator";
@@ -80,11 +81,15 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             case TokenType.enhancedForLoop:
                 snippet = this.compileEnhancedForLoop(<ASTEnhancedForLoopNode>ast); break;
             case TokenType.keywordReturn:
-                snippet = this.compileReturnStatement(<ASTReturnNode>ast); break;
+                snippet = this.compileReturnStatement(<ASTReturnNode>ast);
+                this.flow.markDead();   // not before: compiling the return value may read variables
+                break;
             case TokenType.keywordTry:
                 snippet = this.compileTryCatchStatement(<ASTTryCatchNode>ast); break;
             case TokenType.keywordThrow:
-                snippet = this.compileThrowStatement(<ASTThrowNode>ast); break;
+                snippet = this.compileThrowStatement(<ASTThrowNode>ast);
+                this.flow.markDead();   // not before: compiling the exception term may read variables
+                break;
             case TokenType.initialFieldAssignementInMainProgram:
                 snippet = this.compileInitialFieldAssignmentInMainProgram(<ASTInitialFieldAssignmentInMainProgramNodes>ast); break;
             case TokenType.firstMainProgramStatement:
@@ -118,6 +123,24 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         return snippet;
 
+    }
+
+    /**
+     * Compiles the statements of a block or of a statement group in a switch statement and warns about the first
+     * one which can't be reached, e.g. because it follows a return statement.
+     * see https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-14.22
+     */
+    compileStatementSequence(statements: ASTStatementNode[]): CodeSnippet[] {
+        // if the sequence itself is unreachable then the statement containing it has already been reported
+        let reportUnreachableStatement = this.flow.state.alive;
+
+        return statements.map(statementNode => {
+            if (reportUnreachableStatement && !this.flow.state.alive && statementNode && !statementNode.isEmpty) {
+                this.pushError(JCM.unreachableStatement(), "warning", statementNode);
+                reportUnreachableStatement = false;
+            }
+            return this.compileStatementOrTerm(statementNode);
+        }).filter((snippet): snippet is CodeSnippet => snippet != undefined);
     }
 
     compileFirstMainProgramStatement(arg0: ASTFirstMainMethodStatementNode): CodeSnippet {
@@ -154,12 +177,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             this.pushError(JCM.breakNotExpected(), "error", node);
             return undefined;
         }
-        if (this.missingStatementManager.hasReturnHappened()) {
-            // break after return/throw is never executed, so it doesn't leave the switch statement/loop
-            this.pushError(JCM.unreachableBreakStatement(), "warning", node);
-        } else {
-            this.labelsTargetedByBreak.add(label);  // needed by compileSwitchCaseStatement and loops to check for missing return statements
-        }
+        this.flow.jumpTo(label);
         let snippet = new JumpToLabelCodeSnippet(label);
         snippet.range = node.range;
         return snippet;
@@ -171,9 +189,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             this.pushError(JCM.continueNotExpected(), "error", node);
             return undefined;
         }
-        if (!this.missingStatementManager.hasReturnHappened()) {
-            this.labelsTargetedByContinue.add(label);   // needed by compileDoStatement to check for missing return statements
-        }
+        this.flow.jumpTo(label);
         let snippet = new JumpToLabelCodeSnippet(label);
         snippet.range = node.range;
         return snippet;
@@ -181,8 +197,6 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
 
     compileReturnStatement(node: ASTReturnNode): CodeSnippet | undefined {
-
-        this.missingStatementManager.onReturnHappened();
 
         let snippet = new CodeSnippetContainer([], node.range);
 
@@ -258,8 +272,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         */
         let forLoopSymbolTable = this.pushAndGetNewSymbolTable(node.range, false);
 
-        // the loop body may be executed zero times, so return statements inside it don't count after the loop
-        let returnHappenedBeforeLoop = !!this.missingStatementManager.hasReturnHappened();
+        // the loop body may be executed zero times, so the state before it is valid after the loop, too
+        let stateBeforeBody = this.flow.snapshot();
 
         let continueLabel = new LabelCodeSnippet();
         this.continueStack.push(continueLabel);
@@ -440,10 +454,11 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             this.pushError(JCM.enhancedForLoopOnlyForArraysCollectionsIterables(), "error", node.collection.range);
         }
 
-        this.missingStatementManager.setReturnHappened(returnHappenedBeforeLoop);
-
         this.continueStack.pop();
         this.breakStack.pop();
+
+        this.flow.restore(stateBeforeBody);
+        this.flow.joinJumpsTo(breakLabel);
 
         this.popSymbolTable();
         return forLoopSnippet;
@@ -500,14 +515,22 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let jumpToLabelAfterForBlock = new JumpToLabelCodeSnippet(labelAfterForBlock);
         this.breakStack.push(labelAfterForBlock);
 
+        // the loop body may be executed zero times, so the state after the condition is valid after the loop, too
+        let stateAfterCondition = this.flow.snapshot();
+
+        let statementsToRepeat = this.compileStatementOrTerm(node.statementToRepeat);
+
+        // the last statement (e.g. i++) is executed after the body and after continue statements
+        this.flow.joinJumpsTo(labelBeforeLastStatement);
         let lastStatement = this.compileStatementOrTerm(node.lastStatement);
 
-        let returnHappenedBeforeLoop = !!this.missingStatementManager.hasReturnHappened();
-        let statementsToRepeat = this.compileStatementOrTerm(node.statementToRepeat);
-        // for(...; ; ...) and for(...; true; ...) without break statement can't complete normally
-        let loopCanCompleteNormally = (node.condition && !this.isConstantWithValue(condition, !negationResult?.negationHappened)) ||
-            this.labelsTargetedByBreak.has(labelAfterForBlock);
-        this.missingStatementManager.setReturnHappened(returnHappenedBeforeLoop || !loopCanCompleteNormally);
+        this.continueStack.pop();
+        this.breakStack.pop();
+
+        // for(...; ; ...) and for(...; true; ...) can only be left by a break statement
+        let conditionIsConstantTrue = !node.condition || this.isConstantWithValue(condition, !negationResult?.negationHappened);
+        this.flow.restore(conditionIsConstantTrue ? FlowState.dead() : stateAfterCondition);
+        this.flow.joinJumpsTo(labelAfterForBlock);
 
         if (!statementsToRepeat) {
             this.popSymbolTable();
@@ -547,32 +570,33 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         forSnippet.addNextStepMark();
         forSnippet.addParts(labelAfterForBlock);
 
-        this.continueStack.pop();
-        this.breakStack.pop();
-
         this.popSymbolTable();
         return forSnippet;
     }
 
 
     compileDoStatement(node: ASTDoWhileNode): CodeSnippetContainer | undefined {
-        let condition = this.compileTerm(node.condition);
-
-        condition = this.convertToBooleanPrimitiveAndPrintErrorIfNotPossible(condition, node.condition);
-
         let labelBeforeEvaluatingCondition = new LabelCodeSnippet();
         this.continueStack.push(labelBeforeEvaluatingCondition);
 
         let labelAfterDoWhileBlock = new LabelCodeSnippet();
         this.breakStack.push(labelAfterDoWhileBlock);
 
-        let returnHappenedBeforeLoop = !!this.missingStatementManager.hasReturnHappened();
         let statementToRepeat = this.compileStatementOrTerm(node.statementToRepeat);
-        // the body of a do-while loop is executed at least once
-        let bodyCanCompleteNormally = !this.missingStatementManager.hasReturnHappened() || this.labelsTargetedByContinue.has(labelBeforeEvaluatingCondition);
-        let loopCanCompleteNormally = (bodyCanCompleteNormally && !this.isConstantWithValue(condition, true)) ||
-            this.labelsTargetedByBreak.has(labelAfterDoWhileBlock);
-        this.missingStatementManager.setReturnHappened(returnHappenedBeforeLoop || !loopCanCompleteNormally);
+
+        this.breakStack.pop();
+        this.continueStack.pop();
+
+        // The condition is evaluated after the body and after continue statements, so it has to be compiled
+        // after the body: do { x = ... } while (x < 0) reads x after the assignment.
+        this.flow.joinJumpsTo(labelBeforeEvaluatingCondition);
+        let condition = this.compileTerm(node.condition);
+
+        condition = this.convertToBooleanPrimitiveAndPrintErrorIfNotPossible(condition, node.condition);
+
+        // do ... while(true) can only be left by a break statement
+        if (this.isConstantWithValue(condition, true)) this.flow.markDead();
+        this.flow.joinJumpsTo(labelAfterDoWhileBlock);
 
         let doWhileSnippet = new CodeSnippetContainer([], node.range);
 
@@ -592,9 +616,6 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         doWhileSnippet.addNextStepMark();
         doWhileSnippet.addParts(labelAfterDoWhileBlock);
-
-        this.breakStack.pop();
-        this.continueStack.pop();
 
         return doWhileSnippet;
     }
@@ -617,10 +638,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             }
         }
 
-        for (let statementNode of node.statements) {
-            let statementSnippet = this.compileStatementOrTerm(statementNode);
-            if (statementSnippet) snippet.addParts(statementSnippet);
-        }
+        snippet.addParts(this.compileStatementSequence(node.statements));
 
         if (lockObject) {
             let getLockObjectSnippet = this.compileTerm(lockObject);
@@ -672,12 +690,18 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let labelAfterWhileBlock = new LabelCodeSnippet();
         this.breakStack.push(labelAfterWhileBlock);
 
-        let returnHappenedBeforeLoop = !!this.missingStatementManager.hasReturnHappened();
+        // the loop body may be executed zero times, so the state after the condition is valid after the loop, too
+        let stateAfterCondition = this.flow.snapshot();
+
         let statementToRepeat = this.compileStatementOrTerm(node.statementToRepeat);
-        // while(true) without break statement can't complete normally
-        let loopCanCompleteNormally = !this.isConstantWithValue(condition, !negationResult.negationHappened) ||
-            this.labelsTargetedByBreak.has(labelAfterWhileBlock);
-        this.missingStatementManager.setReturnHappened(returnHappenedBeforeLoop || !loopCanCompleteNormally);
+
+        this.breakStack.pop();
+        this.continueStack.pop();
+
+        // while(true) can only be left by a break statement
+        let conditionIsConstantTrue = this.isConstantWithValue(condition, !negationResult.negationHappened);
+        this.flow.restore(conditionIsConstantTrue ? FlowState.dead() : stateAfterCondition);
+        this.flow.joinJumpsTo(labelAfterWhileBlock);
 
         let whileSnippet = new CodeSnippetContainer([], node.range);
 
@@ -696,9 +720,6 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         whileSnippet.addParts(jtls);
         whileSnippet.addNextStepMark();
         whileSnippet.addParts(labelAfterWhileBlock);
-
-        this.breakStack.pop();
-        this.continueStack.pop();
 
         return whileSnippet;
     }
@@ -737,14 +758,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
     // General helper function
     // -> where to go?
-    isDefined<A>(x: A | undefined): x is A {
+    isDefined<A>(x: A | undefined | null): x is A {
         return x != undefined;
-    }
-
-    // General helper function
-    // -> where to go?
-    listHasNoUndefined<A>(x: (A | undefined)[]): x is A[] {
-        return !x.includes(undefined);
     }
 
     /**
@@ -765,11 +780,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         caseSnippet.addParts(new JumpToLabelCodeSnippet(label));
 
-        this.missingStatementManager.openBranch();
-        let statementCode = node.statements.map((statementNode) => this.compileStatementOrTerm(statementNode));
-        this.missingStatementManager.closeBranch(this.module.errors);
-
-        if (!this.listHasNoUndefined(statementCode)) return undefined;
+        let statementCode = this.compileStatementSequence(node.statements);
 
         let caseStatementSnippet = new CodeSnippetContainer([], node.range);
         caseStatementSnippet.addParts(label);
@@ -900,7 +911,11 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let caseLabelSnippets: CodeSnippet[] = [];
         let statementGroupSnippets: CodeSnippet[] = [];
 
+        let stateBeforeSwitchBlock = this.flow.snapshot();
+
         for (let caseNode of node.caseNodes) {
+            // a statement group is reached by jumping to its label or by falling through from the previous group
+            this.flow.joinWith(stateBeforeSwitchBlock);
             let caseSnippets = this.compileCaseStatement(caseNode, new LabelCodeSnippet(), enumType ? "int" : type.identifier, enumType);
             if (caseSnippets) {
                 caseLabelSnippets.push(caseSnippets[0]);
@@ -908,8 +923,10 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             }
         }
 
+        // without default label no statement group is executed if no case label matches
         let hasDefaultNode = node.caseNodes.some(caseNode => caseNode.isDefaultNode);
-        this.missingStatementManager.endBranchingOfSwitchStatement(hasDefaultNode, this.labelsTargetedByBreak.has(breakLabel));
+        if (!hasDefaultNode) this.flow.joinWith(stateBeforeSwitchBlock);
+        this.flow.joinJumpsTo(breakLabel);
 
         this.breakStack.pop();
         this.popSymbolTable();
@@ -951,7 +968,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let instanceOfVariables = negationResult.negationHappened ? conditionNode.negatedInstanceofVariables : conditionNode.instanceofVariables;
         let negatedInstanceofVariables = negationResult.negationHappened ? conditionNode.instanceofVariables : conditionNode.negatedInstanceofVariables;
 
-        this.missingStatementManager.openBranch();
+        let stateAfterCondition = this.flow.snapshot();
+
         if (instanceOfVariables) {
             let symbolTable = this.pushAndGetNewSymbolTable(conditionNode.range, false);
             instanceOfVariables.forEach(v => symbolTable.addSymbolWithoutAddingToStackframe(v));
@@ -965,13 +983,13 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if (instanceOfVariables) {
             this.popSymbolTable();
         }
-        if (negatedInstanceofVariables && this.missingStatementManager.hasReturnHappened()) {
+        // if(!(o instanceof String s)) return; -> s is in scope after the if statement
+        if (negatedInstanceofVariables && !this.flow.state.alive) {
             negatedInstanceofVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
         }
-        this.missingStatementManager.closeBranch(this.module.errors);
+        let stateAfterStatementIfTrue = this.flow.snapshot();
 
-
-        this.missingStatementManager.openBranch();
+        this.flow.restore(stateAfterCondition);
         if (negatedInstanceofVariables) {
             let symbolTable = this.pushAndGetNewSymbolTable(conditionNode.range, false);
             negatedInstanceofVariables.forEach(v => symbolTable.addSymbolWithoutAddingToStackframe(v));
@@ -980,12 +998,11 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if (negatedInstanceofVariables) {
             this.popSymbolTable();
         }
-        if (instanceOfVariables && this.missingStatementManager.hasReturnHappened()) {
+        if (instanceOfVariables && !this.flow.state.alive) {
             instanceOfVariables.forEach(v => this.currentSymbolTable.addSymbolWithoutAddingToStackframe(v));
         }
-        this.missingStatementManager.closeBranch(this.module.errors);
 
-        this.missingStatementManager.endBranching();
+        this.flow.joinWith(stateAfterStatementIfTrue);
 
         if (!condition || !statementIfTrue) return undefined;
 
@@ -1106,7 +1123,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         this.module.compiledSymbolsUsageTracker.registerUsagePosition(variable, this.module.file, node.identifierRange);
 
-        this.missingStatementManager.addSymbolDeclaration(variable, node.initialization ? true : false);
+        this.flow.declare(variable, node.initialization ? true : false);
 
         let accesLocalVariableSnippet = this.compileSymbolOnStackframeAccess(variable, node.identifierRange);
 
@@ -1197,8 +1214,6 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
     }
 
     compileThrowStatement(node: ASTThrowNode): CodeSnippet | undefined {
-        this.missingStatementManager.onReturnHappened();
-
         let exceptionSnippet = this.compileTerm(node.exception);
         if (!exceptionSnippet) return undefined;
 
@@ -1249,11 +1264,11 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             step.finallyBlockIndex = finallyBlockLabel?.stepIndex;
         });
 
-        // try-catch statement returns if try block and all catch blocks return (or if finally block returns)
-        let returnHappenedBeforeTryStatement = !!this.missingStatementManager.hasReturnHappened();
+        // catch blocks and finally block may be entered after an exception anywhere in the try block,
+        // so they start with the state before the try statement
+        let stateBeforeTryStatement = this.flow.snapshot();
         let tryBlockStatements = this.compileStatementOrTerm(node.tryStatement);
-        let tryAndCatchBlocksReturn = !!this.missingStatementManager.hasReturnHappened();
-        this.missingStatementManager.setReturnHappened(returnHappenedBeforeTryStatement);
+        let stateAfterTryAndCatchBlocks = this.flow.snapshot();
         if (!tryBlockStatements) return undefined;
 
         if (tryBlockStatements instanceof CodeSnippetContainer) tryBlockStatements.removeNextStepBeforeSnippetMark();
@@ -1279,9 +1294,9 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             let storeExceptionVariableStatement = new StringCodeSnippet(`${Helpers.threadStack}[${StepParams.stackBase} + ${exceptionVariable.stackframePosition}] = ${Helpers.getExceptionAndTrimStack}(true);\n`);
             snippetContainer.addParts(storeExceptionVariableStatement);
 
+            this.flow.restore(stateBeforeTryStatement);
             let statement = this.compileStatementOrTerm(catchCase.statement);
-            tryAndCatchBlocksReturn = tryAndCatchBlocksReturn && !!this.missingStatementManager.hasReturnHappened();
-            this.missingStatementManager.setReturnHappened(returnHappenedBeforeTryStatement);
+            stateAfterTryAndCatchBlocks = stateAfterTryAndCatchBlocks.join(this.flow.state);
 
             if (statement) {
                 if (statement instanceof CodeSnippetContainer) statement.removeNextStepBeforeSnippetMark();
@@ -1292,7 +1307,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         }
 
-        this.missingStatementManager.setReturnHappened(returnHappenedBeforeTryStatement || tryAndCatchBlocksReturn);
+        this.flow.restore(stateAfterTryAndCatchBlocks);
 
         finallyBlockLabel = new LabelCodeSnippet();
         snippetContainer.addNextStepMark();
@@ -1300,7 +1315,9 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if (node.finallyStatement) {
             snippetContainer.addParts(finallyBlockLabel);
             snippetContainer.addStringPart(`${Helpers.getExceptionAndTrimStack}(false);\n`);
+            this.flow.restore(stateBeforeTryStatement);
             let finallyStatement = this.compileStatementOrTerm(node.finallyStatement);
+            this.flow.afterFinallyBlock(stateAfterTryAndCatchBlocks);
             if (finallyStatement instanceof CodeSnippetContainer) finallyStatement.removeNextStepBeforeSnippetMark();
             snippetContainer.addParts(finallyStatement);
             snippetContainer.addStringPart(`if(${Helpers.getExceptionAndTrimStack}(false)){${Helpers.return}(); return;};\n`);

@@ -29,7 +29,7 @@ export class JavaField extends BaseField {
     initialValueIsConstant: boolean = false;    // enables us to resolve values of final variables as constants
     initializedBeforeConstructor?: boolean;
 
-    isInnerClassCopyOfOuterClassLocalVariable?: JavaLocalVariable;
+    innerClassCopyOfOuterClassLocalVariable?: JavaLocalVariable;
 
     constructor(identifier: string, identifierRange: IRange, public module: JavaBaseModule,
          public type: JavaType, public visibility: Visibility = TokenType.keywordPublic){

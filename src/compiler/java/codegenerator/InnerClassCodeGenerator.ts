@@ -22,7 +22,7 @@ import { CodeSnippet, StringCodeSnippet } from "./CodeSnippet";
 import { CodeSnippetContainer } from "./CodeSnippetKinds.ts";
 import { OneParameterTemplate } from "./CodeTemplate.ts";
 import { ExceptionTree } from "./ExceptionTree.ts";
-import { MissingStatementManager } from "./MissingStatementsManager.ts";
+import { FlowAnalyzer } from "./FlowAnalyzer.ts";
 import { SnippetLinker } from "./SnippetLinker";
 import { StatementCodeGenerator } from "./StatementCodeGenerator";
 
@@ -65,8 +65,10 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
 
 
-        let outerLocalVariables = klass.fields.filter(f => f.isInnerClassCopyOfOuterClassLocalVariable).map(f => f.isInnerClassCopyOfOuterClassLocalVariable);
-        let invisibleFieldIdentifiers = klass.fields.filter(f => f.isInnerClassCopyOfOuterClassLocalVariable).map(f => f.getInternalName());
+        let outerLocalVariables = klass.fields.filter(f => f.innerClassCopyOfOuterClassLocalVariable).map(f => f.innerClassCopyOfOuterClassLocalVariable);
+        // the values of these local variables of the enclosing method are copied into the new object here
+        outerLocalVariables.forEach(v => this.flow.onRead(v!, node.range, this.module.errors));
+        let invisibleFieldIdentifiers = klass.fields.filter(f => f.innerClassCopyOfOuterClassLocalVariable).map(f => f.getInternalName());
 
         // final version of runtime class:
         klass.runtimeClass = class extends klass.getExtends()?.runtimeClass!{
@@ -203,9 +205,10 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
         klass.checkIfInterfacesAreImplementedAndSupplementDefaultMethods();
 
-        let outerLocalVariables = klass.fields.filter(f => f.isInnerClassCopyOfOuterClassLocalVariable).map(f => f.isInnerClassCopyOfOuterClassLocalVariable);
-        outerLocalVariables.forEach(v => this.missingStatementManager.onSymbolRead(v!, EmptyRange.instance, this.module.errors));
-        let invisibleFieldIdentifiers = klass.fields.filter(f => f.isInnerClassCopyOfOuterClassLocalVariable).map(f => f.getInternalName());
+        let outerLocalVariables = klass.fields.filter(f => f.innerClassCopyOfOuterClassLocalVariable).map(f => f.innerClassCopyOfOuterClassLocalVariable);
+        // the values of these local variables of the enclosing method are copied into the lambda object here
+        outerLocalVariables.forEach(v => this.flow.onRead(v!, node.range, this.module.errors));
+        let invisibleFieldIdentifiers = klass.fields.filter(f => f.innerClassCopyOfOuterClassLocalVariable).map(f => f.getInternalName());
 
         // final version of runtime class:
         klass.runtimeClass = class extends klass.getExtends()?.runtimeClass!{
@@ -259,8 +262,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             case TokenType.newObject:
             case TokenType.anonymousClass:
             case TokenType.plusPlusMinusMinusSuffix:
-            case TokenType.keywordPrint:
-            case TokenType.keywordPrintln:
+            case TokenType.print:       // print(...) and println(...)
                 return true;
             case TokenType.unaryPrefixOp:
                 let prefixOperator = (<ASTUnaryPrefixNode>term).operator;
@@ -313,15 +315,15 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
     compileInstanceInitializerBlock(node: ASTInstanceInitializerNode, classContext: JavaClass | JavaEnum): CodeSnippetContainer | undefined {
 
         this.pushAndGetNewSymbolTable(node.range, true, classContext)
-        this.missingStatementManager.beginMethodBody([]);
 
-        let snippet = new CodeSnippetContainer([], node.range);
-        for (let statementNode of node.statements) {
-            let statementSnippet = this.compileStatementOrTerm(statementNode);
-            if (statementSnippet) snippet.addParts(statementSnippet);
-        }
+        // instance initializers of anonymous classes are compiled in the middle of the enclosing method
+        let flowOfEnclosingMethod = this.flow;
+        this.flow = new FlowAnalyzer();
 
-        this.missingStatementManager.endMethodBody(undefined, this.module.errors);
+        let snippet = new CodeSnippetContainer(this.compileStatementSequence(node.statements), node.range);
+
+        this.flow.end(undefined, this.module.errors);
+        this.flow = flowOfEnclosingMethod;
 
         this.popSymbolTable();
 
@@ -655,9 +657,9 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             if (method.isAbstract) this.pushError(JCM.abstractMethodsDontHaveMethodBodies(), "error", methodNode);
             if (classContext instanceof JavaInterface && !(method.isAbstract || method.isDefault)) this.pushError(JCM.interfaceOnlyDefaultMethodsHaveBody(), "error", methodNode);
 
-            let msm = this.missingStatementManager;
-            this.missingStatementManager = new MissingStatementManager();
-            this.missingStatementManager.beginMethodBody(method.parameters);
+            // methods of lambda functions and anonymous classes are compiled in the middle of the enclosing method
+            let flowOfEnclosingMethod = this.flow;
+            this.flow = new FlowAnalyzer(method.parameters);
 
             let snippet = methodNode.statement ? this.compileStatementOrTerm(methodNode.statement) : undefined;
             if (snippet) snippets.push(snippet);
@@ -715,7 +717,8 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
             }
 
-            if (!this.missingStatementManager.hasReturnHappened() && !methodNode.isConstructor) {
+            // end of method body is reachable: implicit return
+            if (this.flow.state.alive && !methodNode.isConstructor) {
                 let endOfMethodRange: IRange = Range.fromPositions(Range.getEndPosition(methodNode.range));
                 if (method.isSynchronized) {
                     snippets.push(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`, endOfMethodRange));
@@ -725,8 +728,8 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                 snippets.push(sn1);
             }
 
-            this.missingStatementManager.endMethodBody(method, this.module.errors);
-            this.missingStatementManager = msm;
+            this.flow.end(method, this.module.errors);
+            this.flow = flowOfEnclosingMethod;
 
             this.linker.link(snippets, method.program);
 
