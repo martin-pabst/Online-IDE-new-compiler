@@ -53,6 +53,8 @@ grep -E "FAIL|Test Files|Tests " <scratchpad>/vitest.txt
 - **Reading results:** `exit=0` means all passed. Each failed test is listed as `FAIL  src/test/java/<name>.java > <title>`. The reason is in the `stdout | src/test/java/<name>.java > <title>` (or `stderr | ...`) block printed earlier. It shows unexpected compiler errors with line numbers, `Expected Error with id ... on line ...`, or assertion messages; read it with the Grep tool or `grep -A`.
 - `NO_COLOR=1 FORCE_COLOR=0` turns off ANSI color codes, which would otherwise break grep patterns. The output has one line per test, so redirect it to a file instead of piping it.
 - File arguments filter by path substring (`src/test/java/LoopTest.java`, or just `LoopTest`; several are allowed). `-t` additionally filters by test name, which is the title of the `/**::` block. Leave out the file argument to run all suites (about 15 s).
+- Use playwright to execute GUI Tests: start dev server on port 3000, then URL http://localhost:3000/embedded_java.html for embedded version and http://localhost:3000/index.html for full GUI version. For full GUI version use username and password given in file @intern\keys\dev-credentials.md
+
 
 ## Architecture
 

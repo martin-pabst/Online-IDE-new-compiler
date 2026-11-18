@@ -22,3 +22,4 @@ dist-ssr
 
 upload*.cmd
 /package-lock.json
+/.playwright-mcp
