@@ -7,6 +7,7 @@ export class ArraysClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
         {type: "declaration", signature: "class Arrays extends Object", comment: JRC.ArraysClassComment},
         {type: "method", signature: "public static <T> List<T> asList(T... a)", native:ArraysClass.prototype._asList, comment: JRC.ArraysClassAsListComment},
+        {type: "method", signature: "public static <T> List<T> asList(T[] a)", native:ArraysClass.prototype._asList, comment: JRC.ArraysClassAsListComment},
     ];
 
 
