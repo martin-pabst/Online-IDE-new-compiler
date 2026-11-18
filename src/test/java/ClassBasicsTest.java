@@ -567,6 +567,106 @@ class Hexagon extends Figure {
 }
 
 /**::
+ * Abstract class doesn't have to implement the methods of its interface; they can be called on it
+ * { "expectedOutput": "MySquare: 9\n" }
+ */
+MySquare s = new MySquare(3);
+Figure f = s;
+Measurable m = s;
+assertEquals(9, f.area(), "Call of interface method via abstract class");
+assertEquals(9, m.area(), "Call of interface method via interface");
+println(f.describe());
+
+// subclass declared before its abstract base class
+class MySquare extends Figure {
+   int a;
+   MySquare(int a) { this.a = a; }
+   public int area() { return a * a; }
+   public String name() { return "MySquare"; }
+}
+
+interface Measurable {
+   int area();
+   String name();
+}
+
+abstract class Figure implements Measurable {
+   // calls interface methods which this abstract class doesn't implement
+   public String describe() { return name() + ": " + area(); }
+}
+
+/**::
+ * Error: concrete subclass has to implement the interface methods its abstract base classes don't implement
+ * { "expectedCompilationError": {"id": "abstractMethodsNotImplemented", "line": 15}}
+ */
+interface Measurable {
+   int area();
+}
+
+abstract class Figure implements Measurable {
+}
+
+abstract class Shape2D extends Figure {
+}
+
+class Hexagon extends Shape2D {
+}
+
+/**::
+ * Abstract class implementing generic interfaces without implementing their methods
+ */
+ArrayList<Item> items = new ArrayList<>();
+items.add(new Item(3));
+items.add(new Item(1));
+items.add(new Item(2));
+Collections.sort(items);
+assertEquals(1, items.get(0).value, "Collections.sort calls compareTo implemented in subclass");
+assertEquals(3, items.get(2).value, "Collections.sort calls compareTo implemented in subclass");
+assertTrue(items.get(0).isSmallerThan(items.get(1)), "Abstract class calls compareTo of Comparable<Base>");
+
+Item item = new Item(7);
+assertEquals("77", item.twice(), "Abstract class calls method of generic user interface");
+Converter<String> converter = item;
+assertEquals("7", converter.convert(), "Call via generic interface");
+
+class Item extends Base {
+   Item(int value) { this.value = value; }
+   public int compareTo(Base other) { return value - other.value; }
+   public String convert() { return "" + value; }
+}
+
+interface Converter<T> {
+   T convert();
+}
+
+abstract class Base implements Comparable<Base>, Converter<String> {
+   int value;
+   boolean isSmallerThan(Base other) { return compareTo(other) < 0; }
+   String twice() { return convert() + convert(); }
+}
+
+/**::
+ * Generic abstract class implementing a generic interface without implementing its method
+ */
+NamedBox box = new NamedBox();
+assertEquals("box!", box.shout(), "Generic abstract class calls interface method");
+Supplier2<String> supplier = box;
+assertEquals("box", supplier.supply(), "Call via generic interface");
+
+class NamedBox extends Box<String> {
+   public String supply() { return "box"; }
+   String shout() { return first() + "!"; }
+}
+
+interface Supplier2<T> {
+   T supply();
+}
+
+abstract class Box<T> implements Supplier2<T> {
+   T first() { return supply(); }
+}
+
+/**::
  * Error: final classes can't be subclassed (nested classes)
  * { "expectedCompilationError": {"id": "cantExtendFinalClass"}}
  */

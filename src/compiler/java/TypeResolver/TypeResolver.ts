@@ -727,6 +727,10 @@ export class TypeResolver {
 
         let classes: JavaClass[] = this.classDeclarationNodes.filter(cn => cn.resolvedType).map(cn => <JavaClass>cn.resolvedType);
 
+        // Base classes first: the loop below adds methods to classes (default methods of interfaces, abstract copies
+        // of interface methods in abstract classes) which subclasses need to see.
+        classes = this.sortBaseClassesFirst(classes);
+
         this.moduleManager.overriddenOrImplementedMethodPaths = {};
         // replenish class types with default methods of implemented interfaces if necessary
         for (let javaClass of classes) {
@@ -740,6 +744,28 @@ export class TypeResolver {
         }
 
 
+    }
+
+    /**
+     * Returns the classes in an order in which each class comes after its base class (if that is in the list, too).
+     * Classes without base class in the list keep their relative order.
+     */
+    sortBaseClassesFirst(classes: JavaClass[]): JavaClass[] {
+        let classSet = new Set(classes);
+        let visited = new Set<JavaClass>();
+        let sorted: JavaClass[] = [];
+
+        let visit = (klass: JavaClass) => {
+            if (visited.has(klass)) return;
+            visited.add(klass);
+            let baseClass = klass.getExtends();
+            if (baseClass instanceof GenericVariantOfJavaClass) baseClass = baseClass.isGenericVariantOf;
+            if (baseClass instanceof JavaClass && classSet.has(baseClass)) visit(baseClass);
+            sorted.push(klass);
+        }
+
+        classes.forEach(visit);
+        return sorted;
     }
 
     buildMethods(node: ASTInterfaceDefinitionNode | ASTClassDefinitionNode | ASTEnumDefinitionNode) {

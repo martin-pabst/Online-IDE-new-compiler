@@ -461,6 +461,17 @@ export class JavaClass extends IJavaClass {
                             method.callbackAfterCodeGeneration.push(f);
                         }
 
+                    } else if (this._isAbstract) {
+                        // As in Java, an abstract class doesn't have to implement the methods of its interfaces: it
+                        // inherits them as abstract methods. The copy makes them callable on the abstract class
+                        // (e.g. from its own methods), and checkIfAbstractParentsAreImplemented reports them
+                        // in concrete subclasses that don't implement them.
+                        // It keeps classEnumInterface == javaInterface, so calls are generated like interface calls.
+                        let copy = method.getCopy();
+                        copy.isAbstract = true;
+                        copy.takeInternalJavaNameWithGenericParamterIdentifiersFrom(method);
+                        copy.implementedMethod = method;
+                        this.methods.push(copy);
                     } else {
                         notImplementedMethods.push(method);
                     }
