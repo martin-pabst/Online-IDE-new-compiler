@@ -26,18 +26,17 @@ import type { UserConfig } from 'vite'
 
 export default {
     appType: 'mpa', // to serve 404 on "not found" (instead of erroneously serving index.html)
-    esbuild: {
-        logOverride: {
-            'unsupported-css-nesting': 'silent',
-            'unsupported-@namespace': 'silent',
-        },
-        dropLabels: ['DEBUG']
-    },
     build: {
         sourcemap: true,
         emptyOutDir: true,
         chunkSizeWarningLimit: 4912,
-        assetsInlineLimit: 10 * 1024
+        assetsInlineLimit: 10 * 1024,
+        rolldownOptions: {
+            // strips code under the label DEBUG: in builds
+            transform: {
+                dropLabels: ['DEBUG']
+            }
+        }
     },
     define: {
         'APP_VERSION': JSON.stringify(pkg.version),

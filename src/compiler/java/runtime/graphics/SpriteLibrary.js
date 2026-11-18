@@ -259,7 +259,3 @@ let spriteLibInit = () => {
 }
 
 spriteLibInit();
-
-if(typeof module != "undefined"){
-    module.exports = SpriteLibrary;
-}

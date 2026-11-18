@@ -24,7 +24,9 @@ npx tsc                # type check only (noEmit)
 
 On Windows from Claude Code's Bash tool, run tests as described in "Running tests from the Bash tool" below.
 
-`deploy`/`build-deploy` upload via SSH (`src/development/ZipAndUpload.js`) — don't run them unless asked. There is no active ESLint config (`eslint.config.js1` is disabled). `tsconfig.json` has `strict: false`.
+`deploy`/`build-deploy` upload via SSH (`src/development/ZipAndUpload.js`) — don't run them unless asked. There is no active ESLint config (`eslint.config.js1` is disabled, and the ESLint packages are not installed). `tsconfig.json` has `strict: false` and `moduleResolution: "bundler"`.
+
+TypeScript is 7.x, the native Go compiler: `tsc` is only a CLI. The `typescript` package has no JavaScript API (`import ... from "typescript"` yields nothing usable), so tools that need it (typescript-eslint, madge, ...) won't work with it. Since 7.0, `@types/*` packages are no longer loaded automatically (`types` defaults to `[]`), and package subpaths are resolved via their `exports` map (e.g. `three/examples/jsm/controls/OrbitControls.js` needs the `.js`).
 
 ## Tests
 
@@ -81,4 +83,9 @@ User-visible strings are lambdas returning `lm({"de": ..., "en": ...})` (`src/to
 `main/` (Online-IDE: `Main.ts`, `MainBase.ts` shared interface, GUI, login, exams in `pruefung/`), `embedded/` (`MainEmbedded`, `EmbeddedStarter`, IndexedDB storage), `communication/` (server requests, push websocket), `workspace/`, `repository/` (group-work repositories, sync), `libraries/java/` (client-dependent library classes such as database). `src/tools/` holds shared helpers (HTML/DOM tools, treeview component, sql.js database worker).
 
 ### Build-time constants
-`vite.config-common.ts` defines `APP_VERSION` and `BUILD_DATE`, and strips code under the `DEBUG:` label (`esbuild.dropLabels`) in builds.
+`vite.config-common.ts` defines `APP_VERSION` and `BUILD_DATE`, and strips code under the `DEBUG:` label (`build.rolldownOptions.transform.dropLabels`) in builds.
+
+### Vite 8 (Rolldown/Oxc) pitfalls
+- Vite 8 transpiles TS with Oxc and bundles with Rolldown (esbuild is not installed). Don't combine `import { X } from ...` with `declare var X` in the same file: Oxc then drops the import and `X` is undefined at runtime, which tsc doesn't notice.
+- Lightning CSS minifies the CSS and fails the build on an `@namespace` rule that isn't at the start of the merged CSS file, so don't use `@namespace` in CSS.
+- Chunking uses `output.codeSplitting.groups` (Rolldown's replacement for `manualChunks`). The embedded build must keep producing exactly one `online-ide-embedded.js` and one `online-ide-embedded.css`, because embedding pages (`public/includeIDE.js`) load these by name.

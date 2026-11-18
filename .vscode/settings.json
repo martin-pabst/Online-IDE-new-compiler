@@ -12,5 +12,6 @@
         "iLoveWorkSpaceColors": true,
         "iLoveWorkSpaceRandom": false,
         "useWorkspaceLite": true
-    }
+    },
+    "js/ts.tsdk.path": "node_modules\\typescript"
 }

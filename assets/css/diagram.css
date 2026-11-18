@@ -1,30 +1,28 @@
-@namespace svgns url(http://www.w3.org/2000/svg);
-
-svgns|g.svg_draggable {
+g.svg_draggable {
     cursor: move;
     pointer-events: all;
 }
 
-svgns|text {
+text {
     -webkit-user-select: none;
     -moz-user-select: none;
      -ms-user-select: none;
          user-select: none;
 }
 
-svgns|text.clickable:hover {
+text.clickable:hover {
     fill:#4020ff !important;
 }
 
-svgns|g.clickable:hover>text {
+g.clickable:hover>text {
     fill:#4020ff !important;
 }
 
-svgns|rect.dragging {
+rect.dragging {
     fill: #eceba1 !important
 }
 
-svgns|path.dropdown-triangle {
+path.dropdown-triangle {
     visibility: hidden;
     fill: #0040ff;
     pointer-events: all;
@@ -32,16 +30,16 @@ svgns|path.dropdown-triangle {
 
 }
 
-svgns|g.svg_draggable:hover path.dropdown-triangle {
+g.svg_draggable:hover path.dropdown-triangle {
     visibility: visible;
 }
 
-svgns|path.dropdown-triangle:hover {
+path.dropdown-triangle:hover {
     stroke: #8297dd;
     fill: #8297dd;
 }
 
-svgns|path.dropdown-triangle:active {
+path.dropdown-triangle:active {
     fill: #ffb451
 }
 

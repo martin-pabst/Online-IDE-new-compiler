@@ -1,5 +1,5 @@
 import type { UserConfig } from 'vite'
-import commonConfig from './vite.config-common'
+import commonConfig from './vite.config-common.ts'
 
 import prefixer from 'postcss-prefix-selector'
 
@@ -8,7 +8,8 @@ export default {
     base: '',
     build: {
         ...commonConfig.build,
-        rollupOptions: {
+        rolldownOptions: {
+            ...commonConfig.build.rolldownOptions,
             input: {
                 embedded: './embedded_java.html',
             },
@@ -16,15 +17,20 @@ export default {
                 entryFileNames: _assetInfo => {
                     return 'online-ide-embedded.js'; // im Hauptverzeichnis
                 },
-                assetFileNames: assetInfo => assetInfo.name?.endsWith('css') ? 'online-ide-embedded.css' : 'assets/[name]-[hash][extname]',
-                manualChunks: (id: string, { getModuleInfo, getModuleIds }) => {
-                    if(id.endsWith('.css')){
-                        return 'css';
-                    } 
-                    if (id.includes('node_modules')) return id.toString().split('node_modules/')[1].split('/')[0].toString().replace("@", "");
-                    // 'everything' - jetzt entstehen nur 1 CSS Asset, 1 JS Assert, plus 1 Worker JS Assets.
-                    return 'own_sourcecode';
-                },
+                assetFileNames: assetInfo => assetInfo.names.some(name => name.endsWith('css')) ? 'online-ide-embedded.css' : 'assets/[name]-[hash][extname]',
+                codeSplitting: {
+                    groups: [{
+                        debugName: 'css, npm packages, own sourcecode',
+                        name: (id: string) => {
+                            if (id.endsWith('.css')) {
+                                return 'css';
+                            }
+                            if (id.includes('node_modules')) return id.toString().split('node_modules/')[1].split('/')[0].toString().replace("@", "");
+                            // 'everything' - jetzt entstehen nur 1 CSS Asset, 1 JS Assert, plus 1 Worker JS Assets.
+                            return 'own_sourcecode';
+                        }
+                    }]
+                }
             }
         },
         outDir: './dist-embedded'

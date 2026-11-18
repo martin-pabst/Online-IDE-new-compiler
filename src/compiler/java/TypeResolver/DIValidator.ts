@@ -6,7 +6,6 @@ import { JavaBaseModule } from "../module/JavaBaseModule";
 import { ASTClassDefinitionNode, ASTEnumDefinitionNode, ASTFieldDeclarationNode, ASTInterfaceDefinitionNode } from "../parser/AST";
 import { JavaClass } from "../types/JavaClass";
 import { JCM } from "../language/JavaCompilerMessages.ts";
-import { i } from "vite/dist/node/types.d-aGj9QkWt";
 
 type PushErrorFn = (msg: ErrormessageWithId, range: IRange, module: JavaBaseModule, level?: ErrorLevel) => void;
 

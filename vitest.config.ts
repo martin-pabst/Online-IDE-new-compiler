@@ -1,25 +1,12 @@
 import path from 'path';
 import { Plugin, UserConfig } from 'vite';
-import { RunnerTestFile, UserConsoleLog } from 'vitest';
+import { UserConsoleLog } from 'vitest';
 import { defineConfig } from 'vitest/config';
-import { VerboseReporter } from 'vitest/reporters';
+import { VerboseReporter } from 'vitest/node';
 
 class MyDefaultReporter extends VerboseReporter {
   constructor() {
     super();
-  }
-
-  onCollected() {
-    const files = this.ctx.state.getFiles(this.watchFilters)
-    // const errors = this.ctx.state.getUnhandledErrors()
-    // this.reportTestSummary(files, errors)
-
-    // this.ctx.logger.log(files)
-    super.onCollected()
-  }
-
-  async onFinished(files?: RunnerTestFile[], errors?: unknown[]): Promise<void> {
-    super.onFinished(files, errors);
   }
 
   onUserConsoleLog(log: UserConsoleLog): void {
@@ -35,7 +22,7 @@ class MyDefaultReporter extends VerboseReporter {
  * hands it to the test harness, which registers one test per /**:: block.
  */
 function javaTestFilePlugin(): Plugin {
-  const harness = path.resolve(__dirname, 'src/test/JavaTestHarness.ts');
+  const harness = path.resolve(import.meta.dirname, 'src/test/JavaTestHarness.ts');
   return {
     name: 'java-test-files',
     enforce: 'pre',
@@ -68,16 +55,14 @@ export default defineConfig({
     // More workers just compete for CPU and for the vite server while importing: 3-6 threads were fastest
     // (~14 s for all .java files vs. ~19 s in a single test file), threads were faster than forks.
     pool: 'threads',
-    poolOptions: {
-      threads: { minThreads: 1, maxThreads: 4 }
-    },
+    maxWorkers: 4,
     // reporters: ["default"]
 
     // https://github.com/vitest-dev/vitest/discussions/1806 :
     alias: [
       {
         find: /^monaco-editor$/,
-        replacement: __dirname + "/node_modules/monaco-editor/esm/vs/editor/editor.api"
+        replacement: import.meta.dirname + "/node_modules/monaco-editor/esm/vs/editor/editor.api"
       }
     ],
 
@@ -85,10 +70,4 @@ export default defineConfig({
     environment: 'jsdom'
   },
   logLevel: 'silent',
-  esbuild: {
-    logOverride: {
-      'unsupported-css-nesting': 'silent',
-      'unsupported-@namespace': 'silent',
-    }
-  },
 } satisfies UserConfig);

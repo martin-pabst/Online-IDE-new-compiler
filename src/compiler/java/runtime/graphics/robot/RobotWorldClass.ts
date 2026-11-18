@@ -9,7 +9,7 @@ import { World3dClass } from "../3d/World3dClass";
 import { RobotCubeFactory } from "./RobotCubeFactory";
 import { RobotClass } from './RobotClass';
 import { RuntimeExceptionClass } from '../../system/javalang/RuntimeException';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export class RobotWorldClass extends ObjectClass {
 

@@ -1,5 +1,5 @@
 import { searchForWorkspaceRoot, type UserConfig } from 'vite'
-import commonConfig from './vite.config-common'
+import commonConfig from './vite.config-common.ts'
 
 let serverIP: string = 'localhost';
 // let serverIP: string = '172.30.95.53';
@@ -8,7 +8,8 @@ export default {
     ...commonConfig,
     build: {
         ...commonConfig.build,
-        rollupOptions: {
+        rolldownOptions: {
+            ...commonConfig.build.rolldownOptions,
             input: {
                 main: './index.html',
                 api: './api_documentation.html',
@@ -17,17 +18,22 @@ export default {
                 register: './register.html',
             },
             output: {
-                manualChunks: (id: string, { getModuleInfo, getModuleIds }) => {
-                    if (id.includes('node_modules')) {
-                        let moduleName: string = id.toString().split('node_modules/')[1].split('/')[0].toString().replace("@", "");
-                        if (id.endsWith('.css')) {
-                            return moduleName + '_css';
-                        }
-                        return moduleName;
-                    }
+                codeSplitting: {
+                    groups: [{
+                        debugName: 'one chunk per npm package',
+                        name: (id: string) => {
+                            if (id.includes('node_modules')) {
+                                let moduleName: string = id.toString().split('node_modules/')[1].split('/')[0].toString().replace("@", "");
+                                if (id.endsWith('.css')) {
+                                    return moduleName + '_css';
+                                }
+                                return moduleName;
+                            }
 
-                    return undefined;
-                },
+                            return null;
+                        }
+                    }]
+                }
             }
 
             // output: {

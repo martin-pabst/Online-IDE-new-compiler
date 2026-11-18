@@ -1,4 +1,3 @@
-import { SymbolTable } from "typescript";
 import { BaseStackframe, BaseSymbol, BaseSymbolTable, SymbolOnStackframe as SymbolOnStack, SymbolOnStackframe } from "../../common/BaseSymbolTable";
 import { IRange } from "../../common/range/Range";
 import { TokenType } from "../TokenType.ts";
