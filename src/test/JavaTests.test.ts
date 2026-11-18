@@ -8,6 +8,7 @@ import { ViteTestAssertions } from "./ViteTestAssertions";
 import { JavaLibraryManager } from "../compiler/java/runtime/JavaLibraryManager";
 import { CompilerFile } from "../compiler/common/module/CompilerFile";
 import { StoreOutputPrintManager } from "./StoreOutputPrintManager";
+import type { Error as CompilerError } from "../compiler/common/Error";
 
 try {
     let javaDir: string = __dirname + "/java";
@@ -25,13 +26,31 @@ try {
 }
 
 
-type ExpectedError = { id: string, line?: number, found?: boolean }
+/**
+ * Expected compiler message (error or warning). line is relative to the /**:: line of the test (= line 1).
+ */
+type ExpectedMessage = { id: string, line?: number, found?: boolean }
 
 type TestInfo = {
     expectedOutput?: string,
-    expectedCompilationError?: ExpectedError,
-    expectedCompilationErrors?: ExpectedError[],
+    expectedCompilationError?: ExpectedMessage,
+    expectedCompilationErrors?: ExpectedMessage[],
+    /**
+     * If present (even as empty array), the test checks warnings too: every warning must be listed here
+     * and every listed warning must occur. If absent, warnings are ignored.
+     */
+    expectedWarnings?: ExpectedMessage[],
     libraries?: string[]
+}
+
+/**
+ * Marks the first expected message matching id and (if given) line as found.
+ * @returns true if message was expected
+ */
+function markIfExpected(message: CompilerError, expectedMessages: ExpectedMessage[]): boolean {
+    let expectedMessage = expectedMessages.find(expected => expected.id == message.id && (!expected.line || expected.line == message.range.startLineNumber));
+    if (expectedMessage) expectedMessage.found = true;
+    return !!expectedMessage;
 }
 
 function test1(sourcecode: string, file: string) {
@@ -57,7 +76,8 @@ function test1(sourcecode: string, file: string) {
         let headerEnd = sourcecode.indexOf("*/", testBegin);
 
         let expectedOutput: string | undefined;
-        let expectedErrors: ExpectedError[] = [];
+        let expectedErrors: ExpectedMessage[] = [];
+        let expectedWarnings: ExpectedMessage[] | undefined;
         let libraries: string[] = [];
 
         let leftCurlyBraceIndex = sourcecode.indexOf("{", testBegin);
@@ -70,11 +90,12 @@ function test1(sourcecode: string, file: string) {
                 expectedOutput = testInfo.expectedOutput;
                 if (testInfo.expectedCompilationError) expectedErrors.push(testInfo.expectedCompilationError);
                 if (testInfo.expectedCompilationErrors) expectedErrors = expectedErrors.concat(testInfo.expectedCompilationErrors);
+                if (testInfo.expectedWarnings) expectedWarnings = testInfo.expectedWarnings;
                 if (testInfo.libraries) libraries = testInfo.libraries;
             }
         }
 
-        compileAndTest(title, code, lineOffset, expectedOutput, expectedErrors, libraries);
+        compileAndTest(title, code, lineOffset, expectedOutput, expectedErrors, expectedWarnings, libraries);
 
         testBegin = sourcecode.indexOf("/**::", testBegin + 1);
     }
@@ -84,8 +105,8 @@ function test1(sourcecode: string, file: string) {
 }
 
 function compileAndTest(name: string, program: string, lineOffset: number,
-    expectedOutput: string | undefined, expectedCompiliationErrors: ExpectedError[],
-    libraries: string[]) {
+    expectedOutput: string | undefined, expectedCompiliationErrors: ExpectedMessage[],
+    expectedWarnings: ExpectedMessage[] | undefined, libraries: string[]) {
 
     test(name, async (context) => {
         let file = new CompilerFile();
@@ -105,13 +126,29 @@ function compileAndTest(name: string, program: string, lineOffset: number,
         }
 
 
+        if (expectedWarnings) {
+            let allWarnings = executable.getAllErrors().filter(error => error.level == "warning");
+            let allNotExpectedWarnings = allWarnings.filter(warning => !markIfExpected(warning, expectedWarnings));
+
+            if (allNotExpectedWarnings.length > 0) {
+                console.log(chalk.red("Unexpected warnings ") + "in " + name);
+                for (let warning of allNotExpectedWarnings) {
+                    console.log(chalk.white("Line ") +
+                        chalk.blue(warning.range.startLineNumber + lineOffset) +
+                        chalk.gray("(relative: " + warning.range.startLineNumber + ")")
+                        + chalk.white(", Column ") +
+                        chalk.blue(warning.range.startColumn) + chalk.white(", id ") + chalk.blue(warning.id) +
+                        chalk.white(": " + warning.message));
+                    printCode(program, warning.range.startLineNumber, lineOffset);
+                }
+                //@ts-ignore
+                context.task.fails = 1;
+            }
+        }
+
         let allErrors = executable.getAllErrors().filter(error => error.level == "error");
 
-        let allNotExpectedErrors = allErrors.filter(error => {
-            let expectedError = expectedCompiliationErrors.find(expectedError => expectedError.id == error.id && (!expectedError.line || expectedError.line == error.range.startLineNumber));
-            if (expectedError) expectedError.found = true;
-            return !expectedError;
-        })
+        let allNotExpectedErrors = allErrors.filter(error => !markIfExpected(error, expectedCompiliationErrors));
 
         if (allNotExpectedErrors.length > 0) {
             console.log(chalk.red("Compilation errors ") + "in " + name);
@@ -189,17 +226,22 @@ function compileAndTest(name: string, program: string, lineOffset: number,
 
         }
 
-        for (let expectedError of expectedCompiliationErrors.filter(e => !e.found)) {
-            let message = chalk.red("Expected Error") + " with id " + chalk.blue(expectedError.id);
-            if (expectedError.line) {
-                message += " on line " + chalk.blue(expectedError.line);
-                console.error(message);
-                printCode(program, expectedError.line, lineOffset);
-            } else {
-                console.error(message);
+        reportMissingMessages("Expected Error", expectedCompiliationErrors);
+        reportMissingMessages("Expected Warning", expectedWarnings ?? []);
+
+        function reportMissingMessages(kind: string, expectedMessages: ExpectedMessage[]) {
+            for (let expectedMessage of expectedMessages.filter(e => !e.found)) {
+                let message = chalk.red(kind) + " with id " + chalk.blue(expectedMessage.id);
+                if (expectedMessage.line) {
+                    message += " on line " + chalk.blue(expectedMessage.line);
+                    console.error(message);
+                    printCode(program, expectedMessage.line, lineOffset);
+                } else {
+                    console.error(message);
+                }
+                //@ts-ignore
+                context.task.fails = 1;
             }
-            //@ts-ignore
-            context.task.fails = 1;
         }
 
     });

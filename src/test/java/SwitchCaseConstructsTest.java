@@ -436,6 +436,7 @@ switch (x) {
 
 /**::
  * break after return/throw is never executed, so the switch statement still returns in every case
+ * { "expectedWarnings": [{"id": "unreachableBreakStatement", "line": 22}, {"id": "unreachableBreakStatement", "line": 32}, {"id": "unreachableBreakStatement", "line": 42}, {"id": "unreachableBreakStatement", "line": 45}, {"id": "unreachableBreakStatement", "line": 48}]}
  */
 assertTrue(method(), "example with break after return in default branch");
 assertEquals(true, isOne(1), "case 1");

@@ -29,11 +29,12 @@ On Windows from Claude Code's Bash tool, run tests as described in "Running test
 ## Tests
 
 Tests are data-driven, not hand-written vitest cases:
-- `src/test/JavaTests.test.ts` reads every `src/test/java/*.java` file and splits it at `/**::` markers. Each block is one test: the first comment line is the title, and an optional JSON object in the header comment gives `expectedOutput`, `expectedCompilationError(s)` (`{id, line}` — error ids from the compiler messages), and `libraries` (e.g. `["nrw"]`, `["niedersachsen"]`, `["gng"]`).
+- `src/test/JavaTests.test.ts` reads every `src/test/java/*.java` file and splits it at `/**::` markers. Each block is one test: the first comment line is the title, and an optional JSON object in the header comment gives `expectedOutput`, `expectedCompilationError(s)` (`{id, line}` — error ids from the compiler messages), `expectedWarnings` (array of `{id, line}`), and `libraries` (e.g. `["nrw"]`, `["niedersachsen"]`, `["gng"]`). `line` is relative to the block: the `/**::` line is line 1.
 - Block bodies are top-level Java statements (main program) plus classes; they use the built-in `assertEquals`/`assertTrue`/... functions, which report through `ViteTestAssertions`. The test compiles with `JavaCompiler`, then runs via `Interpreter.runMainProgramSynchronously()`.
 - `src/test/AssemblyTests.test.ts` does the same for `src/test/assembly/*.asm`.
 - To add a regression test for a compiler/runtime bug, add a `/**::` block to the fitting `.java` file in `src/test/java/`.
-- The harness only checks `error`-level messages; warnings and infos are ignored. To check a warning, write a temporary `src/test/Tmp*.test.ts` and delete it afterwards. It must import `"../compiler/common/interpreter/Interpreter"` before `JavaCompiler`, otherwise an import cycle fails with `Class extends value undefined is not a constructor`.
+- Warnings are only checked in blocks that have `expectedWarnings`: then every warning must be listed and every listed warning must occur (`"expectedWarnings": []` asserts that there are no warnings). Without the field, warnings are ignored. Infos are never checked. Warnings without an `id` in `JavaCompilerMessages` get the id `"no id"`.
+- For other checks (e.g. infos, message texts), write a temporary `src/test/Tmp*.test.ts` and delete it afterwards. It must import `"../compiler/common/interpreter/Interpreter"` before `JavaCompiler`, otherwise an import cycle fails with `Class extends value undefined is not a constructor`.
 
 ### Running tests from the Bash tool (Windows, Git Bash)
 
