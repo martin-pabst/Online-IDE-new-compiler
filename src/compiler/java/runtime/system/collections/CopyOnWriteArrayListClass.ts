@@ -1,8 +1,11 @@
+import { CallbackFunction } from "../../../../common/interpreter/StepFunction.ts";
+import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments.ts";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { ObjectClassOrNull } from "../javalang/ObjectClassStringClass.ts";
 import { ArrayListClass } from "./ArrayListClass.ts";
+import { SystemStreamClass } from "./SystemStreamClass.ts";
 
 export class CopyOnWriteArrayListClass extends ArrayListClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -26,6 +29,7 @@ export class CopyOnWriteArrayListClass extends ArrayListClass {
         { type: "method", signature: "boolean remove(E element)", java: ArrayListClass.prototype._mj$remove$boolean$E, comment: JRC.collectionRemoveObjectComment },
         { type: "method", signature: "boolean removeAll(Collection<?> c)", java: ArrayListClass.prototype._removeAll, comment: JRC.collectionRemoveAllComment },
         { type: "method", signature: "int size()", native: ArrayListClass.prototype._size, template: "§1.elements.length", comment: JRC.collectionSizeComment },
+        { type: "method", signature: "Stream<E> stream()", java: CopyOnWriteArrayListClass.prototype._mj$stream$Stream$, comment: JRC.collectionStreamComment },
 
         // from ListInterface
         { type: "method", signature: "boolean add(int index, E element)", native: ArrayListClass.prototype._addWithIndex, comment: JRC.listAddElementComment },
@@ -45,6 +49,12 @@ export class CopyOnWriteArrayListClass extends ArrayListClass {
 
     constructor(elements?: ObjectClassOrNull[]) {
         super(elements);
+    }
+
+    // Unlike ArrayList, the stream of a CopyOnWriteArrayList is a snapshot of the list at the time stream() is called.
+    _mj$stream$Stream$(t: Thread, callback: CallbackFunction) {
+        t.s.push(new SystemStreamClass(this.elements.slice()));
+        if (callback) callback();
     }
 
 

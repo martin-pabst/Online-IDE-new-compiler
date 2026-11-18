@@ -198,3 +198,22 @@ assertEquals(3, d.stream().count(), "LinkedList.stream() via Deque");
 Object[] elements = list.stream().toArray();
 list.add("Dora");
 assertEquals(3, elements.length, "LinkedList.stream() is a snapshot");
+
+/**::
+ * CopyOnWriteArrayList.stream
+ */
+CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<>();
+list.add("Anna");
+list.add("Berta");
+list.add("Charlie");
+
+assertEquals(3, list.stream().count(), "CopyOnWriteArrayList.stream().count");
+assertEquals(2, list.stream().filter(e -> e.length() > 4).count(), "CopyOnWriteArrayList.stream().filter");
+
+List<String> l = list;
+assertEquals(3, l.stream().count(), "CopyOnWriteArrayList.stream() via List");
+
+Stream<String> stream = list.stream();
+list.add("Dora");
+assertEquals(3, stream.count(), "CopyOnWriteArrayList.stream() is a snapshot");
+assertEquals(4, list.stream().count(), "CopyOnWriteArrayList.stream() after add");
