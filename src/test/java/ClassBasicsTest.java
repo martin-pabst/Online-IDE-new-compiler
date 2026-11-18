@@ -667,6 +667,173 @@ abstract class Box<T> implements Supplier2<T> {
 }
 
 /**::
+ * Error: class has to implement the methods of the super-interfaces of its interfaces
+ * { "expectedCompilationError": {"id": "interfaceMethodsNotImplemented", "line": 11}}
+ */
+interface HasName {
+   String name();
+}
+
+interface HasNameAndAge extends HasName { }
+
+class Pupil implements HasNameAndAge { }
+
+/**::
+ * Methods and default methods of super-interfaces
+ */
+Pupil p = new Pupil();
+HasNameAndAge hnaa = p;
+HasName hn = p;
+assertEquals("Max", hn.name(), "Call via super-interface");
+assertEquals("Max", hnaa.name(), "Call of super-interface method via sub-interface");
+assertEquals(15, hnaa.age(), "Call of sub-interface method");
+assertEquals("Hello Max", p.greet(), "Default method of super-interface via class");
+assertEquals("Hello Max", hnaa.greet(), "Default method of super-interface via sub-interface");
+Describable d = p;
+assertEquals("Max (15)", d.describe(), "Default method of sub-interface implements method of super-interface");
+
+class Pupil implements HasNameAndAge {
+   public String name() { return "Max"; }
+   public int age() { return 15; }
+}
+
+interface Describable {
+   String describe();
+}
+
+interface HasName extends Describable {
+   String name();
+   default String greet() { return "Hello " + name(); }
+}
+
+interface HasNameAndAge extends HasName {
+   int age();
+   default String describe() { return name() + " (" + age() + ")"; }
+}
+
+/**::
+ * Interface inherited via two sub-interfaces (diamond)
+ */
+Machine m = new Machine();
+assertEquals("Device on", m.info(), "Default method of common super-interface");
+Movable mo = m;
+Switchable sw = m;
+assertEquals("on", mo.state(), "Call via first sub-interface");
+assertEquals("Device on", sw.info(), "Default method via second sub-interface");
+
+class Machine implements Movable, Switchable {
+   public String state() { return "on"; }
+}
+
+interface Device {
+   String state();
+   default String info() { return "Device " + state(); }
+}
+
+interface Movable extends Device { }
+
+interface Switchable extends Device { }
+
+/**::
+ * Generic super-interface
+ */
+TextBox t = new TextBox();
+Container<String> c = t;
+TextContainer tc = t;
+assertEquals("text", c.get(), "Call via generic super-interface");
+assertEquals("text", tc.get(), "Call via sub-interface");
+assertEquals("text!", tc.loud(), "Default method of generic super-interface");
+
+class TextBox implements TextContainer {
+   public String get() { return "text"; }
+}
+
+interface Container<T> {
+   T get();
+   default String loud() { return get() + "!"; }
+}
+
+interface TextContainer extends Container<String> { }
+
+/**::
+ * Default methods of generic interface, also with type parameter in signature and with lambda
+ */
+TextBox t = new TextBox();
+assertEquals("text!", t.loud(), "Default method via class");
+assertEquals("text", t.self(), "Default method with type parameter as return type via class");
+assertEquals("Y", t.echo("Y"), "Default method with type parameter as parameter type via class");
+Container<String> c = t;
+assertEquals("text!", c.loud(), "Default method via interface");
+assertEquals("text", c.self(), "Default method with type parameter as return type via interface");
+assertEquals("X", c.echo("X"), "Default method with type parameter as parameter type via interface");
+
+Container<Integer> lambda = () -> 42;
+assertEquals("42!", lambda.loud(), "Default method of lambda object");
+assertEquals(42, lambda.self(), "Default method with type parameter of lambda object");
+
+class TextBox implements Container<String> {
+   public String get() { return "text"; }
+}
+
+interface Container<T> {
+   T get();
+   default String loud() { return get() + "!"; }
+   default T self() { return get(); }
+   default T echo(T value) { return value; }
+}
+
+/**::
+ * Error: interface with generic super-interface can't cast to variant with other type argument
+ * { "expectedCompilationError": {"id": "cantAssignValueToLocalVariable", "line": 7}}
+ */
+TextContainer tc = new TextBox();
+Container<String> c1 = tc;
+Container<Integer> c2 = tc;
+
+class TextBox implements TextContainer {
+   public String get() { return "text"; }
+}
+
+interface Container<T> {
+   T get();
+}
+
+interface TextContainer extends Container<String> { }
+
+/**::
+ * Abstract class implementing a sub-interface calls a method of the super-interface
+ */
+assertEquals(1, new Impl().g(), "Abstract class calls method of super-interface");
+
+class Impl extends AbstractBase {
+   public int f() { return 1; }
+}
+
+interface Fi {
+   int f();
+}
+
+interface Gi extends Fi { }
+
+abstract class AbstractBase implements Gi {
+   int g() { return f(); }
+}
+
+/**::
+ * Error: concrete subclass of abstract class has to implement methods of super-interface
+ * { "expectedCompilationError": {"id": "abstractMethodsNotImplemented", "line": 13}}
+ */
+interface Fi {
+   int f();
+}
+
+interface Gi extends Fi { }
+
+abstract class AbstractBase implements Gi { }
+
+class Impl extends AbstractBase { }
+
+/**::
  * Error: final classes can't be subclassed (nested classes)
  * { "expectedCompilationError": {"id": "cantExtendFinalClass"}}
  */

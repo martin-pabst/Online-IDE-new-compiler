@@ -38,3 +38,19 @@ assertFalse(s.contains("Dennis"), "HashSet.remove");
 s.removeAll(list);
 assertTrue(s.contains("Berta"), "HashSet.removeAll");
 assertFalse(s.contains("Martin"), "HashSet.removeAll");
+
+/**::
+ * HashSet.stream
+ */
+HashSet<String> s = new HashSet<>();
+s.add("Anna");
+s.add("Berta");
+s.add("Charlie");
+s.add("Berta");
+
+assertEquals(3, s.stream().count(), "HashSet.stream().count");
+assertEquals(2, s.stream().filter(e -> e.length() > 4).count(), "HashSet.stream().filter");
+assertEquals(1, s.stream().map(e -> e.length()).filter(n -> n == 4).count(), "HashSet.stream().map");
+
+Collection<String> c = s;
+assertEquals(3, c.stream().count(), "HashSet.stream() via Collection");

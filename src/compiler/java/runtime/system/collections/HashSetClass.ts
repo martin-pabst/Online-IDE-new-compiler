@@ -9,6 +9,7 @@ import { ObjectClass, ObjectClassOrNull, StringClass } from "../javalang/ObjectC
 import { CollectionInterface } from "./CollectionInterface.ts";
 import { IteratorInterface } from "./IteratorInterface.ts";
 import { SystemCollection } from "./SystemCollection.ts";
+import { SystemStreamClass } from "./SystemStreamClass.ts";
 
 
 export class HashSetClass extends ObjectClass {
@@ -33,6 +34,7 @@ export class HashSetClass extends ObjectClass {
         { type: "method", signature: "int size()", java: HashSetClass.prototype._mj$size$int$, comment: JRC.collectionSizeComment },
         { type: "method", signature: "Object[] toArray()", java: HashSetClass.prototype._mj$toArray$Object_I$, comment: JRC.collectionToArrayComment },
         { type: "method", signature: "<T> T[] toArray(T[] a)", java: HashSetClass.prototype._mj$toArray$T_I$T_I, comment: JRC.collectionToArrayComment2 },
+        { type: "method", signature: "Stream<E> stream()", java: HashSetClass.prototype._mj$stream$Stream$, comment: JRC.collectionStreamComment },
 
         // from Set
         // { type: "method", signature: "boolean contains(E element)", java: HashSetClass.prototype._mj$contains$boolean$E, comment: JRC.setContainsComment },
@@ -197,6 +199,11 @@ export class HashSetClass extends ObjectClass {
     _mj$toArray$T_I$T_I(t: Thread, callback: CallbackFunction, templateArray: any) {
         this._mj$toArray$Object_I$(t, callback);
     };
+
+    _mj$stream$Stream$(t: Thread, callback: CallbackFunction) {
+        t.s.push(new SystemStreamClass(this.toArray()));
+        if (callback) callback();
+    }
 
 
     _mj$size$int$(t: Thread, callback: CallbackFunction) {

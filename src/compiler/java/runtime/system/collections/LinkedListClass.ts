@@ -12,6 +12,7 @@ import { JRC } from "../../../language/JavaRuntimeLibraryComments";
 import { RuntimeExceptionClass } from "../javalang/RuntimeException.ts";
 import { IndexOutOfBoundsExceptionClass } from "../javalang/IndexOutOfBoundsExceptionClass.ts";
 import { ComparatorInterface } from "./ComparatorInterface.ts";
+import { SystemStreamClass } from "./SystemStreamClass.ts";
 
 export class LinkedListClass extends ObjectClass implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
@@ -35,6 +36,7 @@ export class LinkedListClass extends ObjectClass implements BaseListType {
         { type: "method", signature: "boolean remove(E element)", java: LinkedListClass.prototype._mj$remove$boolean$E, comment: JRC.collectionRemoveObjectComment },
         { type: "method", signature: "boolean removeAll(Collection<?> c)", java: LinkedListClass.prototype._removeAll, comment: JRC.collectionRemoveAllComment },
         { type: "method", signature: "int size()", native: LinkedListClass.prototype._size, template: "§1.elements.length", comment: JRC.collectionSizeComment },
+        { type: "method", signature: "Stream<E> stream()", java: LinkedListClass.prototype._mj$stream$Stream$, comment: JRC.collectionStreamComment },
 
         // from Queue
         { type: "method", signature: "E remove()", java: LinkedListClass.prototype._mj$remove$E$, comment: JRC.queueRemoveComment },
@@ -468,6 +470,11 @@ export class LinkedListClass extends ObjectClass implements BaseListType {
 
     _toArray() {
         return this.elements.slice();
+    }
+
+    _mj$stream$Stream$(t: Thread, callback: CallbackFunction) {
+        t.s.push(new SystemStreamClass(this.elements.slice()));
+        if (callback) callback();
     }
 
     _removeAll(t: Thread, callback: CallbackFunction, collection: CollectionInterface) {

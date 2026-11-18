@@ -177,3 +177,24 @@ rolesSuper.add(ShuffleTestRole.WEREWOLF);
 assertEquals(3, roles.size(), "List<? super enum>.add(enum)");
 
 enum ShuffleTestRole { WEREWOLF, VILLAGER }
+
+/**::
+ * LinkedList.stream
+ */
+LinkedList<String> list = new LinkedList<>();
+list.add("Anna");
+list.add("Berta");
+list.add("Charlie");
+
+assertEquals(3, list.stream().count(), "LinkedList.stream().count");
+assertEquals(2, list.stream().filter(e -> e.length() > 4).count(), "LinkedList.stream().filter");
+assertEquals(1, list.stream().map(e -> e.length()).filter(n -> n == 7).count(), "LinkedList.stream().map");
+
+Collection<String> c = list;
+assertEquals(3, c.stream().count(), "LinkedList.stream() via Collection");
+Deque<String> d = list;
+assertEquals(3, d.stream().count(), "LinkedList.stream() via Deque");
+
+Object[] elements = list.stream().toArray();
+list.add("Dora");
+assertEquals(3, elements.length, "LinkedList.stream() is a snapshot");
