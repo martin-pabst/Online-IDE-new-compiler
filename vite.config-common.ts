@@ -35,6 +35,10 @@ export default {
             // strips code under the label DEBUG: in builds
             transform: {
                 dropLabels: ['DEBUG']
+            },
+            // no [PLUGIN_TIMINGS] report after each build
+            checks: {
+                bundlerTimings: false
             }
         }
     },
