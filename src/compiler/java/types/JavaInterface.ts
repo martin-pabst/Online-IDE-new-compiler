@@ -231,6 +231,12 @@ export class JavaInterface extends IJavaInterface {
         // every interface type can be cast to class Object
         if (otherType.identifier == 'Object') return true;
 
+        // e.g. interface TextContainer extends Container<String> can cast to Container<String>
+        // (the generic variants among the super-interfaces compare the type arguments)
+        if (otherType instanceof GenericVariantOfJavaInterface) {
+            return this.extends.some(intf => intf.canImplicitlyCastTo(otherType));
+        }
+
         if (!(otherType instanceof JavaInterface)) return false;
 
         if (otherType == this) return true;

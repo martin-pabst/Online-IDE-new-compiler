@@ -426,8 +426,36 @@ export class JavaClass extends IJavaClass {
     }
 
 
+    /**
+     * Returns the interfaces whose methods this class has to implement: the directly implemented interfaces and their
+     * super-interfaces, each of them once. Every interface comes before its super-interfaces, so a method which a
+     * sub-interface implements as default method is already supplemented when its super-interface is checked.
+     *
+     * Library classes: only the directly implemented interfaces, as before. For them this check takes over the
+     * internal names of interface methods, which could rename the TypeScript methods of library classes.
+     */
+    private getInterfacesToCheck(): IJavaInterface[] {
+        let directlyImplemented = this.getImplements();
+        if (this.isLibraryType) return directlyImplemented;
+
+        let visited = new Set<IJavaInterface>();
+        let postOrder: IJavaInterface[] = [];
+
+        let visit = (intf: IJavaInterface) => {
+            let key = intf instanceof GenericVariantOfJavaInterface ? intf.isGenericVariantOf : intf;
+            if (visited.has(key)) return;
+            visited.add(key);
+            for (let superInterface of intf.getExtends()) visit(superInterface);
+            postOrder.push(intf);
+        }
+
+        // reverse post-order: each interface before its super-interfaces, directly implemented ones in declaration order
+        [...directlyImplemented].reverse().forEach(visit);
+        return postOrder.reverse();
+    }
+
     checkIfInterfacesAreImplementedAndSupplementDefaultMethods() {
-        for (let ji of this.getImplements()) {
+        for (let ji of this.getInterfacesToCheck()) {
             let javaInterface = <JavaInterface>ji;
             let notImplementedMethods: JavaMethod[] = [];
             for (let method of javaInterface.getOwnMethods()) {
@@ -437,20 +465,27 @@ export class JavaClass extends IJavaClass {
                 if (!classesMethod) {
                     if (method.isDefault) {
                         let copy = method.getCopy();
+                        // e.g. default T first() of Container<String>: the code of the default method is stored under the
+                        // name with generic parameter identifiers, and calls via the interface use this name, too.
+                        if (!this.isLibraryType) copy.takeInternalJavaNameWithGenericParamterIdentifiersFrom(method);
                         this.methods.push(copy);
 
                         let functionIdentifier = copy.getInternalNameWithGenericParameterIdentifiers("java");
 
+                        // A generic variant (e.g. Container<String>) copies the runtime class of its interface when it is created,
+                        // which happens before the runtime classes of the user's interfaces are built. So take the interface's one.
+                        let declaringInterface: IJavaInterface = javaInterface instanceof GenericVariantOfJavaInterface ? javaInterface.isGenericVariantOf : javaInterface;
+
                         let f = () => {
                             let runtimeClass = this.runtimeClass;
-                            let otherRuntimeClass = javaInterface.runtimeClass;
+                            let otherRuntimeClass = declaringInterface.runtimeClass;
                             if (!runtimeClass || !otherRuntimeClass) return;
                             runtimeClass.prototype[functionIdentifier] = otherRuntimeClass.prototype[functionIdentifier];
                         }
 
                         // Code of default method has already been generated (e.g. if this class is the class of a lambda
                         // function or an anonymous inner class which is built during code generation)?
-                        let defaultMethodCodeExists = javaInterface.runtimeClass?.prototype?.[functionIdentifier] != null;
+                        let defaultMethodCodeExists = declaringInterface.runtimeClass?.prototype?.[functionIdentifier] != null;
 
                         if (this.isLibraryType || defaultMethodCodeExists) {
                             f();
@@ -458,7 +493,8 @@ export class JavaClass extends IJavaClass {
 
                         // code of default methods of library interfaces is never regenerated
                         if (!this.isLibraryType && !javaInterface.isLibraryType) {
-                            method.callbackAfterCodeGeneration.push(f);
+                            // the code generator calls the callbacks of the original method, not of copies made for generic variants
+                            (method.isCopyOf ?? method).callbackAfterCodeGeneration.push(f);
                         }
 
                     } else if (this._isAbstract) {
