@@ -351,7 +351,7 @@ export class ProjectExplorer {
     initWorkspacelistPanel() {
 
         let addElementsOptions = () => {
-            let programmingLanguageSelection = ProgrammingLanguageManager.getInstance().getLanguagesSelection(this.main);
+            let programmingLanguageSelection = ProgrammingLanguageManager.getInstance().getLanguagesSelection(this.main, false);
             return programmingLanguageSelection.length > 1 ? programmingLanguageSelection.map(lang => {
                 return { object: lang, caption: lang.getTranslatedName(), iconClass: lang.getWorkspaceCssClass(false) };
             }) : [];

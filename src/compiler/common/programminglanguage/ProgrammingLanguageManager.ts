@@ -40,12 +40,12 @@ export class ProgrammingLanguageManager {
         return JavaLanguage.getInstance();
     }
 
-    public getLanguagesSelection(main: IMain): ProgrammingLanguage[] {
+    public getLanguagesSelection(main: IMain, includeAll: boolean): ProgrammingLanguage[] {
         let settings = main.getSettings();
         let languages: ProgrammingLanguage[] = [
             this.getLanguageByName(ProgrammingLanguageData.Java.name)
         ];
-        if(settings.getValue("programmingLanguages.ByAssembly.enabled") == "yes"){
+        if(includeAll || settings.getValue("programmingLanguages.ByAssembly.enabled") == "yes"){
             languages.push(this.getLanguageByName(ProgrammingLanguageData.ByAssembly.name));
         }
         return languages;
