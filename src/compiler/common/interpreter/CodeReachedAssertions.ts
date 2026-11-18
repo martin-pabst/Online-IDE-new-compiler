@@ -3,7 +3,7 @@ import { JavaBaseModule } from "../../java/module/JavaBaseModule";
 import { JavaModuleManager } from "../../java/module/JavaModuleManager";
 import { IRange } from "../range/Range";
 
-export class CodeReacedAssertion {
+export class CodeReachedAssertion {
 
     public reached: boolean = false;
     public key: string;
@@ -15,7 +15,7 @@ export class CodeReacedAssertion {
 
 export class CodeReachedAssertions {
 
-    assertions: Map<string, CodeReacedAssertion> = new Map();
+    assertions: Map<string, CodeReachedAssertion> = new Map();
 
     init(moduleManager: JavaModuleManager) {
         this.assertions.clear();
@@ -28,7 +28,7 @@ export class CodeReachedAssertions {
         otherAssertions.assertions.forEach((assertion, key) => this.assertions.set(key, assertion));
     }
 
-    registerAssertion(assertion: CodeReacedAssertion){
+    registerAssertion(assertion: CodeReachedAssertion){
         this.assertions.set(assertion.key, assertion);
     }
 
@@ -37,9 +37,9 @@ export class CodeReachedAssertions {
         if(assertion) assertion.reached = true;
     }
 
-    getUnreachedAssertions(): CodeReacedAssertion[]{
+    getUnreachedAssertions(): CodeReachedAssertion[]{
 
-        let ret: CodeReacedAssertion[] =  [];
+        let ret: CodeReachedAssertion[] =  [];
         this.assertions.forEach((assertion, key) => {
             if(!assertion.reached) ret.push(assertion);
         })
