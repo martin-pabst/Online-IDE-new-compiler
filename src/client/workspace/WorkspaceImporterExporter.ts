@@ -264,8 +264,7 @@ export class WorkspaceImporter {
             await this.importSpritesheet(wse, workspace);
 
             if (workspace) {
-                let iconClass = workspace.repository_id == null ? 'img_workspace' : 'img_workspace-repository';
-                let newNode = parentNode.treeview.addNode(workspace.isFolder, workspace.name, iconClass, workspace);
+                let newNode = parentNode.treeview.addNode(workspace.isFolder, workspace.name, workspace.getIconClass(), workspace);
                 newNodes.push(newNode);
                 if (workspace.isFolder) oldIdToNewFolderMap.set(wse.id, newNode);
             }

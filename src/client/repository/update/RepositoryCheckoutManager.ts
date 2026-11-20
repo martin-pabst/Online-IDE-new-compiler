@@ -275,7 +275,7 @@ export class RepositoryCheckoutManager {
 
                 workspace.repository_id = repositoryId;
                 let explorer = that.main.projectExplorer;
-                explorer.workspaceTreeview.setIconClassForElement(workspace, 'img_workspace-repository');
+                explorer.workspaceTreeview.setIconClassForElement(workspace, workspace.getIconClass());
                 alert(RepocheckoutManagerMessages.workspaceSuccessfullyConnectedToRepository(workspace.name));
 
             }

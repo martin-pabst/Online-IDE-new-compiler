@@ -406,7 +406,7 @@ export class ProjectExplorer {
                 w.settings.language = "Java";
             }
             this.main.workspaceList.push(w);
-            if (!node.isFolder) node.iconClass = ProgrammingLanguageData[w.settings.language]?.workspaceCssClass(false) ?? "img_workspace";
+            if (!node.isFolder) node.iconClass = w.getIconClass();
 
             let success = this.main.user.is_testuser || await this.main.networkManager.sendCreateWorkspace(w, this.main.workspacesOwnerId);
             if (success) {
@@ -614,7 +614,7 @@ export class ProjectExplorer {
                                         workspace.repository_id = null;
                                         workspace.saved = false;
                                         await this.main.networkManager.sendUpdatesAsync(true);
-                                        node.iconClass = "img_workspace-java";
+                                        node.iconClass = workspace.getIconClass();
                                         workspace.renderSynchronizeButton(node);
                                     }
                                 });
@@ -627,7 +627,7 @@ export class ProjectExplorer {
                         caption: ProjectExplorerMessages.settings() + "...",
                         callback: async (ws, node) => {
                             await new WorkspaceSettingsDialog(workspace, this.main).open();
-                            node.iconClass = this.getIconClassForWorkspace(workspace);
+                            node.iconClass = workspace.getIconClass();
                         }
                     })
 
@@ -643,10 +643,6 @@ export class ProjectExplorer {
             return true;
         }
 
-    }
-
-    getIconClassForWorkspace(workspace: Workspace): string {
-        return (ProgrammingLanguageData[workspace.settings?.language] ?? ProgrammingLanguageData.Java).workspaceCssClass(workspace.repository_id != null);
     }
 
     async moveOrCopyFilesToOtherWorkspaces(filesToMoveOrCopy: TreeviewNode<GUIFile, number>[], destinationWorkspaceNode: TreeviewNode<Workspace, number>, dragKind: DragKind) {
@@ -774,9 +770,7 @@ export class ProjectExplorer {
         this.workspaceTreeview.clear();
 
         for (let ws of workspaceList) {
-            let iconClass = this.getIconClassForWorkspace(ws);
-            if (ws.isFolder) iconClass = undefined;
-            let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, iconClass, ws)
+            let node = this.workspaceTreeview.addNode(ws.isFolder, ws.name, ws.getIconClass(), ws)
 
             if (ws.name == '_Prüfungen' && ws.readonly) {
                 node.renderCaptionAsHtml = true;

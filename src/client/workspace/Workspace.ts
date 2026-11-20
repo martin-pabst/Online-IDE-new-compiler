@@ -13,6 +13,7 @@ import type * as monaco from 'monaco-editor'
 import { Module } from '../../compiler/common/module/Module.js';
 import { TreeviewNode } from '../../tools/components/treeview/TreeviewNode.js';
 import { GuiMessages } from '../main/gui/language/GuiMessages.js';
+import { ProgrammingLanguageData } from '../../compiler/common/programminglanguage/ProgrammingLanguageData.js';
 
 
 export class Workspace extends CompilerWorkspace {
@@ -135,6 +136,15 @@ export class Workspace extends CompilerWorkspace {
         return wd;
     }
 
+
+    /**
+     * Icon class for this workspace's node in the workspace treeview: depends on programming language
+     * and on whether the workspace is attached to a repository. Folders have no icon.
+     */
+    getIconClass(): string | undefined {
+        if (this.isFolder) return undefined;
+        return (ProgrammingLanguageData[this.settings?.language] ?? ProgrammingLanguageData.Java).workspaceCssClass(this.repository_id != null);
+    }
 
     renderSynchronizeButton(node: TreeviewNode<Workspace, number>) {
 
