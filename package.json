@@ -26,12 +26,12 @@
     "@types/sql.js": "^1.4.9",
     "@types/three": "^0.167.2",
     "@types/upng-js": "^2.1.5",
-    "adm-zip": "^0.5.16",
+    "adm-zip": "^0.6.1",
     "jimp": "^0.22.12",
     "jsdom": "^25.0.1",
     "node-ssh": "^13.2.1",
     "postcss-prefix-selector": "^2.1.0",
-    "spritesmith": "^3.4.1",
+    "spritesmith": "^3.5.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.1"
@@ -56,5 +56,10 @@
     "three": "^0.185.0",
     "upng-js": "^2.1.0",
     "w2ui": "^2.0.0"
+  },
+  "overrides": {
+    "get-pixels": {
+      "request": "npm:@cypress/request@^4.0.1"
+    }
   }
 }
