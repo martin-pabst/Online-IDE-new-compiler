@@ -5,8 +5,6 @@ export class IconButtonComponent {
 
     public divElement: HTMLDivElement;
 
-    private darkLightState: DarkLightState = "dark";
-
     private isActive: boolean = true;
 
     private currentIconClass?: string;
@@ -55,7 +53,7 @@ export class IconButtonComponent {
 
         if (!Array.isArray(iconClass)) iconClass = [iconClass];
 
-        this._iconClasses = iconClass.map(ic => this.stripDark(ic));
+        this._iconClasses = iconClass.slice();
 
         this.render();
     }
@@ -73,16 +71,11 @@ export class IconButtonComponent {
         return { bottom: rect.bottom, right: rect.right };
     }
 
-    private stripDark(className: string): string {
-        if (className.endsWith("-dark")) {
-            return className.substring(0, className.length - "-dark".length);
-        } else {
-            return className;
-        }
-    }
-
+    /**
+     * Icon classes (img_...) switch between dark and light icons by themselves
+     * (see assets/css/icons.css and ThemeManager).
+     */
     set iconClass(ic: string) {
-        ic = this.stripDark(ic);
         this._iconClasses[0] = ic;
         this.render();
     }
@@ -97,7 +90,6 @@ export class IconButtonComponent {
         if (this.currentIconClass) this.divElement.classList.remove(this.currentIconClass);
 
         this.currentIconClass = this._iconClasses[this.currentState];
-        if (this.darkLightState == "dark") this.currentIconClass += "-dark";
 
         this.divElement.classList.add(this.currentIconClass);
 
@@ -109,11 +101,6 @@ export class IconButtonComponent {
             }
         }
 
-    }
-
-    setDarkLightState(darkLightState: DarkLightState) {
-        this.darkLightState = darkLightState;
-        this.render();
     }
 
     setActive(active: boolean) {

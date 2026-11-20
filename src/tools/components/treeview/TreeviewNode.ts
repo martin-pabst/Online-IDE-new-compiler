@@ -403,7 +403,7 @@ export class TreeviewNode<E, K> {
         this.initContextMenu();
 
         if (isIPad() && !this.isRootNode()) {
-            this.addIconButton("img_ellipsis-dark", (object, node, event) => {
+            this.addIconButton("img_ellipsis", (object, node, event) => {
                 this.contextmenuHandler(event);
             }, "Kontextmenü aufrufen", true)
         }

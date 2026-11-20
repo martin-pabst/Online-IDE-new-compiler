@@ -559,7 +559,7 @@ export class MainEmbedded implements MainBase {
             that.loadWorkspaceFromFile(files[0]);
         })
 
-        let $buttonSave = jQuery('<div class="img_save-dark jo_button jo_active"' +
+        let $buttonSave = jQuery('<div class="img_save jo_button jo_active"' +
             'style="margin-right: 8px;" title="Workspace in Datei speichern"></div>');
 
 
@@ -683,7 +683,7 @@ export class MainEmbedded implements MainBase {
 
         new EditorOpenerProvider(this);
 
-        let $infoButton = jQuery('<div class="jo_button jo_active img_ellipsis-dark" style="margin-left: 8px"></div>');
+        let $infoButton = jQuery('<div class="jo_button jo_active img_ellipsis" style="margin-left: 8px"></div>');
         $infoButton[0].title = 'Über die Online-IDE...';
         $controlsDiv.append($infoButton);
 
@@ -919,9 +919,9 @@ export class MainEmbedded implements MainBase {
         <div style="font-weight: bold">Tipp:</div>
         Die Variablen sind nur dann sichtbar, wenn das Programm
         <ul>
-        <li>im Einzelschrittmodus ausgeführt wird(Klick auf <span class="img_step-over-dark jo_inline-image"></span>),</li>
+        <li>im Einzelschrittmodus ausgeführt wird(Klick auf <span class="img_step-over jo_inline-image"></span>),</li>
         <li>an einem Breakpoint hält (Setzen eines Breakpoints mit Mausklick links neben den Zeilennummern und anschließendes Starten des Programms mit
-            <span class="img_start-dark jo_inline-image"></span>) oder </li>
+            <span class="img_start jo_inline-image"></span>) oder </li>
             <li>in sehr niedriger Geschwindigkeit ausgeführt wird (weniger als 10 Schritte/s).
             </ul>
             </div>

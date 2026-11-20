@@ -96,9 +96,9 @@ export class JUnitTreeviewEntry {
 
         this.calculateTestProgress();
 
-        let rightSideHtml = `<span class="jo_junit_captionRightside">${this.testProgress.passed}<span class="img_junit-passed-dark"></span>` +
-            `${this.testProgress.overall - this.testProgress.passed - this.testProgress.failed}<span class="img_junit-todo-dark" style="left: -4px; width: 12px"></span>` +
-            `${this.testProgress.failed}<span class="img_junit-failed-dark"></span></span>`;
+        let rightSideHtml = `<span class="jo_junit_captionRightside">${this.testProgress.passed}<span class="img_junit-passed"></span>` +
+            `${this.testProgress.overall - this.testProgress.passed - this.testProgress.failed}<span class="img_junit-todo" style="left: -4px; width: 12px"></span>` +
+            `${this.testProgress.failed}<span class="img_junit-failed"></span></span>`;
 
         this.treeviewNode.setRightPartOfCaptionHtml(rightSideHtml);
     }
@@ -211,9 +211,9 @@ export class JUnitTreeviewEntry {
         if (this.method) {
             let html: string = JUnitTestrunnerLanguage.executingTestMethod(this.method.classEnumInterface.identifier, this.method.identifier);
             if (this.assertionResults.length == 0) {
-                html += `<span class="img_junit-passed-dark jo_junitImageInline"></span>`;
+                html += `<span class="img_junit-passed jo_junitImageInline"></span>`;
             } else {
-                html += `<span class="img_junit-failed-dark jo_junitImageInline"></span>`;
+                html += `<span class="img_junit-failed jo_junitImageInline"></span>`;
             }
             let line = this.testrunner.printLine(html, 'jo_junitReportFirstLine');
 

@@ -37,6 +37,11 @@ export class ThemeManager {
 
         }
 
+        // switches icon sets: assets/css/icons.css overrides the (dark) icons for .jo_theme-light
+        for (const t of this.themes) {
+            this.rootElement.classList.toggle("jo_theme-" + t.name, t == theme);
+        }
+
         this.currentTheme = theme;
 
     }

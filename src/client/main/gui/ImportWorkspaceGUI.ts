@@ -186,7 +186,7 @@ export class ImportWorkspaceGUI {
                 alert(WorkspaceImportMessages.wrongFileFormat(filename));
                 return;
             } else {
-                treeview.addNode(ew1.isFolder, ew1.name, ew1.isFolder ? undefined : 'img_workspace-dark', ew1);
+                treeview.addNode(ew1.isFolder, ew1.name, ew1.isFolder ? undefined : 'img_workspace', ew1);
             }
         }
 
@@ -196,7 +196,7 @@ export class ImportWorkspaceGUI {
         treeview.clear();
         let workspaces = this.main.workspaceList;
         for (let ws of workspaces) {
-            treeview.addNode(ws.isFolder, ws.name, 'img_workspace-dark', ws);
+            treeview.addNode(ws.isFolder, ws.name, 'img_workspace', ws);
         }
     }
 

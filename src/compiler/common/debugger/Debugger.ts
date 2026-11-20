@@ -69,7 +69,7 @@ export abstract class Debugger {
             buttonAddFolders: false,
             withSelection: true,
             minHeight: 50,
-            defaultIconClass: "img_file-dark-java",
+            defaultIconClass: "img_file-java",
             comparator: (a, b) => {
                 return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
             },

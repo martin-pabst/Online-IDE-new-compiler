@@ -1,927 +1,962 @@
+/*
+ * Icons: css class img_<name> shows assets/icons/dark/<name>.svg, or assets/icons/light/<name>.svg
+ * if the light theme is active (ThemeManager sets class jo_theme-light on the .joeCssFence root element).
+ * Every icon has to exist in both folders with the same name.
+ * src/development/IconTool.js derives missing light icons from dark ones and checks this file.
+ */
 .joeCssFence {
-   .img_flag-german {
+   .img_add {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/flag-german.svg');
+      background-image: url('../icons/dark/add.svg');
    }
 
-   .img_flag-english {
+   .img_add-class {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/flag-english.svg');
+      background-image: url('../icons/dark/add-class.svg');
    }
 
-   .img_add-class-dark {
+   .img_add-file {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/add-class-dark.svg');
+      background-image: url('../icons/dark/add-file.svg');
    }
 
-   .img_add-dark {
+   .img_add-folder {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/add-dark.svg');
+      background-image: url('../icons/dark/add-folder.svg');
    }
 
-   .img_copy-dark {
+   .img_add-test {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/copy-dark.svg');
+      background-image: url('../icons/dark/add-test.svg');
    }
 
-   .img_add-file-dark {
+   .img_add-user {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/add-file-dark.svg');
+      background-image: url('../icons/dark/add-user.svg');
    }
 
-   .img_add-folder-dark {
+   .img_add-workspace {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/add-folder-dark.svg');
-   }
-
-   .img_add-test-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/add-test-dark.svg');
-   }
-
-   .img_add-user-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/add-user-dark.svg');
-   }
-
-   .img_add-workspace-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/add-workspace-dark.svg');
-   }
-
-   .img_arrow-down-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/arrow-down-dark.svg');
+      background-image: url('../icons/dark/add-workspace.svg');
    }
 
    .img_arrow-down {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/arrow-down.svg');
-   }
-
-   .img_arrow-left-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/arrow-left-dark.svg');
-   }
-
-   .img_arrow-left-light {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/arrow-left-light.svg');
+      background-image: url('../icons/dark/arrow-down.svg');
    }
 
    .img_arrow-left {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/arrow-left.svg');
+      background-image: url('../icons/dark/arrow-left.svg');
+   }
+
+   .img_arrow-left-filled {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/arrow-left-filled.svg');
    }
 
    .img_arrow-leftright-blue {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/arrow-leftright-blue.svg');
-   }
-
-   .img_arrow-right-blue {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/arrow-right-blue.svg');
-   }
-
-   .img_arrow-right-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/arrow-right-dark.svg');
+      background-image: url('../icons/dark/arrow-leftright-blue.svg');
    }
 
    .img_arrow-right {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/arrow-right.svg');
+      background-image: url('../icons/dark/arrow-right.svg');
    }
 
-   .img_arrow-up-dark {
+   .img_arrow-right-blue {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/arrow-up-dark.svg');
+      background-image: url('../icons/dark/arrow-right-blue.svg');
    }
 
    .img_arrow-up {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/arrow-up.svg');
+      background-image: url('../icons/dark/arrow-up.svg');
    }
 
-   .img_attributedeclaration-dark {
+   .img_attributedeclaration {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/attributedeclaration-dark.svg');
-   }
-
-   .img_chevron-down-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/chevron-down-dark.svg');
+      background-image: url('../icons/dark/attributedeclaration.svg');
    }
 
    .img_chevron-down {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/chevron-down.svg');
-   }
-
-   .img_chevron-left-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/chevron-left-dark.svg');
+      background-image: url('../icons/dark/chevron-down.svg');
    }
 
    .img_chevron-left {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/chevron-left.svg');
+      background-image: url('../icons/dark/chevron-left.svg');
    }
 
-   .img_chevron-next-dark {
+   .img_chevron-next {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/chevron-next-dark.svg');
+      background-image: url('../icons/dark/chevron-next.svg');
    }
 
-   .img_chevron-next-light {
+   .img_chevron-previous {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/chevron-next-light.svg');
-   }
-
-   .img_chevron-previous-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/chevron-previous-dark.svg');
-   }
-
-   .img_chevron-previous-light {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/chevron-previous-light.svg');
-   }
-
-   .img_chevron-right-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/chevron-right-dark.svg');
+      background-image: url('../icons/dark/chevron-previous.svg');
    }
 
    .img_chevron-right {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/chevron-right.svg');
-   }
-
-   .img_chevron-up-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/chevron-up-dark.svg');
+      background-image: url('../icons/dark/chevron-right.svg');
    }
 
    .img_chevron-up {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/chevron-up.svg');
+      background-image: url('../icons/dark/chevron-up.svg');
    }
 
-   .img_class-dark {
+   .img_class {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/class-dark.svg');
+      background-image: url('../icons/dark/class.svg');
    }
 
-   .img_classdeclaration-dark {
+   .img_classdeclaration {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/classdeclaration-dark.svg');
+      background-image: url('../icons/dark/classdeclaration.svg');
    }
 
-   .img_clear-dark {
+   .img_clear {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/clear-dark.svg');
+      background-image: url('../icons/dark/clear.svg');
    }
 
-   .img_collapse-all-dark {
+   .img_collapse-all {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/collapse-all-dark.svg');
+      background-image: url('../icons/dark/collapse-all.svg');
    }
 
-   .img_constructordeclaration-dark {
+   .img_constructordeclaration {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/constructordeclaration-dark.svg');
+      background-image: url('../icons/dark/constructordeclaration.svg');
    }
 
-   .img_delete-dark {
+   .img_copy {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/delete-dark.svg');
+      background-image: url('../icons/dark/copy.svg');
    }
 
    .img_delete {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/delete.svg');
+      background-image: url('../icons/dark/delete.svg');
    }
 
-   .img_disconnect-dark {
+   .img_disconnect {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/disconnect-dark.svg');
+      background-image: url('../icons/dark/disconnect.svg');
    }
 
-   .img_document-dark {
+   .img_document {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/document-dark.svg');
+      background-image: url('../icons/dark/document.svg');
    }
 
-   .img_edit-dark {
+   .img_edit {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/edit-dark.svg');
+      background-image: url('../icons/dark/edit.svg');
    }
 
-   .img_ellipsis-dark {
+   .img_ellipsis {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/ellipsis-dark.svg');
+      background-image: url('../icons/dark/ellipsis.svg');
    }
 
-   .img_enumdeclaration-dark {
+   .img_enumdeclaration {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/enumdeclaration-dark.svg');
+      background-image: url('../icons/dark/enumdeclaration.svg');
    }
 
    .img_errorfree {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/errorfree.svg');
+      background-image: url('../icons/dark/errorfree.svg');
    }
 
-   .img_field-dark {
+   .img_field {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/field-dark.svg');
+      background-image: url('../icons/dark/field.svg');
    }
 
-   .img_field-light-startable {
+   .img_field-startable {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/field-light-startable.svg');
-   }
-
-   .img_field-light {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/field-light.svg');
-   }
-
-   .img_file-dark-csv {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/file-dark-csv.svg');
-   }
-
-   .img_file-dark-empty {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/file-dark-empty.svg');
-   }
-
-   .img_file-dark-java {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/file-dark-java.svg');
-   }
-
-   .img_file-dark-assembly {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/file-dark-assembly.svg');
-   }
-
-   .img_file-dark-json {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/file-dark-json.svg');
-   }
-
-   .img_file-dark-text {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/file-dark-text.svg');
-   }
-
-   .img_file-dark-xml {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/file-dark-xml.svg');
-   }
-
-   .img_file-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/file-dark.svg');
-   }
-
-   .img_file-light {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/file-light.svg');
+      background-image: url('../icons/dark/field-startable.svg');
    }
 
    .img_file {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/file.svg');
+      background-image: url('../icons/dark/file.svg');
    }
 
-   .img_gear-dark {
+   .img_file-assembly {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/gear-dark.svg');
+      background-image: url('../icons/dark/file-assembly.svg');
+   }
+
+   .img_file-csv {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/file-csv.svg');
+   }
+
+   .img_file-empty {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/file-empty.svg');
+   }
+
+   .img_file-java {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/file-java.svg');
+   }
+
+   .img_file-json {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/file-json.svg');
+   }
+
+   .img_file-text {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/file-text.svg');
+   }
+
+   .img_file-xml {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/file-xml.svg');
+   }
+
+   .img_flag-english {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/flag-english.svg');
+   }
+
+   .img_flag-german {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/flag-german.svg');
+   }
+
+   .img_gear {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/gear.svg');
+   }
+
+   .img_goto-cursor {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/goto-cursor.svg');
    }
 
    .img_grid {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/grid.svg');
+      background-image: url('../icons/dark/grid.svg');
    }
 
-   .img_home-dark {
+   .img_home {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/home-dark.svg');
+      background-image: url('../icons/dark/home.svg');
    }
 
-   .img_homework-corrected-dark {
+   .img_homework {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/homework-corrected.svg');
+      background-image: url('../icons/dark/homework.svg');
    }
 
-   .img_homework-dark {
+   .img_homework-corrected {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/homework.svg');
+      background-image: url('../icons/dark/homework-corrected.svg');
    }
 
    .img_info-sign {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/info-sign.svg');
+      background-image: url('../icons/dark/info-sign.svg');
    }
 
-   .img_instanceinitialization-dark {
+   .img_instanceinitialization {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/instanceinitialization-dark.svg');
+      background-image: url('../icons/dark/instanceinitialization.svg');
    }
 
-   .img_interfacedeclaration-dark {
+   .img_interfacedeclaration {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/interfacedeclaration-dark.svg');
+      background-image: url('../icons/dark/interfacedeclaration.svg');
    }
 
-   .img_junit-failed-dark {
+   .img_junit-failed {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/junit-failed-dark.svg');
+      background-image: url('../icons/dark/junit-failed.svg');
    }
 
-   .img_junit-passed-dark {
+   .img_junit-passed {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/junit-passed-dark.svg');
+      background-image: url('../icons/dark/junit-passed.svg');
    }
 
-   .img_junit-todo-dark {
+   .img_junit-todo {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/junit-todo-dark.svg');
+      background-image: url('../icons/dark/junit-todo.svg');
    }
 
    .img_knob {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/knob.svg');
+      background-image: url('../icons/dark/knob.svg');
    }
 
-   .img_lightbulb-dark {
+   .img_lightbulb {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/lightbulb-dark.svg');
+      background-image: url('../icons/dark/lightbulb.svg');
    }
 
    .img_lightbulb-uni-yellow {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/lightbulb-uni-yellow.svg');
+      background-image: url('../icons/dark/lightbulb-uni-yellow.svg');
    }
 
    .img_lightbulb_yellow {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/lightbulb_yellow.svg');
+      background-image: url('../icons/dark/lightbulb_yellow.svg');
    }
 
    .img_menu-three-bars {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/menu-three-bars.svg');
+      background-image: url('../icons/dark/menu-three-bars.svg');
    }
 
-   .img_methoddeclaration-dark {
+   .img_methoddeclaration {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/methoddeclaration-dark.svg');
+      background-image: url('../icons/dark/methoddeclaration.svg');
    }
 
    .img_monitor-mode {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/monitor-mode.svg');
+      background-image: url('../icons/dark/monitor-mode.svg');
    }
 
-   .img_my-arrow-left-dark {
+   .img_my-arrow-left {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/my-arrow-left-dark.svg');
+      background-image: url('../icons/dark/my-arrow-left.svg');
    }
 
-   .img_my-arrow-right-dark {
+   .img_my-arrow-right {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/my-arrow-right-dark.svg');
+      background-image: url('../icons/dark/my-arrow-right.svg');
    }
 
-   .img_open-change-dark {
+   .img_open-change {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/open-change-dark.svg');
+      background-image: url('../icons/dark/open-change.svg');
    }
 
    .img_open-file {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/open-file.svg');
+      background-image: url('../icons/dark/open-file.svg');
    }
 
-   .img_pause-dark {
+   .img_pause {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/pause-dark.svg');
+      background-image: url('../icons/dark/pause.svg');
    }
 
    .img_presentation-mode {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/presentation-mode.svg');
-   }
-
-   .img_program-pointer-purple {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/program-pointer-purple.svg');
-   }
-
-   .img_program-pointer-yellow {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/program-pointer-yellow.svg');
+      background-image: url('../icons/dark/presentation-mode.svg');
    }
 
    .img_program-pointer {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/program-pointer.svg');
+      background-image: url('../icons/dark/program-pointer.svg');
    }
 
-   .img_restart-dark {
+   .img_program-pointer-purple {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/restart-dark.svg');
+      background-image: url('../icons/dark/program-pointer-purple.svg');
+   }
+
+   .img_program-pointer-yellow {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/program-pointer-yellow.svg');
+   }
+
+   .img_restart {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/restart.svg');
    }
 
    .img_result-arrow {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/result-arrow.svg');
+      background-image: url('../icons/dark/result-arrow.svg');
    }
 
-   .img_save-dark {
+   .img_save {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/save-dark.svg');
+      background-image: url('../icons/dark/save.svg');
    }
 
-   .img_start-dark {
+   .img_start {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/start-dark.svg');
+      background-image: url('../icons/dark/start.svg');
    }
 
    .img_startable-file {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/startable-file.svg');
+      background-image: url('../icons/dark/startable-file.svg');
    }
 
-   .img_staticinitialization-dark {
+   .img_staticinitialization {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/staticinitialization-dark.svg');
+      background-image: url('../icons/dark/staticinitialization.svg');
    }
 
-   .img_step-into-dark {
+   .img_step-into {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/step-into-dark.svg');
+      background-image: url('../icons/dark/step-into.svg');
    }
 
-   .img_step-out-dark {
+   .img_step-out {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/step-out-dark.svg');
+      background-image: url('../icons/dark/step-out.svg');
    }
 
-   .img_step-over-dark {
+   .img_step-over {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/step-over-dark.svg');
+      background-image: url('../icons/dark/step-over.svg');
    }
 
-   .img_goto-cursor-dark {
+   .img_stop {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/goto-cursor-dark.svg');
+      background-image: url('../icons/dark/stop.svg');
    }
 
-   .img_stop-dark {
+   .img_switch_inactive {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/stop-dark.svg');
+      background-image: url('../icons/dark/switch_inactive.svg');
    }
 
-   .img_test-dark {
+   .img_switch_off {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/test-dark.svg');
+      background-image: url('../icons/dark/switch_off.svg');
+   }
+
+   .img_switch_on {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/switch_on.svg');
+   }
+
+   .img_test {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/test.svg');
    }
 
    .img_test-start {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/test-start.svg');
+      background-image: url('../icons/dark/test-start.svg');
    }
 
    .img_test-state-correcting {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/test-state-correcting.svg');
+      background-image: url('../icons/dark/test-state-correcting.svg');
    }
 
    .img_test-state-opening {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/test-state-opening.svg');
+      background-image: url('../icons/dark/test-state-opening.svg');
    }
 
    .img_test-state-preparing {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/test-state-preparing.svg');
+      background-image: url('../icons/dark/test-state-preparing.svg');
    }
 
    .img_test-state-running {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/test-state-running.svg');
+      background-image: url('../icons/dark/test-state-running.svg');
    }
 
    .img_thread-blocked {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/thread-blocked.svg');
+      background-image: url('../icons/dark/thread-blocked.svg');
    }
 
    .img_thread-new {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/thread-new.svg');
+      background-image: url('../icons/dark/thread-new.svg');
    }
 
    .img_thread-runnable {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/thread-runnable.svg');
+      background-image: url('../icons/dark/thread-runnable.svg');
    }
 
    .img_thread-stoppedAtBreakpoint {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/thread-stoppedAtBreakpoint.svg');
+      background-image: url('../icons/dark/thread-stoppedAtBreakpoint.svg');
    }
 
    .img_thread-terminated {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/thread-terminated.svg');
+      background-image: url('../icons/dark/thread-terminated.svg');
    }
 
    .img_thread-terminatedWithException {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/thread-terminatedWithException.svg');
+      background-image: url('../icons/dark/thread-terminatedWithException.svg');
    }
 
    .img_thread-timedWaiting {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/thread-timedWaiting.svg');
+      background-image: url('../icons/dark/thread-timedWaiting.svg');
    }
 
    .img_thread-waiting {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/thread-waiting.svg');
+      background-image: url('../icons/dark/thread-waiting.svg');
    }
 
-   .img_tree-collapsed-dark {
+   .img_tree-collapsed {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/tree-collapsed-dark.svg');
+      background-image: url('../icons/dark/tree-collapsed.svg');
    }
 
    .img_tree-collapsed-hc {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/tree-collapsed-hc.svg');
+      background-image: url('../icons/dark/tree-collapsed-hc.svg');
    }
 
-   .img_tree-collapsed-light {
+   .img_tree-expanded {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/tree-collapsed-light.svg');
-   }
-
-   .img_tree-expanded-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/tree-expanded-dark.svg');
+      background-image: url('../icons/dark/tree-expanded.svg');
    }
 
    .img_tree-expanded-hc {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/tree-expanded-hc.svg');
+      background-image: url('../icons/dark/tree-expanded-hc.svg');
    }
 
-   .img_tree-expanded-light {
+   .img_tree-line {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/tree-expanded-light.svg');
-   }
-
-   .img_tree-line-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/tree-line-dark.svg');
+      background-image: url('../icons/dark/tree-line.svg');
    }
 
    .img_undo {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/undo.svg');
-   }
-
-   .img_user-dark {
-      width: 16px;
-      height: 16px;
-      background-repeat: no-repeat;
-      background-image: url('../icons/user-dark.svg');
+      background-image: url('../icons/dark/undo.svg');
    }
 
    .img_user {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/user.svg');
+      background-image: url('../icons/dark/user.svg');
    }
 
-   .img_whole-window-back-dark {
+   .img_user-outline {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/whole-window-back.svg');
+      background-image: url('../icons/dark/user-outline.svg');
    }
 
-   .img_whole-window-dark {
+   .img_whole-window {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/whole-window.svg');
+      background-image: url('../icons/dark/whole-window.svg');
    }
 
-   .img_workspace-repository-dark {
+   .img_whole-window-back {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/workspace-repository-dark.svg');
+      background-image: url('../icons/dark/whole-window-back.svg');
    }
 
-   .img_workspace-dark {
+   .img_workspace {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/workspace-dark.svg');
+      background-image: url('../icons/dark/workspace.svg');
    }
 
-   .img_workspace-java-repository-dark {
+   .img_workspace-assembly {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/workspace-java-repository-dark.svg');
+      background-image: url('../icons/dark/workspace-assembly.svg');
    }
 
-   .img_workspace-java-dark {
+   .img_workspace-assembly-repository {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/workspace-java-dark.svg');
+      background-image: url('../icons/dark/workspace-assembly-repository.svg');
    }
 
-   .img_workspace-assembly-repository-dark {
+   .img_workspace-java {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/workspace-assembly-repository-dark.svg');
+      background-image: url('../icons/dark/workspace-java.svg');
    }
 
-   .img_workspace-assembly-dark {
+   .img_workspace-java-repository {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/workspace-assembly-dark.svg');
+      background-image: url('../icons/dark/workspace-java-repository.svg');
    }
 
-   .img_workspace-python-repository-dark {
+   .img_workspace-python {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/workspace-python-repository-dark.svg');
+      background-image: url('../icons/dark/workspace-python.svg');
    }
 
-   .img_workspace-python-dark {
+   .img_workspace-python-repository {
       width: 16px;
       height: 16px;
       background-repeat: no-repeat;
-      background-image: url('../icons/workspace-python-dark.svg');
+      background-image: url('../icons/dark/workspace-python-repository.svg');
    }
 
+   .img_workspace-repository {
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-image: url('../icons/dark/workspace-repository.svg');
+   }
+}
 
+.joeCssFence.jo_theme-light {
+   .img_add { background-image: url('../icons/light/add.svg'); }
+   .img_add-class { background-image: url('../icons/light/add-class.svg'); }
+   .img_add-file { background-image: url('../icons/light/add-file.svg'); }
+   .img_add-folder { background-image: url('../icons/light/add-folder.svg'); }
+   .img_add-test { background-image: url('../icons/light/add-test.svg'); }
+   .img_add-user { background-image: url('../icons/light/add-user.svg'); }
+   .img_add-workspace { background-image: url('../icons/light/add-workspace.svg'); }
+   .img_arrow-down { background-image: url('../icons/light/arrow-down.svg'); }
+   .img_arrow-left { background-image: url('../icons/light/arrow-left.svg'); }
+   .img_arrow-left-filled { background-image: url('../icons/light/arrow-left-filled.svg'); }
+   .img_arrow-leftright-blue { background-image: url('../icons/light/arrow-leftright-blue.svg'); }
+   .img_arrow-right { background-image: url('../icons/light/arrow-right.svg'); }
+   .img_arrow-right-blue { background-image: url('../icons/light/arrow-right-blue.svg'); }
+   .img_arrow-up { background-image: url('../icons/light/arrow-up.svg'); }
+   .img_attributedeclaration { background-image: url('../icons/light/attributedeclaration.svg'); }
+   .img_chevron-down { background-image: url('../icons/light/chevron-down.svg'); }
+   .img_chevron-left { background-image: url('../icons/light/chevron-left.svg'); }
+   .img_chevron-next { background-image: url('../icons/light/chevron-next.svg'); }
+   .img_chevron-previous { background-image: url('../icons/light/chevron-previous.svg'); }
+   .img_chevron-right { background-image: url('../icons/light/chevron-right.svg'); }
+   .img_chevron-up { background-image: url('../icons/light/chevron-up.svg'); }
+   .img_class { background-image: url('../icons/light/class.svg'); }
+   .img_classdeclaration { background-image: url('../icons/light/classdeclaration.svg'); }
+   .img_clear { background-image: url('../icons/light/clear.svg'); }
+   .img_collapse-all { background-image: url('../icons/light/collapse-all.svg'); }
+   .img_constructordeclaration { background-image: url('../icons/light/constructordeclaration.svg'); }
+   .img_copy { background-image: url('../icons/light/copy.svg'); }
+   .img_delete { background-image: url('../icons/light/delete.svg'); }
+   .img_disconnect { background-image: url('../icons/light/disconnect.svg'); }
+   .img_document { background-image: url('../icons/light/document.svg'); }
+   .img_edit { background-image: url('../icons/light/edit.svg'); }
+   .img_ellipsis { background-image: url('../icons/light/ellipsis.svg'); }
+   .img_enumdeclaration { background-image: url('../icons/light/enumdeclaration.svg'); }
+   .img_errorfree { background-image: url('../icons/light/errorfree.svg'); }
+   .img_field { background-image: url('../icons/light/field.svg'); }
+   .img_field-startable { background-image: url('../icons/light/field-startable.svg'); }
+   .img_file { background-image: url('../icons/light/file.svg'); }
+   .img_file-assembly { background-image: url('../icons/light/file-assembly.svg'); }
+   .img_file-csv { background-image: url('../icons/light/file-csv.svg'); }
+   .img_file-empty { background-image: url('../icons/light/file-empty.svg'); }
+   .img_file-java { background-image: url('../icons/light/file-java.svg'); }
+   .img_file-json { background-image: url('../icons/light/file-json.svg'); }
+   .img_file-text { background-image: url('../icons/light/file-text.svg'); }
+   .img_file-xml { background-image: url('../icons/light/file-xml.svg'); }
+   .img_flag-english { background-image: url('../icons/light/flag-english.svg'); }
+   .img_flag-german { background-image: url('../icons/light/flag-german.svg'); }
+   .img_gear { background-image: url('../icons/light/gear.svg'); }
+   .img_goto-cursor { background-image: url('../icons/light/goto-cursor.svg'); }
+   .img_grid { background-image: url('../icons/light/grid.svg'); }
+   .img_home { background-image: url('../icons/light/home.svg'); }
+   .img_homework { background-image: url('../icons/light/homework.svg'); }
+   .img_homework-corrected { background-image: url('../icons/light/homework-corrected.svg'); }
+   .img_info-sign { background-image: url('../icons/light/info-sign.svg'); }
+   .img_instanceinitialization { background-image: url('../icons/light/instanceinitialization.svg'); }
+   .img_interfacedeclaration { background-image: url('../icons/light/interfacedeclaration.svg'); }
+   .img_junit-failed { background-image: url('../icons/light/junit-failed.svg'); }
+   .img_junit-passed { background-image: url('../icons/light/junit-passed.svg'); }
+   .img_junit-todo { background-image: url('../icons/light/junit-todo.svg'); }
+   .img_knob { background-image: url('../icons/light/knob.svg'); }
+   .img_lightbulb { background-image: url('../icons/light/lightbulb.svg'); }
+   .img_lightbulb-uni-yellow { background-image: url('../icons/light/lightbulb-uni-yellow.svg'); }
+   .img_lightbulb_yellow { background-image: url('../icons/light/lightbulb_yellow.svg'); }
+   .img_menu-three-bars { background-image: url('../icons/light/menu-three-bars.svg'); }
+   .img_methoddeclaration { background-image: url('../icons/light/methoddeclaration.svg'); }
+   .img_monitor-mode { background-image: url('../icons/light/monitor-mode.svg'); }
+   .img_my-arrow-left { background-image: url('../icons/light/my-arrow-left.svg'); }
+   .img_my-arrow-right { background-image: url('../icons/light/my-arrow-right.svg'); }
+   .img_open-change { background-image: url('../icons/light/open-change.svg'); }
+   .img_open-file { background-image: url('../icons/light/open-file.svg'); }
+   .img_pause { background-image: url('../icons/light/pause.svg'); }
+   .img_presentation-mode { background-image: url('../icons/light/presentation-mode.svg'); }
+   .img_program-pointer { background-image: url('../icons/light/program-pointer.svg'); }
+   .img_program-pointer-purple { background-image: url('../icons/light/program-pointer-purple.svg'); }
+   .img_program-pointer-yellow { background-image: url('../icons/light/program-pointer-yellow.svg'); }
+   .img_restart { background-image: url('../icons/light/restart.svg'); }
+   .img_result-arrow { background-image: url('../icons/light/result-arrow.svg'); }
+   .img_save { background-image: url('../icons/light/save.svg'); }
+   .img_start { background-image: url('../icons/light/start.svg'); }
+   .img_startable-file { background-image: url('../icons/light/startable-file.svg'); }
+   .img_staticinitialization { background-image: url('../icons/light/staticinitialization.svg'); }
+   .img_step-into { background-image: url('../icons/light/step-into.svg'); }
+   .img_step-out { background-image: url('../icons/light/step-out.svg'); }
+   .img_step-over { background-image: url('../icons/light/step-over.svg'); }
+   .img_stop { background-image: url('../icons/light/stop.svg'); }
+   .img_switch_inactive { background-image: url('../icons/light/switch_inactive.svg'); }
+   .img_switch_off { background-image: url('../icons/light/switch_off.svg'); }
+   .img_switch_on { background-image: url('../icons/light/switch_on.svg'); }
+   .img_test { background-image: url('../icons/light/test.svg'); }
+   .img_test-start { background-image: url('../icons/light/test-start.svg'); }
+   .img_test-state-correcting { background-image: url('../icons/light/test-state-correcting.svg'); }
+   .img_test-state-opening { background-image: url('../icons/light/test-state-opening.svg'); }
+   .img_test-state-preparing { background-image: url('../icons/light/test-state-preparing.svg'); }
+   .img_test-state-running { background-image: url('../icons/light/test-state-running.svg'); }
+   .img_thread-blocked { background-image: url('../icons/light/thread-blocked.svg'); }
+   .img_thread-new { background-image: url('../icons/light/thread-new.svg'); }
+   .img_thread-runnable { background-image: url('../icons/light/thread-runnable.svg'); }
+   .img_thread-stoppedAtBreakpoint { background-image: url('../icons/light/thread-stoppedAtBreakpoint.svg'); }
+   .img_thread-terminated { background-image: url('../icons/light/thread-terminated.svg'); }
+   .img_thread-terminatedWithException { background-image: url('../icons/light/thread-terminatedWithException.svg'); }
+   .img_thread-timedWaiting { background-image: url('../icons/light/thread-timedWaiting.svg'); }
+   .img_thread-waiting { background-image: url('../icons/light/thread-waiting.svg'); }
+   .img_tree-collapsed { background-image: url('../icons/light/tree-collapsed.svg'); }
+   .img_tree-collapsed-hc { background-image: url('../icons/light/tree-collapsed-hc.svg'); }
+   .img_tree-expanded { background-image: url('../icons/light/tree-expanded.svg'); }
+   .img_tree-expanded-hc { background-image: url('../icons/light/tree-expanded-hc.svg'); }
+   .img_tree-line { background-image: url('../icons/light/tree-line.svg'); }
+   .img_undo { background-image: url('../icons/light/undo.svg'); }
+   .img_user { background-image: url('../icons/light/user.svg'); }
+   .img_user-outline { background-image: url('../icons/light/user-outline.svg'); }
+   .img_whole-window { background-image: url('../icons/light/whole-window.svg'); }
+   .img_whole-window-back { background-image: url('../icons/light/whole-window-back.svg'); }
+   .img_workspace { background-image: url('../icons/light/workspace.svg'); }
+   .img_workspace-assembly { background-image: url('../icons/light/workspace-assembly.svg'); }
+   .img_workspace-assembly-repository { background-image: url('../icons/light/workspace-assembly-repository.svg'); }
+   .img_workspace-java { background-image: url('../icons/light/workspace-java.svg'); }
+   .img_workspace-java-repository { background-image: url('../icons/light/workspace-java-repository.svg'); }
+   .img_workspace-python { background-image: url('../icons/light/workspace-python.svg'); }
+   .img_workspace-python-repository { background-image: url('../icons/light/workspace-python-repository.svg'); }
+   .img_workspace-repository { background-image: url('../icons/light/workspace-repository.svg'); }
 }

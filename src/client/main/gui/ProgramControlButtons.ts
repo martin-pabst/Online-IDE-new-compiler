@@ -18,14 +18,14 @@ export class ProgramControlButtons {
     speedControl: SpeedControl;
 
     buttonData: ButtonData[] = [
-        { actionIdentifier: "interpreter.start", title: GuiMessages.ProgramRun(), iconClass: "img_start-dark jo_button" },
-        { actionIdentifier: "interpreter.pause", title: GuiMessages.ProgramPause(), iconClass: "img_pause-dark jo_button" },
-        { actionIdentifier: "interpreter.stop", title: GuiMessages.ProgramStop(), iconClass: "img_stop-dark jo_button" },
-        { actionIdentifier: "interpreter.stepOver", title: GuiMessages.ProgramStepOver(), iconClass: "img_step-over-dark jo_button" },
-        { actionIdentifier: "interpreter.stepInto", title: GuiMessages.ProgramStepInto(), iconClass: "img_step-into-dark jo_button" },
-        { actionIdentifier: "interpreter.stepOut", title: GuiMessages.ProgramStepOut(), iconClass: "img_step-out-dark jo_button" },
-        { actionIdentifier: "interpreter.gotoCursor", title: GuiMessages.ProgramGotoCursor(), iconClass: "img_goto-cursor-dark jo_button" },
-        { actionIdentifier: "interpreter.restart", title: GuiMessages.ProgramRestart(), iconClass: "img_restart-dark jo_button" },
+        { actionIdentifier: "interpreter.start", title: GuiMessages.ProgramRun(), iconClass: "img_start jo_button" },
+        { actionIdentifier: "interpreter.pause", title: GuiMessages.ProgramPause(), iconClass: "img_pause jo_button" },
+        { actionIdentifier: "interpreter.stop", title: GuiMessages.ProgramStop(), iconClass: "img_stop jo_button" },
+        { actionIdentifier: "interpreter.stepOver", title: GuiMessages.ProgramStepOver(), iconClass: "img_step-over jo_button" },
+        { actionIdentifier: "interpreter.stepInto", title: GuiMessages.ProgramStepInto(), iconClass: "img_step-into jo_button" },
+        { actionIdentifier: "interpreter.stepOut", title: GuiMessages.ProgramStepOut(), iconClass: "img_step-out jo_button" },
+        { actionIdentifier: "interpreter.gotoCursor", title: GuiMessages.ProgramGotoCursor(), iconClass: "img_goto-cursor jo_button" },
+        { actionIdentifier: "interpreter.restart", title: GuiMessages.ProgramRestart(), iconClass: "img_restart jo_button" },
         { actionIdentifier: "interpreter.startTests", title: GuiMessages.ProgramExecuteAllTests(), iconClass: "img_test-start jo_button jo_start-test-button" },
     ]
 

@@ -59,17 +59,17 @@ export class MyConsole {
 
         let $consoleTab = jQuery(this.tab.bodyDiv);
 
-        //         <div class="img_clear-dark jo_button jo_active jo_console-clear" alt=""
+        //         <div class="img_clear jo_button jo_active jo_console-clear" alt=""
         //     style="display: none; margin-right: 8px;" title="Console leeren"></div>
-        // <div class="img_copy-dark jo_button jo_active jo_console-copy" alt=""
+        // <div class="img_copy jo_button jo_active jo_console-copy" alt=""
         //     style="display: none; margin-right: 8px;"
         //     title="Anweisungen aus der Console in die Zwischenablage kopieren"></div>
 
-        let $consoleClear = jQuery(`<div class="img_clear-dark jo_button jo_active jo_console-clear" alt=""
+        let $consoleClear = jQuery(`<div class="img_clear jo_button jo_active jo_console-clear" alt=""
              style="display: none; margin-right: 8px;" title="${ConsoleMessages.emptyConsole}"></div>`);
         this.tabManager.insertIntoRightDiv($consoleClear[0]);
 
-        let $consoleCopy = jQuery(`<div class="img_copy-dark jo_button jo_active jo_console-copy" alt=""
+        let $consoleCopy = jQuery(`<div class="img_copy jo_button jo_active jo_console-copy" alt=""
              style="display: none; margin-right: 8px;"
              title="${ConsoleMessages.copyToClipboard()}"></div>`);
         this.tabManager.insertIntoRightDiv($consoleCopy[0]);

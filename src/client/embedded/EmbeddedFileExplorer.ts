@@ -227,7 +227,7 @@ export class EmbeddedFileExplorer {
         for (let node of this.treeview.nodes.filter(node1 => !node1.isRootNode())) {
             let startButton = node.getIconButtonByTag("Start");
             let file = node.externalObject;
-            if (!startButton) startButton = node.addIconButton("img_start-dark", () => {
+            if (!startButton) startButton = node.addIconButton("img_start", () => {
                 this.main.onStartFileClicked(file);
             }, "Starte das in dieser Datei enthaltene Hauptprogramm", true);
             startButton.tag = "Start";

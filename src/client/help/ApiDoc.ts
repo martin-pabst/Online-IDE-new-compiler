@@ -133,9 +133,9 @@ export class ApiDoc {
 
         typeList.filter(type => type instanceof NonPrimitiveType).forEach((type, index) => {
 
-            let img: string = "img_classdeclaration-dark";
-            if(type instanceof JavaEnum) img = "img_enumdeclaration-dark";
-            if(type instanceof JavaInterface) img = "img_interfacedeclaration-dark";
+            let img: string = "img_classdeclaration";
+            if(type instanceof JavaEnum) img = "img_enumdeclaration";
+            if(type instanceof JavaInterface) img = "img_interfacedeclaration";
 
             let $menuItem = jQuery('<div class="jo_menu-class"><span class="' + img + ' jo_menu_img"></span>' + type.identifier + '</div>');
             jQuery('#classes').append($menuItem)

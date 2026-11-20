@@ -14,7 +14,7 @@ export var ProgrammingLanguageData: Record<"Java" | "ByAssembly", PLData> = {
         monacoLanguageSelector: "myJava",
         fileEndingWithOutDot: "java",
         translatedName: () => "Java",
-        workspaceCssClass: (withRepository: boolean) => withRepository ? "img_workspace-java-repository-dark" : "img_workspace-java-dark"
+        workspaceCssClass: (withRepository: boolean) => withRepository ? "img_workspace-java-repository" : "img_workspace-java"
     },
     ByAssembly: {
         name: "ByAssembly",
@@ -26,7 +26,7 @@ export var ProgrammingLanguageData: Record<"Java" | "ByAssembly", PLData> = {
             "en": "Simple Machine language (Assembler)",
             "fr": "Langage machine simple (assembleur)"
         }),
-        workspaceCssClass: (withRepository: boolean) => withRepository ? "img_workspace-assembly-repository-dark" : "img_workspace-assembly-dark"
+        workspaceCssClass: (withRepository: boolean) => withRepository ? "img_workspace-assembly-repository" : "img_workspace-assembly"
     }
 };
 

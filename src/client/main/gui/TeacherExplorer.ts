@@ -80,7 +80,7 @@ export class TeacherExplorer {
         });
 
         this.homeButton = this.studentPanel.captionLineAddIconButton(
-            "img_home-dark", "right", () => {
+            "img_home", "right", () => {
                 this.onHomeButtonClicked();
             }, ProjectExplorerMessages.displayOwnWorkspaces()
         )
@@ -105,7 +105,7 @@ export class TeacherExplorer {
                 buttonAddElements: false,
                 withDeleteButtons: false,
                 buttonAddFolders: false,
-                defaultIconClass: "img_user-dark",
+                defaultIconClass: "img_user",
                 flexWeight: "1",
                 minHeight: 100,
                 withFolders: false,
@@ -173,7 +173,7 @@ export class TeacherExplorer {
             buttonAddElements: false,
             withDeleteButtons: false,
             buttonAddFolders: false,
-            defaultIconClass: "img_class-dark",
+            defaultIconClass: "img_class",
             flexWeight: "1",
             minHeight: 100,
             withFolders: false,
@@ -209,7 +209,7 @@ export class TeacherExplorer {
 
 
 
-            let buttonPruefungAdministration = this.classPanel.captionLineAddIconButton("img_gear-dark", "right",
+            let buttonPruefungAdministration = this.classPanel.captionLineAddIconButton("img_gear", "right",
                 async () => {
                         let response = await ajaxAsync("servlet/getSingleUseSessionToken", {}) as GetSingleUseSessionTokenResponse;
                         if (response.success) {
@@ -283,7 +283,7 @@ export class TeacherExplorer {
         for (let i = 0; i < userDataList.length; i++) {
 
             let ud = userDataList[i];
-            this.studentPanel.addNode(false, getUserDisplayName(ud, true), "img_user-dark", ud);
+            this.studentPanel.addNode(false, getUserDisplayName(ud, true), "img_user", ud);
 
         }
 
@@ -300,7 +300,7 @@ export class TeacherExplorer {
         })
 
         for (let cd of classDataList) {
-            this.classPanel.addNode(false, cd.name, "img_class-dark", cd);
+            this.classPanel.addNode(false, cd.name, "img_class", cd);
         }
 
     }

@@ -556,69 +556,69 @@ export class GuiMessages {
 
     static HelperNewFile = () => lm({
         "de": `Es gibt noch keine Programmdatei im Workspace. <br> Nutzen Sie den Button
-                <span class='img_add-file-dark jo_inline-image'></span> um eine Programmdatei anzulegen.
+                <span class='img_add-file jo_inline-image'></span> um eine Programmdatei anzulegen.
                 `,
         "en": `There's no file inside workspace yet. <br>Use button
-               <span class='img_add-file-dark jo_inline-image'></span> to create file.
+               <span class='img_add-file jo_inline-image'></span> to create file.
                `,
         "fr": `Il n'y a pas encore de fichier programme dans l'espace de travail. <br> Utilisez le bouton
-               <span class='img_add-file-dark jo_inline-image'></span> pour créer un fichier programme.
+               <span class='img_add-file jo_inline-image'></span> pour créer un fichier programme.
                `,
     })
 
     static HelperNewWorkspace = () => lm({
         "de": `Es gibt noch keinen Workspace. <br> Nutzen Sie den Button
-                        <span class='img_add-workspace-dark jo_inline-image'></span> um einen Workspace anzulegen.
+                        <span class='img_add-workspace jo_inline-image'></span> um einen Workspace anzulegen.
                         `,
         "en": `There's no workspace yet. <br> Use button
-                        <span class='img_add-workspace-dark jo_inline-image'></span> to create one.
+                        <span class='img_add-workspace jo_inline-image'></span> to create one.
                         `,
         "fr": `Il n'y a pas encore d'espace de travail. <br> Utilisez le bouton
-                        <span class='img_add-workspace-dark jo_inline-image'></span> pour en créer un.
+                        <span class='img_add-workspace jo_inline-image'></span> pour en créer un.
                         `,
     })
 
     static HelperHome = () => lm({
-        "de": `Mit dem Home-Button <span class='img_home-dark jo_inline-image'></span> können Sie wieder zu Ihren eigenen Workspaces wechseln.`,
-        "en": `Use home button <span class='img_home-dark jo_inline-image'></span> to switch back to your own workspaces.`,
-        "fr": `Avec le bouton Accueil <span class='img_home-dark jo_inline-image'></span>, vous pouvez revenir à vos propres espaces de travail.`,
+        "de": `Mit dem Home-Button <span class='img_home jo_inline-image'></span> können Sie wieder zu Ihren eigenen Workspaces wechseln.`,
+        "en": `Use home button <span class='img_home jo_inline-image'></span> to switch back to your own workspaces.`,
+        "fr": `Avec le bouton Accueil <span class='img_home jo_inline-image'></span>, vous pouvez revenir à vos propres espaces de travail.`,
     })
 
     static HelperStepButtons = () => lm({
         "de": `Mit den Buttons "Step over"
-                        (<span class='img_step-over-dark jo_inline-image'></span>, Taste F8),
+                        (<span class='img_step-over jo_inline-image'></span>, Taste F8),
                         "Step into"
-                        (<span class='img_step-into-dark jo_inline-image'></span>, Taste F7) und
+                        (<span class='img_step-into jo_inline-image'></span>, Taste F7) und
                         "Step out"
-                        (<span class='img_step-out-dark jo_inline-image'></span>, Taste F9)
+                        (<span class='img_step-out jo_inline-image'></span>, Taste F9)
                         können Sie das Programm schrittweise ausführen und sich nach jedem Schritt die Belegung der Variablen ansehen. <br>
-                        <ul><li><span class='img_step-over-dark jo_inline-image'></span> Step over führt den nächsten Schritt aus, insbesondere werden Methodenaufrufe in einem Schritt durchgeführt.</li>
-                        <li><span class='img_step-into-dark jo_inline-image'></span> Step into führt auch den nächsten Schritt aus, geht bei Methodenaufrufen aber in die Methode hinein und führt auch die Anweisungen innerhalb der Methode schrittweise aus.</li>
-                        <li><span class='img_step-out-dark jo_inline-image'></span> Befindet sich die Programmausführung innerhalb einer Methode, so bewirkt ein Klick auf Step out, dass der Rest der Methode ausgeführt wird und die Programmausführung erst nach der Aufrufstelle der Methode anhält.</li>
+                        <ul><li><span class='img_step-over jo_inline-image'></span> Step over führt den nächsten Schritt aus, insbesondere werden Methodenaufrufe in einem Schritt durchgeführt.</li>
+                        <li><span class='img_step-into jo_inline-image'></span> Step into führt auch den nächsten Schritt aus, geht bei Methodenaufrufen aber in die Methode hinein und führt auch die Anweisungen innerhalb der Methode schrittweise aus.</li>
+                        <li><span class='img_step-out jo_inline-image'></span> Befindet sich die Programmausführung innerhalb einer Methode, so bewirkt ein Klick auf Step out, dass der Rest der Methode ausgeführt wird und die Programmausführung erst nach der Aufrufstelle der Methode anhält.</li>
                         </ul>
                         `,
         "en": `Use buttons "Step over"
-                        (<span class='img_step-over-dark jo_inline-image'></span>, F8),
+                        (<span class='img_step-over jo_inline-image'></span>, F8),
                         "Step into"
-                        (<span class='img_step-into-dark jo_inline-image'></span>, F7) and
+                        (<span class='img_step-into jo_inline-image'></span>, F7) and
                         "Step out"
-                        (<span class='img_step-out-dark jo_inline-image'></span>, F9)
+                        (<span class='img_step-out jo_inline-image'></span>, F9)
                         to execute stepwise and inspect variables after each step.<br>
-                        <ul><li><span class='img_step-over-dark jo_inline-image'></span> Step over executes next step and doesn't step into method calls.</li>
-                        <li><span class='img_step-into-dark jo_inline-image'></span> Step into executes next step and steps into method calls.</li>
-                        <li><span class='img_step-out-dark jo_inline-image'></span> Step out continues execution until return from current method.</li>
+                        <ul><li><span class='img_step-over jo_inline-image'></span> Step over executes next step and doesn't step into method calls.</li>
+                        <li><span class='img_step-into jo_inline-image'></span> Step into executes next step and steps into method calls.</li>
+                        <li><span class='img_step-out jo_inline-image'></span> Step out continues execution until return from current method.</li>
                         </ul>
                         `,
         "fr": `Avec les boutons "Pas à pas (passer)"
-                        (<span class='img_step-over-dark jo_inline-image'></span>, Touche F8),
+                        (<span class='img_step-over jo_inline-image'></span>, Touche F8),
                         "Pas à pas (entrer)"
-                        (<span class='img_step-into-dark jo_inline-image'></span>, Touche F7) et
+                        (<span class='img_step-into jo_inline-image'></span>, Touche F7) et
                         "Pas à pas (sortir)"
-                        (<span class='img_step-out-dark jo_inline-image'></span>, Touche F9)
+                        (<span class='img_step-out jo_inline-image'></span>, Touche F9)
                         vous pouvez exécuter le programme pas à pas et visualiser l'affectation des variables après chaque étape. <br>
-                        <ul><li><span class='img_step-over-dark jo_inline-image'></span> "Pas à pas (passer)" exécute l'étape suivante, en particulier les appels de méthode sont effectués en une seule étape.</li>
-                        <li><span class='img_step-into-dark jo_inline-image'></span> "Pas à pas (entrer)" exécute également l'étape suivante, mais lors d'appels de méthode, il entre dans la méthode et exécute également les instructions à l'intérieur de la méthode pas à pas.</li>
-                        <li><span class='img_step-out-dark jo_inline-image'></span> Si l'exécution du programme se trouve à l'intérieur d'une méthode, un clic sur "Pas à pas (sortir)" fait en sorte que le reste de la méthode soit exécuté et que l'exécution du programme ne s'arrête qu'après le point d'appel de la méthode.</li>
+                        <ul><li><span class='img_step-over jo_inline-image'></span> "Pas à pas (passer)" exécute l'étape suivante, en particulier les appels de méthode sont effectués en une seule étape.</li>
+                        <li><span class='img_step-into jo_inline-image'></span> "Pas à pas (entrer)" exécute également l'étape suivante, mais lors d'appels de méthode, il entre dans la méthode et exécute également les instructions à l'intérieur de la méthode pas à pas.</li>
+                        <li><span class='img_step-out jo_inline-image'></span> Si l'exécution du programme se trouve à l'intérieur d'une méthode, un clic sur "Pas à pas (sortir)" fait en sorte que le reste de la méthode soit exécuté et que l'exécution du programme ne s'arrête qu'après le point d'appel de la méthode.</li>
                         </ul>
                         `,
     })

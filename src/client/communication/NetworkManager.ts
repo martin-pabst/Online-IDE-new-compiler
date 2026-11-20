@@ -513,7 +513,7 @@ export class NetworkManager {
 
         this.main.workspaceList.push(w);
 
-        let iconClass = remoteWorkspace.repository_id == null ? "img_workspace-dark" : "img_workspace-dark-repository";
+        let iconClass = remoteWorkspace.repository_id == null ? "img_workspace" : "img_workspace-repository";
         let node = this.main.projectExplorer.workspaceTreeview.addNode(w.isFolder,w.name,
             iconClass, w
          )

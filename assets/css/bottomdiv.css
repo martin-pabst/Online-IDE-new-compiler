@@ -286,10 +286,6 @@
         border-radius: 2px;
     }
 
-    .img_homework-corrected {
-        width: 24px !important;
-    } 
-
     .jo_homework-workspace {
         color: var(--homework-workspace);
     }

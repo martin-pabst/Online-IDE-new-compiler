@@ -15,19 +15,12 @@ export class ExpandCollapseComponent {
         return this._state;
     }
 
-    private darkLightState: DarkLightState = "dark";
-
     private currentIconClass?: string;
 
+    // these icon classes switch between dark and light icons by themselves (see assets/css/icons.css and ThemeManager)
     private static iconClasses = {
-        "light" : {
-            "expanded": "img_chevron-down",
-            "collapsed": "img_chevron-right"
-        },
-        "dark" : {
-            "expanded": "img_chevron-down-dark",
-            "collapsed": "img_chevron-right-dark"
-        }
+        "expanded": "img_chevron-down",
+        "collapsed": "img_chevron-right"
     };
 
     constructor(private _parent: HTMLElement, private listener: ExpandCollapseListener,
@@ -68,14 +61,9 @@ export class ExpandCollapseComponent {
 
         if(this.currentIconClass) this.divElement.classList.remove(this.currentIconClass);
 
-        this.currentIconClass = ExpandCollapseComponent.iconClasses[this.darkLightState][this._state];
+        this.currentIconClass = ExpandCollapseComponent.iconClasses[this._state];
 
         this.divElement.classList.add(this.currentIconClass);
-    }
-
-    setDarkLightState(darkLightState: DarkLightState){
-        this.darkLightState = darkLightState;
-        this.render();
     }
 
     hide(){

@@ -170,7 +170,7 @@ export class RightDiv {
         this.outputTab.show();
 
         this.wholeWindowButton = new IconButtonComponent(this.tabManager.tabheadingRightDiv,
-            ['img_whole-window-dark', 'img_whole-window-back-dark'], (event, state) => {
+            ['img_whole-window', 'img_whole-window-back'], (event, state) => {
                 this.onWholeWindowButtonClicked(state);
             },
             [RightDivMessages.wholeWindow(), RightDivMessages.backToNormalSize()],

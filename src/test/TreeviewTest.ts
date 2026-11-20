@@ -28,7 +28,7 @@ class TreeviewTest {
             buttonAddFolders: true,
             selectMultiple: false,
             withFolders: true,
-            defaultIconClass: "img_file-dark-text",
+            defaultIconClass: "img_file-text",
             comparator: (e1, e2) => {
                 if(e1?.name && e2?.name){
                     return e1.name.localeCompare(e2.name);
@@ -44,12 +44,12 @@ class TreeviewTest {
 
         let file1 = new TVFile("Erster Erster Erster Erster Erster Erster ");
         let node1 = tv.addNode(false, "Erster Erster Erster Erster Erster Erster ", 
-            "img_file-dark-java", file1, undefined);
-        node1.addIconButton('img_start-dark', undefined, undefined, true);
+            "img_file-java", file1, undefined);
+        node1.addIconButton('img_start', undefined, undefined, true);
 
         let file2 = new TVFile("AZweiter");
-        let node2 = tv.addNode(false, "Zweiter", "img_file-dark-text", file2, undefined);
-        node2.addIconButton('img_start-dark', undefined, undefined, true);
+        let node2 = tv.addNode(false, "Zweiter", "img_file-text", file2, undefined);
+        node2.addIconButton('img_start', undefined, undefined, true);
 
         node1.setRightPartOfCaptionErrors("(10)");
     }

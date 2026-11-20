@@ -286,21 +286,21 @@ export class Treeview<E, K> extends AccordionElement {
     buildCaption() {
 
         if (this.config.buttonAddFolders) {
-            this.addFolderButton = this.captionLineAddIconButton("img_add-folder-dark", "right", () => {
+            this.addFolderButton = this.captionLineAddIconButton("img_add-folder", "right", () => {
                 this.addNewNode(true);
             }, TreeviewMessages.addFolder());
         }
 
         if (this.config.buttonAddElements) {
             this.addElementsButton =
-                this.captionLineAddIconButton("img_add-dark", "right", () => {
+                this.captionLineAddIconButton("img_add", "right", () => {
                     let buttonBottomRight = this.addElementsButton.getBottomRight();
                     this.buttonAddElementsClicked(buttonBottomRight.right, buttonBottomRight.bottom);
                 }, this.config.buttonAddElementsCaption);
         }
 
         if (this.config.buttonAddFolders && this.config.buttonCollapseAll) {
-            this.captionLineAddIconButton("img_collapse-all-dark", "left", () => {
+            this.captionLineAddIconButton("img_collapse-all", "left", () => {
                 this.collapseAllButRootnode();
             }, TreeviewMessages.collapseAll())
         }

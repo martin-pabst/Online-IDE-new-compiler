@@ -76,7 +76,7 @@ export class ProjectExplorer {
             buttonAddFolders: true,
             withDeleteButtons: true,
             confirmDelete: true,
-            defaultIconClass: "img_file-dark-java",
+            defaultIconClass: "img_file-java",
             buttonAddElementsCaption: ProjectExplorerMessages.newFile(),
             comparator: (a, b) => {
                 return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
@@ -301,7 +301,7 @@ export class ProjectExplorer {
         }
 
 
-        this.synchronizedButton = this.fileTreeview.captionLineAddIconButton("img_open-change-dark", "right",
+        this.synchronizedButton = this.fileTreeview.captionLineAddIconButton("img_open-change", "right",
             () => {
                 this.main.getCurrentWorkspace().synchronizeWithRepository();
             },
@@ -374,7 +374,7 @@ export class ProjectExplorer {
             buttonAddFolders: true,
             minHeight: 150,
             flexWeight: "1",
-            defaultIconClass: "img_workspace-dark",
+            defaultIconClass: "img_workspace",
             comparator: (a, b) => {
                 return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
             },
@@ -406,7 +406,7 @@ export class ProjectExplorer {
                 w.settings.language = "Java";
             }
             this.main.workspaceList.push(w);
-            if (!node.isFolder) node.iconClass = ProgrammingLanguageData[w.settings.language]?.workspaceCssClass(false) ?? "img_workspace-dark";
+            if (!node.isFolder) node.iconClass = ProgrammingLanguageData[w.settings.language]?.workspaceCssClass(false) ?? "img_workspace";
 
             let success = this.main.user.is_testuser || await this.main.networkManager.sendCreateWorkspace(w, this.main.workspacesOwnerId);
             if (success) {
@@ -614,7 +614,7 @@ export class ProjectExplorer {
                                         workspace.repository_id = null;
                                         workspace.saved = false;
                                         await this.main.networkManager.sendUpdatesAsync(true);
-                                        node.iconClass = "img_workspace-java-dark";
+                                        node.iconClass = "img_workspace-java";
                                         workspace.renderSynchronizeButton(node);
                                     }
                                 });
@@ -1055,7 +1055,7 @@ export class ProjectExplorer {
         for (let node of this.fileTreeview.nodes.filter(node1 => !node1.isRootNode())) {
             let startButton = node.getIconButtonByTag("Start");
             let file = node.externalObject;
-            if (!startButton) startButton = node.addIconButton("img_start-dark", () => {
+            if (!startButton) startButton = node.addIconButton("img_start", () => {
                 this.main.getInterpreter().start(file);
             }, GuiMessages.startMainProgram(), true);
             startButton.tag = "Start";

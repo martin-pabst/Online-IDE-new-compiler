@@ -188,7 +188,7 @@ export class RepositorySettingsManager {
             for(let ws of workspaces){
                 ws.repository_id = null;
                 let node = this.main.projectExplorer.workspaceTreeview.findNodeByElement(ws);
-                node.iconClass = "img_workspace-dark";
+                node.iconClass = "img_workspace";
                 ws.renderSynchronizeButton(node);
             }
         });

@@ -140,7 +140,7 @@ export class Workspace extends CompilerWorkspace {
 
         let button = node.getIconButtonByTag("Synchronize");
         if (!button) {
-            button = node.addIconButton("img_open-change-dark", () => {
+            button = node.addIconButton("img_open-change", () => {
                 this.synchronizeWithRepository();
             }, GuiMessages.SynchronizeWorkspace(),
                 false)

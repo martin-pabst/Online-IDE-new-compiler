@@ -39,9 +39,9 @@ export class JUnitProgressbar {
         this.barDiv.style.width = percent + "%";
 
         let textHtml = `${percent} % (` +
-            `<span class="jo_junit_captionRightside">${testsPassed}<span class="img_junit-passed-dark"></span>` +
-            `${testsOverall - testsPassed - testsFailed}<span class="img_junit-todo-dark" style="left: -4px; width: 12px"></span>` +
-            `${testsFailed}<span class="img_junit-failed-dark"></span></span>)`;
+            `<span class="jo_junit_captionRightside">${testsPassed}<span class="img_junit-passed"></span>` +
+            `${testsOverall - testsPassed - testsFailed}<span class="img_junit-todo" style="left: -4px; width: 12px"></span>` +
+            `${testsFailed}<span class="img_junit-failed"></span></span>)`;
 
         this.graphicDiv.style.display = percent < 100 ? 'block' : 'none';
 
