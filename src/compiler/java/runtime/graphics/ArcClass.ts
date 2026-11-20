@@ -7,6 +7,7 @@ import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { StringClass } from '../system/javalang/ObjectClassStringClass';
 import { FilledShapeClass } from './FilledShapeClass';
 import { JRC } from '../../language/JavaRuntimeLibraryComments';
+import { getScaleX } from './PixiHelper';
 
 export class ArcClass extends FilledShapeClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -163,13 +164,13 @@ export class ArcClass extends FilledShapeClass {
     };
 
     _setInnerRadius(radius: number) {
-        this.innerRadius = radius / this.container.scale.x;
+        this.innerRadius = radius / getScaleX(this.container);
 
         this.render();
     }
 
     _setOuterRadius(radius: number) {
-        this.outerRadius = radius / this.container.scale.x;
+        this.outerRadius = radius / getScaleX(this.container);
 
         this.render();
     }

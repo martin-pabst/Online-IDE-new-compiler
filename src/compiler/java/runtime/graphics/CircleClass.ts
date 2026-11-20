@@ -8,6 +8,7 @@ import { CallbackFunction } from '../../../common/interpreter/StepFunction';
 import { StringClass } from '../system/javalang/ObjectClassStringClass';
 import { CallbackParameter } from '../../../common/interpreter/CallbackParameter';
 import { JRC } from '../../language/JavaRuntimeLibraryComments';
+import { getScaleX } from './PixiHelper';
 
 export class CircleClass extends FilledShapeClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -121,7 +122,7 @@ export class CircleClass extends FilledShapeClass {
     };
 
     _setRadius(radius: number){
-        this.radius = radius / this.container.scale.x;
+        this.radius = radius / getScaleX(this.container);
 
         this.render();
     }
@@ -147,12 +148,12 @@ export class CircleClass extends FilledShapeClass {
             let p1 = new PIXI.Point(this.centerXInitial, this.centerYInitial);
             this.container.worldTransform.apply(p1, p1);
 
-            let radius1 = this.radius * this.container.scale.x
+            let radius1 = this.radius * getScaleX(this.container)
 
             let p2 = new PIXI.Point(otherShape.centerXInitial, otherShape.centerYInitial);
             otherShape.container.worldTransform.apply(p2, p2);
 
-            let radius2 = otherShape.radius * otherShape.container.scale.x
+            let radius2 = otherShape.radius * getScaleX(otherShape.container)
 
             let d1 = p1.x - p2.x;
             let d2 = p1.y - p2.y;

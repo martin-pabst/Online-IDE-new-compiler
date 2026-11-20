@@ -7,6 +7,7 @@ import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { StringClass } from '../system/javalang/ObjectClassStringClass';
 import { FilledShapeClass } from './FilledShapeClass';
 import { JRC } from '../../language/JavaRuntimeLibraryComments';
+import { getScaleX } from './PixiHelper';
 
 export class SectorClass extends FilledShapeClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -154,7 +155,7 @@ export class SectorClass extends FilledShapeClass {
     };
 
     _setRadius(radius: number) {
-        this.radius = radius / this.container.scale.x;
+        this.radius = radius / getScaleX(this.container);
 
         this.render();
     }

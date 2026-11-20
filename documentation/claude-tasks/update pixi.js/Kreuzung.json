@@ -1,0 +1,41 @@
+{
+   "name": "Kreuzung",
+   "id": 829225,
+   "modules": [
+      {
+         "name": "Lampe1",
+         "text": "class Lampe1 {\n   Rechteck kasten;\n   Kreis licht;\n\n   Lampe1() {\n      kasten = new Rechteck();\n      kasten.GrößeSetzen(50, 50);\n      kasten.PositionSetzen(100, 100);\n      kasten.FarbeSetzen(\"schwarz\");\n      licht = new Kreis();\n      licht.RadiusSetzen(20);\n      licht.PositionSetzen(125, 125);\n      licht.FarbeSetzen(\"rot\");\n   } \n\n   void RotLeuchten() {\n      licht.FarbeSetzen(\"rot\");\n   }\n\n   void GelbLeuchten() {\n      licht.FarbeSetzen(\"gelb\");\n   }\n\n   void GrünLeuchten() {\n      licht.FarbeSetzen(\"grün\");\n   }\n   \n   void Ausschalten() {\n      licht.FarbeSetzen(\"grau\");\n   }\n\n   void PositionSetzen(int posXneu, int posYneu) {\n      kasten.PositionSetzen(posXneu-25, posYneu-25);\n      licht.PositionSetzen(posXneu, posYneu); \n   }\n}",
+         "identical_to_repository_version": true,
+         "repository_file_version": -1,
+         "isFolder": false
+      },
+      {
+         "name": "START",
+         "text": "Rechteck s1 = new Rechteck();\ns1.FarbeSetzen(\"grau\");\ns1.PositionSetzen(0, 200);\ns1.GrößeSetzen(800, 200);\n\nRechteck s2 = new Rechteck();\ns2.FarbeSetzen(\"grau\");\ns2.PositionSetzen(300, 0);\ns2.GrößeSetzen(200, 600);\n\nAmpel a1 = new Ampel();\na1.PositionSetzen(275, 150);\na1.RichtungSetzen('N');\n \n\nAmpel a2 = new Ampel();\na2.PositionSetzen(525, 450);\na2.RichtungSetzen('S');\n\nAmpel a3 = new Ampel();\na3.PositionSetzen(550, 175);\na3.RichtungSetzen('O');\na3.GrünSetzen();\n\nAmpel a4 = new Ampel();\na4.PositionSetzen(250, 425);\na4.RichtungSetzen('W');\na4.GrünSetzen(); \n\n\n\n   \n   \n   \n",
+         "identical_to_repository_version": true,
+         "repository_file_version": -1,
+         "isFolder": false
+      },
+      {
+         "name": "Ampel",
+         "text": "Ampel a = new Ampel();\na.RotSetzen();\n   \n   \n\n\nclass Ampel {\n   String ampelphase;\n   int posX;\n   int posY;\n   \n   Lampe l1;\n   Lampe l2;\n   Lampe l3;\n\n   Ampel() {\n      ampelphase = \"rot\";\n      posX = 100;\n      posY = 100;\n      ampelphase;\n      l1 = new Lampe();\n      l1.RotLeuchten();\n      l1.PositionSetzen(100, 100);\n      l2 = new Lampe();\n      l2.Ausschalten();\n      l2.PositionSetzen(100, 140);\n      l3 = new Lampe();\n      l3.Ausschalten();\n      l3.PositionSetzen(100, 180); \n   }\n\n   void PositionSetzen(int posXneu, int posYneu) {\n      posX = posXneu;\n      posY = posYneu;\n      l1.PositionSetzen(posX, posY);\n      l2.PositionSetzen(posX, posY + 40);\n      l3.PositionSetzen(posX, posY + 80);\n   }\n   \n   void RotSetzen() {\n      ampelphase = \"rot\";\n      l1.RotLeuchten();\n      l2.Ausschalten();\n      l3.Ausschalten(); \n   }\n   \n   void RotGelbSetzen() {\n      ampelphase = \"rotgelb\";\n      l1.RotLeuchten();\n      l2.GelbLeuchten();\n      l3.Ausschalten(); \n   }\n\n   void GelbSetzen() {\n      ampelphase = \"gelb\";\n      l1.Ausschalten();\n      l2.GelbLeuchten();\n      l3.Ausschalten(); \n   }\n\n   void GrünSetzen() {\n      ampelphase = \"grün\";\n      l1.Ausschalten();\n      l2.Ausschalten();\n      l3.GrünLeuchten(); \n   }\n\n   void Weiterschalten() {\n      if(ampelphase == \"rot\") {\n         RotGelbSetzen();\n      }\n      else if(ampelphase == \"rotgelb\") {\n         GrünSetzen();\n      }\n      else if(ampelphase == \"grün\") {\n         GelbSetzen();\n      } \n      else {\n         RotSetzen();\n      }\n   }\n\n   void RichtungSetzen(char richtungneu) {\n      switch(richtungneu) {\n         case 'N' : \n            l1.PositionSetzen(posX, posY);\n            l2.PositionSetzen(posX, posY - 40);\n            l3.PositionSetzen(posX, posY - 80);\n            break;\n         case 'W' : \n            l1.PositionSetzen(posX, posY);\n            l2.PositionSetzen(posX - 40, posY);\n            l3.PositionSetzen(posX - 80, posY); \n            break;\n         case 'O' : \n            l1.PositionSetzen(posX, posY);\n            l2.PositionSetzen(posX + 40, posY);\n            l3.PositionSetzen(posX + 80, posY); \n            break;\n         default : \n            PositionSetzen(posX, posY);\n      }\n      \n   }\n}",
+         "identical_to_repository_version": true,
+         "repository_file_version": -1,
+         "isFolder": false
+      },
+      {
+         "name": "Lampe",
+         "text": "Lampe l = new Lampe();\nl.PositionSetzen(100, 100);\nl.GelbLeuchten();\n   \n\nclass Lampe extends Figur {\n   \n   Lampe() {\n      super();\n      this.FigurteilFestlegenRechteck(0, 0, 100, 100, \"schwarz\");\n      this.FigurteilFestlegenEllipse(10, 10, 80, 80, \"rot\"); \n   }\n\n   void RotLeuchten() {\n      this.EigeneFigurLöschen();\n      this.FigurteilFestlegenRechteck(0, 0, 100, 100, \"schwarz\");\n      this.FigurteilFestlegenEllipse(10, 10, 80, 80, \"rot\"); \n   }\n   \n   void GelbLeuchten() {\n      this.EigeneFigurLöschen();\n      this.FigurteilFestlegenRechteck(0, 0, 100, 100, \"schwarz\");\n      this.FigurteilFestlegenEllipse(10, 10, 80, 80, \"gelb\"); \n   }\n\n   void GrünLeuchten() {\n      this.EigeneFigurLöschen();\n      this.FigurteilFestlegenRechteck(0, 0, 100, 100, \"schwarz\");\n      this.FigurteilFestlegenEllipse(10, 10, 80, 80, \"grün\"); \n   }\n   \n   void Ausschalten() {\n      this.EigeneFigurLöschen();\n      this.FigurteilFestlegenRechteck(0, 0, 100, 100, \"schwarz\");\n      this.FigurteilFestlegenEllipse(10, 10, 80, 80, \"grau\"); \n   }\n\n   @Override void PositionSetzen(int x, int y) {\n      super.PositionSetzen(x - 20, y - 20); \n   } \n}",
+         "identical_to_repository_version": true,
+         "repository_file_version": -1,
+         "isFolder": false
+      }
+   ],
+   "settings": {
+      "libraries": [
+         "gng"
+      ]
+   },
+   "parent_folder_id": 30879,
+   "isFolder": false
+}

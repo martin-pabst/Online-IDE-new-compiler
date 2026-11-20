@@ -7,6 +7,7 @@ import { NonPrimitiveType } from "../../types/NonPrimitiveType";
 import { StringClass } from '../system/javalang/ObjectClassStringClass';
 import { FilledShapeClass } from './FilledShapeClass';
 import { JRC } from '../../language/JavaRuntimeLibraryComments';
+import { getScaleX, getScaleY } from './PixiHelper';
 
 export class RoundedRectangleClass extends FilledShapeClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -139,14 +140,14 @@ export class RoundedRectangleClass extends FilledShapeClass {
     }
 
     _setWidth(width: number){
-        this.width = width / this.container.scale.x;
+        this.width = width / getScaleX(this.container);
         this.centerXInitial = this.left + this.width / 2;
 
         this.render();
     }
 
     _setHeight(height: number){
-        this.height = height / this.container.scale.y;
+        this.height = height / getScaleY(this.container);
         this.centerYInitial = this.top + this.height / 2;
 
         this.render();

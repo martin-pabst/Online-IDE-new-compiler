@@ -8,6 +8,7 @@ import { CallbackFunction } from '../../../common/interpreter/StepFunction';
 import { StringClass } from '../system/javalang/ObjectClassStringClass';
 import { CallbackParameter } from '../../../common/interpreter/CallbackParameter';
 import { JRC } from '../../language/JavaRuntimeLibraryComments';
+import { getScaleX, getScaleY } from './PixiHelper';
 
 export class EllipseClass extends FilledShapeClass {
     static __javaDeclarations: LibraryDeclarations = [
@@ -132,13 +133,13 @@ export class EllipseClass extends FilledShapeClass {
     };
 
     _setRadiusX(radius: number){
-        this.radiusX = radius / this.container.scale.x;
+        this.radiusX = radius / getScaleX(this.container);
 
         this.render();
     }
 
     _setRadiusY(radius: number){
-        this.radiusY = radius / this.container.scale.y;
+        this.radiusY = radius / getScaleY(this.container);
 
         this.render();
     }
