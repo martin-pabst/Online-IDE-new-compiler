@@ -93,6 +93,12 @@ export class Treeview<E, K> extends AccordionElement {
 
     private lastSelectedElement?: TreeviewNode<E, K>;
 
+    /**
+     * Node the user clicked last (with or without shift/ctrl) or that got selected programmatically.
+     * addNewNode inserts new nodes relative to this node, see getReferenceNodeForNewNodes.
+     */
+    private lastClickedNode?: TreeviewNode<E, K>;
+
     private dragDropDestinations: Treeview<any, any>[] = [];
     private dragDropSources: DragAndDropSource[] = [];
 
@@ -331,25 +337,49 @@ export class Treeview<E, K> extends AccordionElement {
 
     }
 
-    addNewNode(isFolder: boolean, parentFolder?: TreeviewNode<E, K>, optionObject?: any) {
+    /**
+     * Inserts a new node and lets the user enter its caption. The new node is placed
+     *  - as first child of referenceNode if referenceNode is a folder,
+     *  - directly below referenceNode (inside the same folder) if referenceNode is no folder,
+     *  - at the top of the root folder if there is no referenceNode.
+     * Without referenceNode argument getReferenceNodeForNewNodes() is used, i.e. the node the user selected last.
+     * New nodes are never placed inside read-only folders: they are placed directly below the
+     * outermost read-only folder instead.
+     *
+     * After newNodeCallback has created the external object, its position is stored (user-defined order)
+     * or the folder gets sorted (comparator order), see fixOrderAfterInsertingNode.
+     */
+    addNewNode(isFolder: boolean, referenceNode?: TreeviewNode<E, K>, optionObject?: any) {
 
-        if (!parentFolder) {
-            let selectedNodes = this.getCurrentlySelectedNodes();
-            if (selectedNodes.length > 0) {
-                let focusedNode = selectedNodes[0];
-                while (!focusedNode.isFolder && focusedNode.getParent()) {
-                    focusedNode = focusedNode.getParent();
-                }
-                if (focusedNode.isFolder) parentFolder = focusedNode;
+        if (!referenceNode) referenceNode = this.getReferenceNodeForNewNodes();
+
+        let parentFolder: TreeviewNode<E, K> = this.rootNode;
+        let index: number = 0;
+
+        if (referenceNode && !referenceNode.isRootNode()) {
+            if (referenceNode.isFolder) {
+                parentFolder = referenceNode;
+            } else {
+                parentFolder = referenceNode.getParent() ?? this.rootNode;
+                index = parentFolder.getChildren().indexOf(referenceNode) + 1;
             }
         }
 
-        if(parentFolder){
+        while (!parentFolder.isRootNode() && parentFolder.readOnly) {
+            let readOnlyFolder = parentFolder;
+            parentFolder = readOnlyFolder.getParent() ?? this.rootNode;
+            index = parentFolder.getChildren().indexOf(readOnlyFolder) + 1;
+        }
+
+        if (!parentFolder.isRootNode()) {
             parentFolder.expand();
         }
 
         let node = this.addNode(isFolder, "", isFolder ? undefined : this.config.defaultIconClass, null,
-            parentFolder?.ownKey);
+            parentFolder.isRootNode() ? undefined : parentFolder.ownKey);
+        parentFolder.insertChildAt(node, index);
+        if (this.scrollToSelectedElementEnabled()) node.scrollIntoView("nearest");
+
         makeEditable(node.captionDiv, node.captionDiv, async (newContentHtmlEscaped: string, newContent: string) => {
 
             if(newContent == ''){
@@ -366,12 +396,64 @@ export class Treeview<E, K> extends AccordionElement {
                 } else {
                     node.externalObject = externalObject;
                     this.selectNodeAndSetFocus(node, false);
-                    if (parentFolder) parentFolder.sort();
-                    node.scrollIntoView();
+                    await this.fixOrderAfterInsertingNode(node);
+                    if (this.scrollToSelectedElementEnabled()) node.scrollIntoView();
                 }
             }
         })
 
+    }
+
+    /**
+     * Node relative to which addNewNode inserts new nodes: the node clicked last if it is still selected,
+     * otherwise the first selected node. Nodes that have been removed from this treeview are ignored.
+     * Returns undefined if there is no such node.
+     */
+    getReferenceNodeForNewNodes(): TreeviewNode<E, K> | undefined {
+        let isInTreeview = (node: TreeviewNode<E, K> | undefined) =>
+            node != null && !node.isRootNode() && this.nodes.indexOf(node) >= 0;
+
+        if (isInTreeview(this.lastClickedNode) && this.isSelected(this.lastClickedNode)) {
+            return this.lastClickedNode;
+        }
+
+        return this.currentSelection.find(isInTreeview);
+    }
+
+    setLastClickedNode(node: TreeviewNode<E, K>) {
+        this.lastClickedNode = node;
+    }
+
+    /**
+     * Moves node directly below referenceNode (into the folder of referenceNode) and then stores the new order
+     * (user-defined order) or sorts the folder (comparator order).
+     */
+    async moveNodeBelow(node: TreeviewNode<E, K>, referenceNode: TreeviewNode<E, K>) {
+        let parentFolder = referenceNode.getParent();
+        if (!parentFolder || node == referenceNode) return;
+        node.getParent()?.remove(node);
+        parentFolder.insertChildAt(node, parentFolder.getChildren().indexOf(referenceNode) + 1);
+        await this.fixOrderAfterInsertingNode(node);
+    }
+
+    /**
+     * Called after node was inserted at a position chosen by the treeview (not by the comparator):
+     *  - user-defined order: the order of all siblings is set according to their current position
+     *    (orderSetter) and reported to orderChangedCallback, so that the position is kept after reloading.
+     *  - comparator order: the siblings are sorted.
+     */
+    private async fixOrderAfterInsertingNode(node: TreeviewNode<E, K>) {
+        let parentFolder = node.getParent();
+        if (!parentFolder) return;
+        if (this.config.orderBy == "user-defined" && this.config.orderSetter && this.config.orderExtractor) {
+            await parentFolder.reorder();
+        } else {
+            parentFolder.sort();
+        }
+    }
+
+    private scrollToSelectedElementEnabled(): boolean {
+        return typeof this.config.scrollToSelectedElement === "undefined" || this.config.scrollToSelectedElement;
     }
 
     /**
@@ -467,8 +549,9 @@ export class Treeview<E, K> extends AccordionElement {
         node.select(invokeCallback);
         node.setFocus(true);
         this.lastSelectedElement = node;
+        this.lastClickedNode = node;
         node.expand();
-        if (typeof this.config.scrollToSelectedElement === "undefined" || this.config.scrollToSelectedElement) {
+        if (this.scrollToSelectedElementEnabled()) {
             node.scrollIntoView();
         }
     }

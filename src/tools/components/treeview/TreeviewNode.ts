@@ -59,7 +59,7 @@ export class TreeviewNode<E, K> {
     }
 
 
-    public scrollIntoView() {
+    public scrollIntoView(block: ScrollLogicalPosition = "center") {
         let parent = this.parent;
         while (parent) {
             parent.expandCollapseComponent.setState('expanded');
@@ -67,7 +67,7 @@ export class TreeviewNode<E, K> {
         }
         this.getMainDiv().scrollIntoView({
             behavior: "instant",
-            block: "center"
+            block: block
         });
     }
 
@@ -301,6 +301,8 @@ export class TreeviewNode<E, K> {
 
                 if (this.treeview.config.withSelection) {
                     ev.stopPropagation();
+
+                    this.treeview.setLastClickedNode(this);
 
                     if ((ev.shiftKey || ev.ctrlKey) && this.treeview.config.selectMultiple && this.treeview.getCurrentlySelectedNodes().length > 0) {
                         if (ev.shiftKey) {
@@ -834,11 +836,47 @@ export class TreeviewNode<E, K> {
     async reorder(){
         let orderSetter = this._treeview.config.orderSetter;
         if(!orderSetter) return;
-        for(let j = 0; j < this.children.length; j++){
-            orderSetter(this.children[j].externalObject, j);
+
+        // new nodes whose caption is still being edited have no external object yet
+        let childrenWithExternalObject = this.children.filter(child => child.externalObject != null);
+        for(let j = 0; j < childrenWithExternalObject.length; j++){
+            orderSetter(childrenWithExternalObject[j].externalObject, j);
         }
-        
-        if(this._treeview.orderChangedCallback) await this._treeview.orderChangedCallback(this.children);
+
+        if(this._treeview.orderChangedCallback) await this._treeview.orderChangedCallback(childrenWithExternalObject);
+    }
+
+    /**
+     * Inserts child at position index of this node's children (moves it there if it already is a child of this node)
+     * without sorting.
+     */
+    insertChildAt(child: TreeviewNode<E, K>, index: number) {
+        child.parent?.remove(child);
+        child.parent = this;
+
+        index = Math.max(0, Math.min(index, this.children.length));
+        this.children.splice(index, 0, child);
+        this.insertChildDiv(index);
+
+        child.adjustLeftMarginToDepth();
+        child.getOrderedNodeListRecursively().forEach(node => node.adjustLeftMarginToDepth());
+    }
+
+    /**
+     * Inserts the main div of this.children[index] into childrenDiv such that the order of the divs
+     * matches the order of this.children.
+     */
+    private insertChildDiv(index: number) {
+        let childDiv = this.children[index]?.getMainDiv();
+        if (!this.childrenDiv || !childDiv) return;
+
+        // Don't use this.childrenDiv.childNodes[index]: childrenDiv may contain childrenLineDiv in front of the children.
+        let successorDiv = this.children[index + 1]?.getMainDiv();
+        if (successorDiv && successorDiv.parentNode == this.childrenDiv) {
+            this.childrenDiv.insertBefore(childDiv, successorDiv);
+        } else {
+            this.childrenDiv.appendChild(childDiv);
+        }
     }
 
     stopDragAndDrop() {
@@ -926,22 +964,9 @@ export class TreeviewNode<E, K> {
                 while (index > 0 && comparator(child.externalObject, this.children[index - 1].externalObject) < 0) {
                     index--;
                 }
-                this.children.splice(index, 0, child);
-            } else {
-                this.children.push(child);
             }
-
-            if (this.childrenDiv) {
-                if (child.getMainDiv()) {
-                    if (index < this.childrenDiv.childNodes.length) {
-                        let successorChild = this.childrenDiv.childNodes[index];
-                        this.childrenDiv.insertBefore(child.getMainDiv(), successorChild);
-                    } else {
-                        this.childrenDiv.appendChild(child.getMainDiv());
-                    }
-                }
-            }
-
+            this.children.splice(index, 0, child);
+            this.insertChildDiv(index);
         }
 
     }

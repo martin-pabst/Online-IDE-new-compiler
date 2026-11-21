@@ -491,11 +491,8 @@ export class ProjectExplorer {
                     {
                         caption: ProjectExplorerMessages.newWorkspace() + "...",
                         callback: () => {
-                            while (!node.isFolder && !node.isRootNode && node != null) {
-                                node = node.getParent();
-                            }
-                            this.workspaceTreeview.selectNodeAndSetFocus(node, false);
-                            this.workspaceTreeview.addNewNode(false);
+                            // folder: new workspace becomes its first child; workspace: new workspace is placed below it
+                            this.workspaceTreeview.addNewNode(false, node);
                         }
                     });
 
@@ -530,7 +527,8 @@ export class ProjectExplorer {
 
                                     this.main.workspaceList.push(newWorkspace);
 
-                                    this.workspaceTreeview.addNode(false, newWorkspace.name, node.iconClass, newWorkspace, node.getParent()?.ownKey ?? null);
+                                    let newNode = this.workspaceTreeview.addNode(false, newWorkspace.name, node.iconClass, newWorkspace, node.getParent()?.ownKey ?? null);
+                                    await this.workspaceTreeview.moveNodeBelow(newNode, node);
 
                                 } else if (response.message != null) {
                                     alert(response.message);

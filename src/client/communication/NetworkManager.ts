@@ -396,6 +396,8 @@ export class NetworkManager {
     }
 
     async sendUpdateFileOrder(files: GUIFile[]): Promise<boolean> {
+        if (this.main.user?.is_testuser) return true;
+
         let request: UpdateFileOrderRequest = {
             fileOrderList: files.map(f => ({fileId: f.id, order: f.sorting_order}))
         }
@@ -406,6 +408,8 @@ export class NetworkManager {
     }
 
     async sendUpdateWorkspaceOrder(workspaces: Workspace[]): Promise<boolean> {
+        if (this.main.user?.is_testuser) return true;
+
         let request: UpdateWorkspaceOrderRequest = {
             workspaceOrderList: workspaces.map(ws => ({workspaceId: ws.id, order: ws.sorting_order}))
         }
