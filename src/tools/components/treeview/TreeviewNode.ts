@@ -533,7 +533,9 @@ export class TreeviewNode<E, K> {
 
 
     renameNode() {
-        makeEditable(this.captionDiv, undefined, async (newText: string) => {
+        makeEditable(this.captionDiv, undefined, async (newTextHtmlEscaped: string, newText: string) => {
+            
+            this.renderCaptionAsHtml = false;
 
             if (newText != this._caption) {
                 if (this.treeview.renameCallback) {

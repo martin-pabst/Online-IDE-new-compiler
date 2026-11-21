@@ -3,7 +3,7 @@ import { escapeHtml } from "./StringTools.js";
 
 export function makeEditable(elementWithText: JQuery<HTMLElement> | HTMLElement,
     elementToReplace: JQuery<HTMLElement> | HTMLElement | undefined,
-    renameDoneCallback: (newContent: string) => void, selectionRange?: { start: number, end: number }) {
+    renameDoneCallback: (newContentHtmlEscaped: string, newContent: string) => void, selectionRange?: { start: number, end: number }) {
 
     if (elementWithText instanceof HTMLElement) {
         elementWithText = jQuery(elementWithText);
@@ -74,19 +74,21 @@ export function makeEditable(elementWithText: JQuery<HTMLElement> | HTMLElement,
             $input.off("focusout.me");
             $input.remove();
             etr!.show();
-            let newValue = escapeHtml(<string>$input.val());
-            renameDoneCallback(newValue);
+            let newValue = <string>$input.val();
+            let newValueHtmlEscaped = escapeHtml(newValue);
+            renameDoneCallback(newValueHtmlEscaped, newValue);
             return;
         }
     });
-
+    
     $input.on("focusout.me", (_ev) => {
         $input.off("keydown.me");
         $input.off("focusout.me");
         $input.remove();
         etr!.show();
-        let newValue = escapeHtml(<string>$input.val());
-        renameDoneCallback(newValue);
+            let newValue = <string>$input.val();
+            let newValueHtmlEscaped = escapeHtml(newValue);
+            renameDoneCallback(newValueHtmlEscaped, newValue);
         return;
     });
 
