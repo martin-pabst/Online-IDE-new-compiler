@@ -20,9 +20,35 @@
 
 <body>
     <h1>Erstes Beispiel</h1>
-
+    
     <div class="java-online" style="width: calc(100% - 10px); height: 500px; margin-left: 5px" data-java-online="{
         'id': 'abcd',
+        'speed': 'max',
+        'withFileList': true,
+        'hideEditor': false,
+        'hideStartPanel': false,
+        'libraries': [''],
+        'spritesheetURL': '/assets/test-spritesheets/Campfire.zip',
+        'settings': {
+            'compiler.shadowedSymbolErrorLevel': 'error',
+            'compiler.equalityOperatorForStringsCompares': 'references'
+        },
+        'withClassDiagram': true,
+        'enableRunExitStatusAccess': true
+        
+    }">
+    <script type="text/plain" title="Program.java" data-type="java">
+        for(int i = 0; i < 10; i++){
+            println(i);
+        }
+           System.exit(0);            
+        </script>
+    </div>
+    
+    
+    <h1>Zweites Beispiel</h1>
+    <div class="java-online" style="width: calc(100% - 10px); height: 500px; margin-left: 5px" data-java-online="{
+        'id': 'efgh',
         'speed': 'max',
         'withFileList': true,
         'hideEditor': false,
