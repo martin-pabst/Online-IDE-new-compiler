@@ -34,6 +34,7 @@ import { InputManager } from "../main/gui/InputManager.js";
 import { PrintManager } from "../main/gui/PrintManager.js";
 import { ProgramControlButtons } from "../main/gui/ProgramControlButtons.js";
 import { RightDiv } from "../main/gui/RightDiv.js";
+import { ThemeManager, type ThemeName } from "../main/gui/ThemeManager.js";
 import { LoginMessages } from "../main/language/MainLanguage.js";
 import { MainBase } from "../main/MainBase.js";
 import { Settings } from "../settings/Settings.js";
@@ -76,6 +77,14 @@ type JavaOnlineConfig = {
     cacheUserEdits?: boolean,
 
     programmingLanguage?: string,
+
+    /**
+     * 'auto' follows the dark mode setting of the operating system/browser when the IDE starts.
+     * Default: 'dark'.
+     * As all Monaco editors on a page share one theme, the first embedded IDE on the page
+     * determines the theme of all code editors.
+     */
+    theme?: ThemeName | "auto",
 
 }
 
@@ -134,6 +143,8 @@ export class MainEmbedded implements MainBase {
 
     scriptListFromHtml: JOScript[] = [];
 
+    themeManager: ThemeManager;
+
 
     constructor(private $outerDiv: JQuery<HTMLElement>) {
 
@@ -141,6 +152,9 @@ export class MainEmbedded implements MainBase {
 
     async init(scriptList: JOScript[]) {
         this.readConfig(this.$outerDiv);
+
+        this.themeManager = new ThemeManager(this.$outerDiv[0]);
+        this.themeManager.switchTheme(this.getThemeNameFromConfig());
 
         this.initGUI(this.$outerDiv);
 
@@ -182,6 +196,20 @@ export class MainEmbedded implements MainBase {
             }
         }
 
+    }
+
+    getThemeNameFromConfig(): ThemeName {
+        let theme = this.config.theme;
+        if (theme == null) return "dark";
+
+        if (theme == "auto") {
+            return window.matchMedia?.("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        }
+
+        if (ThemeManager.isThemeName(theme)) return theme;
+
+        console.warn(`Online-IDE: Invalid value '${theme}' for configuration parameter theme. Valid values are 'dark', 'light' and 'auto'. Using theme 'dark'.`);
+        return "dark";
     }
 
     isReadOnlyScript(identifier: string): boolean {
@@ -1044,6 +1072,10 @@ export class MainEmbedded implements MainBase {
 
     getBottomDiv(): BottomDiv {
         return this.bottomDiv;
+    }
+
+    getThemeManager(): ThemeManager {
+        return this.themeManager;
     }
 
     getActionManager(): ActionManager {

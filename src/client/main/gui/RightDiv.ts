@@ -76,7 +76,9 @@ export class RightDiv {
             (<MainEmbedded>this.main).embeddedFullpageController.primaryButton.setVisible(false);
             }
             this.wholeWindowElement = DOM.makeDiv(document.body, 'jo_wholeWindow');
-            
+            // in embedded version wholeWindowElement is outside of the IDE's root element, so it needs the theme, too:
+            this.main.getThemeManager()?.addThemedElement(this.wholeWindowElement);
+
             transferElements(this.rightDivElement, this.wholeWindowElement);
             transferElements(this.originalControlsContainer, this.newControlsContainer);
             
@@ -89,6 +91,7 @@ export class RightDiv {
             transferElements(this.wholeWindowElement, this.rightDivElement);
             transferElements(this.newControlsContainer, this.originalControlsContainer);
 
+            this.main.getThemeManager()?.removeThemedElement(this.wholeWindowElement);
             this.wholeWindowElement.remove();
 
             jQuery('.jo_graphics').trigger('sizeChanged');

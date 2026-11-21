@@ -11,6 +11,10 @@
         height: 100%;
         background-color: var(--backgroundDark);
         z-index: 10000;
+        /* embedded version: jo_wholeWindow is child of body, so it doesn't inherit these from .joe_javaOnlineDiv: */
+        font-family: 'Roboto', sans-serif;
+        font-size: 10pt;
+        color: var(--fontColorNormal);
     }
     
     .jo_wholeWindow_embeddedFullpage {

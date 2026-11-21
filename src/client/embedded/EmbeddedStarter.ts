@@ -1,7 +1,6 @@
 
 import jQuery from 'jquery';
 import * as PIXI from 'pixi.js';
-import { ThemeManager } from "../main/gui/ThemeManager.js";
 import { MainEmbedded } from "./MainEmbedded.js";
 
 import editorWorker from 'monaco-editor/editor/editor.worker?worker'
@@ -160,9 +159,9 @@ export class EmbeddedStarter {
 
         });
 
+        // sequentially in document order: the first embedded IDE determines the (page-global)
+        // theme of all Monaco editors (see ThemeManager)
         for (let dws of divsWithScriptLists) {
-            new ThemeManager(<HTMLDivElement>dws[0][0]).switchTheme("dark");
-
             await this.initDiv(dws[0], dws[1]);
         }
 

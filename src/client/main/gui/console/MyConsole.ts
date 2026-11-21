@@ -145,7 +145,7 @@ export class MyConsole {
                 vertical: 'hidden',
                 horizontal: 'hidden'
             },
-            theme: "myCustomThemeDark",
+            // no theme option here: it would set the page-global Monaco theme, which is managed by ThemeManager
 
             acceptSuggestionOnEnter: "on"
 

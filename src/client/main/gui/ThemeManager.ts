@@ -1,24 +1,57 @@
 import * as monaco from 'monaco-editor'
 
+export type ThemeName = "dark" | "light";
+
 export type Theme = {
-    name: string,
+    name: ThemeName,
     monacoTheme: string,
     cssColors: { [color: string]: string }
 }
 
+/**
+ * Applies a theme (dark/light) to the html elements of one IDE instance: it sets the css variables
+ * of the theme (cssColors) and the css class jo_theme-<name> (switches icon sets, see assets/css/icons.css).
+ *
+ * The Online-IDE (GUI version) has one instance (root element: body), the embedded version has one
+ * instance per embedded IDE. Several embedded IDEs on one page may use different themes.
+ *
+ * Monaco editors can't have individual themes: Monaco has only one page-global theme. It is
+ * set by the ThemeManager which was created first on the page.
+ */
 export class ThemeManager {
 
-    themes: Theme[] = [];
+    private static themes: Theme[] | undefined;
+
+    /**
+     * The first ThemeManager on the page sets the page-global theme of all Monaco editors.
+     */
+    private static monacoThemeOwner: ThemeManager | undefined;
+
     currentTheme: Theme;
 
-    constructor(private rootElement: HTMLDivElement) {
-        this.initThemes();
-        this.initEditorThemes();
-        this.currentTheme = this.themes[0];
+    /**
+     * Root element of the IDE instance and elements outside of it which belong to the IDE instance
+     * (e.g. the whole-window div in fullpage mode)
+     */
+    private themedElements: HTMLElement[] = [];
+
+    constructor(rootElement: HTMLElement) {
+        if (!ThemeManager.themes) {
+            ThemeManager.themes = ThemeManager.createThemes();
+            ThemeManager.defineEditorThemes();
+        }
+        if (!ThemeManager.monacoThemeOwner) ThemeManager.monacoThemeOwner = this;
+
+        this.themedElements.push(rootElement);
+        this.currentTheme = ThemeManager.themes[0];
+    }
+
+    static isThemeName(name: string): name is ThemeName {
+        return name == "dark" || name == "light";
     }
 
     switchTheme(name: string) {
-        for (let theme of this.themes) {
+        for (let theme of ThemeManager.themes) {
             if (theme.name == name) {
                 this.internalSwitchTheme(theme);
                 break;
@@ -26,29 +59,55 @@ export class ThemeManager {
         }
     }
 
-    internalSwitchTheme(theme: Theme) {
-        monaco.editor.setTheme(theme.monacoTheme);
+    private internalSwitchTheme(theme: Theme) {
+        this.currentTheme = theme;
 
-        // let root = document.documentElement;
+        if (ThemeManager.monacoThemeOwner == this) {
+            monaco.editor.setTheme(theme.monacoTheme);
+        }
+
+        for (const element of this.themedElements) {
+            this.applyThemeToElement(element);
+        }
+    }
+
+    /**
+     * Applies this IDE instance's theme to an element outside of its root element, e.g. the
+     * whole-window div in fullpage mode. Gives it css class joeCssFence, too, as the icon sets in
+     * assets/css/icons.css need .joeCssFence.jo_theme-light on the same element.
+     * Does nothing if element is inside an element which already has this theme (e.g. in the
+     * GUI version, where the root element is body).
+     */
+    addThemedElement(element: HTMLElement) {
+        if (this.themedElements.some(themedElement => themedElement.contains(element))) return;
+        this.themedElements.push(element);
+        element.classList.add("joeCssFence");
+        this.applyThemeToElement(element);
+    }
+
+    removeThemedElement(element: HTMLElement) {
+        let index = this.themedElements.indexOf(element);
+        if (index > 0) this.themedElements.splice(index, 1);   // never remove root element (index 0)
+    }
+
+    private applyThemeToElement(element: HTMLElement) {
+        const theme = this.currentTheme;
+
         for (const key of Object.keys(theme.cssColors)) {
-            const value = theme.cssColors[key]
-
-            this.rootElement.style.setProperty(key, value);
-
+            element.style.setProperty(key, theme.cssColors[key]);
         }
 
         // switches icon sets: assets/css/icons.css overrides the (dark) icons for .jo_theme-light
-        for (const t of this.themes) {
-            this.rootElement.classList.toggle("jo_theme-" + t.name, t == theme);
+        for (const t of ThemeManager.themes) {
+            element.classList.toggle("jo_theme-" + t.name, t == theme);
         }
-
-        this.currentTheme = theme;
-
     }
 
-    initThemes() {
+    private static createThemes(): Theme[] {
 
-        this.themes.push({
+        let themes: Theme[] = [];
+
+        themes.push({
             name: "dark",
             monacoTheme: "myCustomThemeDark",
             cssColors: {
@@ -77,6 +136,9 @@ export class ThemeManager {
                 "--file-active-hover": "rgba(9, 71, 113, 0.827)",
                 "--file-active-border": "#007fd4",
                 "--file-errorcount": "rgb(224, 93, 93)",
+                "--treeview-selected-background": "#114c74c0",
+                "--treeview-selected-hover-background": "#2a4658c0",
+                "--treeview-focus-border": "#66b6ecab",
                 "--inplace-editor": "blue",
                 "--contextmenu-background": "#3c3c3c",
                 "--contextmenu-color": "rgb(212,212,212)",
@@ -103,6 +165,15 @@ export class ThemeManager {
                 "--editorTooltip-border": "#454545",
 
                 "--renameInput-color": "#ffffff",
+
+                // embedded version: button "Code Reset"
+                "--codeResetButton-background": "#464646c7",
+                "--codeResetButton-color": "#c2cccc",
+                "--codeResetDialog-background": "rgba(46, 46, 46, 0.849)",
+                "--codeResetDialog-color": "#c2cccc",
+                "--codeResetDialog-button-color": "#c2cccc",
+                "--codeResetDialog-cancelButton-background": "rgb(15, 104, 15)",
+                "--codeResetDialog-okButton-background": "rgb(128, 33, 33)",
 
                 //bottomDiv
                 "--bottomdiv-tabheading-hover": "white",
@@ -154,7 +225,7 @@ export class ThemeManager {
 
         let highlightColor = "#8080ff";
 
-        this.themes.push({
+        themes.push({
             name: "light",
             monacoTheme: "myCustomThemeLight",
             cssColors: {
@@ -183,6 +254,9 @@ export class ThemeManager {
                 "--file-active-hover": "rgba(203, 212, 253, 0.61)",
                 "--file-active-border": "rgba(76, 204, 255, 0.74)",
                 "--file-errorcount": "red",
+                "--treeview-selected-background": "rgba(171, 231, 255, 0.74)",
+                "--treeview-selected-hover-background": "rgba(203, 212, 253, 0.61)",
+                "--treeview-focus-border": "rgba(76, 204, 255, 0.74)",
                 "--inplace-editor": "white",
                 "--contextmenu-background": "white",
                 "--contextmenu-color": "#756161",
@@ -209,6 +283,15 @@ export class ThemeManager {
                 "--editorTooltip-border": "#9d9d9d",
 
                 "--renameInput-color": "#000000",
+
+                // embedded version: button "Code Reset"
+                "--codeResetButton-background": "#e0e0e0",
+                "--codeResetButton-color": "#000000",
+                "--codeResetDialog-background": "rgba(243, 243, 243, 0.92)",
+                "--codeResetDialog-color": "#000000",
+                "--codeResetDialog-button-color": "#000000",
+                "--codeResetDialog-cancelButton-background": "rgb(140, 210, 140)",
+                "--codeResetDialog-okButton-background": "rgb(240, 140, 140)",
 
 
                 //bottomDiv
@@ -258,11 +341,10 @@ export class ThemeManager {
             }
         });
 
-
-
+        return themes;
     }
 
-    initEditorThemes() {
+    private static defineEditorThemes() {
         monaco.editor.defineTheme('myCustomThemeDark', {
             base: 'vs-dark', // can also be vs-dark or hc-black
             inherit: true, // can also be false to completely replace the builtin rules

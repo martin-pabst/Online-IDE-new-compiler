@@ -162,13 +162,14 @@
         border: 1px solid transparent;
     }
 
+    /* colors are set by ThemeManager; fallback: dark theme */
     .jo_treeviewNode.jo_treeview_selected {
-        background-color: #114c74c0;
+        background-color: var(--treeview-selected-background, #114c74c0);
     }
 
     .jo_treeviewNode.jo_treeview_focus {
-        background-color: #114c74c0;
-        border-color: #66b6ecab;
+        background-color: var(--treeview-selected-background, #114c74c0);
+        border-color: var(--treeview-focus-border, #66b6ecab);
         border-width: 1px;
         border-style: solid;
     }
@@ -179,7 +180,7 @@
 
     .jo_treeviewNode:hover.jo_treeview_focus,
     .jo_treeviewNode:hover.jo_treeview_selected {
-        background-color: #2a4658c0;
+        background-color: var(--treeview-selected-hover-background, #2a4658c0);
     }
 
     .jo_treeviewChildren {

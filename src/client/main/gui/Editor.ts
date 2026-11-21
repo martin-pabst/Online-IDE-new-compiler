@@ -135,7 +135,7 @@ export class Editor {
                 vertical: 'auto',
                 horizontal: 'auto'
             },
-            theme: "myCustomThemeDark",
+            // no theme option here: it would set the page-global Monaco theme, which is managed by ThemeManager
             wrappingIndent: "same",
             // automaticLayout: true
 

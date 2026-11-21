@@ -35,6 +35,8 @@ export class EmbeddedFullpageController {
                 this.additionalButtonTopRight.remove();
                 document.body.classList.remove('joeCssFence');
                 transferElements(this.wholeWindowElement, this.mainDiv);
+                this.mainEmbedded.themeManager.removeThemedElement(this.wholeWindowElement);
+                this.wholeWindowElement.remove();
                 break;
             case 1:
                 this.additionalButtonTopRight = new IconButtonComponent(this.mainEmbedded.rightDiv.tabManager.tabheadingRightDiv,
@@ -49,6 +51,8 @@ export class EmbeddedFullpageController {
                 this.mainEmbedded.verticalSlider?.savePosition();
                 document.body.classList.add('joeCssFence');
                 this.wholeWindowElement = DOM.makeDiv(document.body, 'jo_wholeWindow', 'jo_wholeWindow_embeddedFullpage');
+                // wholeWindowElement is outside of the IDE's root element, so it needs the theme, too:
+                this.mainEmbedded.themeManager.addThemedElement(this.wholeWindowElement);
                 transferElements(this.mainDiv, this.wholeWindowElement);
                 break;
         }

@@ -165,6 +165,10 @@ export class Main implements MainBase {
         return this.bottomDiv;
     }
 
+    getThemeManager(): ThemeManager {
+        return this.themeManager;
+    }
+
     getActionManager(): ActionManager {
         return this.actionManager;
     }
@@ -233,7 +237,7 @@ export class Main implements MainBase {
 
         jQuery(window).trigger('resize');
 
-        this.themeManager = new ThemeManager(<HTMLDivElement>jQuery('.joeCssFence')[0]);
+        this.themeManager = new ThemeManager(jQuery('.joeCssFence')[0]);
         this.themeManager.switchTheme("dark");
 
         let breakpointManager = new BreakpointManager(this);

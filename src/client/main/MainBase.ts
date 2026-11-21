@@ -4,12 +4,14 @@ import { CompilerWorkspace } from "../../compiler/common/module/CompilerWorkspac
 import { GUIFile } from "../workspace/File.js";
 import { BottomDiv } from "./gui/BottomDiv.js";
 import { RightDiv } from "./gui/RightDiv.js";
+import { ThemeManager } from "./gui/ThemeManager.js";
 
 export interface MainBase extends IMain {
     drawClassDiagrams(onlyUpdateIdentifiers: boolean);
 
     getRightDiv(): RightDiv;
     getBottomDiv(): BottomDiv;
+    getThemeManager(): ThemeManager;
     getActionManager(): ActionManager;
     setFileActive(file: GUIFile);
     isEmbedded(): boolean;

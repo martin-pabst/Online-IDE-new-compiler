@@ -103,6 +103,29 @@ export type ContextMenuItem = {
     iconClass?: string
 };
 
+/**
+ * Root element (css class joeCssFence) of the IDE instance the user interacted with last.
+ * A page may contain several embedded IDEs with different themes, see ThemeManager.
+ */
+let cssFenceOfLastInteraction: HTMLElement | undefined;
+
+if (typeof document !== "undefined") {
+    const rememberCssFence = (event: Event) => {
+        if (!(event.target instanceof Element)) return;
+        let cssFence = event.target.closest('.joeCssFence');
+        if (cssFence instanceof HTMLElement) cssFenceOfLastInteraction = cssFence;
+    }
+    // capture phase, as some components stop propagation
+    document.addEventListener("pointerdown", rememberCssFence, true);
+    document.addEventListener("mousedown", rememberCssFence, true);
+    document.addEventListener("focusin", rememberCssFence, true);
+}
+
+function getCssFenceOfLastInteraction(): HTMLElement | undefined {
+    if (cssFenceOfLastInteraction?.isConnected) return cssFenceOfLastInteraction;
+    return jQuery('.joeCssFence')[0];
+}
+
 export function openContextMenu(items: ContextMenuItem[], x: number, y: number, isSubMenu: boolean = false): JQuery<HTMLElement> {
 
     let mousePointer = window.PointerEvent ? "pointer" : "mouse";
@@ -110,11 +133,14 @@ export function openContextMenu(items: ContextMenuItem[], x: number, y: number, 
     if (!isSubMenu) jQuery('.jo_contextmenu').remove();
 
     let $contextMenu = jQuery('<div class="jo_contextmenu"></div>');
-    let rootElement = <HTMLDivElement>jQuery('.joeCssFence')[0];
-    let backgroundColor = rootElement.style.getPropertyValue('--contextmenu-background');
+
+    // the context menu is appended to body, so it doesn't inherit the theme's css variables from the IDE's root element:
+    let rootElement = getCssFenceOfLastInteraction();
+    let rootStyle = rootElement ? getComputedStyle(rootElement) : undefined;
+    let backgroundColor = rootStyle?.getPropertyValue('--contextmenu-background').trim() ?? "";
     $contextMenu.css('background-color', backgroundColor);
 
-    let fontColorNormal = rootElement.style.getPropertyValue('--fontColorNormal');
+    let fontColorNormal = rootStyle?.getPropertyValue('--fontColorNormal').trim() ?? "";
 
     let $openSubMenu: JQuery<HTMLElement> | undefined = undefined;
     let parentMenuItem: ContextMenuItem | undefined = undefined;
