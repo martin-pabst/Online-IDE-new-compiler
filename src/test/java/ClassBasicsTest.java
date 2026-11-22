@@ -913,3 +913,249 @@ class Outer {
  */
 class Robot {
 }
+
+/**::
+ * Method with covariant return type implements abstract method of base class (issue #125)
+ * { "expectedWarnings": [] }
+ */
+CovBase b = new CovSub();
+assertEquals("CovSub", b.create().name(), "call via base class reference");
+
+CovSub s = new CovSub();
+CovSub created = s.create();
+assertEquals("CovSub", created.name(), "call via subclass reference yields subclass type");
+
+abstract class CovBase {
+   abstract CovBase create();
+
+   String name() {
+      return "CovBase";
+   }
+}
+
+class CovSub extends CovBase {
+   @Override
+   CovSub create() {
+      return new CovSub();
+   }
+
+   String name() {
+      return "CovSub";
+   }
+}
+
+/**::
+ * Methods with covariant return types are called dynamically, also over several levels and via super
+ */
+Level1 o1 = new Level1();
+assertEquals("Level1", o1.copy().name(), "base class object");
+Level1 o2 = new Level2();
+assertEquals("Level2", o2.copy().name(), "Level2 object via Level1 reference");
+Level1 o3 = new Level3();
+assertEquals("Level3", o3.copy().name(), "Level3 object via Level1 reference");
+Level2 o4 = new Level3();
+Level2 copy4 = o4.copy();
+assertEquals("Level3", copy4.name(), "Level3 object via Level2 reference");
+Level3 o5 = new Level3();
+Level3 copy5 = o5.copy();
+assertEquals("Level3", copy5.name(), "Level3 object via Level3 reference");
+assertEquals("Level2", o5.copyOfSuper().name(), "super.copy()");
+Level1 o6 = new Level4();
+assertEquals("Level3", o6.copy().name(), "subclass without overriding method inherits it");
+
+class Level1 {
+   Level1 copy() {
+      return new Level1();
+   }
+
+   String name() {
+      return "Level1";
+   }
+}
+
+class Level2 extends Level1 {
+   Level2 copy() {
+      return new Level2();
+   }
+
+   String name() {
+      return "Level2";
+   }
+}
+
+class Level3 extends Level2 {
+   Level3 copy() {
+      return new Level3();
+   }
+
+   Level2 copyOfSuper() {
+      return super.copy();
+   }
+
+   String name() {
+      return "Level3";
+   }
+}
+
+class Level4 extends Level3 {
+}
+
+/**::
+ * Method with covariant return type overrides method of base class and implements interface method with other return type
+ */
+CovI i1 = new CovC("");
+assertEquals("CovC.get", ((CovA) i1.get()).label, "CovC object via interface reference");
+CovA a1 = new CovC("");
+assertEquals("CovC.get", a1.get().label, "CovC object via base class reference");
+CovI i2 = new CovD("");
+assertEquals("CovD.get", ((CovA) i2.get()).label, "CovD object via interface reference");
+CovA a2 = new CovD("");
+assertEquals("CovD.get", a2.get().label, "CovD object via base class reference");
+CovC c2 = new CovD("");
+assertEquals("CovD.get", c2.get().label, "CovD object via CovC reference");
+
+interface CovI {
+   Object get();
+}
+
+class CovA {
+   String label;
+
+   CovA(String label) {
+      this.label = label;
+   }
+
+   CovA get() {
+      return new CovA("CovA.get");
+   }
+}
+
+class CovC extends CovA implements CovI {
+   CovC(String label) {
+      super(label);
+   }
+
+   CovC get() {
+      return new CovC("CovC.get");
+   }
+}
+
+class CovD extends CovC {
+   CovD(String label) {
+      super(label);
+   }
+
+   CovD get() {
+      return new CovD("CovD.get");
+   }
+}
+
+/**::
+ * Covariant return types: interface method inherited by abstract class, generic base class, arrays
+ */
+Copyable c1 = new Letter();
+assertEquals("Letter", ((Letter) c1.copy()).kind(), "via interface reference");
+Doc d1 = new Letter();
+assertEquals("Letter", ((Letter) d1.copy()).kind(), "via abstract class reference");
+
+Holder<String> h = new StringHolder("x");
+assertEquals("S:x", (String) h.get(), "generic base class");
+
+ArrA arr = new ArrB();
+assertEquals(2, arr.items().length, "array return type");
+assertEquals("b", ((ArrItem) arr.items()[1]).name, "array return type");
+
+interface Copyable {
+   Object copy();
+}
+
+abstract class Doc implements Copyable {
+}
+
+class Letter extends Doc {
+   Letter copy() {
+      return new Letter();
+   }
+
+   String kind() {
+      return "Letter";
+   }
+}
+
+class Holder<T> {
+   T value;
+
+   Holder(T value) {
+      this.value = value;
+   }
+
+   Object get() {
+      return value;
+   }
+}
+
+class StringHolder extends Holder<String> {
+   StringHolder(String value) {
+      super(value);
+   }
+
+   String get() {
+      return "S:" + value;
+   }
+}
+
+class ArrA {
+   Object[] items() {
+      return new Object[0];
+   }
+}
+
+class ArrB extends ArrA {
+   ArrItem[] items() {
+      return new ArrItem[]{new ArrItem("a"), new ArrItem("b")};
+   }
+}
+
+class ArrItem {
+   String name;
+
+   ArrItem(String name) {
+      this.name = name;
+   }
+}
+
+/**::
+ * Method with same signature as library method with return type string (Thread.getName) doesn't cause errors
+ */
+MyNamedThread t = new MyNamedThread();
+assertEquals("mine", t.getName(), "own method");
+
+class MyNamedThread extends Thread {
+   String getName() {
+      return "mine";
+   }
+}
+
+/**::
+ * Error: overriding method with incompatible return type
+ * { "expectedCompilationErrors": [{"id": "overridingMethodHasIncompatibleReturnType", "line": 12}, {"id": "overridingMethodHasIncompatibleReturnType", "line": 13}, {"id": "overridingMethodHasIncompatibleReturnType", "line": 14}, {"id": "overridingMethodHasIncompatibleReturnType", "line": 22}]}
+ */
+class RetA {
+   int value() { return 1; }
+   RetA self() { return this; }
+   String text() { return ""; }
+}
+
+class RetB extends RetA {
+   double value() { return 2; }
+   String self() { return ""; }
+   void text() { }
+}
+
+class RetC extends RetA {
+   RetC self() { return this; }
+}
+
+class RetD extends RetC {
+   RetA self() { return this; }
+}

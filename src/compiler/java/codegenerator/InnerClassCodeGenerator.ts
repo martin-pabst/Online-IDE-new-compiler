@@ -751,6 +751,10 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                         __t.pushProgram(method!.program!, __callback);
                     }
                     runtimeClass.prototype[method.getInternalNameWithGenericParameterIdentifiers("java")] = functionStub;
+                    // e.g. method with covariant return type which overrides a base class method and implements an interface method
+                    for (let bridgeName of method.getBridgeInternalJavaNames()) {
+                        runtimeClass.prototype[bridgeName] = functionStub;
+                    }
                     functionStub["isEmpty"] = methodNode.statement.isEmpty;         // See ActorClass._registerListeners for usage of this property
                 }
 

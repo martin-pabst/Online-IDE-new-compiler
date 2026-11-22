@@ -393,10 +393,55 @@ export class JavaClass extends IJavaClass {
 
         for (let m of this.methods) {
             let internalName = m.getInternalName("java");
-            let baseMethods = allBaseClassMethods?.filter(m1 => m1.getInternalName("java") == internalName);
+
+            // JLS §8.4.8.1: m overrides the methods of its base classes with the same signature, i.e. the same identifier
+            // and parameter types. The return type is not part of the signature: m may return a subtype of the overridden
+            // method's return type (covariant return type, JLS §8.4.8.3), e.g. B method() in class B overrides
+            // A method() in class A. As internal names contain the return type, they differ in this case.
+            // Library methods returning primitive type string are left out: their return values have another
+            // representation at runtime than those of methods returning String.
+            let isOwnInstanceMethod = m.classEnumInterface == this && !m.isConstructor && !m.isStatic;
+            let baseMethods: JavaMethod[] = [];
+            let baseMethodWithIncompatibleReturnType: JavaMethod | undefined;
+            for (let m1 of allBaseClassMethods) {
+                if (m1.getInternalName("java") == internalName) {
+                    baseMethods.push(m1);
+                } else if (isOwnInstanceMethod && !m1.isConstructor && !m1.isStatic && m1.visibility != TokenType.keywordPrivate
+                    && !m1.returnsPrimitiveString() && m.hasSameIdentifierAndParameterTypes(m1)) {
+                    if (m.isReturnTypeSubstitutableFor(m1)) {
+                        baseMethods.push(m1);
+                    } else {
+                        baseMethodWithIncompatibleReturnType ??= m1;
+                    }
+                }
+            }
+
+            if (baseMethodWithIncompatibleReturnType) {
+                let jc = JCM.overridingMethodHasIncompatibleReturnType(m.getSignatureWithoutReturnParameter(),
+                    baseMethodWithIncompatibleReturnType.classEnumInterface.identifier,
+                    m.returnParameterType?.toString() ?? "void", baseMethodWithIncompatibleReturnType.returnParameterType?.toString() ?? "void");
+                m.classEnumInterface.module.errors.push({
+                    message: jc.message,
+                    id: jc.id,
+                    level: "error",
+                    range: m.identifierRange
+                })
+            }
+
             if (baseMethods.length > 0) {
                 let baseMethod = baseMethods[0];
+                // name of an interface method which m implements, see checkIfInterfacesAreImplementedAndSupplementDefaultMethods
+                let nameOfImplementedInterfaceMethod = m.getInternalNameWithGenericParameterIdentifiers("java");
                 m.takeInternalJavaNameWithGenericParamterIdentifiersFrom(baseMethod);
+                if (isOwnInstanceMethod) {
+                    // Like the bridge methods of javac: m has to be callable by the internal names of all methods
+                    // it overrides or implements.
+                    if (nameOfImplementedInterfaceMethod != internalName) m.addBridgeInternalJavaName(nameOfImplementedInterfaceMethod);
+                    for (let m1 of baseMethods) {
+                        m.addBridgeInternalJavaName(m1.getInternalNameWithGenericParameterIdentifiers("java"));
+                        m1.getBridgeInternalJavaNames().forEach(name => m.addBridgeInternalJavaName(name));
+                    }
+                }
                 if (baseMethod.isFinal) {
                     let jc = JCM.methodOverridesFinalMethod(m.getSignature(), baseMethod.classEnumInterface.identifier);
                     m.classEnumInterface.module.errors.push({
@@ -411,7 +456,7 @@ export class JavaClass extends IJavaClass {
 
             let overrideAnnotation = m.annotations.find(a => a.identifier == 'Override');
             if (overrideAnnotation) {
-                if (baseMethods.length == 0) {
+                if (baseMethods.length == 0 && !baseMethodWithIncompatibleReturnType) {
                     let jc = JCM.overrideAnnotationNotNecessary(m.getSignature());
                     m.classEnumInterface.module.errors.push({
                         message: jc.message,

@@ -1161,6 +1161,13 @@ export class JCM {
         "fr": `La méthode ${identifier} surcharge une méthode marquée comme finale de la classe de base ${baseClass}.`,
     })
 
+    static overridingMethodHasIncompatibleReturnType = (signature: string, baseClass: string, returnType: string, baseReturnType: string) => le({
+        "id": "overridingMethodHasIncompatibleReturnType",
+        "de": `Die Methode ${signature} kann die Methode mit gleicher Signatur der Oberklasse ${baseClass} nicht überschreiben, da ihr Rückgabetyp ${returnType} nicht zum Rückgabetyp ${baseReturnType} der Methode in ${baseClass} passt. Der Rückgabetyp muss gleich sein oder - bei Objekttypen - ein Untertyp davon.`,
+        "en": `Method ${signature} can't override the method with identical signature of base class ${baseClass} because its return type ${returnType} is not compatible with return type ${baseReturnType} of the method in ${baseClass}. The return type has to be identical or - for reference types - a subtype of it.`,
+        "fr": `La méthode ${signature} ne peut pas redéfinir la méthode de même signature de la classe de base ${baseClass}, car son type de retour ${returnType} n'est pas compatible avec le type de retour ${baseReturnType} de la méthode dans ${baseClass}. Le type de retour doit être identique ou - pour les types référence - un sous-type de celui-ci.`,
+    })
+
     static overrideAnnotationNotNecessary = (identifier: string) => le({
         "id": "overrideAnnotationNotNecessary",
         "de": `Die Methode ${identifier} überschreibt keine Methode mit gleicher Signatur einer Oberklasse, daher ist die @Override-Annotation unnötig.`,

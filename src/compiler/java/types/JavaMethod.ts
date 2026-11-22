@@ -55,6 +55,14 @@ export class JavaMethod extends BaseSymbol {
     protected internalNameCache: { [callingConvention: string]: string } = {}
     protected internalNameCacheWithGenericParameterIdentifiers: { [callingConvention: string]: string } = {}
 
+    /**
+     * Additional internal names (java calling convention) under which the code generator stores this method in the
+     * runtime class, like the bridge methods of javac. Needed if a method overrides/implements several methods with
+     * different internal names, e.g. a method with covariant return type which overrides a method of its base class
+     * and implements a method of an interface.
+     */
+    protected bridgeInternalJavaNames: string[] = [];
+
     public hasImplementationWithNativeCallingConvention: boolean = false;
 
     classEnumInterface!: IJavaClass | JavaEnum | IJavaInterface;
@@ -162,6 +170,89 @@ export class JavaMethod extends BaseSymbol {
 
     takeInternalJavaNameWithGenericParamterIdentifiersFrom(method: JavaMethod) {
         this.internalNameCacheWithGenericParameterIdentifiers["java"] = method.getInternalNameWithGenericParameterIdentifiers("java");
+    }
+
+    /**
+     * Copies of a method (e.g. for generic variants of its class) share the bridge names of the original method.
+     */
+    getBridgeInternalJavaNames(): string[] {
+        let original: JavaMethod = this;
+        while (original.isCopyOf) original = original.isCopyOf;
+        return original.bridgeInternalJavaNames;
+    }
+
+    addBridgeInternalJavaName(name: string) {
+        if (name == this.getInternalNameWithGenericParameterIdentifiers("java")) return;
+        if (!this.bridgeInternalJavaNames.includes(name)) this.bridgeInternalJavaNames.push(name);
+    }
+
+    /**
+     * Same signature as otherMethod in the sense of JLS §8.4.2: same identifier and same parameter types.
+     * As in getInternalName, parameter types are compared by their internal names (without type arguments).
+     */
+    hasSameIdentifierAndParameterTypes(otherMethod: JavaMethod): boolean {
+        if (this.identifier != otherMethod.identifier) return false;
+        if (this.parameters.length != otherMethod.parameters.length) return false;
+        for (let i = 0; i < this.parameters.length; i++) {
+            let type = this.parameters[i].type;
+            let otherType = otherMethod.parameters[i].type;
+            if (!type || !otherType) return false;
+            if (type.getInternalName() != otherType.getInternalName()) return false;
+        }
+        return true;
+    }
+
+    /**
+     * JLS §8.4.5, §8.4.8.3: May this method override overriddenMethod regarding its return type? Primitive types and void
+     * have to be identical, reference types may be replaced by subtypes (covariant return types).
+     * Generic types are not checked exactly (erasure, type arguments): in case of doubt they are considered substitutable.
+     */
+    isReturnTypeSubstitutableFor(overriddenMethod: JavaMethod): boolean {
+        return JavaMethod.isReturnTypeSubstitutable(this.returnParameterType, overriddenMethod.returnParameterType);
+    }
+
+    /**
+     * Library methods often return primitive type string instead of class String, their values have a different
+     * representation at runtime.
+     */
+    returnsPrimitiveString(): boolean {
+        return JavaMethod.isPrimitiveString(this.returnParameterType);
+    }
+
+    private static isPrimitiveString(type: JavaType | undefined): boolean {
+        return !!type && type.isPrimitive && type.identifier == "string";
+    }
+
+    private static isReturnTypeSubstitutable(type: JavaType | undefined, overriddenType: JavaType | undefined): boolean {
+        if (!type || !overriddenType) return true;      // unresolved type: there's already an error message
+
+        if (type.getInternalName() == overriddenType.getInternalName()) return true;
+
+        // Primitive types and void have to be identical (see above). This also applies to the element type of
+        // String[], which is primitive type string: as for assignments, String[] isn't compatible with Object[].
+        if (type.isPrimitive || overriddenType.isPrimitive) return false;
+
+        // no instanceof here: runtime imports of GenericTypeParameter/JavaArrayType could cause import cycles
+        let isTypeParameterOrThisType = (t: JavaType) => t == ThisType.this() || ((<NonPrimitiveType>t).isGenericTypeParameter?.() ?? false);
+        if (isTypeParameterOrThisType(type) || isTypeParameterOrThisType(overriddenType)) return true;
+
+        let array = <JavaArrayType>type;
+        let overriddenArray = <JavaArrayType>overriddenType;
+        let isArray = array.dimension !== undefined;
+        let overriddenIsArray = overriddenArray.dimension !== undefined;
+
+        if (overriddenIsArray) {
+            if (!isArray || array.dimension < overriddenArray.dimension) return false;
+            if (array.dimension == overriddenArray.dimension) {
+                return JavaMethod.isReturnTypeSubstitutable(array.elementType, overriddenArray.elementType);
+            }
+            // e.g. MyClass[][] for Object[]
+            return overriddenArray.elementType.identifier == "Object";
+        }
+
+        if (isArray) return overriddenType.identifier == "Object";
+
+        return (<NonPrimitiveType>type).canImplicitlyCastTo(overriddenType);
     }
 
 
