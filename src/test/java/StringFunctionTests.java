@@ -205,3 +205,35 @@ class Fraction {
    Fraction(int n, int d) { this.n = n; this.d = d; }
    public String toString() { return n + "/" + d; }
 }
+
+/**::
+ * Operator += for String variables with right operand of type Object (holding no String), Character, boxed null
+ */
+String v = "a";
+Object o = new Integer(2);
+v += o;
+o = "x";
+v += o;
+o = null;
+v += o;
+assertEquals("a2xnull", v, "String += Object holding Integer, String and null");
+
+String w = "";
+Character c = 'c';
+w += c;
+Integer n = null;
+w += n;
+assertEquals("cnull", w, "String += Character and Integer holding null");
+
+Holder<Integer> h = new Holder<>();
+h.add(new Integer(7), 8);
+assertEquals("7|8", h.s, "String field += Object and generic type parameter");
+
+class Holder<T> {
+   String s = "";
+   void add(Object o, T t) {
+      s += o;
+      s += "|";
+      s += t;
+   }
+}

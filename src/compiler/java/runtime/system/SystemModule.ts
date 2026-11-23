@@ -179,6 +179,7 @@ import { MqttClientClass } from "../network/mqtt/MqttClientClass.ts";
 import { CloneableInterface } from "./javalang/CloneableInterface.ts";
 import { CloneNotSupportedExceptionClass } from "./javalang/CloneNotSupportedExceptionClass.ts";
 import { NoSuchElementExceptionClass } from "./javalang/NoSuchElementException.ts";
+import { ConcurrentModificationExceptionClass } from "./javalang/ConcurrentModificationException.ts";
 import { UnsupportedOperationExceptionClass } from "./javalang/UnsupportedOperationException.ts";
 import { ExecutableInterface } from "./javalang/ExecutableInterface.ts";
 
@@ -232,7 +233,7 @@ export class SystemModule extends JavaLibraryModule {
             ThrowableClass, ExceptionClass, RuntimeExceptionClass, IllegalArgumentExceptionClass, IllegalFormatExceptionClass, NumberFormatExceptionClass, ArithmeticExceptionClass, NullPointerExceptionClass,
             ClassCastExceptionClass, IndexOutOfBoundsExceptionClass, IllegalMonitorStateExceptionClass,
             EmptyStackExceptionClass, IllegalStateExceptionClass,
-            CloneNotSupportedExceptionClass, NoSuchElementExceptionClass, UnsupportedOperationExceptionClass,
+            CloneNotSupportedExceptionClass, NoSuchElementExceptionClass, ConcurrentModificationExceptionClass, UnsupportedOperationExceptionClass,
 
             // Collections
             IteratorInterface, IterableInterface, CollectionInterface, ListInterface, ArrayListClass, CopyOnWriteArrayListClass,

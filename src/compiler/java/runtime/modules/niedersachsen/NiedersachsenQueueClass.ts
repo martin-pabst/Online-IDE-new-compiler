@@ -1,4 +1,4 @@
-import { BaseListType } from "../../../../common/BaseType.ts";
+import { FOR_EACH_VIA_GET_ELEMENTS } from "../../../../common/BaseType.ts";
 import { CallbackFunction } from "../../../../common/interpreter/StepFunction.ts";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments.ts";
@@ -6,9 +6,8 @@ import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { SystemCollection } from "../../system/collections/SystemCollection.ts";
 import { IllegalArgumentExceptionClass } from "../../system/javalang/IllegalArgumentException.ts";
-import { IllegalStateExceptionClass } from "../../system/javalang/IllegalStateException.ts";
+import { NoSuchElementExceptionClass } from "../../system/javalang/NoSuchElementException.ts";
 import { ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
-import { RuntimeExceptionClass } from "../../system/javalang/RuntimeException.ts";
 import { NiedersachsenElementClass } from "./NiedersachsenElementClass.ts";
 import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
@@ -30,6 +29,10 @@ export class NiedersachsenQueueClass extends SystemCollection {
 
     static type: NonPrimitiveType;
 
+    // Queue is not Iterable (as in the reference implementation), so a for-each loop over it is a compile error.
+    // getElements() is only used by the debugger.
+    static [FOR_EACH_VIA_GET_ELEMENTS] = false;
+
     head: NiedersachsenElementClass | null = null;
     tail: NiedersachsenElementClass | null = null;
 
@@ -47,7 +50,7 @@ export class NiedersachsenQueueClass extends SystemCollection {
 
     _enqueue(neu: ObjectClassOrNull) {
         if(neu == null){
-            throw new IllegalArgumentExceptionClass(NiedersachsenLang.mustNotEnqueueNullExceptionMessage());
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.contentMustNotBeNullExceptionMessage());
         }
 
         let element = new NiedersachsenElementClass()._constructorFull(neu, null);
@@ -62,7 +65,7 @@ export class NiedersachsenQueueClass extends SystemCollection {
 
     _dequeue() {
         if (this._isEmpty()) {
-            throw new IllegalStateExceptionClass(NiedersachsenLang.queueClassEmptyExceptionMessage());
+            throw new NoSuchElementExceptionClass(NiedersachsenLang.queueClassEmptyExceptionMessage());
         }
 
         let tmp: ObjectClassOrNull = this.head.inhalt;
@@ -80,7 +83,7 @@ export class NiedersachsenQueueClass extends SystemCollection {
 
     _head(): ObjectClassOrNull {
         if (this._isEmpty()) {
-            throw new IllegalStateExceptionClass(NiedersachsenLang.queueClassEmptyExceptionMessageHead());
+            throw new NoSuchElementExceptionClass(NiedersachsenLang.queueClassEmptyExceptionMessageHead());
         }
 
         return this.head.inhalt;

@@ -22,18 +22,18 @@ export class NiedersachsenLang {
     });
 
     static stackClassEmptyExceptionMessageTop = () => lm({
-        'de': `Der Stapel ist leer. Es kann kein Wert ausgelesen werden.` ,
-        'en': `The stack is empty. No value can be read.`
+        'de': `Der Stapel ist leer. Es kann kein Inhalt ausgelesen werden.` ,
+        'en': `The stack is empty. No content can be read.`
     });
 
     static stackClassEmptyExceptionMessagePop = () => lm({
-        'de': `Der Stapel ist leer. Es kann kein Wert entnommen werden.` ,
-        'en': `The stack is empty. No value can be popped.`
+        'de': `Der Stapel ist leer. Es kann kein Element entnommen werden.` ,
+        'en': `The stack is empty. No element can be removed.`
     });
 
-    static mustNotPushNullExceptionMessage = () => lm({
+    static contentMustNotBeNullExceptionMessage = () => lm({
         'de': `Der übergebene Inhalt darf nicht 'null' sein.` ,
-        'en': `No null value may be pushed onto the stack.`
+        'en': `The given content must not be 'null'.`
     });
 
     static stackClassPushComment = () => lm({
@@ -42,13 +42,13 @@ export class NiedersachsenLang {
     });
 
     static stackClassPopComment = () => lm({
-        'de': `Das oberste Element des Stapels wird entnommen. Der Inhalt dieses Elements wird zurückgegeben. Löst eine IllegalStateException aus, wenn der Stapel leer ist.` ,
-        'en': `The top element of the stack is removed. The content of this element is returned. Throws an IllegalStateException if the stack is empty.`
+        'de': `Das oberste Element des Stapels wird entnommen. Der Inhalt dieses Elements wird zurückgegeben. Löst eine NoSuchElementException aus, wenn der Stapel leer ist.` ,
+        'en': `The top element of the stack is removed. The content of this element is returned. Throws a NoSuchElementException if the stack is empty.`
     });
 
     static stackClassTopComment = () => lm({
-        'de': `Der Inhalt des obersten Elements des Stapels wird zurückgegeben, das Element aber nicht entnommen. Löst eine IllegalStateException aus, wenn der Stapel leer ist.` ,
-        'en': `The content of the top element of the stack is returned, but the element is not removed. Throws an IllegalStateException if the stack is empty.`
+        'de': `Der Inhalt des obersten Elements des Stapels wird zurückgegeben, das Element aber nicht entnommen. Löst eine NoSuchElementException aus, wenn der Stapel leer ist.` ,
+        'en': `The content of the top element of the stack is returned, but the element is not removed. Throws a NoSuchElementException if the stack is empty.`
     });
 
     static queueClassComment = () => lm({
@@ -67,13 +67,13 @@ export class NiedersachsenLang {
     });
 
     static queueClassHeadComment = () => lm({
-        'de': `Der Inhalt des vordersten Elements der Schlange wird zurückgegeben, das Element aber nicht entnommen. Löst eine IllegalStateException aus, wenn die Schlange leer ist.`,
-        'en': `The content of the front element of the queue is returned, but the element is not removed. Throws an IllegalStateException if the queue is empty.`
+        'de': `Der Inhalt des vordersten Elements der Schlange wird zurückgegeben, das Element aber nicht entnommen. Löst eine NoSuchElementException aus, wenn die Schlange leer ist.`,
+        'en': `The content of the front element of the queue is returned, but the element is not removed. Throws a NoSuchElementException if the queue is empty.`
     });
 
     static queueClassEmptyExceptionMessageHead = () => lm({
-        'de': `Die Schlange ist leer. Es kann kein Wert ausgelesen werden.` ,
-        'en': `The queue is empty. No value can be read.`
+        'de': `Die Schlange ist leer. Es kann kein Inhalt ausgelesen werden.` ,
+        'en': `The queue is empty. No content can be read.`
     });
 
     static queueClassEnqueueComment = () => lm({
@@ -81,24 +81,19 @@ export class NiedersachsenLang {
         'en': `A new element with the given content is appended to the end of the queue. Throws an IllegalArgumentException if the given content is 'null'.`
     });
 
-    static mustNotEnqueueNullExceptionMessage = () => lm({
-        'de': `Der übergebene Inhalt darf nicht 'null' sein.` ,
-        'en': `No null value may be enqueued into the queue.`
-    });
-
     static queueClassDequeueComment = () => lm({
-        'de': `Das vorderste Element der Schlange wird entnommen. Der Inhalt dieses Elements wird zurückgegeben. Löst eine IllegalStateException aus, wenn die Schlange leer ist.`,
-        'en': `The front element of the queue is removed. The content of this element is returned. Throws an IllegalStateException if the queue is empty.`
+        'de': `Das vorderste Element der Schlange wird entnommen. Der Inhalt dieses Elements wird zurückgegeben. Löst eine NoSuchElementException aus, wenn die Schlange leer ist.`,
+        'en': `The front element of the queue is removed. The content of this element is returned. Throws a NoSuchElementException if the queue is empty.`
     });
 
     static queueClassEmptyExceptionMessage = () => lm({
-        'de': `Die Schlange ist leer. Es kann kein Wert entnommen werden.` ,
-        'en': `The queue is empty. No value can be dequeued.`
+        'de': `Die Schlange ist leer. Es kann kein Element entnommen werden.` ,
+        'en': `The queue is empty. No element can be removed.`
     });
 
     static dynArrayClassComment = () => lm({
-        'de': `Klasse DynArray zur Umsetzung des ADT Dynamische Reihung entsprechend der Vorgaben des KC Informatik für die gymnasiale Oberstufe in Niedersachsen und den ergänzenden Hinweisen (Stand: Juni 2025). Der Typparameter \`ContentType\` legt den Inhaltstyp der Elemente der dynamischen Reihung fest. Die Nummerierung der Elemente beginnt mit dem Index 0. Dynamische Reihungen sind iterierbar, so dass die Verwendung einer for-each-Schleife zum elementweisen Auslesen einer dynamischen Reihung möglich ist.`,
-        'en': `Class DynArray implementing the ADT dynamic array according to the requirements of the KC Informatik for the upper secondary level (gymnasiale Oberstufe) in Lower Saxony and the supplementary notes (as of June 2025). The type parameter \`ContentType\` defines the content type of the dynamic array's elements. The numbering of the elements starts with index 0. Dynamic arrays are iterable, so a for-each loop can be used to read a dynamic array element by element.`
+        'de': `Klasse DynArray zur Umsetzung des ADT Dynamische Reihung entsprechend der Vorgaben des KC Informatik für die gymnasiale Oberstufe in Niedersachsen und den ergänzenden Hinweisen (Stand: Juni 2025). Der Typparameter \`ContentType\` legt den Inhaltstyp der Elemente der dynamischen Reihung fest. Die Nummerierung der Elemente beginnt mit dem Index 0. Dynamische Reihungen sind iterierbar, so dass die Verwendung einer for-each-Schleife zum elementweisen Auslesen einer dynamischen Reihung möglich ist. Während des Durchlaufens dürfen keine Elemente angehängt, eingefügt oder gelöscht werden (sonst ConcurrentModificationException); das Ersetzen mit setItem ist erlaubt.`,
+        'en': `Class DynArray implementing the ADT dynamic array according to the requirements of the KC Informatik for the upper secondary level (gymnasiale Oberstufe) in Lower Saxony and the supplementary notes (as of June 2025). The type parameter \`ContentType\` defines the content type of the dynamic array's elements. The numbering of the elements starts with index 0. Dynamic arrays are iterable, so a for-each loop can be used to read a dynamic array element by element. While iterating, no elements may be appended, inserted or deleted (otherwise a ConcurrentModificationException is thrown); replacing with setItem is allowed.`
     });
 
     static dynArrayConstructorComment = () => lm({
@@ -121,19 +116,9 @@ export class NiedersachsenLang {
         'en': `A new element with the given content is appended to the end of the dynamic array. Throws an IllegalArgumentException if the given content is 'null'.`
     });
 
-    static mustNotAppendNullExceptionMessage = () => lm({
-        'de': `Das Element darf nicht 'null' sein.` ,
-        'en': `No null value may be appended to the dynamic array.`
-    });
-
     static dynArrayInsertAtComment = () => lm({
         'de': `Ein neues Element mit dem übergebenen Inhalt wird an der Position index in die dynamische Reihung eingefügt. Das Element, das sich vorher an dieser Position befunden hat, und alle nachfolgenden werden nach hinten verschoben. Entspricht der Wert von index der Länge der dynamischen Reihung, so wird ein neues Element am Ende der dynamischen Reihung angefügt. Löst eine IndexOutOfBoundsException aus, wenn index kleiner als 0 oder größer als getLength() ist. Löst eine IllegalArgumentException aus, wenn der übergebene Inhalt 'null' ist.` ,
         'en': `A new element with the given content is inserted into the dynamic array at position index. The element previously at this position and all following elements are shifted back by one position. If index equals the length of the dynamic array, a new element is appended to the end of the dynamic array. Throws an IndexOutOfBoundsException if index is less than 0 or greater than getLength(). Throws an IllegalArgumentException if the given content is 'null'.`
-    });
-
-    static mustNotInsertNullExceptionMessage = () => lm({
-        'de': `Das Element darf nicht 'null' sein.` ,
-        'en': `No null value may be inserted into the dynamic array.`
     });
 
     static dynArraySetItemComment = () => lm({
@@ -151,8 +136,18 @@ export class NiedersachsenLang {
     });
 
     static dynArrayIteratorComment = () => lm({
-        'de': `Gibt einen Iterator zurück, der die Elemente der dynamischen Reihung der Reihe nach liefert. Diese Methode wird von der for-each-Schleife genutzt.` ,
-        'en': `Returns an iterator that delivers the elements of the dynamic array one after another. This method is used by the for-each loop.`
+        'de': `Gibt einen Iterator zurück, der die Elemente der dynamischen Reihung der Reihe nach liefert. Diese Methode wird von der for-each-Schleife genutzt. Während des Durchlaufens sind strukturelle Änderungen verboten, also alle Änderungen der Anzahl der Elemente durch append, insertAt oder delete. Nach einer solchen Änderung löst der Iterator zuverlässig spätestens bei der nächsten Prüfung der Schleifenbedingung eine ConcurrentModificationException aus, auch wenn die Änderung im letzten Durchlauf erfolgt. Das Ersetzen eines Inhalts mit setItem ist keine strukturelle Änderung und daher erlaubt.` ,
+        'en': `Returns an iterator that delivers the elements of the dynamic array one after another. This method is used by the for-each loop. Structural changes are forbidden while iterating, i.e. all changes of the number of elements by append, insertAt or delete. After such a change the iterator reliably throws a ConcurrentModificationException at the latest at the next check of the loop condition, even if the change happens in the last pass. Replacing a content with setItem is not a structural change and therefore allowed.`
+    });
+
+    static dynArrayConcurrentModificationExceptionMessage = () => lm({
+        'de': `Die dynamische Reihung wurde während des Durchlaufens durch Anhängen, Einfügen oder Löschen verändert.` ,
+        'en': `The dynamic array was modified by appending, inserting or deleting while it was being iterated.`
+    });
+
+    static dynArrayIteratorNoMoreElementsExceptionMessage = () => lm({
+        'de': `Es ist kein weiteres Element vorhanden.` ,
+        'en': `There is no further element.`
     });
 
     static binTreeClassComment = () => lm({
@@ -172,12 +167,12 @@ export class NiedersachsenLang {
 
     static noContentForBinTreeExceptionMessage = () => lm({
         'de': `Der Baum kann nicht erzeugt werden. Der übergebene Inhalt darf nicht 'null' sein.` ,
-        'en': `The content for the binary tree must not be 'null'.`
+        'en': `The tree cannot be created. The given content must not be 'null'.`
     });
 
     static binTreeSetItemNullExceptionMessage = () => lm({
-        'de': `Der Wert kann nicht gesetzt werden. Der übergebene Inhalt darf nicht 'null' sein.` ,
-        'en': `The content for the binary tree must not be 'null'.`
+        'de': `Der Inhalt kann nicht gesetzt werden. Der übergebene Inhalt darf nicht 'null' sein.` ,
+        'en': `The content cannot be set. The given content must not be 'null'.`
     });
 
     static binTreeHasItemComment = () => lm({
@@ -186,8 +181,8 @@ export class NiedersachsenLang {
     });
 
     static binTreeGetItemComment = () => lm({
-        'de': `Die Operation gibt den Inhaltswert der Wurzel des Baumes zurück. Löst eine IllegalStateException aus, wenn der Baum leer ist.`,
-        'en': `The operation returns the content value of the tree's root. Throws an IllegalStateException if the tree is empty.`
+        'de': `Die Operation gibt den Inhaltswert der Wurzel des Baumes zurück. Löst eine NoSuchElementException aus, wenn der Baum leer ist.`,
+        'en': `The operation returns the content value of the tree's root. Throws a NoSuchElementException if the tree is empty.`
     });
 
     static binTreeSetItemComment = () => lm({
@@ -201,13 +196,13 @@ export class NiedersachsenLang {
     });
 
     static binTreeIsLeafComment = () => lm({
-        'de': `Wenn der Baum jeweils einen leeren Baum als linken und rechten Teilbaum besitzt, also ein Blatt ist, wird der Wert wahr zurückgegeben, sonst der Wert falsch. Löst eine IllegalStateException aus, wenn der Baum leer ist.`,
-        'en': `If the tree has an empty tree as its left and as its right subtree, i.e. it is a leaf, the value true is returned, otherwise the value false. Throws an IllegalStateException if the tree is empty.`
+        'de': `Wenn der Baum jeweils einen leeren Baum als linken und rechten Teilbaum besitzt, also ein Blatt ist, wird der Wert wahr zurückgegeben, sonst der Wert falsch. Löst eine NoSuchElementException aus, wenn der Baum leer ist.`,
+        'en': `If the tree has an empty tree as its left and as its right subtree, i.e. it is a leaf, the value true is returned, otherwise the value false. Throws a NoSuchElementException if the tree is empty.`
     });
 
     static binTreeEmptyIsLeafExceptionMessage = () => lm({
-        'de': `Der Baum ist leer. Überprüfung auf 'isLeaf' nicht möglich.` ,
-        'en': `The tree is empty. Can't check 'isLeaf' on an empty tree.`
+        'de': `Der Baum ist leer. Es kann nicht geprüft werden, ob er ein Blatt ist.` ,
+        'en': `The tree is empty. It cannot be checked whether it is a leaf.`
     });
 
     static binTreeHasLeftComment = () => lm({
@@ -222,22 +217,22 @@ export class NiedersachsenLang {
 
     static getLeftOnEmptyTreeExceptionMessage = () => lm({
         'de': `Der Baum ist leer. Es ist kein linker Teilbaum vorhanden.` ,
-        'en': `The tree is empty. No left subtree can be returned.`
+        'en': `The tree is empty. There is no left subtree.`
     });
 
     static getRightOnEmptyTreeExceptionMessage = () => lm({
         'de': `Der Baum ist leer. Es ist kein rechter Teilbaum vorhanden.` ,
-        'en': `The tree is empty. No right subtree can be returned.`
+        'en': `The tree is empty. There is no right subtree.`
     });
 
     static binTreeGetLeftComment = () => lm({
-        'de': `Die Operation gibt den linken Teilbaum zurück. Löst eine IllegalStateException aus, wenn der Baum leer ist.`,
-        'en': `The operation returns the left subtree. Throws an IllegalStateException if the tree is empty.`
+        'de': `Die Operation gibt den linken Teilbaum zurück. Löst eine NoSuchElementException aus, wenn der Baum leer ist.`,
+        'en': `The operation returns the left subtree. Throws a NoSuchElementException if the tree is empty.`
     });
 
     static binTreeGetRightComment = () => lm({
-        'de': `Die Operation gibt den rechten Teilbaum zurück. Löst eine IllegalStateException aus, wenn der Baum leer ist.`,
-        'en': `The operation returns the right subtree. Throws an IllegalStateException if the tree is empty.`
+        'de': `Die Operation gibt den rechten Teilbaum zurück. Löst eine NoSuchElementException aus, wenn der Baum leer ist.`,
+        'en': `The operation returns the right subtree. Throws a NoSuchElementException if the tree is empty.`
     });
 
     static binTreeSetLeftComment = () => lm({
@@ -256,8 +251,8 @@ export class NiedersachsenLang {
     });
 
     static setEmptyTreeAsChildExceptionMessage = () => lm({
-        'de': `Der Wert kann nicht gesetzt werden. Der übergebene Baum darf nicht 'null' sein.` ,
-        'en': `The value cannot be set. The passed tree must not be 'null'.`
+        'de': `Der Teilbaum kann nicht gesetzt werden. Der übergebene Baum darf nicht 'null' sein.` ,
+        'en': `The subtree cannot be set. The given tree must not be 'null'.`
     });
 
     static binTreeSetRightComment = () => lm({
@@ -276,8 +271,8 @@ export class NiedersachsenLang {
     });
 
     static noContentInBinTreeExceptionMessage = () => lm({
-        'de': `Es gibt keinen Wurzelinhalt im Binärbaum.`,
-        'en': `There is no root content in the binary tree.`
+        'de': `Der Baum ist leer. Es kann kein Inhalt ausgelesen werden.`,
+        'en': `The tree is empty. No content can be read.`
     });
 
     static noLeftSubtreeToDeleteExceptionMessage = () => lm({

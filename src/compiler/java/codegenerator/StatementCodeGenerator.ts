@@ -1,4 +1,5 @@
 import { SettingsStore } from "../../../client/settings/SettingsStore.ts";
+import { FOR_EACH_VIA_GET_ELEMENTS } from "../../common/BaseType.ts";
 import { ErrorLevel } from "../../common/Error.ts";
 import { CatchBlockInfo } from "../../common/interpreter/ExceptionInfo.ts";
 import { Helpers, StepParams } from "../../common/interpreter/StepFunction";
@@ -307,14 +308,19 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             forLoopSnippet.addParts(assignCollectionSnippet);
 
             collectionElementType = collectionType.getElementType();
+            let loopVariableNeedsConversion = false;
             if (node.elementType.kind != TokenType.varType) {
                 if (!this.typesAreIdentical(elementType!, collectionElementType)) {
-                    if (!this.canCastTo(collectionElementType, elementType, "implicit")) {
+                    if (this.isForEachLoopVariableTypeCompatible(elementType!, collectionElementType)) {
+                        loopVariableNeedsConversion = true;
+                    } else if (!this.canCastTo(collectionElementType, elementType, "implicit")) {
+                        // (if canCastTo is true nevertheless, e.g. for(int i : Object[]), the loop variable gets the
+                        // array's element type as before)
                         this.pushError(JCM.wrongArrayElementType(elementType!.toString(), node.elementIdentifier, collectionElementType.toString()), "error", node.elementIdentifierPosition);
                     }
                 }
             }
-            elementType = collectionElementType;
+            if (!loopVariableNeedsConversion) elementType = collectionElementType;
             let elementVariable = new JavaLocalVariable(node.elementIdentifier, node.elementIdentifierPosition,
                 elementType, forLoopSymbolTable);
             forLoopSymbolTable.addSymbol(elementVariable);
@@ -330,6 +336,10 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             forLoopSnippet.addParts(new StringCodeSnippet(`}\n`));
 
             forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(elementVariable.stackframePosition!)} = ${Helpers.elementRelativeToStackbase(stackIndexForCollection)}[${Helpers.elementRelativeToStackbase(stackIndexForLoopIndex)}];\n`));
+            if (loopVariableNeedsConversion) {
+                let conversionSnippet = this.compileForEachLoopVariableConversion(elementVariable, collectionElementType, node.elementIdentifierPosition);
+                if (conversionSnippet) forLoopSnippet.addParts(conversionSnippet);
+            }
 
             let statementSnippet = this.compileStatementOrTerm(node.statementToRepeat) || new StringCodeSnippet('');
 
@@ -339,7 +349,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             forLoopSnippet.addNextStepMark();
             forLoopSnippet.addParts(breakLabel);
 
-        } else if (collectionType instanceof IJavaClass && collectionType.runtimeClass!.prototype.getElements) {
+        } else if (collectionType instanceof IJavaClass && collectionType.runtimeClass!.prototype.getElements
+            && collectionType.runtimeClass![FOR_EACH_VIA_GET_ELEMENTS] !== false) {
 
             if (elementType == this.stringType) elementType = this.stringNonPrimitiveType;
 
@@ -362,12 +373,17 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 collectionElementType = this.libraryTypestore.getType("Shape")!;
             }
             collectionElementType = this.replaceWildcardByUpperBound(collectionElementType);
+            let loopVariableNeedsConversion = false;
             if (node.elementType.kind != TokenType.varType) {
                 if (!this.typesAreIdentical(elementType!, collectionElementType)) {
-                    this.pushError(JCM.wrongCollectionElementType(elementType!.toString(), node.elementIdentifier, collectionElementType.toString()), "error", node.elementIdentifierPosition);
+                    if (this.isForEachLoopVariableTypeCompatible(elementType!, collectionElementType)) {
+                        loopVariableNeedsConversion = true;
+                    } else {
+                        this.pushError(JCM.wrongCollectionElementType(elementType!.toString(), node.elementIdentifier, collectionElementType.toString()), "error", node.elementIdentifierPosition);
+                    }
                 }
             }
-            elementType = collectionElementType;
+            if (!loopVariableNeedsConversion) elementType = collectionElementType;
             let elementVariable = new JavaLocalVariable(node.elementIdentifier, node.elementIdentifierPosition,
                 elementType, forLoopSymbolTable);
             forLoopSymbolTable.addSymbol(elementVariable);
@@ -383,6 +399,10 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             forLoopSnippet.addParts(new StringCodeSnippet(`}\n`));
 
             forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(elementVariable.stackframePosition!)} = ${Helpers.elementRelativeToStackbase(stackIndexForCollection)}[${Helpers.elementRelativeToStackbase(stackIndexForLoopIndex)}];\n`));
+            if (loopVariableNeedsConversion) {
+                let conversionSnippet = this.compileForEachLoopVariableConversion(elementVariable, collectionElementType, node.elementIdentifierPosition);
+                if (conversionSnippet) forLoopSnippet.addParts(conversionSnippet);
+            }
 
             let statementSnippet = this.compileStatementOrTerm(node.statementToRepeat) || new StringCodeSnippet('');
 
@@ -416,14 +436,19 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             }
             collectionElementType = this.replaceWildcardByUpperBound(collectionElementType);
 
+            let loopVariableNeedsConversion = false;
             if (node.elementType.kind != TokenType.varType) {
                 if (elementType == this.stringType && collectionElementType == this.stringNonPrimitiveType) {
                     elementType = collectionElementType;
                 } else if (!this.typesAreIdentical(elementType!, collectionElementType)) {
-                    this.pushError(JCM.elementTypeDoesntFitToIterable(elementType!.toString(), node.elementIdentifier, collectionElementType.toString()), "error", node.elementIdentifierPosition);
+                    if (this.isForEachLoopVariableTypeCompatible(elementType!, collectionElementType)) {
+                        loopVariableNeedsConversion = true;
+                    } else {
+                        this.pushError(JCM.elementTypeDoesntFitToIterable(elementType!.toString(), node.elementIdentifier, collectionElementType.toString()), "error", node.elementIdentifierPosition);
+                    }
                 }
             }
-            elementType = collectionElementType;
+            if (!loopVariableNeedsConversion) elementType = collectionElementType;
             let elementVariable = new JavaLocalVariable(node.elementIdentifier, node.elementIdentifierPosition,
                 elementType, forLoopSymbolTable);
             forLoopSymbolTable.addSymbol(elementVariable);
@@ -441,6 +466,10 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(stackIndexForCollection)}._mj$next$E$(${StepParams.thread}, undefined);\n`, node.collection.range));
             forLoopSnippet.addNextStepMark();
             forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(elementVariable.stackframePosition!)} = ${Helpers.threadStack}.pop();\n`, node.collection.range));
+            if (loopVariableNeedsConversion) {
+                let conversionSnippet = this.compileForEachLoopVariableConversion(elementVariable, collectionElementType, node.elementIdentifierPosition);
+                if (conversionSnippet) forLoopSnippet.addParts(conversionSnippet);
+            }
 
             let statementSnippet = this.compileStatementOrTerm(node.statementToRepeat) || new StringCodeSnippet('');
 
@@ -479,6 +508,33 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
     typesAreIdentical(type1: JavaType, type2: JavaType) {
         if (!type1 || !type2) return false;
         return type1.toString() == type2.toString();
+    }
+
+    /**
+     * Enhanced for loop whose declared loop variable type differs from the element type of the array/collection:
+     * as in Java, each element is assigned to the loop variable with an assignment conversion, e.g.
+     * for(int i : List<Integer>) (unboxing), for(long l : List<Integer>) (unboxing and widening),
+     * for(double d : int[]) (widening), for(Integer i : int[]) (boxing), for(Object o : List<String>).
+     */
+    isForEachLoopVariableTypeCompatible(loopVariableType: JavaType, elementType: JavaType): boolean {
+        if (!loopVariableType || !elementType) return false;
+        if (loopVariableType.isPrimitive && !elementType.isPrimitive) {
+            // only unboxing (canCastTo would also allow Object -> primitive type, which java doesn't)
+            let unboxedType = this.getUnboxedType(elementType);
+            if (!unboxedType || unboxedType == this.stringType) return false;
+        }
+        return this.canCastTo(elementType, loopVariableType, "implicit");
+    }
+
+    /**
+     * Converts the value of the loop variable (which holds the element of type elementType) to the loop variable's type.
+     * Returns undefined if no conversion code is needed.
+     */
+    compileForEachLoopVariableConversion(loopVariable: JavaLocalVariable, elementType: JavaType, range: IRange): CodeSnippet | undefined {
+        if (!loopVariable.type.isPrimitive && !elementType.isPrimitive) return undefined;  // widening reference conversion
+        let loopVariableAccess = Helpers.elementRelativeToStackbase(loopVariable.stackframePosition!);
+        let converted = this.compileCast(new StringCodeSnippet(loopVariableAccess, range, elementType), loopVariable.type, "implicit");
+        return SnippetFramer.frame(converted, `${loopVariableAccess} = §1;\n`);
     }
 
     compileForStatement(node: ASTForLoopNode): CodeSnippet | undefined {

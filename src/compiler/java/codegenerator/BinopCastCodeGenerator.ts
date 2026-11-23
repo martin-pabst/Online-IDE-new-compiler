@@ -452,7 +452,12 @@ export abstract class BinopCastCodeGenerator {
 
         if (!leftSnippet.type!.isPrimitive) {
             if (leftSnippet.type == this.stringNonPrimitiveType && operator == TokenType.plusAssignment) {
-                if (this.canCastTo(rightSnippet.type, this.stringType, "implicit")) {
+                // Objects other than String are appended by calling their toString() method (see last else-branch).
+                // canCastTo(Object/Character/..., string, "implicit") is true, but such a cast would fail at
+                // compile time or (if the object is no String) at runtime.
+                let rightType = rightSnippet.type;
+                let rightIsPrimitiveStringOrNull = rightType?.isPrimitive || rightType == this.stringNonPrimitiveType || rightType == this.nullType;
+                if (rightIsPrimitiveStringOrNull && this.canCastTo(rightType, this.stringType, "implicit")) {
                     rightSnippet = this.compileCast(rightSnippet, this.stringType, "implicit");
                 } else if (rightSnippet.type == this.voidType) {
                     this.pushError(JCM.cantCastRightSideToString(), "error", rightSnippet.range!);
@@ -463,7 +468,7 @@ export abstract class BinopCastCodeGenerator {
                 } else if (rightSnippet.type instanceof JavaArrayType) {
                     rightSnippet = this.wrapWithArrayToString(rightSnippet, "string");
                 } else {
-                    // String s; s += object;  (calls object.toString())
+                    // String s; s += object;  (calls object.toString(); appends "null" if object is null)
                     rightSnippet = this.wrapWithToStringCall(rightSnippet, "string");
                 }
                 return new TwoParameterTemplate(`§1 = ${Helpers.checkNPE('§1', leftSnippet.range!)}.add(§2)`).applyToSnippet(leftSnippet.type, wholeRange, leftSnippet, rightSnippet);

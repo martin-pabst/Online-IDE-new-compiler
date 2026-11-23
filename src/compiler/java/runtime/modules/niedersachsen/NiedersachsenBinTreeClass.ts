@@ -5,6 +5,7 @@ import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { IllegalArgumentExceptionClass } from "../../system/javalang/IllegalArgumentException.ts";
 import { IllegalStateExceptionClass } from "../../system/javalang/IllegalStateException.ts";
+import { NoSuchElementExceptionClass } from "../../system/javalang/NoSuchElementException.ts";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { RuntimeExceptionClass } from "../../system/javalang/RuntimeException.ts";
 import { NiedersachsenLang } from "./NiedersachsenLang.ts";
@@ -105,7 +106,7 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
 
     _getItem() {
         if(this._isEmpty()){
-            throw new IllegalStateExceptionClass(NiedersachsenLang.noContentInBinTreeExceptionMessage());
+            throw new NoSuchElementExceptionClass(NiedersachsenLang.noContentInBinTreeExceptionMessage());
         }
         return this.inhalt;
     }
@@ -129,7 +130,7 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
     _isLeaf() {
 
         if(this._isEmpty()){
-            throw new IllegalStateExceptionClass(NiedersachsenLang.binTreeEmptyIsLeafExceptionMessage());
+            throw new NoSuchElementExceptionClass(NiedersachsenLang.binTreeEmptyIsLeafExceptionMessage());
         }
 
         return this.left?._isEmpty() && this.right?._isEmpty();
@@ -145,14 +146,14 @@ export class NiedersachsenBinTreeClass extends ObjectClass {
 
     _getLeft() {
         if(this._isEmpty()){
-            throw new IllegalStateExceptionClass(NiedersachsenLang.getLeftOnEmptyTreeExceptionMessage());
+            throw new NoSuchElementExceptionClass(NiedersachsenLang.getLeftOnEmptyTreeExceptionMessage());
         }
         return this.left;
     }
 
     _getRight() {
         if(this._isEmpty()){
-            throw new IllegalStateExceptionClass(NiedersachsenLang.getRightOnEmptyTreeExceptionMessage());
+            throw new NoSuchElementExceptionClass(NiedersachsenLang.getRightOnEmptyTreeExceptionMessage());
         }
         return this.right;
     }    

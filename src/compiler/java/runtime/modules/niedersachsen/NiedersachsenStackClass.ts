@@ -1,13 +1,12 @@
-import { BaseListType } from "../../../../common/BaseType.ts";
+import { BaseListType, FOR_EACH_VIA_GET_ELEMENTS } from "../../../../common/BaseType.ts";
 import { CallbackFunction } from "../../../../common/interpreter/StepFunction.ts";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
 import { JRC } from "../../../language/JavaRuntimeLibraryComments.ts";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType.ts";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { IllegalArgumentExceptionClass } from "../../system/javalang/IllegalArgumentException.ts";
-import { IllegalStateExceptionClass } from "../../system/javalang/IllegalStateException.ts";
+import { NoSuchElementExceptionClass } from "../../system/javalang/NoSuchElementException.ts";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
-import { RuntimeExceptionClass } from "../../system/javalang/RuntimeException.ts";
 import { NiedersachsenElementClass } from "./NiedersachsenElementClass.ts";
 import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
@@ -29,6 +28,10 @@ export class NiedersachsenStackClass extends ObjectClass implements BaseListType
 
     static type: NonPrimitiveType;
 
+    // Stack is not Iterable (as in the reference implementation), so a for-each loop over it is a compile error.
+    // getElements() is only used by the debugger.
+    static [FOR_EACH_VIA_GET_ELEMENTS] = false;
+
     top: NiedersachsenElementClass | null = null;
 
 
@@ -46,7 +49,7 @@ export class NiedersachsenStackClass extends ObjectClass implements BaseListType
 
     _push(neu: ObjectClassOrNull) {
         if(neu == null){
-            throw new IllegalArgumentExceptionClass(NiedersachsenLang.mustNotPushNullExceptionMessage());
+            throw new IllegalArgumentExceptionClass(NiedersachsenLang.contentMustNotBeNullExceptionMessage());
         }
         let element = new NiedersachsenElementClass()._constructorFull(neu, this.top);
         this.top = element;
@@ -54,7 +57,7 @@ export class NiedersachsenStackClass extends ObjectClass implements BaseListType
 
     _pop() {
         if (this._isEmpty()) {
-            throw new IllegalStateExceptionClass("Stack is empty. Cannot pop element.");
+            throw new NoSuchElementExceptionClass(NiedersachsenLang.stackClassEmptyExceptionMessagePop());
         }
         let tmp: ObjectClassOrNull = this.top.inhalt;
         this.top = this.top.next;
@@ -64,7 +67,7 @@ export class NiedersachsenStackClass extends ObjectClass implements BaseListType
 
     _top(): ObjectClassOrNull {
         if (this._isEmpty()) {
-            throw new IllegalStateExceptionClass(NiedersachsenLang.stackClassEmptyExceptionMessageTop());
+            throw new NoSuchElementExceptionClass(NiedersachsenLang.stackClassEmptyExceptionMessageTop());
         }
 
         return this.top.inhalt;

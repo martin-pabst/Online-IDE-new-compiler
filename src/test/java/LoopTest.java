@@ -375,3 +375,125 @@ class A {
       }
    }
 }
+
+/**::
+ * Enhanced for loop: primitive loop variable over collection/Iterable of boxed type (unboxing, widening)
+ */
+ArrayList<Integer> l = new ArrayList<>();
+l.add(1);
+l.add(2);
+l.add(3);
+int sum = 0;
+for (int z : l) {
+   sum += z;
+}
+assertEquals(6, sum, "for (int z : ArrayList<Integer>)");
+
+ArrayList<Integer> l2 = new ArrayList<>();
+l2.add(2147483647);
+l2.add(3);
+long big = 0;
+for (long z : l2) {
+   big += z * 2;
+}
+assertEquals(4294967300L, big, "for (long z : ArrayList<Integer>): z has to be of type long");
+
+ArrayList<Character> chars = new ArrayList<>();
+chars.add('a');
+int codes = 0;
+for (int ch : chars) {
+   codes += ch;
+}
+assertEquals(97, codes, "for (int ch : ArrayList<Character>)");
+
+int sum2 = 0;
+for (int z : new Numbers()) {
+   sum2 += z;
+}
+assertEquals(3, sum2, "for (int z : Iterable<Integer>)");
+
+class Numbers implements Iterable<Integer> {
+   public Iterator<Integer> iterator() {
+      ArrayList<Integer> list = new ArrayList<>();
+      list.add(1);
+      list.add(2);
+      return list.iterator();
+   }
+}
+
+/**::
+ * Enhanced for loop: unboxing a null element throws NullPointerException
+ * { "expectedOutput": "1NPE" }
+ */
+ArrayList<Integer> l = new ArrayList<>();
+l.add(1);
+l.add(null);
+try {
+   for (int z : l) {
+      print(z);
+   }
+} catch (NullPointerException e) {
+   print("NPE");
+}
+
+/**::
+ * Enhanced for loop: loop variable type differs from array/collection element type (widening, boxing)
+ */
+int[] a = {3};
+double half = 0;
+for (double x : a) {
+   half = x / 2;
+}
+assertEquals(1.5, half, "for (double x : int[]) must not use integer division");
+
+char[] cs = {'a', 'b'};
+int codes = 0;
+for (int i : cs) {
+   codes += i;
+}
+assertEquals(195, codes, "for (int i : char[])");
+
+int[] b = {1, 2};
+String r = "";
+for (Integer i : b) {
+   r += i.toString();
+}
+assertEquals("12", r, "for (Integer i : int[])");
+
+ArrayList<String> l = new ArrayList<>();
+l.add("a");
+l.add("b");
+String r2 = "";
+for (Object o : l) {
+   r2 += o.toString();
+}
+assertEquals("ab", r2, "for (Object o : ArrayList<String>)");
+
+/**::
+ * Enhanced for loop: String loop variable over collection of Object is an error
+ * { "expectedCompilationError": {"id": "wrongCollectionElementType", "line": 7} }
+ */
+ArrayList<Object> l = new ArrayList<>();
+l.add("a");
+for (String s : l) {
+   print(s);
+}
+
+/**::
+ * Enhanced for loop: int loop variable over collection of Object is an error
+ * { "expectedCompilationError": {"id": "wrongCollectionElementType", "line": 7} }
+ */
+ArrayList<Object> l = new ArrayList<>();
+l.add(1);
+for (int i : l) {
+   print(i);
+}
+
+/**::
+ * Enhanced for loop: char loop variable over int array is an error (no narrowing)
+ * { "expectedCompilationError": {"id": "wrongArrayElementType", "line": 6} }
+ */
+int[] a = {1};
+for (char c : a) {
+   print(c);
+}
