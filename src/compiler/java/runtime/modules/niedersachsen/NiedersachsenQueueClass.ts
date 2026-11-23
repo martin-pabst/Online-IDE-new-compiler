@@ -11,7 +11,9 @@ import { ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClas
 import { NiedersachsenElementClass } from "./NiedersachsenElementClass.ts";
 import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
-
+/**
+ * @see https://github.com/karlgerd/mk-nds-adt
+ */
 export class NiedersachsenQueueClass extends SystemCollection {
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", package: 'nds', signature: "class Queue<ContentType>", comment: NiedersachsenLang.queueClassComment },

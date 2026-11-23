@@ -10,7 +10,9 @@ import { ObjectClass, ObjectClassOrNull, StringClass } from "../../system/javala
 import { NiedersachsenElementClass } from "./NiedersachsenElementClass.ts";
 import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
-
+/**
+ * @see https://github.com/karlgerd/mk-nds-adt
+ */
 export class NiedersachsenStackClass extends ObjectClass implements BaseListType {
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", package: 'nds', signature: "class Stack<ContentType>", comment: NiedersachsenLang.StackClassComment },

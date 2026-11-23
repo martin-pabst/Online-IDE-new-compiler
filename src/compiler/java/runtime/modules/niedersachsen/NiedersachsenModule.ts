@@ -7,6 +7,9 @@ import { NiedersachsenStackClass } from "./NiedersachsenStackClass";
 import { NiedersachsenQueueClass } from "./NiedersachsenQueueClass";
 
 
+/**
+ * @see https://github.com/karlgerd/mk-nds-adt
+ */
 
 export class NiedersachsenModule extends JavaLibraryModule {
 

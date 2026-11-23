@@ -6,7 +6,9 @@ import { NonPrimitiveType } from "../../../types/NonPrimitiveType.ts";
 import { ObjectClass, ObjectClassOrNull, StringClass } from "../../system/javalang/ObjectClassStringClass.ts";
 import { NiedersachsenLang } from "./NiedersachsenLang.ts";
 
-
+/**
+ * @see https://github.com/karlgerd/mk-nds-adt
+ */
 export class NiedersachsenElementClass extends ObjectClass {
     static __javaDeclarations: LibraryDeclarations = [
         { type: "declaration", package: 'nds', signature: "class Element", comment: NiedersachsenLang.ElementClassComment },
