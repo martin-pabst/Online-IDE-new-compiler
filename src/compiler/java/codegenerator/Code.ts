@@ -24,7 +24,11 @@ export type JumpOp = { readonly k: "jump", readonly to: Label, readonly range?: 
 /** Source position of the code around it (range of the step for the debugger). */
 export type RangeOp = { readonly k: "range", readonly range: IRange };
 
-/** Called with the step containing this position, e.g. to attach catch block information to it. */
+/**
+ * Called by link() during its second pass with the Step currently being built at this position.
+ * Labels already have their step indices then, but the Step has not yet been finished or run; this is
+ * used to attach compile-time metadata such as catch-block information.
+ */
 export type HookOp = { readonly k: "hook", readonly fn: (step: Step) => void };
 
 /** Declares a javascript variable which is local to the step containing this position. */
