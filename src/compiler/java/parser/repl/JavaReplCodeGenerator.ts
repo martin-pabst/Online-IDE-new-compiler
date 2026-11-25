@@ -1,10 +1,9 @@
 import { Program } from "../../../common/interpreter/Program.ts";
 import { Helpers } from "../../../common/interpreter/StepFunction.ts";
-import { CodeSnippet, StringCodeSnippet } from "../../codegenerator/CodeSnippet.ts";
-import { CodeSnippetContainer, NextStepMark } from "../../codegenerator/CodeSnippetKinds.ts";
+import { Code, link, STEP } from "../../codegenerator/Code.ts";
+import { Expr, toStack, toStatement } from "../../codegenerator/Expr.ts";
 import { ExceptionTree } from "../../codegenerator/ExceptionTree.ts";
 import { JavaSymbolTable } from "../../codegenerator/JavaSymbolTable.ts";
-import { SnippetLinker } from "../../codegenerator/SnippetLinker.ts";
 import { StatementCodeGenerator } from "../../codegenerator/StatementCodeGenerator.ts";
 import { JavaCompiledModule } from "../../module/JavaCompiledModule.ts";
 import { JavaTypeStore } from "../../module/JavaTypeStore.ts";
@@ -40,44 +39,34 @@ export class JavaReplCodeGenerator extends StatementCodeGenerator {
 
         let program = new Program(this.module, this.currentSymbolTable, "Repl.method")
 
-        let snippets: CodeSnippet[] = [];
-        snippets.push(new StringCodeSnippet(`${Helpers.startReplProgram}();\n`))
+        let code: Code = [`${Helpers.startReplProgram}();\n`];
 
-        let snippet: CodeSnippet | undefined;
-        let statement: ASTStatementNode;
         let statements = this.module.ast!.mainProgramNode.statements;
+        let lastIndex = statements.length - 1;
+        let lastStatement = statements[lastIndex];
+        if (lastStatement && lastStatement.kind == TokenType.block && lastStatement.isEmpty) lastIndex--;
 
-        for(let i = 0; i < statements.length; i++){
-            statement = statements[i];
-            if(statement.kind == TokenType.block && statement.isEmpty && i == statements.length - 1) break;
-            snippet = this.compileStatementOrTerm(statement);
-            if (snippet) snippets.push(snippet);
+        // value of last statement (if it is a term) is left on the stack
+        let typeOfLastTerm: JavaType | undefined;
+        let keepValueOnStack = (term: Expr): Code => {
+            typeOfLastTerm = term.type;
+            return term.type && term.type != this.voidType ? toStack(term).pre : toStatement(term);
         }
 
-        if (snippet && snippet.type) {
-            if (snippet.type != this.voidType) {
+        for (let i = 0; i <= lastIndex; i++) {
+            code.push(...this.compileStatementOrTerm(statements[i], i == lastIndex ? keepValueOnStack : toStatement) ?? []);
+        }
 
-
-                let snippetWithValueOnStack = snippet instanceof CodeSnippetContainer ? snippet : new CodeSnippetContainer(snippet, snippet.range, snippet.type);
-                snippetWithValueOnStack.ensureFinalValueIsOnStack();
-                snippets.pop();
-                snippets.push(snippetWithValueOnStack);
-
-                if(withToStringCall){
-                    let lastSnippet:CodeSnippet = new StringCodeSnippet(`${Helpers.toString}(__t, undefined, ${Helpers.threadStack}[${Helpers.threadStack}.length - 1]);\n`);
-                    lastSnippet = new CodeSnippetContainer([lastSnippet, new NextStepMark()]);    
-                    snippets.push(lastSnippet);
-                }
-
-                this.module.returnType = snippet.type;
-
+        if (typeOfLastTerm && typeOfLastTerm != this.voidType) {
+            if (withToStringCall) {
+                code.push(`${Helpers.toString}(__t, undefined, ${Helpers.threadStack}[${Helpers.threadStack}.length - 1]);\n`, STEP);
             }
+            this.module.returnType = typeOfLastTerm;
         }
 
-        snippets.push(new NextStepMark());
-        snippets.push(new StringCodeSnippet(`${Helpers.returnFromReplProgram}();\n`))
+        code.push(STEP, `${Helpers.returnFromReplProgram}();\n`);
 
-        new SnippetLinker().link(snippets, program);
+        link(code, program);
 
         // program.logAllSteps();
 
@@ -85,11 +74,11 @@ export class JavaReplCodeGenerator extends StatementCodeGenerator {
     }
 
 
-    compileAnonymousInnerClass(node: ASTAnonymousClassNode): CodeSnippet | undefined {
+    compileAnonymousInnerClass(node: ASTAnonymousClassNode): Expr | undefined {
         throw new Error("Method not implemented.");
     }
 
-    compileLambdaFunction(node: ASTLambdaFunctionDeclarationNode, expectedType: JavaType | undefined): CodeSnippet | undefined {
+    compileLambdaFunction(node: ASTLambdaFunctionDeclarationNode, expectedType: JavaType | undefined): Expr | undefined {
         throw new Error("Method not implemented.");
     }
 

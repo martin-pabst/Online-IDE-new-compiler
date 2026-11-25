@@ -144,17 +144,16 @@ export class HashSetClass extends ObjectClass {
 
     };
 
+    /**
+     * @returns true if set contained element
+     */
+    _remove(element: ObjectClassOrNull): boolean {
+        let key = element == null ? null : element.__internalHashCode();
+        return this.map.delete(key);
+    }
+
     _mj$remove$boolean$E(t: Thread, callback: CallbackFunction, element: ObjectClassOrNull) {
-        if (element == null) {
-            let oldValue = this.map.get(null);
-            t.s.push(typeof oldValue == "undefined");
-            this.map.delete(null);
-        } else {
-            let hashCode = element.__internalHashCode();
-            let oldValue = this.map.get(hashCode);
-            t.s.push(typeof oldValue == "undefined");
-            this.map.delete(hashCode);
-        }
+        t.s.push(this._remove(element));
         if (callback) callback();
         return;
 
@@ -166,7 +165,7 @@ export class HashSetClass extends ObjectClass {
         }
 
         if (collection instanceof SystemCollection) {
-            collection.getElements().forEach(element => this._mj$remove$boolean$E(t, undefined, element));
+            collection.getElements().forEach(element => this._remove(element));
             t.s.push(true);
             if (callback) callback();
             return;
@@ -175,7 +174,7 @@ export class HashSetClass extends ObjectClass {
         collection._mj$toArray$Object_I$(t, () => {
             let newElements = t.s.pop();
             if (newElements != null && Array.isArray(newElements)) {
-                newElements.forEach(element => this._mj$remove$boolean$E(t, undefined, element));
+                newElements.forEach(element => this._remove(element));
                 t.s.push(true);
                 if (callback) callback();
             }

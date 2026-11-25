@@ -13,7 +13,7 @@ import { Range } from "../common/range/Range.ts";
 import { TypeResolver } from "./TypeResolver/TypeResolver";
 import { CodeGenerator } from "./codegenerator/CodeGenerator";
 import { ExceptionTree } from "./codegenerator/ExceptionTree.ts";
-import { LabelCodeSnippet } from "./codegenerator/LabelManager.ts";
+import { resetRegisterCounter } from "./codegenerator/Expr.ts";
 import { Lexer } from "./lexer/Lexer";
 import { JavaCompiledModule } from "./module/JavaCompiledModule.ts";
 import { JavaModuleManager } from "./module/JavaModuleManager";
@@ -119,7 +119,7 @@ export class JavaCompiler implements Compiler {
 
         this.moduleManager.emptyTypeStore();
 
-        LabelCodeSnippet.resetCount();
+        resetRegisterCounter();
 
         const cleanModules = this.moduleManager.getUnChangedModules();
         cleanModules.forEach(cm => cm.registerTypesAtTypestore(this.moduleManager.typestore))

@@ -9,7 +9,7 @@ export class ArrayToStringCaster {
         array: any[], callback?: CallbackParameter, maximumLength: number = 200) {
 
         if (array == null) {
-            t.s.push("null");
+            textContainer.text += "null";
             if (callback) callback();
             return;
         }
@@ -46,7 +46,6 @@ export class ArrayToStringCaster {
                         return;
                     }
                 } else if (Array.isArray(element)) {
-                    t.s.push(element);
                     this.arrayOfObjectsToString(textContainer, t, element, () => {
                         if (array.length > 0) {
                             textContainer.text += ", ";

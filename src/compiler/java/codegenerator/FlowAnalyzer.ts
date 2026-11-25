@@ -4,7 +4,7 @@ import { IRange } from "../../common/range/Range";
 import { JCM } from "../language/JavaCompilerMessages";
 import { JavaMethod } from "../types/JavaMethod";
 import { JavaParameter } from "../types/JavaParameter";
-import { LabelCodeSnippet } from "./LabelManager";
+import { Label } from "./Code";
 
 /**
  * What is known at one point in the code, see
@@ -62,7 +62,7 @@ export class FlowAnalyzer {
      * which has already been compiled. Their states are never joined: a jump back can't make a variable
      * unassigned or the code after the loop reachable.
      */
-    private jumpStates: Map<LabelCodeSnippet, FlowState> = new Map();
+    private jumpStates: Map<Label, FlowState> = new Map();
 
     /**
      * Local variables and parameters whose initialization and read accesses are tracked
@@ -112,7 +112,7 @@ export class FlowAnalyzer {
     /**
      * break and continue: the current state flows to the jump target instead of the following statement.
      */
-    jumpTo(label: LabelCodeSnippet) {
+    jumpTo(label: Label) {
         this.jumpStates.set(label, (this.jumpStates.get(label) ?? FlowState.dead()).join(this.state));
         this.markDead();
     }
@@ -121,7 +121,7 @@ export class FlowAnalyzer {
      * Call when compilation reaches the position of a jump target: it is reached from the preceding code
      * and from every break/continue statement which jumps to it.
      */
-    joinJumpsTo(label: LabelCodeSnippet) {
+    joinJumpsTo(label: Label) {
         let jumpState = this.jumpStates.get(label);
         if (jumpState) {
             this.state = this.state.join(jumpState);

@@ -1,0 +1,159 @@
+import { Program } from "../../common/interpreter/Program";
+import { Step } from "../../common/interpreter/Step";
+import { IRange } from "../../common/range/Range";
+
+/**
+ * Generated code is a flat list of operations (Op). The linker (see link below) cuts it into steps:
+ * each step becomes a javascript function which returns the index of the next step. That's what makes
+ * single stepping, breakpoints, speed control and simulated threads possible.
+ */
+
+/**
+ * Jump target. After linking, stepIndex is the index of the step the label is in.
+ */
+export class Label {
+    stepIndex: number = -1;
+}
+
+/** Step boundary: the current step returns the index of the next step. */
+export type StepOp = { readonly k: "step" };
+
+/** Jump to label: "return <stepIndex of label>;" */
+export type JumpOp = { readonly k: "jump", readonly to: Label, readonly range?: IRange };
+
+/** Source position of the code around it (range of the step for the debugger). */
+export type RangeOp = { readonly k: "range", readonly range: IRange };
+
+/** Called with the step containing this position, e.g. to attach catch block information to it. */
+export type HookOp = { readonly k: "hook", readonly fn: (step: Step) => void };
+
+/** Declares a javascript variable which is local to the step containing this position. */
+export type RegisterOp = { readonly k: "register", readonly name: string };
+
+/**
+ * Code which doesn't need a step of its own, e.g. discarding the return value of a method call: a step boundary
+ * directly following it is dropped, so it runs at the beginning of the next step - unless a label follows, which
+ * would then be the target of jumps. range is used if the step has no range otherwise.
+ */
+export type CleanupOp = { readonly k: "cleanup", readonly code: string, readonly range?: IRange };
+
+export type Op = string | Label | StepOp | JumpOp | RangeOp | HookOp | RegisterOp | CleanupOp;
+
+export type Code = Op[];
+
+export const STEP: StepOp = { k: "step" };
+
+export function jump(to: Label, range?: IRange): JumpOp {
+    return { k: "jump", to, range };
+}
+
+/** Source position of the following code; empty if range is undefined. */
+export function at(range: IRange | undefined): Code {
+    return range ? [{ k: "range", range }] : [];
+}
+
+export function hook(fn: (step: Step) => void): HookOp {
+    return { k: "hook", fn };
+}
+
+export function cleanup(code: string, range?: IRange): CleanupOp {
+    return { k: "cleanup", code, range };
+}
+
+/** Does code contain anything to execute (besides labels, ranges, hooks and step boundaries)? */
+export function isEmptyCode(code: Code): boolean {
+    return code.every(op => typeof op == "string" ? op.trim() == "" : (op instanceof Label || op.k == "step" || op.k == "range" || op.k == "hook"));
+}
+
+/**
+ * Cuts code into steps and stores them in program.stepsSingle.
+ */
+export function link(code: Code, program: Program): void {
+
+    // pass 1: drop step boundaries which would end an empty step (e.g. one which only holds labels) or a step which
+    // only holds cleanup code; number the labels
+    const ops: Code = [];
+    let stepIndex = 0;
+    let stepHasCode = false;
+    let stepHasCleanupCode = false;
+
+    const nextStep = () => {
+        ops.push(STEP);
+        stepIndex++;
+        stepHasCode = stepHasCleanupCode = false;
+    }
+
+    for (const op of code) {
+        if (op === STEP) {
+            if (stepHasCode) nextStep();
+            continue;
+        }
+
+        if (op instanceof Label) {
+            // jumps go to the beginning of a step, so a label has to start a new step
+            if (stepHasCode || stepHasCleanupCode) nextStep();
+            op.stepIndex = stepIndex;
+        } else if (typeof op == "string" ? op.length > 0 : op.k == "jump") {
+            stepHasCode = true;
+        } else if (typeof op == "object" && op.k == "cleanup") {
+            stepHasCleanupCode = true;
+        }
+        ops.push(op);
+    }
+
+    // pass 2: build steps
+    const steps: Step[] = [];
+    let step = new Step(0, program.module);
+    let registers: string[] = [];
+    let cleanupRange: IRange | undefined;
+    let endsWithJump = false;
+
+    const finishStep = () => {
+        if (registers.length > 0) step.codeAsString = `let ${registers.join(", ")};\n` + step.codeAsString;
+        step.setRangeStartIfUndefined(cleanupRange);
+        registers = [];
+        cleanupRange = undefined;
+        steps.push(step);
+    }
+
+    for (const op of ops) {
+        if (op === STEP) {
+            if (!endsWithJump) step.codeAsString += `return ${step.index + 1};`;
+            finishStep();
+            step = new Step(step.index + 1, program.module);
+            endsWithJump = false;
+        } else if (typeof op == "string") {
+            step.codeAsString += op;
+            if (op.length > 0) endsWithJump = false;
+        } else if (op instanceof Label) {
+            // labels only mark a position
+        } else {
+            switch (op.k) {
+                case "jump":
+                    step.codeAsString += `return ${op.to.stepIndex};\n`;
+                    step.setRangeStartIfUndefined(op.range);
+                    endsWithJump = true;
+                    break;
+                case "range":
+                    step.setRangeStartIfUndefined(op.range);
+                    step.adaptRangeEnd(op.range);
+                    break;
+                case "hook":
+                    op.fn(step);
+                    break;
+                case "register":
+                    if (!registers.includes(op.name)) registers.push(op.name);
+                    break;
+                case "cleanup":
+                    step.codeAsString += op.code;
+                    cleanupRange ??= op.range;
+                    endsWithJump = false;
+                    break;
+            }
+        }
+    }
+
+    if (!step.isEmpty()) finishStep();
+
+    program.stepsSingle = steps;
+}

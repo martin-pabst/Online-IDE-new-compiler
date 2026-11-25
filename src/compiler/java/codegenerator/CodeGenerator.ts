@@ -15,13 +15,11 @@ import { JavaEnum } from "../types/JavaEnum.ts";
 import { JavaInterface } from "../types/JavaInterface.ts";
 import { JavaMethod } from "../types/JavaMethod.ts";
 import { JavaParameter } from "../types/JavaParameter.ts";
-import { CodeSnippet, StringCodeSnippet } from "./CodeSnippet";
-import { CodeSnippetContainer } from "./CodeSnippetKinds.ts";
-import { OneParameterTemplate } from "./CodeTemplate.ts";
+import { at, Code, link, STEP } from "./Code";
+import { Expr, statement, term } from "./Expr";
 import { ExceptionTree } from "./ExceptionTree.ts";
 import { FlowAnalyzer } from "./FlowAnalyzer.ts";
 import { InnerClassCodeGenerator } from "./InnerClassCodeGenerator.ts";
-import { SnippetLinker } from "./SnippetLinker";
 
 export class CodeGenerator extends InnerClassCodeGenerator {
 
@@ -31,7 +29,6 @@ export class CodeGenerator extends InnerClassCodeGenerator {
     ) {
         super(module, libraryTypestore, compiledTypesTypestore, exceptionTree, settingsStore);
         this.progressManager = progressManager;
-        this.linker = new SnippetLinker();
     }
 
     async start() {
@@ -189,7 +186,7 @@ export class CodeGenerator extends InnerClassCodeGenerator {
     }
 
     private compileStaticFieldsAndInitializerAndEnumValues(classContext: JavaClass | JavaEnum | JavaInterface, cdef: ASTClassDefinitionNode | ASTEnumDefinitionNode | ASTInterfaceDefinitionNode) {
-        let staticFieldSnippets: CodeSnippet[] = [];
+        let staticFieldSnippets: Code = [];
 
         if (cdef.kind == TokenType.keywordEnum) {
             this.compileEnumValueConstruction(<JavaEnum>classContext, cdef, staticFieldSnippets);
@@ -206,16 +203,10 @@ export class CodeGenerator extends InnerClassCodeGenerator {
                         }
                         continue;
                     }
-                    let snippet = this.compileFieldDeclaration(fieldOrInitializer, classContext);
-                    if (snippet) {
-                        staticFieldSnippets.push(snippet);
-                    }
+                    staticFieldSnippets.push(...this.compileFieldDeclaration(fieldOrInitializer, classContext) ?? []);
                     break;
                 case TokenType.staticInitializerBlock:
-                    let snippet2 = this.compileStaticInitializerBlock(fieldOrInitializer);
-                    if (snippet2) {
-                        staticFieldSnippets.push(snippet2);
-                    }
+                    staticFieldSnippets.push(...this.compileStaticInitializerBlock(fieldOrInitializer) ?? []);
                     break;
                 default:
                     break;
@@ -228,9 +219,9 @@ export class CodeGenerator extends InnerClassCodeGenerator {
         cdef.staticInitializer = classContext.staticInitializer;
     }
 
-    compileEnumValueConstruction(javaEnum: JavaEnum, enumDeclNode: ASTEnumDefinitionNode, staticFieldSnippets: CodeSnippet[]) {
+    compileEnumValueConstruction(javaEnum: JavaEnum, enumDeclNode: ASTEnumDefinitionNode, staticFieldSnippets: Code) {
 
-        staticFieldSnippets.push(new StringCodeSnippet(`${Helpers.classes}["${javaEnum.identifier}"].values = [];\n`));
+        staticFieldSnippets.push(`${Helpers.classes}["${javaEnum.identifier}"].values = [];\n`);
 
         let parameterlessConstructor = javaEnum.methods.find(m => m.isConstructor && m.parameters.length == 0);
 
@@ -238,10 +229,10 @@ export class CodeGenerator extends InnerClassCodeGenerator {
         for (let valueNode of enumDeclNode.valueNodes) {
 
             // find suitable constructor and invoke it!
-            let callConstructorSnippet: CodeSnippet;
+            let callConstructorSnippet: Expr;
             if (valueNode.parameterValues.length > 0 || parameterlessConstructor) {
 
-                let parameterSnippets = <CodeSnippet[]>valueNode.parameterValues.map(pv => this.compileTerm(pv));
+                let parameterSnippets = <Expr[]>valueNode.parameterValues.map(pv => this.compileTerm(pv));
                 if (parameterSnippets.some(sn => (!sn || !sn.type))) continue; // if there had been an error when compiling parameter values
 
                 let constructors = this.searchMethod(javaEnum.identifier, javaEnum, parameterSnippets.map(sn => sn!.type!), true, false, false, enumDeclNode.range);
@@ -253,15 +244,12 @@ export class CodeGenerator extends InnerClassCodeGenerator {
                 }
 
                 callConstructorSnippet = this.invokeConstructor(parameterSnippets, constructor, javaEnum, valueNode, undefined, valueNode.identifier, enumValueIndex);
-                callConstructorSnippet = new CodeSnippetContainer(callConstructorSnippet);
-                (<CodeSnippetContainer>callConstructorSnippet).ensureFinalValueIsOnStack();
-                (<CodeSnippetContainer>callConstructorSnippet).addNextStepMark();
             } else {
-                callConstructorSnippet = new StringCodeSnippet(`new ${Helpers.classes}["${javaEnum.identifier}"]("${valueNode.identifier}", ${enumValueIndex})`);
+                callConstructorSnippet = term(`new ${Helpers.classes}["${javaEnum.identifier}"]("${valueNode.identifier}", ${enumValueIndex})`);
             }
             let field = javaEnum.fields.find(f => f.identifier == valueNode.identifier);
-            let buildEnumValueSnippet = new OneParameterTemplate(`${Helpers.classes}["${javaEnum.identifier}"].values.push(${Helpers.classes}["${javaEnum.identifier}"]["${field.getInternalName()}"] = §1);\n`).applyToSnippet(javaEnum, valueNode.range, callConstructorSnippet);
-            staticFieldSnippets.push(buildEnumValueSnippet);
+            staticFieldSnippets.push(...statement(callConstructorSnippet,
+                value => `${Helpers.classes}["${javaEnum.identifier}"].values.push(${Helpers.classes}["${javaEnum.identifier}"]["${field.getInternalName()}"] = ${value});\n`, valueNode.range));
 
             enumValueIndex++;
         }
@@ -298,33 +286,26 @@ export class CodeGenerator extends InnerClassCodeGenerator {
                 cdef.symbolTable = this.pushAndGetNewSymbolTable(cdef.range, false, type);
             }
 
-            const snippets: CodeSnippet[] = [];
+            const snippets: Code = [];
             const useNative = constructor.hasImplementationWithNativeCallingConvention;
 
             if (useNative) {
                 const ctorName = constructor.getInternalName("native");
-                snippets.push(new StringCodeSnippet(
+                snippets.push(
                     `if(!${Helpers.classes}.__di_instances) ${Helpers.classes}.__di_instances = {};\n` +
                     `${Helpers.classes}.__di_instances["${instanceName}"] = ` +
                     `new ${Helpers.classes}["${type.pathAndIdentifierAsDotSeparatedString}"]().${ctorName}();\n`
-                ));
+                );
             } else {
                 const ctorName = constructor.getInternalName("java");
-                const callSnippet = new StringCodeSnippet(
+                snippets.push(
                     `new ${Helpers.classes}["${type.pathAndIdentifierAsDotSeparatedString}"]().${ctorName}(${StepParams.thread}, undefined);\n`,
-                    type.identifierRange
-                );
-                const container = new CodeSnippetContainer([callSnippet], type.identifierRange);
-                container.addNextStepMark();
-                container.finalValueIsOnStack = true;
-                snippets.push(container);
-
-                snippets.push(new StringCodeSnippet(
+                    ...at(type.identifierRange), STEP,
                     `if(!${Helpers.classes}.__di_instances) ${Helpers.classes}.__di_instances = {};\n` +
                     `${Helpers.classes}.__di_instances["${instanceName}"] = ` +
                     `${StepParams.thread}.s[${StepParams.thread}.s.length - 1];\n` +
                     `${StepParams.thread}.s.pop();\n`
-                ));
+                );
             }
 
             type.diInstanceName = instanceName;
@@ -336,29 +317,29 @@ export class CodeGenerator extends InnerClassCodeGenerator {
         }
     }
 
-    buildInitializer(snippets: CodeSnippet[], identifier: string): Program {
+    buildInitializer(code: Code, identifier: string): Program {
         let program = new Program(this.module, this.currentSymbolTable, identifier);
-        if (snippets.length > 0) {
-            snippets.push(new StringCodeSnippet(`${Helpers.return}();`));
+        if (code.length > 0) {
+            code.push(`${Helpers.return}();`);
         }
-        this.linker.link(snippets, program);
+        link(code, program);
         return program;
     }
 
 
 
 
-    compileStaticInitializerBlock(node: ASTStaticInitializerNode): CodeSnippetContainer | undefined {
+    compileStaticInitializerBlock(node: ASTStaticInitializerNode): Code | undefined {
 
         let flowOfEnclosingCode = this.flow;
         this.flow = new FlowAnalyzer();
 
-        let snippet = new CodeSnippetContainer(this.compileStatementSequence(node.statements), node.range);
+        let code = this.compileStatementSequence(node.statements);
 
         this.flow.end(undefined, this.module.errors);
         this.flow = flowOfEnclosingCode;
 
-        return snippet;
+        return code;
     }
 
 

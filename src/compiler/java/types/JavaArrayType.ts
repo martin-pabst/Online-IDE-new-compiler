@@ -1,7 +1,6 @@
 import { BaseArrayType, BaseType } from "../../common/BaseType";
 import { CompilerFile } from "../../common/module/CompilerFile";
 import { IRange } from "../../common/range/Range";
-import { CodeTemplate } from "../codegenerator/CodeTemplate";
 import { JavaBaseModule } from "../module/JavaBaseModule";
 import { JavaTypeStore } from "../module/JavaTypeStore";
 import { BinaryOperator, UnaryPrefixOperator } from "../parser/AST";
@@ -32,10 +31,6 @@ export class JavaArrayType extends JavaType implements BaseArrayType {
         return null;
     }
 
-    getCastFunction(_destType: JavaType): CodeTemplate | undefined {
-        return undefined;  // you can't cast arrays in java (to my knowledge...).
-    }
-
     getCopyWithConcreteType(_typeMap: Map<GenericTypeParameter, JavaType>): JavaType {
 
         let mappedElemenType: JavaType | undefined;
@@ -58,16 +53,9 @@ export class JavaArrayType extends JavaType implements BaseArrayType {
     getBinaryResultType(_destType: JavaType, _operator: BinaryOperator, _typeStore: JavaTypeStore): JavaType | undefined {
         return undefined;
     }
-    getBinaryOperation(_destType: JavaType, _operator: BinaryOperator): CodeTemplate | undefined {
-        return undefined;
-    }
     getUnaryResultType(_operator: UnaryPrefixOperator): JavaType | undefined {
         return undefined;
     }
-    getUnaryOperation(_operator: UnaryPrefixOperator): CodeTemplate | undefined {
-        return undefined;
-    }
-
     toString(): string {
         let s: string = this.elementType.toString();
         for(let i = 0; i < this.dimension; i++) s += "[]";

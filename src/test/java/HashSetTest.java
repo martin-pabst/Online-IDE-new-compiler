@@ -34,6 +34,9 @@ assertTrue(s.contains("Martin"), "HashSet.addAll");
 
 s.remove("Dennis");
 assertFalse(s.contains("Dennis"), "HashSet.remove");
+assertTrue(s.remove("Anna"), "HashSet.remove returns true if set contained element");
+assertFalse(s.remove("Anna"), "HashSet.remove returns false if set didn't contain element");
+s.add("Anna");
 
 s.removeAll(list);
 assertTrue(s.contains("Berta"), "HashSet.removeAll");

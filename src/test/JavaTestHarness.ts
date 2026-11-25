@@ -16,6 +16,30 @@ import { JavaLibraryManager } from "../compiler/java/runtime/JavaLibraryManager"
 import { CompilerFile } from "../compiler/common/module/CompilerFile";
 import { StoreOutputPrintManager } from "./StoreOutputPrintManager";
 import type { Error as CompilerError } from "../compiler/common/Error";
+import { Thread } from "../compiler/common/interpreter/Thread";
+import { JavaCompilerStringConstants } from "../compiler/java/JavaCompilerStringConstants";
+
+/**
+ * Operand stack check: when a method returns, its part of the thread's stack has to consist of exactly
+ * this object, parameters and local variables. Values left over by the generated code (e.g. the return
+ * value of a method called as a statement) would pile up in long running loops.
+ * The main program additionally holds the main class (pushed by its first step).
+ */
+let unbalancedStackMessages: string[] | undefined;
+const originalThreadReturn = Thread.prototype.return;
+Thread.prototype.return = function (this: Thread, returnValue: any) {
+    if (unbalancedStackMessages) {
+        let state = this.currentProgramState;
+        let program = state.program;
+        let expectedSize = state.stackBase + program.numberOfThisObjects + program.numberOfParameters + program.numberOfLocalVariables;
+        if (program.methodIdentifierWithClass.endsWith("." + JavaCompilerStringConstants.mainMethodIdentifier)) expectedSize++;
+        let leftover = this.s.length - expectedSize;
+        if (leftover != 0 && unbalancedStackMessages.length < 5) {
+            unbalancedStackMessages.push(`${program.methodIdentifierWithClass}: ${leftover} value(s) left over on operand stack when returning`);
+        }
+    }
+    return originalThreadReturn.call(this, returnValue);
+}
 
 /**
  * Splits the content of a .java test file at the /**:: markers and registers one vitest test per block.
@@ -186,7 +210,18 @@ function compileAndTest(name: string, program: string, lineOffset: number,
 
             interpreter.attachAssertionObserver(new ViteTestAssertions(context, lineOffset));
 
-            interpreter.runMainProgramSynchronously();
+            unbalancedStackMessages = [];
+            try {
+                interpreter.runMainProgramSynchronously();
+            } finally {
+                if (unbalancedStackMessages.length > 0) {
+                    console.log(chalk.red("Test failed: ") + "Operand stack not balanced" + chalk.gray(" (test beginning with line " + lineOffset + ")"));
+                    unbalancedStackMessages.forEach(m => console.log(chalk.gray("Details:     ") + m));
+                    //@ts-ignore
+                    context.task.fails = 1;
+                }
+                unbalancedStackMessages = undefined;
+            }
 
             if (interpreter.exception) {
                 console.log(chalk.red("Test failed: ") + "Program terminated with uncaught exception: " +

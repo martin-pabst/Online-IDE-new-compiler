@@ -21,14 +21,11 @@ import { GenericVariantOfJavaInterface, IJavaInterface } from "../types/JavaInte
 import { JavaMethod } from "../types/JavaMethod.ts";
 import { JavaType } from "../types/JavaType.ts";
 import { NonPrimitiveType } from "../types/NonPrimitiveType.ts";
-import { CodeSnippet, StringCodeSnippet } from "./CodeSnippet.ts";
-import { CodeSnippetContainer } from "./CodeSnippetKinds.ts";
-import { SnippetFramer } from "./CodeSnippetTools.ts";
-import { BinaryOperatorTemplate, OneParameterTemplate, TwoParameterTemplate } from "./CodeTemplate";
+import { at, Code, hook, isEmptyCode, jump, Label, STEP } from "./Code";
+import { combine, Expr, frame, isConstant, statement, term, toStatement } from "./Expr";
 import { ExceptionTree } from "./ExceptionTree.ts";
 import { FlowState } from "./FlowAnalyzer.ts";
 import { JavaLocalVariable } from "./JavaLocalVariable";
-import { JumpToLabelCodeSnippet, LabelCodeSnippet } from "./LabelManager.ts";
 import { TermCodeGenerator } from "./TermCodeGenerator";
 
 export type CodeGenerationMode = "normal" | "repl" | "replStandalone";
@@ -47,11 +44,15 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
     }
 
 
-    compileStatementOrTerm(ast: ASTStatementNode | undefined): CodeSnippet | undefined {
+    /**
+     * @param termToCode converts term statements (method call, assignment, ...) into code; default: evaluate and
+     * discard value
+     */
+    compileStatementOrTerm(ast: ASTStatementNode | undefined, termToCode: (term: Expr) => Code = toStatement): Code | undefined {
 
         if (!ast) return undefined;
 
-        let snippet: CodeSnippet | undefined;
+        let snippet: Code | undefined;
 
         switch (ast.kind) {
             case TokenType.localVariableDeclaration:
@@ -98,29 +99,21 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
 
             default:
-                snippet = this.compileTerm(ast);
-                if (snippet) {
-                    if (!snippet.endsWith(";\n")) snippet = new CodeSnippetContainer(SnippetFramer.frame(snippet, '§1;\n'));
-                }
+                let termSnippet = this.compileTerm(ast);
+                if (termSnippet) snippet = termToCode(termSnippet);
 
                 // explicit super(...)-call in constructor: field initializers and instance initializer blocks follow
                 if (this.snippetsToInsertAfterSuperConstructorCall && ast.kind == TokenType.methodCall &&
                     (<ASTMethodCallNode>ast).identifier == "" && (<ASTMethodCallNode>ast).nodeToGetObject?.kind == TokenType.keywordSuper) {
                     if (snippet) {
-                        snippet = new CodeSnippetContainer([snippet, ...this.snippetsToInsertAfterSuperConstructorCall]);
+                        snippet = [...snippet, ...this.snippetsToInsertAfterSuperConstructorCall];
                     }
                     this.snippetsToInsertAfterSuperConstructorCall = undefined;
                 }
         }
 
-        // enforce new step before snippet
-        if (snippet) {
-            if (!(snippet instanceof CodeSnippetContainer)) {
-                snippet = new CodeSnippetContainer(snippet, snippet.range, snippet.type);
-            }
-
-            (<CodeSnippetContainer>snippet).enforceNewStepBeforeSnippet();
-        }
+        // each statement begins with a new step
+        if (snippet) snippet = [STEP, ...snippet];
 
         return snippet;
 
@@ -131,7 +124,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
      * one which can't be reached, e.g. because it follows a return statement.
      * see https://docs.oracle.com/javase/specs/jls/se21/html/jls-14.html#jls-14.22
      */
-    compileStatementSequence(statements: ASTStatementNode[]): CodeSnippet[] {
+    compileStatementSequence(statements: ASTStatementNode[]): Code {
         // if the sequence itself is unreachable then the statement containing it has already been reported
         let reportUnreachableStatement = this.flow.state.alive;
 
@@ -140,18 +133,18 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 this.pushError(JCM.unreachableStatement(), "warning", statementNode);
                 reportUnreachableStatement = false;
             }
-            return this.compileStatementOrTerm(statementNode);
-        }).filter((snippet): snippet is CodeSnippet => snippet != undefined);
+            return this.compileStatementOrTerm(statementNode) ?? [];
+        }).flat();
     }
 
-    compileFirstMainProgramStatement(arg0: ASTFirstMainMethodStatementNode): CodeSnippet {
+    compileFirstMainProgramStatement(arg0: ASTFirstMainMethodStatementNode): Code {
         let klass = this.currentSymbolTable.classContext;
-        return new StringCodeSnippet(`${StepParams.stack}.push(${Helpers.classes}.${klass.identifier});\n`);
+        return [`${StepParams.stack}.push(${Helpers.classes}.${klass.identifier});\n`];
     }
 
-    compileInitialFieldAssignmentInMainProgram(node: ASTInitialFieldAssignmentInMainProgramNodes): CodeSnippet {
+    compileInitialFieldAssignmentInMainProgram(node: ASTInitialFieldAssignmentInMainProgramNodes): Code | undefined {
 
-        let snippets: CodeSnippet[] = [];
+        let code: Code = [];
         for (let assignment of node.assignments) {
             let field = <JavaField>this.currentSymbolTable.findSymbol(assignment.fieldNode.identifier).symbol;
             let leftSideSnippet = this.compileSymbolNode(assignment.fieldNode, true);
@@ -160,46 +153,42 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             if (rightSideSnippet?.type && !field.type) field.type = rightSideSnippet.type;
 
             if (leftSideSnippet && rightSideSnippet) {
-                snippets.push(new TwoParameterTemplate("§1 = §2;").applyToSnippet(this.voidType, node.range, leftSideSnippet, rightSideSnippet))
+                let assignmentSnippet = this.assign(leftSideSnippet, rightSideSnippet, this.voidType, node.range, (l, r) => `${l} = ${r}`);
+                code.push(...statement(assignmentSnippet, value => value + ";"));
             }
 
         }
 
-        if (snippets.length == 0) return undefined;
-        if (snippets.length == 1) return snippets[0];
+        if (code.length == 0) return undefined;
 
-        return new CodeSnippetContainer(snippets);
+        return code;
 
     }
 
-    compileBreakStatement(node: ASTBreakNode): CodeSnippet | undefined {
+    compileBreakStatement(node: ASTBreakNode): Code | undefined {
         let label = this.breakStack[this.breakStack.length - 1];
         if (!label) {
             this.pushError(JCM.breakNotExpected(), "error", node);
             return undefined;
         }
         this.flow.jumpTo(label);
-        let snippet = new JumpToLabelCodeSnippet(label);
-        snippet.range = node.range;
-        return snippet;
+        return [jump(label, node.range)];
     }
 
-    compileContinueStatement(node: ASTContinueNode): CodeSnippet | undefined {
+    compileContinueStatement(node: ASTContinueNode): Code | undefined {
         let label = this.continueStack[this.continueStack.length - 1];
         if (!label) {
             this.pushError(JCM.continueNotExpected(), "error", node);
             return undefined;
         }
         this.flow.jumpTo(label);
-        let snippet = new JumpToLabelCodeSnippet(label);
-        snippet.range = node.range;
-        return snippet;
+        return [jump(label, node.range)];
     }
 
 
-    compileReturnStatement(node: ASTReturnNode): CodeSnippet | undefined {
+    compileReturnStatement(node: ASTReturnNode): Code | undefined {
 
-        let snippet = new CodeSnippetContainer([], node.range);
+        let code: Code = [];
 
         let method: JavaMethod | undefined = this.currentSymbolTable.methodContext;
         if (!method) {
@@ -208,11 +197,11 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         }
 
         if (this.synchronizedBlockCount > 0) {
-            snippet.addParts(new StringCodeSnippet(`${Helpers.leaveAllSynchronizedBlocksInCurrentMethod}();\n`));
+            code.push(`${Helpers.leaveAllSynchronizedBlocksInCurrentMethod}();\n`, ...at(node.range));
         }
 
         if (this.currentSymbolTable.methodContext?.isSynchronized) {
-            snippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`));
+            code.push(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`, ...at(node.range));
         }
 
 
@@ -240,27 +229,27 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             }
 
 
-            snippet.addParts(new OneParameterTemplate(`${Helpers.return}(§1);\n`).applyToSnippet(this.voidType, node.range, termSnippet));
+            code.push(...statement(termSnippet, value => `${Helpers.return}(${value});\n`, node.range));
 
         } else {
 
             if (method.isConstructor) {
-                snippet.addStringPart(`${Helpers.return}(${Helpers.elementRelativeToStackbase(0)});\n`);
+                code.push(`${Helpers.return}(${Helpers.elementRelativeToStackbase(0)});\n`, ...at(node.range));
             } else {
                 if (method.returnParameterType && method.returnParameterType != this.voidType) {
                     this.pushError(JCM.returnValueExpected(method.returnParameterType.identifier), "error", node.range);
                     return undefined;
                 }
-                snippet.addStringPart(`${Helpers.return}();\n`);
+                code.push(`${Helpers.return}();\n`, ...at(node.range));
             }
         }
 
-        snippet.addNextStepMark();
+        code.push(STEP);
 
-        return snippet;
+        return code;
     }
 
-    compileEnhancedForLoop(node: ASTEnhancedForLoopNode): CodeSnippet | undefined {
+    compileEnhancedForLoop(node: ASTEnhancedForLoopNode): Code | undefined {
 
         let elementType = node.elementType.resolvedType;
         let collectionSnippet = this.compileTerm(node.collection);
@@ -276,18 +265,17 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         // the loop body may be executed zero times, so the state before it is valid after the loop, too
         let stateBeforeBody = this.flow.snapshot();
 
-        let continueLabel = new LabelCodeSnippet();
+        let continueLabel = new Label();
         this.continueStack.push(continueLabel);
-        let jumpToBeginSnippet = new JumpToLabelCodeSnippet(continueLabel);
 
-        let breakLabel = new LabelCodeSnippet();
+        let breakLabel = new Label();
         this.breakStack.push(breakLabel);
-        let breakJumpSnippet = new JumpToLabelCodeSnippet(breakLabel);
 
         let stackIndexForCollection = forLoopSymbolTable.getStackFrame()!.insertInvisibleLocalVariableAndGetItsIndex();
 
 
-        let forLoopSnippet = new CodeSnippetContainer([], node.range);
+        let code: Code = [];
+        let collectionRange = node.collection.range;
 
         /*
         * There are 3 cases:
@@ -303,9 +291,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             /*
             * Loop over array
             */
-            let assignCollectionSnippet = SnippetFramer.frame(collectionSnippet, `${Helpers.elementRelativeToStackbase(stackIndexForCollection)} = ${Helpers.checkNPE('§1', node.collection.range)};\n`);
-            assignCollectionSnippet.range = node.collection.range;
-            forLoopSnippet.addParts(assignCollectionSnippet);
+            code.push(...statement(collectionSnippet, value => `${Helpers.elementRelativeToStackbase(stackIndexForCollection)} = ${Helpers.checkNPE(value, collectionRange)};\n`, collectionRange));
 
             collectionElementType = collectionType.getElementType();
             let loopVariableNeedsConversion = false;
@@ -327,27 +313,17 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
 
             let stackIndexForLoopIndex = forLoopSymbolTable.getStackFrame()!.insertInvisibleLocalVariableAndGetItsIndex();
-            forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(stackIndexForLoopIndex)} = -1;\n`, node.collection.range));
-            forLoopSnippet.addNextStepMark();
-            forLoopSnippet.addParts(continueLabel);
-
-            forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(stackIndexForLoopIndex)}++;\nif(${Helpers.elementRelativeToStackbase(stackIndexForLoopIndex)} >= ${Helpers.elementRelativeToStackbase(stackIndexForCollection)}.length){\n   `, node.collection.range));
-            forLoopSnippet.addParts(breakJumpSnippet);
-            forLoopSnippet.addParts(new StringCodeSnippet(`}\n`));
-
-            forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(elementVariable.stackframePosition!)} = ${Helpers.elementRelativeToStackbase(stackIndexForCollection)}[${Helpers.elementRelativeToStackbase(stackIndexForLoopIndex)}];\n`));
+            let loopIndex = Helpers.elementRelativeToStackbase(stackIndexForLoopIndex);
+            let collection = Helpers.elementRelativeToStackbase(stackIndexForCollection);
+            code.push(`${loopIndex} = -1;\n`, ...at(collectionRange), STEP,
+                continueLabel,
+                `${loopIndex}++;\nif(${loopIndex} >= ${collection}.length){\n   `, ...at(collectionRange), jump(breakLabel), `}\n`,
+                `${Helpers.elementRelativeToStackbase(elementVariable.stackframePosition!)} = ${collection}[${loopIndex}];\n`);
             if (loopVariableNeedsConversion) {
-                let conversionSnippet = this.compileForEachLoopVariableConversion(elementVariable, collectionElementType, node.elementIdentifierPosition);
-                if (conversionSnippet) forLoopSnippet.addParts(conversionSnippet);
+                code.push(...this.compileForEachLoopVariableConversion(elementVariable, collectionElementType, node.elementIdentifierPosition) ?? []);
             }
 
-            let statementSnippet = this.compileStatementOrTerm(node.statementToRepeat) || new StringCodeSnippet('');
-
-            forLoopSnippet.addParts(statementSnippet);
-
-            forLoopSnippet.addParts(jumpToBeginSnippet);
-            forLoopSnippet.addNextStepMark();
-            forLoopSnippet.addParts(breakLabel);
+            code.push(...this.compileStatementOrTerm(node.statementToRepeat) ?? [], jump(continueLabel), STEP, breakLabel);
 
         } else if (collectionType instanceof IJavaClass && collectionType.runtimeClass!.prototype.getElements
             && collectionType.runtimeClass![FOR_EACH_VIA_GET_ELEMENTS] !== false) {
@@ -357,9 +333,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             /*
              * Loop over SystemCollection
             */
-            let assignCollectionSnippet = SnippetFramer.frame(collectionSnippet, `${Helpers.elementRelativeToStackbase(stackIndexForCollection)} = ${Helpers.checkNPE('§1', node.collection.range)}.getElements();\n`);
-            assignCollectionSnippet.range = node.collection.range;
-            forLoopSnippet.addParts(assignCollectionSnippet);
+            code.push(...statement(collectionSnippet, value => `${Helpers.elementRelativeToStackbase(stackIndexForCollection)} = ${Helpers.checkNPE(value, collectionRange)}.getElements();\n`, collectionRange));
 
             collectionElementType = this.objectType;
             if (collectionType instanceof GenericVariantOfJavaClass) {
@@ -390,38 +364,26 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
 
             let stackIndexForLoopIndex = forLoopSymbolTable.getStackFrame()!.insertInvisibleLocalVariableAndGetItsIndex();
-            forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(stackIndexForLoopIndex)} = -1;\n`, node.collection.range));
-            forLoopSnippet.addNextStepMark();
-            forLoopSnippet.addParts(continueLabel);
-
-            forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(stackIndexForLoopIndex)}++;\nif(${Helpers.elementRelativeToStackbase(stackIndexForLoopIndex)} >= ${Helpers.elementRelativeToStackbase(stackIndexForCollection)}.length){\n   `, node.collection.range));
-            forLoopSnippet.addParts(breakJumpSnippet);
-            forLoopSnippet.addParts(new StringCodeSnippet(`}\n`));
-
-            forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(elementVariable.stackframePosition!)} = ${Helpers.elementRelativeToStackbase(stackIndexForCollection)}[${Helpers.elementRelativeToStackbase(stackIndexForLoopIndex)}];\n`));
+            let loopIndex = Helpers.elementRelativeToStackbase(stackIndexForLoopIndex);
+            let collection = Helpers.elementRelativeToStackbase(stackIndexForCollection);
+            code.push(`${loopIndex} = -1;\n`, ...at(collectionRange), STEP,
+                continueLabel,
+                `${loopIndex}++;\nif(${loopIndex} >= ${collection}.length){\n   `, ...at(collectionRange), jump(breakLabel), `}\n`,
+                `${Helpers.elementRelativeToStackbase(elementVariable.stackframePosition!)} = ${collection}[${loopIndex}];\n`);
             if (loopVariableNeedsConversion) {
-                let conversionSnippet = this.compileForEachLoopVariableConversion(elementVariable, collectionElementType, node.elementIdentifierPosition);
-                if (conversionSnippet) forLoopSnippet.addParts(conversionSnippet);
+                code.push(...this.compileForEachLoopVariableConversion(elementVariable, collectionElementType, node.elementIdentifierPosition) ?? []);
             }
 
-            let statementSnippet = this.compileStatementOrTerm(node.statementToRepeat) || new StringCodeSnippet('');
-
-            forLoopSnippet.addParts(statementSnippet);
-
-            forLoopSnippet.addParts(jumpToBeginSnippet);
-            forLoopSnippet.addNextStepMark();
-            forLoopSnippet.addParts(breakLabel);
+            code.push(...this.compileStatementOrTerm(node.statementToRepeat) ?? [], jump(continueLabel), STEP, breakLabel);
 
 
         } else if (this.canCastTo(collectionType, this.iterableType, "implicit")) {
             /*
              * Loop over Iterable
             */
-            let iteratorSnippet = new CodeSnippetContainer(SnippetFramer.frame(collectionSnippet, `${Helpers.checkNPE('§1', node.collection.range)}._mj$iterator$Iterator$(${StepParams.thread}, undefined);\n`), node.collection.range, this.iteratorType);
-            iteratorSnippet.addNextStepMark();
-            iteratorSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(stackIndexForCollection)} = ${Helpers.threadStack}.pop();\n`, node.collection.range));
-            iteratorSnippet.range = node.collection.range;
-            forLoopSnippet.addParts(iteratorSnippet);
+            let iterator = Helpers.elementRelativeToStackbase(stackIndexForCollection);
+            code.push(...statement(collectionSnippet, value => `${Helpers.checkNPE(value, collectionRange)}._mj$iterator$Iterator$(${StepParams.thread}, undefined);\n`), STEP,
+                `${iterator} = ${Helpers.threadStack}.pop();\n`, ...at(collectionRange));
 
             collectionElementType = this.objectType;
             let nptCollectionType = collectionType as (IJavaClass | IJavaInterface);
@@ -453,31 +415,17 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 elementType, forLoopSymbolTable);
             forLoopSymbolTable.addSymbol(elementVariable);
 
-            forLoopSnippet.addNextStepMark();
-            forLoopSnippet.addParts(continueLabel);
-
-            forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(stackIndexForCollection)}._mj$hasNext$boolean$(${StepParams.thread}, undefined);\n`, node.collection.range));
-            forLoopSnippet.addNextStepMark();
-
-            forLoopSnippet.addParts(new StringCodeSnippet(`if(!${Helpers.threadStack}.pop()){\n   `, node.collection.range));
-            forLoopSnippet.addParts(breakJumpSnippet);
-            forLoopSnippet.addParts(new StringCodeSnippet(`}\n`));
-
-            forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(stackIndexForCollection)}._mj$next$E$(${StepParams.thread}, undefined);\n`, node.collection.range));
-            forLoopSnippet.addNextStepMark();
-            forLoopSnippet.addParts(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(elementVariable.stackframePosition!)} = ${Helpers.threadStack}.pop();\n`, node.collection.range));
+            code.push(STEP,
+                continueLabel,
+                `${iterator}._mj$hasNext$boolean$(${StepParams.thread}, undefined);\n`, ...at(collectionRange), STEP,
+                `if(!${Helpers.threadStack}.pop()){\n   `, ...at(collectionRange), jump(breakLabel), `}\n`,
+                `${iterator}._mj$next$E$(${StepParams.thread}, undefined);\n`, ...at(collectionRange), STEP,
+                `${Helpers.elementRelativeToStackbase(elementVariable.stackframePosition!)} = ${Helpers.threadStack}.pop();\n`, ...at(collectionRange));
             if (loopVariableNeedsConversion) {
-                let conversionSnippet = this.compileForEachLoopVariableConversion(elementVariable, collectionElementType, node.elementIdentifierPosition);
-                if (conversionSnippet) forLoopSnippet.addParts(conversionSnippet);
+                code.push(...this.compileForEachLoopVariableConversion(elementVariable, collectionElementType, node.elementIdentifierPosition) ?? []);
             }
 
-            let statementSnippet = this.compileStatementOrTerm(node.statementToRepeat) || new StringCodeSnippet('');
-
-            forLoopSnippet.addParts(statementSnippet);
-
-            forLoopSnippet.addParts(jumpToBeginSnippet);
-            forLoopSnippet.addNextStepMark();
-            forLoopSnippet.addParts(breakLabel);
+            code.push(...this.compileStatementOrTerm(node.statementToRepeat) ?? [], jump(continueLabel), STEP, breakLabel);
 
         } else {
             this.pushError(JCM.enhancedForLoopOnlyForArraysCollectionsIterables(), "error", node.collection.range);
@@ -490,7 +438,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         this.flow.joinJumpsTo(breakLabel);
 
         this.popSymbolTable();
-        return forLoopSnippet;
+        return code;
 
     }
 
@@ -526,18 +474,14 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         return this.canCastTo(elementType, loopVariableType, "implicit");
     }
 
-    /**
-     * Converts the value of the loop variable (which holds the element of type elementType) to the loop variable's type.
-     * Returns undefined if no conversion code is needed.
-     */
-    compileForEachLoopVariableConversion(loopVariable: JavaLocalVariable, elementType: JavaType, range: IRange): CodeSnippet | undefined {
+    compileForEachLoopVariableConversion(loopVariable: JavaLocalVariable, elementType: JavaType, range: IRange): Code | undefined {
         if (!loopVariable.type.isPrimitive && !elementType.isPrimitive) return undefined;  // widening reference conversion
         let loopVariableAccess = Helpers.elementRelativeToStackbase(loopVariable.stackframePosition!);
-        let converted = this.compileCast(new StringCodeSnippet(loopVariableAccess, range, elementType), loopVariable.type, "implicit");
-        return SnippetFramer.frame(converted, `${loopVariableAccess} = §1;\n`);
+        let converted = this.compileCast(term(loopVariableAccess, elementType, range), loopVariable.type, "implicit");
+        return statement(converted, value => `${loopVariableAccess} = ${value};\n`);
     }
 
-    compileForStatement(node: ASTForLoopNode): CodeSnippet | undefined {
+    compileForStatement(node: ASTForLoopNode): Code | undefined {
 
         /*
         * Local variables declared in head of for statement are valid inside whole for statement,
@@ -558,17 +502,14 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         let condition = this.compileTerm(conditionNode);
         condition = this.convertToBooleanPrimitiveAndPrintErrorIfNotPossible(condition, node.condition);
-        // if (!condition) condition = new StringCodeSnippet('true', node.range, this.booleanType);
+        // if (!condition) condition = term('true', this.booleanType, node.range);
 
-        let labelBeforeCheckingCondition = new LabelCodeSnippet();
-        let jumpToLabelBeforeCheckingCondition = new JumpToLabelCodeSnippet(labelBeforeCheckingCondition);
+        let labelBeforeCheckingCondition = new Label();
 
-        let labelBeforeLastStatement = new LabelCodeSnippet();
-        let jumpToLabelBeforeLastStatement = new JumpToLabelCodeSnippet(labelBeforeLastStatement);
+        let labelBeforeLastStatement = new Label();
         this.continueStack.push(labelBeforeLastStatement);
 
-        let labelAfterForBlock = new LabelCodeSnippet();
-        let jumpToLabelAfterForBlock = new JumpToLabelCodeSnippet(labelAfterForBlock);
+        let labelAfterForBlock = new Label();
         this.breakStack.push(labelAfterForBlock);
 
         // the loop body may be executed zero times, so the state after the condition is valid after the loop, too
@@ -592,28 +533,24 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             this.popSymbolTable();
             return undefined;
         }
-        let forSnippet = new CodeSnippetContainer([], node.range, this.voidType);
+        let code: Code = [];
 
         if (firstStatement) {
-            forSnippet.addParts(firstStatement);
-            forSnippet.addNextStepMark();
+            code.push(...firstStatement, STEP);
         }
-        forSnippet.addParts(labelBeforeCheckingCondition);
+        code.push(labelBeforeCheckingCondition);
         if (condition) {
-            forSnippet.addParts(new OneParameterTemplate(negationResult?.negationHappened ? 'if(§1){\n' : 'if(!(§1)){\n').applyToSnippet(this.voidType, node.condition!.range, condition));
-            forSnippet.addParts(jumpToLabelAfterForBlock);
-            forSnippet.addStringPart("}\n");
-            forSnippet.addNextStepMark();
+            code.push(...statement(condition, value => negationResult?.negationHappened ? `if(${value}){\n` : `if(!(${value})){\n`, node.condition!.range),
+                jump(labelAfterForBlock), "}\n", STEP);
         }
 
-        forSnippet.addParts(statementsToRepeat);
+        code.push(...statementsToRepeat, STEP, labelBeforeLastStatement);
 
-        forSnippet.addNextStepMark();
-        forSnippet.addParts(labelBeforeLastStatement);
+        let rangeOfJumpBack: IRange | undefined;
         if (lastStatement) {
-            forSnippet.addParts(lastStatement);
+            code.push(...lastStatement);
         } else {
-            jumpToLabelBeforeCheckingCondition.range = {
+            rangeOfJumpBack = {
                 startLineNumber: node.range.endLineNumber,
                 startColumn: node.range.endColumn,
                 endLineNumber: node.range.endLineNumber,
@@ -621,21 +558,18 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             }
         }
 
-        forSnippet.addParts(jumpToLabelBeforeCheckingCondition);
-
-        forSnippet.addNextStepMark();
-        forSnippet.addParts(labelAfterForBlock);
+        code.push(jump(labelBeforeCheckingCondition, rangeOfJumpBack), STEP, labelAfterForBlock);
 
         this.popSymbolTable();
-        return forSnippet;
+        return code;
     }
 
 
-    compileDoStatement(node: ASTDoWhileNode): CodeSnippetContainer | undefined {
-        let labelBeforeEvaluatingCondition = new LabelCodeSnippet();
+    compileDoStatement(node: ASTDoWhileNode): Code | undefined {
+        let labelBeforeEvaluatingCondition = new Label();
         this.continueStack.push(labelBeforeEvaluatingCondition);
 
-        let labelAfterDoWhileBlock = new LabelCodeSnippet();
+        let labelAfterDoWhileBlock = new Label();
         this.breakStack.push(labelAfterDoWhileBlock);
 
         let statementToRepeat = this.compileStatementOrTerm(node.statementToRepeat);
@@ -654,63 +588,47 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         if (this.isConstantWithValue(condition, true)) this.flow.markDead();
         this.flow.joinJumpsTo(labelAfterDoWhileBlock);
 
-        let doWhileSnippet = new CodeSnippetContainer([], node.range);
-
         if (!condition || !statementToRepeat) return undefined;
 
+        let labelAtBeginOfDoWhileBlock = new Label();
 
-        let labelAtBeginOfDoWhileBlock = new LabelCodeSnippet();
-        doWhileSnippet.addParts(labelAtBeginOfDoWhileBlock);
-        doWhileSnippet.addParts(statementToRepeat);
-        doWhileSnippet.addNextStepMark();
-
-        doWhileSnippet.addParts(labelBeforeEvaluatingCondition);
-        let sn1 = SnippetFramer.frame(condition, "if(§1){\n", this.voidType);
-        doWhileSnippet.addParts(sn1);
-        doWhileSnippet.addParts(new JumpToLabelCodeSnippet(labelAtBeginOfDoWhileBlock));
-        doWhileSnippet.addStringPart("}", undefined);
-
-        doWhileSnippet.addNextStepMark();
-        doWhileSnippet.addParts(labelAfterDoWhileBlock);
-
-        return doWhileSnippet;
+        return [
+            labelAtBeginOfDoWhileBlock,
+            ...statementToRepeat, STEP,
+            labelBeforeEvaluatingCondition,
+            ...statement(condition, value => `if(${value}){\n`), jump(labelAtBeginOfDoWhileBlock), "}", STEP,
+            labelAfterDoWhileBlock
+        ];
     }
 
-    compileBlockNode(node: ASTBlockNode, lockObject: ASTTermNode | undefined, synchronizedTokenRange: IRange | undefined): CodeSnippetContainer | undefined {
+    compileBlockNode(node: ASTBlockNode, lockObject: ASTTermNode | undefined, synchronizedTokenRange: IRange | undefined): Code | undefined {
         this.pushAndGetNewSymbolTable(node.range, false);
 
-        let snippet = new CodeSnippetContainer([], node.range);
+        let code: Code = [];
 
         if (lockObject) {
             this.synchronizedBlockCount++;
             let getLockObjectSnippet = this.compileTerm(lockObject);
             if (getLockObjectSnippet) {
-                let beforeEnteringSynchronizedBlockStatement = SnippetFramer.frame(getLockObjectSnippet, `return this.index + §1.${ObjectClass.prototype.beforeEnteringSynchronizedBlock.name}(${StepParams.thread});\n`);
-                snippet.addParts(beforeEnteringSynchronizedBlockStatement);
-                snippet.addNextStepMark();
-
-                // let enterSynchronizedBlockStatement = new StringCodeSnippet(`${StepParams.stack}.pop().${ObjectClass.prototype.enterSynchronizedBlock.name}(${StepParams.thread}, true);\n`, synchronizedTokenRange);
-                // snippet.addParts(enterSynchronizedBlockStatement);
+                code.push(...statement(getLockObjectSnippet, value => `return this.index + ${value}.${ObjectClass.prototype.beforeEnteringSynchronizedBlock.name}(${StepParams.thread});\n`), STEP);
             }
         }
 
-        snippet.addParts(this.compileStatementSequence(node.statements));
+        code.push(...this.compileStatementSequence(node.statements));
 
         if (lockObject) {
             let getLockObjectSnippet = this.compileTerm(lockObject);
             if (getLockObjectSnippet) {
-                let leaveSynchronizedBlockStatement = SnippetFramer.frame(getLockObjectSnippet, `§1.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`);
-                snippet.addParts(leaveSynchronizedBlockStatement);
-                snippet.addNextStepMark();
+                code.push(...statement(getLockObjectSnippet, value => `${value}.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`), STEP);
             }
             this.synchronizedBlockCount--;
         }
 
         this.popSymbolTable();
-        return snippet;
+        return code;
     }
 
-    convertToBooleanPrimitiveAndPrintErrorIfNotPossible(snippet: CodeSnippet, node: ASTNode): CodeSnippet {
+    convertToBooleanPrimitiveAndPrintErrorIfNotPossible(snippet: Expr, node: ASTNode): Expr {
         let type = snippet?.type
         if (!type) return snippet;
 
@@ -728,7 +646,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         return snippet;
     }
 
-    compileWhileStatement(node: ASTWhileNode): CodeSnippetContainer | undefined {
+    compileWhileStatement(node: ASTWhileNode): Code | undefined {
         let conditionNode = node.condition;
         if (!conditionNode) return undefined;
 
@@ -740,10 +658,10 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         condition = this.convertToBooleanPrimitiveAndPrintErrorIfNotPossible(condition, node.condition);
 
-        let labelAtBeginOfWhileBlock = new LabelCodeSnippet();
+        let labelAtBeginOfWhileBlock = new Label();
         this.continueStack.push(labelAtBeginOfWhileBlock);
 
-        let labelAfterWhileBlock = new LabelCodeSnippet();
+        let labelAfterWhileBlock = new Label();
         this.breakStack.push(labelAfterWhileBlock);
 
         // the loop body may be executed zero times, so the state after the condition is valid after the loop, too
@@ -759,30 +677,20 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         this.flow.restore(conditionIsConstantTrue ? FlowState.dead() : stateAfterCondition);
         this.flow.joinJumpsTo(labelAfterWhileBlock);
 
-        let whileSnippet = new CodeSnippetContainer([], node.range);
-
         if (!condition || !statementToRepeat) return undefined;
 
-
-        whileSnippet.addParts(labelAtBeginOfWhileBlock);
-        let sn1 = SnippetFramer.frame(condition, negationResult.negationHappened ? "if(§1){\n" : "if(!(§1)){\n", this.voidType);
-        whileSnippet.addParts(sn1);
-        whileSnippet.addParts(new JumpToLabelCodeSnippet(labelAfterWhileBlock));
-        whileSnippet.addStringPart("}", undefined);
-        whileSnippet.addNextStepMark();
-        whileSnippet.addParts(statementToRepeat);
-        let jtls = new JumpToLabelCodeSnippet(labelAtBeginOfWhileBlock);
-        jtls.range = Range.fromPositions(Range.getEndPosition(statementToRepeat.range!))
-        whileSnippet.addParts(jtls);
-        whileSnippet.addNextStepMark();
-        whileSnippet.addParts(labelAfterWhileBlock);
-
-        return whileSnippet;
+        return [
+            labelAtBeginOfWhileBlock,
+            ...statement(condition, value => negationResult.negationHappened ? `if(${value}){\n` : `if(!(${value})){\n`), jump(labelAfterWhileBlock), "}", STEP,
+            ...statementToRepeat,
+            jump(labelAtBeginOfWhileBlock, Range.fromPositions(Range.getEndPosition(node.statementToRepeat.range))), STEP,
+            labelAfterWhileBlock
+        ];
     }
 
 
-    isConstantWithValue(snippet: CodeSnippet | undefined, value: boolean): boolean {
-        return !!snippet && snippet.isConstant() && snippet.getConstantValue() === value;
+    isConstantWithValue(snippet: Expr | undefined, value: boolean): boolean {
+        return !!snippet && isConstant(snippet) && snippet.constant === value;
     }
 
     negateConditionIfPossible(node: ASTTermNode): { newNode: ASTTermNode, negationHappened: boolean } {
@@ -818,45 +726,35 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         return x != undefined;
     }
 
-    /**
-     * Compiles one statement group (case ...: statements or default: statements) of a switch statement.
-     * @returns [snippet with case/default label(s) inside the javascript switch statement which jumps to label,
-     *           snippet consisting of label followed by the statements of this group]
-     */
-    compileCaseStatement(node: ASTCaseNode, label: LabelCodeSnippet,
-        typeId: string | undefined, enumType: JavaEnum | undefined): [CodeSnippet, CodeSnippet] | undefined {
+    compileCaseStatement(node: ASTCaseNode, label: Label,
+        typeId: string | undefined, enumType: JavaEnum | undefined): [Code, Code] | undefined {
 
-        let caseSnippet = new CodeSnippetContainer([], node.range);
+        let caseCode: Code = [];
 
         if (node.isDefaultNode) {
-            caseSnippet.addStringPart("default: \n", node.range);
-        } else if (!this.compileCaseLabels(node, caseSnippet, typeId, enumType)) {
+            caseCode.push("default: \n", ...at(node.range));
+        } else if (!this.compileCaseLabels(node, caseCode, typeId, enumType)) {
             return undefined;
         }
 
-        caseSnippet.addParts(new JumpToLabelCodeSnippet(label));
+        caseCode.push(jump(label));
 
         let statementCode = this.compileStatementSequence(node.statements);
 
-        let caseStatementSnippet = new CodeSnippetContainer([], node.range);
-        caseStatementSnippet.addParts(label);
-        caseStatementSnippet.addParts(statementCode);
-        caseStatementSnippet.addNextStepMark();
-
-        return [caseSnippet, caseStatementSnippet];
+        return [caseCode, [label, ...statementCode, STEP]];
     }
 
     /**
      * Compiles the constants of a case node and adds a javascript case label for each of them to caseSnippet.
      * @returns false if no constant could be compiled
      */
-    compileCaseLabels(node: ASTCaseNode, caseSnippet: CodeSnippetContainer,
+    compileCaseLabels(node: ASTCaseNode, caseCode: Code,
         typeId: string | undefined, enumType: JavaEnum | undefined): boolean {
 
-        let constants: CodeSnippet[] = [];
+        let constants: Expr[] = [];
 
         for (let constantNode of node.constants) {
-            let constant: CodeSnippet | undefined;
+            let constant: Expr | undefined;
 
             if (enumType) {
                 let enumIdentifier = "";
@@ -877,13 +775,13 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                     return false;
                 }
                 this.registerUsagePosition(enumType.fields[enumIndex], enumIdentifierRange);
-                constant = new StringCodeSnippet(enumIndex + "", enumIdentifierRange, this.intType, enumIndex);
+                constant = term(enumIndex + "", this.intType, enumIdentifierRange, enumIndex);
             } else {
                 constant = this.compileTerm(constantNode);
             }
 
             if (constant) {
-                if (!(constant.isConstant() || constant.isFinalField)) {
+                if (!(isConstant(constant) || constant.isFinalField)) {
                     this.pushError(JCM.constantValueExpectedAfterCase(), "error", constantNode.range);
                 } else if (!constant.type || constant.type.identifier.toLowerCase() != typeId?.toLowerCase()) {
                     this.pushError(JCM.caseValueDoesntFitToSwitchValue(typeId || "---", constant.type!.identifier), "error", constantNode.range);
@@ -899,19 +797,19 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         }
 
         for (let constant of constants) {
-            let constantValue = constant.getConstantValue();
+            let constantValue = constant.constant;
 
             if (typeof constantValue != 'undefined') {
                 switch (typeId) {
                     case 'String':
                     case 'string':
                     case 'char':
-                        caseSnippet.addStringPart(`case ${JSON.stringify(constantValue)}: \n`, node.range); break;
+                        caseCode.push(`case ${JSON.stringify(constantValue)}: \n`, ...at(node.range)); break;
                     default:
-                        caseSnippet.addStringPart(`case ${constantValue}: \n`, node.range);
+                        caseCode.push(`case ${constantValue}: \n`, ...at(node.range));
                 }
             } else {
-                caseSnippet.addStringPart(`case ${constant.emit()}: \n`, node.range);
+                caseCode.push(`case ${constant.value}: \n`, ...at(node.range));
             }
         }
 
@@ -924,7 +822,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
     */
 
 
-    compileSwitchCaseStatement(node: ASTSwitchCaseNode): CodeSnippet | undefined {
+    compileSwitchCaseStatement(node: ASTSwitchCaseNode): Code | undefined {
         let term = this.compileTerm(node.term);
 
 
@@ -936,7 +834,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let enumType = type instanceof JavaEnum ? type as JavaEnum : undefined;
 
         if (enumType) {
-            term = SnippetFramer.frame(term, "§1.ordinal");
+            term = frame(term, "§1.ordinal");
         }
 
         // switch on wrapper types: unboxing (throws NullPointerException if value is null, like in java)
@@ -958,21 +856,21 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         this.pushAndGetNewSymbolTable(node.range, false);
 
-        let breakLabel = new LabelCodeSnippet();
+        let breakLabel = new Label();
         this.breakStack.push(breakLabel);
 
         // Statement groups (case ...: statements; default: statements) are compiled and emitted
         // in source code order, because control falls through from each group to the next one.
         // Each of them gets its own label; the javascript switch statement only jumps to these labels.
-        let caseLabelSnippets: CodeSnippet[] = [];
-        let statementGroupSnippets: CodeSnippet[] = [];
+        let caseLabelSnippets: Code[] = [];
+        let statementGroupSnippets: Code[] = [];
 
         let stateBeforeSwitchBlock = this.flow.snapshot();
 
         for (let caseNode of node.caseNodes) {
             // a statement group is reached by jumping to its label or by falling through from the previous group
             this.flow.joinWith(stateBeforeSwitchBlock);
-            let caseSnippets = this.compileCaseStatement(caseNode, new LabelCodeSnippet(), enumType ? "int" : type.identifier, enumType);
+            let caseSnippets = this.compileCaseStatement(caseNode, new Label(), enumType ? "int" : type.identifier, enumType);
             if (caseSnippets) {
                 caseLabelSnippets.push(caseSnippets[0]);
                 statementGroupSnippets.push(caseSnippets[1]);
@@ -987,27 +885,17 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         this.breakStack.pop();
         this.popSymbolTable();
 
-        let switchSnippet = new CodeSnippetContainer([], node.range);
-
-        switchSnippet.addParts(SnippetFramer.frame(term, "switch(§1){\n", this.voidType));
-
-        caseLabelSnippets.forEach(caseLabelSnippet => switchSnippet.addParts(caseLabelSnippet));
-
-        switchSnippet.addStringPart("\n }\n", undefined);
-
-        switchSnippet.addParts(new JumpToLabelCodeSnippet(breakLabel));
-
-        switchSnippet.addNextStepMark();
-
-        statementGroupSnippets.forEach(statementGroupSnippet => switchSnippet.addParts(statementGroupSnippet));
-
-        switchSnippet.addParts(breakLabel);
-
-        return switchSnippet;
+        return [
+            ...statement(term, value => `switch(${value}){\n`),
+            ...caseLabelSnippets.flat(),
+            "\n }\n", jump(breakLabel), STEP,
+            ...statementGroupSnippets.flat(),
+            breakLabel
+        ];
     }
 
 
-    compileIfStatement(node: ASTIfNode): CodeSnippetContainer | undefined {
+    compileIfStatement(node: ASTIfNode): Code | undefined {
 
         let conditionNode = node.condition;
         if (!conditionNode) return undefined;
@@ -1032,8 +920,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         }
         let statementIfTrue = this.compileStatementOrTerm(node.statementIfTrue);
 
-        if (statementIfTrue?.isEmptyStatement()) {
-            this.pushError(JCM.emptyStatementAfterIf(), "warning", statementIfTrue.range);
+        if (statementIfTrue && isEmptyCode(statementIfTrue)) {
+            this.pushError(JCM.emptyStatementAfterIf(), "warning", node.statementIfTrue.range);
         }
 
         if (instanceOfVariables) {
@@ -1062,49 +950,31 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         if (!condition || !statementIfTrue) return undefined;
 
-        let ifSnippet = new CodeSnippetContainer([], node.range);
-
-        let sn1 = SnippetFramer.frame(condition, negationResult.negationHappened ? "if(§1){\n" : "if(!(§1)){\n", this.voidType, node.range);
-        let label1 = new LabelCodeSnippet();
-        ifSnippet.addParts(sn1);
-        let jumpToLabel1 = new JumpToLabelCodeSnippet(label1);
-        ifSnippet.addParts(jumpToLabel1);
-        ifSnippet.addStringPart("}\n");
-
-        ifSnippet.addNextStepMark();
+        let label1 = new Label();
+        let code: Code = [
+            ...statement(condition, value => negationResult.negationHappened ? `if(${value}){\n` : `if(!(${value})){\n`), jump(label1), "}\n", STEP
+        ];
 
         if (statementIfFalse) {
-            let label2 = new LabelCodeSnippet();
-            let jumpToLabel2 = new JumpToLabelCodeSnippet(label2);
-
-            ifSnippet.addParts(statementIfTrue);
-
-            ifSnippet.addParts(jumpToLabel2);
-            ifSnippet.addNextStepMark();
-
-            ifSnippet.addParts(label1);
-            ifSnippet.addParts(statementIfFalse);
-
-            ifSnippet.addNextStepMark();
-            ifSnippet.addParts(label2);
-
+            let label2 = new Label();
+            code.push(...statementIfTrue, jump(label2), STEP,
+                label1, ...statementIfFalse, STEP,
+                label2);
         } else {
-            ifSnippet.addParts(statementIfTrue);
-            ifSnippet.addNextStepMark();
             // without else case:
-            ifSnippet.addParts(label1);
+            code.push(...statementIfTrue, STEP, label1);
         }
 
-        return ifSnippet;
+        return code;
 
     }
 
-    compilePrintStatement(node: ASTPrintStatementNode): CodeSnippet | undefined {
+    compilePrintStatement(node: ASTPrintStatementNode): Code | undefined {
         let firstParameter = this.compileTerm(node.firstParameter);
         let secondParameter = node.secondParameter ? this.compileTerm(node.secondParameter) : undefined;
 
 
-        let statement = node.isPrintln ? Helpers.println : Helpers.print;
+        let printMethod = node.isPrintln ? Helpers.println : Helpers.print;
 
         if (firstParameter?.type && firstParameter.type != this.voidType) {
 
@@ -1115,30 +985,29 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             }
 
             if (secondParameter) {
-                return new TwoParameterTemplate(`${statement}(§1, §2${secondParameter.type == this.stringNonPrimitiveType ? '.value' : ''});\n`)
-                    .applyToSnippet(this.voidType, node.range, firstParameter, secondParameter)
+                let suffix = secondParameter.type == this.stringNonPrimitiveType ? '.value' : '';
+                let printCall = combine(this.voidType, node.range, [firstParameter, secondParameter], (first, second) => `${printMethod}(${first}, ${second}${suffix});\n`);
+                return statement(printCall, value => value);
             }
-            return new OneParameterTemplate(`${statement}(§1, undefined);\n`)
-                .applyToSnippet(this.voidType, node.range, firstParameter);
+            return statement(firstParameter, value => `${printMethod}(${value}, undefined);\n`, node.range);
         }
-        return new StringCodeSnippet(`${statement}(undefined, undefined);\n`, node.range);
+        return [`${printMethod}(undefined, undefined);\n`, ...at(node.range)];
     }
 
-    compileLocalVariableDeclarations(node: ASTLocalVariableDeclarations): CodeSnippet | undefined {
-        let snippets: CodeSnippet[] = [];
+    compileLocalVariableDeclarations(node: ASTLocalVariableDeclarations): Code | undefined {
+        let code: Code = [];
 
         for (let lvd of node.declarations) {
-            let snippet = this.compileLocalVariableDeclaration(lvd);
-            if (snippet) snippets.push(snippet);
+            code.push(...this.compileLocalVariableDeclaration(lvd) ?? []);
         }
 
-        if (snippets.length == 0) return undefined;
+        if (code.length == 0) return undefined;
 
-        return new CodeSnippetContainer(snippets)
+        return code;
 
     }
 
-    compileLocalVariableDeclaration(node: ASTLocalVariableDeclaration): CodeSnippet | undefined {
+    compileLocalVariableDeclaration(node: ASTLocalVariableDeclaration): Code | undefined {
 
         if (this.codeGenerationMode == "repl") {
             this.pushError(JCM.noVariableDeclarationWhileProgramIsRunning(), "error", node.range);
@@ -1148,7 +1017,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             node.type.resolvedType!, this.currentSymbolTable);
         variable.isFinal = node.isFinal;
 
-        let initValueSnippet: CodeSnippet | undefined = this.compileInitialValue(node.initialization, variable.type);
+        let initValueSnippet: Expr | undefined = this.compileInitialValue(node.initialization, variable.type);
 
         let shadowedSymbolInformation = this.currentSymbolTable.findSymbol(variable.identifier);
         let shadowedSymbol = shadowedSymbolInformation?.symbol;
@@ -1187,23 +1056,21 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             if (node.type.kind == TokenType.varType) {
                 let valueType = initValueSnippet.type!;
                 variable.type = valueType;
-                if (valueType == this.floatType && initValueSnippet.isConstant()) {
+                if (valueType == this.floatType && isConstant(initValueSnippet)) {
                     variable.type = this.doubleType;
                 }
 
             }
 
-            let snippet = new BinaryOperatorTemplate('=', false)
-                .applyToSnippet(variable.type, node.range, accesLocalVariableSnippet, initValueSnippet);
-            return SnippetFramer.frame(snippet, '§1;\n');
+            return toStatement(this.assign(accesLocalVariableSnippet, initValueSnippet, variable.type, node.range, (l, r) => `${l} = ${r}`));
         }
 
         return undefined;
     }
 
-    compileInitialValue(initializationNode: ASTTermNode | undefined, destinationType: JavaType): CodeSnippet | undefined {
+    compileInitialValue(initializationNode: ASTTermNode | undefined, destinationType: JavaType): Expr | undefined {
 
-        let initValueSnippet: CodeSnippet | undefined;
+        let initValueSnippet: Expr | undefined;
 
         if (initializationNode) {
 
@@ -1235,8 +1102,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 if (initializationNode.kind == TokenType.newObject) {
                     if (destinationType instanceof GenericVariantOfJavaClass || destinationType instanceof GenericVariantOfJavaInterface) {
                         if (this.canCastTo(initValueSnippet.type, destinationType.isGenericVariantOf, "implicit")) {
-                            initValueSnippet.type = destinationType;
-                            return initValueSnippet;
+                            return { ...initValueSnippet, type: destinationType };
                         }
                     }
 
@@ -1260,16 +1126,14 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
             let defaultValueAsString: string = destinationType.isPrimitive ? (<PrimitiveType>destinationType).defaultValueAsString : "null";
             let defaultValue = destinationType.isPrimitive ? (<PrimitiveType>destinationType).defaultValue : null;
-            // initValueSnippet = new StringCodeSnippet(defaultValue, EmptyRange.instance, destinationType);
-            initValueSnippet = new StringCodeSnippet(defaultValueAsString, EmptyRange.instance, destinationType);
-            (<StringCodeSnippet>initValueSnippet).setConstantValue(defaultValue);
+            initValueSnippet = term(defaultValueAsString, destinationType, EmptyRange.instance, defaultValue);
 
         }
 
         return initValueSnippet;
     }
 
-    compileThrowStatement(node: ASTThrowNode): CodeSnippet | undefined {
+    compileThrowStatement(node: ASTThrowNode): Code | undefined {
         let exceptionSnippet = this.compileTerm(node.exception);
         if (!exceptionSnippet) return undefined;
 
@@ -1280,17 +1144,16 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             }
         }
 
-        return new OneParameterTemplate(`throw §1;\n`).applyToSnippet(this.voidType, node.range, exceptionSnippet);
+        return statement(exceptionSnippet, value => `throw ${value};\n`, node.range);
     }
 
-    compileTryCatchStatement(node: ASTTryCatchNode): CodeSnippet | undefined {
-        let catchCaseLabels: LabelCodeSnippet[] = [];
+    compileTryCatchStatement(node: ASTTryCatchNode): Code | undefined {
+        let catchCaseLabels: Label[] = [];
         let catchBlockInfos: CatchBlockInfo[] = [];
 
 
         for (let i = 0; i < node.catchCases.length; i++) {
             let catchCase = node.catchCases[i];
-            let label = new LabelCodeSnippet();
             let exceptionTypes: Record<string, boolean> = {};
 
             for (let type of catchCase.exceptionTypes) {
@@ -1300,25 +1163,23 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 }
             }
 
-            let catchBlockInfo: CatchBlockInfo = {
+            catchCaseLabels[i] = new Label();
+            catchBlockInfos[i] = {
                 exceptionTypes: exceptionTypes,
                 catchBlockBeginsWithStepIndex: -1
-            }
-
-            catchCaseLabels[i] = label;
-            catchBlockInfos[i] = catchBlockInfo;
-
-            label.addIndexingListener((index) => catchBlockInfo.catchBlockBeginsWithStepIndex = index);
+            };
         }
 
-        let finallyBlockLabel: LabelCodeSnippet | undefined;
+        let finallyBlockLabel = new Label();
 
         // this in context of Step.run-function points to Step-object
-        let beginTryBlockSnippet = new StringCodeSnippet(`${Helpers.beginTryBlock}({catchBlockInfos: this.catchBlockInfoList, finallyBlockIndex: this.finallyBlockIndex});\n`, node.range);
-        beginTryBlockSnippet.addEmitToStepListener((step) => {
+        let beginTryBlock: Code = [`${Helpers.beginTryBlock}({catchBlockInfos: this.catchBlockInfoList, finallyBlockIndex: this.finallyBlockIndex});\n`, ...at(node.range),
+        hook(step => {
+            // labels already know their step index when hooks are called
+            catchBlockInfos.forEach((catchBlockInfo, i) => catchBlockInfo.catchBlockBeginsWithStepIndex = catchCaseLabels[i].stepIndex);
             step.catchBlockInfoList = catchBlockInfos;
-            step.finallyBlockIndex = finallyBlockLabel?.stepIndex;
-        });
+            step.finallyBlockIndex = node.finallyStatement ? finallyBlockLabel.stepIndex : -1;
+        })];
 
         // catch blocks and finally block may be entered after an exception anywhere in the try block,
         // so they start with the state before the try statement
@@ -1327,12 +1188,9 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let stateAfterTryAndCatchBlocks = this.flow.snapshot();
         if (!tryBlockStatements) return undefined;
 
-        if (tryBlockStatements instanceof CodeSnippetContainer) tryBlockStatements.removeNextStepBeforeSnippetMark();
-
-        let endTryBlockSnippet = new StringCodeSnippet(`${Helpers.endTryBlock}();\n`, node.range);
-
-        let labelAfterLastCatchBlock = new LabelCodeSnippet();
-        let snippetContainer = new CodeSnippetContainer([beginTryBlockSnippet, tryBlockStatements, endTryBlockSnippet, labelAfterLastCatchBlock.getJumpToSnippet()], node.range);
+        let labelAfterLastCatchBlock = new Label();
+        let code: Code = [...beginTryBlock, ...this.withoutLeadingSteps(tryBlockStatements),
+            `${Helpers.endTryBlock}();\n`, ...at(node.range), jump(labelAfterLastCatchBlock)];
 
 
         for (let i = 0; i < node.catchCases.length; i++) {
@@ -1345,42 +1203,39 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             exceptionVariable.isFinal = true;
             this.currentSymbolTable.addSymbol(exceptionVariable);
 
-            snippetContainer.addNextStepMark();
-            snippetContainer.addParts(catchCaseLabels[i]);
-            let storeExceptionVariableStatement = new StringCodeSnippet(`${Helpers.threadStack}[${StepParams.stackBase} + ${exceptionVariable.stackframePosition}] = ${Helpers.getExceptionAndTrimStack}(true);\n`);
-            snippetContainer.addParts(storeExceptionVariableStatement);
+            code.push(STEP, catchCaseLabels[i],
+                `${Helpers.threadStack}[${StepParams.stackBase} + ${exceptionVariable.stackframePosition}] = ${Helpers.getExceptionAndTrimStack}(true);\n`);
 
             this.flow.restore(stateBeforeTryStatement);
             let statement = this.compileStatementOrTerm(catchCase.statement);
             stateAfterTryAndCatchBlocks = stateAfterTryAndCatchBlocks.join(this.flow.state);
 
-            if (statement) {
-                if (statement instanceof CodeSnippetContainer) statement.removeNextStepBeforeSnippetMark();
-                snippetContainer.addParts(statement);
-            }
+            if (statement) code.push(...this.withoutLeadingSteps(statement));
 
-            snippetContainer.addParts(labelAfterLastCatchBlock.getJumpToSnippet());
+            code.push(jump(labelAfterLastCatchBlock));
 
         }
 
         this.flow.restore(stateAfterTryAndCatchBlocks);
 
-        finallyBlockLabel = new LabelCodeSnippet();
-        snippetContainer.addNextStepMark();
-        snippetContainer.addParts(labelAfterLastCatchBlock);
+        code.push(STEP, labelAfterLastCatchBlock);
         if (node.finallyStatement) {
-            snippetContainer.addParts(finallyBlockLabel);
-            snippetContainer.addStringPart(`${Helpers.getExceptionAndTrimStack}(false);\n`);
+            code.push(finallyBlockLabel, `${Helpers.getExceptionAndTrimStack}(false);\n`);
             this.flow.restore(stateBeforeTryStatement);
             let finallyStatement = this.compileStatementOrTerm(node.finallyStatement);
             this.flow.afterFinallyBlock(stateAfterTryAndCatchBlocks);
-            if (finallyStatement instanceof CodeSnippetContainer) finallyStatement.removeNextStepBeforeSnippetMark();
-            snippetContainer.addParts(finallyStatement);
-            snippetContainer.addStringPart(`if(${Helpers.getExceptionAndTrimStack}(false)){${Helpers.return}(); return;};\n`);
+            if (finallyStatement) code.push(...this.withoutLeadingSteps(finallyStatement));
+            code.push(`if(${Helpers.getExceptionAndTrimStack}(false)){${Helpers.return}(); return;};\n`, ...at(node.range));
         }
 
-        return snippetContainer;
+        return code;
 
+    }
+
+    withoutLeadingSteps(code: Code): Code {
+        let i = 0;
+        while (i < code.length && code[i] === STEP) i++;
+        return code.slice(i);
     }
 
 

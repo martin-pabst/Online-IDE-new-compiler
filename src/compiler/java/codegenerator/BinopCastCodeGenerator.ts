@@ -20,13 +20,11 @@ import { JavaInterface } from "../types/JavaInterface";
 import { JavaType } from "../types/JavaType";
 import { NonPrimitiveType } from "../types/NonPrimitiveType";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType";
-import { CodeSnippet, ConstantValue, StringCodeSnippet } from "./CodeSnippet";
-import { CodeSnippetContainer } from "./CodeSnippetKinds";
-import { SnippetFramer } from "./CodeSnippetTools";
-import { BinaryOperatorTemplate, OneParameterTemplate, TwoParameterTemplate } from "./CodeTemplate";
+import { PrimitiveType } from "../runtime/system/primitiveTypes/PrimitiveType";
+import { jump, Label, STEP } from "./Code";
+import { apply, Build, combine, compoundAssignment, ConstantValue, Expr, frame, isConstant, isPure, javaCall, term, toStack } from "./Expr";
 import { JavaLocalVariable } from "./JavaLocalVariable.ts";
 import { JavaSymbolTable } from "./JavaSymbolTable.ts";
-import { LabelCodeSnippet } from "./LabelManager";
 
 var nOtherClass = 0, nVoid = 1, nBoolean = 2, nChar = 3, nByte = 4, nShort = 5, nInteger = 6, nLong = 7, nFloat = 8, nDouble = 9, nString = 10;
 
@@ -136,7 +134,7 @@ export abstract class BinopCastCodeGenerator {
 
     }
 
-    compileBinaryOperation(leftSnippet: CodeSnippet, rightSnippet: CodeSnippet, ast: ASTBinaryNode): CodeSnippet | undefined {
+    compileBinaryOperation(leftSnippet: Expr, rightSnippet: Expr, ast: ASTBinaryNode): Expr | undefined {
         if (!leftSnippet || !rightSnippet) return leftSnippet; // there had been an error before...
 
         if (!leftSnippet.type) {
@@ -179,19 +177,19 @@ export abstract class BinopCastCodeGenerator {
         if (isEqualityOperator && this.settingStore.getValue("compiler.equalityOperatorForStringsCompares") == "references"
             && lTypeIndex == nString && rTypeIndex == nString) {
 
-            return new BinaryOperatorTemplate(operatorIdentifier + "=", true).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
+            return this.binaryOperation(operatorIdentifier + "=", this.booleanType, wholeRange, leftSnippet, rightSnippet);
 
         }
 
         // unbox if necessary
         // don't unbox when comparing boxed value to null.
-        if (lWrapperIndex && rightSnippet.getConstantValue() !== null) leftSnippet = this.unbox(leftSnippet);
-        if (rWrapperIndex && leftSnippet.getConstantValue() !== null) rightSnippet = this.unbox(rightSnippet);
+        if (lWrapperIndex && rightSnippet.constant !== null) leftSnippet = this.unbox(leftSnippet);
+        if (rWrapperIndex && leftSnippet.constant !== null) rightSnippet = this.unbox(rightSnippet);
 
         if (isEqualityOperator) {
             if (leftType == this.nullType && (!rightType.isPrimitive || rightType == this.stringType)
                 || rightType == this.nullType && (!leftType.isPrimitive || leftType == this.stringType)) {
-                return new BinaryOperatorTemplate(operatorIdentifier, true).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
+                return this.binaryOperation(operatorIdentifier, this.booleanType, wholeRange, leftSnippet, rightSnippet);
             }
 
             if (lTypeIndex == 0 && rTypeIndex != 0 || lTypeIndex != 0 && rTypeIndex == 0) {
@@ -199,7 +197,7 @@ export abstract class BinopCastCodeGenerator {
                 return undefined;
             }
 
-            return new BinaryOperatorTemplate(operatorIdentifier, true).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
+            return this.binaryOperation(operatorIdentifier, this.booleanType, wholeRange, leftSnippet, rightSnippet);
         }
 
         // both operators are unboxed and operation is not in [==, !=]
@@ -228,7 +226,7 @@ export abstract class BinopCastCodeGenerator {
         }
 
         // now both types are in [byte, short, int, long, float, double]
-        if (comparisonOperators.indexOf(operator) >= 0) return new BinaryOperatorTemplate(operatorIdentifier, false).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
+        if (comparisonOperators.indexOf(operator) >= 0) return this.binaryOperation(operatorIdentifier, this.booleanType, wholeRange, leftSnippet, rightSnippet);
 
 
         // now both types are in [byte, short, int, long, float, double]
@@ -238,17 +236,17 @@ export abstract class BinopCastCodeGenerator {
                 this.pushError(JCM.operatorNotFeasibleForOperands(operatorIdentifier, lIdentifier, rIdentifier), "error", operatorRange);
                 return undefined;
             }
-            return new BinaryOperatorTemplate(operatorIdentifier, false).applyToSnippet(leftType, wholeRange, leftSnippet, rightSnippet);
+            return this.binaryOperation(operatorIdentifier, leftType, wholeRange, leftSnippet, rightSnippet);
         }
 
         // now both types are in [byte, short, int, long, float, double]
         // operators are +, -, *, /, %
         let resultType = this.primitiveTypes[Math.max(lTypeIndex, rTypeIndex)];
-        return new BinaryOperatorTemplate(operatorIdentifier, false).applyToSnippet(resultType, wholeRange, leftSnippet, rightSnippet);
+        return this.binaryOperation(operatorIdentifier, resultType, wholeRange, leftSnippet, rightSnippet);
 
     }
 
-    compileInstanceOf(leftSnippet: CodeSnippet, rightSnippet: CodeSnippet, ast: ASTBinaryNode): CodeSnippet | undefined {
+    compileInstanceOf(leftSnippet: Expr, rightSnippet: Expr, ast: ASTBinaryNode): Expr | undefined {
         let leftType = leftSnippet.type!;
         let rightType = rightSnippet.type!;
 
@@ -276,62 +274,43 @@ export abstract class BinopCastCodeGenerator {
             ast.instanceofVariables.push(patternVariable)
         }
 
-        return SnippetFramer.frame(leftSnippet, `${Helpers.instanceof}(§1, "${(<StaticNonPrimitiveType>rightType).nonPrimitiveType.pathAndIdentifierAsDotSeparatedString}"${stackFramePositionString})`
+        return frame(leftSnippet, `${Helpers.instanceof}(§1, "${(<StaticNonPrimitiveType>rightType).nonPrimitiveType.pathAndIdentifierAsDotSeparatedString}"${stackFramePositionString})`
             , this.booleanType)
 
     }
 
 
 
-    /**
-     * now both types are in [boolean, char, byte, short, int, long, float, double]
-     * operation is in &&, ||, ^ ( means: XOR)
-     */
-    compileLogicOperation(leftSnippet: CodeSnippet, rightSnippet: CodeSnippet, lTypeIndex: number, rTypeIndex: number, lIdentifier: string, rIdentifier: string, operator: LogicOperator, operatorRange: IRange, wholeRange: IRange): CodeSnippet | undefined {
+    compileLogicOperation(leftSnippet: Expr, rightSnippet: Expr, lTypeIndex: number, rTypeIndex: number, lIdentifier: string, rIdentifier: string, operator: LogicOperator, operatorRange: IRange, wholeRange: IRange): Expr | undefined {
         if (lTypeIndex != nBoolean || rTypeIndex != nBoolean) {
             this.pushError(JCM.operatorNotFeasibleForOperands(TokenTypeReadable[operator], lIdentifier, rIdentifier), "error", operatorRange);
             return undefined;
         }
 
-        let bothSnippetsAreConstant = leftSnippet.isConstant() && rightSnippet.isConstant();
+        let bothSnippetsAreConstant = isConstant(leftSnippet) && isConstant(rightSnippet);
 
-        if (operator == TokenType.XOR || bothSnippetsAreConstant) return new BinaryOperatorTemplate(TokenTypeReadable[operator], false).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
+        if (operator == TokenType.XOR || bothSnippetsAreConstant) return this.binaryOperation(TokenTypeReadable[operator], this.booleanType, wholeRange, leftSnippet, rightSnippet);
 
         /*
         * lazy and/or
         */
-        // pure Term without pop => javascript interpreter does lazy evaluation for us:
-        if (leftSnippet.isPureTermWithoutPop() && rightSnippet.isPureTermWithoutPop()) return new BinaryOperatorTemplate(TokenTypeReadable[operator], false).applyToSnippet(this.booleanType, wholeRange, leftSnippet, rightSnippet);
+        // pure terms => javascript interpreter does lazy evaluation for us:
+        if (isPure(leftSnippet) && isPure(rightSnippet)) return this.binaryOperation(TokenTypeReadable[operator], this.booleanType, wholeRange, leftSnippet, rightSnippet);
 
         // ... otherwise we have to model lazy evaluation ourselves:
-        let snippetContainer = new CodeSnippetContainer([], wholeRange, this.booleanType);
+        let label = new Label();
+        let shortCircuit = operator == TokenType.and ? `if(!${StepParams.stack}.pop()){${StepParams.stack}.push(false);` : `if(${StepParams.stack}.pop()){${StepParams.stack}.push(true);`;
 
-        leftSnippet.ensureFinalValueIsOnStack();
-        snippetContainer.addParts(leftSnippet);
-
-        let label = new LabelCodeSnippet();
-        if (operator == TokenType.and) {
-            snippetContainer.addStringPart(`if(!${StepParams.stack}.pop()){${StepParams.stack}.push(false);`, EmptyRange.instance);
-        } else {
-            snippetContainer.addStringPart(`if(${StepParams.stack}.pop()){${StepParams.stack}.push(true);`, EmptyRange.instance);
+        return {
+            pre: [
+                ...toStack(leftSnippet).pre, shortCircuit, jump(label), '};', STEP,
+                ...toStack(rightSnippet).pre, STEP,
+                label
+            ],
+            value: `${StepParams.stack}.pop()`,
+            type: this.booleanType,
+            range: wholeRange
         }
-
-        snippetContainer.addParts(label.getJumpToSnippet());
-        snippetContainer.addStringPart('};', EmptyRange.instance);
-
-        snippetContainer.addNextStepMark();
-
-        rightSnippet.ensureFinalValueIsOnStack();
-        snippetContainer.addParts(rightSnippet);
-
-        snippetContainer.addNextStepMark();
-
-        snippetContainer.addParts(label);
-
-        snippetContainer.finalValueIsOnStack = true;
-
-        return snippetContainer;
-
 
     }
 
@@ -339,7 +318,7 @@ export abstract class BinopCastCodeGenerator {
      * one of the operands is of type string
      * both operators are unboxed and operation is not in [==, !=]
      */
-    compileBinaryOperationWithStrings(leftSnippet: CodeSnippet, rightSnippet: CodeSnippet, lTypeIndex: number, rTypeIndex: number, lIdentifier: string, rIdentifier: string, operator: BinaryOperator, operatorRange: IRange, wholeRange: IRange): CodeSnippet | undefined {
+    compileBinaryOperationWithStrings(leftSnippet: Expr, rightSnippet: Expr, lTypeIndex: number, rTypeIndex: number, lIdentifier: string, rIdentifier: string, operator: BinaryOperator, operatorRange: IRange, wholeRange: IRange): Expr | undefined {
         if (operator != TokenType.plus && comparisonOperators.indexOf(operator) < 0) {
             this.pushError(JCM.operatorNotFeasibleForOperands(TokenTypeReadable[operator], lIdentifier, rIdentifier), "error", operatorRange);
             return undefined;
@@ -350,37 +329,30 @@ export abstract class BinopCastCodeGenerator {
 
         let returnType: JavaType = operator == TokenType.plus ? this.stringType : this.booleanType;
 
-        return new BinaryOperatorTemplate(TokenTypeReadable[operator], false).applyToSnippet(returnType, wholeRange, leftSnippet, rightSnippet);
+        return this.binaryOperation(TokenTypeReadable[operator], returnType, wholeRange, leftSnippet, rightSnippet);
 
     }
 
-    wrapWithArrayToString(source: CodeSnippet, primitiveOrClassNeeded: "string" | "String"): CodeSnippet {
-        let newSnippet1: CodeSnippet;
+    wrapWithArrayToString(source: Expr, primitiveOrClassNeeded: "string" | "String"): Expr {
+        let newSnippet1: Expr;
 
         if ((<JavaArrayType>source.type!).elementType.isPrimitive) {
-            newSnippet1 = SnippetFramer.frame(source, `${Helpers.primitiveArrayToString}(§1)`);
+            newSnippet1 = frame(source, `${Helpers.primitiveArrayToString}(§1)`);
         } else {
-
-            let newSnippet2 = SnippetFramer.frame(source, `${Helpers.objectArrayToString}(§1);\n`);
-            newSnippet2.finalValueIsOnStack = true;
-
-            let newSnippet3 = new CodeSnippetContainer([newSnippet2]);
-            newSnippet3.addNextStepMark();
-            newSnippet1 = newSnippet3;
+            newSnippet1 = javaCall(frame(source, `${Helpers.objectArrayToString}(§1)`), true);
         }
 
         if (primitiveOrClassNeeded == "String") {
-            newSnippet1 = SnippetFramer.frame(newSnippet1, `new ${Helpers.classes}["String"](§1)`);
-            newSnippet1.type = this.stringNonPrimitiveType;
+            newSnippet1 = frame(newSnippet1, `new ${Helpers.classes}["String"](§1)`, this.stringNonPrimitiveType);
         }
 
         return newSnippet1;
     }
 
-    wrapWithToStringCall(leftSnippet: CodeSnippet, primitiveOrClassNeeded: "string" | "String"): CodeSnippet {
+    wrapWithToStringCall(leftSnippet: Expr, primitiveOrClassNeeded: "string" | "String"): Expr {
         if (leftSnippet.type?.identifier == "String") {
             if (primitiveOrClassNeeded == "string") {
-                return SnippetFramer.frame(leftSnippet, `${Helpers.nullstringIfNull}(§1)`, this.stringType);
+                return frame(leftSnippet, `${Helpers.nullstringIfNull}(§1)`, this.stringType);
             } else {
                 return leftSnippet;
             }
@@ -388,37 +360,30 @@ export abstract class BinopCastCodeGenerator {
 
         if (leftSnippet.type?.identifier == "string") {
             if (primitiveOrClassNeeded == "String") {
-                return SnippetFramer.frame(leftSnippet, `new ${Helpers.classes}["String"](§1)`, this.stringType);
+                return frame(leftSnippet, `new ${Helpers.classes}["String"](§1)`, this.stringType);
             } else {
                 return leftSnippet;
             }
         }
 
-        if (leftSnippet.isConstant()) {
-            let value = leftSnippet.getConstantValue();
+        if (isConstant(leftSnippet)) {
+            let text = "" + leftSnippet.constant;
             if (primitiveOrClassNeeded == "string") {
-                return new StringCodeSnippet('', leftSnippet.range, this.stringType, value);
+                return term(JSON.stringify(text), this.stringType, leftSnippet.range, text);
             } else {
-                if (value === null) {
-                    leftSnippet.type = this.stringNonPrimitiveType;
-                    return leftSnippet;
+                if (leftSnippet.constant === null) {
+                    return { ...leftSnippet, type: this.stringNonPrimitiveType };
                 }
-                return new StringCodeSnippet(`new ${Helpers.classes}["String"]("${"" + value}")`, leftSnippet.range, this.stringNonPrimitiveType);
+                return term(`new ${Helpers.classes}["String"](${JSON.stringify(text)})`, this.stringNonPrimitiveType, leftSnippet.range);
             }
         }
 
-
-        // let newSnippet1 = SnippetFramer.frame(leftSnippet, `${Helpers.checkNPE('§1', leftSnippet.range!)}._mj$toString$String$(__t, undefined);\n`, this.stringNonPrimitiveType);
-        let newSnippet1 = SnippetFramer.frame(leftSnippet, `${Helpers.toString}(__t, undefined, §1);\n`, this.stringNonPrimitiveType);
-        newSnippet1.finalValueIsOnStack = true;
-        let newSnippet2 = new CodeSnippetContainer(newSnippet1);
-        newSnippet2.addNextStepMark();
+        let newSnippet = javaCall(frame(leftSnippet, `${Helpers.toString}(__t, undefined, §1)`, this.stringNonPrimitiveType), true);
 
         if (primitiveOrClassNeeded == "string") {
-            let newSnippet3 = SnippetFramer.frame(newSnippet2, `(§1 ||${Helpers.classes}["String"].null).value`, this.stringType);
-            return newSnippet3;
+            return frame(newSnippet, `(§1 ||${Helpers.classes}["String"].null).value`, this.stringType);
         } else {
-            return newSnippet2;
+            return newSnippet;
         }
 
     }
@@ -429,9 +394,9 @@ export abstract class BinopCastCodeGenerator {
      * No operand is void type;
      * operator is any assignment operator (=, +=, -=, /=, *=, %=)
      */
-    compileAssignment(leftSnippet: CodeSnippet, rightSnippet: CodeSnippet, lTypeIndex: number, rTypeIndex: number, lIdentifier: string, rIdentifier: string, operator: BinaryOperator, operatorRange: IRange, wholeRange: IRange): CodeSnippet | undefined {
+    compileAssignment(leftSnippet: Expr, rightSnippet: Expr, lTypeIndex: number, rTypeIndex: number, lIdentifier: string, rIdentifier: string, operator: BinaryOperator, operatorRange: IRange, wholeRange: IRange): Expr | undefined {
 
-        if (!leftSnippet.isLefty) {
+        if (!leftSnippet.lefty) {
             this.pushError(JCM.cantAssignValueToTerm(), "error", operatorRange);
             return;
         }
@@ -447,7 +412,7 @@ export abstract class BinopCastCodeGenerator {
             } else {
                 this.pushError(JCM.cantCastType(rightSnippet.type!.identifier, leftSnippet.type!.identifier), "error", rightSnippet.range!);
             }
-            return new BinaryOperatorTemplate(operatorAsString, false).applyToSnippet(leftSnippet.type!, wholeRange, leftSnippet, rightSnippet);
+            return this.assign(leftSnippet, rightSnippet, leftSnippet.type!, wholeRange, (l, r) => `${l} = ${r}`);
         }
 
         if (!leftSnippet.type!.isPrimitive) {
@@ -471,7 +436,10 @@ export abstract class BinopCastCodeGenerator {
                     // String s; s += object;  (calls object.toString(); appends "null" if object is null)
                     rightSnippet = this.wrapWithToStringCall(rightSnippet, "string");
                 }
-                return new TwoParameterTemplate(`§1 = ${Helpers.checkNPE('§1', leftSnippet.range!)}.add(§2)`).applyToSnippet(leftSnippet.type, wholeRange, leftSnippet, rightSnippet);
+                let leftRange = leftSnippet.range!;
+                return this.compoundAssign(leftSnippet, rightSnippet, leftSnippet.type, wholeRange,
+                    (l, r) => `${l} = ${Helpers.checkNPE(l, leftRange)}.add(${r})`,
+                    (old, r) => `${Helpers.checkNPE(old, leftRange)}.add(${r})`);
             }
 
             this.pushError(JCM.leftOperatorNotFitForAttribute(operatorAsString), "error", operatorRange);
@@ -483,11 +451,15 @@ export abstract class BinopCastCodeGenerator {
         rightSnippet = this.unbox(rightSnippet);
         let rightTypeIndex = primitiveTypeMap[rightSnippet.type!.identifier];
 
+        // += => +
+        let binaryOperator = operatorAsString.substring(0, operatorAsString.length - 1);
+
         if (leftTypeIndex == nString) {
             if (!rightSnippet.type?.isPrimitive) {
                 rightSnippet = this.wrapWithToStringCall(rightSnippet, "string");
             }
-            return new BinaryOperatorTemplate(operatorAsString, false).applyToSnippet(leftSnippet.type!, wholeRange, leftSnippet, rightSnippet);
+            return this.compoundAssign(leftSnippet, rightSnippet, leftSnippet.type!, wholeRange,
+                (l, r) => `${l} ${operatorAsString} ${r}`, (old, r) => `${old} ${binaryOperator} ${r}`);
         }
 
         if (!rightTypeIndex) {
@@ -508,15 +480,56 @@ export abstract class BinopCastCodeGenerator {
         }
 
         if (operator == TokenType.divisionAssignment && leftTypeIndex >= nByte && leftTypeIndex <= nLong) {
-            return new TwoParameterTemplate(`§1 = Math.trunc(§1/(§2 || ${Helpers.throwArithmeticException}("${JCM.divideByZero()}", ${wholeRange.startLineNumber}, ${wholeRange.startColumn}, ${wholeRange.endLineNumber}, ${wholeRange.endColumn})))`)
-                .applyToSnippet(leftSnippet.type!, wholeRange, leftSnippet, rightSnippet);
+            let divide = (dividend: string, divisor: string) => `Math.trunc(${dividend}/(${divisor} || ${Helpers.throwArithmeticException}("${JCM.divideByZero()}", ${wholeRange.startLineNumber}, ${wholeRange.startColumn}, ${wholeRange.endLineNumber}, ${wholeRange.endColumn})))`;
+            return this.compoundAssign(leftSnippet, rightSnippet, leftSnippet.type!, wholeRange,
+                (l, r) => `${l} = ${divide(l, r)}`, divide);
         }
 
-        return new BinaryOperatorTemplate(operatorAsString, false).applyToSnippet(leftSnippet.type!, wholeRange, leftSnippet, rightSnippet);
+        return this.compoundAssign(leftSnippet, rightSnippet, leftSnippet.type!, wholeRange,
+            (l, r) => `${l} ${operatorAsString} ${r}`, (old, r) => `${old} ${binaryOperator} ${r}`);
 
     }
 
-    compileCast(snippet: CodeSnippet, castTo: JavaType, castType: "explicit" | "implicit", fromToStringMethod: boolean = false): CodeSnippet {
+    /**
+     * Compound assignment (+=, -=, ...)
+     * @param build used if right side is pure: gets location and value of right side
+     * @param newValue used otherwise: gets old value of variable and value of right side
+     */
+    compoundAssign(left: Expr, right: Expr, type: JavaType, range: IRange, build: (location: string, value: string) => string,
+        newValue: (oldValue: string, value: string) => string): Expr {
+        // javascript reads the variable before evaluating the right side (like java), so this is only an issue
+        // if the right side has code which runs in steps before
+        if (isPure(right)) return this.assign(left, right, type, range, build);
+
+        let place = left.place ?? { parts: [], build: () => left.value };
+        return compoundAssignment(type, range, place, right, (location, oldValue, value) => `${location} = ${newValue(oldValue, value)}`);
+    }
+
+    /**
+     * Assignment: parts of the location of the variable (object, array, index) are evaluated before the right side,
+     * as in java. build gets the location and the value of the right side.
+     */
+    assign(left: Expr, right: Expr, type: JavaType, range: IRange, build: (location: string, value: string) => string): Expr {
+        if (left.place) {
+            let place = left.place;
+            return combine(type, range, [...place.parts, right], (...values) => build(place.build(...values.slice(0, -1)), values[values.length - 1]));
+        }
+        // location of local variable, static field, field of this doesn't change
+        return combine(type, range, [{ ...left, stable: true }, right], build);
+    }
+
+    /**
+     * ++, --: build gets location of variable
+     */
+    updateVariable(operand: Expr, type: JavaType, range: IRange, build: (location: string) => string): Expr {
+        if (operand.place) {
+            let place = operand.place;
+            return combine(type, range, place.parts, (...values) => build(place.build(...values)));
+        }
+        return combine(type, range, [operand], build);
+    }
+
+    compileCast(snippet: Expr, castTo: JavaType, castType: "explicit" | "implicit", fromToStringMethod: boolean = false): Expr {
         if (!snippet || !snippet.type || !castTo) return snippet;
         let type: JavaType = snippet.type;
 
@@ -524,7 +537,7 @@ export abstract class BinopCastCodeGenerator {
 
         if (!type.isPrimitive) {
             if (type.identifier == "String" && castTo == this.stringType) {
-                return new OneParameterTemplate('(§1?.value ?? null)').applyToSnippet(this.stringType, snippet.range, snippet);
+                return apply(this.stringType, snippet.range, '(§1?.value ?? null)', snippet);
             }
             // if (castTo.identifier == "string" || castTo.identifier == "String") {
             //     if (type instanceof JavaArrayType) {
@@ -542,7 +555,7 @@ export abstract class BinopCastCodeGenerator {
                 if (boxedIndex) {
                     if (castTo == this.stringType) {
                         if (fromToStringMethod) {
-                            return new OneParameterTemplate('((§1?.value ?? null) + "")').applyToSnippet(this.stringType, snippet.range, snippet);
+                            return apply(this.stringType, snippet.range, '((§1?.value ?? null) + "")', snippet);
                         } else {
                             this.pushError(JCM.cantCastType(type.identifier, castTo.identifier), "error", snippet.range!);
                             return snippet;
@@ -556,7 +569,7 @@ export abstract class BinopCastCodeGenerator {
                         let boxedTypeIdentifier = boxedTypeIdentifiers[castToIndex!];
 
                         let range = snippet.range;
-                        return SnippetFramer.frame(snippet, `${Helpers.checkCast}(§1, "${boxedTypeIdentifier}", ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}).value`
+                        return frame(snippet, `${Helpers.checkCast}(§1, "${boxedTypeIdentifier}", ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}).value`
                             , castTo);
                     } else {
                         this.pushError(JCM.cantCastType(type.identifier, castTo.identifier), "error", snippet.range!);
@@ -591,16 +604,14 @@ export abstract class BinopCastCodeGenerator {
             }
 
             if (fromIndex >= nByte && fromIndex <= nDouble && toIndex >= nByte && toIndex <= nDouble && fromIndex <= toIndex) {
-                snippet.type = this.primitiveTypes[boxedTypeIndex];
-                return this.box(snippet);
+                return this.box({ ...snippet, type: this.primitiveTypes[boxedTypeIndex] });
             }
 
             if (castTo == this.stringNonPrimitiveType || type == this.stringType) {
                 let templ = type == this.stringType ? '§1' : '"" + (§1)'
-                let constantValue = snippet.getConstantValue();
-                let sn1 = SnippetFramer.frame(snippet, `new ${Helpers.classes}["String"](${templ})`, this.stringNonPrimitiveType);
-                if (typeof constantValue == "string" && sn1 instanceof StringCodeSnippet) {
-                    sn1.setConstantValue(constantValue);
+                let sn1 = frame(snippet, `new ${Helpers.classes}["String"](${templ})`, this.stringNonPrimitiveType);
+                if (typeof snippet.constant == "string" && isPure(sn1)) {
+                    sn1.constant = snippet.constant;
                 }
                 return sn1;
             }
@@ -640,8 +651,8 @@ export abstract class BinopCastCodeGenerator {
         }
 
         if (castToTypeIndex == nString) {
-            if (snippet.isConstant()) return new StringCodeSnippet(JSON.stringify("" + snippet.getConstantValue()), snippet.range, this.stringType, "" + snippet.getConstantValue());
-            return new OneParameterTemplate('("" + (§1))').applyToSnippet(this.stringType, snippet.range!, snippet);
+            if (isConstant(snippet)) return term(JSON.stringify("" + snippet.constant), this.stringType, snippet.range, "" + snippet.constant);
+            return apply(this.stringType, snippet.range!, '("" + (§1))', snippet);
         }
 
         // no cast from string, no cast from/to void, boolean
@@ -653,8 +664,7 @@ export abstract class BinopCastCodeGenerator {
 
         // now both types are in nByte = 5, nShort = 6, nInteger = 7, nLong = 8, nFloat = 9, nDouble = 10
         if (snippetTypeIndex <= castToTypeIndex) {
-            snippet.type = castTo;
-            return snippet;
+            return { ...snippet, type: castTo };
         }
 
         if (castType == "implicit") {
@@ -668,8 +678,8 @@ export abstract class BinopCastCodeGenerator {
         // (resp. long for cast to long), then wrap around to target type
         let fromFloatingPoint = snippetTypeIndex >= nFloat;
 
-        if (snippet.isConstant()) {
-            let value: number = <number>snippet.getConstantValue();
+        if (isConstant(snippet)) {
+            let value: number = <number>snippet.constant;
             let result: number = value;
 
             let toInt = (v: number) => fromFloatingPoint ? (Math.max(-2147483648, Math.min(2147483647, v)) | 0) : (v | 0);
@@ -687,29 +697,28 @@ export abstract class BinopCastCodeGenerator {
                     break;
             }
 
-            return new StringCodeSnippet(result < 0 ? "(" + result + ")" : "" + result, snippet.range!, castTo, result);
+            return term(result < 0 ? "(" + result + ")" : "" + result, castTo, snippet.range!, result);
 
         } else {
-            let template: OneParameterTemplate | undefined;
+            let template: string | undefined;
 
             let toInt = fromFloatingPoint ? 'Math.max(-2147483648, Math.min(2147483647, §1))' : '(§1)';
 
             switch (castToTypeIndex) {
-                case nByte: template = new OneParameterTemplate(`((${toInt} << 24) >> 24)`);
+                case nByte: template = `((${toInt} << 24) >> 24)`;
                     break;
-                case nShort: template = new OneParameterTemplate(`((${toInt} << 16) >> 16)`);
+                case nShort: template = `((${toInt} << 16) >> 16)`;
                     break;
-                case nInteger: template = new OneParameterTemplate(`(${toInt} | 0)`);
+                case nInteger: template = `(${toInt} | 0)`;
                     break;
-                case nLong: template = fromFloatingPoint ? new OneParameterTemplate('(Math.trunc(Math.max(-9223372036854775808, Math.min(9223372036854775807, §1))) || 0)') : undefined;
+                case nLong: template = fromFloatingPoint ? '(Math.trunc(Math.max(-9223372036854775808, Math.min(9223372036854775807, §1))) || 0)' : undefined;
                     break;
-                case nFloat: template = new OneParameterTemplate('Math.fround(§1)');
+                case nFloat: template = 'Math.fround(§1)';
                     break;
             }
 
-            if (template) return template.applyToSnippet(castTo, snippet.range!, snippet);
-            snippet.type = castTo;
-            return snippet;
+            if (template) return apply(castTo, snippet.range!, template, snippet);
+            return { ...snippet, type: castTo };
         }
 
 
@@ -722,15 +731,15 @@ export abstract class BinopCastCodeGenerator {
      * to type byte, short or char if the value is representable in the destination type, e.g. byte b = 10;
      * (see https://docs.oracle.com/javase/specs/jls/se21/html/jls-5.html#jls-5.2)
      */
-    isImplicitConstantNarrowingPossible(snippet: CodeSnippet | undefined, destinationType: JavaType | undefined): boolean {
-        if (!snippet?.type || !destinationType || !snippet.isConstant()) return false;
+    isImplicitConstantNarrowingPossible(snippet: Expr | undefined, destinationType: JavaType | undefined): boolean {
+        if (!snippet?.type || !destinationType || !isConstant(snippet)) return false;
         if (!snippet.type.isPrimitive || !destinationType.isPrimitive) return false;
 
         let fromIndex = primitiveTypeMap[snippet.type.identifier];
         let toIndex = primitiveTypeMap[destinationType.identifier];
         if ([nByte, nShort, nInteger, nChar].indexOf(fromIndex) < 0) return false;
 
-        let value = snippet.getConstantValue();
+        let value = snippet.constant;
         if (typeof value == "string") value = value.charCodeAt(0);
         if (typeof value != "number") return false;
 
@@ -843,7 +852,7 @@ export abstract class BinopCastCodeGenerator {
     }
 
 
-    unbox(snippet: CodeSnippet | undefined): CodeSnippet {
+    unbox(snippet: Expr | undefined): Expr {
         if (!snippet || !snippet.type) return snippet;
         let boxedTypeIndex: number | undefined = boxedTypesMap[snippet.type.identifier];
         if (!boxedTypeIndex) return snippet;  // type is not boxed
@@ -853,12 +862,12 @@ export abstract class BinopCastCodeGenerator {
         if (boxedTypeIndex == nString) {
             // special handling for String:
             // (§1 || String.null).value
-            return SnippetFramer.frame(snippet, `(§1 || ${Helpers.classes}["String"].null).value`, unboxedType);
+            return frame(snippet, `(§1 || ${Helpers.classes}["String"].null).value`, unboxedType);
         } else {
-            // return SnippetFramer.frame(snippet, `(§1 || {value: ${unboxedNullValuesMap[snippet.type.identifier]}}).value`, unboxedType);
+            // return frame(snippet, `(§1 || {value: ${unboxedNullValuesMap[snippet.type.identifier]}}).value`, unboxedType);
 
             // better variant:
-            return SnippetFramer.frame(snippet, `${Helpers.checkNPE('§1', snippet.range!)}.value`, unboxedType);
+            return frame(snippet, `${Helpers.checkNPE('§1', snippet.range!)}.value`, unboxedType);
         }
 
     }
@@ -872,7 +881,7 @@ export abstract class BinopCastCodeGenerator {
 
     }
 
-    hasBoxedType(snippet: CodeSnippet): boolean {
+    hasBoxedType(snippet: Expr): boolean {
         if (!snippet.type) return false;
         let unboxedTypeIndex = boxedTypesMap[snippet.type.identifier];
 
@@ -880,7 +889,7 @@ export abstract class BinopCastCodeGenerator {
 
     }
 
-    box(snippet: CodeSnippet): CodeSnippet {
+    box(snippet: Expr): Expr {
         if (!snippet.type) return snippet;
         let unboxedTypeIndex = primitiveTypeMap[snippet.type.identifier];
 
@@ -888,14 +897,11 @@ export abstract class BinopCastCodeGenerator {
         let boxedIdentifier = boxedTypeIdentifiers[unboxedTypeIndex];
         if (!boxedIdentifier || boxedIdentifier.length == 0) return snippet;
 
-        let constant = snippet.getConstantValue();
-        if (snippet instanceof StringCodeSnippet) snippet.setConstantValue(constant || null);
-
         let boxedType = this.libraryTypestore.getType(boxedIdentifier);
         if (unboxedTypeIndex == nString) {
-            return SnippetFramer.frame(snippet, `${Helpers.primitiveStringToStringObject}(§1)`, boxedType);
+            return frame(snippet, `${Helpers.primitiveStringToStringObject}(§1)`, boxedType);
         } else {
-            return SnippetFramer.frame(snippet, `new ${Helpers.classes}["${boxedIdentifier}"](§1)`, boxedType);
+            return frame(snippet, `new ${Helpers.classes}["${boxedIdentifier}"](§1)`, boxedType);
         }
 
     }
@@ -908,27 +914,27 @@ export abstract class BinopCastCodeGenerator {
         return <NonPrimitiveType>this.libraryTypestore.getType(boxedTypeIdentifiers[unboxedTypeIndex]);
     }
 
-    convertCharToNumber(snippet: CodeSnippet): CodeSnippet {
+    convertCharToNumber(snippet: Expr): Expr {
         if (!snippet.type) return snippet;
         if (snippet.type.identifier != 'char') return snippet;
 
-        if (snippet.isConstant()) {
-            let result = (<string>snippet.getConstantValue()).charCodeAt(0);
-            return new StringCodeSnippet(result + "", snippet.range, this.intType, result);
+        if (isConstant(snippet)) {
+            let result = (<string>snippet.constant).charCodeAt(0);
+            return term(result + "", this.intType, snippet.range, result);
         }
 
-        return SnippetFramer.frame(snippet, '§1.charCodeAt(0)', this.intType);
+        return frame(snippet, '§1.charCodeAt(0)', this.intType);
     }
 
-    convertNumberToChar(snippet: CodeSnippet): CodeSnippet {
+    convertNumberToChar(snippet: Expr): Expr {
         if (!snippet.type) return snippet;
 
-        if (snippet.isConstant()) {
-            let result = String.fromCharCode(<number>snippet.getConstantValue());
-            return new StringCodeSnippet(`"${result}"`, snippet.range, this.charType, result);
+        if (isConstant(snippet)) {
+            let result = String.fromCharCode(<number>snippet.constant);
+            return term(`"${result}"`, this.charType, snippet.range, result);
         }
 
-        return SnippetFramer.frame(snippet, 'String.fromCharCode(§1)', this.charType);
+        return frame(snippet, 'String.fromCharCode(§1)', this.charType);
     }
 
     isNumberPrimitiveType(type: JavaType): boolean {
@@ -938,7 +944,7 @@ export abstract class BinopCastCodeGenerator {
         return index >= nByte && index <= nDouble;
     }
 
-    compileUnaryOperator(operand: CodeSnippet | undefined, operator: TokenType): CodeSnippet | undefined {
+    compileUnaryOperator(operand: Expr | undefined, operator: TokenType): Expr | undefined {
         if (!operand) return undefined;
         if (!operand.type) {
             this.pushError(JCM.cantGetTypeOfExpression(), "error", operand.range!);
@@ -968,12 +974,12 @@ export abstract class BinopCastCodeGenerator {
         }
 
         if ([TokenType.plusPlus, TokenType.minusMinus].indexOf(operator) >= 0) {
-            if (!operand.isLefty) {
+            if (!operand.lefty) {
                 this.pushError(JCM.plusPlusMinusMinusOnlyForLeftyOperands(operatorAsString), "error", operand.range!);
                 return;
             }
             if (primitiveIndex >= nByte && primitiveIndex <= nDouble) {
-                return new OneParameterTemplate(operatorAsString + "§1").applyToSnippet(operand.type!, operand.range!, operand);
+                return this.updateVariable(operand, operand.type!, operand.range!, location => operatorAsString + location);
             }
             this.pushError(JCM.operatorNotUsableForOperands(operatorAsString, operand.type!.identifier), "error", operand.range!);
             return;
@@ -1004,28 +1010,28 @@ export abstract class BinopCastCodeGenerator {
      * (otherwise other variables referencing the same object would see the change).
      * Returns undefined if operand is not suitable.
      */
-    compileBoxedIncrementOrDecrement(operand: CodeSnippet, operator: TokenType, isPrefix: boolean, range: IRange): CodeSnippet | undefined {
+    compileBoxedIncrementOrDecrement(operand: Expr, operator: TokenType, isPrefix: boolean, range: IRange): Expr | undefined {
         let boxedIdentifier = operand.type?.identifier;
         if (["Byte", "Short", "Integer", "Long", "Float", "Double"].indexOf(boxedIdentifier) < 0) return undefined;
         // operand is inserted twice into the template, so it has to be free of side effects
-        if (!operand.isLefty || !operand.isPureTerm()) return undefined;
+        if (!operand.lefty || !isPure(operand)) return undefined;
 
         let unboxedType = this.getUnboxedType(operand.type);
         let op = operator == TokenType.plusPlus ? "+" : "-";
         let newObject = (oldObject: string) => `new ${Helpers.classes}["${boxedIdentifier}"](${oldObject}.value ${op} 1)`;
 
-        let template = isPrefix ?
+        let build = isPrefix ?
             // ++i: assign new object, value of expression is new value
-            `(§1 = ${newObject(Helpers.checkNPE('§1', range))}).value` :
+            (v: string) => `(${v} = ${newObject(Helpers.checkNPE(v, range))}).value` :
             // i++: assign new object, value of expression is old value
-            `((__boxed) => (§1 = ${newObject('__boxed')}, __boxed.value))(${Helpers.checkNPE('§1', range)})`;
+            (v: string) => `((__boxed) => (${v} = ${newObject('__boxed')}, __boxed.value))(${Helpers.checkNPE(v, range)})`;
 
-        return new OneParameterTemplate(template).applyToSnippet(unboxedType, range, operand);
+        return this.updateVariable(operand, unboxedType, range, build);
     }
 
-    applyUnaryOperatorConsideringConstantFolding(operator: string, resultType: JavaType, range: IRange, snippet: CodeSnippet): CodeSnippet {
-        if (snippet.isConstant()) {
-            let operand = snippet.getConstantValue()!;
+    applyUnaryOperatorConsideringConstantFolding(operator: string, resultType: JavaType, range: IRange, snippet: Expr): Expr {
+        if (isConstant(snippet)) {
+            let operand = snippet.constant!;
             let result!: ConstantValue;
 
             switch (operator) {
@@ -1035,14 +1041,93 @@ export abstract class BinopCastCodeGenerator {
                 case "!": result = !operand; break;
             }
 
-            return new StringCodeSnippet("" + result, range, resultType, result);
+            return term("" + result, resultType, range, result);
 
         } else {
 
-            return new OneParameterTemplate(operator + "(§1)").applyToSnippet(resultType, range, snippet);
+            return apply(resultType, range, operator + "(§1)", snippet);
 
         }
 
+    }
+
+    /**
+     * left operator right
+     */
+    binaryOperation(operator: string, resultType: JavaType, range: IRange, left: Expr, right: Expr): Expr {
+        if (isConstant(left) && isConstant(right)) {
+            return this.foldConstants(left, right, operator, resultType, range);
+        }
+
+        return combine(resultType, range, [left, right], this.getBinaryOperationBuild(operator, left, right, range));
+    }
+
+    getBinaryOperationBuild(operator: string, left: Expr, right: Expr, range: IRange): Build {
+        if (operator != "/" && operator != "%") return (l, r) => l + " " + operator + " " + r;
+
+        let prefix: string = "";
+        let suffix: string = "";
+        let isIntegral = (type: JavaType | undefined) => type instanceof PrimitiveType && type.isByteShortIntLong();
+        if (operator == "/" && isIntegral(left.type) && isIntegral(right.type)) {
+            prefix = "Math.trunc( ";
+            suffix = ")";
+        }
+
+        if (isConstant(right) && right.constant != 0) {
+            return (l, r) => prefix + l + " " + operator + " " + r + suffix;
+        }
+
+        return (l, r) => prefix + l + " " + operator + " (" + r +
+            `|| ${Helpers.throwArithmeticException}("${JCM.divideByZero()}", ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}))` + suffix;
+    }
+
+    foldConstants(left: Expr, right: Expr, operator: string, resultType: JavaType, range: IRange): Expr {
+
+        let value0: any = left.constant!;
+        let value1: any = right.constant!;
+
+        let result!: ConstantValue;
+
+        switch (operator) {
+            case "+": result = value0 + value1; break;
+            case "-": result = value0 - value1; break;
+            case "*": result = value0 * value1; break;
+            case "/":
+                if ((<PrimitiveType>left.type).isByteShortIntLong() && (<PrimitiveType>right.type).isByteShortIntLong()) {
+                    result = Math.trunc(Math.trunc(<number>value0) / Math.trunc(<number>value1));
+                    break;
+                }
+                result = <number>value0 / <number>value1; break;
+            case "%": result = value0 % value1; break;
+            case "<": result = value0 < value1; break;
+            case ">": result = value0 > value1; break;
+            case "<=": result = value0 <= value1; break;
+            case ">=": result = value0 >= value1; break;
+            case "!=": result = value0 != value1; break;
+            case "==": result = value0 == value1; break;
+            case "&&": result = value0 && value1; break;
+            case "||": result = value0 || value1; break;
+            case "&": result = value0 & value1; break;
+            case "|": result = value0 | value1; break;
+            case "^": result = value0 ^ value1; break;
+            case "<<": result = value0 << value1; break;
+            case ">>": result = value0 >> value1; break;
+            case ">>>": result = value0 >>> value1; break;
+        }
+
+        let resultAsCode = typeof result == "string" ? `"${this.escapeString(result)}"` : result + "";
+
+        return term(resultAsCode, resultType, range, result);
+
+    }
+
+    escapeString(s: string): string {
+        s = s.replaceAll("\\", "\\\\");
+        s = s.replaceAll("\n", "\\n");
+        s = s.replaceAll("\t", "\\t");
+        s = s.replaceAll("\r", "\\r");
+        s = s.replaceAll("\"", "\\\"");
+        return s;
     }
 
     isAssignmentOperator(tt: TokenType): boolean {
@@ -1063,9 +1148,9 @@ export abstract class BinopCastCodeGenerator {
  *
  * @param node
  */
-    abstract compileAnonymousInnerClass(node: ASTAnonymousClassNode): CodeSnippet | undefined;
+    abstract compileAnonymousInnerClass(node: ASTAnonymousClassNode): Expr | undefined;
 
-    abstract compileLambdaFunction(node: ASTLambdaFunctionDeclarationNode, expectedType: JavaType | undefined): CodeSnippet | undefined;
+    abstract compileLambdaFunction(node: ASTLambdaFunctionDeclarationNode, expectedType: JavaType | undefined): Expr | undefined;
 
 
 }

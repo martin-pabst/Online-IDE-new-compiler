@@ -424,3 +424,16 @@ p.printInt(42);
 interface IntPrinter {
    void printInt(int x);
 }
+
+/**::
+ * Several lambda functions which capture variables in one statement
+ */
+interface NumberSupplier {
+    int get();
+}
+
+int combine(NumberSupplier a, NumberSupplier b) { return a.get() * 10 + b.get(); }
+
+int x = 1;
+int y = 2;
+assertEquals(12, combine(() -> x, () -> y), "each lambda function gets its own class");

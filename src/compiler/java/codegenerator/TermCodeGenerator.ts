@@ -22,13 +22,10 @@ import { NonPrimitiveType } from "../types/NonPrimitiveType.ts";
 import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType.ts";
 import { Visibility } from "../types/Visibility.ts";
 import { BinopCastCodeGenerator } from "./BinopCastCodeGenerator.ts";
-import { CodeSnippet, StringCodeSnippet } from "./CodeSnippet";
-import { CodeSnippetContainer } from "./CodeSnippetKinds";
-import { SnippetFramer } from "./CodeSnippetTools";
-import { CodeTemplate, OneParameterTemplate, ParametersJoinedTemplate, SeveralParameterTemplate, TwoParameterTemplate } from "./CodeTemplate";
+import { at, Code, jump, Label, STEP } from "./Code";
+import { apply, Build, combine, Expr, frame, isConstant, isPure, javaCall, joined, map, parenthesize, template, term, toStack, toStatement } from "./Expr";
 import { JavaLocalVariable } from "./JavaLocalVariable";
 import { JavaSymbolTable } from "./JavaSymbolTable";
-import { JumpToLabelCodeSnippet, LabelCodeSnippet } from "./LabelManager.ts";
 import { FlowAnalyzer } from "./FlowAnalyzer.ts";
 import { OuterClassFieldAccessTracker } from "./OuterClassFieldAccessTracker.ts";
 import { GenericTypeParameter } from "../types/GenericTypeParameter.ts";
@@ -52,11 +49,11 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     outerClassFieldAccessTracker: OuterClassFieldAccessTracker = new OuterClassFieldAccessTracker();
 
-    breakStack: LabelCodeSnippet[] = [];
-    continueStack: LabelCodeSnippet[] = [];
+    breakStack: Label[] = [];
+    continueStack: Label[] = [];
 
     // field initializers and instance initializer blocks which have to be executed directly after explicit super(...)-call in constructor
-    snippetsToInsertAfterSuperConstructorCall: CodeSnippet[] | undefined;
+    snippetsToInsertAfterSuperConstructorCall: Code | undefined;
 
     nextArrayLiteralTypeExpected: JavaType[] = [];
 
@@ -77,11 +74,11 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         this.initConstantTypeToTypeMap();
     }
 
-    compileTerm(ast: ASTTermNode | undefined, isWriteAccess: boolean = false): CodeSnippet | undefined {
+    compileTerm(ast: ASTTermNode | undefined, isWriteAccess: boolean = false): Expr | undefined {
 
         if (!ast) return undefined;
 
-        let snippet: CodeSnippet | undefined;
+        let snippet: Expr | undefined;
 
         switch (ast.kind) {
             case TokenType.binaryOp:
@@ -147,7 +144,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         if (snippet && ast.parenthesisNeeded) {
-            snippet = SnippetFramer.frame(snippet, '(§1)');
+            snippet = parenthesize(snippet);
         }
 
         return snippet;
@@ -157,7 +154,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
      * Compiles term in a context that expects targetType (variable initialization, assignment, return statement).
      * If term is a new-expression with diamond operator (new X<>(...)) its type arguments are inferred from targetType.
      */
-    compileTermWithTargetType(ast: ASTTermNode | undefined, targetType: JavaType | undefined): CodeSnippet | undefined {
+    compileTermWithTargetType(ast: ASTTermNode | undefined, targetType: JavaType | undefined): Expr | undefined {
         if (ast?.kind == TokenType.lambdaOperator) {
             if (!targetType) {
                 this.pushError(JCM.lambdaFunctionHereNotPossible(), "error", ast.range);
@@ -230,7 +227,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         return inferredAnything ? genericClass.getCopyWithConcreteType(typeMap) : undefined;
     }
 
-    compileBrackets(node: ASTBracketNode): CodeSnippet {
+    compileBrackets(node: ASTBracketNode): Expr {
         let innerSnippet = this.compileTerm(node.nodeInsideBrackets);
         if (innerSnippet?.type && !innerSnippet.type.isPrimitive) {
             this.addTypePositionByTypeAndRange(innerSnippet.type, node.range)
@@ -242,7 +239,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         return innerSnippet;
     }
 
-    addTypePosition(snippet: CodeSnippet | undefined) {
+    addTypePosition(snippet: Expr | undefined) {
         if (!snippet) return;
         let type = snippet.type;
         if (!type) return;
@@ -265,7 +262,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     }
 
-    compileKeywordSuper(node: ASTSuperNode): CodeSnippet | undefined {
+    compileKeywordSuper(node: ASTSuperNode): Expr | undefined {
         let classContext = this.currentSymbolTable.classContext;
         if (!classContext || !(classContext instanceof IJavaClass || classContext instanceof JavaEnum)) {
             this.pushError(JCM.superOnlyInClassesOrEnums(), "error", node);
@@ -274,22 +271,20 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
 
 
-        let snippet = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}`, node.range, classContext.getExtends());
-        snippet.isSuperKeywordWithLevel = 1;
-        return snippet;
+        return { ...term(Helpers.elementRelativeToStackbase(0), classContext.getExtends(), node.range), superLevel: 1, stable: true };
     }
 
-    compileKeywordThis(node: ASTThisNode): CodeSnippet | undefined {
+    compileKeywordThis(node: ASTThisNode): Expr | undefined {
         let classContext = this.currentSymbolTable.classContext;
         if (!classContext || !(classContext instanceof IJavaClass || classContext instanceof JavaEnum)) {
             this.pushError(JCM.thisOnlyInClassesOrEnums(), "error", node);
             return undefined;
         }
 
-        return new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}`, node.range, classContext);
+        return { ...term(Helpers.elementRelativeToStackbase(0), classContext, node.range), stable: true };
     }
 
-    compileExplicitCast(node: ASTCastNode): CodeSnippet | undefined {
+    compileExplicitCast(node: ASTCastNode): Expr | undefined {
 
         let objectSnippet = this.compileTerm(node.objectToCast);
 
@@ -304,7 +299,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         if (sourceType.identifier == 'Object' && destType instanceof JavaArrayType) {
             let range = node.range;
-            return SnippetFramer.frame(objectSnippet, `${Helpers.checkCastToArray}(§1, ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn})`
+            return frame(objectSnippet, `${Helpers.checkCastToArray}(§1, ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn})`
                 , destType);
 
         }
@@ -313,7 +308,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             let castSnippet = this.compileCast(objectSnippet, destType, "explicit");
             // e.g. (Object)"Test": boxing gives type String, but static type of cast expression is Object (relevant for choosing overloaded methods)
             if (castSnippet?.type && destType instanceof NonPrimitiveType && castSnippet.type != destType) {
-                castSnippet = SnippetFramer.frame(castSnippet, '§1', destType);
+                castSnippet = frame(castSnippet, '§1', destType);
             }
             return castSnippet;
         } else {
@@ -322,11 +317,11 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     }
 
-    compileExplicitCastFromObjectToObject(node: ASTCastNode, objectSnippet: CodeSnippet, sourceType: NonPrimitiveType, destType: NonPrimitiveType): CodeSnippet | undefined {
+    compileExplicitCastFromObjectToObject(node: ASTCastNode, objectSnippet: Expr, sourceType: NonPrimitiveType, destType: NonPrimitiveType): Expr | undefined {
         if (sourceType.fastExtendsImplements(destType.identifier)) {
             // upcast: no code needed, but static type of cast expression is destType (relevant for choosing overloaded methods)
             if (sourceType == destType) this.pushError(JCM.unneccessaryCast(), "info", node);
-            return SnippetFramer.frame(objectSnippet, '§1', destType);
+            return frame(objectSnippet, '§1', destType);
         }
 
         // if (!destType.fastExtendsImplements(sourceType.identifier)) {
@@ -345,12 +340,12 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         let range = node.range;
-        return SnippetFramer.frame(objectSnippet, `${Helpers.checkCast}(§1, "${destType.pathAndIdentifierAsDotSeparatedString}", ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn})`
+        return frame(objectSnippet, `${Helpers.checkCast}(§1, "${destType.pathAndIdentifierAsDotSeparatedString}", ${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn})`
             , destType)
     }
 
 
-    compileNewObjectNode(node: ASTNewObjectNode, newObjectSnippet?: CodeSnippet): CodeSnippet | undefined {
+    compileNewObjectNode(node: ASTNewObjectNode, newObjectSnippet?: Expr): Expr | undefined {
         // new t.classes[<identifier>]().<constructorIdentifier>(param1, ..., paramN)
         // constructor has to return this or push it to stack!
 
@@ -418,7 +413,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                     method);
             }
 
-            return new StringCodeSnippet("null", node.range, klassType);
+            return term("null", klassType, node.range);
         }
 
         if (method) {
@@ -432,7 +427,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         if (!method) {
             this.pushError(JCM.cantFindConstructor(), "error", node.range);
-            return new StringCodeSnippet("null", node.range, klassType);
+            return term("null", klassType, node.range);
         }
 
         for (let i = 0; i < node.parameterValues.length; i++) {
@@ -443,23 +438,23 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 parameterValues[i] = snippet;
             } else {
                 if (!parameterValues[i]) {
-                    return new StringCodeSnippet("null", node.range, klassType);
+                    return term("null", klassType, node.range);
                 }
             }
         }
 
 
         // cast parameter values
-        let snippet = this.invokeConstructor(<CodeSnippet[]>parameterValues, method, klassType, node, newObjectSnippet);
+        let snippet = this.invokeConstructor(<Expr[]>parameterValues, method, klassType, node, newObjectSnippet);
 
         return snippet;
 
     }
 
-    castParameterValuesAndPackEllipsis(parameterValues: (CodeSnippet | undefined)[], method: JavaMethod): CodeSnippet[] {
+    castParameterValuesAndPackEllipsis(parameterValues: (Expr | undefined)[], method: JavaMethod): Expr[] {
 
         let ellipsisType: JavaType | undefined;
-        let castParameters: CodeSnippet[] = [];
+        let castParameters: Expr[] = [];
 
         for (let i = 0; i < parameterValues.length; i++) {
 
@@ -485,15 +480,15 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         let parametersBeforeEllipsis = castParameters.slice(0, methodParameterCountMinusOne);
         let ellipsisParameters = castParameters.slice(methodParameterCountMinusOne);
 
-        let ellipsisParameterSnippet = ParametersJoinedTemplate.applyToSnippet(method.parameters[methodParameterCountMinusOne].type, ellipsisParameters[0].range!, "[", ", ", "]", ...ellipsisParameters);
+        let ellipsisParameterSnippet = joined(method.parameters[methodParameterCountMinusOne].type, ellipsisParameters[0].range!, "[", ", ", "]", ...ellipsisParameters);
 
         parametersBeforeEllipsis.push(ellipsisParameterSnippet);
 
         return parametersBeforeEllipsis;
     }
 
-    protected invokeConstructor(parameterValues: CodeSnippet[], method: JavaMethod, klassType: IJavaClass | JavaEnum,
-        node: ASTNewObjectNode | ASTEnumValueNode, newObjectSnippet: CodeSnippet | undefined,
+    protected invokeConstructor(parameterValues: Expr[], method: JavaMethod, klassType: IJavaClass | JavaEnum,
+        node: ASTNewObjectNode | ASTEnumValueNode, newObjectSnippet: Expr | undefined,
         enumValueIdentifier?: string, enumValueIndex?: number) {
 
         if (klassType instanceof JavaClass && klassType.genericTypeParameters?.length || 0 > 0) {
@@ -512,7 +507,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         if (method.classEnumInterface != klassType) callingConvention = 'java';
 
         if (!newObjectSnippet) {
-            newObjectSnippet = new StringCodeSnippet(`new ${Helpers.classes}["${klassType.pathAndIdentifierAsDotSeparatedString}"](${enumValueIdentifier ? '"' + enumValueIdentifier + '", ' + enumValueIndex : ""})`);
+            newObjectSnippet = term(`new ${Helpers.classes}["${klassType.pathAndIdentifierAsDotSeparatedString}"](${enumValueIdentifier ? '"' + enumValueIdentifier + '", ' + enumValueIndex : ""})`);
         }
 
         // call javascript constructor and directly thereafter call java constructor
@@ -529,7 +524,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         // r.
         // new Circle()
         // we want to get proper code completion if Curser is located just after the dot.
-        let objectSnippet: CodeSnippet | undefined;
+        let objectSnippet: Expr | undefined;
         let objectNode: ASTTermNode | undefined = (<ASTNewObjectNode>node).object;
         if (objectNode) {
             objectSnippet = this.compileTerm(objectNode);
@@ -541,7 +536,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 parameterValues.unshift(objectSnippet);
                 objectType = objectSnippet.type;
             } else {
-                parameterValues.unshift(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}`));
+                parameterValues.unshift({ ...term(Helpers.elementRelativeToStackbase(0)), stable: true });
                 objectType = this.currentSymbolTable.classContext;
             }
 
@@ -566,12 +561,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         let i = 2;
         template += parameterValues.map(_p => "§" + (i++)).join(", ") + ")";
 
-        let snippet = new SeveralParameterTemplate(template).applyToSnippet(klassType, node.range, newObjectSnippet, ...parameterValues);
+        let snippet = apply(klassType, node.range, template, newObjectSnippet, ...parameterValues);
 
         if (callingConvention == "java") {
-            snippet = new CodeSnippetContainer(SnippetFramer.frame(snippet, '§1;\n'));
-            (<CodeSnippetContainer>snippet).addNextStepMark();
-            snippet.finalValueIsOnStack = true;
+            snippet = javaCall(snippet, true);
         }
         return snippet;
     }
@@ -600,7 +593,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         this.currentSymbolTable = this.symbolTableStack[this.symbolTableStack.length - 1];
     }
 
-    compileSelectArrayElement(node: ASTSelectArrayElementNode, isLeftSideOfAssignment: boolean): CodeSnippet | undefined {
+    compileSelectArrayElement(node: ASTSelectArrayElementNode, isLeftSideOfAssignment: boolean): Expr | undefined {
         let arraySnippet = this.compileTerm(node.array);
         let arrayType = arraySnippet?.type;
         if (!arraySnippet || !arrayType || !(arrayType instanceof JavaArrayType)) {
@@ -617,7 +610,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         let remainingType = remainingDimensions > 0 ? (new JavaArrayType(arrayType.elementType, remainingDimensions, arrayType.module, EmptyRange.instance))
             : arrayType.elementType;
 
-        let indexSnippets: CodeSnippet[] = [];
+        let indexSnippets: Expr[] = [];
         for (let index of node.indices) {
             let indsnip = this.compileTerm(index);
 
@@ -629,7 +622,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 if (indsnip) this.pushError(JCM.indexMustHaveIntegerValue(), "error", index);
 
                 // set dummy replacement to keep on compiling...
-                indsnip = new StringCodeSnippet('0', index.range, this.intType);
+                indsnip = term('0', this.intType, index.range);
             }
 
             indexSnippets.push(indsnip);
@@ -647,90 +640,68 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
          *  java: a[3][4] = 17 -> javascript: __t.Array1(a, 3)[__t.CheckLastIndex(4)] = 17   (__t stores result of __t.Array1(a, 3))
          *  java: a[3][4][5] = 17 -> javascript: __t.Array2(a, 3, 4)[__t.CheckLastIndex(5)] = 17 (__t stores result of __t.Array2(a, 3, 4))
          */
-        let returnSnippet!: CodeSnippet;
-
-        if (isLeftSideOfAssignment) {
-            if (indexSnippets.length == 1) {
-                returnSnippet = new TwoParameterTemplate(`${Helpers.array0}(§1)[${Helpers.checkLastIndex}(§2, 1)]`).applyToSnippet(remainingType, node.range, arraySnippet, indexSnippets[0]);
-            } else {
-                let lastIndexSnippet = indexSnippets.pop();
-                let indexSnippet = ParametersJoinedTemplate.applyToSnippet(this.voidType, node.range, '', ', ', '', ...indexSnippets);
-                let checkAndReturnArrayMethod = "";
-                switch (indexSnippets.length) {
-                    case 1: checkAndReturnArrayMethod = Helpers.array1; break;
-                    case 2: checkAndReturnArrayMethod = Helpers.array2; break;
-                    default: checkAndReturnArrayMethod = Helpers.arrayN; break;
-                }
-
-                returnSnippet = new SeveralParameterTemplate(`${checkAndReturnArrayMethod}(§1, §2)[${Helpers.checkLastIndex}(§3, ${indexSnippets.length + 1})]`)
-                    .applyToSnippet(remainingType, node.range, arraySnippet, indexSnippet, lastIndexSnippet!);
-            }
+        let n = indexSnippets.length;
+        let location: Build;
+        if (n == 1) {
+            location = (a, i) => `${Helpers.array0}(${a})[${Helpers.checkLastIndex}(${i}, 1)]`;
         } else {
-            let indexSnippet = ParametersJoinedTemplate.applyToSnippet(this.voidType, node.range, '', ', ', '', ...indexSnippets);
-            let checkerMethod = "";
-            switch (indexSnippets.length) {
-                case 1: checkerMethod = Helpers.arrayValue1; break;
-                case 2: checkerMethod = Helpers.arrayValue2; break;
-                case 3: checkerMethod = Helpers.arrayValue3; break;
-                default: checkerMethod = Helpers.arrayValueN; break;
+            let checkAndReturnArrayMethod = "";
+            switch (n - 1) {
+                case 1: checkAndReturnArrayMethod = Helpers.array1; break;
+                case 2: checkAndReturnArrayMethod = Helpers.array2; break;
+                default: checkAndReturnArrayMethod = Helpers.arrayN; break;
             }
-
-            returnSnippet = new TwoParameterTemplate(`${checkerMethod}(§1, §2)`).applyToSnippet(remainingType, node.range, arraySnippet, indexSnippet);
+            location = (a, ...indices) => `${checkAndReturnArrayMethod}(${a}, ${indices.slice(0, -1).join(", ")})[${Helpers.checkLastIndex}(${indices[n - 1]}, ${n})]`;
         }
 
-        if (node.parenthesisNeeded) {
-            returnSnippet = SnippetFramer.frame(returnSnippet, '(§1)');
+        let checkerMethod = "";
+        switch (n) {
+            case 1: checkerMethod = Helpers.arrayValue1; break;
+            case 2: checkerMethod = Helpers.arrayValue2; break;
+            case 3: checkerMethod = Helpers.arrayValue3; break;
+            default: checkerMethod = Helpers.arrayValueN; break;
         }
+        let value: Build = isLeftSideOfAssignment ? location : (a, ...indices) => `${checkerMethod}(${a}, ${indices.join(", ")})`;
 
-        returnSnippet.isLefty = true;
+        return this.arrayElement(node, remainingType, [arraySnippet, ...indexSnippets], value, location);
+    }
 
-        return returnSnippet;
+    /**
+     * Array element: value is built by value, its location (for assignments, ++, --) by location
+     */
+    arrayElement(node: ASTSelectArrayElementNode, type: JavaType, parts: Expr[], value: Build, location: Build): Expr {
+        let element: Expr = { ...combine(type, node.range, parts, value), lefty: true, place: { parts: parts, build: location } };
+        return node.parenthesisNeeded ? parenthesize(element) : element;
     }
 
 
     compileSelectArrayElementFast(node: ASTSelectArrayElementNode, isLeftSideOfAssignment: boolean,
-        arraySnippet: CodeSnippet, indexSnippets: CodeSnippet[], remainingType: JavaType
-    ): CodeSnippet | undefined {
+        arraySnippet: Expr, indexSnippets: Expr[], remainingType: JavaType
+    ): Expr | undefined {
 
         /*
-         *  java: 17 + a[3][4]   -> javascript: 17 + __t.ArrayValue2(a, 3, 4)
+         *  java: 17 + a[3][4]   -> javascript: 17 + (a[3]??IOBE(...))[4]??IOBE(...)
          *
-         *  java: a[4] = 17 -> javascript: (__t.lastCheckedArray = a)[__t.CheckLastIndex(4)] = 17   (__t stores result of __t.Array1(a, 3))
-         *  java: a[3][4] = 17 -> javascript: __t.Array1(a, 3)[__t.CheckLastIndex(4)] = 17   (__t stores result of __t.Array1(a, 3))
-         *  java: a[3][4][5] = 17 -> javascript: __t.Array2(a, 3, 4)[__t.CheckLastIndex(5)] = 17 (__t stores result of __t.Array2(a, 3, 4))
+         *  java: a[4] = 17 -> javascript: __t.Array0(a)[__t.CheckLastIndex(4, 1)] = 17
+         *  java: a[3][4] = 17 -> javascript: __t.Array0(a[3]??IOBE(...))[__t.CheckLastIndex(4, 2)] = 17
          */
-        let returnSnippet!: CodeSnippet;
+        let n = indexSnippets.length;
 
-        if (isLeftSideOfAssignment) {
-            if (indexSnippets.length == 1) {
-                returnSnippet = new TwoParameterTemplate(`${Helpers.array0}(§1)[${Helpers.checkLastIndex}(§2, 1)]`).applyToSnippet(remainingType, node.range, arraySnippet, indexSnippets[0]);
-            } else {
-                let template = "§1";
-                for (let i = 0; i < indexSnippets.length - 1; i++) {
-                    let range = indexSnippets[i].range || EmptyRange.instance;
-                    template = `(${template}[§${i + 2}]??${Helpers.IOBE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}))`;
-                }
-
-                returnSnippet = new SeveralParameterTemplate(`${Helpers.array0}(${template})[${Helpers.checkLastIndex}(§${indexSnippets.length + 1}, ${indexSnippets.length})]`)
-                    .applyToSnippet(remainingType, node.range, arraySnippet, ...indexSnippets);
-            }
-        } else {
-            let template = "§1";
-            for (let i = 0; i < indexSnippets.length; i++) {
+        let elementTemplate = (dimensions: number) => {
+            let t = "§1";
+            for (let i = 0; i < dimensions; i++) {
                 let range = indexSnippets[i].range || EmptyRange.instance;
-                template = `(${template}[§${i + 2}]??${Helpers.IOBE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}))`;
+                t = `(${t}[§${i + 2}]??${Helpers.IOBE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}))`;
             }
-
-            returnSnippet = new SeveralParameterTemplate(template).applyToSnippet(remainingType, node.range, arraySnippet, ...indexSnippets);
+            return t;
         }
 
-        if (node.parenthesisNeeded) {
-            returnSnippet = SnippetFramer.frame(returnSnippet, '(§1)');
-        }
+        let locationTemplate = n == 1 ? `${Helpers.array0}(§1)[${Helpers.checkLastIndex}(§2, 1)]` :
+            `${Helpers.array0}(${elementTemplate(n - 1)})[${Helpers.checkLastIndex}(§${n + 1}, ${n})]`;
 
-        returnSnippet.isLefty = true;
+        let valueTemplate = isLeftSideOfAssignment ? locationTemplate : elementTemplate(n);
 
-        return returnSnippet;
+        return this.arrayElement(node, remainingType, [arraySnippet, ...indexSnippets], template(valueTemplate), template(locationTemplate));
     }
 
 
@@ -738,12 +709,12 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
      * Helper function for compileNewArrayNode
      *
      */
-    private compileDimension(dimensionNode: ASTTermNode): CodeSnippet | undefined {
+    private compileDimension(dimensionNode: ASTTermNode): Expr | undefined {
         let dimensionTerm = this.compileTerm(dimensionNode);
 
         // if compileTerm failed: insert plausible dummy value to enable further compilation
         let type = dimensionTerm?.type;
-        if (!type) return new StringCodeSnippet('1', dimensionNode.range, this.intType);
+        if (!type) return term('1', this.intType, dimensionNode.range);
 
         let unboxedDimesionTerm = this.unbox(dimensionTerm!);       // type != undefined => dimensionTerm != undefined
         if (unboxedDimesionTerm.type?.isPrimitive) {
@@ -753,11 +724,11 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
 
         this.pushError(JCM.integerValueExpected(dimensionTerm?.type?.identifier || "---"), "error", dimensionNode);
-        return new StringCodeSnippet('1', dimensionNode.range, this.intType);   // return plausible dummy to get on compiling...
+        return term('1', this.intType, dimensionNode.range);   // return plausible dummy to get on compiling...
 
     }
 
-    compileNewArrayNode(node: ASTNewArrayNode): CodeSnippet | undefined {
+    compileNewArrayNode(node: ASTNewArrayNode): Expr | undefined {
         let elementType = node.arrayType.resolvedType;
         if (elementType == undefined) {
             return undefined;
@@ -782,14 +753,14 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     }
 
-    compileArrayLiteral(elementType: JavaType, node: ASTArrayLiteralNode): CodeSnippet | undefined {
+    compileArrayLiteral(elementType: JavaType, node: ASTArrayLiteralNode): Expr | undefined {
 
         if (node.elements.length == 0) {
             // Empty array gets dimension == -1
-            return new StringCodeSnippet("[]", node.range, new JavaArrayType(elementType, 1, this.module, node.range));
+            return term("[]", new JavaArrayType(elementType, 1, this.module, node.range), node.range);
         }
 
-        let elementSnippets: CodeSnippet[] = [];
+        let elementSnippets: Expr[] = [];
 
         for (let elementNode of node.elements) {
             if (elementNode.kind == TokenType.arrayLiteral) {
@@ -819,19 +790,19 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         let type = new JavaArrayType(elementType, 1, this.module, node.range);
 
-        return ParametersJoinedTemplate.applyToSnippet(type, node.range, "[", ", ", "]", ...elementSnippets);
+        return joined(type, node.range, "[", ", ", "]", ...elementSnippets);
 
     }
 
-    compileNewArrayWithDefaultElements(elementType: JavaType, node: ASTNewArrayNode): CodeSnippet | undefined {
+    compileNewArrayWithDefaultElements(elementType: JavaType, node: ASTNewArrayNode): Expr | undefined {
         let defaultValue = elementType.isPrimitive ? (<PrimitiveType>elementType).defaultValueAsString : "null";
 
-        let maybeUndefinedDimensionTerms: (CodeSnippet | undefined)[] = node.dimensions.map(d => this.compileDimension(d));
+        let maybeUndefinedDimensionTerms: (Expr | undefined)[] = node.dimensions.map(d => this.compileDimension(d));
 
         if (maybeUndefinedDimensionTerms.includes(undefined)) return undefined;
 
         //@ts-ignore
-        let dimensionTerms: CodeSnippet[] = maybeUndefinedDimensionTerms;
+        let dimensionTerms: Expr[] = maybeUndefinedDimensionTerms;
 
         let arrayType = new JavaArrayType(elementType, dimensionTerms.length, this.module, node.range);
 
@@ -839,11 +810,11 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         let prefix = `${Helpers.newArray}(${defaultValue}, `;
         let suffix = ")";
 
-        return ParametersJoinedTemplate.applyToSnippet(arrayType, node.range, prefix, ', ', suffix, ...dimensionTerms);
+        return joined(arrayType, node.range, prefix, ', ', suffix, ...dimensionTerms);
     }
 
 
-    compileSymbolNode(node: ASTSymbolNode, isWriteAccess: boolean): CodeSnippet | undefined {
+    compileSymbolNode(node: ASTSymbolNode, isWriteAccess: boolean): Expr | undefined {
 
         // first try: symbol table (parameters, local variables, fields)
         let symbolInformation = this.currentSymbolTable.findSymbol(node.identifier);
@@ -896,7 +867,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 this.registerUsagePosition(type, node.range);
     
                 let staticType = type.staticType;
-                return new StringCodeSnippet(`${Helpers.classes}["${type.identifier}"]`, node.range, staticType);
+                return { ...term(`${Helpers.classes}["${type.identifier}"]`, staticType, node.range), stable: true };
             } else if (type instanceof JavaPackage){
                 this.module.addTypePosition(Range.getEndPosition(node.range), type);
                 this.pushError(JCM.packageCannotBeUsedAsType(type.identifier), "error", node);
@@ -946,19 +917,15 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             klass.fields.push(f);
         }
 
-        let snippet: CodeSnippet = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${f.getInternalName()}`, range, symbol.type);
-        snippet.isLefty = false;
-        return snippet;
+        return term(`${Helpers.elementRelativeToStackbase(0)}.${f.getInternalName()}`, symbol.type, range);
     }
 
-    compileSymbolOnStackframeAccess(symbol: SymbolOnStackframe, range: IRange): CodeSnippet | undefined {
+    compileSymbolOnStackframeAccess(symbol: SymbolOnStackframe, range: IRange): Expr | undefined {
         let type = (<JavaLocalVariable | JavaParameter>symbol).type;
-        let snippet = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(symbol.stackframePosition!)}`, range, type);
-        snippet.isLefty = !symbol.isFinal;
-        return snippet;
+        return { ...term(Helpers.elementRelativeToStackbase(symbol.stackframePosition!), type, range), lefty: !symbol.isFinal };
     }
 
-    compileFieldAccess(symbol: BaseSymbol, range: IRange, outerClassLevel: number = 0): CodeSnippet | undefined {
+    compileFieldAccess(symbol: BaseSymbol, range: IRange, outerClassLevel: number = 0): Expr | undefined {
         let field = <JavaField>symbol;
 
         if (field._isStatic && this.classOfCurrentlyCompiledStaticInitialization) {
@@ -972,8 +939,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 this.pushError(JCM.localVariableUsedBeforeDeclaration(field.identifier), "error", range);
             }
             if (outerClassLevel == 0) {   // outerClassLevel > 0 could be inside run-Method or runnable which runs on other thread and has other stack than main program
-                const snippet = new StringCodeSnippet(`${StepParams.stack}[0].${field.getInternalName()}`, range, field.type);
-                snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
+                const snippet = term(`${StepParams.stack}[0].${field.getInternalName()}`, field.type, range);
+                snippet.lefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
                 this.registerUsagePosition(field, range);
                 return snippet;
             }
@@ -989,16 +956,16 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         // if (field._isFinal && field.initialValueIsConstant && !(this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext == field.classEnum)) {
         //     let constantValue = field.initialValue!;
         //     let constantValueAsString = typeof constantValue == "string" ? `"${constantValue}"` : "" + constantValue;
-        //     return new StringCodeSnippet(constantValueAsString, range, type, constantValue);
+        //     return term(constantValueAsString, type, range, constantValue);
         // }
 
         let fieldName = (field).getInternalName();
 
-        let snippet: CodeSnippet;
+        let snippet: Expr;
 
         if (field._isStatic) {
             let classIdentifier = field.classEnum.identifier;
-            snippet = new StringCodeSnippet(`${Helpers.classes}["${classIdentifier}"].${fieldName}`, range, type);
+            snippet = term(`${Helpers.classes}["${classIdentifier}"].${fieldName}`, type, range);
         } else {
             let outerClassPraefix: string = "";
             while (outerClassLevel > 0) {
@@ -1007,14 +974,14 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
 
             if (field.template) {
-                let objectSnippet = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}${outerClassPraefix}`, range, type);
-                snippet = new OneParameterTemplate(field.template).applyToSnippet(type, range, objectSnippet);
+                let objectSnippet = { ...term(`${Helpers.elementRelativeToStackbase(0)}${outerClassPraefix}`, type, range), stable: true };
+                snippet = apply(type, range, field.template, objectSnippet);
             } else {
-                snippet = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}${outerClassPraefix}.${fieldName}`, range, type);
+                snippet = term(`${Helpers.elementRelativeToStackbase(0)}${outerClassPraefix}.${fieldName}`, type, range);
             }
 
         }
-        snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
+        snippet.lefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
 
         snippet.isFinalField = field._isFinal;
 
@@ -1028,7 +995,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
     }
 
 
-    compileLiteralNode(node: ASTLiteralNode): CodeSnippet | undefined {
+    compileLiteralNode(node: ASTLiteralNode): Expr | undefined {
         let type = this.constantTypeToTypeMap[node.constantType];
         if (!type) return undefined;
         let valueAsString: string;
@@ -1041,12 +1008,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             default: valueAsString = "" + node.value;
         }
 
-        let snippet = new StringCodeSnippet(valueAsString, node.range, type, node.value);
-
-        return snippet;
+        return term(valueAsString, type, node.range, node.value);
     }
 
-    compileBinaryOperator(ast: ASTBinaryNode): CodeSnippet | undefined {
+    compileBinaryOperator(ast: ASTBinaryNode): Expr | undefined {
 
         if (ast.operator == TokenType.ternaryOperator) return this.compileTernaryOperator(ast);
 
@@ -1059,7 +1024,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
         }
 
-        let rightOperand: CodeSnippet | undefined;
+        let rightOperand: Expr | undefined;
         if (ast.rightSide) {
             if (ast.rightSide?.instanceofVariables) {
                 this.pushAndGetNewSymbolTable(ast.rightSide.range, false);
@@ -1091,7 +1056,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
     /**
      * a ? b : c
      */
-    compileTernaryOperator(ast: ASTBinaryNode): CodeSnippet | undefined {
+    compileTernaryOperator(ast: ASTBinaryNode): Expr | undefined {
         let leftOperand = this.compileTerm(ast.leftSide, false); // a
         if (!ast.rightSide) return;
         if (ast.rightSide.kind != TokenType.binaryOp || (<ASTBinaryNode>ast.rightSide).operator != TokenType.colon) {
@@ -1127,55 +1092,35 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             return undefined;
         }
 
-        let bothAlternativesArePureTerms = firstAlternative.isPureTerm() && secondAlternative.isPureTerm();
+        let bothAlternativesArePureTerms = isPure(firstAlternative) && isPure(secondAlternative);
         let bothAlternativesHaveVoidType = firstAlternative.type == this.voidType && secondAlternative.type == this.voidType;
 
         if (bothAlternativesHaveVoidType || !bothAlternativesArePureTerms) {
-            let notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType = !bothAlternativesArePureTerms && !bothAlternativesHaveVoidType;
-            if (notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType) {
-                firstAlternative.ensureFinalValueIsOnStack();
-                secondAlternative.ensureFinalValueIsOnStack();
-            }
+            let codeOf = (alternative: Expr): Code => bothAlternativesHaveVoidType ? toStatement(alternative) : toStack(alternative).pre;
 
-            let ifSnippet = new CodeSnippetContainer([], ast.range);
+            let label1 = new Label();
+            let label2 = new Label();
 
-            let sn1 = SnippetFramer.frame(leftOperand, "if(§1){\n", this.voidType, leftOperand.range);
-            let label1 = new LabelCodeSnippet();
-            ifSnippet.addParts(sn1);
-            let jumpToLabel1 = new JumpToLabelCodeSnippet(label1);
-            ifSnippet.addParts(jumpToLabel1);
-            ifSnippet.addStringPart("}\n");
-
-            ifSnippet.addNextStepMark();
-
-            let label2 = new LabelCodeSnippet();
-            let jumpToLabel2 = new JumpToLabelCodeSnippet(label2);
-
-            ifSnippet.addParts(secondAlternative);
-
-            ifSnippet.addParts(jumpToLabel2);
-            ifSnippet.addNextStepMark();
-
-            ifSnippet.addParts(label1);
-            ifSnippet.addParts(firstAlternative);
-
-            ifSnippet.addNextStepMark();
-            ifSnippet.addParts(label2);
-
-            if (!notBothAlternativesArePureTermsAndNotBothAlternativesHaveVoidType) {
-                ifSnippet.finalValueIsOnStack = true;
-            }
-
-            return ifSnippet;
+            return {
+                pre: [
+                    ...leftOperand.pre, `if(${leftOperand.value}){\n`, ...at(leftOperand.range), jump(label1), "}\n", STEP,
+                    ...codeOf(secondAlternative), jump(label2), STEP,
+                    label1, ...codeOf(firstAlternative), STEP,
+                    label2
+                ],
+                value: bothAlternativesHaveVoidType ? "" : `${StepParams.stack}.pop()`,
+                type: destType,
+                range: ast.range
+            };
 
         } else {
-            return new SeveralParameterTemplate(`((§1) ? (§2) : (§3) )`).applyToSnippet(destType, ast.range, leftOperand, firstAlternative, secondAlternative);
+            return apply(destType, ast.range, `((§1) ? (§2) : (§3) )`, leftOperand, firstAlternative, secondAlternative);
         }
 
 
     }
 
-    compileUnaryPrefixOperator(ast: ASTUnaryPrefixNode): CodeSnippet | undefined {
+    compileUnaryPrefixOperator(ast: ASTUnaryPrefixNode): Expr | undefined {
 
         let operand = this.compileTerm(ast.term);
         if (ast.operator == TokenType.not) {
@@ -1187,24 +1132,25 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     }
 
-    compilePlusPlusMinusMinusSuffixOperator(ast: ASTPlusPlusMinusMinusSuffixNode): CodeSnippet | undefined {
+    compilePlusPlusMinusMinusSuffixOperator(ast: ASTPlusPlusMinusMinusSuffixNode): Expr | undefined {
         let operand = this.compileTerm(ast.term, true);
 
         if (operand && operand.type) {
 
-            if (!operand.isLefty) {
+            if (!operand.lefty) {
                 this.pushError(JCM.plusPlusMinusMinusOnlyForVariables(), "error", ast);
                 return undefined;
             }
+
+            let operator = ast.operator == TokenType.plusPlus ? "++" : "--";
 
             if (this.hasBoxedType(operand)) {
                 let snippet = this.compileBoxedIncrementOrDecrement(operand, ast.operator, false, ast.range);
                 if (snippet) return snippet;
 
                 if (["Double", "Float", "Integer", "Byte"].indexOf(operand.type.identifier) >= 0) {
-                    let template: CodeTemplate = ast.operator == TokenType.plusPlus ? new OneParameterTemplate(`${Helpers.checkNPE('§1', operand.range)}.value++`) : new OneParameterTemplate(`${Helpers.checkNPE('§1', operand.range)}.value--`);
-
-                    return template.applyToSnippet(this.getUnboxedType(operand.type), ast.range, operand);
+                    let operandRange = operand.range;
+                    return this.updateVariable(operand, this.getUnboxedType(operand.type), ast.range, location => `${Helpers.checkNPE(location, operandRange)}.value${operator}`);
                 }
             }
 
@@ -1212,9 +1158,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 this.pushError(JCM.plusPlusMinusMinusOnlyForTypes(), "error", ast);
             }
 
-            let template: CodeTemplate = ast.operator == TokenType.plusPlus ? new OneParameterTemplate("§1++") : new OneParameterTemplate("§1--");
-
-            return template.applyToSnippet(operand.type, ast.range, operand);
+            return this.updateVariable(operand, operand.type, ast.range, location => location + operator);
         }
 
         return undefined;
@@ -1232,16 +1176,14 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         this.constantTypeToTypeMap[TokenType.keywordNull] = this.libraryTypestore.getType("null")!;
     }
 
-    compileDereferenceAttribute(node: ASTAttributeDereferencingNode): CodeSnippet | undefined {
+    compileDereferenceAttribute(node: ASTAttributeDereferencingNode): Expr | undefined {
 
         let objectSnippet = this.compileTerm(node.nodeToGetObject);
         if (!objectSnippet || !objectSnippet.type) return undefined;
         let range = node.range;
 
-        if (objectSnippet.isSuperKeywordWithLevel && node.attributeIdentifier == "super") {
-            objectSnippet.isSuperKeywordWithLevel++;
-            objectSnippet.type = (<IJavaClass>objectSnippet.type).getExtends();
-            return objectSnippet;
+        if (objectSnippet.superLevel && node.attributeIdentifier == "super") {
+            return { ...objectSnippet, superLevel: objectSnippet.superLevel + 1, type: (<IJavaClass>objectSnippet.type).getExtends() };
         }
 
         if (objectSnippet.type instanceof JavaArrayType) {
@@ -1249,8 +1191,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 this.pushError(JCM.arraysOnlyHaveLengthField(node.attributeIdentifier), "error", node);
                 return undefined;
             }
-            return new OneParameterTemplate(`(§1 || ${Helpers.throwNPE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn})).length`)
-                .applyToSnippet(this.intType, range, objectSnippet);
+            return apply(this.intType, range, `(§1 || ${Helpers.throwNPE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn})).length`, objectSnippet);
         }
 
         let objectType = objectSnippet.type;
@@ -1273,7 +1214,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         if (!field && objectType instanceof StaticNonPrimitiveType) {
             let innerType = objectType.nonPrimitiveType.innerTypes.find(type => type.identifier == node.attributeIdentifier) as NonPrimitiveType;
-            if (innerType) return new StringCodeSnippet(`${Helpers.classes}["${innerType.pathAndIdentifierAsDotSeparatedString}"]`, node.range, innerType.staticType);
+            if (innerType) return { ...term(`${Helpers.classes}["${innerType.pathAndIdentifierAsDotSeparatedString}"]`, innerType.staticType, node.range), stable: true };
         }
 
         if (!field) {
@@ -1302,10 +1243,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
             let value = enumType.runtimeClass!.getSpriteLibrary(id, node.attributeIdentifier);
             if (value) {
-                let snippet1 = new StringCodeSnippet(`${Helpers.classes}["SpriteLibrary"].getSpriteLibrary(${id}, "${node.attributeIdentifier}")`, node.range, enumType);
-                snippet1.isFinalField = field.isFinal();
-                snippet1.isLefty = false;
-                return snippet1;
+                return { ...term(`${Helpers.classes}["SpriteLibrary"].getSpriteLibrary(${id}, "${node.attributeIdentifier}")`, enumType, node.range), isFinalField: field.isFinal() };
             }
         }
 
@@ -1313,7 +1251,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         // if (field._isFinal && field.initialValueIsConstant && !isEnum) {
         //     let constantValue = field.initialValue!;
         //     let constantValueAsString = typeof constantValue == "string" ? `"${constantValue}"` : "" + constantValue;
-        //     return new StringCodeSnippet(constantValueAsString, range, field.type, constantValue);
+        //     return term(constantValueAsString, field.type, range, constantValue);
         // }
 
 
@@ -1321,33 +1259,23 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             let classIdentifier = field.classEnum.pathAndIdentifierAsDotSeparatedString;
             if (field.template) {
                 let code = field.template.replace("§1", `${Helpers.classes}["${classIdentifier}"]`);
-                let snippet = new StringCodeSnippet(code, range, field.type);
-                snippet.isLefty = false;
-                snippet.isFinalField = field._isFinal;
-                return snippet;
+                return { ...term(code, field.type, range), isFinalField: field._isFinal };
             } else {
-                let snippet = new StringCodeSnippet(`${Helpers.classes}["${classIdentifier}"].${field.getInternalName()}`, range, field.type);
-                snippet.isLefty = !field._isFinal;
-                snippet.isFinalField = field._isFinal;
-                return snippet;
+                return { ...term(`${Helpers.classes}["${classIdentifier}"].${field.getInternalName()}`, field.type, range), lefty: !field._isFinal, isFinalField: field._isFinal };
             }
         } else {
-            let template: string = objectSnippet.type instanceof JavaEnum ? `§1` : `(§1 || ${Helpers.throwNPE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}))`;
+            let objectTemplate: string = objectSnippet.type instanceof JavaEnum ? `§1` : `(§1 || ${Helpers.throwNPE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}))`;
 
             if (field.template) {
-                let objSnippet1 = new OneParameterTemplate(template).applyToSnippet(objectSnippet.type, objectSnippet.range!, objectSnippet);
-                let snippet = new OneParameterTemplate(field.template).applyToSnippet(field.type, range, objSnippet1);
-                snippet.isLefty = !field._isFinal;
-                snippet.isFinalField = field._isFinal;
-
-                return snippet;
+                let fieldTemplate = field.template;
+                let snippet = apply(field.type, range, fieldTemplate, apply(objectSnippet.type, objectSnippet.range!, objectTemplate, objectSnippet));
+                let location = (object: string) => template(fieldTemplate)(template(objectTemplate)(object));
+                return { ...snippet, lefty: !field._isFinal, isFinalField: field._isFinal, place: { parts: [objectSnippet], build: location } };
             } else {
-                let snippet = new OneParameterTemplate(`${template}.${field.getInternalName()}`)
-                    .applyToSnippet(field.type, range, objectSnippet);
-                snippet.isLefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
-                snippet.isFinalField = field._isFinal;
-
-                return snippet;
+                let fieldTemplate = `${objectTemplate}.${field.getInternalName()}`;
+                let snippet = apply(field.type, range, fieldTemplate, objectSnippet);
+                let lefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
+                return { ...snippet, lefty: lefty, isFinalField: field._isFinal, place: { parts: [objectSnippet], build: template(fieldTemplate) } };
             }
 
         }
@@ -1355,8 +1283,8 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
     }
 
-    getParameterValueSnippets(methodCallNode: ASTMethodCallNode | ASTNewObjectNode): { snippets: (CodeSnippet | undefined)[], withErrors: boolean } {
-        let snippets: (CodeSnippet | undefined)[] = [];
+    getParameterValueSnippets(methodCallNode: ASTMethodCallNode | ASTNewObjectNode): { snippets: (Expr | undefined)[], withErrors: boolean } {
+        let snippets: (Expr | undefined)[] = [];
         let withErrors: boolean = false;
         for (let parameterValueNode of methodCallNode.parameterValues) {
             if (parameterValueNode.kind == TokenType.lambdaOperator) {
@@ -1383,7 +1311,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
     // b) make sure all catches for one type parameter deliver the same type
     // c) compute actual type for return parameter
 
-    compileMethodCall(node: ASTMethodCallNode): CodeSnippet | undefined {
+    compileMethodCall(node: ASTMethodCallNode): Expr | undefined {
 
         let pv = this.getParameterValueSnippets(node);
         let parameterValueSnippets = pv.snippets;
@@ -1398,7 +1326,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
         }
 
-        let objectSnippet: CodeSnippet | undefined;
+        let objectSnippet: Expr | undefined;
+        // object is checked for null after the parameter values have been evaluated, as in java
+        let checkObject = (object: string) => object;
+        let objectNeedsNullCheck: boolean = false;
         if (node.nodeToGetObject) {
             objectSnippet = this.compileTerm(node.nodeToGetObject);
             if (!objectSnippet) return undefined;
@@ -1406,8 +1337,9 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             if (
                 // !(objectSnippet.type instanceof JavaEnum) &&
                 // objectSnippet.type != this.stringType &&
-                !(objectSnippet.type instanceof StaticNonPrimitiveType) && !objectSnippet.isSuperKeywordWithLevel) {
-                objectSnippet = SnippetFramer.frame(objectSnippet, `${Helpers.checkNPE('§1', range)}`);
+                !(objectSnippet.type instanceof StaticNonPrimitiveType) && !objectSnippet.superLevel) {
+                checkObject = (object: string) => Helpers.checkNPE(object, range);
+                objectNeedsNullCheck = true;
             }
         } else {
             let classContext = this.currentSymbolTable.classContext;
@@ -1424,7 +1356,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 }
 
             }
-            objectSnippet = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}`, EmptyRange.instance, classContext);
+            objectSnippet = { ...term(Helpers.elementRelativeToStackbase(0), classContext, EmptyRange.instance), stable: true };
         }
 
         if (!objectSnippet || !objectSnippet.type) {
@@ -1437,7 +1369,9 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             let globalMethod = this.searchGlobalMethod(node.identifier, parameterTypes, node.identifierRange);
             if (globalMethod) {
                 methods.best = globalMethod.method;
-                objectSnippet = new StringCodeSnippet(`${Helpers.classes}["${globalMethod.staticMainClass.identifier}"]`, node.identifierRange, globalMethod.staticMainClass);
+                objectSnippet = { ...term(`${Helpers.classes}["${globalMethod.staticMainClass.identifier}"]`, globalMethod.staticMainClass, node.identifierRange), stable: true };
+                checkObject = (object: string) => object;
+                objectNeedsNullCheck = false;
             }
         }
 
@@ -1447,7 +1381,9 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             let stringMethods = this.searchMethod(node.identifier, this.stringNonPrimitiveType, parameterTypes, false, false, true, node.identifierRange);
             if (stringMethods.best) {
                 methods = stringMethods;
-                objectSnippet = this.box(objectSnippet);
+                objectSnippet = this.box(map(objectSnippet, checkObject));
+                checkObject = (object: string) => object;
+                objectNeedsNullCheck = false;
             }
         }
 
@@ -1511,7 +1447,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         this.registerUsagePosition(method, node.identifierRange);
 
-        if(method.isAbstract && objectSnippet.isSuperKeywordWithLevel > 0){
+        if(method.isAbstract && objectSnippet.superLevel > 0){
             this.pushError(JCM.cantCallAbstractMethodOfBaseClass(method.identifier), "error", node);
         }
 
@@ -1545,10 +1481,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         // cast parameter values
 
         if (method.constantFoldingFunction) {
-            let allParametersConstant: boolean = !parameterValueSnippets.some(v => !v!.isConstant())
-            if (allParametersConstant && (method.isStatic || objectSnippet.isConstant())) {
-                let constantValues = parameterValueSnippets.map(p => p!.getConstantValue());
-                let result = method.isStatic ? method.constantFoldingFunction(...constantValues) : method.constantFoldingFunction(objectSnippet.getConstantValue(), ...constantValues);
+            let allParametersConstant: boolean = !parameterValueSnippets.some(v => !isConstant(v!))
+            if (allParametersConstant && (method.isStatic || !objectNeedsNullCheck && isConstant(objectSnippet))) {
+                let constantValues = parameterValueSnippets.map(p => p!.constant);
+                let result = method.isStatic ? method.constantFoldingFunction(...constantValues) : method.constantFoldingFunction(objectSnippet.constant, ...constantValues);
 
                 let resultAsString: string = "";
 
@@ -1562,7 +1498,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                     resultAsString = typeof result == "string" ? `"${result}"` : "" + result;
                 }
 
-                return new StringCodeSnippet(resultAsString, node.range, returnParameterType, result);
+                return term(resultAsString, returnParameterType, node.range, result);
             }
         }
 
@@ -1581,9 +1517,11 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         // For library functions like Math.sin, Math.abs, ... we use templates to compile to nativ javascript functions:
         if (method.template) {
             if (method.isStatic) {
-                return new SeveralParameterTemplate(method.template).applyToSnippet(returnParameterType, node.range, ...(<CodeSnippet[]>parameterValueSnippets));
+                return apply(returnParameterType, node.range, method.template, ...(<Expr[]>parameterValueSnippets));
             } else if (callingConvention == "native") {
-                return new SeveralParameterTemplate(method.template).applyToSnippet(returnParameterType, node.range, objectSnippet, ...(<CodeSnippet[]>parameterValueSnippets));
+                let methodTemplate = template(method.template);
+                return combine(returnParameterType, node.range, [objectSnippet, ...(<Expr[]>parameterValueSnippets)],
+                    (object, ...parameters) => methodTemplate(checkObject(object), ...parameters));
             }
         }
 
@@ -1591,7 +1529,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         let objectTemplate: string;
         if (objectSnippet.type instanceof StaticNonPrimitiveType) {
             objectTemplate = `§1.${method.getInternalNameWithGenericParameterIdentifiers(callingConvention)}(`
-        } else if (objectSnippet.isSuperKeywordWithLevel && !method.isConstructor) {   // constructors of class and base class have distinct names as they include class identifier
+        } else if (objectSnippet.superLevel && !method.isConstructor) {   // constructors of class and base class have distinct names as they include class identifier
             let classIdentifier = (<IJavaClass>objectSnippet.type).pathAndIdentifierAsDotSeparatedString;
             if (method.isStatic) {
                 objectTemplate = `${Helpers.classes}["${classIdentifier}"].${method.getInternalNameWithGenericParameterIdentifiers(callingConvention)}(`
@@ -1617,16 +1555,12 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         let i = 2;
         objectTemplate += parameterValueSnippets.map(_p => "§" + (i++)).join(", ") + ")";
 
-        parameterValueSnippets.unshift(objectSnippet);
-
-
-        let snippet = new SeveralParameterTemplate(objectTemplate).applyToSnippet(returnParameterType, node.range, ...(<CodeSnippet[]>parameterValueSnippets));
-        snippet.finalValueIsOnStack = false;
+        let callTemplate = template(objectTemplate);
+        let snippet = combine(returnParameterType, node.range, [objectSnippet, ...(<Expr[]>parameterValueSnippets)],
+            (object, ...parameters) => callTemplate(checkObject(object), ...parameters));
 
         if (callingConvention == "java") {
-            if (!snippet.endsWith(";\n")) snippet = new CodeSnippetContainer(SnippetFramer.frame(snippet, '§1;\n'));
-            (<CodeSnippetContainer>snippet).addNextStepMark();
-            if (returnParameterType != this.voidType) snippet.finalValueIsOnStack = true;
+            snippet = javaCall(snippet, returnParameterType != this.voidType);
         }
 
         return snippet;
@@ -1655,19 +1589,19 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         return type == this.stringType || type == this.charType;
     }
 
-    registerCodeReachedAssertion(node: ASTMethodCallNode, parameterValues: (CodeSnippet | undefined)[]): CodeSnippet | undefined {
-        if (parameterValues.length != 1 || parameterValues[0]?.type != this.stringType || !parameterValues[0].isConstant()) {
+    registerCodeReachedAssertion(node: ASTMethodCallNode, parameterValues: (Expr | undefined)[]): Expr | undefined {
+        if (parameterValues.length != 1 || parameterValues[0]?.type != this.stringType || !isConstant(parameterValues[0])) {
             this.pushError(JCM.assertCodeReachedNeedsStringParameter(), "error", node);
             return undefined;
         }
-        let message = <string>parameterValues[0].getConstantValue();
+        let message = <string>parameterValues[0].constant;
         let codeReachedAssertion = new CodeReachedAssertion(message, this.module, node.range);
         this.module.codeReachedAssertions.registerAssertion(codeReachedAssertion);
 
-        return new StringCodeSnippet(`${Helpers.registerCodeReached}("${codeReachedAssertion.key}")`, node.range);
+        return term(`${Helpers.registerCodeReached}("${codeReachedAssertion.key}")`, undefined, node.range);
     }
 
-    convertParameterValueSnippetsToParameterTypes(methodIdentifier: string, parameterSnippets: CodeSnippet[]): (JavaType | undefined)[] {
+    convertParameterValueSnippetsToParameterTypes(methodIdentifier: string, parameterSnippets: Expr[]): (JavaType | undefined)[] {
         let parameterTypes: (JavaType | undefined)[] = [];
         for (let i = 0; i < parameterSnippets.length; i++) {
             let snippet = parameterSnippets[i];

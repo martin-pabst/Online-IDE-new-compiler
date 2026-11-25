@@ -18,23 +18,18 @@ import { IJavaClass, JavaClass } from "../types/JavaClass.ts";
 import { JavaEnum } from "../types/JavaEnum.ts";
 import { IJavaInterface, JavaInterface } from "../types/JavaInterface.ts";
 import { JavaType } from "../types/JavaType.ts";
-import { CodeSnippet, StringCodeSnippet } from "./CodeSnippet";
-import { CodeSnippetContainer } from "./CodeSnippetKinds.ts";
-import { OneParameterTemplate } from "./CodeTemplate.ts";
+import { at, cleanup, Code, hook, link, STEP } from "./Code";
+import { Expr, statement } from "./Expr";
 import { ExceptionTree } from "./ExceptionTree.ts";
 import { FlowAnalyzer } from "./FlowAnalyzer.ts";
-import { SnippetLinker } from "./SnippetLinker";
 import { StatementCodeGenerator } from "./StatementCodeGenerator";
 
 export class InnerClassCodeGenerator extends StatementCodeGenerator {
-
-    linker: SnippetLinker;
 
     constructor(module: JavaCompiledModule, libraryTypestore: JavaTypeStore, compiledTypesTypestore: JavaTypeStore,
         exceptionTree: ExceptionTree,
         settingsStore: SettingsStore | undefined) {
         super(module, libraryTypestore, compiledTypesTypestore, exceptionTree, settingsStore);
-        this.linker = new SnippetLinker();
     }
 
     /**
@@ -44,7 +39,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
      * @param node
      */
     innerclassCounter: number = 0;
-    compileAnonymousInnerClass(node: ASTAnonymousClassNode): CodeSnippet | undefined {
+    compileAnonymousInnerClass(node: ASTAnonymousClassNode): Expr | undefined {
 
         // let outerClass = this.currentSymbolTable.classContext;
         let klass = node.klass.resolvedType;
@@ -94,10 +89,13 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
         
         let counter = this.innerclassCounter++;
         let template = `new this.$AnonymousInnerClass${counter}(${outerLocalVariables.map(v => Helpers.elementRelativeToStackbase(v!.stackframePosition!)).join(", ")})`;
-        let newClassSnippet = new StringCodeSnippet(template, node.range, klass);
-        newClassSnippet.addEmitToStepListener((step) => {
-            step[`$AnonymousInnerClass${counter}`] = klass.runtimeClass;
-        });
+        // this in context of Step.run-function points to Step-object
+        let newClassSnippet: Expr = {
+            pre: [hook(step => { step[`$AnonymousInnerClass${counter}`] = klass.runtimeClass; })],
+            value: template,
+            type: klass,
+            range: node.range
+        };
 
         let snippet = this.compileNewObjectNode(node.newObjectNode, newClassSnippet);
 
@@ -105,7 +103,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
     }
 
     lambdaCounter: number = 0;
-    compileLambdaFunction(node: ASTLambdaFunctionDeclarationNode, expectedType: JavaType | undefined): CodeSnippet | undefined {
+    compileLambdaFunction(node: ASTLambdaFunctionDeclarationNode, expectedType: JavaType | undefined): Expr | undefined {
         if (!node || !expectedType) return undefined;
 
         if (!this.isFunctionalInterface(expectedType)) {
@@ -238,17 +236,22 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
         let counter = this.lambdaCounter++;
 
-        let template = instantiationAtRuntimeNeeded ? `new this.innerClass(${parameterString})` : `this.lambdaObject${counter}`;
-        let newClassSnippet = new StringCodeSnippet(template, node.range, klass);
-        newClassSnippet.addEmitToStepListener((step) => {
-            if (instantiationAtRuntimeNeeded) {
-                step.innerClass = klass.runtimeClass;
-            } else {
-                step["lambdaObject" + counter] = new klass.runtimeClass!(null);
-            }
-        });
-
-        return newClassSnippet;
+        let template = instantiationAtRuntimeNeeded ? `new this.innerClass${counter}(${parameterString})` : `this.lambdaObject${counter}`;
+        // this in context of Step.run-function points to Step-object
+        return {
+            pre: [hook(step => {
+                if (instantiationAtRuntimeNeeded) {
+                    // each lambda function needs its own property as one step may instantiate several of them
+                    step["innerClass" + counter] = klass.runtimeClass;
+                    step.innerClass = klass.runtimeClass;   // shown by Disassembler
+                } else {
+                    step["lambdaObject" + counter] = new klass.runtimeClass!(null);
+                }
+            })],
+            value: template,
+            type: klass,
+            range: node.range
+        };
     }
 
     /**
@@ -286,22 +289,16 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
     }
 
     protected compileInstanceFieldsAndInitializer(cdef: ASTClassDefinitionNode | ASTEnumDefinitionNode, classContext: JavaClass | JavaEnum) {
-        let fieldSnippets: CodeSnippet[] = [];
+        let fieldCode: Code = [];
         for (let fieldOrInitializer of cdef.fieldsOrInstanceInitializers) {
 
             switch (fieldOrInitializer.kind) {
                 case TokenType.fieldDeclaration:
                     if (fieldOrInitializer.isStatic) continue;
-                    let snippet = this.compileFieldDeclaration(fieldOrInitializer, classContext);
-                    if (snippet) {
-                        fieldSnippets.push(snippet);
-                    }
+                    fieldCode.push(...this.compileFieldDeclaration(fieldOrInitializer, classContext) ?? []);
                     break;
                 case TokenType.instanceInitializerBlock:
-                    let snippet1 = this.compileInstanceInitializerBlock(fieldOrInitializer, classContext);
-                    if (snippet1) {
-                        fieldSnippets.push(snippet1);
-                    }
+                    fieldCode.push(...this.compileInstanceInitializerBlock(fieldOrInitializer, classContext) ?? []);
                     break;
                 default:
                     break;
@@ -309,10 +306,10 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
         }
 
-        classContext.instanceInitializer = fieldSnippets;
+        classContext.instanceInitializer = fieldCode;
     }
 
-    compileInstanceInitializerBlock(node: ASTInstanceInitializerNode, classContext: JavaClass | JavaEnum): CodeSnippetContainer | undefined {
+    compileInstanceInitializerBlock(node: ASTInstanceInitializerNode, classContext: JavaClass | JavaEnum): Code | undefined {
 
         this.pushAndGetNewSymbolTable(node.range, true, classContext)
 
@@ -320,14 +317,14 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
         let flowOfEnclosingMethod = this.flow;
         this.flow = new FlowAnalyzer();
 
-        let snippet = new CodeSnippetContainer(this.compileStatementSequence(node.statements), node.range);
+        let code = this.compileStatementSequence(node.statements);
 
         this.flow.end(undefined, this.module.errors);
         this.flow = flowOfEnclosingMethod;
 
         this.popSymbolTable();
 
-        return snippet;
+        return code;
     }
 
 
@@ -374,11 +371,11 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
             if (parametersForSuperCall.length > 0) parametersForSuperCall = ", " + parametersForSuperCall;
 
-            let steps = classContext.instanceInitializer.slice();
+            let code: Code = [];
 
+            // reference to outer object is needed by field initializers, so store it first
             if (method.hasOuterClassParameter) {
-                let storeOuterClassReferenceSnippet = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${Helpers.outerClassAttributeIdentifier} = ${Helpers.elementRelativeToStackbase(1)};\n`);
-                steps.unshift(storeOuterClassReferenceSnippet);
+                code.push(`${Helpers.elementRelativeToStackbase(0)}.${Helpers.outerClassAttributeIdentifier} = ${Helpers.elementRelativeToStackbase(1)};\n`);
             }
 
             // let getBaseClass: string = `let obj = ${Helpers.elementRelativeToStackbase(0)};\nlet baseKlass = ${Helpers.classes}.Object.getPrototypeOf(Object.getPrototypeOf(obj));\n`
@@ -386,10 +383,13 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             let superCall: string = `baseKlass.prototype.${baseConstructor.getInternalName(baseConstructor.hasImplementationWithNativeCallingConvention ? "native" : "java")}.call(obj${parametersForSuperCall});\n`;
             let returnCall: string = `${Helpers.return}(${Helpers.elementRelativeToStackbase(0)});\n`;
 
-            steps.unshift(new StringCodeSnippet(getBaseClass + superCall));
-            let returnSnippet = new CodeSnippetContainer(new StringCodeSnippet(returnCall));
-            returnSnippet.enforceNewStepBeforeSnippet();
-            steps.push(returnSnippet);
+            code.push(getBaseClass + superCall);
+            if (!baseConstructor.hasImplementationWithNativeCallingConvention) {
+                // Constructor with java calling convention runs in the following steps and pushes this onto the stack.
+                // Like in java field initializers are executed after it has finished.
+                code.push(STEP, cleanup(`${StepParams.stack}.pop();\n`));
+            }
+            code.push(...classContext.instanceInitializer, STEP, returnCall);
 
             let parameterIdentifiers = method.parameters.map(p => p.identifier);
             if (method.hasOuterClassParameter) {
@@ -401,7 +401,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             method.program.numberOfThisObjects = 1;
             method.program.numberOfParameters = parameterIdentifiers.length;
 
-            this.linker.link(steps, method.program);
+            link(code, method.program);
 
             let runtimeClass = classContext.runtimeClass;
 
@@ -438,7 +438,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
  * @see TypeResolver#buildRuntimeClassesAndTheirFields
  * @returns
  */
-    compileFieldDeclaration(fieldNode: ASTFieldDeclarationNode, classContext: JavaClass | JavaEnum | JavaInterface): CodeSnippet | undefined {
+    compileFieldDeclaration(fieldNode: ASTFieldDeclarationNode, classContext: JavaClass | JavaEnum | JavaInterface): Code | undefined {
 
         if (fieldNode.type.kind != TokenType.varType && !fieldNode.type.resolvedType) return undefined;
 
@@ -464,35 +464,32 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             this.classOfCurrentlyCompiledStaticInitialization = undefined;
 
 
+            let code: Code;
+
             if (snippet) {
 
-                if (snippet.isConstant()) {
-                    field.initialValue = snippet.getConstantValue();
+                if (snippet.constant !== undefined) {
+                    field.initialValue = snippet.constant;
                     field.initialValueIsConstant = field.isFinal();
-                } else if (field.isFinal() && snippet.type == this.stringNonPrimitiveType && snippet.getConstantValue()) {
+                } else if (field.isFinal() && snippet.type == this.stringNonPrimitiveType && snippet.constant) {
                     field.initialValueIsConstant = true;
                 }
 
-                let assignmentTemplate = `${Helpers.classes}.${classContext.identifier}.${field.getInternalName()} = §1;\n`;
-
                 let initRange = fieldNode.initialization ? fieldNode.initialization.range : EmptyRange.instance;
 
-                snippet = new OneParameterTemplate(assignmentTemplate).applyToSnippet(field.type, initRange, snippet);
-
-                snippet = new CodeSnippetContainer(snippet);
-                (<CodeSnippetContainer>snippet).addNextStepMark();
+                code = [...statement(snippet, value => `${Helpers.classes}.${classContext.identifier}.${field.getInternalName()} = ${value};\n`, initRange), STEP];
 
             } else {
                 field.initialValueIsConstant = true;
                 let initialValueAsString = field.type instanceof PrimitiveType ? field.type.defaultValueAsString : "null";
-                snippet = new StringCodeSnippet(`${Helpers.classes}.${classContext.identifier}.${field.getInternalName()} = ${initialValueAsString};\n`);
+                code = [`${Helpers.classes}.${classContext.identifier}.${field.getInternalName()} = ${initialValueAsString};\n`];
             }
 
             if (classContext.runtimeClass) {
                 classContext.runtimeClass[field.getInternalName()] = field.initialValue;
             }
 
-            return snippet;
+            return code;
         } else {
 
             if (fieldNode.initialization) field.initializedBeforeConstructor = true;
@@ -506,22 +503,19 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             let baseClassConstructorMayAccessFields = baseClass != null && !baseClass.isLibraryType;
             let defaultValue = field.initialValue;
 
+            let code: Code | undefined;
+
             if (snippet) {
 
-                if (snippet.isConstant()) {
-                    field.initialValue = snippet.getConstantValue();
+                if (snippet.constant !== undefined) {
+                    field.initialValue = snippet.constant;
                     field.initialValueIsConstant = field.isFinal();
                     if ((<JavaType>field.getType())?.isPrimitive && !baseClassConstructorMayAccessFields) {
                         snippet = undefined;
                     }
                 }
                 if (snippet) {
-                    let assignmentTemplate = `${Helpers.elementRelativeToStackbase(0)}.${field.getInternalName()} = §1;\n`;
-
-                    snippet = new OneParameterTemplate(assignmentTemplate).applyToSnippet(field.type, snippet.range!, snippet);
-
-                    snippet = new CodeSnippetContainer(snippet);
-                    (<CodeSnippetContainer>snippet).addNextStepMark();
+                    code = [...statement(snippet, value => `${Helpers.elementRelativeToStackbase(0)}.${field.getInternalName()} = ${value};\n`), STEP];
                 }
 
             } else {
@@ -530,10 +524,10 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
             if (classContext.runtimeClass) {
                 // if there is an initialization snippet, the prototype holds the default value until it is executed
-                classContext.runtimeClass.prototype[field.getInternalName()] = snippet ? defaultValue : field.initialValue;
+                classContext.runtimeClass.prototype[field.getInternalName()] = code ? defaultValue : field.initialValue;
             }
 
-            return snippet;
+            return code;
         }
 
     }
@@ -557,12 +551,11 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             if (!field) continue;
 
             const instanceName = injectAnnotation.parameter;
-            const injectSnippet = new StringCodeSnippet(
+            classContext.instanceInitializer.push(
                 `${Helpers.elementRelativeToStackbase(0)}.${field.getInternalName()} = ` +
                 `(${Helpers.classes}.__di_instances && ${Helpers.classes}.__di_instances["${instanceName}"]) || null;\n`,
-                fieldOrInit.range
+                ...at(fieldOrInit.range)
             );
-            classContext.instanceInitializer.push(injectSnippet);
         }
     }
 
@@ -605,10 +598,10 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
         }
 
 
-        let snippets: CodeSnippet[] = [];
+        let code: Code = [];
 
         if (method.isFullSpeedMethod()) {
-            snippets.push(new StringCodeSnippet(`${Helpers.enterFullspeedMode}();\n`));
+            code.push(`${Helpers.enterFullspeedMode}();\n`);
         }
 
         let thisCallHappened: boolean = false;
@@ -633,11 +626,10 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
 
             // reference to outer object is needed by field initializers, so store it first
             if (method.hasOuterClassParameter) {
-                let storeOuterClassReferenceSnippet = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${Helpers.outerClassAttributeIdentifier} = ${Helpers.elementRelativeToStackbase(1)};\n`);
-                snippets.push(storeOuterClassReferenceSnippet);
+                code.push(`${Helpers.elementRelativeToStackbase(0)}.${Helpers.outerClassAttributeIdentifier} = ${Helpers.elementRelativeToStackbase(1)};\n`);
             }
 
-            insertPositionForImplicitSuperCall = snippets.length;
+            insertPositionForImplicitSuperCall = code.length;
 
             // Like in java field initializers and instance initializer blocks are executed
             // after the constructor of the base class (super(...)) has been called:
@@ -646,7 +638,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                 this.snippetsToInsertAfterSuperConstructorCall = classContext.instanceInitializer.length > 0 ? classContext.instanceInitializer : undefined;
             } else if (!thisCallHappened && classContext.instanceInitializer.length > 0) {
                 // implicit super()-call is inserted in front of these snippets below
-                snippets = snippets.concat(classContext.instanceInitializer);
+                code.push(...classContext.instanceInitializer);
             }
 
         } else if (method.identifier == classContext.identifier && method.returnParameterType) {
@@ -661,18 +653,15 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             let flowOfEnclosingMethod = this.flow;
             this.flow = new FlowAnalyzer(method.parameters);
 
-            let snippet = methodNode.statement ? this.compileStatementOrTerm(methodNode.statement) : undefined;
-            if (snippet) snippets.push(snippet);
+            code.push(...this.compileStatementOrTerm(methodNode.statement) ?? []);
 
             if (method.isFullSpeedMethod()) {
-                snippets.push(new StringCodeSnippet(`${Helpers.exitFullspeedMode}();\n`));
+                code.push(`${Helpers.exitFullspeedMode}();\n`);
             }
 
             if (methodNode.isConstructor) {
                 let endOfMethodRange: IRange = Range.fromPositions(Range.getEndPosition(methodNode.range));
-                let returnSnippet = new CodeSnippetContainer([new StringCodeSnippet(`${Helpers.return}(${Helpers.elementRelativeToStackbase(0)});\n`, endOfMethodRange)]);
-                returnSnippet.enforceNewStepBeforeSnippet();
-                snippets.push(returnSnippet);
+                code.push(STEP, `${Helpers.return}(${Helpers.elementRelativeToStackbase(0)});\n`, ...at(endOfMethodRange));
 
                 if (!(thisCallHappened || superCallHappened)) {
                     // Has base class a parameterless super constructor?
@@ -684,8 +673,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                         } else {
                             let parameterlessConstructor = parameterlessConstructors[0];
                             if (parameterlessConstructor.hasImplementationWithNativeCallingConvention) {
-                                let superConstructorCall = new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${parameterlessConstructor.getInternalName("native")}();\n`);
-                                snippets.splice(insertPositionForImplicitSuperCall, 0, superConstructorCall);
+                                code.splice(insertPositionForImplicitSuperCall, 0, `${Helpers.elementRelativeToStackbase(0)}.${parameterlessConstructor.getInternalName("native")}();\n`);
                             } else {
                                 // A constructor with the java calling convention may hand control
                                 // back to the scheduler before it is done, so the rest of this
@@ -694,9 +682,10 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
                                 // Without the step mark the constructor body runs while the base
                                 // class constructor is still in flight, and everything it sets up
                                 // there is overwritten again once the base constructor resumes.
-                                let superConstructorCall = new CodeSnippetContainer(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, undefined);\n`));
-                                superConstructorCall.addNextStepMark();
-                                snippets.splice(insertPositionForImplicitSuperCall, 0, superConstructorCall);
+                                // The base class constructor pushes this onto the stack.
+                                code.splice(insertPositionForImplicitSuperCall, 0,
+                                    `${Helpers.elementRelativeToStackbase(0)}.${parameterlessConstructor.getInternalName("java")}(${StepParams.thread}, undefined);\n`, STEP,
+                                    cleanup(`${StepParams.stack}.pop();\n`));
                             }
                         }
                     }
@@ -708,12 +697,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             method.program = new Program(this.module, symbolTable, classContext.identifier + "." + method.identifier);
 
             if (method.isSynchronized) {
-                // snippets.unshift(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.enterSynchronizedBlock.name}(${StepParams.thread});\n`));
-
-                let beforeEnteringSynchronizedBlockStatement = new StringCodeSnippet(`return this.index + ${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.beforeEnteringSynchronizedBlock.name}(${StepParams.thread});\n`);
-                let sn = new CodeSnippetContainer([beforeEnteringSynchronizedBlockStatement]);
-                sn.addNextStepMark();
-                snippets.unshift(sn);
+                code.unshift(`return this.index + ${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.beforeEnteringSynchronizedBlock.name}(${StepParams.thread});\n`, STEP);
 
             }
 
@@ -721,17 +705,15 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             if (this.flow.state.alive && !methodNode.isConstructor) {
                 let endOfMethodRange: IRange = Range.fromPositions(Range.getEndPosition(methodNode.range));
                 if (method.isSynchronized) {
-                    snippets.push(new StringCodeSnippet(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`, endOfMethodRange));
+                    code.push(`${Helpers.elementRelativeToStackbase(0)}.${ObjectClass.prototype.leaveSynchronizedBlock.name}(${StepParams.thread});\n`, ...at(endOfMethodRange));
                 }
-                let sn1 = new CodeSnippetContainer([new StringCodeSnippet(`${Helpers.return}();`, endOfMethodRange)]);
-                sn1.enforceNewStepBeforeSnippet();
-                snippets.push(sn1);
+                code.push(STEP, `${Helpers.return}();`, ...at(endOfMethodRange));
             }
 
             this.flow.end(method, this.module.errors);
             this.flow = flowOfEnclosingMethod;
 
-            this.linker.link(snippets, method.program);
+            link(code, method.program);
 
             methodNode.program = method.program;    // only for debugging purposes
 
