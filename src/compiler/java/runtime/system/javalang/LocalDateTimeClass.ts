@@ -3,6 +3,9 @@ import { CallbackFunction } from "../../../../common/interpreter/StepFunction";
 import { Thread } from "../../../../common/interpreter/Thread";
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
+import { DateHelper } from "../../../../../tools/DateHelper";
+import { DateTimeFormatterClass } from "./DateTimeFormatterClass";
+import { NullPointerExceptionClass } from "./NullPointerExceptionClass";
 import { ObjectClass, StringClass } from "./ObjectClassStringClass";
 
 export class LocalDateTimeClass extends ObjectClass {
@@ -24,8 +27,12 @@ export class LocalDateTimeClass extends ObjectClass {
         { type: "method", signature: "int getMinute()", template: `§1.date.getMinutes()`, comment: JRC.LocalDateTimeGetMinuteComment },
         { type: "method", signature: "int getSecond()", template: `§1.date.getSeconds()`, comment: JRC.LocalDateTimeGetSecondComment },
 
-        { type: "method", signature: "int compareTo(LocalDateTime object)", java: LocalDateTimeClass.prototype._mj$compareTo$int$T, comment: JRC.comparableCompareToComment },
+        // java-implementation is needed for calls via interface Comparable (method identifier _mj$compareTo$int$T)
+        { type: "method", signature: "int compareTo(LocalDateTime object)", native: LocalDateTimeClass.prototype._compareTo, java: LocalDateTimeClass.prototype._mj$compareTo$int$T, comment: JRC.comparableCompareToComment },
 
+        { type: "method", signature: "string format(string pattern)", native: LocalDateTimeClass.prototype._format, comment: JRC.LocalDateTimeFormatComment },
+        { type: "method", signature: "string toString(string pattern)", native: LocalDateTimeClass.prototype._format, comment: JRC.LocalDateTimeFormatComment },
+        { type: "method", signature: "string format(DateTimeFormatter formatter)", native: LocalDateTimeClass.prototype._formatWithFormatter, comment: JRC.LocalDateTimeFormatWithFormatterComment },
 
         { type: "method", signature: "String toString()", java: LocalDateTimeClass.prototype._mj$toString$String$, comment: JRC.objectToStringComment },
 
@@ -63,31 +70,47 @@ export class LocalDateTimeClass extends ObjectClass {
     }
 
     _plusDays(days: number): LocalDateTimeClass {
-        return new LocalDateTimeClass(new Date(this.date.getTime() + days * 24 * 3600 * 1000));
+        return new LocalDateTimeClass(DateHelper.plusDays(this.date, days));
     }
 
     _minusDays(days: number): LocalDateTimeClass {
-        return new LocalDateTimeClass(new Date(this.date.getTime() - days * 24 * 3600 * 1000));
+        return new LocalDateTimeClass(DateHelper.plusDays(this.date, -days));
     }
 
-    _mj$compareTo$int$T(otherDate: LocalDateTimeClass) {
+    _compareTo(otherDate: LocalDateTimeClass): number {
+        if (otherDate == null) throw new NullPointerExceptionClass(JRC.localDateTimeNullPointerException());
         return Math.sign(this.date.getTime() - otherDate.date.getTime());
     }
 
-    _until(otherDate: LocalDateTimeClass) {
-        return (this.date.getTime() - otherDate.date.getTime()) / (24 * 3600 * 1000);
+    _mj$compareTo$int$T(t: Thread, callback: CallbackFunction, otherDate: LocalDateTimeClass) {
+        t.s.push(this._compareTo(otherDate));
+        if (callback) callback();
     }
 
+    /**
+     * complete days from this until otherDate, like Java's this.until(otherDate, ChronoUnit.DAYS)
+     */
+    _until(otherDate: LocalDateTimeClass): number {
+        if (otherDate == null) throw new NullPointerExceptionClass(JRC.localDateTimeNullPointerException());
+        return DateHelper.daysUntil(this.date, otherDate.date);
+    }
+
+    /**
+     * pattern as in java.text.SimpleDateFormat
+     */
+    _format(pattern: string): string {
+        return DateTimeFormatterClass.formatDate(this.date, DateTimeFormatterClass.parsePattern(pattern, "SimpleDateFormat"));
+    }
+
+    _formatWithFormatter(formatter: DateTimeFormatterClass): string {
+        if (formatter == null) throw new NullPointerExceptionClass(JRC.dateTimeFormatterNullPointerException());
+        return formatter._format(this);
+    }
 
     _mj$toString$String$(t: Thread, callback: CallbackFunction) {
-
-        t.s.push(new StringClass(`${this.td(this.date.getDate())}.${this.td(this.date.getMonth() + 1)}.${this.td(this.date.getFullYear())} ${this.td(this.date.getHours())}:${this.td(this.date.getMinutes())}:${this.td(this.date.getSeconds())}`));
+        t.s.push(new StringClass(this._format("dd.MM.yyyy HH:mm:ss")));
         if(callback) callback();
         return;
     }
 
-    private td(value: number) {
-        if (value < 10) return "0" + value;
-        return "" + value;
-    }
 }

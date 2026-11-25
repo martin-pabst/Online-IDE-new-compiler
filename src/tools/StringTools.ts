@@ -1,3 +1,5 @@
+import { DateHelper } from "./DateHelper";
+
 export function hash(s: string){
     let hash: number = 0;
     let chr: number;
@@ -20,18 +22,15 @@ export function escapeHtml(unsafe: string): string {
        .replace(/'/g, "&#039;");
 }
 
-export function dateToString(date: Date, withTime: boolean = false): string{
-  let s = `${twoDez(date.getDate())}.${twoDez(date.getMonth() + 1)}.${date.getFullYear()}, ${twoDez(date.getHours())}:${twoDez(date.getMinutes())}`;
-  
-  if(withTime){
-    s += `, ${twoDez(date.getHours())}:${twoDez(date.getMinutes())}`;
-  }
-
-  return s;
+/**
+ * @returns e.g. "20.06.2024, 12:15" (this format is parsed by stringToDate) or "20.06.2024" if withTime is false
+ */
+export function dateToString(date: Date, withTime: boolean = true): string{
+  return DateHelper.format(date, withTime ? "dd.MM.yyyy, HH:mm" : "dd.MM.yyyy");
 }
 
 export function dateToStringWithoutTime(date: Date): string{
-  return `${twoDez(date.getDate())}.${twoDez(date.getMonth() + 1)}.${date.getFullYear()}`;
+  return dateToString(date, false);
 }
 
 export function twoDez(z: number):string {

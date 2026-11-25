@@ -1226,8 +1226,8 @@ export class JRC {
     })
 
     static LocalDateTimeUntilComment = () => lm({
-        "de": "Gibt zurück, wie viele Tage (gerundet) zwischen den beiden Zeitpunkten liegen.",
-        "en": "",
+        "de": "Gibt zurück, wie viele ganze Tage vom Zeitpunkt dieses Objekts bis zum übergebenen Zeitpunkt vergehen. Liegt der übergebene Zeitpunkt früher, ist das Ergebnis negativ. Beispiel: LocalDateTime.of(2024, 6, 20, 12, 0, 0).until(LocalDateTime.of(2024, 6, 22, 11, 0, 0)) ergibt 1.",
+        "en": "Returns the number of complete days from this date-time until the given date-time (negative if the given date-time is earlier). Example: LocalDateTime.of(2024, 6, 20, 12, 0, 0).until(LocalDateTime.of(2024, 6, 22, 11, 0, 0)) returns 1.",
     })
 
     static LocalDateTimeGetYearComment = () => lm({
@@ -1258,6 +1258,61 @@ export class JRC {
     static LocalDateTimeGetSecondComment = () => lm({
         "de": "Sekunde",
         "en": "Second",
+    })
+
+    static LocalDateTimeFormatComment = () => lm({
+        "de": `Gibt den Zeitpunkt als Zeichenkette im übergebenen Format zurück. Das Format wird wie bei der Java-Klasse SimpleDateFormat angegeben, z.B. ergibt "dd.MM.yyyy HH:mm:ss" die Zeichenkette "20.06.2024 12:15:25" und "EEEE, d. MMMM yyyy 'um' H:mm 'Uhr'" ergibt "Donnerstag, 20. Juni 2024 um 12:15 Uhr".  \n` +
+            `Wichtige Buchstaben: y Jahr, M Monat (MMM, MMMM: Monatsname), d Tag, E Wochentag (EEEE: ausgeschrieben), H Stunde (0-23), h Stunde (1-12), a AM/PM, m Minute, s Sekunde, S Millisekunde, w Kalenderwoche. ` +
+            `Text in einfachen Anführungszeichen wird unverändert ausgegeben.  \n` +
+            `Siehe https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html`,
+        "en": `Returns this date-time as string in the given format. The format is given like in Java class SimpleDateFormat, e.g. "MM/dd/yyyy HH:mm:ss" gives "06/20/2024 12:15:25" and "EEEE, MMMM d, yyyy 'at' h:mm a" gives "Thursday, June 20, 2024 at 12:15 PM".  \n` +
+            `Important letters: y year, M month (MMM, MMMM: month name), d day, E day of week (EEEE: full name), H hour (0-23), h hour (1-12), a AM/PM, m minute, s second, S millisecond, w week of year. ` +
+            `Text in single quotes is output unchanged.  \n` +
+            `See https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html`,
+    })
+
+    static LocalDateTimeFormatWithFormatterComment = () => lm({
+        "de": `Gibt den Zeitpunkt als Zeichenkette zurück, die vom übergebenen DateTimeFormatter erzeugt wird. Beispiel: ldt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))`,
+        "en": `Returns this date-time as string formatted by the given DateTimeFormatter. Example: ldt.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))`,
+    })
+
+    static localDateTimeNullPointerException = () => lm({
+        "de": `Das übergebene LocalDateTime-Objekt ist null.`,
+        "en": `The given LocalDateTime object is null.`,
+    })
+
+    static datePatternNullPointerException = () => lm({
+        "de": `Das übergebene Datumsformat ist null.`,
+        "en": `The given date pattern is null.`,
+    })
+
+    static dateTimeFormatterNullPointerException = () => lm({
+        "de": `Der übergebene DateTimeFormatter ist null.`,
+        "en": `The given DateTimeFormatter is null.`,
+    })
+
+    /**
+     * class DateTimeFormatter
+     */
+    static DateTimeFormatterClassComment = () => lm({
+        "de": `Ein DateTimeFormatter-Objekt wandelt LocalDateTime-Objekte in Zeichenketten um. Erzeuge es mit DateTimeFormatter.ofPattern(...).`,
+        "en": `A DateTimeFormatter object converts LocalDateTime objects to strings. Create it with DateTimeFormatter.ofPattern(...).`,
+    })
+
+    static DateTimeFormatterOfPatternComment = () => lm({
+        "de": `Erzeugt einen DateTimeFormatter mit dem übergebenen Format, z.B. ergibt "dd.MM.yyyy HH:mm:ss" die Zeichenkette "20.06.2024 12:15:25" und "EEEE, d. MMMM uuuu" ergibt "Donnerstag, 20. Juni 2024".  \n` +
+            `Wichtige Buchstaben: y oder u Jahr, M Monat (MMM, MMMM: Monatsname), d Tag, E Wochentag (EEEE: ausgeschrieben), H Stunde (0-23), h Stunde (1-12), a AM/PM, m Minute, s Sekunde, SSS Millisekunden. ` +
+            `Text in einfachen Anführungszeichen wird unverändert ausgegeben, Teile in eckigen Klammern [...] sind optional.  \n` +
+            `Siehe https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html`,
+        "en": `Creates a DateTimeFormatter using the given pattern, e.g. "MM/dd/yyyy HH:mm:ss" gives "06/20/2024 12:15:25" and "EEEE, MMMM d, uuuu" gives "Thursday, June 20, 2024".  \n` +
+            `Important letters: y or u year, M month (MMM, MMMM: month name), d day, E day of week (EEEE: full name), H hour (0-23), h hour (1-12), a AM/PM, m minute, s second, SSS milliseconds. ` +
+            `Text in single quotes is output unchanged, parts in square brackets [...] are optional.  \n` +
+            `See https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html`,
+    })
+
+    static DateTimeFormatterFormatComment = () => lm({
+        "de": `Wandelt das übergebene LocalDateTime-Objekt mit diesem Format in eine Zeichenkette um.`,
+        "en": `Formats the given LocalDateTime object using this formatter.`,
     })
 
 

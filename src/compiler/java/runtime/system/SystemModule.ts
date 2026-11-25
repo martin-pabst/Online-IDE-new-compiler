@@ -124,6 +124,7 @@ import { ExceptionClass } from "./javalang/ExceptionClass.ts";
 import { IllegalMonitorStateExceptionClass } from "./javalang/IllegalMonitorSateExceptionClass.ts";
 import { IndexOutOfBoundsExceptionClass } from "./javalang/IndexOutOfBoundsExceptionClass.ts";
 import { LocalDateTimeClass } from "./javalang/LocalDateTimeClass.ts";
+import { DateTimeFormatterClass } from "./javalang/DateTimeFormatterClass.ts";
 import { MathClass } from "./javalang/MathClass.ts";
 import { MethodOfDestroyedGOExceptionClass } from "./javalang/MethodOfDestroyedGOExceptionClass.ts";
 import { NullPointerExceptionClass } from "./javalang/NullPointerExceptionClass.ts";
@@ -218,7 +219,7 @@ export class SystemModule extends JavaLibraryModule {
             CloneableInterface,
 
             //additional system classes
-            KeyClass, LocalDateTimeClass, DayOfWeekEnum, PositionClass, BigIntegerClass,
+            KeyClass, DateTimeFormatterClass, LocalDateTimeClass, DayOfWeekEnum, PositionClass, BigIntegerClass,
             ConsoleClass, Vector2Class, MathToolsClass, PrintStreamClass, SystemClass,
             GamepadClass, KeyListenerInterface, SystemToolsClass, InputClass, SoundClass, FilesClass,
 
