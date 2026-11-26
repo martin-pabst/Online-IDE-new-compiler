@@ -483,7 +483,11 @@ export class Scheduler {
         let parameterlessConstructor = parameterlessConstructors[0]!;
 
         if(method.isStatic){
-            let statement1 = `${Helpers.classes}["${klass.identifier}"].${method.getInternalName("java")}(${StepParams.thread}, undefined);
+            // Static methods have no callback parameter: their stub pushes [class, ...parameters]
+            // onto the stack (see InnerClassCodeGenerator.compileMethodDeclaration). An additional
+            // undefined argument would land on the stack as well and shift the stack base, so that
+            // __s[__sb] (the class object) would become undefined inside the test method.
+            let statement1 = `${Helpers.classes}["${klass.identifier}"].${method.getInternalName("java")}(${StepParams.thread});
                               return 1; `;
             program.createAndAddStep(statement1);
         } else {
