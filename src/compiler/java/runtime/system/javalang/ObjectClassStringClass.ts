@@ -9,6 +9,7 @@ import { JCM } from "../../../language/JavaCompilerMessages.ts";
 import { IPrimitiveTypeWrapper } from "../primitiveTypes/wrappers/IPrimitiveTypeWrapper.ts";
 import type { ClassClass } from "../ClassClass.ts";
 import { JavaTypeWithInstanceInitializer } from "../../../types/JavaTypeWithInstanceInitializer.ts";
+import { compareTo, compareToIgnoreCase } from "../../../../../tools/StringTools.ts";
 
 export type ObjectClassOrNull = ObjectClass | null;
 
@@ -449,16 +450,38 @@ export class StringClass extends ObjectClass implements IPrimitiveTypeWrapper {
         if (otherString === null) {
             throw new t.classes["NullPointerException"](JRC.stringCompareToNullpointerException());
         }
-        t.s.push(this.value.localeCompare(otherString.value));
+        t.s.push(compareTo(this.value, otherString.value));
         if (callback) callback();
+    }
+
+    /**
+     * Implementation of compareTo for primitive strings: generated code calls it
+     * via the template of compareTo in PrimitiveStringClass.
+     */
+    static compareStrings(t: Thread, s1: string, s2: string): number {
+        if (s2 == null) {
+            throw new t.classes["NullPointerException"](JRC.stringCompareToNullpointerException());
+        }
+        return compareTo(s1, s2);
     }
 
     _mj$compareToIgnoreCase$int$T(t: Thread, callback: CallbackFunction, otherString: StringClass) {
         if (otherString === null) {
             throw new t.classes["NullPointerException"](JRC.stringCompareToNullpointerException());
         }
-        t.s.push(this.value.localeCompare(otherString.value, undefined, { sensitivity: 'accent' }));
+        t.s.push(compareToIgnoreCase(this.value, otherString.value));
         if (callback) callback();
+    }
+
+    /**
+     * Implementation of compareToIgnoreCase for primitive strings: generated code calls it
+     * via the template of compareToIgnoreCase in PrimitiveStringClass.
+     */
+    static compareStringsIgnoreCase(t: Thread, s1: string, s2: string): number {
+        if (s2 == null) {
+            throw new t.classes["NullPointerException"](JRC.stringCompareToNullpointerException());
+        }
+        return compareToIgnoreCase(s1, s2);
     }
 
     _nHashCode() {

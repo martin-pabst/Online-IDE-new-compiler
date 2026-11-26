@@ -168,3 +168,79 @@ export function firstLetterUppercase(s: string): string {
   if(s == null || s.length == 0) return;
   return s[0].toLocaleUpperCase() + s.substring(1);
 }
+
+/**
+ * Compares two strings lexicographically exactly like Java's String.compareTo:
+ * Both strings are compared char by char (UTF-16 code units, which is what Java's
+ * char and JavaScript's charCodeAt both use). At the first index k where they differ
+ * the result is s1.charAt(k) - s2.charAt(k), e.g. "a" vs "A" gives 32. If one string
+ * is a prefix of the other, the result is the difference of their lengths.
+ *
+ * Unlike String.prototype.localeCompare, the result is not limited to -1, 0, 1 and
+ * doesn't depend on the locale (localeCompare sorts "a" before "A", Java doesn't).
+ */
+export function compareTo(s1: string, s2: string): number {
+  const length1 = s1.length;
+  const length2 = s2.length;
+  const minLength = length1 < length2 ? length1 : length2;
+  for (let k = 0; k < minLength; k++) {
+    const c1 = s1.charCodeAt(k);
+    const c2 = s2.charCodeAt(k);
+    if (c1 != c2) return c1 - c2;
+  }
+  return length1 - length2;
+}
+
+/**
+ * Compares two strings lexicographically ignoring case differences exactly like Java's
+ * String.compareToIgnoreCase: chars that differ are converted with Character.toUpperCase
+ * and then with Character.toLowerCase. At the first index where they still differ, the
+ * result is the difference of these lowercase chars, e.g. "[" vs "A" gives '[' - 'a' = -6.
+ * If one string is a prefix of the other (ignoring case), the result is the difference
+ * of their lengths.
+ *
+ * Surrogate pairs (chars outside the Basic Multilingual Plane) are compared char by char
+ * as in Java 8; newer Java versions also ignore case differences of these characters.
+ */
+export function compareToIgnoreCase(s1: string, s2: string): number {
+  const length1 = s1.length;
+  const length2 = s2.length;
+  const minLength = length1 < length2 ? length1 : length2;
+  for (let k = 0; k < minLength; k++) {
+    let c1 = s1.charCodeAt(k);
+    let c2 = s2.charCodeAt(k);
+    if (c1 != c2) {
+      c1 = charToUpperCase(c1);
+      c2 = charToUpperCase(c2);
+      if (c1 != c2) {
+        c1 = charToLowerCase(c1);
+        c2 = charToLowerCase(c2);
+        if (c1 != c2) return c1 - c2;
+      }
+    }
+  }
+  return length1 - length2;
+}
+
+/**
+ * Like Java's Character.toUpperCase(char), which uses Unicode's simple case mapping (one char to
+ * one char). JavaScript's toUpperCase uses the full case mapping, which turns some chars into
+ * several chars (e.g. "ß" into "SS"). Java leaves these chars unchanged.
+ */
+function charToUpperCase(c: number): number {
+  if (c < 128) return c >= 97 && c <= 122 ? c - 32 : c;
+  const upper = String.fromCharCode(c).toUpperCase();
+  return upper.length == 1 ? upper.charCodeAt(0) : c;
+}
+
+/**
+ * Like Java's Character.toLowerCase(char), see charToUpperCase.
+ */
+function charToLowerCase(c: number): number {
+  if (c < 128) return c >= 65 && c <= 90 ? c + 32 : c;
+  // The only char whose full lowercase mapping has more than one char: "İ" becomes "i" followed
+  // by a combining dot above. Its simple case mapping is "i".
+  if (c == 0x130) return 0x69;
+  const lower = String.fromCharCode(c).toLowerCase();
+  return lower.length == 1 ? lower.charCodeAt(0) : c;
+}

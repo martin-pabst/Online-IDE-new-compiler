@@ -1,3 +1,4 @@
+import { compareTo } from "../../../../../tools/StringTools.ts";
 import { BaseListType } from "../../../../common/BaseType.ts";
 import { CallbackFunction } from "../../../../common/interpreter/StepFunction.ts";
 import { Thread } from "../../../../common/interpreter/Thread.ts";
@@ -416,7 +417,7 @@ export class PriorityQueueClass extends SystemCollection implements BaseListType
 
     /**
      * Natural ordering of Strings and wrapper objects. Strings are compared like String.compareTo
-     * does in this IDE (localeCompare).
+     * does (StringTools.compareTo).
      */
     private static compareSynchronously(kind: SynchronousKind, a: any, b: any): number {
         if (PriorityQueueClass.getSynchronousKind(b) !== kind) {
@@ -424,7 +425,7 @@ export class PriorityQueueClass extends SystemCollection implements BaseListType
         }
 
         switch (kind) {
-            case "string": return (<string>a.value).localeCompare(b.value);
+            case "string": return compareTo(a.value, b.value);
             case "number": return NumberClass.compareFloatingPoint(a.value, b.value);
             case "char": return (<string>a.value).charCodeAt(0) - (<string>b.value).charCodeAt(0);
             case "boolean": return (a.value ? 1 : 0) - (b.value ? 1 : 0);

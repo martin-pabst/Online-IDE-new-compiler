@@ -12,7 +12,7 @@ assertEquals("Das ist ein Test und noch ein Test".indexOf('T', 14), 30, "string 
 assertEquals("Martin".charAt(2), 'r', "string literal charAt not working.");
 assertEquals("Alpha".compareTo("Beta"), -1, "string literal compareTo not working.");
 assertEquals("Alpha".compareTo("Alpha"), 0, "string literal compareTo not working.");
-assertEquals("Alpha".compareTo("alpha"), 1, "string literal compareTo not working.");
+assertEquals("Alpha".compareTo("alpha"), -32, "string literal compareTo not working.");
 assertEquals("Alpha".compareToIgnoreCase("alpha"), 0, "string literal compareToIgnoreCase not working.");
 assertEquals("Alpha".concat("beta"), "Alphabeta", "string literal concat not working.");
 
@@ -66,7 +66,7 @@ assertEquals(s3.indexOf('T', 14), 30, "String object indexOf not working.");
 assertEquals(s3.charAt(2), 's', "String object charAt not working.");
 assertEquals("Alpha".compareTo("Beta"), -1, "String object compareTo not working.");
 assertEquals("Alpha".compareTo("Alpha"), 0, "String object compareTo not working.");
-assertEquals("Alpha".compareTo("alpha"), 1, "String object compareTo not working.");
+assertEquals("Alpha".compareTo("alpha"), -32, "String object compareTo not working.");
 assertEquals("Alpha".compareToIgnoreCase("alpha"), 0, "String object compareToIgnoreCase not working.");
 assertEquals("Alpha".concat("beta"), "Alphabeta", "String object concat not working.");
 
@@ -237,3 +237,96 @@ class Holder<T> {
       s += t;
    }
 }
+
+/**::
+ * String.compareTo returns the same values as in Java: difference of the first differing chars, else difference of the lengths
+ */
+int compare(String s1, String s2) {
+   return s1.compareTo(s2);
+}
+
+<T extends Comparable<T>> int compareGeneric(T a, T b) {
+   return a.compareTo(b);
+}
+
+// String variables (no constant folding)
+assertEquals(-1, compare("a", "b"), "compareTo of String variables");
+assertEquals(1, compare("b", "a"), "compareTo of String variables");
+assertEquals(32, compare("a", "A"), "compareTo of String variables");
+assertEquals(-32, compare("A", "a"), "compareTo of String variables");
+assertEquals(-32, compare("Anna", "anna"), "compareTo of String variables");
+assertEquals(25, compare("Zoo", "Alm"), "compareTo of String variables");
+assertEquals(-25, compare("Alm", "Zoo"), "compareTo of String variables");
+assertEquals(0, compare("Z", "Z"), "compareTo of String variables");
+assertEquals(-2, compare("ab", "abcd"), "compareTo: prefix gives difference of lengths");
+assertEquals(3, compare("abcd", "a"), "compareTo: prefix gives difference of lengths");
+assertEquals(-5, compare("", "Hallo"), "compareTo: empty string");
+assertEquals(131, compare("äpfel", "apfel"), "compareTo: umlaut");
+
+// String literals (constant folding)
+assertEquals(32, "a".compareTo("A"), "compareTo of String literals");
+assertEquals(-32, "Anna".compareTo("anna"), "compareTo of String literals");
+assertEquals(-25, "Alm".compareTo("Zoo"), "compareTo of String literals");
+assertEquals(-2, "ab".compareTo("abcd"), "compareTo of String literals");
+
+// via Comparable<String> (method of class String with java calling convention)
+assertEquals(32, compareGeneric("a", "A"), "compareTo via Comparable");
+assertEquals(-25, compareGeneric("Alm", "Zoo"), "compareTo via Comparable");
+assertEquals(2, compareGeneric("abcd", "ab"), "compareTo via Comparable");
+
+// natural ordering: uppercase letters before lowercase letters
+ArrayList<String> names = new ArrayList<>();
+names.add("anton");
+names.add("Charlie");
+names.add("Bert");
+Collections.sort(names);
+assertEquals("[\"Bert\", \"Charlie\", \"anton\"]", names.toString(), "Collections.sort uses String.compareTo");
+
+String nullString = null;
+boolean npeThrown = false;
+try {
+   int x = "a".compareTo(nullString);
+} catch (NullPointerException e) {
+   npeThrown = true;
+}
+assertTrue(npeThrown, "compareTo(null) throws NullPointerException");
+
+/**::
+ * String.compareToIgnoreCase returns the same values as in Java: difference of the first chars that differ after toUpperCase and toLowerCase
+ */
+int compareIgnoreCase(String s1, String s2) {
+   return s1.compareToIgnoreCase(s2);
+}
+
+// String variables (no constant folding)
+assertEquals(0, compareIgnoreCase("Alpha", "aLPHA"), "compareToIgnoreCase of String variables");
+assertEquals(-1, compareIgnoreCase("a", "B"), "compareToIgnoreCase of String variables");
+assertEquals(1, compareIgnoreCase("B", "a"), "compareToIgnoreCase of String variables");
+assertEquals(25, compareIgnoreCase("Zoo", "alm"), "compareToIgnoreCase of String variables");
+assertEquals(-1, compareIgnoreCase("abc", "ABCD"), "compareToIgnoreCase: prefix gives difference of lengths");
+assertEquals(-6, compareIgnoreCase("[", "A"), "compareToIgnoreCase: difference of the lowercase chars");
+assertEquals(108, compareIgnoreCase("Straße", "STRASSE"), "compareToIgnoreCase: sharp s is not converted to SS");
+assertEquals(0, compareIgnoreCase("Äpfel", "äPFEL"), "compareToIgnoreCase: umlauts");
+
+// String literals (constant folding)
+assertEquals(0, "Hallo".compareToIgnoreCase("HALLO"), "compareToIgnoreCase of String literals");
+assertEquals(-6, "[".compareToIgnoreCase("a"), "compareToIgnoreCase of String literals");
+
+// String objects
+ArrayList<String> words = new ArrayList<>();
+words.add("anton");
+words.add("Charlie");
+words.add("bert");
+words.add("[x]");
+assertEquals(-1, words.get(0).compareToIgnoreCase(words.get(2)), "compareToIgnoreCase of String objects");
+Collections.sort(words, (a, b) -> a.compareToIgnoreCase(b));
+assertEquals("[\"[x]\", \"anton\", \"bert\", \"Charlie\"]", words.toString(), "sort with compareToIgnoreCase");
+
+String nullString = null;
+boolean npeThrown = false;
+try {
+   int x = "a".compareToIgnoreCase(nullString);
+} catch (NullPointerException e) {
+   npeThrown = true;
+}
+assertTrue(npeThrown, "compareToIgnoreCase(null) throws NullPointerException");

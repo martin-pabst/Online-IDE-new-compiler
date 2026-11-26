@@ -59,7 +59,7 @@ assertEquals(false, booleans.poll(), "PriorityQueue<Boolean>.poll");
 assertEquals(true, booleans.poll(), "PriorityQueue<Boolean>.poll");
 
 /**::
- * PriorityQueue: natural ordering of String uses String.compareTo of this IDE
+ * PriorityQueue: natural ordering of String uses String.compareTo (uppercase letters before lowercase letters)
  */
 
 PriorityQueue<String> names = new PriorityQueue<>();
@@ -69,29 +69,29 @@ names.add("Bert");
 names.add("Dora");
 
 assertEquals(4, names.size(), "PriorityQueue<String>.size");
-assertEquals("[\"anton\", \"Bert\", \"Charlie\", \"Dora\"]", names.toString(), "PriorityQueue<String>.toString");
+assertEquals("[\"Bert\", \"Charlie\", \"Dora\", \"anton\"]", names.toString(), "PriorityQueue<String>.toString");
 
 String order = "";
 for (String name : names) {
    order += name + " ";
 }
-assertEquals("anton Bert Charlie Dora ", order, "for-each loop over PriorityQueue");
+assertEquals("Bert Charlie Dora anton ", order, "for-each loop over PriorityQueue");
 
 order = "";
 Iterator<String> it = names.iterator();
 while (it.hasNext()) {
    order += it.next() + " ";
 }
-assertEquals("anton Bert Charlie Dora ", order, "PriorityQueue.iterator");
+assertEquals("Bert Charlie Dora anton ", order, "PriorityQueue.iterator");
 
 ArrayList<String> collected = new ArrayList<>();
 names.forEach(s -> { collected.add(s); });
-assertEquals("[\"anton\", \"Bert\", \"Charlie\", \"Dora\"]", collected.toString(), "PriorityQueue.forEach");
+assertEquals("[\"Bert\", \"Charlie\", \"Dora\", \"anton\"]", collected.toString(), "PriorityQueue.forEach");
 
 Object[] array = names.toArray();
 assertEquals(4, array.length, "PriorityQueue.toArray");
-assertEquals("anton", array[0], "PriorityQueue.toArray");
-assertEquals("Dora", array[3], "PriorityQueue.toArray");
+assertEquals("Bert", array[0], "PriorityQueue.toArray");
+assertEquals("anton", array[3], "PriorityQueue.toArray");
 
 assertEquals(2, names.stream().filter(s -> s.length() > 4).count(), "PriorityQueue.stream");
 
@@ -99,8 +99,8 @@ assertTrue(names.contains("Bert"), "PriorityQueue.contains");
 assertFalse(names.contains("Emil"), "PriorityQueue.contains");
 assertTrue(names.remove("Bert"), "PriorityQueue.remove(Object)");
 assertFalse(names.remove("Bert"), "PriorityQueue.remove(Object)");
-assertEquals("anton", names.poll(), "PriorityQueue.poll");
 assertEquals("Charlie", names.poll(), "PriorityQueue.poll");
+assertEquals("Dora", names.poll(), "PriorityQueue.poll");
 
 /**::
  * PriorityQueue with Comparator (lambda and class)

@@ -1,6 +1,7 @@
 import { LibraryDeclarations } from "../../../module/libraries/DeclareType";
 import { NonPrimitiveType } from "../../../types/NonPrimitiveType";
-import { ObjectClass } from "./ObjectClassStringClass";
+import { compareTo, compareToIgnoreCase } from "../../../../../tools/StringTools.ts";
+import { ObjectClass, StringClass } from "./ObjectClassStringClass";
 
 export class PrimitiveStringClass extends ObjectClass {
 
@@ -12,8 +13,8 @@ export class PrimitiveStringClass extends ObjectClass {
         {type: "method", signature: "public final int indexOf(char c)", template: "§1.indexOf(§2)", constantFoldingFunction: (obj, str) => obj.indexOf(str)},
         {type: "method", signature: "public final int indexOf(char c, int fromIndex)", template: "§1.indexOf(§2, §3)", constantFoldingFunction: (obj, str, index) => obj.indexOf(str, index)},
         {type: "method", signature: "public final char charAt(int index)", template: "§1.charAt(§2)", constantFoldingFunction: (obj, index) => obj.charAt(index)},
-        {type: "method", signature: "public final int compareTo(string otherString)", template: "§1.localeCompare(§2)", constantFoldingFunction: (obj, otherString) => obj.localeCompare(otherString)},
-        {type: "method", signature: "public final int compareToIgnoreCase(string otherString)", template: "§1.localeCompare(§2, undefined, { sensitivity: 'accent' })", constantFoldingFunction: (obj, otherString) => obj.localeCompare(otherString, undefined, { sensitivity: 'accent' })},
+        {type: "method", signature: "public final int compareTo(string otherString)", template: `__t.classes["String"].${StringClass.compareStrings.name}(__t, §1, §2)`, constantFoldingFunction: (obj, otherString) => compareTo(obj, otherString)},
+        {type: "method", signature: "public final int compareToIgnoreCase(string otherString)", template: `__t.classes["String"].${StringClass.compareStringsIgnoreCase.name}(__t, §1, §2)`, constantFoldingFunction: (obj, otherString) => compareToIgnoreCase(obj, otherString)},
         {type: "method", signature: "public final string concat(string otherString)", template: "§1.concat(§2)", constantFoldingFunction: (obj, otherString) => obj.concat(otherString)},
         {type: "method", signature: "public final boolean contains(string otherString)", template: "(§1.indexOf(§2) >= 0)", constantFoldingFunction: (obj, otherString) => obj.indexOf(otherString) >= 0},
         {type: "method", signature: "public final boolean endsWith(string otherString)", template: "§1.endsWith(§2)", constantFoldingFunction: (obj, otherString) => obj.endsWith(otherString)},
