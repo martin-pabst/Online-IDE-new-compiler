@@ -147,14 +147,14 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         let code: Code = [];
         for (let assignment of node.assignments) {
             let field = <JavaField>this.currentSymbolTable.findSymbol(assignment.fieldNode.identifier).symbol;
-            let leftSideSnippet = this.compileSymbolNode(assignment.fieldNode, true);
-            let rightSideSnippet = this.compileInitialValue(assignment.initialTerm, leftSideSnippet.type);
+            let leftSideExpression = this.compileSymbolNode(assignment.fieldNode, true);
+            let rightSideExpression = this.compileInitialValue(assignment.initialTerm, leftSideExpression.type);
 
-            if (rightSideSnippet?.type && !field.type) field.type = rightSideSnippet.type;
+            if (rightSideExpression?.type && !field.type) field.type = rightSideExpression.type;
 
-            if (leftSideSnippet && rightSideSnippet) {
-                let assignmentSnippet = this.assign(leftSideSnippet, rightSideSnippet, this.voidType, node.range, (l, r) => `${l} = ${r}`);
-                code.push(...statement(assignmentSnippet, value => value + ";"));
+            if (leftSideExpression && rightSideExpression) {
+                let assignmentExpression = this.assign(leftSideExpression, rightSideExpression, this.voidType, node.range, (l, r) => `${l} = ${r}`);
+                code.push(...statement(assignmentExpression, value => value + ";"));
             }
 
         }
@@ -212,24 +212,24 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
                 return undefined;
             }
 
-            let termSnippet = this.compileTermWithTargetType(node.term, method.returnParameterType);
-            if (!termSnippet) return undefined;
+            let termExpression = this.compileTermWithTargetType(node.term, method.returnParameterType);
+            if (!termExpression) return undefined;
 
             if (method.returnParameterType instanceof GenericTypeParameter && method.returnParameterType.catches) {
-                if (termSnippet.type.isPrimitive) termSnippet = this.box(termSnippet);
-                method.returnParameterType.catches.push(<NonPrimitiveType>termSnippet.type);
+                if (termExpression.type.isPrimitive) termExpression = this.box(termExpression);
+                method.returnParameterType.catches.push(<NonPrimitiveType>termExpression.type);
             } else {
-                if (!this.canCastTo(termSnippet.type, method.returnParameterType, "implicit")) {
-                    this.pushError(JCM.wrongReturnValueType(method.returnParameterType.identifier, termSnippet.type?.identifier || "(---)"), "error", node.keywordReturnRange);
+                if (!this.canCastTo(termExpression.type, method.returnParameterType, "implicit")) {
+                    this.pushError(JCM.wrongReturnValueType(method.returnParameterType.identifier, termExpression.type?.identifier || "(---)"), "error", node.keywordReturnRange);
                     return undefined;
                 }
 
-                termSnippet = this.compileCast(termSnippet, method.returnParameterType, "implicit");
+                termExpression = this.compileCast(termExpression, method.returnParameterType, "implicit");
 
             }
 
 
-            code.push(...statement(termSnippet, value => `${Helpers.return}(${value});\n`, node.range));
+            code.push(...statement(termExpression, value => `${Helpers.return}(${value});\n`, node.range));
 
         } else {
 
@@ -252,9 +252,9 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
     compileEnhancedForLoop(node: ASTEnhancedForLoopNode): Code | undefined {
 
         let elementType = node.elementType.resolvedType;
-        let collectionSnippet = this.compileTerm(node.collection);
+        let collectionExpression = this.compileTerm(node.collection);
 
-        if (!(elementType || node.elementType.kind == TokenType.varType) || !collectionSnippet || !collectionSnippet.type) return undefined;
+        if (!(elementType || node.elementType.kind == TokenType.varType) || !collectionExpression || !collectionExpression.type) return undefined;
 
         /*
         * Local variables declared in head of for statement are valid inside whole for statement,
@@ -284,14 +284,14 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         * c) loop over an Iterable
         */
 
-        let collectionType = collectionSnippet.type;
+        let collectionType = collectionExpression.type;
         let collectionElementType: JavaType;
 
         if (collectionType instanceof JavaArrayType) {
             /*
             * Loop over array
             */
-            code.push(...statement(collectionSnippet, value => `${Helpers.elementRelativeToStackbase(stackIndexForCollection)} = ${Helpers.checkNPE(value, collectionRange)};\n`, collectionRange));
+            code.push(...statement(collectionExpression, value => `${Helpers.elementRelativeToStackbase(stackIndexForCollection)} = ${Helpers.checkNPE(value, collectionRange)};\n`, collectionRange));
 
             collectionElementType = collectionType.getElementType();
             let loopVariableNeedsConversion = false;
@@ -333,7 +333,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             /*
              * Loop over SystemCollection
             */
-            code.push(...statement(collectionSnippet, value => `${Helpers.elementRelativeToStackbase(stackIndexForCollection)} = ${Helpers.checkNPE(value, collectionRange)}.getElements();\n`, collectionRange));
+            code.push(...statement(collectionExpression, value => `${Helpers.elementRelativeToStackbase(stackIndexForCollection)} = ${Helpers.checkNPE(value, collectionRange)}.getElements();\n`, collectionRange));
 
             collectionElementType = this.objectType;
             if (collectionType instanceof GenericVariantOfJavaClass) {
@@ -382,7 +382,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
              * Loop over Iterable
             */
             let iterator = Helpers.elementRelativeToStackbase(stackIndexForCollection);
-            code.push(...statement(collectionSnippet, value => `${Helpers.checkNPE(value, collectionRange)}._mj$iterator$Iterator$(${StepParams.thread}, undefined);\n`), STEP,
+            code.push(...statement(collectionExpression, value => `${Helpers.checkNPE(value, collectionRange)}._mj$iterator$Iterator$(${StepParams.thread}, undefined);\n`), STEP,
                 `${iterator} = ${Helpers.threadStack}.pop();\n`, ...at(collectionRange));
 
             collectionElementType = this.objectType;
@@ -500,8 +500,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
 
         conditionNode = negationResult?.newNode;
 
-        let condition = this.compileTerm(conditionNode);
-        condition = this.convertToBooleanPrimitiveAndPrintErrorIfNotPossible(condition, node.condition);
+        let conditionExpr = this.compileTerm(conditionNode);
+        conditionExpr = this.convertToBooleanPrimitiveAndPrintErrorIfNotPossible(conditionExpr, node.condition);
         // if (!condition) condition = term('true', this.booleanType, node.range);
 
         let labelBeforeCheckingCondition = new Label();
@@ -525,7 +525,7 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
         this.breakStack.pop();
 
         // for(...; ; ...) and for(...; true; ...) can only be left by a break statement
-        let conditionIsConstantTrue = !node.condition || this.isConstantWithValue(condition, !negationResult?.negationHappened);
+        let conditionIsConstantTrue = !node.condition || this.isConstantWithValue(conditionExpr, !negationResult?.negationHappened);
         this.flow.restore(conditionIsConstantTrue ? FlowState.dead() : stateAfterCondition);
         this.flow.joinJumpsTo(labelAfterForBlock);
 
@@ -539,8 +539,8 @@ export abstract class StatementCodeGenerator extends TermCodeGenerator {
             code.push(...firstStatement, STEP);
         }
         code.push(labelBeforeCheckingCondition);
-        if (condition) {
-            code.push(...statement(condition, value => negationResult?.negationHappened ? `if(${value}){\n` : `if(!(${value})){\n`, node.condition!.range),
+        if (conditionExpr) {
+            code.push(...statement(conditionExpr, value => negationResult?.negationHappened ? `if(${value}){\n` : `if(!(${value})){\n`, node.condition!.range),
                 jump(labelAfterForBlock), "}\n", STEP);
         }
 
