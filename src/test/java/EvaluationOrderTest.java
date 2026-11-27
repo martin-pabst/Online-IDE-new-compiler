@@ -176,3 +176,63 @@ class Counter {
     int test() { count -= reset(); return count; }
 }
 assertEquals(1, new Counter().test(), "count -= reset()");
+
+/**::
+ * Terms with side effects are evaluated once and in java order, even if the generated code uses their values several times or in another order
+ */
+// template of randint: Math.floor(Math.random()*(§2-(§1)+1)+§1)
+int i = 5;
+int r = Random.randint(i++, 5);
+assertEquals(6, i, "Random.randint(i++, 5) increments i once");
+assertEquals(5, r, "value of Random.randint(i++, 5)");
+
+i = 5;
+r = Random.randint(i, i++);
+assertEquals(6, i, "Random.randint(i, i++) increments i once");
+assertEquals(5, r, "Random.randint(i, i++) reads i before incrementing it");
+
+// compound assignments and ++ with side effects in the index (the generated code for /= and ++ of Integer uses the
+// location of the variable more than once)
+String[] s = {"a", "b"};
+int k = 0;
+s[k++] += "x";
+assertEquals(1, k, "s[k++] += \"x\" increments k once");
+assertEquals("ax", s[0], "s[k++] += \"x\": s[0]");
+assertEquals("b", s[1], "s[k++] += \"x\": s[1]");
+
+int[] a = {10, 20};
+k = 0;
+a[k++] /= 2;
+assertEquals(1, k, "a[k++] /= 2 increments k once");
+assertEquals(5, a[0], "a[k++] /= 2: a[0]");
+assertEquals(20, a[1], "a[k++] /= 2: a[1]");
+
+Integer[] b = {1, 5};
+k = 0;
+b[k++]++;
+int b0 = b[0];
+int b1 = b[1];
+assertEquals(1, k, "b[k++]++ increments k once");
+assertEquals(2, b0, "b[k++]++: b[0]");
+assertEquals(5, b1, "b[k++]++: b[1]");
+
+// such terms are still only evaluated if needed
+boolean f = false;
+i = 5;
+boolean c = f && Random.randint(i++, 5) > 0;
+assertEquals(5, i, "f && Random.randint(i++, 5) > 0 doesn't evaluate the right side");
+int t = f ? Random.randint(i++, 5) : 0;
+assertEquals(5, i, "f ? Random.randint(i++, 5) : 0 doesn't evaluate the second alternative");
+
+/**::
+ * Arguments of assertEquals are evaluated left to right (its template uses them right to left)
+ */
+int i = 0;
+assertEquals(i++, i - 1, "side effect in first argument");
+
+int j = 0;
+assertEquals(j, j++, "side effect in second argument");
+
+int k = 5;
+assertEquals(5, k, "" + (k++));
+assertEquals(6, k, "side effect in message");

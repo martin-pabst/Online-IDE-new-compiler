@@ -97,8 +97,17 @@ export abstract class TermParser extends TokenIterator {
 
         let precedence: number | undefined;
         let rightRidgeHeight = 1;
+        let ternaryOperatorsWithoutColon = 0;
 
         while ((precedence = this.operatorToPrecedenceMap[this.tt]) != null) {
+
+            // A colon which doesn't belong to a ? of this term ends the term, e.g. case 3 + 4:
+            if (this.tt == TokenType.colon) {
+                if (ternaryOperatorsWithoutColon == 0) break;
+                ternaryOperatorsWithoutColon--;
+            } else if (this.tt == TokenType.ternaryOperator) {
+                ternaryOperatorsWithoutColon++;
+            }
 
             let operator = this.tt;
             let operatorRange = this.cct.range;
@@ -157,6 +166,13 @@ export abstract class TermParser extends TokenIterator {
 
             if (newLeftNodesParent) {
                 newLeftNodesParent.rightSide = newNode;
+                // e.g. a + b * c: a + b becomes a + (b * c), so a + ... has to end where b * c ends
+                for (let ridgeNode = <ASTBinaryNode>node; ridgeNode != newNode; ridgeNode = <ASTBinaryNode>ridgeNode.rightSide) {
+                    ridgeNode.range = {
+                        startLineNumber: ridgeNode.range.startLineNumber, startColumn: ridgeNode.range.startColumn,
+                        endLineNumber: newNode.range.endLineNumber, endColumn: newNode.range.endColumn
+                    };
+                }
             } else {
                 node = newNode;
             }

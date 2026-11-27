@@ -23,7 +23,7 @@ import { StaticNonPrimitiveType } from "../types/StaticNonPrimitiveType.ts";
 import { Visibility } from "../types/Visibility.ts";
 import { BinopCastCodeGenerator } from "./BinopCastCodeGenerator.ts";
 import { at, Code, jump, Label, STEP } from "./Code";
-import { apply, Build, combine, Expr, frame, isConstant, isPure, javaCall, joined, map, parenthesize, template, term, toStack, toStatement } from "./Expr";
+import { apply, Build, combine, Expr, frame, isConstant, isPure, isVariableReadOrStable, javaCall, joined, map, parenthesize, template, term, toStack, toStatement } from "./Expr";
 import { JavaLocalVariable } from "./JavaLocalVariable";
 import { JavaSymbolTable } from "./JavaSymbolTable";
 import { FlowAnalyzer } from "./FlowAnalyzer.ts";
@@ -663,14 +663,19 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         }
         let value: Build = isLeftSideOfAssignment ? location : (a, ...indices) => `${checkerMethod}(${a}, ${indices.join(", ")})`;
 
-        return this.arrayElement(node, remainingType, [arraySnippet, ...indexSnippets], value, location);
+        return this.arrayElement(node, remainingType, [arraySnippet, ...indexSnippets], value, location, !isLeftSideOfAssignment);
     }
 
     /**
      * Array element: value is built by value, its location (for assignments, ++, --) by location
+     * @param isRead value reads the element (and isn't its location)
      */
-    arrayElement(node: ASTSelectArrayElementNode, type: JavaType, parts: Expr[], value: Build, location: Build): Expr {
-        let element: Expr = { ...combine(type, node.range, parts, value), lefty: true, place: { parts: parts, build: location } };
+    arrayElement(node: ASTSelectArrayElementNode, type: JavaType, parts: Expr[], value: Build, location: Build, isRead: boolean): Expr {
+        let element: Expr = {
+            ...combine(type, node.range, parts, value), lefty: true, place: { parts: parts, build: location },
+            // the location (Array0, CheckLastIndex) has side effects on the thread
+            variableRead: isRead && parts.every(isVariableReadOrStable)
+        };
         return node.parenthesisNeeded ? parenthesize(element) : element;
     }
 
@@ -701,7 +706,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
 
         let valueTemplate = isLeftSideOfAssignment ? locationTemplate : elementTemplate(n);
 
-        return this.arrayElement(node, remainingType, [arraySnippet, ...indexSnippets], template(valueTemplate), template(locationTemplate));
+        return this.arrayElement(node, remainingType, [arraySnippet, ...indexSnippets], template(valueTemplate), template(locationTemplate), !isLeftSideOfAssignment);
     }
 
 
@@ -917,12 +922,12 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             klass.fields.push(f);
         }
 
-        return term(`${Helpers.elementRelativeToStackbase(0)}.${f.getInternalName()}`, symbol.type, range);
+        return { ...term(`${Helpers.elementRelativeToStackbase(0)}.${f.getInternalName()}`, symbol.type, range), variableRead: true };
     }
 
     compileSymbolOnStackframeAccess(symbol: SymbolOnStackframe, range: IRange): Expr | undefined {
         let type = (<JavaLocalVariable | JavaParameter>symbol).type;
-        return { ...term(Helpers.elementRelativeToStackbase(symbol.stackframePosition!), type, range), lefty: !symbol.isFinal };
+        return { ...term(Helpers.elementRelativeToStackbase(symbol.stackframePosition!), type, range), lefty: !symbol.isFinal, variableRead: true };
     }
 
     compileFieldAccess(symbol: BaseSymbol, range: IRange, outerClassLevel: number = 0): Expr | undefined {
@@ -940,6 +945,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
             }
             if (outerClassLevel == 0) {   // outerClassLevel > 0 could be inside run-Method or runnable which runs on other thread and has other stack than main program
                 const snippet = term(`${StepParams.stack}[0].${field.getInternalName()}`, field.type, range);
+                snippet.variableRead = true;
                 snippet.lefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
                 this.registerUsagePosition(field, range);
                 return snippet;
@@ -966,6 +972,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
         if (field._isStatic) {
             let classIdentifier = field.classEnum.identifier;
             snippet = term(`${Helpers.classes}["${classIdentifier}"].${fieldName}`, type, range);
+            snippet.variableRead = true;
         } else {
             let outerClassPraefix: string = "";
             while (outerClassLevel > 0) {
@@ -978,6 +985,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 snippet = apply(type, range, field.template, objectSnippet);
             } else {
                 snippet = term(`${Helpers.elementRelativeToStackbase(0)}${outerClassPraefix}.${fieldName}`, type, range);
+                snippet.variableRead = true;
             }
 
         }
@@ -1261,7 +1269,7 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 let code = field.template.replace("§1", `${Helpers.classes}["${classIdentifier}"]`);
                 return { ...term(code, field.type, range), isFinalField: field._isFinal };
             } else {
-                return { ...term(`${Helpers.classes}["${classIdentifier}"].${field.getInternalName()}`, field.type, range), lefty: !field._isFinal, isFinalField: field._isFinal };
+                return { ...term(`${Helpers.classes}["${classIdentifier}"].${field.getInternalName()}`, field.type, range), lefty: !field._isFinal, isFinalField: field._isFinal, variableRead: true };
             }
         } else {
             let objectTemplate: string = objectSnippet.type instanceof JavaEnum ? `§1` : `(§1 || ${Helpers.throwNPE}(${range.startLineNumber}, ${range.startColumn}, ${range.endLineNumber}, ${range.endColumn}))`;
@@ -1275,7 +1283,10 @@ export abstract class TermCodeGenerator extends BinopCastCodeGenerator {
                 let fieldTemplate = `${objectTemplate}.${field.getInternalName()}`;
                 let snippet = apply(field.type, range, fieldTemplate, objectSnippet);
                 let lefty = !field._isFinal || this.currentSymbolTable.methodContext?.isConstructor && this.currentSymbolTable.classContext.fastExtendsImplements(field.classEnum.identifier);
-                return { ...snippet, lefty: lefty, isFinalField: field._isFinal, place: { parts: [objectSnippet], build: template(fieldTemplate) } };
+                return {
+                    ...snippet, lefty: lefty, isFinalField: field._isFinal, place: { parts: [objectSnippet], build: template(fieldTemplate) },
+                    variableRead: isVariableReadOrStable(objectSnippet)
+                };
             }
 
         }

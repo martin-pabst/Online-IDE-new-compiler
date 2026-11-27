@@ -22,6 +22,12 @@ export interface Expr {
     constant?: ConstantValue;
     /** value doesn't change while other code runs (e.g. this, class objects), so it never has to be evaluated early */
     stable?: boolean;
+    /**
+     * value only reads a variable (local variable, parameter, field or array element) and has no side effects, so
+     * combine may evaluate it more than once or in another order than java does, as long as no code with side
+     * effects runs in between.
+     */
+    variableRead?: boolean;
     /** may be on the left side of an assignment */
     lefty?: boolean;
     /**
@@ -64,6 +70,11 @@ function isStable(e: Expr): boolean {
     return e.stable || e.constant !== undefined;
 }
 
+/** Has evaluating e no side effects, so that it may be evaluated more than once? */
+export function isVariableReadOrStable(e: Expr): boolean {
+    return !!e.variableRead || isStable(e);
+}
+
 let registerCounter: number = 0;
 
 export function resetRegisterCounter() {
@@ -82,10 +93,26 @@ export function template(t: string): Build {
     return (...values: string[]) => t.replace(/§(\d+)/g, (_, n) => values[Number.parseInt(n) - 1]);
 }
 
-function usesPerArgument(build: Build, n: number): number[] {
+/**
+ * How often does build use each value, and where does it use it first in the code it builds (-1: not at all)?
+ */
+function analyzeBuild(build: Build, n: number): { uses: number[], firstUse: number[] } {
     const markers = Array.from({ length: n }, (_, i) => `\u0001${i}\u0002`);
     const s = build(...markers);
-    return markers.map(m => s.split(m).length - 1);
+    return { uses: markers.map(m => s.split(m).length - 1), firstUse: markers.map(m => s.indexOf(m)) };
+}
+
+/**
+ * Does build use each of the given values (indices in ascending order) exactly once and in this order?
+ * (Javascript evaluates the code which build returns from left to right.)
+ */
+function usesOnceInOrder(indices: number[], uses: number[], firstUse: number[]): boolean {
+    let position = -1;
+    for (const i of indices) {
+        if (uses[i] != 1 || firstUse[i] < position) return false;
+        position = firstUse[i];
+    }
+    return true;
 }
 
 /**
@@ -95,6 +122,12 @@ function usesPerArgument(build: Build, n: number): number[] {
  * term which isn't stable is evaluated before and its value is pushed onto the stack. These values are popped into
  * step-local variables right before the new value is computed. Therefore at most one __s.pop() remains in the
  * new value and no term is read after code which could change it.
+ *
+ * build may use a value more than once or in another order than given, e.g. template
+ * "Math.floor(Math.random()*(§2-(§1)+1)+§1)". If such a value isn't a variable read (e.g. i++), the values put
+ * into the new value are evaluated once and in java order: they are assigned to step-local variables at the
+ * beginning of the new value (at the end of pre if the new term has type void). A pure term stays pure then, so
+ * it's still only evaluated if needed, e.g. in a && b.
  */
 export function combine(type: JavaType | undefined, range: IRange | undefined, args: Expr[], build: Build): Expr {
     let last = -1;
@@ -105,39 +138,62 @@ export function combine(type: JavaType | undefined, range: IRange | undefined, a
         }
     }
 
+    const { uses, firstUse } = analyzeBuild(build, args.length);
     const pre: Code = [];
     const values = args.map(a => a.value);
-
-    if (last < 0) {
-        args.forEach(a => pre.push(...a.pre));      // hooks
-        return { pre, value: build(...values), type, range };
-    }
-
-    const uses = usesPerArgument(build, args.length);
     const spilled: number[] = [];
 
     for (let i = 0; i < args.length; i++) {
         const a = args[i];
-        pre.push(...a.pre);
+        pre.push(...a.pre);     // for pure terms: hooks, registers
         if (i < last && !isStable(a)) {
             if (a.value != `${S}.pop()`) pre.push(`${S}.push(${a.value});\n`);
             spilled.push(i);
         }
     }
 
-    if (uses[last] == 0) {
-        // value isn't needed, but it may pop a value from the stack
-        if (values[last] != "") pre.push(values[last] + ";\n");
-    } else if (spilled.length > 0 || uses[last] > 1) {
-        const register = newRegister(pre);
-        pre.push(`${register} = ${values[last]};\n`);
-        values[last] = register;
+    // values which build puts into the new value as they are: the last one with code to run (if it gets no
+    // register) and the pure ones after it
+    const inline: number[] = [];
+
+    if (last >= 0) {
+        if (uses[last] == 0) {
+            // value isn't needed, but it may pop a value from the stack
+            if (values[last] != "") pre.push(values[last] + ";\n");
+        } else if (spilled.length > 0 || uses[last] > 1) {
+            const register = newRegister(pre);
+            pre.push(`${register} = ${values[last]};\n`);
+            values[last] = register;
+        } else {
+            inline.push(last);
+        }
+    }
+
+    for (let i = last + 1; i < args.length; i++) {
+        if (!isStable(args[i])) inline.push(i);
     }
 
     for (let j = spilled.length - 1; j >= 0; j--) {
         const register = newRegister(pre);
         pre.push(`${register} = ${S}.pop();\n`);
         values[spilled[j]] = register;
+    }
+
+    if (!usesOnceInOrder(inline, uses, firstUse) && inline.some(i => !args[i].variableRead)) {
+        // The value of a void term may be a statement (e.g. template of assertEquals), so the registers are
+        // assigned in pre. Otherwise the value is an expression: it gets the assignments, so a pure term stays pure.
+        const valueMayBeStatement = !type || type.identifier == "void";
+        const assignments: string[] = [];
+        for (const i of inline) {
+            const register = newRegister(pre);
+            if (valueMayBeStatement) {
+                pre.push(`${register} = ${values[i]};\n`);
+            } else {
+                assignments.push(`${register} = ${values[i]}`);
+            }
+            values[i] = register;
+        }
+        if (assignments.length > 0) return { pre, value: `(${assignments.join(", ")}, ${build(...values)})`, type, range };
     }
 
     return { pre, value: build(...values), type, range };
@@ -200,10 +256,10 @@ export function frame(e: Expr, t: string, type?: JavaType, range?: IRange): Expr
     return map(e, v => t.replace(/§1/g, () => v), type, range);
 }
 
-/** (e): is assignable if e is */
+/** (e): is assignable if e is, is a compile time constant if e is */
 export function parenthesize(e: Expr): Expr {
     const place = e.place ? { parts: e.place.parts, build: (...v: string[]) => "(" + e.place!.build(...v) + ")" } : undefined;
-    return { ...e, value: "(" + e.value + ")", constant: undefined, place };
+    return { ...e, value: "(" + e.value + ")", place };
 }
 
 /** Term whose value is on the stack */

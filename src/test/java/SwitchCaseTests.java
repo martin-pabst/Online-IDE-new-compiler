@@ -55,3 +55,40 @@ switch(t){
 }
 
 assertCodeReached("Code after switch...case-block not reached.");
+
+/**::
+ * case label with parenthesized constant expression
+ * { "expectedOutput": "seven" }
+ */
+int x = 7;
+
+switch(x) {
+   case (3 + 4): print("seven"); break;
+   case (2 * 4): fail("case (2 * 4) must not be reached."); break;
+   default: fail("Default case must not be reached."); break;
+}
+
+/**::
+ * case labels with constant expressions
+ * { "expectedOutput": "seven minus-one ab" }
+ */
+int x = 7;
+
+switch(x) {
+   case 2 * 4: fail("case 2 * 4 must not be reached."); break;
+   case 3 + 4: print("seven"); x = x > 5 ? 1 : 2; break;
+   default: fail("Default case must not be reached."); break;
+}
+assertEquals(1, x, "ternary operator after case label");
+
+int y = -1;
+switch(y) {
+   case -2: fail("case -2 must not be reached."); break;
+   case 1 - 2: print(" minus-one"); break;
+}
+
+String s = "ab";
+switch(s) {
+   case "a" + "b": print(" ab"); break;
+   default: fail("Default case must not be reached."); break;
+}

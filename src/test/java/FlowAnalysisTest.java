@@ -236,3 +236,16 @@ int tryReturnsCatchThrows() {
       throw new RuntimeException("caught exception");
    }
 }
+
+/**::
+ * No missing return: parenthesized constant condition, while((true)) is only left by return
+ */
+assertEquals(3, countToThree(), "while((true))");
+
+int countToThree() {
+   int i = 0;
+   while ((true)) {
+      i++;
+      if (i == 3) return i;
+   }
+}

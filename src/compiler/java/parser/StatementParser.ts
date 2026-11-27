@@ -498,7 +498,7 @@ export abstract class StatementParser extends TermParser {
 
             if(isCase){
                 do {
-                    let constant = this.parseTermUnary();
+                    let constant = this.parseTerm();     // stops at the colon after the constant
                     if (constant) constants.push(constant);
                 } while (this.comesToken(TokenType.comma, true));
                 if(constants.length == 0){

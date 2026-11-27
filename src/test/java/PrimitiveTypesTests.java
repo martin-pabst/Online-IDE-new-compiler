@@ -21,3 +21,13 @@ assertEquals(77, (char)65 + 12, "Casting int to char doesn't work.");
 char c = 'A';
 assertEquals(5, c % 10, "char modulo int failed");
 assertEquals(16, c % '1' ,"char modulo char failed");
+
+/**::
+ * Parenthesized constant expressions are constant expressions (implicit narrowing needs a constant)
+ */
+byte b = (100 + 27);
+assertEquals(127, b, "byte b = (100 + 27)");
+byte b2 = (3 + 4) * 2;
+assertEquals(14, b2, "byte b2 = (3 + 4) * 2");
+char c = ('A');
+assertEquals('A', c, "char c = ('A')");
