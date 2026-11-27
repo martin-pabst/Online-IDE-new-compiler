@@ -449,8 +449,11 @@ return 1;
 ```
 
 Library methods without a template but with `native:` implementation are called directly, too (`§1.methodName(...)`
-without `__t` and callback). A method uses the Java calling convention if it is declared in Java, if its library
-implementation may call back into Java code (`java:` declarations), or if Java code may override it.
+without `__t` and callback). A method uses the Java calling convention if 
+  * it is declared in Java, 
+  * if its library implementation may call back into Java code (`java:` declarations),
+  * if it needs direct access to the thread object or the stack
+  * or if Java code may override it.
 
 ---
 
