@@ -72,7 +72,9 @@ export function isEmptyCode(code: Code): boolean {
 /**
  * Cuts code into steps and stores them in program.stepsSingle.
  */
-export function link(code: Code, program: Program): void {
+export function link(code: Code, program: Program, identifier: string): void {
+
+    // logCode(code, identifier);
 
     // pass 1: drop step boundaries which would end an empty step (e.g. one which only holds labels) or a step which
     // only holds cleanup code; number the labels
@@ -161,3 +163,55 @@ export function link(code: Code, program: Program): void {
 
     program.stepsSingle = steps;
 }
+
+/**
+ * Logs code to the console in human readable form (for debugging the code generator): javascript code is printed
+ * as it is, every other op on a line of its own. Labels are named L0, L1, ... in order of appearance (as label or
+ * as jump target); after linking, their step index is appended.
+ */
+function logCode(code: Code, title: string = "Code"): void {
+    console.log(codeToString(code, title));
+}
+
+
+/**
+ * Transforms code to a human readable string (for debugging the code generator): javascript code is printed
+ * as it is, every other op on a line of its own. Labels are named L0, L1, ... in order of appearance (as label or
+ * as jump target); after linking, their step index is appended.
+ */
+export function codeToString(code: Code, title: string = "Code"): string {
+    const labelNames = new Map<Label, string>();
+    const labelName = (label: Label) => {
+        if (!labelNames.has(label)) labelNames.set(label, "L" + labelNames.size);
+        return labelNames.get(label) + (label.stepIndex >= 0 ? ` (step ${label.stepIndex})` : "");
+    }
+    const rangeToString = (range: IRange) => `${range.startLineNumber}:${range.startColumn}-${range.endLineNumber}:${range.endColumn}`;
+    const withRange = (range: IRange | undefined) => range ? ", " + rangeToString(range) : "";
+
+    let text = "";
+    const line = (s: string) => {
+        if (text.length > 0 && !text.endsWith("\n")) text += "\n";
+        text += s + "\n";
+    }
+
+    for (const op of code) {
+        if (typeof op == "string") {
+            text += op;
+        } else if (op instanceof Label) {
+            line(`${labelName(op)}:`);
+        } else {
+            switch (op.k) {
+                case "step": line("-------------------- STEP --------------------"); break;
+                case "jump": line(`[jump to ${labelName(op.to)}${withRange(op.range)}]`); break;
+                case "range": line(`[range ${rangeToString(op.range)}]`); break;
+                case "hook": line(`[hook${op.fn.name ? " " + op.fn.name : ""}]`); break;
+                case "register": line(`[register ${op.name}]`); break;
+                case "cleanup": line(`[cleanup${withRange(op.range)}] ${op.code.trim()}`); break;
+            }
+        }
+    }
+
+    return `==================== ${title} (${code.length} ops) ====================\n${text}`;
+}
+
+

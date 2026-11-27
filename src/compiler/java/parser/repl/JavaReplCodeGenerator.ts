@@ -66,7 +66,7 @@ export class JavaReplCodeGenerator extends StatementCodeGenerator {
 
         code.push(STEP, `${Helpers.returnFromReplProgram}();\n`);
 
-        link(code, program);
+        link(code, program, "Repl.method");
 
         // program.logAllSteps();
 

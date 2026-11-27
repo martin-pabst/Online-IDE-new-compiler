@@ -322,7 +322,7 @@ export class CodeGenerator extends InnerClassCodeGenerator {
         if (code.length > 0) {
             code.push(`${Helpers.return}();`);
         }
-        link(code, program);
+        link(code, program, "Initialize " + identifier);
         return program;
     }
 

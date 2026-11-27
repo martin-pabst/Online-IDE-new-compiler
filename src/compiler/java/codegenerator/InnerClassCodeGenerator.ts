@@ -401,7 +401,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             method.program.numberOfThisObjects = 1;
             method.program.numberOfParameters = parameterIdentifiers.length;
 
-            link(code, method.program);
+            link(code, method.program, "Constructor " + method.program.methodIdentifierWithClass);
 
             let runtimeClass = classContext.runtimeClass;
 
@@ -713,7 +713,7 @@ export class InnerClassCodeGenerator extends StatementCodeGenerator {
             this.flow.end(method, this.module.errors);
             this.flow = flowOfEnclosingMethod;
 
-            link(code, method.program);
+            link(code, method.program, "Method " + method.program.methodIdentifierWithClass);
 
             methodNode.program = method.program;    // only for debugging purposes
 
